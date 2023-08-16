@@ -1981,7 +1981,7 @@ void proto_register_awdl(void)
     },
     { &hf_awdl_channelseq_channel_number,
       { "Channel Number", "awdl.channelseq.channel.number",
-        FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
       }
     },
     { &hf_awdl_channelseq_channel_operating_class,

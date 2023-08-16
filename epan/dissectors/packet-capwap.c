@@ -4503,7 +4503,7 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_msg_element_type_ieee80211_multi_domain_capability_first_channel,
             { "First Channel", "capwap.control.message_element.ieee80211_multi_domain_capability.first_channel",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_multi_domain_capability_number_of_channels,

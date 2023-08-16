@@ -2724,7 +2724,7 @@ void proto_register_cfm(void)
 		},
 		{ &hf_cfm_flags_Reserved,
 			{ "Reserved", "cfm.flags.reserved", FT_UINT8,
-			BASE_HEX, NULL, 0xFF, NULL, HFILL }
+			BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_first_tlv_offset,
 			{ "First TLV Offset", "cfm.first_tlv_offset", FT_UINT8,

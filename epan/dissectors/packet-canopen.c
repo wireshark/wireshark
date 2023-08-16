@@ -1618,7 +1618,7 @@ proto_register_canopen(void)
         },
         { &hf_canopen_nmt_ctrl_cs,
           { "Command specifier", "canopen.nmt_ctrl.cd",
-            FT_UINT8, BASE_HEX, VALS(nmt_ctrl_cs), 0xFF,
+            FT_UINT8, BASE_HEX, VALS(nmt_ctrl_cs), 0x0,
             NULL, HFILL }
         },
         { &hf_canopen_nmt_ctrl_node_id,

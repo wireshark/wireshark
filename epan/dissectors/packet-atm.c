@@ -1765,7 +1765,7 @@ proto_register_atm(void)
       { "GFC",          "atm.GFC", FT_UINT8, BASE_DEC, NULL, 0xF0,
         NULL, HFILL }},
     { &hf_atm_vpi,
-      { "VPI",          "atm.vpi", FT_UINT8, BASE_DEC, NULL, 0x0,
+      { "VPI",          "atm.vpi", FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_atm_vci,

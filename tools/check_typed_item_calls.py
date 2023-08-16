@@ -370,7 +370,9 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'gsm_a.rr.format_id', # EN 301 503
                                 'siii.mst.phase', # comment in code seems convinced
                                 'xmcp.type.class',
-                                'xmcp.type.method'
+                                'xmcp.type.method',
+                                'hf_hiqnet_flags',
+                                'hf_hiqnet_flagmask'
                               }
 ##################################################################################################
 
@@ -647,6 +649,7 @@ class Item:
         # Now, any more zero set bits are an error!
         if self.filter in known_non_contiguous_fields or self.filter.startswith('rtpmidi'):
             # Don't report if we know this one is Ok.
+            # TODO: also exclude items that are used as root in add_bitmask() calls?
             return
         while n <= 63:
             if self.check_bit(self.mask_value, n):
@@ -787,8 +790,8 @@ class Item:
                 return True
 
         # If both have numbers, they should probably match!
-        label_numbers =  re.findall(r'\d+', label_orig)
-        filter_numbers = re.findall(r'\d+', last_filter_orig)
+        label_numbers =  [int(n) for n in re.findall(r'\d+', label_orig)]
+        filter_numbers = [int(n) for n in re.findall(r'\d+', last_filter_orig)]
         if len(label_numbers) == len(filter_numbers) and label_numbers != filter_numbers:
             if reportNumericalMismatch:
                 print('Warning:', self.filename, self.hf, 'label="' + self.label + '" has different **numbers** from  filter="' + self.filter + '"')

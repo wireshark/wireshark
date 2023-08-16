@@ -68,8 +68,8 @@ static int hf_t_flags_signature             = -1;
 static int hf_t_flags_force_data            = -1;
 static int hf_t_flags_tso                   = -1;
 static int hf_t_flags_toe                   = -1;
-static int hf_t_flags_unused_0              = -1;
 static int hf_t_flags_unused_1              = -1;
+static int hf_t_flags_unused_2              = -1;
 static int hf_t_flags_lost_rtx_detection    = -1;
 static int hf_t_flags_be_in_cong_recovery   = -1;
 static int hf_t_flags_was_in_cong_recovery  = -1;
@@ -153,8 +153,8 @@ static int * const bblog_t_flags[] = {
   &hf_t_flags_force_data,
   &hf_t_flags_tso,
   &hf_t_flags_toe,
-  &hf_t_flags_unused_0,
   &hf_t_flags_unused_1,
+  &hf_t_flags_unused_2,
   &hf_t_flags_lost_rtx_detection,
   &hf_t_flags_be_in_cong_recovery,
   &hf_t_flags_was_in_cong_recovery,
@@ -427,8 +427,8 @@ proto_register_bblog(void)
         { &hf_t_flags_force_data,             { "Force data",                                           "bblog.t_flags_force_data",            FT_BOOLEAN, 32,        TFS(&tfs_yes_no),                  BBLOG_T_FLAGS_FORCEDATA,             NULL, HFILL} },
         { &hf_t_flags_tso,                    { "TSO",                                                  "bblog.t_flags_tso",                   FT_BOOLEAN, 32,        TFS(&tfs_enabled_disabled),        BBLOG_T_FLAGS_TSO,                   NULL, HFILL} },
         { &hf_t_flags_toe,                    { "TOE",                                                  "bblog.t_flags_toe",                   FT_BOOLEAN, 32,        TFS(&tfs_enabled_disabled),        BBLOG_T_FLAGS_TOE,                   NULL, HFILL} },
-        { &hf_t_flags_unused_0,               { "Unused 1",                                             "bblog.t_flags_unused_0",              FT_BOOLEAN, 32,        TFS(&tfs_true_false),              BBLOG_T_FLAGS_UNUSED0,               NULL, HFILL} },
-        { &hf_t_flags_unused_1,               { "Unused 2",                                             "bblog.t_flags_unused_1",              FT_BOOLEAN, 32,        TFS(&tfs_true_false),              BBLOG_T_FLAGS_UNUSED1,               NULL, HFILL} },
+        { &hf_t_flags_unused_1,               { "Unused 1",                                             "bblog.t_flags_unused_1",              FT_BOOLEAN, 32,        TFS(&tfs_true_false),              BBLOG_T_FLAGS_UNUSED0,               NULL, HFILL} },
+        { &hf_t_flags_unused_2,               { "Unused 2",                                             "bblog.t_flags_unused_2",              FT_BOOLEAN, 32,        TFS(&tfs_true_false),              BBLOG_T_FLAGS_UNUSED1,               NULL, HFILL} },
         { &hf_t_flags_lost_rtx_detection,     { "Lost retransmission detection",                        "bblog.t_flags_lost_rtx_detection",    FT_BOOLEAN, 32,        TFS(&tfs_enabled_disabled),        BBLOG_T_FLAGS_LRD,                   NULL, HFILL} },
         { &hf_t_flags_be_in_cong_recovery,    { "Currently in congestion avoidance",                    "bblog.t_flags_be_in_cong_recovery",   FT_BOOLEAN, 32,        TFS(&tfs_yes_no),                  BBLOG_T_FLAGS_CONGRECOVERY,          NULL, HFILL} },
         { &hf_t_flags_was_in_cong_recovery,   { "Was in congestion avoidance",                          "bblog.t_flags_was_in_cong_recovery",  FT_BOOLEAN, 32,        TFS(&tfs_yes_no),                  BBLOG_T_FLAGS_WASCRECOVERY,          NULL, HFILL} },

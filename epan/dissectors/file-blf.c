@@ -928,7 +928,7 @@ proto_register_file_blf(void) {
         { &hf_blf_eth_status_hardwarechannel,
             { "Hardware channel", "blf.object.eth_status.hardwarechannel", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
         { &hf_blf_eth_status_bitrate,
-            { "Bitrate", "blf.object.eth_status.hardwarechannel", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+            { "Bitrate", "blf.object.eth_status.bitrate", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
         { &hf_blf_eth_frame_ext_structlength,
             { "Struct length", "blf.object.eth_frame_ext.structlength", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
         { &hf_blf_eth_frame_ext_flags,

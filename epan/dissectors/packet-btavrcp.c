@@ -2359,7 +2359,7 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_unit_unknown,
             { "Unknown",                         "btavrcp.unit.unknown",
-            FT_UINT8, BASE_HEX, NULL, 0xFF,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btavrcp_unit_type,

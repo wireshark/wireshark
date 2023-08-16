@@ -12521,7 +12521,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_range_nb,
               { "Number of Ranges","gsm_a.rr.range_nb",
-                FT_UINT8, BASE_DEC,  NULL, 0xff,
+                FT_UINT8, BASE_DEC,  NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_range_lower,
@@ -13152,7 +13152,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_ncc_permitted,
               { "NCC Permitted", "gsm_a.rr.ncc_permitted",
-                FT_UINT8, BASE_HEX,  NULL, 0xff,
+                FT_UINT8, BASE_HEX,  NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_max_retrans,
@@ -13177,7 +13177,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_acc,
               { "ACC", "gsm_a.rr.acc",
-                FT_UINT16, BASE_HEX,  NULL, 0xffff,
+                FT_UINT16, BASE_HEX,  NULL, 0x0,
                 "Access Control Class N barred (ACC)", HFILL }
             },
             { &hf_gsm_a_rr_nch_position,
@@ -14663,8 +14663,8 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_ba_index_start_bsic, { "BA Index Start BSIC", "gsm_a.rr.ba_index_start_bsic", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_number_remaining_bsic, { "Number Remaining BSIC", "gsm_a.rr.number_remaining_bsic", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_number_cells, { "Number Cells", "gsm_a.rr.number_cells", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-            { &hf_gsm_a_rr_pcid_pattern, { "PCID_Pattern", "gsm_a.rr.pcid_pattern", FT_UINT8, BASE_DEC, NULL, 0xFF, NULL, HFILL }},
-            { &hf_gsm_a_rr_psc_pattern, { "PSC_Pattern", "gsm_a.rr.psc_pattern", FT_UINT8, BASE_DEC, NULL, 0xFF, NULL, HFILL }},
+            { &hf_gsm_a_rr_pcid_pattern, { "PCID_Pattern", "gsm_a.rr.pcid_pattern", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { &hf_gsm_a_rr_psc_pattern, { "PSC_Pattern", "gsm_a.rr.psc_pattern", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_where, { "Where", "gsm_a.rr.where", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_mcc, { "MCC", "gsm_a.rr.mcc", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_mnc, { "MNC", "gsm_a.rr.mnc", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

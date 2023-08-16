@@ -5155,7 +5155,7 @@ proto_register_btsdp(void)
         },
         { &hf_gnss_supported_features,
             { "Supported Features: Reserved",    "btsdp.service.gnss.supported_features.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0xFFFF,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pbap_pse_supported_repositories,

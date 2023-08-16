@@ -12083,7 +12083,7 @@ proto_register_bgp(void)
         { "Transposition Offset", "bgp.prefix_sid.srv6_l3vpn.sid.trans_offset", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_prefix_sid_srv6_l2vpn,
-        { "SRv6 L3 Service", "bgp.prefix_sid.srv6_l2vpn", FT_NONE, BASE_NONE,
+        { "SRv6 L2 Service", "bgp.prefix_sid.srv6_l2vpn", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_prefix_sid_srv6_l2vpn_sub_tlvs,
         { "SRv6 Service Sub-TLVs", "bgp.prefix_sid.srv6_l2vpn.sub_tlvs", FT_NONE, BASE_NONE,
