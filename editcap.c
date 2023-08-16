@@ -158,6 +158,7 @@ static gboolean               skip_radiotap             = FALSE;
 static gboolean               discard_all_secrets       = FALSE;
 static gboolean               discard_cap_comments      = FALSE;
 static gboolean               set_unused                = FALSE;
+static gboolean               discard_pkt_comments      = FALSE;
 
 static int                    do_strict_time_adjustment = FALSE;
 static struct time_adjustment strict_time_adj           = {NSTIME_INIT_ZERO, 0}; /* strict time adjustment */
@@ -903,6 +904,10 @@ print_usage(FILE *output)
     fprintf(output, "                         when writing the output file.  Does not discard\n");
     fprintf(output, "                         comments added by \"--capture-comment\" in the same\n");
     fprintf(output, "                         command line.\n");
+    fprintf(output, "  --discard-packet-comments\n");
+    fprintf(output, "                         Discard all packet comments from the input file\n");
+    fprintf(output, "                         when writing the output file.  Does not discard\n");
+    fprintf(output, "                         comments added by \"-a\" in the same command line.\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -h, --help             display this help and exit.\n");
@@ -1197,6 +1202,7 @@ main(int argc, char *argv[])
 #define LONGOPT_CAPTURE_COMMENT      LONGOPT_BASE_APPLICATION+6
 #define LONGOPT_DISCARD_CAPTURE_COMMENT LONGOPT_BASE_APPLICATION+7
 #define LONGOPT_SET_UNUSED           LONGOPT_BASE_APPLICATION+8
+#define LONGOPT_DISCARD_PACKET_COMMENTS LONGOPT_BASE_APPLICATION+9
 
     static const struct ws_option long_options[] = {
         {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1209,6 +1215,7 @@ main(int argc, char *argv[])
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         {"discard-capture-comment", ws_no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
         {"set-unused", ws_no_argument, NULL, LONGOPT_SET_UNUSED},
+        {"discard-packet-comments", ws_no_argument, NULL, LONGOPT_DISCARD_PACKET_COMMENTS},
         {0, 0, 0, 0 }
     };
 
@@ -1390,6 +1397,12 @@ main(int argc, char *argv[])
         case LONGOPT_SET_UNUSED:
         {
             set_unused = TRUE;
+            break;
+        }
+
+        case LONGOPT_DISCARD_PACKET_COMMENTS:
+        {
+            discard_pkt_comments = TRUE;
             break;
         }
 
@@ -2332,14 +2345,30 @@ main(int argc, char *argv[])
                 }
             } /* random error mutation */
 
+            /* Discard all packet comments when writing */
+            if (discard_pkt_comments) {
+                temp_rec = *rec;
+                while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(rec->block, OPT_COMMENT, 0)) {
+                    temp_rec.block_was_modified = TRUE;
+                    continue;
+                }
+                rec = &temp_rec;
+            }
+
             /* Find a packet comment we may need to write */
             if (frames_user_comments) {
                 const char *comment =
                     (const char*)g_tree_lookup(frames_user_comments, GUINT_TO_POINTER(read_count));
-                /* XXX: What about comment changed to no comment? */
                 if (comment != NULL) {
                     /* Copy and change rather than modify returned rec */
                     temp_rec = *rec;
+
+                    /* Erase any existing comments before adding the new one */
+                    while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(rec->block, OPT_COMMENT, 0)) {
+                        temp_rec.block_was_modified = TRUE;
+                        continue;
+                    }
+
                     /* The comment is not modified by dumper, cast away. */
                     wtap_block_add_string_option(rec->block, OPT_COMMENT, (char *)comment, strlen((char *)comment));
                     temp_rec.block_was_modified = TRUE;

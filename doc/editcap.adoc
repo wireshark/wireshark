@@ -33,6 +33,7 @@ editcap - Edit and/or translate the format of capture files
 [ *--discard-all-secrets* ]
 [ *--capture-comment* <comment> ]
 [ *--discard-capture-comment* ]
+[ *--discard-packet-comments* ]
 __infile__
 __outfile__
 [ __packet#__[-__packet#__] ... ]
@@ -471,6 +472,14 @@ command line.
 Set the unused bytes (if any) to zero in SLL link type. Useful when when checking for duplicates.
 As the unused bytes can be anything. When the packet traverses the device stack
 for bonded interfaces on Linux for example.
+--
+
+--discard-packet-comments::
++
+--
+Discard all packet comments from the input file when writing the output
+file. Does not discard comments added by *-a* in the same
+command line.
 --
 
 include::diagnostic-options.adoc[]
