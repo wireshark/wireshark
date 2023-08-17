@@ -12,7 +12,11 @@
 
 #include <wireshark.h>
 
-#include <QDialog>
+#include <QTextEdit>
+#include <QSplitter>
+#include <QKeySequence>
+#include <QPushButton>
+#include <QSizePolicy>
 
 #include "geometry_state_dialog.h"
 #include <epan/funnel.h>

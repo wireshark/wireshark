@@ -10,11 +10,6 @@
 
 #include <config.h>
 #define WS_LOG_DOMAIN LOG_DOMAIN_QTUI
-
-#include <QPlainTextEdit>
-#include <QKeySequence>
-#include <QPushButton>
-
 #include "io_console_dialog.h"
 #include <ui_io_console_dialog.h>
 
@@ -59,8 +54,15 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
     QPushButton *clear_button = ui->buttonBox->addButton(tr("Clear"), QDialogButtonBox::ActionRole);
     connect(clear_button, &QPushButton::clicked, this, &IOConsoleDialog::on_clearActivated);
 
-    ui->inputPlainTextEdit->setFont(mainApp->monospaceFont());
-    ui->outputPlainTextEdit->setFont(mainApp->monospaceFont());
+    ui->inputTextEdit->setFont(mainApp->monospaceFont());
+    ui->inputTextEdit->setPlaceholderText(QString(tr("Use %1 to evaluate."))
+#ifdef Q_OS_MACOS
+            .arg("Cmd+Enter"));
+#else
+            .arg("Ctrl+Enter"));
+#endif
+
+    ui->outputTextEdit->setFont(mainApp->monospaceFont());
 
     ui->hintLabel->clear();
 
@@ -90,14 +92,14 @@ void IOConsoleDialog::clearSuccessHint()
     // Text changed so we no longer have a success.
     ui->hintLabel->clear();
     // Disconnect this slot until the next success.
-    disconnect(ui->inputPlainTextEdit, &QPlainTextEdit::textChanged, this, &IOConsoleDialog::clearSuccessHint);
+    disconnect(ui->inputTextEdit, &QTextEdit::textChanged, this, &IOConsoleDialog::clearSuccessHint);
 }
 
 void IOConsoleDialog::acceptInput()
 {
     clearHintText();
 
-    QString text = ui->inputPlainTextEdit->toPlainText();
+    QString text = ui->inputTextEdit->toPlainText();
     if (text.isEmpty())
         return;
 
@@ -122,19 +124,19 @@ void IOConsoleDialog::acceptInput()
         }
     }
     else {
-        setHintText("Code evaluated successfully.");
-        connect(ui->inputPlainTextEdit, &QPlainTextEdit::textChanged, this, &IOConsoleDialog::clearSuccessHint);
+        setHintText("Code evaluated successfully");
+        connect(ui->inputTextEdit, &QTextEdit::textChanged, this, &IOConsoleDialog::clearSuccessHint);
     }
 }
 
 void IOConsoleDialog::appendOutputText(const QString &text)
 {
-    ui->outputPlainTextEdit->appendPlainText(text);
+    ui->outputTextEdit->append(text);
 }
 
 void IOConsoleDialog::on_clearActivated()
 {
-    ui->inputPlainTextEdit->clear();
-    ui->outputPlainTextEdit->clear();
+    ui->inputTextEdit->clear();
+    ui->outputTextEdit->clear();
     ui->hintLabel->clear();
 }
