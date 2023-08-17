@@ -37,6 +37,7 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
     ui(new Ui::ManufDialog)
 {
     ui->setupUi(this);
+    loadGeometry();
 
     model_ = new ManufTableModel(this);
     proxy_model_ = new ManufSortFilterProxyModel(this);
