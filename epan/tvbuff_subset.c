@@ -172,6 +172,13 @@ tvb_new_subset_length_caplen(tvbuff_t *backing, const gint backing_offset, const
 	else
 		actual_reported_length = (guint)reported_length;
 
+	/*
+	 * Cut the captured length short, so it doesn't go past the subset's
+	 * reported length.
+	 */
+	if (subset_tvb_length > actual_reported_length)
+		subset_tvb_length = actual_reported_length;
+
 	tvb = tvb_new_with_subset(backing, actual_reported_length,
 	    subset_tvb_offset, subset_tvb_length);
 
