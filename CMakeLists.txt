@@ -3063,6 +3063,7 @@ if(BUILD_sharkd)
 		${WIN_WS2_32_LIBRARY}
 		${SPEEXDSP_LIBRARIES}
 		${M_LIBRARIES}
+		${GCRYPT_LIBRARIES}
 	)
 	set(sharkd_FILES
 		#

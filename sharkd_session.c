@@ -24,6 +24,7 @@
 #include <wsutil/wsjson.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/wsgcrypt.h>
 
 #include <file.h>
 #include <epan/epan_dissect.h>
@@ -2728,6 +2729,7 @@ static struct sharkd_export_object_list *sharkd_eo_list;
  *                  (o) type - content type
  *                  (o) filename - filename
  *                  (m) len - object length
+ *                  (m) sha1 - object's sha1 sum
  */
 static void
 sharkd_session_process_tap_eo_cb(void *tapdata)
@@ -2736,6 +2738,7 @@ sharkd_session_process_tap_eo_cb(void *tapdata)
     struct sharkd_export_object_list *object_list = (struct sharkd_export_object_list *) tap_object->gui_data;
     GSList *slist;
     int i = 0;
+    char sha1sum_bytes[HASH_SHA1_LENGTH], *sha1sum_str;
 
     json_dumper_begin_object(&dumper);
     sharkd_json_value_string("tap", object_list->type);
@@ -2765,6 +2768,11 @@ sharkd_session_process_tap_eo_cb(void *tapdata)
 
         sharkd_json_value_anyf("len", "%zu", eo_entry->payload_len);
 
+        gcry_md_hash_buffer(GCRY_MD_SHA1, sha1sum_bytes, eo_entry->payload_data, eo_entry->payload_len);
+        sha1sum_str = bytes_to_str(NULL, sha1sum_bytes, HASH_SHA1_LENGTH);
+        sharkd_json_value_string("sha1", sha1sum_str);
+        g_free(sha1sum_str);
+
         json_dumper_end_object(&dumper);
 
         i++;
@@ -2789,6 +2797,19 @@ sharkd_eo_object_list_get_entry(void *gui_data, int row)
 
     return (export_object_entry_t *) g_slist_nth_data(object_list->entries, row);
 }
+
+static struct sharkd_export_object_list *
+sharkd_eo_object_list_get_entry_by_type(void *gui_data, const char *tap_type)
+{
+    struct sharkd_export_object_list *object_list = (struct sharkd_export_object_list *) gui_data;
+    for (; object_list; object_list = object_list->next)
+    {
+        if (!strcmp(object_list->type, tap_type))
+            return object_list;
+    }
+    return NULL;
+}
+
 
 /**
  * sharkd_session_process_tap_rtp_cb()
@@ -3097,6 +3118,39 @@ sharkd_session_free_tap_voip_convs_cb(void *tapdata)
     g_free(voip_convs_req);
 }
 
+static GString*
+sharkd_session_eo_register_tap_listener(register_eo_t *eo, const char *tap_type, const char *tap_filter, tap_draw_cb tap_draw, void **ptap_data, GFreeFunc* ptap_free)
+{
+    export_object_list_t *eo_object;
+    struct sharkd_export_object_list *object_list;
+
+    object_list = sharkd_eo_object_list_get_entry_by_type(sharkd_eo_list, tap_type);
+    if (object_list)
+    {
+        g_slist_free_full(object_list->entries, (GDestroyNotify) eo_free_entry);
+        object_list->entries = NULL;
+    }
+    else
+    {
+        object_list = g_new(struct sharkd_export_object_list, 1);
+        object_list->type = g_strdup(tap_type);
+        object_list->proto = proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo)));
+        object_list->entries = NULL;
+        object_list->next = sharkd_eo_list;
+        sharkd_eo_list = object_list;
+    }
+
+    eo_object  = g_new0(export_object_list_t, 1);
+    eo_object->add_entry = sharkd_eo_object_list_add_entry;
+    eo_object->get_entry = sharkd_eo_object_list_get_entry;
+    eo_object->gui_data = (void *) object_list;
+
+    *ptap_data = eo_object;
+    *ptap_free = g_free; /* need to free only eo_object, object_list need to be kept for potential download */
+
+    return register_tap_listener(get_eo_tap_listener_name(eo), eo_object, tap_filter, 0, NULL, get_eo_packet_func(eo), tap_draw, NULL);
+}
+
 /**
  * sharkd_session_process_tap()
  *
@@ -3375,8 +3429,6 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
         else if (!strncmp(tok_tap, "eo:", 3))
         {
             register_eo_t *eo = get_eo_by_name(tok_tap + 3);
-            export_object_list_t *eo_object;
-            struct sharkd_export_object_list *object_list;
 
             if (!eo)
             {
@@ -3387,35 +3439,9 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
                 return;
             }
 
-            for (object_list = sharkd_eo_list; object_list; object_list = object_list->next)
-            {
-                if (!strcmp(object_list->type, tok_tap))
-                {
-                    g_slist_free_full(object_list->entries, (GDestroyNotify) eo_free_entry);
-                    object_list->entries = NULL;
-                    break;
-                }
-            }
+            tap_error = sharkd_session_eo_register_tap_listener(eo, tok_tap, tap_filter, sharkd_session_process_tap_eo_cb, &tap_data, &tap_free);
 
-            if (!object_list)
-            {
-                object_list = g_new(struct sharkd_export_object_list, 1);
-                object_list->type = g_strdup(tok_tap);
-                object_list->proto = proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo)));
-                object_list->entries = NULL;
-                object_list->next = sharkd_eo_list;
-                sharkd_eo_list = object_list;
-            }
-
-            eo_object  = g_new0(export_object_list_t, 1);
-            eo_object->add_entry = sharkd_eo_object_list_add_entry;
-            eo_object->get_entry = sharkd_eo_object_list_get_entry;
-            eo_object->gui_data = (void *) object_list;
-
-            tap_error = register_tap_listener(get_eo_tap_listener_name(eo), eo_object, tap_filter, 0, NULL, get_eo_packet_func(eo), sharkd_session_process_tap_eo_cb, NULL);
-
-            tap_data = eo_object;
-            tap_free = g_free; /* need to free only eo_object, object_list need to be kept for potential download */
+            /* tap_data & tap_free assigned by sharkd_session_eo_register_tap_listener */
         }
         else if (!strcmp(tok_tap, "rtp-streams"))
         {
@@ -5262,6 +5288,51 @@ sharkd_session_packet_download_tap_rtp_cb(void *tapdata, packet_info *pinfo, epa
     return TAP_PACKET_DONT_REDRAW;
 }
 
+static gboolean
+sharkd_session_eo_retap_listener(const char *tap_type) {
+    gboolean ok = TRUE;
+    register_eo_t *eo = NULL;
+    GString *tap_error = NULL;
+    void *tap_data = NULL;
+    GFreeFunc tap_free = NULL;
+
+    // get <name> from eo:<name>, get_eo_by_name only needs the name (http etc.)
+    eo = get_eo_by_name(tap_type + 3);
+    if (!eo)
+    {
+        ok = FALSE;
+        sharkd_json_error(
+                rpcid, -11011, NULL,
+                "sharkd_session_eo_retap_listener() eo=%s not found", tap_type + 3
+        );
+    }
+
+    if (ok)
+    {
+        tap_error = sharkd_session_eo_register_tap_listener(eo, tap_type, NULL, NULL, &tap_data, &tap_free);
+        if (tap_error)
+        {
+            ok = FALSE;
+            sharkd_json_error(
+                    rpcid, -10002, NULL,
+                    "sharkd_session_eo_retap_listener() sharkd_session_eo_register_tap_listener error %s",
+                    tap_error->str);
+            g_string_free(tap_error, TRUE);
+        }
+    }
+
+    if (ok)
+        sharkd_retap();
+
+    if (!tap_error)
+        remove_tap_listener(tap_data);
+
+    if (tap_free)
+        tap_free(tap_data);
+
+    return ok;
+}
+
 /**
  * sharkd_session_process_download()
  *
@@ -5291,6 +5362,23 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 
     if (!strncmp(tok_token, "eo:", 3))
     {
+        // get eo:<name> from eo:<name>_<row>
+        char *tap_type = g_strdup(tok_token);
+        char *tmp = strrchr(tap_type, '_');
+        if (tmp)
+            *tmp = '\0';
+
+        // if eo:<name> not in sharkd_eo_list, retap
+        if (!sharkd_eo_object_list_get_entry_by_type(sharkd_eo_list, tap_type) &&
+            !sharkd_session_eo_retap_listener(tap_type))
+        {
+            g_free(tap_type);
+            // sharkd_json_error called in sharkd_session_eo_retap_listener
+            return;
+        }
+
+        g_free(tap_type);
+
         struct sharkd_export_object_list *object_list;
         const export_object_entry_t *eo_entry = NULL;
 
