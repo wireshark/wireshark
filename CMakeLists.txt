@@ -1364,8 +1364,7 @@ if(FETCH_lua)
 	# Download and build lua
 	include(${CMAKE_SOURCE_DIR}/cmake/external/lua52/Lua52.cmake)
 else()
-	set(LUA_FIND_VERSIONS 5.2 CACHE STRING "Valid Lua versions")
-	set_property(CACHE LUA_FIND_VERSIONS PROPERTY STRINGS 5.2 5.1 ANY)
+	set(LUA_FIND_VERSIONS "5.2;5.1" CACHE STRING "Lua versions valid for the build (as a list)")
 	ws_find_package(Lua ENABLE_LUA HAVE_LUA)
 endif()
 
@@ -1966,6 +1965,11 @@ set_package_properties(Sinsp PROPERTIES
 	DESCRIPTION "libsinsp and libscap"
 	URL "https://github.com/falcosecurity/libs/"
 	PURPOSE "Support for Falco plugins"
+)
+set_package_properties(Lua PROPERTIES
+	DESCRIPTION "Lua is a powerful, efficient, lightweight, embeddable scripting language"
+	URL "https://www.lua.org/"
+	PURPOSE "Lua allows writing dissectors and other extensions without a C/C++ compiler"
 )
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)

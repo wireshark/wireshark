@@ -55,18 +55,10 @@ unset(_lua_append_versions)
 
 # this is a function only to have all the variables inside go away automatically
 function(_lua_get_versions)
-  if (LUA_FIND_VERSIONS STREQUAL 5.2)
-    set(LUA_VERSIONS5 5.2)
-  elseif(LUA_FIND_VERSIONS STREQUAL 5.1)
-    set(LUA_VERSIONS5 5.1)
-  else()
-    set(LUA_VERSIONS5 5.2 5.1)
-  endif()
+  set(LUA_VERSIONS5 ${LUA_FIND_VERSIONS})
+  list(FILTER LUA_VERSIONS5 INCLUDE REGEX "5\.[21]")
   set(_lua_append_versions ${LUA_VERSIONS5})
-
-  if (LUA_Debug)
-    message(STATUS "Considering following Lua versions: ${_lua_append_versions}")
-  endif()
+  message(STATUS "Considering the following Lua versions: ${_lua_append_versions}")
 
   set(_lua_append_versions "${_lua_append_versions}" PARENT_SCOPE)
 endfunction()
