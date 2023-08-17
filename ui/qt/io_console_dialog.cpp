@@ -66,6 +66,14 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
 
     ui->hintLabel->clear();
 
+    // Reloading Lua plugins destroys the lua state, at a minimum the Lua print()
+    // will no longer work correctly and the callback_data_ will also be invalidated.
+    // Force close the console dialog when reloading Lua plugins.
+    // XXX In theory there might be console types other than Lua so we may
+    // want to fix the code to close only Lua type dialogs if only Lua plugins are
+    // reloaded.
+    connect(mainApp, &MainApplication::startingLuaReload, this, &IOConsoleDialog::close);
+
     // Install print and save return
     saved_blob_ = open_cb_(print_function, this, callback_data_);
 }
