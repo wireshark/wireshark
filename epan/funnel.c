@@ -329,9 +329,12 @@ static void funnel_clear_console_menu(void)
     GSList *l;
     for (l = registered_console_menus; l != NULL; l = l->next) {
         funnel_console_menu_t *m = l->data;
+        g_free(m->name);
         if (m->data_free_cb && m->user_data) {
             m->data_free_cb(m->user_data);
         }
+        g_free(l->data);
+        l->data = NULL;
     }
     g_slist_free(registered_console_menus);
     registered_console_menus = NULL;
