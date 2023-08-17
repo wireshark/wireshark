@@ -1862,7 +1862,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
       /* None found - run to the end of the packet. */
       offset += len;
     } else {
-      if (((guint)(iac_offset + 1) >= len) ||
+      if (!tvb_offset_exists(tvb, iac_offset + 1) ||
           (tvb_get_guint8(tvb, iac_offset + 1) != TN_IAC)) {
         /* We really found a single IAC, so we're done */
         offset = iac_offset;
