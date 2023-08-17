@@ -124,6 +124,8 @@ def shorten(manuf):
     # Convert all caps to title case
     if manuf.isupper():
         manuf = manuf.title()
+    # Remove "a" before removing punctuation ("Aruba, a Hewlett [...]" etc.)
+    manuf = manuf.replace(" a ", " ")
     # Remove any punctuation
     # XXX Use string.punctuation? Note that it includes '-' and '*'.
     manuf = re.sub(r"[\"',./:()+-]", ' ', manuf)
