@@ -56,11 +56,7 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
 
     ui->inputTextEdit->setFont(mainApp->monospaceFont());
     ui->inputTextEdit->setPlaceholderText(QString(tr("Use %1 to evaluate."))
-#ifdef Q_OS_MACOS
-            .arg("Cmd+Enter"));
-#else
-            .arg("Ctrl+Enter"));
-#endif
+            .arg(eval_button->shortcut().toString(QKeySequence::NativeText)));
 
     ui->outputTextEdit->setFont(mainApp->monospaceFont());
 
