@@ -51,6 +51,7 @@ CredentialsDialog::CredentialsDialog(QWidget &parent, CaptureFile &cf, PacketLis
     ui(new Ui::CredentialsDialog)
 {
     ui->setupUi(this);
+    loadGeometry();
     packet_list_ = packet_list;
 
     model_ = new CredentialsModel(this);
