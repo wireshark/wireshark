@@ -13396,7 +13396,7 @@ proto_register_gsm_a_rr(void)
                 "Offset to the reported value when prioritising the cells for reporting for GSM frequency band 850 (850 Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_850_reporting_threshold,
-              { "850 Reporting Threshold", "gsm_a.rr.900_reporting_threshold",
+              { "850 Reporting Threshold", "gsm_a.rr.850_reporting_threshold",
                 FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
                 "Apply priority reporting if the reported value is above threshold for GSM frequency band 850 (850 Reporting Threshold)", HFILL }
             },

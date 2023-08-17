@@ -1081,7 +1081,7 @@ proto_register_rsip(void)
 		},
 		{ &hf_rsip_parameter_length,
 			{ "Length",		"rsip.parameter.length",
-			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_rsip_parameter_value,

@@ -4721,7 +4721,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_auxiliaryinputtype2status_auxiliaryinputobjectid,
           { "Auxiliary Input Object ID", "isobus.vt.auxiliary_input_type_2_status.auxiliary_input_object_id",
-            FT_UINT8, BASE_HEX, VALS(object_id_strings), 0x0,
+            FT_UINT16, BASE_HEX, VALS(object_id_strings), 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_auxiliaryinputtype2status_value1,
@@ -4916,12 +4916,12 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_changechildposition_xpos,
           { "Relative X Position", "isobus.vt.chg_child_pos.rel_x_pos",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_changechildposition_ypos,
           { "Relative Y Position", "isobus.vt.chg_child_pos.rel_y_pos",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_changechildposition_errorcodes,
