@@ -227,6 +227,7 @@ void FunnelConsoleAction::triggerCallback() {
     IOConsoleDialog *dialog = new IOConsoleDialog(*qobject_cast<QWidget *>(parent()),
                                             this->text(),
                                             eval_cb_, open_cb_, close_cb_, callback_data_);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }
 
