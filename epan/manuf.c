@@ -247,8 +247,9 @@ ws_manuf_dump(FILE *fp)
     ws_manuf_iter_init(&iter);
 
     while ((ptr = ws_manuf_iter_next(&iter, manuf))) {
-        fprintf(fp, "%-17s\t%s\n",
+        fprintf(fp, "%-17s\t%-12s\t%s\n",
             ws_manuf_block_str(strbuf, sizeof(strbuf), ptr),
+            ptr->short_name,
             ptr->long_name);
     }
 }

@@ -918,8 +918,10 @@ Code Lines and Data:
       #
       # https://www.wireshark.org/download/automated/data/manuf
       #
-      # The first column contains the MAC Address block (24, 28 or 36 bits wide,
-      # per IEEE allocation sizes) and the second column contains the vendor name.
+      # The first column contains the MAC address block (24, 28 or 36 bits wide,
+      # per IEEE allocation sizes), the second column contains the shortened name
+      # used by Wireshark for address name resolution and the third column contains the
+      # full vendor name from the registry.
       #
       FIN
     - build/run/tshark -G manuf | sed -e 's,:00:00:00/24,,' >> manuf
