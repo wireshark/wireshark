@@ -56,6 +56,7 @@ def get_url_lines(url):
 ppm_ev_pub_lines = get_url_lines(sysdig_repo_pfx + 'driver/ppm_events_public.h')
 
 ppme_re = re.compile('^\s+PPME_([A-Z0-9_]+_[EX])\s*=\s*([0-9]+)\s*,')
+ppm_sc_x_re = re.compile('^\s+PPM_SC_X\s*\(\s*(\S+)\s*,\s*(\d+)\s*\)')
 
 event_info_d = {}
 
@@ -67,11 +68,19 @@ def get_event_defines():
             event_d[int(m.group(2))] = m.group(1)
     return event_d
 
+def get_syscall_code_defines():
+    sc_d = {}
+    for line in ppm_ev_pub_lines:
+        m = ppm_sc_x_re.match(line)
+        if m:
+            sc_d[int(m.group(2))] = m.group(1)
+    return sc_d
+
 ppm_ev_table_lines = get_url_lines(sysdig_repo_pfx + 'driver/event_table.c')
 
 hf_d = {}
 
-event_info_re = re.compile('^\s+/\*\s*PPME_.*\*\/\s*{\s*"([A-Za-z0-9_]+)"\s*,[^,]+,[^,]+,\s*([0-9]+)\s*[,{}]')
+event_info_re = re.compile('^\s+\[\s*PPME_.*\]\s*=\s*{\s*"([A-Za-z0-9_]+)"\s*,[^,]+,[^,]+,\s*([0-9]+)\s*[,{}]')
 event_param_re = re.compile('{\s*"([A-Za-z0-9_ ]+)"\s*,\s*PT_([A-Z0-9_]+)\s*,\s*PF_([A-Z0-9_]+)\s*[,}]')
 
 def get_event_names():
@@ -87,8 +96,18 @@ def get_event_names():
 pt_to_ft = {
     'BYTEBUF': 'BYTES',
     'CHARBUF': 'STRING',
+    'ERRNO': 'INT64',
     'FD': 'INT64',
+    'FLAGS8': 'INT8',
+    'FLAGS16': 'INT16',
+    'FLAGS32': 'INT32',
     'FSPATH': 'STRING',
+    'FSRELPATH': 'STRING',
+    'GID': 'INT32',
+    'MODE': 'INT32',
+    'PID': 'INT64',
+    'UID': 'INT32',
+    'SYSCALLID': 'UINT16',
 }
 
 # FT_xxx to BASE_xxx
@@ -127,6 +146,7 @@ def get_event_params():
                     # Ints
                     param_type = p[1]
                 else:
+                    print(f"p fallback {p}")
                     # Fall back to bytes
                     param_type = 'BYTES'
 
@@ -250,6 +270,7 @@ def main():
     strip_re_l.append(re.compile('^static\s+int\s*\*\s+const\s+[a-z0-9_]+_[ex]_indexes\[\]\s*=\s*\{\s*&hf_param_.*NULL\s*\}\s*;'))
     strip_re_l.append(re.compile('^\s*#define\s+[a-z0-9_]+_[ex]_indexes\s+[a-z0-9_]+_indexes'))
     strip_re_l.append(re.compile('^\s*\{\s*EVT_[A-Z0-9_]+_[EX]\s*,\s*[a-z0-9_]+_[ex]_indexes\s*}\s*,'))
+    strip_re_l.append(re.compile('^\s*\{\s*\d+\s*,\s*"\S+"\s*}\s*,\s*//\s*PPM_SC_\S+'))
     strip_re_l.append(re.compile('^\s*{\s*&hf_param_.*},')) # Must all be on one line
 
     for strip_re in strip_re_l:
@@ -305,6 +326,14 @@ def main():
         evt_idx = '{}_indexes'.format(event_d[evt].lower())
         event_tree_l.append('    {{ {}, {} }},'.format(evt_num, evt_idx))
 
+    # Syscall codes
+    syscall_code_d = get_syscall_code_defines()
+    syscall_code_c = 'Syscall codes'
+    syscall_code_re = re.compile('/\*\s+' + syscall_code_c, flags = re.IGNORECASE)
+    syscall_code_l = []
+    for sc_num in syscall_code_d:
+        syscall_code_l.append(f'    {{ {sc_num:3}, "{syscall_code_d[sc_num].lower()}" }}, // PPM_SC_{syscall_code_d[sc_num]}')
+
     header_field_reg_c = 'Header field registration'
     header_field_reg_re = re.compile('/\*\s+' + header_field_reg_c, flags = re.IGNORECASE)
     header_field_reg_l = []
@@ -351,6 +380,9 @@ def main():
         elif event_tree_re.match(line):
             fill_comment = event_tree_c
             fill_l = event_tree_l
+        elif syscall_code_re.match(line):
+            fill_comment = syscall_code_c
+            fill_l = syscall_code_l
         elif header_field_reg_re.match(line):
             fill_comment = header_field_reg_c
             fill_l = header_field_reg_l
