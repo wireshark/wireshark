@@ -2602,8 +2602,7 @@ void LograyMainWindow::setForCaptureInProgress(bool capture_in_progress, bool ha
     setMenusForCaptureInProgress(capture_in_progress);
 
 #ifdef HAVE_LIBPCAP
-    packet_list_->setCaptureInProgress(capture_in_progress);
-    packet_list_->setVerticalAutoScroll(capture_in_progress && main_ui_->actionGoAutoScroll->isChecked());
+    packet_list_->setCaptureInProgress(capture_in_progress, main_ui_->actionGoAutoScroll->isChecked());
 
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif

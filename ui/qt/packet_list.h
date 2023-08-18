@@ -80,7 +80,7 @@ public:
     void deleteCommentsFromPackets();
     void deleteAllPacketComments();
     void setVerticalAutoScroll(bool enabled = true);
-    void setCaptureInProgress(bool in_progress = false) { capture_in_progress_ = in_progress; tail_at_end_ = in_progress; }
+    void setCaptureInProgress(bool in_progress = false, bool auto_scroll = true) { capture_in_progress_ = in_progress; tail_at_end_ = in_progress && auto_scroll; }
     void captureFileReadFinished();
     void resetColumns();
     bool haveNextHistory(bool update_cur = false);
