@@ -505,8 +505,11 @@ There is one record per line.  The fields are tab-delimited.
 
 [horizontal]
 Field 1:: underlying dissector (e.g. "tcp")
-Field 2:: name of heuristic decoder (e.g. ucp")
+Field 2:: name of heuristic decoder (e.g. "ucp")
 Field 3:: heuristic enabled (e.g. "T" or "F")
+Field 4:: heuristic enabled by default (e.g. "T" or "F")
+Field 5:: heuristic short name (e.g. "ucp_tcp")
+Field 6:: heuristic display name (e.g. "UCP over TCP")
 
 *help* Displays the available report types.
 
@@ -529,6 +532,9 @@ or HTML or whatever.  There is one record per line.  The fields are tab-delimite
 Field 1:: protocol name
 Field 2:: protocol short name
 Field 3:: protocol filter name
+Field 4:: protocol enabled (e.g. "T" or "F")
+Field 5:: protocol enabled by default (e.g. "T" or "F")
+Field 6:: protocol can toggle (e.g. "T" or "F")
 
 *services* Dumps the TCP, UDP, and SCTP transport service (port) table.
 

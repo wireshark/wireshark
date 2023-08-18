@@ -10968,6 +10968,9 @@ proto_find_undecoded_data(proto_tree *tree, guint length)
  * Field 1 = protocol name
  * Field 2 = protocol short name
  * Field 3 = protocol filter name
+ * Field 4 = protocol enabled
+ * Field 5 = protocol enabled by default
+ * Field 6 = protocol can toggle
  */
 void
 proto_registrar_dump_protocols(void)
@@ -10980,8 +10983,13 @@ proto_registrar_dump_protocols(void)
 	i = proto_get_first_protocol(&cookie);
 	while (i != -1) {
 		protocol = find_protocol_by_id(i);
-		printf("%s\t%s\t%s\n", protocol->name, protocol->short_name,
-			protocol->filter_name);
+		printf("%s\t%s\t%s\t%c\t%c\t%c\n",
+				protocol->name,
+				protocol->short_name,
+				protocol->filter_name,
+				(proto_is_protocol_enabled_by_default(protocol) ? 'T' : 'F'),
+				(proto_is_protocol_enabled(protocol) ? 'T' : 'F'),
+				(proto_can_toggle_protocol(protocol->proto_id) ? 'T' : 'F'));
 		i = proto_get_next_protocol(&cookie);
 	}
 }

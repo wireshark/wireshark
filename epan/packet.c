@@ -3125,10 +3125,13 @@ display_heur_dissector_table_entries(const char *table_name,
     heur_dtbl_entry_t *hdtbl_entry, gpointer user_data _U_)
 {
 	if (hdtbl_entry->protocol != NULL) {
-		printf("%s\t%s\t%c\n",
+		printf("%s\t%s\t%c\t%c\t%s\t%s\n",
 		       table_name,
 		       proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol)),
-		       (proto_is_protocol_enabled(hdtbl_entry->protocol) && hdtbl_entry->enabled) ? 'T' : 'F');
+		       (proto_is_protocol_enabled(hdtbl_entry->protocol) && hdtbl_entry->enabled) ? 'T' : 'F',
+		       (proto_is_protocol_enabled_by_default(hdtbl_entry->protocol) && hdtbl_entry->enabled) ? 'T' : 'F',
+		       hdtbl_entry->short_name,
+		       hdtbl_entry->display_name);
 	}
 }
 
