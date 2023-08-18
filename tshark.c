@@ -859,6 +859,7 @@ main(int argc, char *argv[])
     };
     gboolean             arg_error = FALSE;
     gboolean             has_extcap_options = FALSE;
+    gboolean             is_capturing = TRUE;
 
     int                  err;
     gchar               *err_info;
@@ -1033,9 +1034,10 @@ main(int argc, char *argv[])
                 }
                 break;
             case 'G':
-                if (g_str_has_suffix(ws_optarg, "prefs") || strcmp(ws_optarg, "folders") == 0) {
+                if (g_str_has_suffix(ws_optarg, "prefs")) {
                     has_extcap_options = TRUE;
                 }
+                is_capturing = FALSE;
                 break;
             case 'i':
                 has_extcap_options = TRUE;
@@ -1051,6 +1053,7 @@ main(int argc, char *argv[])
                 break;
             case 'r':        /* Read capture file x */
                 cf_name = g_strdup(ws_optarg);
+                is_capturing = FALSE;
                 break;
             case 'O':        /* Only output these protocols */
                 output_only = g_strdup(ws_optarg);
@@ -1068,6 +1071,10 @@ main(int argc, char *argv[])
                 break;
             case 'X':
                 ex_opt_add(ws_optarg);
+                break;
+            case 'h':
+            case 'v':
+                is_capturing = FALSE;
                 break;
             case LONGOPT_ELASTIC_MAPPING_FILTER:
                 elastic_mapping_filter = ws_optarg;
@@ -1120,11 +1127,8 @@ main(int argc, char *argv[])
 
     register_all_tap_listeners(tap_reg_listener);
 
-    /*
-     * An empty cf_name indicates that we're capturing, and we might
-     * be doing so on an extcap interface.
-     */
-    if (has_extcap_options || !cf_name) {
+    /* Register extcap preferences only when needed. */
+    if (has_extcap_options || is_capturing) {
         extcap_register_preferences();
     }
 
