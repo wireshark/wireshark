@@ -62,6 +62,7 @@ static int hf_exported_pdu_dvbci_evt = -1;
 static int hf_exported_pdu_exported_pdu = -1;
 static int hf_exported_pdu_dis_table_val = -1;
 static int hf_exported_pdu_col_proto_str = -1;
+static int hf_exported_pdu_col_info_str = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_exported_pdu = -1;
@@ -107,6 +108,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_COL_PROT_TEXT,         "Column Protocol String" },
    { EXP_PDU_TAG_TCP_INFO_DATA,         "TCP Dissector Data" },
    { EXP_PDU_TAG_P2P_DIRECTION,         "P2P direction" },
+   { EXP_PDU_TAG_COL_INFO_TEXT,         "Column Information String" },
 
    { 0,        NULL   }
 };
@@ -196,6 +198,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     const guint8 *proto_name = NULL;
     const guint8 *dissector_table = NULL;
     const guint8 *col_proto_str = NULL;
+    const guint8* col_info_str = NULL;
     dissector_handle_t proto_handle;
     mtp3_addr_pc_t *mtp3_addr;
     guint8 dvb_ci_dir;
@@ -350,6 +353,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 pinfo->p2p_dir = tvb_get_ntohl(tvb, offset);
                 proto_tree_add_item(tag_tree, hf_exported_pdu_p2p_dir, tvb, offset, 4, ENC_NA);
                 break;
+            case EXP_PDU_TAG_COL_INFO_TEXT:
+                proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_col_info_str, tvb, offset, tag_len, ENC_UTF_8 | ENC_NA, pinfo->pool, &col_info_str);
+                break;
             case EXP_PDU_TAG_END_OF_OPT:
                 break;
             default:
@@ -377,6 +383,12 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 } else {
                     col_clear(pinfo->cinfo, COL_PROTOCOL);
                 }
+                if (col_info_str) {
+                    col_add_str(pinfo->cinfo, COL_INFO, col_info_str);
+                }
+                else {
+                    col_clear(pinfo->cinfo, COL_INFO);
+                }
                 call_dissector_with_data(proto_handle, payload_tvb, pinfo, tree, dissector_data);
             }
             break;
@@ -388,6 +400,12 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     col_add_str(pinfo->cinfo, COL_PROTOCOL, col_proto_str);
                 } else {
                     col_clear(pinfo->cinfo, COL_PROTOCOL);
+                }
+                if (col_info_str) {
+                    col_add_str(pinfo->cinfo, COL_INFO, col_info_str);
+                }
+                else {
+                    col_clear(pinfo->cinfo, COL_INFO);
                 }
                 call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree, dissector_data);
             }
@@ -401,6 +419,12 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     col_add_str(pinfo->cinfo, COL_PROTOCOL, col_proto_str);
                 } else {
                     col_clear(pinfo->cinfo, COL_PROTOCOL);
+                }
+                if (col_info_str) {
+                    col_add_str(pinfo->cinfo, COL_INFO, col_info_str);
+                }
+                else {
+                    col_clear(pinfo->cinfo, COL_INFO);
                 }
                 dissector_try_uint_new(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, FALSE, dissector_data);
             }
@@ -563,6 +587,11 @@ proto_register_exported_pdu(void)
         },
         { &hf_exported_pdu_col_proto_str,
             { "Column protocol string", "exported_pdu.col_proto_str",
+               FT_STRINGZPAD, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_col_info_str,
+            { "Column information string", "exported_pdu.col_info_str",
                FT_STRINGZPAD, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
