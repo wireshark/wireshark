@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <epan/value_string.h>
 #include <wsutil/wslog.h>
+#include <wsutil/exported_pdu_tlvs.h>
 #include "file_wrappers.h"
 #include "wtap-int.h"
 
@@ -420,6 +421,21 @@ fix_endianness_blf_apptext_header(blf_apptext_t *header) {
     header->reservedAppText1 = GUINT32_FROM_LE(header->reservedAppText1);
     header->textLength = GUINT32_FROM_LE(header->textLength);
     header->reservedAppText2 = GUINT32_FROM_LE(header->reservedAppText2);
+}
+
+static void
+fix_endianness_blf_ethernet_status_header(blf_ethernet_status_t* header) {
+    header->channel = GUINT16_FROM_LE(header->channel);
+    header->flags = GUINT16_FROM_LE(header->channel);
+    /*uint8_t linkStatus;*/
+    /*uint8_t ethernetPhy;*/
+    /*uint8_t duplex;*/
+    /*uint8_t mdi;*/
+    /*uint8_t connector;*/
+    /*uint8_t clockMode;*/
+    /*uint8_t pairs;*/
+    /*uint8_t hardwareChannel;*/
+    header->bitrate = GUINT32_FROM_LE(header->bitrate);
 }
 
 static guint64
@@ -1998,7 +2014,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     return TRUE;
 }
 
-static gboolean
+static int
 blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint64 timestamp _U_) {
     blf_apptext_t            apptextheader;
 
@@ -2006,73 +2022,153 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("blf: APP_TEXT: not enough bytes for apptext header in object");
         ws_debug("not enough bytes for apptext header in object");
-        return FALSE;
+        return BLF_APPTEXT_FAILED;
     }
 
     if (!blf_read_bytes(params, data_start, &apptextheader, sizeof(apptextheader), err, err_info)) {
         ws_debug("not enough bytes for apptext header in file");
-        return FALSE;
+        return BLF_APPTEXT_FAILED;
     }
     fix_endianness_blf_apptext_header(&apptextheader);
 
-    if (apptextheader.source != BLF_APPTEXT_CHANNEL) {
-        return TRUE;
-    }
-
     /* Add an extra byte for a terminating '\0' */
-    gchar *text = g_try_malloc((gsize)apptextheader.textLength + 1);
+    gchar* text = g_try_malloc((gsize)apptextheader.textLength + 1);
 
     if (!blf_read_bytes(params, data_start + sizeof(apptextheader), text, apptextheader.textLength, err, err_info)) {
         ws_debug("not enough bytes for apptext text in file");
         g_free(text);
-        return FALSE;
+        return BLF_APPTEXT_FAILED;
     }
     text[apptextheader.textLength] = '\0'; /* Here's the '\0' */
 
-    /* returns a NULL terminated array of NULL terminates strings */
-    gchar **tokens = g_strsplit_set(text, ";", -1);
+    switch (apptextheader.source) {
+    case BLF_APPTEXT_CHANNEL:
+    {
 
-    if ( tokens == NULL || tokens[0] == NULL || tokens[1] == NULL) {
-        if (tokens != NULL) {
-            g_strfreev(tokens);
+        /* returns a NULL terminated array of NULL terminates strings */
+        gchar** tokens = g_strsplit_set(text, ";", -1);
+
+        if (tokens == NULL || tokens[0] == NULL || tokens[1] == NULL) {
+            if (tokens != NULL) {
+                g_strfreev(tokens);
+            }
+            g_free(text);
+            return BLF_APPTEXT_CHANNEL;
         }
+
+        guint32 channel = (apptextheader.reservedAppText1 >> 8) & 0xff;
+        int pkt_encap;
+
+        switch ((apptextheader.reservedAppText1 >> 16) & 0xff) {
+        case BLF_BUSTYPE_CAN:
+            pkt_encap = WTAP_ENCAP_SOCKETCAN;
+            break;
+
+        case BLF_BUSTYPE_FLEXRAY:
+            pkt_encap = WTAP_ENCAP_FLEXRAY;
+            break;
+
+        case BLF_BUSTYPE_LIN:
+            pkt_encap = WTAP_ENCAP_LIN;
+            break;
+
+        case BLF_BUSTYPE_ETHERNET:
+            pkt_encap = WTAP_ENCAP_ETHERNET;
+            break;
+
+        case BLF_BUSTYPE_WLAN:
+            pkt_encap = WTAP_ENCAP_IEEE_802_11;
+            break;
+
+        default:
+            pkt_encap = 0xffffffff;
+        }
+
+        /* we use lookup to create interface, if not existing yet */
+        blf_lookup_interface(params, pkt_encap, channel, tokens[1]);
+
+        g_strfreev(tokens);
         g_free(text);
-        return TRUE;
+        return BLF_APPTEXT_CHANNEL;
+        break;
     }
+    case BLF_APPTEXT_METADATA:
+    case BLF_APPTEXT_COMMENT:
+        if (apptextheader.textLength < 5) {
+            /* Arbitary lengt chosen */
+            g_free(text);
+            return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */
+        }
+        wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "data-text-lines", 16);
+        wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_COL_PROT_TEXT, "BLF App text", 13);
+        if (apptextheader.source == BLF_APPTEXT_METADATA) {
+            wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Metadata", 18);
+        } else {
+            wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Comment", 18);
+        }
 
-    guint32 channel = (apptextheader.reservedAppText1 >> 8) & 0xff;
+        wtap_buffer_append_epdu_end(params->buf);
 
-    int pkt_encap;
-    switch ((apptextheader.reservedAppText1 >> 16) & 0xff) {
-    case BLF_BUSTYPE_CAN:
-        pkt_encap = WTAP_ENCAP_SOCKETCAN;
-        break;
+        ws_buffer_assure_space(params->buf, apptextheader.textLength + 1);
+        ws_buffer_append(params->buf, text, apptextheader.textLength + 1);
 
-    case BLF_BUSTYPE_FLEXRAY:
-        pkt_encap = WTAP_ENCAP_FLEXRAY;
-        break;
-
-    case BLF_BUSTYPE_LIN:
-        pkt_encap = WTAP_ENCAP_LIN;
-        break;
-
-    case BLF_BUSTYPE_ETHERNET:
-        pkt_encap = WTAP_ENCAP_ETHERNET;
-        break;
-
-    case BLF_BUSTYPE_WLAN:
-        pkt_encap = WTAP_ENCAP_IEEE_802_11;
-        break;
-
+        /* We'll write this as a WS UPPER PDU packet with a text blob */
+        blf_init_rec(params, timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
+        g_free(text);
+        return apptextheader.source;
     default:
-        pkt_encap = 0xffffffff;
+        return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */;
+        break;
+    }
+    return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */
+}
+
+static gboolean
+blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint64 timestamp) {
+
+    blf_ethernet_status_t            ethernet_status_header;
+    guint8 tmpbuf[16];
+
+    if (object_length < (data_start - block_start) + (int)sizeof(ethernet_status_header)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: ETHERNET_STATUS: not enough bytes for apptext header in object");
+        ws_debug("not enough bytes for apptext header in object");
+        return FALSE;
     }
 
-    /* we use lookup to create interface, if not existing yet */
-    blf_lookup_interface(params, pkt_encap, channel, tokens[1]);
+    if (!blf_read_bytes(params, data_start, &ethernet_status_header, sizeof(ethernet_status_header), err, err_info)) {
+        ws_debug("not enough bytes for ethernet_status_header header in file");
+        return FALSE;
+    }
 
-    g_strfreev(tokens);
-    g_free(text);
+    fix_endianness_blf_ethernet_status_header(&ethernet_status_header);
+
+    tmpbuf[0] = (ethernet_status_header.channel & 0xff00) >> 8;
+    tmpbuf[1] = (ethernet_status_header.channel & 0x00ff);
+    tmpbuf[2] = (ethernet_status_header.flags & 0xff00) >> 8;
+    tmpbuf[3] = (ethernet_status_header.flags & 0x00ff);
+    tmpbuf[4] = (ethernet_status_header.linkStatus);
+    tmpbuf[5] = (ethernet_status_header.ethernetPhy);
+    tmpbuf[6] = (ethernet_status_header.duplex);
+    tmpbuf[7] = (ethernet_status_header.mdi);
+    tmpbuf[8] = (ethernet_status_header.connector);
+    tmpbuf[9] = (ethernet_status_header.clockMode);
+    tmpbuf[10] = (ethernet_status_header.pairs);
+    tmpbuf[11] = (ethernet_status_header.hardwareChannel);
+    tmpbuf[12] = (ethernet_status_header.bitrate & 0xff000000) >> 24;
+    tmpbuf[13] = (ethernet_status_header.bitrate & 0x00ff0000) >> 16;
+    tmpbuf[14] = (ethernet_status_header.bitrate & 0x0000ff00) >> 8;
+    tmpbuf[15] = (ethernet_status_header.bitrate & 0x000000ff);
+
+    wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "blf-ethernetstatus-obj", 23);
+    wtap_buffer_append_epdu_end(params->buf);
+
+    ws_buffer_assure_space(params->buf, sizeof(ethernet_status_header));
+    ws_buffer_append(params->buf, tmpbuf, (gsize)16);
+
+    /* We'll write this as a WS UPPER PDU packet with a data blob */
+    blf_init_rec(params, timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_status_header.channel, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
+
     return TRUE;
 }
 
@@ -2216,15 +2312,26 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
             break;
 
         case BLF_OBJTYPE_APP_TEXT:
-            if (!blf_read_apptextmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, timestamp)) {
-                /* we only return errors */
-                return FALSE;
+        {
+            int result = blf_read_apptextmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, timestamp);
+            switch (result) {
+                case BLF_APPTEXT_FAILED:
+                    return FALSE;
+                case BLF_APPTEXT_METADATA:
+                    return TRUE;
+                case BLF_APPTEXT_COMMENT:
+                    return TRUE;
+                case BLF_APPTEXT_CHANNEL:
+                default:
+                    /* we do not return since there is no packet to show here */
+                start_pos += MAX(MAX(16, header.object_length), header.header_length);
             }
-
-            /* we do not return since there is no packet to show here */
-            start_pos += MAX(MAX(16, header.object_length), header.header_length);
+        }
             break;
 
+        case BLF_OBJTYPE_ETHERNET_STATUS:
+            return blf_read_ethernet_status(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, timestamp);
+            break;
         default:
             ws_debug("unknown object type 0x%04x", header.object_type);
             start_pos += MAX(MAX(16, header.object_length), header.header_length);

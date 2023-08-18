@@ -25,6 +25,7 @@
 #include <wiretap/blf.h>
 
 static int proto_blf = -1;
+static int proto_blf_ethernetstatus_obj = -1;
 
 static dissector_handle_t xml_handle;
 
@@ -75,7 +76,6 @@ static int hf_blf_trigg_cond_triggerblocknamelength = -1;
 static int hf_blf_trigg_cond_triggerconditionlength = -1;
 static int hf_blf_trigg_cond_triggerblockname = -1;
 static int hf_blf_trigg_cond_triggercondition = -1;
-static int hf_blf_not_parsed = -1;
 static int hf_blf_sys_var_type = -1;
 static int hf_blf_sys_var_rep = -1;
 static int hf_blf_sys_var_reservedsystemvariable1 = -1;
@@ -584,7 +584,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             proto_tree_add_item(subtree, hf_blf_eth_status_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             /* uint16_t flags; */
-            proto_tree_add_bitmask_list(subtree, tvb, offset, 2, flags1, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask_list(subtree, tvb, offset, 2, flags1, ENC_LITTLE_ENDIAN);
             offset += 2;
             /* uint8_t linkStatus {}; */
             proto_tree_add_item(subtree, hf_blf_eth_status_linkstatus, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -780,6 +780,101 @@ dissect_blf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return dissect_blf(tvb, pinfo, tree, NULL) > 0;
 }
 
+static int
+dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
+
+    proto_item *ti;
+    proto_tree* blf_tree;
+    int offset = 0;
+
+    static int* const flags1[] = {
+        &hf_blf_eth_status_flags1_b8,
+        &hf_blf_eth_status_flags1_b7,
+        &hf_blf_eth_status_flags1_b6,
+        &hf_blf_eth_status_flags1_b5,
+        &hf_blf_eth_status_flags1_b4,
+        &hf_blf_eth_status_flags1_b3,
+        &hf_blf_eth_status_flags1_b2,
+        &hf_blf_eth_status_flags1_b1,
+        &hf_blf_eth_status_flags1_b0,
+        NULL
+    };
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLF Ethernet Status");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    ti = proto_tree_add_item(tree, proto_blf, tvb, offset, -1, ENC_NA);
+    blf_tree = proto_item_add_subtree(ti, ett_blf);
+
+    /* uint16_t channel {}; */
+    proto_tree_add_item(blf_tree, hf_blf_eth_status_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    /* uint16_t flags; */
+    uint16_t flags = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_bitmask_list(blf_tree, tvb, offset, 2, flags1, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* uint8_t linkStatus {}; */
+    uint32_t linkstatus;
+    ti = proto_tree_add_item_ret_uint(blf_tree, hf_blf_eth_status_linkstatus, tvb, offset, 1, ENC_BIG_ENDIAN, &linkstatus);
+    if ((flags & 0x0001) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    } else {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(linkstatus, blf_eth_status_linkstatus_vals, "Unknown"));
+    }
+    offset += 1;
+    /* uint8_t ethernetPhy {};*/
+    ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_ethernetphy, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if ((flags & 0x0002) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+    /* uint8_t duplex {}; */
+    ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_duplex, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if ((flags & 0x0004) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+    /* uint8_t mdi {}; */
+    ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_mdi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if ((flags & 0x0008) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+    /* uint8_t connector {};*/
+    ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_connector, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(blf_tree, hf_blf_eth_status_mdi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if ((flags & 0x0010) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+    /* uint8_t clockMode {}; */
+    ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_clockmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if ((flags & 0x0020) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+    /* uint8_t pairs {}; */
+    ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_pairs, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if ((flags & 0x0040) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+    /* uint8_t hardwareChannel {};*/
+    ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_hardwarechannel, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if ((flags & 0x0080) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+    /* uint32_t bitrate {}; */
+    ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_bitrate, tvb, offset, 4, ENC_BIG_ENDIAN);
+    if ((flags & 0x0100) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    return tvb_reported_length(tvb);
+}
+
+
 void
 proto_register_file_blf(void) {
     static hf_register_info hf[] = {
@@ -873,8 +968,6 @@ proto_register_file_blf(void) {
             { "Trigger blockname", "blf.object.trigg_con.triggerblockname", FT_STRINGZPAD, BASE_NONE, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_trigg_cond_triggercondition,
             { "Trigger condition", "blf.object.trigg_con.triggercondition", FT_STRINGZPAD, BASE_NONE, NULL, 0x00, NULL, HFILL }},
-        { &hf_blf_not_parsed,
-            { "Not parsed", "blf.object.not_parsed", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_sys_var_type,
             { "Type", "blf.object.sys_var.type", FT_UINT32, BASE_DEC, VALS(blf_sys_var_type_vals), 0x00, NULL, HFILL}},
         { &hf_blf_sys_var_rep,
@@ -961,10 +1054,14 @@ proto_register_file_blf(void) {
     };
 
     proto_blf = proto_register_protocol("BLF File Format", "File-BLF", "file-blf");
+    proto_blf_ethernetstatus_obj = proto_register_protocol("BLF Ethernet Status", "BLF-Ethermet-Status", "blf-ethermet-status");
+
     proto_register_field_array(proto_blf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("file-blf", dissect_blf, proto_blf);
+
+    register_dissector("blf-ethernetstatus-obj", dissect_blf_ethernetstatus_obj, proto_blf_ethernetstatus_obj);
 }
 
 void
