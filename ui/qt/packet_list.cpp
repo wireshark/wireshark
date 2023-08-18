@@ -928,8 +928,10 @@ void PacketList::keyPressEvent(QKeyEvent *event)
     bool handled = false;
     // If scrolling up/down, want to preserve horizontal scroll extent.
     if (event->key() == Qt::Key_Down     || event->key() == Qt::Key_Up ||
-        event->key() == Qt::Key_PageDown || event->key() == Qt::Key_PageUp)
+        event->key() == Qt::Key_PageDown || event->key() == Qt::Key_PageUp ||
+        event->key() == Qt::Key_End      || event->key() == Qt::Key_Home )
     {
+        // XXX: Why allow jumping to the left if the first column is current?
         if (currentIndex().isValid() && currentIndex().column() > 0) {
             int pos = horizontalScrollBar()->value();
             QTreeView::keyPressEvent(event);
