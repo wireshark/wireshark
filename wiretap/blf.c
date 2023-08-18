@@ -426,7 +426,7 @@ fix_endianness_blf_apptext_header(blf_apptext_t *header) {
 static void
 fix_endianness_blf_ethernet_status_header(blf_ethernet_status_t* header) {
     header->channel = GUINT16_FROM_LE(header->channel);
-    header->flags = GUINT16_FROM_LE(header->channel);
+    header->flags = GUINT16_FROM_LE(header->flags);
     /*uint8_t linkStatus;*/
     /*uint8_t ethernetPhy;*/
     /*uint8_t duplex;*/
