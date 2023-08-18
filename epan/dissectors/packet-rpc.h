@@ -30,6 +30,7 @@ extern "C" {
 #define AUTH_KRB4 4
 #define AUTH_RSA 5
 #define RPCSEC_GSS 6
+#define AUTH_TLS 7
 #define AUTH_GSSAPI 300001
 /* Pseudo-flavors used for security mechanisms while using
  * RPCSEC_GSS

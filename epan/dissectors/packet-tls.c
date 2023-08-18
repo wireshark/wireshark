@@ -1856,7 +1856,7 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
     } else {
         pinfo->match_uint = pinfo->destport;
     }
-    call_dissector(session->app_handle, next_tvb, pinfo, proto_tree_get_root(tree));
+    call_dissector_with_data(session->app_handle, next_tvb, pinfo, proto_tree_get_root(tree), tlsinfo);
     pinfo->match_uint = saved_match_port;
 }
 
