@@ -96,7 +96,6 @@
 static PacketList *gbl_cur_packet_list = NULL;
 
 const int max_comments_to_fetch_ = 20000000; // Arbitrary
-const int tail_update_interval_ = 100; // Milliseconds.
 const int overlay_update_interval_ = 100; // 250; // Milliseconds.
 
 
@@ -202,9 +201,7 @@ PacketList::PacketList(QWidget *parent) :
     create_far_overlay_(true),
     mouse_pressed_at_(QModelIndex()),
     capture_in_progress_(false),
-    tail_timer_id_(0),
     tail_at_end_(0),
-    rows_inserted_(false),
     columns_changed_(false),
     set_column_visibility_(false),
     frozen_current_row_(QModelIndex()),
@@ -766,32 +763,9 @@ void PacketList::ctxDecodeAsDialog()
     da_dialog->show();
 }
 
-// Auto scroll if:
-// - We're not at the end
-// - We are capturing
-// - actionGoAutoScroll in the main UI is checked.
-// - It's been more than tail_update_interval_ ms since we last scrolled
-
-// actionGoAutoScroll in the main UI:
-// - Is set to the value of recent.capture_auto_scroll on startup (possibly
-//   affected by the -l command line flag) or whenever the recent is changed
-// - Can be triggered manually by the user
-// - Is turned on if the last user-set vertical scrollbar position is at the
-//   end and recent.capture_auto_scroll is enabled
-// - Is turned off if the last user-set vertical scrollbar is not at the end,
-//   or if one of the Go to Packet actions is used
-
-// Using a timer assumes that we can save CPU overhead by updating
-// periodically. If that's not the case we can dispense with it and call
-// scrollToBottom() from rowsInserted().
 void PacketList::timerEvent(QTimerEvent *event)
 {
-    if (event->timerId() == tail_timer_id_) {
-        if (rows_inserted_ && capture_in_progress_ && tail_at_end_) {
-            scrollToBottom();
-            rows_inserted_ = false;
-        }
-    } else if (event->timerId() == overlay_timer_id_) {
+    if (event->timerId() == overlay_timer_id_) {
         if (!capture_in_progress_) {
             if (create_near_overlay_) drawNearOverlay();
             if (create_far_overlay_) drawFarOverlay();
@@ -1223,17 +1197,12 @@ void PacketList::recolorPackets()
     redrawVisiblePackets();
 }
 
-/* Enable autoscroll timer. Note: must be called after the capture is started,
- * otherwise the timer will not be executed. */
+// Enable autoscroll.
 void PacketList::setVerticalAutoScroll(bool enabled)
 {
     tail_at_end_ = enabled;
     if (enabled && capture_in_progress_) {
         scrollToBottom();
-        if (tail_timer_id_ == 0) tail_timer_id_ = startTimer(tail_update_interval_);
-    } else if (tail_timer_id_ != 0) {
-        killTimer(tail_timer_id_);
-        tail_timer_id_ = 0;
     }
 }
 
@@ -2160,10 +2129,24 @@ void PacketList::drawFarOverlay()
     }
 }
 
+// Auto scroll if:
+// - We are capturing
+// - actionGoAutoScroll in the main UI is checked.
+
+// actionGoAutoScroll in the main UI:
+// - Is set to the value of recent.capture_auto_scroll when beginning a capture
+// - Can be triggered manually by the user
+// - Is turned on if the last user-set vertical scrollbar position is at the
+//   end and recent.capture_auto_scroll is enabled
+// - Is turned off if the last user-set vertical scrollbar is not at the end,
+//   or if one of the Go to Packet actions is used (XXX: Should keyboard
+//   navigation in keyPressEvent turn it off for similar reasons?)
 void PacketList::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     QTreeView::rowsInserted(parent, start, end);
-    rows_inserted_ = true;
+    if (capture_in_progress_ && tail_at_end_) {
+        scrollToBottom();
+    }
 }
 
 void PacketList::resizeAllColumns(bool onlyTimeFormatted)

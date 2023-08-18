@@ -137,9 +137,7 @@ private:
     QAction *show_hide_separator_;
     QList<QAction *>show_hide_actions_;
     bool capture_in_progress_;
-    int tail_timer_id_;
     bool tail_at_end_;
-    bool rows_inserted_;
     bool columns_changed_;
     bool set_column_visibility_;
     QModelIndex frozen_current_row_;
