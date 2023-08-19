@@ -1356,11 +1356,16 @@ main(int argc, char *argv[])
             case 'e':
                 /* Field entry */
                 {
-                    header_field_info *hfi = proto_registrar_get_byalias(ws_optarg);
-                    if (hfi)
-                        output_fields_add(output_fields, hfi->abbrev);
-                    else
-                        output_fields_add(output_fields, ws_optarg);
+                    const char* col_field = try_convert_to_column_field(ws_optarg);
+                    if (col_field) {
+                        output_fields_add(output_fields, col_field);
+                    } else {
+                        header_field_info *hfi = proto_registrar_get_byalias(ws_optarg);
+                        if (hfi)
+                            output_fields_add(output_fields, hfi->abbrev);
+                        else
+                            output_fields_add(output_fields, ws_optarg);
+                    }
                 }
                 break;
             case 'E':

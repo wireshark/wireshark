@@ -251,6 +251,31 @@ static struct deprecated_columns migrated_columns[] = {
     { /* COL_TEI */ "%E", "lapd.tei" },
 };
 
+const char*
+try_convert_to_column_field(const char *field)
+{
+    static const value_string migrated_fields[] = {
+        { COL_NUMBER, COLUMN_FIELD_FILTER"No." },
+        { COL_CLS_TIME, COLUMN_FIELD_FILTER"Time" },
+        { COL_DEF_SRC, COLUMN_FIELD_FILTER"Source" },
+        { COL_DEF_DST, COLUMN_FIELD_FILTER"Destination" },
+        { COL_PROTOCOL, COLUMN_FIELD_FILTER"Protocol" },
+        { COL_PACKET_LENGTH, COLUMN_FIELD_FILTER"Length" },
+        { COL_INFO, COLUMN_FIELD_FILTER"Info" },
+        { 0, NULL },
+    };
+
+    int idx;
+
+    idx = str_to_val_idx(field, migrated_fields);
+
+    if (idx >= 0) {
+        return col_format_abbrev(migrated_fields[idx].value);
+    }
+
+    return NULL;
+}
+
 /*
  * Parse a column format, filling in the relevant fields of a fmt_data.
  */

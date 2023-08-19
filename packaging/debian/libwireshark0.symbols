@@ -1804,6 +1804,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  try_conversation_dissector@Base 2.6.3
  try_conversation_dissector_by_id@Base 2.6.3
  try_convert_to_custom_column@Base 4.1.0
+ try_convert_to_column_field@Base 4.1.0
  try_enterprises_lookup@Base 2.5.0
  try_rval64_to_str@Base 2.3.0
  try_rval64_to_str_idx@Base 2.3.0

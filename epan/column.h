@@ -120,6 +120,16 @@ gboolean parse_column_format(fmt_data *cfmt, const char *fmt);
 WS_DLL_PUBLIC
 void try_convert_to_custom_column(char **fmt);
 
+/** Checks a column field string to see if it is a name of a filter
+ * field created using a default column title (as used in tshark -e),
+ * and alias it to the new column type based field.
+ *
+ * @param[in] field The old title based field, e.g. "_ws.col.Info"
+ * @return The new field, e.g. "_ws.col.info", or NULL
+ */
+WS_DLL_PUBLIC
+const char* try_convert_to_column_field(const char *field);
+
 WS_DLL_PUBLIC
 void column_register_fields(void);
 #ifdef __cplusplus

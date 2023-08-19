@@ -199,9 +199,13 @@ The following features are new (or have been significantly updated) since versio
 
 * With the addition of the universal and consistent filtering support for
 column text, the previous support in the -e option to tshark for displaying
-column text via the column title, e.g. "_ws.col.Info", has been removed.
-The previous implementation allowed names that are not legal filter names
-and wsbuglink:16576[silently ignored columns that didn't exist.]
+column text via the column title has been removed in general. Those field names
+cannot be used elsewhere (as they may not be legal filter names) and create
+confusion if more than one column has the same title or if a column is renamed.
+Prefer the column format instead, e.g. "_ws.col.info" for "_ws.col.Info".
+However, for backwards compatibilty with existing tools and scripts, the
+titles of the default columns can continue to be used with "tshark -e"
+(but not elsewhere.)
 
 * The bundled script "dtd_gen.lua" that was disabled by default has been removed
   from the installation. It can be found in the Wireshark Wiki under "Contrib".
