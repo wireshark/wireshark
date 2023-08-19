@@ -228,6 +228,7 @@ Digital Object Identifier Resolution Protocol (DO-IRP)
 High Speed Fahrzeugzugang (HSFZ)
 Zabbix Protocol (Zabbix)
 ASAM Capture Module Protocol (CMP)
+Fortinet FortiGate Cluster Protocol (FGCP)
 --
 
 === Updated Protocol Support

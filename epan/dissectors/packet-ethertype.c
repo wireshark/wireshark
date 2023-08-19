@@ -83,6 +83,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_IEEE_802_1AH,         "802.1ah Provider Backbone Bridge (mac-in-mac)" },
 	{ ETHERTYPE_IEEE_802_1BR,         "802.1br Bridge Port Extension E-Tag" },
 	{ ETHERTYPE_EAPOL,                "802.1X Authentication" },
+	{ ETHERTYPE_FORTINET_FGCP_HB,     "Fortinet FGCP (FortiGate Cluster Protocol) HB (HeartBeat)" },
 	{ ETHERTYPE_RSN_PREAUTH,          "802.11i Pre-Authentication" },
 	{ ETHERTYPE_MPLS,                 "MPLS label switched packet" },
 	{ ETHERTYPE_MPLS_MULTI,           "MPLS multicast label switched packet" },

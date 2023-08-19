@@ -345,6 +345,10 @@ extern "C" {
 #define ETHERTYPE_EAPOL			0x888E	/* 802.1x Authentication */
 #endif
 
+#ifndef ETHERTYPE_FORTINET_FGCP_HB  /* Not register https://community.fortinet.com/t5/FortiGate/Technical-Tip-FortiGate-HA-Heartbeat-packet-Ethertypes/ta-p/197807 */
+#define ETHERTYPE_FORTINET_FGCP_HB	0x8890	/* Fortinet FGCP HeartBeat */
+#endif
+
 #ifndef ETHERTYPE_PROFINET
 #define ETHERTYPE_PROFINET		0x8892	/* PROFIBUS PROFINET protocol */
 #endif
