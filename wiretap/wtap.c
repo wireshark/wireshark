@@ -2030,6 +2030,23 @@ wtap_buffer_append_epdu_uint(Buffer *buf, guint16 epdu_tag, guint32 val)
 	ws_buffer_increase_length(buf, space_needed);
 }
 
+void
+wtap_buffer_append_epdu_string(Buffer *buf, guint16 epdu_tag, const char *val)
+{
+	size_t string_len;
+
+	string_len = strlen(val);
+	/*
+	 * Cut off string length at G_MAXUINT16.
+	 *
+	 * XXX - make sure we don't leave an incomplete UTF-8
+	 * sequence at the end.
+	 */
+	if (string_len > G_MAXUINT16)
+		string_len = G_MAXUINT16;
+	wtap_buffer_append_epdu_tag(buf, epdu_tag, val, (guint16) string_len);
+}
+
 gint
 wtap_buffer_append_epdu_end(Buffer *buf)
 {

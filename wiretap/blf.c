@@ -2099,12 +2099,12 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
             g_free(text);
             return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */
         }
-        wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "data-text-lines", 16);
-        wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_COL_PROT_TEXT, "BLF App text", 13);
+        wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "data-text-lines");
+        wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_PROT_TEXT, "BLF App text");
         if (apptextheader.source == BLF_APPTEXT_METADATA) {
-            wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Metadata", 18);
+            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Metadata");
         } else {
-            wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Comment", 18);
+            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Comment");
         }
 
         wtap_buffer_append_epdu_end(params->buf);
@@ -2160,7 +2160,7 @@ blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint6
     tmpbuf[14] = (ethernet_status_header.bitrate & 0x0000ff00) >> 8;
     tmpbuf[15] = (ethernet_status_header.bitrate & 0x000000ff);
 
-    wtap_buffer_append_epdu_tag(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "blf-ethernetstatus-obj", 23);
+    wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "blf-ethernetstatus-obj");
     wtap_buffer_append_epdu_end(params->buf);
 
     ws_buffer_assure_space(params->buf, sizeof(ethernet_status_header));

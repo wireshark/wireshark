@@ -2262,6 +2262,17 @@ WS_DLL_PUBLIC
 void wtap_buffer_append_epdu_uint(Buffer *buf, guint16 epdu_tag, guint32 val);
 
 /**
+ * Generates packet data for a string in "exported PDU" format.
+ * For filetype readers to transform non-packetized data.
+ *
+ * @param[in,out] buf   Buffer into which to write field
+ * @param epdu_tag      tag ID of field to create
+ * @param val           string value to write to buf
+ */
+WS_DLL_PUBLIC
+void wtap_buffer_append_epdu_string(Buffer *buf, guint16 epdu_tag, const char *val);
+
+/**
  * Close off a set of "exported PDUs" added to the buffer.
  * For filetype readers to transform non-packetized data.
  *

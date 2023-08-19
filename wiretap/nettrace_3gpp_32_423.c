@@ -447,7 +447,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	}
 
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_COL_PROT_BIT) {
-		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_COL_PROT_TEXT, exported_pdu_info.proto_col_str, (guint16)strlen(exported_pdu_info.proto_col_str));
+		wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_COL_PROT_TEXT, exported_pdu_info.proto_col_str);
 		g_free(exported_pdu_info.proto_col_str);
 		exported_pdu_info.proto_col_str = NULL;
 	}

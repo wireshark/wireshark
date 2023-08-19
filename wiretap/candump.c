@@ -38,18 +38,15 @@ static gboolean
 candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
                      gchar **err_info)
 {
-    static const char can_proto_name[]   = "can-hostendian";
-    static const char canfd_proto_name[] = "canfd";
-
     /* Generate Exported PDU tags for the packet info */
     ws_buffer_clean(buf);
     if (msg->is_fd)
     {
-        wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_NAME, (const guint8 *)canfd_proto_name, sizeof canfd_proto_name - 1);
+        wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_DISSECTOR_NAME, "canfd");
     }
     else
     {
-        wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_NAME, (const guint8 *)can_proto_name, sizeof can_proto_name - 1);
+        wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_DISSECTOR_NAME, "can-hostendian");
     }
     wtap_buffer_append_epdu_end(buf);
 
