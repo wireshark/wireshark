@@ -1317,6 +1317,92 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 
 }				/* transaction_end() */
 
+static bool
+update_best_guess_timestamp(time_t secs, int64_t usecs, const nstime_t *comp_ts, nstime_t *out_ts, nstime_t *best_diff)
+{
+	nstime_t ts, delta;
+	if (usecs < 1000000 && usecs >= 0) {
+		/* suseconds_t allows -1 but we'll reject it */
+		ts.secs = secs;
+		ts.nsecs = (int)(1000 * usecs);
+		(nstime_cmp(comp_ts, &ts) > 0) ? nstime_delta(&delta, comp_ts, &ts) : nstime_delta(&delta, &ts, comp_ts);
+		if (nstime_cmp(&delta, best_diff) < 0) {
+			nstime_copy(best_diff, &delta);
+			nstime_copy(out_ts, &ts);
+			return true;
+		}
+	}
+	return false;
+}
+
+static int
+get_best_guess_timestamp(tvbuff_t *tvb, int offset, nstime_t *comp_ts, nstime_t *out_ts)
+{
+	/* Mike Muuss's original ping program put a timeval in the first
+	 * 8 bytes. Many (most?) implementations follow this, but as it's
+	 * not in the RFCs, it's usually just sent in native byte order.
+	 * Modern systems have 64 bit time_t, so we'll check that too.
+	 * The heuristic is to assume the value that has the smallest
+	 * absolute difference with the given time (the frame timestamp),
+	 * so long as it's less than a maximum value.
+	 *
+	 * XXX: There are other possibilities. A 32 bit system could use
+	 * a 32 bit suseconds_t even with a 64 bit time_t (as our nstime_t
+	 * does with nsecs on platforms with a 32 bit int), and other
+	 * implementations could do whatever they want (e.g., a timespec
+	 * with nanosecond fractional time.)
+	 */
+
+	/* Maximum delta we'll accept. We've been using one day for well over
+	 * a decade; it could be tighter, but I suppose this helps for captures
+	 * made on machines that didn't have their timezones set correctly?
+	 */
+	nstime_t best_delta = NSTIME_INIT_SECS(3600 * 24);
+	int64_t secs, usecs;
+	int len = 0;
+
+	if (tvb_bytes_exist(tvb, offset, 16)) {
+		/* LE timeval, 64 bit time_t */
+		secs = (time_t)tvb_get_letoh64(tvb, offset);
+		usecs = tvb_get_letoh64(tvb, offset + 8);
+		if (update_best_guess_timestamp(secs, usecs, comp_ts, out_ts, &best_delta)) {
+			len = 16;
+		}
+	}
+
+	/* Pre-Y2038, a timeval with 64 bit time_t looks like a LE timeval with
+	 * 32 bit time_t and 0 fractional seconds. Assume that (with legal
+	 * value for the following 64 bit usecs) is less likely than clock skew
+	 * that makes the ping timestamp in the future, and avoid the wrong
+	 * decision in the latter case. */
+	if (len == 0 || usecs != 0) {
+		/* LE timeval, 32 bit time_t */
+		secs = tvb_get_letohl(tvb, offset);
+		usecs = tvb_get_letohl(tvb, offset + 4);
+		if (update_best_guess_timestamp(secs, usecs, comp_ts, out_ts, &best_delta)) {
+			len = 8;
+		}
+	}
+
+	/* BE timeval, 32 bit time_t */
+	secs = tvb_get_ntohl(tvb, offset);
+	usecs = tvb_get_ntohl(tvb, offset + 4);
+	if (update_best_guess_timestamp(secs, usecs, comp_ts, out_ts, &best_delta)) {
+		len = 8;
+	}
+
+	if (tvb_bytes_exist(tvb, offset, 16)) {
+		/* BE timeval, 64 bit time_t */
+		secs = (time_t)tvb_get_ntoh64(tvb, offset);
+		usecs = tvb_get_ntoh64(tvb, offset + 8);
+		if (update_best_guess_timestamp(secs, usecs, comp_ts, out_ts, &best_delta)) {
+			len = 16;
+		}
+	}
+
+	return len;
+}
+
 #define MSPERDAY            86400000
 
 /* ======================================================================= */
@@ -1728,34 +1814,23 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			break;
 		}
 
-		/* Interpret the first 8 bytes of the icmp data as a timestamp
+		/* Interpret the first 8 or 16 bytes of the icmp data as a timestamp
 		 * But only if it does look like it's a timestamp.
 		 *
-		 * FIXME:
-		 *    Timestamps could be in different formats depending on the OS
 		 */
-		ts.secs = tvb_get_ntohl(tvb, 8);
-		ts.nsecs = tvb_get_ntohl(tvb, 8 + 4);	/* Leave at microsec resolution for now */
-		if (abs((int)(ts.secs - pinfo->abs_ts.secs)) >=
-		    3600 * 24 || ts.nsecs >= 1000000) {
-			/* Timestamp does not look right in BE, try LE representation */
-			ts.secs = tvb_get_letohl(tvb, 8);
-			ts.nsecs = tvb_get_letohl(tvb, 8 + 4);	/* Leave at microsec resolution for now */
-		}
-		if (abs((int)(ts.secs - pinfo->abs_ts.secs)) <
-		    3600 * 24 && ts.nsecs < 1000000) {
-			ts.nsecs *= 1000;	/* Convert to nanosec resolution */
+		int len;
+		if ((len = get_best_guess_timestamp(tvb, 8, &pinfo->abs_ts, &ts))) {
 			proto_tree_add_time(icmp_tree, hf_icmp_data_time,
-					    tvb, 8, 8, &ts);
+					    tvb, 8, len, &ts);
 			nstime_delta(&time_relative, &pinfo->abs_ts,
 				     &ts);
 			ti = proto_tree_add_time(icmp_tree,
 						 hf_icmp_data_time_relative,
-						 tvb, 8, 8,
+						 tvb, 8, len,
 						 &time_relative);
 			proto_item_set_generated(ti);
 			call_data_dissector(tvb_new_subset_remaining(tvb,
-								8 + 8),
+								8 + len),
 				       pinfo, icmp_tree);
 		} else {
 			heur_dtbl_entry_t *hdtbl_entry;
@@ -2137,14 +2212,14 @@ void proto_register_icmp(void)
 		 {"Timestamp from icmp data", "icmp.data_time",
 		  FT_ABSOLUTE_TIME,
 		  ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "The timestamp in the first 8 bytes of the icmp data",
+		  "The timestamp in the first 8 or 16 bytes of the icmp data",
 		  HFILL}},
 
 		{&hf_icmp_data_time_relative,
 		 {"Timestamp from icmp data (relative)",
 		  "icmp.data_time_relative",
 		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-		  "The timestamp of the packet, relative to the timestamp in the first 8 bytes of the icmp data",
+		  "The timestamp of the packet, relative to the timestamp in the first 8 or 16 bytes of the icmp data",
 		  HFILL}},
 
 		{&hf_icmp_length,
