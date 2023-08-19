@@ -46,7 +46,6 @@ private:
     pref_t *pref_pcap_ng_;
     pref_t *pref_real_time_;
     pref_t *pref_update_interval_;
-    pref_t *pref_auto_scroll_;
     pref_t *pref_no_interface_load_;
     pref_t *pref_no_extcap_;
 
