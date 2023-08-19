@@ -2239,7 +2239,7 @@ const value_string compress_certificate_algorithm_vals[] = {
 };
 
 
-const value_string quic_transport_parameter_id[] = {
+const val64_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_ORIGINAL_DESTINATION_CONNECTION_ID, "original_destination_connection_id" },
     { SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT, "max_idle_timeout" },
     { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
@@ -2275,6 +2275,8 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY, "facebook_partial_reliability" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY_DRAFT_V1, "min_ack_delay (draft-01)" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY, "min_ack_delay" },
+    { SSL_HND_QUIC_TP_ENABLE_MULTIPATH_DRAFT04, "enable_multipath (draft-04)" },
+    { SSL_HND_QUIC_TP_ENABLE_MULTIPATH, "enable_multipath" },
     { 0, NULL }
 };
 
@@ -2286,6 +2288,13 @@ const val64_string quic_enable_time_stamp_v2_vals[] = {
     { 0, NULL }
 };
 
+/* https://tools.ietf.org/html/draft-multipath-04 */
+const val64_string quic_enable_multipath_vals[] = {
+    { 0, "don't support multipath" },
+    { 1, "support multipath as defined in this document" },
+    { 0, NULL }
+};
+
 /* Lookup tables }}} */
 
 void
@@ -2294,11 +2303,8 @@ quic_transport_parameter_id_base_custom(gchar *result, guint64 parameter_id)
     const char *label;
     if (IS_GREASE_QUIC(parameter_id)) {
         label = "GREASE";
-    } else if (parameter_id > 0xffffffff) {
-        // There are no 64-bit Parameter IDs at the moment.
-        label = "Unknown";
     } else {
-        label = val_to_str_const((guint32)parameter_id, quic_transport_parameter_id, "Unknown");
+        label = val64_to_str_const(parameter_id, quic_transport_parameter_id, "Unknown");
     }
     snprintf(result, ITEM_LABEL_LENGTH, "%s (0x%02" PRIx64 ")", label, parameter_id);
 }
@@ -7911,14 +7917,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
 
         if (IS_GREASE_QUIC(parameter_type)) {
             proto_item_append_text(parameter_tree, ": GREASE");
-        } else if (parameter_type > G_MAXUINT) {
-            /* There are currently no known TP larger than 32 bits, therefore
-             * quic_transport_parameter_id assumes that. If larger (up to 62
-             * bits) TPs are available, then it needs to be revisited.
-             */
-            proto_item_append_text(parameter_tree, ": Unknown 0x%08" PRIx64, parameter_type);
         } else {
-            proto_item_append_text(parameter_tree, ": %s", val_to_str((guint32)parameter_type, quic_transport_parameter_id, "Unknown 0x%04x"));
+            proto_item_append_text(parameter_tree, ": %s", val64_to_str(parameter_type, quic_transport_parameter_id, "Unknown 0x%04x"));
         }
 
         proto_item_append_text(parameter_tree, " (len=%u)", parameter_length);
@@ -8168,6 +8168,14 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_facebook_partial_reliability,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 offset += parameter_length;
+            break;
+            case SSL_HND_QUIC_TP_ENABLE_MULTIPATH_DRAFT04:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_enable_multipath,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                offset += parameter_length;
+            break;
+            case SSL_HND_QUIC_TP_ENABLE_MULTIPATH:
+                /* No Payload */
             break;
             default:
                 offset += parameter_length;

@@ -15,16 +15,17 @@
  * RFC9000 QUIC: A UDP-Based Multiplexed and Secure Transport
  * RFC9001 Using TLS to Secure QUIC
  * RFC8889 Version-Independent Properties of QUIC
+ * RFC9221 An Unreliable Datagram Extension to QUIC
  * RFC9369 QUIC Version 2
  * RFC9368 Compatible Version Negotiation for QUIC
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
- * https://datatracker.ietf.org/doc/html/draft-ietf-quic-datagram-06
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-04
  * https://tools.ietf.org/html/draft-deconinck-quic-multipath-06
  * https://tools.ietf.org/html/draft-banks-quic-cibir-01
+ * https://tools.ietf.org/html/draft-ietf-quic-multipath-05 (and also draft-04)
 
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
@@ -204,6 +205,13 @@ static int hf_quic_mp_add_local_address_id = -1;
 static int hf_quic_mp_uniflow_info_section = -1;
 static int hf_quic_mp_receiving_uniflow_info_section = -1;
 static int hf_quic_mp_active_sending_uniflows_info_section = -1;
+
+/* multipath*/
+static int hf_quic_mp_ack_dcid_sequence_number = -1;
+static int hf_quic_mp_pa_dcid_sequence_number = -1;
+static int hf_quic_mp_ps_dcid_sequence_number = -1;
+static int hf_quic_mp_ps_path_status_sequence_number = -1;
+static int hf_quic_mp_ps_path_status = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -676,6 +684,14 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_DATAGRAM_LENGTH          0x31
 #define FT_IMMEDIATE_ACK            0xAC
 #define FT_ACK_FREQUENCY            0xAF
+#define FT_ACK_MP_DRAFT04           0xbaba00 /* multipath-draft-04 */
+#define FT_ACK_MP_ECN_DRAFT04       0xbaba01 /* multipath-draft-04 */
+#define FT_PATH_ABANDON_DRAFT04     0xbaba05 /* multipath-draft-04 */
+#define FT_PATH_STATUS_DRAFT04      0xbaba06 /* multipath-draft-04 */
+#define FT_ACK_MP                   0x15228c00
+#define FT_ACK_MP_ECN               0x15228c01
+#define FT_PATH_ABANDON             0x15228c05
+#define FT_PATH_STATUS              0x15228c06
 #define FT_TIME_STAMP               0x02F5
 
 static const range_string quic_frame_type_vals[] = {
@@ -712,6 +728,12 @@ static const range_string quic_frame_type_vals[] = {
     { 0xAC, 0xAC,   "IMMEDIATE_ACK" },
     { 0xaf, 0xaf,   "ACK_FREQUENCY" },
     { 0x02f5, 0x02f5, "TIME_STAMP" },
+    { 0xbaba00, 0xbaba01, "ACK_MP" }, /* multipath-draft-04 */
+    { 0xbaba05, 0xbaba05, "PATH_ABANDON" }, /* multipath-draft-04 */
+    { 0xbaba06, 0xbaba06, "PATH_STATUS" }, /* multipath-draft-04 */
+    { 0x15228c00, 0x15228c01, "ACK_MP" }, /* >= multipath-draft-05 */
+    { 0x15228c05, 0x15228c05, "PATH_ABANDON" }, /* >= multipath-draft-05 */
+    { 0x15228c06, 0x15228c06, "PATH_STATUS" }, /* >= multipath-draft-05 */
     { 0,    0,        NULL },
 };
 
@@ -768,6 +790,13 @@ static const val64_string quic_frame_id_direction[] = {
     { 1, "Unidirectional" },
     { 0, NULL }
 };
+
+static const val64_string quic_mp_path_status[] = {
+    { 1, "Standby" },
+    { 2, "Available" },
+    { 0, NULL }
+};
+
 
 static void
 quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
@@ -2174,6 +2203,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_ACK:
         case FT_ACK_ECN:
+        case FT_ACK_MP:
+        case FT_ACK_MP_ECN:
+        case FT_ACK_MP_DRAFT04:
+        case FT_ACK_MP_ECN_DRAFT04:
         case FT_MP_ACK:
         case FT_MP_ACK_ECN:{
             guint64 ack_range_count;
@@ -2194,6 +2227,18 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_MP_ACK_ECN:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_ACK_ECN");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+                break;
+                case FT_ACK_MP:
+                case FT_ACK_MP_DRAFT04:
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_MP");
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_dcid_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+                break;
+                case FT_ACK_MP_ECN:
+                case FT_ACK_MP_ECN_DRAFT04:
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_MP_ECN");
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_dcid_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
             }
@@ -2224,7 +2269,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
 
             /* ECN Counts. */
-            if (frame_type == FT_ACK_ECN) {
+            if (frame_type == FT_ACK_ECN || frame_type == FT_MP_ACK_ECN || frame_type == FT_ACK_MP_ECN || frame_type == FT_ACK_MP_ECN_DRAFT04 ) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
@@ -2536,14 +2581,22 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_CONNECTION_CLOSE_TPT:
-        case FT_CONNECTION_CLOSE_APP:{
+        case FT_CONNECTION_CLOSE_APP:
+        case FT_PATH_ABANDON_DRAFT04:
+        case FT_PATH_ABANDON:{
             gint32 len_reasonphrase, len_frametype, len_error_code;
             guint64 len_reason = 0;
             guint64 error_code;
             const char *tls_alert = NULL;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", CC");
-
+            if (frame_type == FT_PATH_ABANDON_DRAFT04 || frame_type == FT_PATH_ABANDON) {
+                gint32 lenvar;
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", PA");
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pa_dcid_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+            } else {
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", CC");
+            }
             if (frame_type == FT_CONNECTION_CLOSE_TPT) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_error_code, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
                 if ((error_code >> 8) == 1) {  // CRYPTO_ERROR (0x1XX)
@@ -2744,6 +2797,21 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item(item_tree, hf_quic_mp_add_local_address_id , tvb, offset, 1, ENC_NA);
                 offset += 1;
             }
+        }
+        break;
+        case FT_PATH_STATUS_DRAFT04:
+        case FT_PATH_STATUS:{
+            gint32 length;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", PS");
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_dcid_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (guint32)length;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_status_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (guint32)length;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_status, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (guint32)length;
         }
         break;
         default:
@@ -4883,6 +4951,35 @@ proto_register_quic(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+
+        /* multipath */
+       { &hf_quic_mp_ack_dcid_sequence_number,
+          { "DCID Sequence Number", "quic.mp_ack_dcid_sequence_number",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Destination Connection ID Sequence Number", HFILL }
+        },
+       { &hf_quic_mp_pa_dcid_sequence_number,
+          { "DCID Sequence Number", "quic.mp_pa_dcid_sequence_number",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Destination Connection ID Sequence Number", HFILL }
+        },
+       { &hf_quic_mp_ps_dcid_sequence_number,
+          { "DCID Sequence Number", "quic.mp_ps_dcid_sequence_number",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Destination Connection ID Sequence Number", HFILL }
+        },
+       { &hf_quic_mp_ps_path_status_sequence_number,
+          { "Path Status Sequence Number", "quic.mp_ps_path_status_sequence_number",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+       { &hf_quic_mp_ps_path_status,
+          { "Path Status", "quic.mp_ps_path_status",
+            FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(quic_mp_path_status), 0x0,
+            NULL, HFILL }
+        },
+
+
         { &hf_quic_short_reserved,
           { "Reserved", "quic.short.reserved",
             FT_UINT8, BASE_DEC, NULL, 0x18,

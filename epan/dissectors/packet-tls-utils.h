@@ -199,6 +199,8 @@ typedef enum {
 #define SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY        0xFF00
 #define SSL_HND_QUIC_TP_MIN_ACK_DELAY_DRAFT_V1              0xFF03DE1A /* https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-01 */
 #define SSL_HND_QUIC_TP_MIN_ACK_DELAY                       0xFF04DE1A /* https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-04 */
+#define SSL_HND_QUIC_TP_ENABLE_MULTIPATH_DRAFT04            0x0F739BBC1B666D04 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-04 */
+#define SSL_HND_QUIC_TP_ENABLE_MULTIPATH                    0x0F739BBC1B666D05 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-05 */
 /*
  * Lookup tables
  */
@@ -235,9 +237,10 @@ extern const value_string tls_hello_ext_max_fragment_length[];
 extern const value_string tls_hello_ext_psk_ke_mode[];
 extern const value_string tls13_key_update_request[];
 extern const value_string compress_certificate_algorithm_vals[];
-extern const value_string quic_transport_parameter_id[];
+extern const val64_string quic_transport_parameter_id[];
 extern const range_string quic_version_vals[];
 extern const val64_string quic_enable_time_stamp_v2_vals[];
+extern const val64_string quic_enable_multipath_vals[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
@@ -1063,6 +1066,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_facebook_partial_reliability;
         gint hs_ext_quictp_parameter_chosen_version;
         gint hs_ext_quictp_parameter_other_version;
+        gint hs_ext_quictp_parameter_enable_multipath;
 
         gint esni_suite;
         gint esni_record_digest_length;
@@ -1304,7 +1308,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1                              \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1                          \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -2419,6 +2423,11 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_other_version,                 \
       { "Other Version", prefix ".quic.parameter.vi.other_version",     \
         FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_enable_multipath,              \
+      { "Enable Multipath", prefix ".quic.parameter.enable_multipath", \
+        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(quic_enable_multipath_vals), 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_connection_id_length,                           \
