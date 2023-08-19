@@ -26,7 +26,6 @@
 
 #include <stdint.h>
 #include <epan/packet.h>
-#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 
@@ -321,6 +320,7 @@ static const enum_val_t binary_display_options[] = {
 
 static int dissect_thrift_binary_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, proto_tree *header_tree, int type, proto_item *type_pi);
 static int dissect_thrift_compact_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, proto_tree *header_tree, int type, proto_item *type_pi);
+static int dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *seq, expert_field* ei);
 
 
 /*=====BEGIN GENERIC HELPERS=====*/
@@ -1239,7 +1239,7 @@ dissect_thrift_t_member(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         offset = dissect_thrift_t_map(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, *elt->p_ett_id, elt->u.m.key, elt->u.m.value);
         break;
     case DE_THRIFT_T_STRUCT:
-        offset = dissect_thrift_t_struct(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, *elt->p_ett_id, elt->u.members);
+        offset = dissect_thrift_t_struct_expert(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, *elt->p_ett_id, elt->u.s.members, elt->u.s.expert_info);
         break;
     case DE_THRIFT_T_UUID:
         offset = dissect_thrift_t_uuid(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id);
@@ -1586,6 +1586,12 @@ dissect_thrift_t_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 int
 dissect_thrift_t_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *seq)
 {
+    return dissect_thrift_t_struct_expert(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, seq, NULL);
+}
+
+static int
+dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *seq, expert_field* ei)
+{
     thrift_field_header_t field_header;
     proto_tree *sub_tree = NULL;
     proto_item *type_pi = NULL;
@@ -1690,6 +1696,11 @@ dissect_thrift_t_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
     /* The loop exits before dissecting the T_STOP. */
     offset = dissect_thrift_t_stop(tvb, pinfo, sub_tree, offset);
+
+    /* Set expert info if required. */
+    if (ei != NULL) {
+        expert_add_info(pinfo, type_pi, ei);
+    }
 
     if (enable_subtree && offset > 0) {
         proto_item_set_end(type_pi, tvb, offset);
@@ -2772,6 +2783,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         len = dissector_try_string(thrift_method_name_dissector_table, method_str, msg_tvb, pinfo, tree, thrift_opt);
         if (pinfo->can_desegment > 0) pinfo->can_desegment--;
     } else {
+        /* Attach the expert_info to the method type as it is a protocol-level exception. */
         expert_add_info(pinfo, mtype_pi, &ei_thrift_protocol_exception);
         /* Leverage the sub-dissector capabilities to dissect Thrift exceptions. */
         len = dissect_thrift_t_struct(msg_tvb, pinfo, thrift_tree, 0, thrift_opt, FALSE, 0, hf_thrift_exception, ett_thrift_exception, thrift_exception);
@@ -3502,7 +3514,7 @@ proto_register_thrift(void)
     thrift_module = prefs_register_protocol(proto_thrift, proto_reg_handoff_thrift);
 
     thrift_method_name_dissector_table = register_dissector_table("thrift.method_names", "Thrift Method names",
-        proto_thrift, FT_STRING, STRING_CASE_SENSITIVE); /* FALSE because Thrift is case-sensitive */
+        proto_thrift, FT_STRING, STRING_CASE_SENSITIVE); /* Thrift is case-sensitive. */
 
     prefs_register_enum_preference(thrift_module, "decode_binary",
                                    "Display binary as bytes or strings",
