@@ -4306,8 +4306,7 @@ static const value_string nvme_cqe_aev_status_error_tbl[] = {
     { 0x1, "Invalid Doorbell Write Value" },
     { 0x2, "Diagnostic Failure" },
     { 0x3, "Persistent Internal Error"},
-    { 0x3, "Transient Internal Error"},
-    { 0x4, "Persistent Internal Error"},
+    { 0x4, "Transient Internal Error"},
     { 0x5, "Firmware Image Load Error"},
     { 0, NULL },
 };

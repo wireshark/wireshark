@@ -2478,7 +2478,7 @@ static const value_string acn_blob_sequence_operation_field_name[] = {
   { 1, "Operation Type" },
   { 2, "Space" },
   { 3, "Sequence Number" },
-  { 3, "Step Number" },
+  { 4, "Step Number" },
   { 0, NULL }
 };
 

@@ -505,6 +505,71 @@ def is_ignored_consecutive_filter(filter):
     return False
 
 
+class ValueString:
+    def __init__(self, file, name, vals, macros):
+        self.file = file
+        self.name = name
+        self.raw_vals = vals
+        self.parsed_vals = {}
+        self.valid = True
+
+        # Now parse out each entry in the value_string
+        matches = re.finditer(r'\{\s*([0-9_A-Za-z]*)\s*,\s*(".*?")\s*}\s*,', self.raw_vals)
+        for m in matches:
+            value,label = m.group(1), m.group(2)
+            if value in macros:
+                value = macros[value]
+            elif any(not c in '0123456789abcdefABCDEFxX' for c in value):
+                self.valid = False
+                return
+            else:
+                # Read according to the appropriate base.
+                if value.lower().startswith('0x'):
+                    value = int(value, 16)
+                elif value.startswith('0'):
+                    value = int(value, 8)
+                else:
+                    value = int(value, 10)
+
+            # Check for conflict before inserting
+            if value in self.parsed_vals and not label == self.parsed_vals[value]:
+                print('Error:', self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
+                      self.parsed_vals[value], 'now', label)
+                global errors_found
+                errors_found += 1
+            else:
+                # Add into table
+                self.parsed_vals[value] = label
+
+
+    def __str__(self):
+        return  self.name + '= { ' + self.raw_vals + ' }'
+
+# Look for value_string entries in a dissector file.  Return a dict name -> ValueString
+def findValueStrings(filename, macros):
+    vals_found = {}
+
+    #static const value_string radio_type_vals[] =
+    #{
+    #    { 0,      "FDD"},
+    #    { 1,      "TDD"},
+    #    { 0, NULL }
+    #};
+
+    with open(filename, 'r', encoding="utf8") as f:
+        contents = f.read()
+
+        # Remove comments so as not to trip up RE.
+        contents = removeComments(contents)
+
+        matches =   re.finditer(r'.*const value_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\s\"]*)\};', contents)
+        for m in matches:
+            name = m.group(1)
+            vals = m.group(2)
+            vals_found[name] = ValueString(filename, name, vals, macros)
+
+    return vals_found
+
 
 # The relevant parts of an hf item.  Used as value in dict where hf variable name is key.
 class Item:
@@ -1177,6 +1242,9 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     field_arrays = {}
     if check_bitmask_fields:
         field_arrays = find_field_arrays(filename, fields, items_defined)
+
+    # Find (and sanity-check) value_strings
+    value_strings = findValueStrings(filename, macros)
 
     if check_mask and check_bitmask_fields:
         for i in items_defined:

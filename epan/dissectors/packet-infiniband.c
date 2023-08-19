@@ -377,7 +377,7 @@ static const value_string LinkWidthEnabled[]= {
     {0x000C, "8x or 12x"},
     {0x000D, "1x or 8x or 12x"},
     {0x000E, "4x or 8x or 12x"},
-    {0x000E, "1x or 4x or 8x or 12x"},
+    {0x000F, "1x or 4x or 8x or 12x"},
     {0x00FF, "Set to LinkWidthSupported Value - Response contains actual LinkWidthSupported"},
     { 0, NULL}
 };

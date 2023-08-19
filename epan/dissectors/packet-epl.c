@@ -961,7 +961,8 @@ static const value_string sod_idx_names[] = {
 	{0x10300009, "Valid_BOOL"},
 
 	{0x10500000, "NMT_RelativeLatencyDiff_AU32"},
-	{0x10500000, "RelativeLatencyDiff"},
+	/* TODO: same value, so effectively hidden.  Is there another value?
+	{0x10500000, "RelativeLatencyDiff"}, */
 
 	{0x11010000, "DIA_NMTTelegrCount_REC"},
 	{0x11010001, "IsochrCyc_U32"},

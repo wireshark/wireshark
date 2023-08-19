@@ -1534,7 +1534,7 @@ static const value_string ieee1905_channel_select_resp_code_vals[] = {
   { 0x00, "Accept" },
   { 0x01, "Declined because request violates current preferences" },
   { 0x02, "Declined because request violates most recently reported preferences" },
-  { 0x02, "Declined because request would prevent operation of a current backhaul link" },
+  { 0x03, "Declined because request would prevent operation of a current backhaul link" },
   { 0, NULL }
 };
 
