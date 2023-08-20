@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 4.1.0 (v4.1.0rc0-1461-g89188380ae44)
+Capinfos (Wireshark) 4.1.0 (v4.1.0rc0-3463-gc97982881f78)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 
@@ -11,6 +11,7 @@ General infos:
   -F display additional capture file information
   -H display the SHA256 and SHA1 hashes of the file
   -k display the capture comment
+  -p display individual packet comments
 
 Size infos:
   -c display the number of packets
@@ -58,6 +59,7 @@ Miscellaneous:
   -C cancel processing if file open fails (default is to continue)
   -A generate all infos (default)
   -K disable displaying the capture comment
+  -P disable displaying individual packet comments
 
 Options are processed from left to right order with later options superseding
 or adding to earlier options.

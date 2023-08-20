@@ -1582,11 +1582,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にパケット一覧を一番下にスクロールし続けます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にパケット一覧を一番下にスクロールし続けます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatic scrolling in live capture</source>
-        <translation>キャプチャ中に自動スクロール</translation>
+        <translation type="vanished">キャプチャ中に自動スクロール</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -3731,6 +3731,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>GSM MAPメッセージの平均バイト数</translation>
+    </message>
+</context>
+<context>
+    <name>IOConsoleDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">ダイアログ</translation>
+    </message>
+    <message>
+        <source>Enter code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Evaluate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="unfinished">クリア</translation>
+    </message>
+    <message>
+        <source>Use %1 to evaluate.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

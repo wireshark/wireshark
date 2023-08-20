@@ -1582,14 +1582,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Automatic scrolling in live capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3709,6 +3701,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Average number of bytes per GSM MAP message</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>IOConsoleDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Evaluate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use %1 to evaluate.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

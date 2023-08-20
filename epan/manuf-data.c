@@ -21427,7 +21427,7 @@ static manuf_oui24_t global_manuf_oui24_table[] = {
     { { 0x64, 0x4F, 0xB0 }, "Hyunjincom",   "Hyunjin.com" },
     { { 0x64, 0x50, 0xD6 }, "Liquidtool",   "Liquidtool Systems" },
     { { 0x64, 0x51, 0x06 }, "HewlettPacka", "Hewlett Packard" },
-    { { 0x64, 0x51, 0x7E }, "LongBenElect", "Long Ben (Dongguan) Electronic Technology Co.,Ltd." },
+    { { 0x64, 0x51, 0x7E }, "LongBenDongg", "Long Ben (Dongguan) Electronic Technology Co.,Ltd." },
     { { 0x64, 0x51, 0xF4 }, "HuaweiDevice", "Huawei Device Co., Ltd." },
     { { 0x64, 0x52, 0x34 }, "SichuanTiany", "Sichuan Tianyi Comheart Telecom Co.,LTD" },
     { { 0x64, 0x52, 0x99 }, "ChamberlainG", "The Chamberlain Group, Inc" },

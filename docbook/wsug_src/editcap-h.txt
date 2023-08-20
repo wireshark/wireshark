@@ -1,4 +1,4 @@
-Editcap (Wireshark) 4.1.0 (v4.1.0rc0-1347-g840a0d302513)
+Editcap (Wireshark) 4.1.0 (v4.1.0rc0-3463-gc97982881f78)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -103,6 +103,10 @@ Output File(s):
                          when writing the output file.  Does not discard
                          comments added by "--capture-comment" in the same
                          command line.
+  --discard-packet-comments
+                         Discard all packet comments from the input file
+                         when writing the output file.  Does not discard
+                         comments added by "-a" in the same command line.
 
 Miscellaneous:
   -h, --help             display this help and exit.
