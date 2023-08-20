@@ -25,4 +25,6 @@ typedef struct {
     guint8 code;
 } icmp_info_t;
 
+int get_best_guess_timestamp(tvbuff_t *tvb, int offset, nstime_t *comp_ts, nstime_t *out_ts);
+
 #endif

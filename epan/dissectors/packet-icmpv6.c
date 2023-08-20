@@ -99,6 +99,8 @@ static int hf_icmpv6_pointer = -1;
 static int hf_icmpv6_echo_identifier = -1;
 static int hf_icmpv6_echo_sequence_number = -1;
 static int hf_icmpv6_nonce = -1;
+static int hf_icmpv6_data_time = -1;
+static int hf_icmpv6_data_time_relative = -1;
 
 /* RFC 2461/4861 : Neighbor Discovery for IP version 6 (IPv6) */
 static int hf_icmpv6_nd_ra_cur_hop_limit = -1;
@@ -4262,6 +4264,20 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     trans = transaction_end(pinfo, icmp6_tree, conv_key);
                 }
             }
+
+            /* Interpret the first 8 or 16 bytes of the Echo data as a timestamp
+             * But only if it does look like it's a timestamp.
+             */
+
+            nstime_t ts, time_relative;
+            int len = get_best_guess_timestamp(tvb, offset, &pinfo->abs_ts, &ts);
+            if (len) {
+                proto_tree_add_time(icmp6_tree, hf_icmpv6_data_time, tvb, offset, len, &ts);
+                nstime_delta(&time_relative, &pinfo->abs_ts, &ts);
+                ti = proto_tree_add_time(icmp6_tree, hf_icmpv6_data_time_relative, tvb, offset, len, &time_relative);
+                proto_item_set_generated(ti);
+                offset += len;
+            }
             heur_dtbl_entry_t *hdtbl_entry;
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             gboolean result = dissector_try_heuristic(icmpv6_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL);
@@ -4890,6 +4906,16 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_nonce,
           { "Nonce", "icmpv6.nonce", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+        { &hf_icmpv6_data_time,
+          { "Timestamp from Echo data", "icmpv6.data_time",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+            "The timestamp in the first 8 or 16 bytes of the Echo data",
+            HFILL }},
+        { &hf_icmpv6_data_time_relative,
+          { "Timestamp from Echo data (relative)", "icmpv6.data_time_relative",
+            FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+            "The timestamp of the packet, relative to the timestamp in the first 8 or 16 bytes of the Echo data",
+            HFILL }},
         /* RFC 2461/4861 : Neighbor Discovery for IP version 6 (IPv6) */
         { &hf_icmpv6_nd_ra_cur_hop_limit,
           { "Cur hop limit", "icmpv6.nd.ra.cur_hop_limit", FT_UINT8, BASE_DEC, NULL, 0x0,

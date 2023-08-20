@@ -1335,7 +1335,7 @@ update_best_guess_timestamp(time_t secs, int64_t usecs, const nstime_t *comp_ts,
 	return false;
 }
 
-static int
+int
 get_best_guess_timestamp(tvbuff_t *tvb, int offset, nstime_t *comp_ts, nstime_t *out_ts)
 {
 	/* Mike Muuss's original ping program put a timeval in the first
@@ -1346,12 +1346,17 @@ get_best_guess_timestamp(tvbuff_t *tvb, int offset, nstime_t *comp_ts, nstime_t 
 	 * absolute difference with the given time (the frame timestamp),
 	 * so long as it's less than a maximum value.
 	 *
-	 * XXX: There are other possibilities. A 32 bit system could use
-	 * a 32 bit suseconds_t even with a 64 bit time_t (as our nstime_t
-	 * does with nsecs on platforms with a 32 bit int), and other
-	 * implementations could do whatever they want (e.g., a timespec
-	 * with nanosecond fractional time.)
+	 * XXX: There are other possibilities. A system could use a 32 bit
+	 * suseconds_t even with a 64 bit time_t (as our nstime_t does with
+	 * nsecs on platforms with a 32 bit int, and as NetBSD and OpenBSD
+	 * apparently do) and other implementations of ping could do whatever
+	 * they want (e.g., send a timespec with with nanosecond fractional
+	 * time.)
 	 */
+
+	if (!tvb_bytes_exist(tvb, offset, 8)) {
+		return 0;
+	}
 
 	/* Maximum delta we'll accept. We've been using one day for well over
 	 * a decade; it could be tighter, but I suppose this helps for captures
@@ -1370,15 +1375,15 @@ get_best_guess_timestamp(tvbuff_t *tvb, int offset, nstime_t *comp_ts, nstime_t 
 		}
 	}
 
+	/* LE timeval, 32 bit time_t */
+	secs = tvb_get_letohl(tvb, offset);
+	usecs = tvb_get_letohl(tvb, offset + 4);
 	/* Pre-Y2038, a timeval with 64 bit time_t looks like a LE timeval with
 	 * 32 bit time_t and 0 fractional seconds. Assume that (with legal
 	 * value for the following 64 bit usecs) is less likely than clock skew
 	 * that makes the ping timestamp in the future, and avoid the wrong
 	 * decision in the latter case. */
 	if (len == 0 || usecs != 0) {
-		/* LE timeval, 32 bit time_t */
-		secs = tvb_get_letohl(tvb, offset);
-		usecs = tvb_get_letohl(tvb, offset + 4);
 		if (update_best_guess_timestamp(secs, usecs, comp_ts, out_ts, &best_delta)) {
 			len = 8;
 		}
@@ -1818,8 +1823,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		 * But only if it does look like it's a timestamp.
 		 *
 		 */
-		int len;
-		if ((len = get_best_guess_timestamp(tvb, 8, &pinfo->abs_ts, &ts))) {
+		int len = get_best_guess_timestamp(tvb, 8, &pinfo->abs_ts, &ts);
+		if (len) {
 			proto_tree_add_time(icmp_tree, hf_icmp_data_time,
 					    tvb, 8, len, &ts);
 			nstime_delta(&time_relative, &pinfo->abs_ts,
