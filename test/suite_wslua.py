@@ -199,6 +199,10 @@ class TestWslua:
         '''wslua proto'''
         check_lua_script('proto.lua', empty_pcap, True)
 
+    def test_wslua_byte_array(self, check_lua_script):
+        '''wslua byte_array'''
+        check_lua_script('byte_array.lua', empty_pcap, True)
+
     def test_wslua_protofield_tree(self, check_lua_script):
         '''wslua protofield with a tree'''
         check_lua_script('protofield.lua', dns_port_pcap, True,
