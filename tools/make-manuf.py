@@ -115,6 +115,10 @@ skip_start = [
     'guangxi',
 ]
 
+# Special cases handled directly
+special_case = {
+    "Advanced Micro Devices": "AMD",
+}
 
 def shorten(manuf):
     '''Convert a long manufacturer name to abbreviated and short names'''
@@ -136,6 +140,12 @@ def shorten(manuf):
     # ...but make sure we don't remove everything.
     if not all(s == ' ' for s in plain_manuf):
         manuf = plain_manuf
+
+    manuf = manuf.strip()
+
+    # Check for special case
+    if manuf in special_case.keys():
+        manuf = special_case[manuf]
 
     split = manuf.split()
     if len(split) > 1 and split[0].lower() in skip_start:
