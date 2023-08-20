@@ -2925,6 +2925,7 @@ sharkd_session_process_tap_multicast_cb(void *arg)
 {
     mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)arg;
     GList *list_item;
+    char *addr_str;
 
     json_dumper_begin_object(&dumper);
 
@@ -2940,9 +2941,13 @@ sharkd_session_process_tap_multicast_cb(void *arg)
         mcast_stream_info_t *stream_info = (mcast_stream_info_t *) list_item->data;
         sharkd_json_object_open(NULL);
         {
-            sharkd_json_value_string("saddr", address_to_display(NULL, &stream_info->src_addr));
+            addr_str = address_to_display(NULL, &stream_info->src_addr);
+            sharkd_json_value_string("saddr", addr_str);
+            wmem_free(NULL, addr_str);
             sharkd_json_value_anyf("sport", "%u", stream_info->src_port);
-            sharkd_json_value_string("daddr", address_to_display(NULL, &stream_info->dest_addr));
+            addr_str = address_to_display(NULL, &stream_info->dest_addr);
+            sharkd_json_value_string("daddr", addr_str);
+            wmem_free(NULL, addr_str);
             sharkd_json_value_anyf("dport", "%u", stream_info->dest_port);
             sharkd_json_object_open("packets");
             {
@@ -3008,6 +3013,7 @@ static void
 sharkd_session_process_tap_voip_calls_cb(void *arg)
 {
     voip_calls_tapinfo_t *tapinfo = (voip_calls_tapinfo_t *)arg;
+    char *addr_str;
     GList *cur_call = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
     sharkd_json_object_open(NULL);
     sharkd_json_value_string("tap", "voip-calls");
@@ -3019,7 +3025,9 @@ sharkd_session_process_tap_voip_calls_cb(void *arg)
         sharkd_json_value_anyf("call", "%hu", call_info_->call_num);
         sharkd_json_value_anyf("start_time", "%.6f", nstime_to_sec(&(call_info_->start_rel_ts)));
         sharkd_json_value_anyf("stop_time", "%.6f", nstime_to_sec(&(call_info_->start_rel_ts)));
-        sharkd_json_value_string("initial_speaker", (char*)address_to_display(NULL, &(call_info_->initial_speaker)));
+        addr_str = address_to_display(NULL, &(call_info_->initial_speaker));
+        sharkd_json_value_string("initial_speaker", addr_str);
+        wmem_free(NULL, addr_str);
         sharkd_json_value_string("from", call_info_->from_identity);
         sharkd_json_value_string("to", call_info_->to_identity);
         sharkd_json_value_string("protocol", ((call_info_->protocol == VOIP_COMMON) && call_info_->protocol_name) ?
@@ -3077,6 +3085,7 @@ sharkd_session_process_tap_voip_convs_cb(void *arg)
     struct sharkd_voip_convs_req *voip_convs_req = (struct sharkd_voip_convs_req *)arg;
     voip_calls_tapinfo_t *tapinfo = voip_convs_req->tapinfo;
     seq_analysis_info_t *sainfo = tapinfo->graph_analysis;
+    char *addr_str;
     sequence_analysis_list_sort(sainfo);
     sharkd_json_object_open(NULL);
     sharkd_json_value_string("tap", voip_convs_req->tap_name);
@@ -3090,9 +3099,13 @@ sharkd_session_process_tap_voip_convs_cb(void *arg)
         sharkd_json_value_anyf("frame", "%d", sai->frame_number);
         sharkd_json_value_anyf("call", "%d", sai->conv_num);
         sharkd_json_value_string("time", sai->time_str);
-        sharkd_json_value_string("dst_addr", (char*)address_to_display(NULL, &(sai->dst_addr)));
+        addr_str = address_to_display(NULL, &(sai->dst_addr));
+        sharkd_json_value_string("dst_addr", addr_str);
+        wmem_free(NULL, addr_str);
         sharkd_json_value_anyf("dst_port", "%d", sai->port_dst);
-        sharkd_json_value_string("src_addr", (char*)address_to_display(NULL, &(sai->src_addr)));
+        addr_str = address_to_display(NULL, &(sai->src_addr));
+        sharkd_json_value_string("src_addr", addr_str);
+        wmem_free(NULL, addr_str);
         sharkd_json_value_anyf("src_port", "%d", sai->port_src);
         sharkd_json_value_string("label", sai->frame_label);
         sharkd_json_value_string("comment", sai->comment);
