@@ -219,22 +219,22 @@ WSLUA_METHOD ByteArray_get_index(lua_State* L) {
     WSLUA_RETURN(1); /* The value [0-255] of the byte. */
 }
 
-WSLUA_METHOD ByteArray_get_le_int16(lua_State* L) {
-    /* Read a little endian encoded 16 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_le_int16(lua_State* L) {
+    /* Read a little endian encoded 16 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_le_int16_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_le_int16_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_int16_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_le_int16_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 1) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -244,25 +244,25 @@ WSLUA_METHOD ByteArray_get_le_int16(lua_State* L) {
 
     lua_pushnumber(L, value);
 
-    WSLUA_RETURN(1); /* The value of the little endian encoded 16 bit signed integer beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the little endian encoded 16 bit signed integer beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_le_int32(lua_State* L) {
-    /* Read a little endian encoded 32 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_le_int32(lua_State* L) {
+    /* Read a little endian encoded 32 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_le_int32_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_le_int32_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_int32_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_le_int32_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 3) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -276,25 +276,25 @@ WSLUA_METHOD ByteArray_get_le_int32(lua_State* L) {
 
     lua_pushnumber(L, value);
 
-    WSLUA_RETURN(1); /* The value of the little endian encoded 32 bit signed integer beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the little endian encoded 32 bit signed integer beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_le_int64(lua_State* L) {
-    /* Read a little endian encoded 64 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_le_int64(lua_State* L) {
+    /* Read a little endian encoded 64 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_le_int64_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_le_int64_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_int64_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_le_int64_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 7) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -316,25 +316,25 @@ WSLUA_METHOD ByteArray_get_le_int64(lua_State* L) {
 
     pushInt64(L, value);
 
-    WSLUA_RETURN(1); /* The value of the little endian encoded 64 bit signed integer as a <<lua_class_Int64,`Int64`>> object beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the little endian encoded 64 bit signed integer as a <<lua_class_Int64,`Int64`>> object beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_le_uint16(lua_State* L) {
-    /* Read a little endian encoded 16 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_le_uint16(lua_State* L) {
+    /* Read a little endian encoded 16 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_le_uint16_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_le_uint16_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_uint16_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_le_uint16_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 1) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -344,25 +344,25 @@ WSLUA_METHOD ByteArray_get_le_uint16(lua_State* L) {
 
     lua_pushnumber(L, value);
 
-    WSLUA_RETURN(1); /* The value of the little endian encoded 16 bit unsigned integer beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the little endian encoded 16 bit unsigned integer beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_le_uint32(lua_State* L) {
-    /* Read a little endian encoded 32 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_le_uint32(lua_State* L) {
+    /* Read a little endian encoded 32 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_le_uint32_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_le_uint32_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_uint32_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_le_uint32_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 3) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -376,25 +376,25 @@ WSLUA_METHOD ByteArray_get_le_uint32(lua_State* L) {
 
     lua_pushnumber(L, value);
 
-    WSLUA_RETURN(1); /* The value of the little endian encoded 32 bit unsigned integer beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the little endian encoded 32 bit unsigned integer beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_le_uint64(lua_State* L) {
-    /* Read a little endian encoded 64 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_le_uint64(lua_State* L) {
+    /* Read a little endian encoded 64 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_le_uint64_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_le_uint64_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_uint64_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_le_uint64_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 7) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -416,26 +416,26 @@ WSLUA_METHOD ByteArray_get_le_uint64(lua_State* L) {
 
     pushUInt64(L, value);
 
-    WSLUA_RETURN(1); /* The value of the little endian encoded 64 bit unsigned integer as a <<lua_class_UInt64,`UInt64`>> object beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the little endian encoded 64 bit unsigned integer as a <<lua_class_UInt64,`UInt64`>> object beginning at given offset. */
 }
 
 
-WSLUA_METHOD ByteArray_get_int16(lua_State* L) {
-    /* Read a little endian encoded 16 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_int16(lua_State* L) {
+    /* Read a little endian encoded 16 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_int16_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_int16_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_int16_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_int16_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 1) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -445,25 +445,25 @@ WSLUA_METHOD ByteArray_get_int16(lua_State* L) {
 
     lua_pushnumber(L, value);
 
-    WSLUA_RETURN(1); /* The value of the big endian encoded 16 bit signed integer beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the big endian encoded 16 bit signed integer beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_int32(lua_State* L) {
-    /* Read a big endian encoded 32 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_int32(lua_State* L) {
+    /* Read a big endian encoded 32 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_int32_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_int32_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_int32_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_int32_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 3) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -477,25 +477,25 @@ WSLUA_METHOD ByteArray_get_int32(lua_State* L) {
 
     lua_pushnumber(L, value);
 
-    WSLUA_RETURN(1); /* The value of the big endian encoded 32 bit signed integer beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the big endian encoded 32 bit signed integer beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_int64(lua_State* L) {
-    /* Read a big endian encoded 64 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_int64(lua_State* L) {
+    /* Read a big endian encoded 64 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_int64_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_int64_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_int64_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_int64_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 7) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -517,25 +517,25 @@ WSLUA_METHOD ByteArray_get_int64(lua_State* L) {
 
     pushInt64(L, value);
 
-    WSLUA_RETURN(1); /* The value of the big endian encoded 64 bit signed integer as a <<lua_class_Int64,`Int64`>> object beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the big endian encoded 64 bit signed integer as a <<lua_class_Int64,`Int64`>> object beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_uint16(lua_State* L) {
-    /* Read a big endian encoded 16 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_uint16(lua_State* L) {
+    /* Read a big endian encoded 16 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_uint16_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_uint16_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_uint16_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_uint16_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 1) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -545,25 +545,25 @@ WSLUA_METHOD ByteArray_get_uint16(lua_State* L) {
 
     lua_pushnumber(L, value);
 
-    WSLUA_RETURN(1); /* The value of the big endian encoded 16 bit unsigned integer beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the big endian encoded 16 bit unsigned integer beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_uint32(lua_State* L) {
-    /* Read a big endian encoded 32 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_uint32(lua_State* L) {
+    /* Read a big endian encoded 32 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_uint32_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_uint32_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_uint32_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_uint32_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 3) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -577,25 +577,25 @@ WSLUA_METHOD ByteArray_get_uint32(lua_State* L) {
 
     lua_pushnumber(L, value);
 
-    WSLUA_RETURN(1); /* The value of the big endian encoded 32 bit unsigned integer beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the big endian encoded 32 bit unsigned integer beginning at given offset. */
 }
 
-WSLUA_METHOD ByteArray_get_uint64(lua_State* L) {
-    /* Read a big endian encoded 64 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+WSLUA_METHOD ByteArray_uint64(lua_State* L) {
+    /* Read a big endian encoded 64 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset.
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_uint64_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_uint64_OFFSET 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_uint64_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_uint64_OFFSET);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
-        luaL_argerror(L, 2, "bad index");
+        luaL_argerror(L, 2, "bad offset");
         return 0;
     }
 
     if (idx < 0 || (guint)idx >= ba->len - 7) {
-        luaL_argerror(L, 2, "index out of range");
+        luaL_argerror(L, 2, "offset out of range");
         return 0;
     }
 
@@ -617,7 +617,7 @@ WSLUA_METHOD ByteArray_get_uint64(lua_State* L) {
 
     pushUInt64(L, value);
 
-    WSLUA_RETURN(1); /* The value of the big endian encoded 64 bit unsigned integer as a <<lua_class_UInt64,`UInt64`>> object beginning at given index. */
+    WSLUA_RETURN(1); /* The value of the big endian encoded 64 bit unsigned integer as a <<lua_class_UInt64,`UInt64`>> object beginning at given offset. */
 }
 
 WSLUA_METHOD ByteArray_len(lua_State* L) {
@@ -788,18 +788,18 @@ WSLUA_METHOD ByteArray_tvb (lua_State *L) {
 
 WSLUA_METHODS ByteArray_methods[] = {
     WSLUA_CLASS_FNREG(ByteArray,new),
-    WSLUA_CLASS_FNREG(ByteArray,get_le_int16),
-    WSLUA_CLASS_FNREG(ByteArray,get_le_int32),
-    WSLUA_CLASS_FNREG(ByteArray,get_le_int64),
-    WSLUA_CLASS_FNREG(ByteArray,get_le_uint16),
-    WSLUA_CLASS_FNREG(ByteArray,get_le_uint32),
-    WSLUA_CLASS_FNREG(ByteArray,get_le_uint64),
-    WSLUA_CLASS_FNREG(ByteArray,get_int16),
-    WSLUA_CLASS_FNREG(ByteArray,get_int32),
-    WSLUA_CLASS_FNREG(ByteArray,get_int64),
-    WSLUA_CLASS_FNREG(ByteArray,get_uint16),
-    WSLUA_CLASS_FNREG(ByteArray,get_uint32),
-    WSLUA_CLASS_FNREG(ByteArray,get_uint64),
+    WSLUA_CLASS_FNREG(ByteArray,le_int16),
+    WSLUA_CLASS_FNREG(ByteArray,le_int32),
+    WSLUA_CLASS_FNREG(ByteArray,le_int64),
+    WSLUA_CLASS_FNREG(ByteArray,le_uint16),
+    WSLUA_CLASS_FNREG(ByteArray,le_uint32),
+    WSLUA_CLASS_FNREG(ByteArray,le_uint64),
+    WSLUA_CLASS_FNREG(ByteArray,int16),
+    WSLUA_CLASS_FNREG(ByteArray,int32),
+    WSLUA_CLASS_FNREG(ByteArray,int64),
+    WSLUA_CLASS_FNREG(ByteArray,uint16),
+    WSLUA_CLASS_FNREG(ByteArray,uint32),
+    WSLUA_CLASS_FNREG(ByteArray,uint64),
     WSLUA_CLASS_FNREG(ByteArray,len),
     WSLUA_CLASS_FNREG(ByteArray,prepend),
     WSLUA_CLASS_FNREG(ByteArray,append),
