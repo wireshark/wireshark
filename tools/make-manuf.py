@@ -128,6 +128,8 @@ def shorten(manuf):
     # Convert all caps to title case
     if manuf.isupper():
         manuf = manuf.title()
+    # Remove the contents of parenthesis as ancillary data
+    manuf = re.sub(r"\(.*\)", '', manuf)
     # Remove "a" before removing punctuation ("Aruba, a Hewlett [...]" etc.)
     manuf = manuf.replace(" a ", " ")
     # Remove any punctuation
