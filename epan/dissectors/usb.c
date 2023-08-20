@@ -24538,6 +24538,7 @@ static const value_string usb_products_vals[] = {
     { 0x32b3d1a7, "TXT Multihub" },
     { 0x33100100, "Mudita Pure Phone" },
     { 0x33100101, "Pure tethering" },
+    { 0x33100300, "Harmony" },
     { 0x33333333, "2 port KVM switch model 60652K" },
     { 0x33341701, "Fast Ethernet" },
     { 0x3340043a, "Mio A701 DigiWalker PPCPhone" },
