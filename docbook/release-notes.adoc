@@ -34,40 +34,35 @@ wsbuglink:18734[].
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2023-23[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2023-24[]
+BT SDP dissector infinite loop.
+wsbuglink:19258[].
 // cveidlink:2023-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
+// Fixed in master: ef9c79ae81
+// Fixed in release-4.0: ac20bfe644
+// Fixed in release-3.6: d3068e8d2e
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
+// CWE-835
 
-* null wsbuglink:19229[].
-
-* wssalink:2023-23[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2023-25[]
+BT SDP dissector memory leak.
+wsbuglink:19259[].
 // cveidlink:2023-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
+// Fixed in master: 7fecc31427,d086f2733b
+// Fixed in release-4.0: 63005cc3df,0448263194
+// Fixed in release-3.6: 016af38af0,863f6c3dc7
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
-* null wsbuglink:19258[].
+// CWE-401
 
-* wssalink:2023-23[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2023-26[]
+CP2179 dissector crash.
+wsbuglink:19229[].
 // cveidlink:2023-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
+// Fixed in master: 44dc70cc5a
+// Fixed in release-4.0: ce294d972a
+// Fixed in release-3.6: 0b874ad0f5
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
-* null wsbuglink:19259[].
-
+// CWE-369
 
 The following bugs have been fixed:
 
@@ -86,7 +81,7 @@ The following bugs have been fixed:
 
 * Preferences: Folder name editing behaves weirdly, cursor jumps. wsbuglink:19213[].
 
-* DCHCPFO: Expert info list does not show all expert infos. wsbuglink:19216[].
+* DHCPFO: Expert info list does not show all expert infos. wsbuglink:19216[].
 
 * Applying Color filtering fails when selecting the same field to color (i.e., changing frames without focusing in packet details). wsbuglink:19249[].
 
