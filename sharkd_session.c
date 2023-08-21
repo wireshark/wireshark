@@ -72,6 +72,7 @@
 #include <epan/maxmind_db.h>
 
 #include <wsutil/pint.h>
+#include <wsutil/strnatcmp.h>
 #include <wsutil/strtoi.h>
 
 #include "globals.h"
@@ -912,6 +913,63 @@ sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data _U_)
     return FALSE;
 }
 
+static void
+sharkd_session_print_capture_types(void)
+{
+    guint i;
+    GArray *writable_type_subtypes;
+    writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
+    for (i = 0; i < writable_type_subtypes->len; i++) {
+        int ft = g_array_index(writable_type_subtypes, int, i);
+        sharkd_json_object_open(NULL);
+        sharkd_json_value_string("name", wtap_file_type_subtype_name(ft));
+        sharkd_json_value_string("description", wtap_file_type_subtype_description(ft));
+        sharkd_json_object_close();
+    }
+    g_array_free(writable_type_subtypes, TRUE);
+}
+
+struct encap_type_info
+{
+    const char *name;
+    const char *description;
+};
+
+static gint
+encap_type_info_nat_compare(gconstpointer a, gconstpointer b)
+{
+    return ws_ascii_strnatcmp(((const struct encap_type_info *)a)->name,
+                              ((const struct encap_type_info *)b)->name);
+}
+
+static void
+encap_type_info_visit(gpointer data, gpointer user_data _U_)
+{
+    sharkd_json_object_open(NULL);
+    sharkd_json_value_string("name", ((struct encap_type_info *)data)->name);
+    sharkd_json_value_string("description", ((struct encap_type_info *)data)->description);
+    sharkd_json_object_close();
+}
+
+static void
+sharkd_session_print_encap_types(void)
+{
+    int i;
+    struct encap_type_info *encaps;
+    GSList *list = NULL;
+    encaps = g_new(struct encap_type_info, WTAP_NUM_ENCAP_TYPES);
+    for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
+        encaps[i].name = wtap_encap_name(i);
+        if (encaps[i].name != NULL) {
+            encaps[i].description = wtap_encap_description(i);
+            list = g_slist_insert_sorted(list, &encaps[i], encap_type_info_nat_compare);
+        }
+    }
+    g_slist_foreach(list, encap_type_info_visit, NULL);
+    g_slist_free(list);
+    g_free(encaps);
+}
+
 /**
  * sharkd_session_process_info()
  *
@@ -962,6 +1020,13 @@ sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data _U_)
  *                  'name' - tap name
  *                  'tap'  - sharkd tap-name
  *
+ *   (m) capture_types - available capture types, array of object with attributes:
+ *                        'name'        - capture type name
+ *                        'description' - capture type description
+ *
+ *   (m) encap_types   - available encapsulation types, array of object with attributes:
+ *                        'name'        - encapsulation type name
+ *                        'description' - encapsulation type description
  */
 static void
 sharkd_session_process_info(void)
@@ -1005,6 +1070,14 @@ sharkd_session_process_info(void)
     sharkd_json_array_open("ftypes");
     for (i = 0; i < FT_NUM_TYPES; i++)
         sharkd_json_value_string(NULL, ftype_name((ftenum_t) i));
+    sharkd_json_array_close();
+
+    sharkd_json_array_open("capture_types");
+    sharkd_session_print_capture_types();
+    sharkd_json_array_close();
+
+    sharkd_json_array_open("encap_types");
+    sharkd_session_print_encap_types();
     sharkd_json_array_close();
 
     sharkd_json_value_string("version", get_ws_vcs_version_info_short());

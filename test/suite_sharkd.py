@@ -106,6 +106,8 @@ class TestSharkd:
     def test_sharkd_req_info(self, check_sharkd_session):
         matchTapNameList = MatchList(
             {"tap": MatchAny(str), "name": MatchAny(str)})
+        matchNameDescriptionList = MatchList(
+            {"name": MatchAny(str), "description": MatchAny(str)})
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"info"},
         ), (
@@ -121,6 +123,8 @@ class TestSharkd:
                 "taps": matchTapNameList,
                 "follow": matchTapNameList,
                 "ftypes": MatchList(MatchAny(str)),
+                "capture_types": matchNameDescriptionList,
+                "encap_types": matchNameDescriptionList,
                 "nstat": matchTapNameList,
             }},
         ))
