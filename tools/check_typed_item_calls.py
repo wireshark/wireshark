@@ -522,21 +522,26 @@ class ValueString:
             elif any(not c in '0123456789abcdefABCDEFxX' for c in value):
                 self.valid = False
                 return
-            else:
+
+            try:
                 # Read according to the appropriate base.
                 if value.lower().startswith('0x'):
                     value = int(value, 16)
+                elif value.startswith('0b'):
+                    value = int(value[2:], 2)
                 elif value.startswith('0'):
                     value = int(value, 8)
                 else:
                     value = int(value, 10)
+            except:
+                return
 
-            # Check for conflict before inserting
-            if value in self.parsed_vals and not label == self.parsed_vals[value]:
-                print('Error:', self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
+            # Check for value conflict before inserting
+            if value in self.parsed_vals and label != self.parsed_vals[value]:
+                print('Warning:', self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
                       self.parsed_vals[value], 'now', label)
-                global errors_found
-                errors_found += 1
+                global warnings_found
+                warnings_found += 1
             else:
                 # Add into table
                 self.parsed_vals[value] = label
@@ -562,7 +567,7 @@ def findValueStrings(filename, macros):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
-        matches =   re.finditer(r'.*const value_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\s\"]*)\};', contents)
+        matches =   re.finditer(r'.*const value_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\*\#\.:\/\(\)\'\s\"]*)\};', contents)
         for m in matches:
             name = m.group(1)
             vals = m.group(2)

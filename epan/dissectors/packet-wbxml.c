@@ -6526,7 +6526,6 @@ static const value_string vals_wv_csp_13_element_value_tokens[] = {
 	{ 0x35, "GRANTED" },
 	{ 0x82, "Gray" },
 	{ 0x88, "Green" },
-	{ 0x3D, "History" },
 	{ 0x0E, "http://" },
 	{ 0x0F, "https://" },
 	{ 0x7C, "Huge" },
