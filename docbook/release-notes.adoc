@@ -44,12 +44,53 @@ The following vulnerabilities have been fixed:
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-126
 
+* null wsbuglink:19229[].
+
+* wssalink:2023-23[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2023-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.0: xxx
+// Fixed in release-3.6: xxx
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-126
+* null wsbuglink:19258[].
+
+* wssalink:2023-23[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2023-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.0: xxx
+// Fixed in release-3.6: xxx
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-126
+* null wsbuglink:19259[].
+
+
 The following bugs have been fixed:
 
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
+
+* Wireshark wrongly blames group membership when pcap capabilities are removed. wsbuglink:18279[].
+
+* Packet bytes window broken layout. wsbuglink:18326[].
+
+* Valid Ethernet CFM DMM packets are shown as malformed. wsbuglink:19198[].
+
+* The QUIC dissector is reporting the quic_transport_parameters max_ack_delay with the title "GREASE". wsbuglink:19209[].
+
+* Preferences: Folder name editing behaves weirdly, cursor jumps. wsbuglink:19213[].
+
+* DCHCPFO: Expert info list does not show all expert infos. wsbuglink:19216[].
+
+* Applying Color filtering fails when selecting the same field to color (i.e., changing frames without focusing in packet details). wsbuglink:19249[].
+
+* NAS 5GS Malformed Packet Decoding SOR transparent container PLMN ID and access technology list. wsbuglink:19273[].
 
 
 === New and Updated Features
@@ -65,9 +106,19 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.13.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.16.. | ag packet- | sort -u)
 [commaize]
 --
+BT SDP
+CP2179
+CQL
+DHCPFO
+F1AP
+GSM DTAP
+IEEE 802.11
+NAS-5GS
+PFCP
+TFTP
 --
 
 === New and Updated Capture File Support
