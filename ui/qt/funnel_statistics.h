@@ -13,8 +13,10 @@
 #include <QObject>
 #include <QAction>
 #include <QSet>
+#include <QPointer>
 
 #include <epan/funnel.h>
+#include "io_console_dialog.h"
 #include "capture_file.h"
 #include <ui/qt/filter_action.h>
 
@@ -111,6 +113,7 @@ private:
     funnel_console_open_cb_t open_cb_;
     funnel_console_close_cb_t close_cb_;
     void *callback_data_;
+    QPointer<IOConsoleDialog> dialog_;
 };
 
 extern "C" {

@@ -224,11 +224,21 @@ FunnelConsoleAction::~FunnelConsoleAction()
 }
 
 void FunnelConsoleAction::triggerCallback() {
-    IOConsoleDialog *dialog = new IOConsoleDialog(*qobject_cast<QWidget *>(parent()),
+    if (!dialog_) {
+        dialog_ = new IOConsoleDialog(*qobject_cast<QWidget *>(parent()),
                                             this->text(),
                                             eval_cb_, open_cb_, close_cb_, callback_data_);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->show();
+        dialog_->setAttribute(Qt::WA_DeleteOnClose);
+    }
+
+    if (dialog_->isMinimized()) {
+        dialog_->showNormal();
+    }
+    else {
+        dialog_->show();
+    }
+    dialog_->raise();
+    dialog_->activateWindow();
 }
 
 static QHash<int, QList<FunnelAction *> > funnel_actions_;
