@@ -48,7 +48,6 @@ wsbuglink:19258[].
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-835
 
-
 * wssalink:2023-25[]
 BT SDP dissector memory leak.
 wsbuglink:19259[].
@@ -58,7 +57,6 @@ wsbuglink:19259[].
 // Fixed in release-3.6: 016af38af0,863f6c3dc7
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-401
-
 
 * wssalink:2023-26[]
 CP2179 dissector crash.
@@ -85,7 +83,7 @@ The following bugs have been fixed:
 * Crash on DICOM Export Objects window close. wsbuglink:19207[].
 * The QUIC dissector is reporting the quic_transport_parameters max_ack_delay with the title \"GREASE\" wsbuglink:19209[].
 * Preferences: Folder name editing behaves weirdly, cursor jumps. wsbuglink:19213[].
-* DCHCPFO: Expert info list does not show all expert infos. wsbuglink:19216[].
+* DHCPFO: Expert info list does not show all expert infos. wsbuglink:19216[].
 * Websocket packets not decoded and displayed for Field type=Custom and Field name websocket.payload.text. wsbuglink:19220[].
 * Cannot read pcapng file captured on OpenBSD and read on FreeBSD. wsbuglink:19230[].
 * UI: While capturing the Wireshark icon changes from green to blue when new file is created. wsbuglink:19252[].
