@@ -1118,6 +1118,8 @@ wslua_add_introspection(void)
     }
 }
 
+static int wslua_console_print(lua_State *_L);
+
 static const char *lua_error_msg(int code)
 {
     switch (code) {
@@ -1142,10 +1144,26 @@ static int lua_funnel_console_eval(const char *console_input,
                                         char **error_hint,
                                         void *callback_data _U_)
 {
-    ws_noisy("Console input: %s", console_input);
     int lcode;
 
-    lcode = luaL_loadstring(L, console_input);
+    const int curr_top = lua_gettop(L);
+
+    // If it starts with an equals sign replace it with "return"
+    char *codestr;
+    while (g_ascii_isspace(*console_input))
+        console_input++;
+    if (*console_input == '=')
+        codestr = ws_strdup_printf("return %s", console_input+1);
+    else
+        codestr = (char *)console_input; /* Violate const safety to avoid a strdup() */
+
+    ws_noisy("Console input: %s", codestr);
+    lcode = luaL_loadstring(L, codestr);
+    /* Free only if we called strdup(). */
+    if (codestr != console_input)
+        g_free(codestr);
+    codestr = NULL;
+
     if (lcode != LUA_OK) {
         ws_debug("luaL_loadstring(): %s (%d)", lua_error_msg(lcode), lcode);
         if (error_hint) {
@@ -1165,6 +1183,24 @@ static int lua_funnel_console_eval(const char *console_input,
             *error_ptr = g_strdup(lua_tostring(L, -1));
         }
         return 1;
+    }
+
+    // If we have values returned print them all
+    if (lua_gettop(L) > curr_top) {  /* any arguments? */
+        lua_pushcfunction(L, wslua_console_print);
+        lua_insert(L, curr_top+1);
+        lcode = lua_pcall(L, lua_gettop(L)-curr_top-1, 0, 0);
+        if (lcode != LUA_OK) {
+            /* Error printing result */
+            if (error_hint)
+                *error_hint = ws_strdup_printf("error printing return values: %s", lua_error_msg(lcode));
+            return 1;
+        }
+    }
+
+    // Maintain stack discipline
+    if (lua_gettop(L) != curr_top) {
+        ws_critical("Expected stack top == %d, have %d", curr_top, lua_gettop(L));
     }
 
     ws_noisy("Success");
