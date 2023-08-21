@@ -42,6 +42,10 @@ static wslua_plugin *wslua_plugin_list = NULL;
 
 static lua_State* L = NULL;
 
+static void (*wslua_gui_print_func_ptr)(const char *, void *) = NULL;
+static void *wslua_gui_print_data_ptr = NULL;
+static int wslua_lua_print_func_ref = LUA_NOREF;
+
 /* XXX: global variables? Really?? Yuck. These could be done differently,
    using the Lua registry */
 packet_info* lua_pinfo;
@@ -1136,13 +1140,12 @@ static const char *lua_error_msg(int code)
 static int lua_funnel_console_eval(const char *console_input,
                                         char **error_ptr,
                                         char **error_hint,
-                                        void *callback_data)
+                                        void *callback_data _U_)
 {
     ws_noisy("Console input: %s", console_input);
-    lua_State *_L = callback_data;
     int lcode;
 
-    lcode = luaL_loadstring(_L, console_input);
+    lcode = luaL_loadstring(L, console_input);
     if (lcode != LUA_OK) {
         ws_debug("luaL_loadstring(): %s (%d)", lua_error_msg(lcode), lcode);
         if (error_hint) {
@@ -1151,15 +1154,15 @@ static int lua_funnel_console_eval(const char *console_input,
         return -1;
     }
 
-    lcode = lua_pcall(_L, 0, LUA_MULTRET, 0);
+    lcode = lua_pcall(L, 0, LUA_MULTRET, 0);
     if (lcode != LUA_OK) {
         ws_debug("lua_pcall(): %s (%d)", lua_error_msg(lcode), lcode);
         if (error_hint) {
             *error_hint = g_strdup(lua_error_msg(lcode));
         }
         /* If we have an error message return it. */
-        if (error_ptr && !lua_isnil(_L, -1)) {
-            *error_ptr = g_strdup(lua_tostring(_L, -1));
+        if (error_ptr && !lua_isnil(L, -1)) {
+            *error_ptr = g_strdup(lua_tostring(L, -1));
         }
         return 1;
     }
@@ -1196,9 +1199,6 @@ static const char *luaL_tolstring (lua_State *_L, int idx, size_t *len) {
 /* Receives C print function data pointer as second upvalue. */
 static int wslua_console_print(lua_State *_L)
 {
-    void (*gui_print_func)(const char *, void *) = lua_touserdata(_L, lua_upvalueindex(1));
-    void *gui_print_ptr = lua_touserdata(_L, lua_upvalueindex(2));
-
     GString *gstr = g_string_new(NULL);
     const char *repr;
 
@@ -1211,49 +1211,52 @@ static int wslua_console_print(lua_State *_L)
             lua_pop(_L, 1);
     }
     g_string_append_c(gstr, '\n');
-    gui_print_func(gstr->str, gui_print_ptr);
+
+    if (wslua_gui_print_func_ptr == NULL) {
+        ws_critical("GUI print function not registered; Trying to print: %s", gstr->str);
+    }
+    else {
+        wslua_gui_print_func_ptr(gstr->str, wslua_gui_print_data_ptr);
+    }
     g_string_free(gstr, TRUE);
     return 0;
 }
 
 // Replace lua print function with a custom print function.
 // We will place the original function in the Lua registry and return the reference.
-static intptr_t lua_funnel_console_open(void (*gui_print_func)(const char *, void *),
-                                        void *gui_print_ptr,
-                                        void *callback_data)
+static void lua_funnel_console_open(void (*print_func_ptr)(const char *, void *),
+                                        void *print_data_ptr,
+                                        void *callback_data _U_)
 {
-    lua_State *_L = callback_data;
-    intptr_t ref;
-
     /* Store original print value in the registry (even if it is nil). */
-    lua_getglobal(_L, "print");
-    ref = luaL_ref(_L, LUA_REGISTRYINDEX);
+    lua_getglobal(L, "print");
+    wslua_lua_print_func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     /* Set new "print" function (to output to the GUI) */
-    /* Push upvalues */
-    lua_pushlightuserdata(_L, gui_print_func);
-    lua_pushlightuserdata(_L, gui_print_ptr);
-    // Push closure
-    lua_pushcclosure(_L, wslua_console_print, 2);
-    lua_setglobal(_L, "print");
+    lua_pushcfunction(L, wslua_console_print);
+    lua_setglobal(L, "print");
 
-    /* return original print function registry reference. */
-    return ref;
+    /* Save the globals */
+    ws_assert(print_func_ptr);
+    wslua_gui_print_func_ptr = print_func_ptr;
+    wslua_gui_print_data_ptr = print_data_ptr;
 }
 
 // Restore original Lua print function. Clean state.
-static void lua_funnel_console_close(intptr_t wslua_print_ref,
-                                        void *callback_data)
+static void lua_funnel_console_close(void *callback_data _U_)
 {
-    lua_State *_L = callback_data;
-
     /* Restore the original print function. */
-    int ref = (int)wslua_print_ref;
+    int ref = (int)wslua_lua_print_func_ref;
     /* push original function into stack */
-    lua_rawgeti(_L, LUA_REGISTRYINDEX, ref);
-    lua_setglobal(_L, "print");
+    lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+    lua_setglobal(L, "print");
     /* Release reference */
-    luaL_unref(_L, LUA_REGISTRYINDEX, ref);
+    luaL_unref(L, LUA_REGISTRYINDEX, ref);
+
+    /* Clear the globals. */
+    wslua_gui_print_func_ptr = NULL;
+    wslua_gui_print_data_ptr = NULL;
+    wslua_lua_print_func_ref = LUA_NOREF;
 }
 
 void wslua_init(register_cb cb, gpointer client_data) {
@@ -1452,11 +1455,17 @@ void wslua_init(register_cb cb, gpointer client_data) {
     wslua_add_introspection();
 
     // Register Lua's console menu (in the GUI)
-    funnel_register_console_menu("Lua",
-                                    lua_funnel_console_eval,
-                                    lua_funnel_console_open,
-                                    lua_funnel_console_close,
-                                    L, NULL);
+    if (first_time) {
+        funnel_register_console_menu("Lua",
+                                        lua_funnel_console_eval,
+                                        lua_funnel_console_open,
+                                        lua_funnel_console_close,
+                                        NULL, NULL);
+    }
+    else if (wslua_gui_print_func_ptr) {
+        // If we we have an open GUI console dialog re-register the global "print to console" function
+        lua_funnel_console_open(wslua_gui_print_func_ptr, wslua_gui_print_data_ptr, NULL);
+    }
 
     /* load system's init.lua */
     filename = get_datafile_path("init.lua");

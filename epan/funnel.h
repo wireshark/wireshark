@@ -172,15 +172,14 @@ typedef int (*funnel_console_eval_cb_t)(const char *console_input,
                                             void *callback_data);
 
 /**
- * Signature of function that can be called to install a logger. Returns opaque
- * pinter to restore original logger.
+ * Signature of function that can be called to install a logger.
  */
-typedef intptr_t (*funnel_console_open_cb_t)(void (*print_func)(const char *, void *), void *print_data, void *callback_data);
+typedef void (*funnel_console_open_cb_t)(void (*print_func)(const char *, void *), void *print_data, void *callback_data);
 
 /**
  * Signature of function that can be called to remove logger.
  */
-typedef void (*funnel_console_close_cb_t)(intptr_t blob, void *callback_data);
+typedef void (*funnel_console_close_cb_t)(void *callback_data);
 
 /**
  * Signature of function that can be called to free user data.

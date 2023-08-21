@@ -52,7 +52,6 @@ private:
     funnel_console_open_cb_t open_cb_;
     funnel_console_close_cb_t close_cb_;
     void *callback_data_;
-    intptr_t saved_blob_;
 };
 
 #endif // IO_CONSOLE_DIALOG_H
