@@ -184,9 +184,6 @@ The following features are new (or have been significantly updated) since versio
   To facilitate resetting the dissector, the default dissector is now sorted
   at the top of the list of possible dissector options.
 
-* menu:Tools[Lua Scripts,Launch with SSLKEYLOGFILE] can launch your web browser
-  with the SSLKEYLOGFILE environment variable set  to the appropriate value.
-
 * The personal extcap plugin folder location on Unix has been changed to
   follow existing conventions for architecture-dependent files.
   The extcap personal folder is now ``$HOME/.local/lib/wireshark/extcap``.

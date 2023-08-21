@@ -63,7 +63,3 @@ function package.prepend_path(name)
     -- also prepend just the name as a directory
     package.path = name .. sep .. "?.lua;" .. package.path
 end
-
-if not running_superuser or run_user_scripts_when_superuser then
-    dofile(DATA_DIR.."browser_sslkeylog.lua")
-end
