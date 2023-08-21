@@ -1558,7 +1558,6 @@ void WiresharkMainWindow::reloadLuaPlugins()
     }
 
     mainApp->setReloadingLua(true);
-    emit mainApp->startingLuaReload();
 
     wslua_reload_plugins(NULL, NULL);
     this->clearAddedPacketMenus();
@@ -1586,7 +1585,6 @@ void WiresharkMainWindow::reloadLuaPlugins()
     }
 
     mainApp->setReloadingLua(false);
-    emit mainApp->finishedLuaReload();
     SimpleDialog::displayQueuedMessages();
 #endif
 }
