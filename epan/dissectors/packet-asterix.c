@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 5c263cb743e1614647e9acd4eceaed4aa098295e
+git revision: 53a30f43e8950b73db7c8e6cadcd0ccc38bc5a2a
 
 
 */
@@ -885,8 +885,6 @@ static const FieldPart *I001_V1_2_210_PARTS[] = {
 static const AsterixField I001_V1_2_210 = { FX, 1, 0, 0, &hf_001_V1_2_210, I001_V1_2_210_PARTS, { NULL } };
 static int hf_001_V1_2_SP = -1;
 static const AsterixField I001_V1_2_SP = { EXP, 0, 0, 1, &hf_001_V1_2_SP, NULL, { NULL } };
-static int hf_001_V1_2_RFS = -1;
-static const AsterixField I001_V1_2_RFS = { EXP, 0, 0, 1, &hf_001_V1_2_RFS, NULL, { NULL } };
 
 DIAG_OFF_PEDANTIC
 static const AsterixField *I001_V1_2_plot[] = {
@@ -910,7 +908,6 @@ static const AsterixField *I001_V1_2_plot[] = {
     &IX_SPARE,
     &IX_SPARE,
     &I001_V1_2_SP,
-    &I001_V1_2_RFS,
     NULL
 };
 static const AsterixField *I001_V1_2_track[] = {
@@ -934,7 +931,7 @@ static const AsterixField *I001_V1_2_track[] = {
     &I001_V1_2_060,
     &I001_V1_2_030,
     &I001_V1_2_SP,
-    &I001_V1_2_RFS,
+    &IX_SPARE,
     &I001_V1_2_150,
     NULL
 };
@@ -1673,8 +1670,6 @@ static const FieldPart *I001_V1_3_210_PARTS[] = {
 static const AsterixField I001_V1_3_210 = { FX, 1, 0, 0, &hf_001_V1_3_210, I001_V1_3_210_PARTS, { NULL } };
 static int hf_001_V1_3_SP = -1;
 static const AsterixField I001_V1_3_SP = { EXP, 0, 0, 1, &hf_001_V1_3_SP, NULL, { NULL } };
-static int hf_001_V1_3_RFS = -1;
-static const AsterixField I001_V1_3_RFS = { EXP, 0, 0, 1, &hf_001_V1_3_RFS, NULL, { NULL } };
 
 DIAG_OFF_PEDANTIC
 static const AsterixField *I001_V1_3_plot[] = {
@@ -1698,7 +1693,6 @@ static const AsterixField *I001_V1_3_plot[] = {
     &IX_SPARE,
     &IX_SPARE,
     &I001_V1_3_SP,
-    &I001_V1_3_RFS,
     NULL
 };
 static const AsterixField *I001_V1_3_track[] = {
@@ -1722,7 +1716,7 @@ static const AsterixField *I001_V1_3_track[] = {
     &I001_V1_3_060,
     &I001_V1_3_030,
     &I001_V1_3_SP,
-    &I001_V1_3_RFS,
+    &IX_SPARE,
     &I001_V1_3_150,
     NULL
 };
@@ -2461,8 +2455,6 @@ static const FieldPart *I001_V1_4_210_PARTS[] = {
 static const AsterixField I001_V1_4_210 = { FX, 1, 0, 0, &hf_001_V1_4_210, I001_V1_4_210_PARTS, { NULL } };
 static int hf_001_V1_4_SP = -1;
 static const AsterixField I001_V1_4_SP = { EXP, 0, 0, 1, &hf_001_V1_4_SP, NULL, { NULL } };
-static int hf_001_V1_4_RFS = -1;
-static const AsterixField I001_V1_4_RFS = { EXP, 0, 0, 1, &hf_001_V1_4_RFS, NULL, { NULL } };
 
 /* Category 001, edition 1.4 (latest) */
 static int hf_001_010 = -1;
@@ -3192,8 +3184,6 @@ static const FieldPart *I001_210_PARTS[] = {
 static const AsterixField I001_210 = { FX, 1, 0, 0, &hf_001_210, I001_210_PARTS, { NULL } };
 static int hf_001_SP = -1;
 static const AsterixField I001_SP = { EXP, 0, 0, 1, &hf_001_SP, NULL, { NULL } };
-static int hf_001_RFS = -1;
-static const AsterixField I001_RFS = { EXP, 0, 0, 1, &hf_001_RFS, NULL, { NULL } };
 
 DIAG_OFF_PEDANTIC
 static const AsterixField *I001_V1_4_plot[] = {
@@ -3217,7 +3207,6 @@ static const AsterixField *I001_V1_4_plot[] = {
     &IX_SPARE,
     &IX_SPARE,
     &I001_V1_4_SP,
-    &I001_V1_4_RFS,
     NULL
 };
 static const AsterixField *I001_V1_4_track[] = {
@@ -3241,7 +3230,7 @@ static const AsterixField *I001_V1_4_track[] = {
     &I001_V1_4_060,
     &I001_V1_4_030,
     &I001_V1_4_SP,
-    &I001_V1_4_RFS,
+    &IX_SPARE,
     &I001_V1_4_150,
     NULL
 };
@@ -3274,7 +3263,6 @@ static const AsterixField *I001_plot[] = {
     &IX_SPARE,
     &IX_SPARE,
     &I001_SP,
-    &I001_RFS,
     NULL
 };
 static const AsterixField *I001_track[] = {
@@ -3298,7 +3286,7 @@ static const AsterixField *I001_track[] = {
     &I001_060,
     &I001_030,
     &I001_SP,
-    &I001_RFS,
+    &IX_SPARE,
     &I001_150,
     NULL
 };
@@ -3443,8 +3431,6 @@ static const FieldPart *I002_V1_0_100_PARTS[] = {
 static const AsterixField I002_V1_0_100 = { FIXED, 8, 0, 0, &hf_002_V1_0_100, I002_V1_0_100_PARTS, { NULL } };
 static int hf_002_V1_0_SP = -1;
 static const AsterixField I002_V1_0_SP = { EXP, 0, 0, 1, &hf_002_V1_0_SP, NULL, { NULL } };
-static int hf_002_V1_0_RFS = -1;
-static const AsterixField I002_V1_0_RFS = { EXP, 0, 0, 1, &hf_002_V1_0_RFS, NULL, { NULL } };
 
 DIAG_OFF_PEDANTIC
 static const AsterixField *I002_V1_0_uap[] = {
@@ -3461,7 +3447,6 @@ static const AsterixField *I002_V1_0_uap[] = {
     &I002_V1_0_080,
     &IX_SPARE,
     &I002_V1_0_SP,
-    &I002_V1_0_RFS,
     NULL
 };
 static const AsterixField **I002_V1_0[] = {
@@ -3604,8 +3589,6 @@ static const FieldPart *I002_V1_1_100_PARTS[] = {
 static const AsterixField I002_V1_1_100 = { FIXED, 8, 0, 0, &hf_002_V1_1_100, I002_V1_1_100_PARTS, { NULL } };
 static int hf_002_V1_1_SP = -1;
 static const AsterixField I002_V1_1_SP = { EXP, 0, 0, 1, &hf_002_V1_1_SP, NULL, { NULL } };
-static int hf_002_V1_1_RFS = -1;
-static const AsterixField I002_V1_1_RFS = { EXP, 0, 0, 1, &hf_002_V1_1_RFS, NULL, { NULL } };
 
 /* Category 002, edition 1.1 (latest) */
 static int hf_002_000 = -1;
@@ -3741,8 +3724,6 @@ static const FieldPart *I002_100_PARTS[] = {
 static const AsterixField I002_100 = { FIXED, 8, 0, 0, &hf_002_100, I002_100_PARTS, { NULL } };
 static int hf_002_SP = -1;
 static const AsterixField I002_SP = { EXP, 0, 0, 1, &hf_002_SP, NULL, { NULL } };
-static int hf_002_RFS = -1;
-static const AsterixField I002_RFS = { EXP, 0, 0, 1, &hf_002_RFS, NULL, { NULL } };
 
 DIAG_OFF_PEDANTIC
 static const AsterixField *I002_V1_1_uap[] = {
@@ -3759,7 +3740,6 @@ static const AsterixField *I002_V1_1_uap[] = {
     &I002_V1_1_080,
     &IX_SPARE,
     &I002_V1_1_SP,
-    &I002_V1_1_RFS,
     NULL
 };
 static const AsterixField **I002_V1_1[] = {
@@ -3783,7 +3763,6 @@ static const AsterixField *I002_uap[] = {
     &I002_080,
     &IX_SPARE,
     &I002_SP,
-    &I002_RFS,
     NULL
 };
 static const AsterixField **I002[] = {
@@ -6446,8 +6425,6 @@ static const FieldPart *I008_V1_2_120_PARTS[] = {
 static const AsterixField I008_V1_2_120 = { FIXED, 2, 0, 0, &hf_008_V1_2_120, I008_V1_2_120_PARTS, { NULL } };
 static int hf_008_V1_2_SP = -1;
 static const AsterixField I008_V1_2_SP = { EXP, 0, 0, 1, &hf_008_V1_2_SP, NULL, { NULL } };
-static int hf_008_V1_2_RFS = -1;
-static const AsterixField I008_V1_2_RFS = { EXP, 0, 0, 1, &hf_008_V1_2_RFS, NULL, { NULL } };
 
 DIAG_OFF_PEDANTIC
 static const AsterixField *I008_V1_2_uap[] = {
@@ -6464,7 +6441,6 @@ static const AsterixField *I008_V1_2_uap[] = {
     &I008_V1_2_120,
     &I008_V1_2_038,
     &I008_V1_2_SP,
-    &I008_V1_2_RFS,
     NULL
 };
 static const AsterixField **I008_V1_2[] = {
@@ -6679,8 +6655,6 @@ static const FieldPart *I008_V1_3_120_PARTS[] = {
 static const AsterixField I008_V1_3_120 = { FIXED, 2, 0, 0, &hf_008_V1_3_120, I008_V1_3_120_PARTS, { NULL } };
 static int hf_008_V1_3_SP = -1;
 static const AsterixField I008_V1_3_SP = { EXP, 0, 0, 1, &hf_008_V1_3_SP, NULL, { NULL } };
-static int hf_008_V1_3_RFS = -1;
-static const AsterixField I008_V1_3_RFS = { EXP, 0, 0, 1, &hf_008_V1_3_RFS, NULL, { NULL } };
 
 /* Category 008, edition 1.3 (latest) */
 static int hf_008_000 = -1;
@@ -6888,8 +6862,6 @@ static const FieldPart *I008_120_PARTS[] = {
 static const AsterixField I008_120 = { FIXED, 2, 0, 0, &hf_008_120, I008_120_PARTS, { NULL } };
 static int hf_008_SP = -1;
 static const AsterixField I008_SP = { EXP, 0, 0, 1, &hf_008_SP, NULL, { NULL } };
-static int hf_008_RFS = -1;
-static const AsterixField I008_RFS = { EXP, 0, 0, 1, &hf_008_RFS, NULL, { NULL } };
 
 DIAG_OFF_PEDANTIC
 static const AsterixField *I008_V1_3_uap[] = {
@@ -6906,7 +6878,6 @@ static const AsterixField *I008_V1_3_uap[] = {
     &I008_V1_3_120,
     &I008_V1_3_038,
     &I008_V1_3_SP,
-    &I008_V1_3_RFS,
     NULL
 };
 static const AsterixField **I008_V1_3[] = {
@@ -6930,7 +6901,6 @@ static const AsterixField *I008_uap[] = {
     &I008_120,
     &I008_038,
     &I008_SP,
-    &I008_RFS,
     NULL
 };
 static const AsterixField **I008[] = {
@@ -52973,7 +52943,6 @@ void proto_register_asterix (void)
         { &hf_001_V1_2_210, { "210, Track Quality", "asterix.001_V1_2_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_210_Subitem, { "Subitem, Subitem", "asterix.001_V1_2_210_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_V1_2_SP, { "SP, Special Purpose Field", "asterix.001_V1_2_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_2_RFS, { "RFS, Random Field Sequencing", "asterix.001_V1_2_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_010, { "010, Data Source Identifier", "asterix.001_V1_3_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_010_SAC, { "SAC, System Area Code", "asterix.001_V1_3_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_010_SIC, { "SIC, System Identification Code", "asterix.001_V1_3_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
@@ -53080,7 +53049,6 @@ void proto_register_asterix (void)
         { &hf_001_V1_3_210, { "210, Track Quality", "asterix.001_V1_3_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_210_Subitem, { "Subitem, Subitem", "asterix.001_V1_3_210_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_V1_3_SP, { "SP, Special Purpose Field", "asterix.001_V1_3_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_3_RFS, { "RFS, Random Field Sequencing", "asterix.001_V1_3_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_010, { "010, Data Source Identifier", "asterix.001_V1_4_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_010_SAC, { "SAC, System Area Code", "asterix.001_V1_4_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_010_SIC, { "SIC, System Identification Code", "asterix.001_V1_4_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
@@ -53187,7 +53155,6 @@ void proto_register_asterix (void)
         { &hf_001_V1_4_210, { "210, Track Quality", "asterix.001_V1_4_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_210_Subitem, { "Subitem, Subitem", "asterix.001_V1_4_210_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_V1_4_SP, { "SP, Special Purpose Field", "asterix.001_V1_4_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_4_RFS, { "RFS, Random Field Sequencing", "asterix.001_V1_4_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_010, { "010, Data Source Identifier", "asterix.001_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_010_SAC, { "SAC, System Area Code", "asterix.001_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_001_010_SIC, { "SIC, System Identification Code", "asterix.001_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
@@ -53294,7 +53261,6 @@ void proto_register_asterix (void)
         { &hf_001_210, { "210, Track Quality", "asterix.001_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_210_Subitem, { "Subitem, Subitem", "asterix.001_210_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_SP, { "SP, Special Purpose Field", "asterix.001_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_RFS, { "RFS, Random Field Sequencing", "asterix.001_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_000, { "000, Message Type", "asterix.002_V1_0_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_000_VALUE, { "Message Type", "asterix.002_V1_0_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_002_V1_0_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_002_V1_0_010, { "010, Data Source Identifier", "asterix.002_V1_0_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53325,7 +53291,6 @@ void proto_register_asterix (void)
         { &hf_002_V1_0_100_TS, { "TS, Theta Start, [°]", "asterix.002_V1_0_100_TS", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_100_TE, { "TE, Theta End, [°]", "asterix.002_V1_0_100_TE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_SP, { "SP, Special Purpose Field", "asterix.002_V1_0_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_V1_0_RFS, { "RFS, Random Field Sequencing", "asterix.002_V1_0_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_000, { "000, Message Type", "asterix.002_V1_1_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_000_VALUE, { "Message Type", "asterix.002_V1_1_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_002_V1_1_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_002_V1_1_010, { "010, Data Source Identifier", "asterix.002_V1_1_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53356,7 +53321,6 @@ void proto_register_asterix (void)
         { &hf_002_V1_1_100_TS, { "TS, Theta Start, [°]", "asterix.002_V1_1_100_TS", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_100_TE, { "TE, Theta End, [°]", "asterix.002_V1_1_100_TE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_SP, { "SP, Special Purpose Field", "asterix.002_V1_1_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_V1_1_RFS, { "RFS, Random Field Sequencing", "asterix.002_V1_1_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_000, { "000, Message Type", "asterix.002_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_000_VALUE, { "Message Type", "asterix.002_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_002_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_002_010, { "010, Data Source Identifier", "asterix.002_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53387,7 +53351,6 @@ void proto_register_asterix (void)
         { &hf_002_100_TS, { "TS, Theta Start, [°]", "asterix.002_100_TS", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_100_TE, { "TE, Theta End, [°]", "asterix.002_100_TE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_SP, { "SP, Special Purpose Field", "asterix.002_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_RFS, { "RFS, Random Field Sequencing", "asterix.002_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_000, { "000, Message Type", "asterix.004_V1_12_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_000_VALUE, { "Message Type", "asterix.004_V1_12_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_004_V1_12_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_004_V1_12_010, { "010, Data Source Identifier", "asterix.004_V1_12_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53825,7 +53788,6 @@ void proto_register_asterix (void)
         { &hf_008_V1_2_120, { "120, Total Number of Items Constituting One Weather Picture", "asterix.008_V1_2_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_120_VALUE, { "Total Number of Items Constituting One Weather Picture", "asterix.008_V1_2_120_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_SP, { "SP, Special Purpose Field", "asterix.008_V1_2_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_RFS, { "RFS, Random Field Sequencing", "asterix.008_V1_2_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_000, { "000, Message Type", "asterix.008_V1_3_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_000_VALUE, { "Message Type", "asterix.008_V1_3_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_3_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_008_V1_3_010, { "010, Data Source Identifier", "asterix.008_V1_3_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53869,7 +53831,6 @@ void proto_register_asterix (void)
         { &hf_008_V1_3_120, { "120, Total Number of Items Constituting One Weather Picture", "asterix.008_V1_3_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_120_VALUE, { "Total Number of Items Constituting One Weather Picture", "asterix.008_V1_3_120_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_SP, { "SP, Special Purpose Field", "asterix.008_V1_3_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_RFS, { "RFS, Random Field Sequencing", "asterix.008_V1_3_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_000, { "000, Message Type", "asterix.008_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_000_VALUE, { "Message Type", "asterix.008_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_008_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_008_010, { "010, Data Source Identifier", "asterix.008_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53913,7 +53874,6 @@ void proto_register_asterix (void)
         { &hf_008_120, { "120, Total Number of Items Constituting One Weather Picture", "asterix.008_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_120_VALUE, { "Total Number of Items Constituting One Weather Picture", "asterix.008_120_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_SP, { "SP, Special Purpose Field", "asterix.008_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_RFS, { "RFS, Random Field Sequencing", "asterix.008_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_V2_1_000, { "000, Message Type", "asterix.009_V2_1_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_V2_1_000_VALUE, { "Message Type", "asterix.009_V2_1_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_009_V2_1_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_009_V2_1_010, { "010, Data Source Identifier", "asterix.009_V2_1_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
