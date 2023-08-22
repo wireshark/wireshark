@@ -47,6 +47,11 @@ static int hf_mdb_hdr_ver = -1;
 static int hf_mdb_event = -1;
 static int hf_mdb_addr = -1;
 static int hf_mdb_cmd = -1;
+static int hf_mdb_cl_setup_sub = -1;
+static int hf_mdb_cl_feat_lvl = -1;
+static int hf_mdb_cl_cols = -1;
+static int hf_mdb_cl_rows = -1;
+static int hf_mdb_cl_disp_info = -1;
 static int hf_mdb_cl_vend_sub = -1;
 static int hf_mdb_cl_reader_sub = -1;
 static int hf_mdb_cl_resp = -1;
@@ -88,16 +93,26 @@ static const value_string mdb_ack[] = {
     { 0, NULL }
 };
 
+#define MDB_CL_CMD_SETUP  0x01
 #define MDB_CL_CMD_VEND   0x03
 #define MDB_CL_CMD_READER 0x04
 
 static const value_string mdb_cl_cmd[] = {
     { 0x00, "Reset" },
-    { 0x01, "Setup" },
+    { MDB_CL_CMD_SETUP, "Setup" },
     { 0x02, "Poll" },
     { MDB_CL_CMD_VEND, "Vend" },
     { MDB_CL_CMD_READER, "Reader" },
     { 0x07, "Expansion" },
+    { 0, NULL }
+};
+
+#define MDB_CL_SETUP_CFG_DATA 0x00
+#define MDB_CL_SETUP_MAX_MIN  0x01
+
+static const value_string mdb_cl_setup_sub_cmd[] = {
+    { MDB_CL_SETUP_CFG_DATA, "Config Data" },
+    { MDB_CL_SETUP_MAX_MIN, "Max/Min Prices" },
     { 0, NULL }
 };
 
@@ -155,6 +170,37 @@ static void mdb_set_addrs(guint8 event, guint8 addr, packet_info *pinfo)
     }
 }
 
+static void dissect_mdb_cl_setup(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree)
+{
+    guint32 sub_cmd;
+    const gchar *s;
+
+    proto_tree_add_item_ret_uint(tree, hf_mdb_cl_setup_sub,
+                    tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cmd);
+    s = try_val_to_str(sub_cmd, mdb_cl_setup_sub_cmd);
+    if (s) {
+        col_set_str(pinfo->cinfo, COL_INFO, s);
+    }
+    offset++;
+
+    switch (sub_cmd) {
+        case MDB_CL_SETUP_CFG_DATA:
+            proto_tree_add_item(tree, hf_mdb_cl_feat_lvl, tvb, offset, 1,
+                    ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_mdb_cl_cols, tvb, offset, 1,
+                    ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_mdb_cl_rows, tvb, offset, 1,
+                    ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_mdb_cl_disp_info, tvb, offset, 1,
+                    ENC_BIG_ENDIAN);
+            break;
+    }
+}
+
 static void dissect_mdb_mst_per_cl( tvbuff_t *tvb, gint offset, gint len _U_,
         packet_info *pinfo, proto_tree *tree, proto_item *cmd_it,
         guint8 addr_byte)
@@ -173,6 +219,9 @@ static void dissect_mdb_mst_per_cl( tvbuff_t *tvb, gint offset, gint len _U_,
 
     s = NULL;
     switch (cmd) {
+        case MDB_CL_CMD_SETUP:
+            dissect_mdb_cl_setup(tvb, offset, pinfo, cl_tree);
+            break;
         case MDB_CL_CMD_VEND:
             proto_tree_add_item_ret_uint(cl_tree, hf_mdb_cl_vend_sub,
                     tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cmd);
@@ -398,6 +447,26 @@ void proto_register_mdb(void)
         { &hf_mdb_cmd,
             { "Command", "mdb.cmd",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cl_setup_sub,
+            { "Sub-command", "mdb.cashless.setup_sub_cmd",
+                FT_UINT8, BASE_HEX, VALS(mdb_cl_setup_sub_cmd), 0, NULL, HFILL }
+        },
+        { &hf_mdb_cl_feat_lvl,
+            { "Feature level", "mdb.cashless.feature_level",
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cl_cols,
+            { "Columns on display", "mdb.cashless.columns",
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cl_rows,
+            { "Rows on display", "mdb.cashless.rows",
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cl_disp_info,
+            { "Display information", "mdb.cashless.disp_info",
+                FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }
         },
         { &hf_mdb_cl_vend_sub,
             { "Sub-command", "mdb.cashless.vend_sub_cmd",
