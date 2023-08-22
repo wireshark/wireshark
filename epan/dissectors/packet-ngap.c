@@ -3115,7 +3115,6 @@ static const value_string mtype_names[] = {
     { MTYPE_INITIAL_CONTEXT_SETUP_REQUEST,               "InitialContextSetupRequest" },
     { MTYPE_INITIAL_CONTEXT_SETUP_RESPONSE,              "InitialContextSetupResponse" },
     { MTYPE_INITIAL_CONTEXT_SETUP_FAILURE,               "InitialContextSetupFailure" },
-    { MTYPE_INITIAL_CONTEXT_SETUP_FAILURE,               "InitialContextSetupFailure" },
     { MTYPE_INITIAL_UE_MESSAGE,                          "InitialUEMessage" },
     { MTYPE_LOCATION_REPORT,                             "LocationReport" },
     { MTYPE_LOCATION_REPORTING_CONTROL,                  "LocationReportingControl" },

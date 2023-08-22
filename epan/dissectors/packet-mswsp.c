@@ -923,9 +923,9 @@ static const value_string QueryGuid_IDS[] = {
 	{0x04, "System.Search.HitCount"},
 	{0x05, "System.Search.EntryID"},
 	{0x06, "All"},
-	{0x8, "System.Search.ReverseFileName"},
+	{0x08, "System.Search.ReverseFileName"},
 	{0x09, "System.ItemURL"},
-	{0xa, "System.ContentUrl"},
+	{0x0a, "System.ContentUrl"},
 	{0, NULL}
 };
 

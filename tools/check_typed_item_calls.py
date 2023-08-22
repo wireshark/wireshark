@@ -506,12 +506,17 @@ def is_ignored_consecutive_filter(filter):
 
 
 class ValueString:
-    def __init__(self, file, name, vals, macros):
+    def __init__(self, file, name, vals, macros, do_extra_checks=False):
         self.file = file
         self.name = name
         self.raw_vals = vals
         self.parsed_vals = {}
+        self.seen_labels = set()
         self.valid = True
+        self.min_value =  99999
+        self.max_value = -99999
+
+        #print('ValueString', name)
 
         # Now parse out each entry in the value_string
         matches = re.finditer(r'\{\s*([0-9_A-Za-z]*)\s*,\s*(".*?")\s*}\s*,', self.raw_vals)
@@ -536,22 +541,63 @@ class ValueString:
             except:
                 return
 
+            global warnings_found
+
             # Check for value conflict before inserting
             if value in self.parsed_vals and label != self.parsed_vals[value]:
                 print('Warning:', self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
-                      self.parsed_vals[value], 'now', label)
-                global warnings_found
+                    self.parsed_vals[value], 'now', label)
                 warnings_found += 1
             else:
                 # Add into table
                 self.parsed_vals[value] = label
+                if do_extra_checks and label in self.seen_labels:
+                    exceptions = [ 'reserved', 'invalid', 'unused', 'not used', 'unknown', 'undefined', 'spare',
+                                   'unallocated', 'not assigned', 'implementation specific', 'unspecified',
+                                   'other', 'for further study', 'future', 'vendor specific', 'obsolete', 'none',
+                                   'shall not be used', 'national use', 'unassigned', 'oem', 'user defined',
+                                   'manufacturer specific', 'not specified', 'proprietary', 'operator-defined',
+                                   'dynamically allocated', 'user specified' ]
+                    excepted = False
+                    for ex in exceptions:
+                        if label.lower().find(ex) != -1:
+                            excepted = True
+                            break
+
+                    if not excepted:
+                        print('Warning:', self.file, ': value_string', self.name, '- label ', label, 'repeated')
+                        warnings_found += 1
+                else:
+                    self.seen_labels.add(label)
+
+                if value > self.max_value:
+                    self.max_value = value
+                if value < self.min_value:
+                    self.min_value = value
+
+
+    def extraChecks(self):
+        global warnings_found
+
+        # Look for one value missing in range (quite common...)
+        num_items = len(self.parsed_vals)
+        span = self.max_value - self.min_value + 1
+        if num_items > 4 and span > num_items and (span-num_items <=1):
+            for val in range(self.min_value, self.max_value):
+                if not val in self.parsed_vals:
+                    print('Warning:', self.file, ': value_string', self.name, '- value', val, 'missing?', '(', num_items, 'entries)')
+                    global warnings_found
+                    warnings_found += 1
+
+        # Look for repeated labels
+        #for val in self.parsed_vals:
 
 
     def __str__(self):
         return  self.name + '= { ' + self.raw_vals + ' }'
 
 # Look for value_string entries in a dissector file.  Return a dict name -> ValueString
-def findValueStrings(filename, macros):
+def findValueStrings(filename, macros, do_extra_checks=False):
     vals_found = {}
 
     #static const value_string radio_type_vals[] =
@@ -571,7 +617,7 @@ def findValueStrings(filename, macros):
         for m in matches:
             name = m.group(1)
             vals = m.group(2)
-            vals_found[name] = ValueString(filename, name, vals, macros)
+            vals_found[name] = ValueString(filename, name, vals, macros, do_extra_checks)
 
     return vals_found
 
@@ -1215,7 +1261,7 @@ def findDissectorFilesInFolder(folder, recursive=False):
 
 # Run checks on the given dissector file.
 def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False,
-              check_missing_items=False, check_bitmask_fields=False, label_vs_filter=False):
+              check_missing_items=False, check_bitmask_fields=False, label_vs_filter=False, extra_value_string_checks=False):
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
@@ -1249,7 +1295,10 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         field_arrays = find_field_arrays(filename, fields, items_defined)
 
     # Find (and sanity-check) value_strings
-    value_strings = findValueStrings(filename, macros)
+    value_strings = findValueStrings(filename, macros, do_extra_checks=extra_value_string_checks)
+    if extra_value_string_checks:
+        for name in value_strings:
+            value_strings[name].extraChecks()
 
     if check_mask and check_bitmask_fields:
         for i in items_defined:
@@ -1304,6 +1353,8 @@ parser.add_argument('--check-bitmask-fields', action='store_true',
                     help='when set, attempt to check arrays of hf items passed to add_bitmask() calls')
 parser.add_argument('--label-vs-filter', action='store_true',
                     help='when set, check whether label matches last part of filter')
+parser.add_argument('--extra-value-string-checks', action='store_true',
+                    help='when set, do extra checks on parsed value_strings')
 parser.add_argument('--all-checks', action='store_true',
                     help='when set, apply all checks to selected files')
 
@@ -1317,6 +1368,7 @@ if args.all_checks:
     args.consecutive = True
     args.check_bitmask_fields = True
     args.label_vs_filter = True
+    args.extra_value_string_checks
 
 if args.check_bitmask_fields:
     args.mask = True
@@ -1387,7 +1439,8 @@ for f in files:
         exit(1)
     checkFile(f, check_mask=args.mask, mask_exact_width=args.mask_exact_width, check_label=args.label,
               check_consecutive=args.consecutive, check_missing_items=args.missing_items,
-              check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter)
+              check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter,
+              extra_value_string_checks=args.extra_value_string_checks)
 
     # Do checks against all calls.
     if args.consecutive:

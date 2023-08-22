@@ -303,7 +303,7 @@ static const value_string cops_client_type_vals[] = {
     {0x8004,              "IP Highway"},
     {0x8005,              "Fujitsu"},
     {0x8006,              "HP OpenView PolicyXpert"},
-    {0x8007,              "HP OpenView PolicyXpert"},
+    {0x8007,              "HP OpenView PolicyXpert COPS-PR PXPIB"},
     {COPS_CLIENT_PC_DQOS, "PacketCable Dynamic Quality-of-Service"},
     {0x8009,              "3GPP"},
     {COPS_CLIENT_PC_MM,   "PacketCable Multimedia"},

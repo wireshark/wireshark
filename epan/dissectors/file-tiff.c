@@ -408,6 +408,7 @@ static const value_string tiff_photometric_interp_names[] = {
     { 4, "Transparency Mask" },
     { 5, "CMYK" },
     { 6, "YCbCr" },
+    /* N.B. no value for 7 (see Appendix A) */
     { 8, "CIELab" },
     { 0, NULL },
 };
