@@ -3974,6 +3974,34 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+    case T_URI: /* Uniform Resource Locator (256) */
+    {
+      int           rr_len   = data_len;
+      guint16       priority = 0;
+      guint16       weight   = 0;
+      int           target_len = rr_len - 4;
+      const gchar  *target;
+
+      proto_tree_add_item(rr_tree, hf_dns_srv_priority, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      priority = tvb_get_ntohs(tvb, cur_offset);
+      cur_offset += 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_srv_weight, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      weight = tvb_get_ntohs(tvb, cur_offset);
+      cur_offset += 2;
+
+      target = (const char*)tvb_get_string_enc(pinfo->pool, tvb, cur_offset, target_len, ENC_ASCII|ENC_NA);
+
+      proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset, used_bytes, target);
+
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %u %u %s", priority, weight, target);
+      proto_item_append_text(trr,
+                             ", priority %u, weight %u, target %s",
+                             priority, weight, target);
+    }
+    break;
+
+
     case T_CAA: /* Certification Authority Restriction (257) */
     {
       proto_item *caa_item;
