@@ -5015,8 +5015,10 @@ dissect_kafka_sync_group_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                   &member_start, &member_len);
 
     /* instance_id */
-    offset = dissect_kafka_string(tree, hf_kafka_consumer_group_instance, tvb, pinfo, offset, api_version >= 4,
-                              NULL, NULL);
+    if (api_version >= 3) {
+        offset = dissect_kafka_string(tree, hf_kafka_consumer_group_instance, tvb, pinfo, offset, api_version >= 4,
+                                      NULL, NULL);
+    }
 
     /* protocol_type */
     if (api_version >= 5) {
