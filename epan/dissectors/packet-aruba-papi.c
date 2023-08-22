@@ -59,7 +59,6 @@ static int hf_papi_debug_bytes = -1;
 static int hf_papi_debug_bytes_length = -1;
 
 static int hf_papi_licmgr = -1;
-static int hf_papi_licmgr_unknown = -1;
 static int hf_papi_licmgr_payload_len = -1;
 static int hf_papi_licmgr_tlv = -1;
 static int hf_papi_licmgr_type = -1;
@@ -429,9 +428,6 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     ti = proto_tree_add_item(tree, hf_papi_licmgr, tvb, offset, -1, ENC_NA);
     licmgr_tree = proto_item_add_subtree(ti, ett_papi_licmgr);
-
-    proto_tree_add_item(licmgr_tree, hf_papi_licmgr_unknown, tvb, offset, 32, ENC_NA);
-    offset += 32;
 
     proto_tree_add_item_ret_uint(licmgr_tree, hf_papi_licmgr_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &payload_len);
     offset += 2;
@@ -812,11 +808,6 @@ proto_register_papi(void)
         { &hf_papi_licmgr,
             { "License Manager", "papi.licmgr",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_papi_licmgr_unknown,
-            { "Unknown", "papi.licmgr.unknown",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_papi_licmgr_payload_len,
