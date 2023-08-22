@@ -1118,6 +1118,47 @@ wslua_add_introspection(void)
     }
 }
 
+static void wslua_add_deprecated(void)
+{
+    /* For backward compatibility. */
+    lua_getglobal(L, "wtap_encaps");
+    lua_setglobal(L, "wtap");
+
+    /*
+     * Generate the wtap_filetypes items for file types, for backwards
+     * compatibility.
+     * We no longer have WTAP_FILE_TYPE_SUBTYPE_ #defines;
+     * built-in file types are registered the same way that
+     * plugin file types are registered.
+     *
+     * New code should use wtap_name_to_file_type_subtype to
+     * look up file types by name.
+     */
+    wslua_init_wtap_filetypes(L);
+
+    /* Old / deprecated menu groups. These shoudn't be used in new code. */
+    lua_getglobal(L, "MENU_PACKET_ANALYZE_UNSORTED");
+    lua_setglobal(L, "MENU_ANALYZE_UNSORTED");
+    lua_getglobal(L, "MENU_ANALYZE_CONVERSATION_FILTER");
+    lua_setglobal(L, "MENU_ANALYZE_CONVERSATION");
+    lua_getglobal(L, "MENU_STAT_CONVERSATION_LIST");
+    lua_setglobal(L, "MENU_STAT_CONVERSATION");
+    lua_getglobal(L, "MENU_STAT_ENDPOINT_LIST");
+    lua_setglobal(L, "MENU_STAT_ENDPOINT");
+    lua_getglobal(L, "MENU_STAT_RESPONSE_TIME");
+    lua_setglobal(L, "MENU_STAT_RESPONSE");
+    lua_getglobal(L, "MENU_PACKET_STAT_UNSORTED");
+    lua_setglobal(L, "MENU_STAT_UNSORTED");
+
+    /* deprecated function names */
+    lua_getglobal(L, "Dir");
+    lua_getfield(L, -1, "global_config_path");
+    lua_setglobal(L, "datafile_path");
+    lua_getfield(L, -1, "personal_config_path");
+    lua_setglobal(L, "persconffile_path");
+    lua_pop(L, 1);
+}
+
 static int wslua_console_print(lua_State *_L);
 
 static const char *lua_error_msg(int code)
@@ -1489,6 +1530,8 @@ void wslua_init(register_cb cb, gpointer client_data) {
     WSLUA_REG_GLOBAL_NUMBER(L,"DESEGMENT_ONE_MORE_SEGMENT",DESEGMENT_ONE_MORE_SEGMENT);
 
     wslua_add_introspection();
+
+    wslua_add_deprecated();
 
     // Register Lua's console menu (in the GUI)
     if (first_time) {

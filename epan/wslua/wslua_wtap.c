@@ -126,7 +126,7 @@ WSLUA_FUNCTION wslua_wtap_pcapng_file_type_subtype(lua_State* LS) {
  * init.wslua-only function to return a table to assign to
  * wtap_filetypes.
  */
-WSLUA_INTERNAL_FUNCTION wslua_get_wtap_filetypes(lua_State* LS) {
+extern void wslua_init_wtap_filetypes(lua_State* LS) {
     /* Get the GArray from which we initialize this. */
     const GArray *table = get_backwards_compatibility_lua_table();
 
@@ -156,5 +156,5 @@ WSLUA_INTERNAL_FUNCTION wslua_get_wtap_filetypes(lua_State* LS) {
          */
         lua_settable(LS, -3);
     }
-    WSLUA_RETURN(1); /* The table. */
+    lua_setglobal(LS, "wtap_filetypes");
 }

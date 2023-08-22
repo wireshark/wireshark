@@ -816,6 +816,8 @@ extern int wslua_deregister_fields(lua_State* L);
 extern int wslua_deregister_filehandlers(lua_State* L);
 extern void wslua_deregister_menus(void);
 
+extern void wslua_init_wtap_filetypes(lua_State* L);
+
 #endif
 
 /*
