@@ -1242,6 +1242,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_SILABS_DEBUG_CHANNEL */
 	{ "silabs-dch", "Silabs Debug Channel"},
+
+	/* WTAP_ENCAP_MDB */
+	{ "mdb", "MDB (Multi-Drop Bus)"},
 };
 
 WS_DLL_LOCAL

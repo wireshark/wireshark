@@ -504,6 +504,9 @@ static const struct {
 	/* Ultra-wideband (UWB) controller interface protocol (UCI) */
 	{ 299,		WTAP_ENCAP_FIRA_UCI },
 
+	/* MDB (Multi-Drop Bus) */
+	{ 300,		WTAP_ENCAP_MDB },
+
 	/*
 	 * To repeat:
 	 *

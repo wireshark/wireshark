@@ -31,6 +31,7 @@
 #include "config.h"
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 void proto_register_mdb(void);
 
@@ -436,6 +437,11 @@ void proto_register_mdb(void)
     expert_mdb = expert_register_protocol(proto_mdb);
     expert_register_field_array(expert_mdb, ei, array_length(ei));
     mdb_handle = register_dissector("mdb", dissect_mdb, proto_mdb);
+}
+
+void proto_reg_handoff_mdb(void)
+{
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_MDB, mdb_handle);
 }
 
 /*
