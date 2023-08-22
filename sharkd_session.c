@@ -3024,7 +3024,7 @@ sharkd_session_process_tap_voip_calls_cb(void *arg)
         sharkd_json_object_open(NULL);
         sharkd_json_value_anyf("call", "%hu", call_info_->call_num);
         sharkd_json_value_anyf("start_time", "%.6f", nstime_to_sec(&(call_info_->start_rel_ts)));
-        sharkd_json_value_anyf("stop_time", "%.6f", nstime_to_sec(&(call_info_->start_rel_ts)));
+        sharkd_json_value_anyf("stop_time", "%.6f", nstime_to_sec(&(call_info_->stop_rel_ts)));
         addr_str = address_to_display(NULL, &(call_info_->initial_speaker));
         sharkd_json_value_string("initial_speaker", addr_str);
         wmem_free(NULL, addr_str);

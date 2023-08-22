@@ -547,7 +547,7 @@ class TestSharkd:
                     "calls":[{
                         "call":0,
                         "start_time":0.000000,
-                        "stop_time":0.000000,
+                        "stop_time":8.524137,
                         "initial_speaker":"200.57.7.195",
                         "from":"<sip:200.57.7.195:55061;user=phone>",
                         "to":"\"francisco@bestel.com\" <sip:francisco@bestel.com:55060>",
@@ -558,7 +558,7 @@ class TestSharkd:
                     },{
                         "call":1,
                         "start_time":24.665953,
-                        "stop_time":24.665953,
+                        "stop_time":24.692752,
                         "initial_speaker":"200.57.7.195",
                         "from":"\"Ivan Alizade\" <sip:5514540002@200.57.7.195:55061;user=phone>",
                         "to":"\"francisco@bestel.com\" <sip:francisco@bestel.com:55060>",
