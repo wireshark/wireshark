@@ -34,6 +34,16 @@ wsbuglink:18734[].
 
 The following vulnerabilities have been fixed:
 
+* wssalink:2023-22[]
+iSCSI dissector crash.
+wsbuglink:19164[].
+cveidlink:2023-3649[].
+// Fixed in master: 94349bbdae
+// Fixed in release-4.0: d7422dcba5
+// Fixed in release-3.6: 75e0ffcb42
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-126
+
 * wssalink:2023-24[]
 BT SDP dissector infinite loop.
 wsbuglink:19258[].
