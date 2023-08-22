@@ -14,21 +14,37 @@ applications. Wireshark contains an embedded Lua 5.2 interpreter which
 can be used to write dissectors, taps, and capture file readers
 and writers.
 
-Wireshark’s Lua interpreter starts by loading a file named `init.lua` from
-Wireshark's link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_global configuration directory_].
-The _global configuration directory_'s `init.lua` controls whether or not Lua
-scripts are enabled via the
+If Lua is enabled, Wireshark will first try to load a file named `init.lua`
+from the global link:{wireshark-users-guide-url}ChPluginFolders.html[_plugins directory_].
+and then from the user’s
+link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_personal plugins directory_]. Then all files ending with _.lua_ are loaded from the global plugins
+directory. Then Then all files ending with _.lua_ in the personal Lua plugin's
+directory.
+
+Whether or not Lua scripts are enabled can be controlled via the
 _$$enable_lua$$_ variable. Lua scripts are enabled by
 default. To disable Lua scripts, set the _$$enable_lua$$_ variable to _false_.
 Wireshark 2.6 and earlier enabled or disabled Lua scripts using
 the variable _$$disable_lua$$_ (deprecated). If both _$$enable_lua$$_ and
 _$$disable_lua$$_ are present, _$$disable_lua$$_ is ignored.
 
-If Lua is enabled, Wireshark will try to load a file named `init.lua`
-from the user’s
-link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_personal configuration directory_]
-and all files ending with _.lua_ in the global and the personal
-link:{wireshark-users-guide-url}ChPluginFolders.html[_plugins directory_].
+.Example for init.lua
+[source,lua]
+----
+-- Set enable_lua to false to disable Lua support.
+enable_lua = true
+
+if not enable_lua then
+    return
+end
+
+-- If false and Wireshark was started as (setuid) root, then the user
+-- will not be able to execute custom Lua scripts from the personal
+-- configuration directory, the -Xlua_script command line option or
+-- the Lua Evaluate menu option in the GUI.
+-- Note: Not checked on Windows. running_superuser is always false.
+run_user_scripts_when_superuser = true
+----
 
 The command line option _$$-X lua_script:$$++file.lua++_ can also be used to load
 specific Lua scripts.

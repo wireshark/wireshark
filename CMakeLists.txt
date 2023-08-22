@@ -2385,28 +2385,6 @@ if (BUILD_logray AND ENABLE_APPLICATION_BUNDLE)
 	endforeach()
 endif()
 
-# Install Lua files in staging directory such that Lua can used when Wireshark
-# is ran from the build directory. For install targets, see
-# epan/wslua/CMakeLists.txt
-if(LUA_FOUND AND ENABLE_LUA)
-	set(_lua_files
-		"${CMAKE_SOURCE_DIR}/epan/wslua/init.lua"
-	)
-	foreach(_lua_file ${_lua_files})
-		get_filename_component(_lua_filename "${_lua_file}" NAME)
-		list(APPEND copy_data_files_depends
-			"${DATAFILE_DIR}/${_lua_filename}")
-		add_custom_command(OUTPUT "${DATAFILE_DIR}/${_lua_filename}"
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${_lua_file}"
-				"${DATAFILE_DIR}/${_lua_filename}"
-			DEPENDS
-				"${_lua_file}"
-		)
-	endforeach()
-endif(LUA_FOUND AND ENABLE_LUA)
-# doc/*.html handled elsewhere.
-
 set(_protocol_data_dir ${CMAKE_SOURCE_DIR}/resources/protocols)
 # Glob patterns relative to the source directory that should be copied to
 # ${DATAFILE_DIR} (including directory prefixes)

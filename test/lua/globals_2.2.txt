@@ -714,7 +714,6 @@
     ["datafile_path"] = '<function 33>',
     ["deregister_filehandler"] = '<function 382>',
     ["dofile"] = '<function 383>',
-    ["enable_lua"] = true,
     ["error"] = '<function 384>',
     ["expert"] = {
         ["group"] = {
@@ -909,7 +908,6 @@
     ["rex_pcre2"] = {
         ["_VERSION"] = "Lrexlib 2.9.1 (for PCRE2)"
     },
-    ["run_user_scripts_when_superuser"] = '<filtered>',
     ["running_superuser"] = '<filtered>',
     ["select"] = '<function 474>',
     ["set_color_filter_slot"] = '<function 475>',

@@ -195,6 +195,11 @@ The following features are new (or have been significantly updated) since versio
 * Installation of development header must be done explicitly using the CMake
   command ``cmake --install <builddir> --component Development``.
 
+* The "init.lua" file is now loaded from any of the Lua plugins directory.
+  Previously it was loaded from the personal configuration directory. (For
+  backward-compatibility this is still allowed; note that deprecated features
+  may be removed in a future release).
+
 === Removed Features and Support
 
 * With the addition of the universal and consistent filtering support for

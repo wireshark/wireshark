@@ -733,6 +733,7 @@ static gboolean lua_load_plugin_script(const gchar* name,
                                        const gchar* dirname,
                                        const int file_count)
 {
+    ws_debug("Loading lua script: %s", filename);
     if (lua_load_script(filename, dirname, file_count)) {
         wslua_add_plugin(name, get_current_plugin_version(), filename);
         clear_current_plugin_version();
@@ -767,8 +768,12 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
         while ((file = ws_dir_read_name(dir)) != NULL) {
             name = ws_dir_get_name(file);
 
-            if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
-                continue;        /* skip "." and ".." */
+            if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0 ||
+                                            strcmp(name, "init.lua") == 0) {
+                /* skip "." and ".." */
+                /* init.lua was already loaded if it exists, skip */
+                continue;
+            }
 
             filename = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
             if (test_for_directory(filename) == EISDIR) {
@@ -867,18 +872,10 @@ static int lua_load_pers_plugins(register_cb cb, gpointer client_data,
 }
 
 int wslua_count_plugins(void) {
-    gchar* filename;
     int plugins_counter;
 
     /* count global scripts */
     plugins_counter = lua_load_global_plugins(NULL, NULL, TRUE);
-
-    /* count users init.lua */
-    filename = get_persconffile_path("init.lua", FALSE);
-    if ((file_exists(filename))) {
-        plugins_counter++;
-    }
-    g_free(filename);
 
     /* count user scripts */
     plugins_counter += lua_load_pers_plugins(NULL, NULL, TRUE);
@@ -1595,12 +1592,32 @@ void wslua_init(register_cb cb, gpointer client_data) {
     }
 
     /* load system's init.lua */
-    filename = get_datafile_path("init.lua");
-    if (( file_exists(filename))) {
+    filename = g_build_filename(get_plugins_dir(), "init.lua", (char *)NULL);
+    if (file_exists(filename)) {
+        ws_debug("Loading init.lua file: %s", filename);
         lua_load_internal_script(filename);
     }
-
     g_free(filename);
+
+    /* load user's init.lua */
+    /* if we are indeed superuser run user scripts only if told to do so */
+    if (!started_with_special_privs() || run_anyway) {
+        filename = g_build_filename(get_plugins_pers_dir(), "init.lua", (char *)NULL);
+        if (file_exists(filename)) {
+            ws_debug("Loading init.lua file: %s", filename);
+            lua_load_internal_script(filename);
+        }
+        g_free(filename);
+
+        /* For backward compatibility also load it from the configuration directory. */
+        filename = get_persconffile_path("init.lua", FALSE);
+        if (file_exists(filename)) {
+            ws_message("Loading init.lua file from deprecated path: %s", filename);
+            lua_load_internal_script(filename);
+        }
+        g_free(filename);
+    }
+
     filename = NULL;
 
     /* check if lua is to be disabled */
@@ -1636,15 +1653,7 @@ void wslua_init(register_cb cb, gpointer client_data) {
     lua_pop(L,1);  /* pop the getglobal result */
 
     /* if we are indeed superuser run user scripts only if told to do so */
-    if ( (!started_with_special_privs()) || run_anyway ) {
-        /* load users init.lua */
-        filename = get_persconffile_path("init.lua", FALSE);
-        if ((file_exists(filename))) {
-            if (cb)
-                (*cb)(RA_LUA_PLUGINS, get_basename(filename), client_data);
-            lua_load_internal_script(filename);
-        }
-        g_free(filename);
+    if (!started_with_special_privs() || run_anyway) {
 
         /* load user scripts */
         lua_load_pers_plugins(cb, client_data, FALSE);
