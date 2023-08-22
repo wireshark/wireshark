@@ -885,7 +885,6 @@
         ["loadlib"] = '<function 455>',
         ["path"] = '<filtered>',
         ["preload"] = {},
-        ["prepend_path"] = '<function 456>',
         ["searchers"] = '<table 33>',
         ["searchpath"] = '<function 457>',
         ["seeall"] = '<function 458>'

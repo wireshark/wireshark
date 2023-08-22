@@ -316,7 +316,11 @@ Adaptive Multi-Rate (AMR), if compiled with https://sourceforge.net/projects/ope
 
 //_Non-empty section placeholder._
 
-// === Major API Changes
+=== Major API Changes
+
+* Lua function "package.prepend_path" has been removed. If you need it please
+  consider adding your own package.path customization code or installing your
+  dependencies in Wireshark's default paths.
 
 == Getting Wireshark
 
