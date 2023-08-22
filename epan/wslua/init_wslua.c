@@ -1336,6 +1336,47 @@ static void lua_funnel_console_close(void *callback_data _U_)
     wslua_lua_print_func_ref = LUA_NOREF;
 }
 
+static int wslua_file_exists(lua_State *_L)
+{
+    const char *path = luaL_checkstring(_L, 1);
+    lua_pushboolean(_L, g_file_test(path, G_FILE_TEST_EXISTS));
+    return 1;
+}
+
+static int wslua_lua_typeof(lua_State *_L)
+{
+    const char *classname = wslua_typeof(_L, 1);
+    lua_pushstring(_L, classname);
+    return 1;
+}
+
+/* Other useful constants */
+void wslua_add_useful_constants(void)
+{
+    const funnel_ops_t *ops = funnel_get_funnel_ops();
+    char *path;
+
+    WSLUA_REG_GLOBAL_BOOL(L,"GUI_ENABLED",ops && ops->new_dialog);
+
+    /* DATA_DIR has a trailing directory separator. */
+    path = get_datafile_path("");
+    lua_pushfstring(L, "%s"G_DIR_SEPARATOR_S, path);
+    g_free(path);
+    lua_setglobal(L, "DATA_DIR");
+
+    /* USER_DIR has a trailing directory separator. */
+    path = get_persconffile_path("", FALSE);
+    lua_pushfstring(L, "%s"G_DIR_SEPARATOR_S, path);
+    g_free(path);
+    lua_setglobal(L, "USER_DIR");
+
+    lua_pushcfunction(L, wslua_file_exists);
+    lua_setglobal(L, "file_exists");
+
+    lua_pushcfunction(L, wslua_lua_typeof);
+    lua_setglobal(L, "typeof");
+}
+
 void wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
     gboolean enable_lua = TRUE;
@@ -1529,7 +1570,14 @@ void wslua_init(register_cb cb, gpointer client_data) {
     /* see dissect_lua() for notes */
     WSLUA_REG_GLOBAL_NUMBER(L,"DESEGMENT_ONE_MORE_SEGMENT",DESEGMENT_ONE_MORE_SEGMENT);
 
+    /* the possible values for Pinfo's p2p_dir attribute */
+    WSLUA_REG_GLOBAL_NUMBER(L,"P2P_DIR_UNKNOWN",-1);
+    WSLUA_REG_GLOBAL_NUMBER(L,"P2P_DIR_SENT",0);
+    WSLUA_REG_GLOBAL_NUMBER(L,"P2P_DIR_RECV",1);
+
     wslua_add_introspection();
+
+    wslua_add_useful_constants();
 
     wslua_add_deprecated();
 
