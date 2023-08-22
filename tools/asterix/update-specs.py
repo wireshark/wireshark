@@ -13,7 +13,7 @@ import argparse
 
 import urllib.request
 import json
-from copy import copy
+from copy import copy, deepcopy
 from itertools import chain, repeat
 from functools import reduce
 import os
@@ -705,6 +705,39 @@ class Output(object):
         else:
             self.f.write(line+'\n')
 
+def remove_rfs(spec):
+    """Remove RFS item. It's present in specs, but not used."""
+    catalogue = []  # create new catalogue without RFS
+    rfs_items = []
+    for i in spec['catalogue']:
+        if i['variation']['type'] == 'Rfs':
+            rfs_items.append(i['name'])
+        else:
+            catalogue.append(i)
+    if not rfs_items:
+        return spec
+    spec2 = copy(spec)
+    spec2['catalogue'] = catalogue
+    # remove RFS from UAP(s)
+    uap = deepcopy(spec['uap'])
+    ut = uap['type']
+    if ut == 'uap':
+        items = [None if i in rfs_items else i for i in uap['items']]
+        if items[-1] is None: items = items[:-1]
+        uap['items'] = items
+    elif ut == 'uaps':
+        variations = []
+        for var in uap['variations']:
+            items = [None if i in rfs_items else i for i in var['items']]
+            if items[-1] is None: items = items[:-1]
+            var['items'] = items
+            variations.append(var)
+        uap['variations'] = variations
+    else:
+        raise Exception('unexpected uap type {}'.format(ut))
+    spec2['uap'] = uap
+    return spec2
+
 def is_valid(spec):
     """Check spec"""
     def check_item(item):
@@ -755,6 +788,7 @@ def main():
     jsons = [json.loads(i) for i in jsons]
     jsons = sorted(jsons, key = lambda x: (x['number'], x['edition']['major'], x['edition']['minor']))
     jsons = [spec for spec in jsons if spec['type'] == 'Basic']
+    jsons = [remove_rfs(spec) for spec in jsons]
     jsons = [spec for spec in jsons if is_valid(spec)]
 
     cats = list(set([x['number'] for x in jsons]))
