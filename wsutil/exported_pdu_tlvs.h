@@ -28,13 +28,26 @@
  *      the length field (that value does not include the length
  *      of the type or length fields themselves).
  *
- * TLVs are not guaranteed to be aligned to any particular number
- * of bytes.
+ * Buffer layout:
+ *  0                   1                   2                   3
+ *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |      Option Code              |         Option Length         |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * /                       Option Value                            /
+ * /             variable length, aligned to 32 bits               /
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * /                                                               /
+ * /                 . . . other options . . .                     /
+ * /                                                               /
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |   Option Code == opt_endofopt  |  Option Length == 0          |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *
  * The list of TLVs may begin with a TLV of type EXP_PDU_TAG_OPTIONS_LENGTH;
  * its value is a 4-byte integer value, giving the length of all TLVs
  * following that TLV (i.e., the length does not include the length of
- * the EXP_PDU_TAG_OPTIONS_LENGTH TLV).  This tag is deprecated; it is
+ * the EXP_PDU_TAG_OPTIONS_LENGTH TLV). This tag is deprecated; it is
  * not guaranteed to be present, and code reading packets should not
  * require it to be present.
  *
