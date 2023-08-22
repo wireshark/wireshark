@@ -28,6 +28,8 @@
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-low-level-uicc-access
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-uicc-application-and-file-system-access
  *
+ * https://learn.microsoft.com/en-us/windows-hardware/drivers/network/mb-nitz-support
+ *
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-5g-data-class-support
  * https://download.microsoft.com/download/8/3/a/83a64106-a1f4-4a03-811f-4dbef2e3bf7a/MBIM extensions for 5G.docx
  */
@@ -86,6 +88,7 @@ static int hf_mbim_uuid_multiflow_cid = -1;
 static int hf_mbim_uuid_basic_connect_extensions_cid = -1;
 static int hf_mbim_uuid_ms_sarcontrol_cid = -1;
 static int hf_mbim_uuid_ms_uicc_low_level_cid = -1;
+static int hf_mbim_uuid_ms_voice_extensions_cid = -1;
 static int hf_mbim_cid = -1;
 static int hf_mbim_command_type = -1;
 static int hf_mbim_info_buffer_len = -1;
@@ -1008,6 +1011,15 @@ static int hf_mbim_ms_access_record_app_id = -1;
 static int hf_mbim_ms_access_record_file_path = -1;
 static int hf_mbim_ms_access_record_local_pin = -1;
 static int hf_mbim_ms_access_record_record_data = -1;
+static int hf_mbim_nitz_year = -1;
+static int hf_mbim_nitz_month = -1;
+static int hf_mbim_nitz_day = -1;
+static int hf_mbim_nitz_hour = -1;
+static int hf_mbim_nitz_minute = -1;
+static int hf_mbim_nitz_second = -1;
+static int hf_mbim_nitz_timezone_offset_minutes = -1;
+static int hf_mbim_nitz_daylight_saving_time_offset_minutes = -1;
+static int hf_mbim_nitz_data_class = -1;
 static int hf_mbim_fragmented_payload = -1;
 static int hf_mbim_request_in = -1;
 static int hf_mbim_response_in = -1;
@@ -1332,7 +1344,8 @@ struct mbim_uuid {
 #define UUID_BASIC_CONNECT_EXTENSIONS  21 /* Microsoft */
 #define UUID_MS_SARCONTROL             22 /* Microsoft */
 #define UUID_MS_UICC_LOW_LEVEL         23
-#define UUID_MAX                       24
+#define UUID_MS_VOICE_EXTENSIONS       24
+#define UUID_MAX                       25
 #define UUID_EXT_IDX                  255
 
 static const struct mbim_uuid mbim_uuid_service_id_vals[UUID_MAX] = {
@@ -1359,7 +1372,8 @@ static const struct mbim_uuid mbim_uuid_service_id_vals[UUID_MAX] = {
     { UUID_MULTIFLOW, {0x8d8f32d9, 0xf7c2, 0x4419, {0xb2, 0x8b, 0xde, 0xdc, 0xde, 0x20, 0x5e, 0xd8}}},
     { UUID_BASIC_CONNECT_EXTENSIONS, {0x3d01dcc5, 0xfef5, 0x4d05, {0x0d, 0x3a, 0xbe, 0xf7, 0x05, 0x8e, 0x9a, 0xaf}}},
     { UUID_MS_SARCONTROL, {0x68223d04, 0x9f6c, 0x4e0f, {0x82, 0x2d, 0x28, 0x44, 0x1f, 0xb7, 0x23, 0x40}}},
-    { UUID_MS_UICC_LOW_LEVEL, {0xc2f6588e, 0xf037, 0x4bc9, {0x86, 0x65, 0xf4, 0xd4, 0x4b, 0xd0, 0x93, 0x67}}}
+    { UUID_MS_UICC_LOW_LEVEL, {0xc2f6588e, 0xf037, 0x4bc9, {0x86, 0x65, 0xf4, 0xd4, 0x4b, 0xd0, 0x93, 0x67}}},
+    { UUID_MS_VOICE_EXTENSIONS, {0x8d8b9eba, 0x37be, 0x449b, {0x8f, 0x1e, 0x61, 0xcb, 0x03, 0x4a, 0x70, 0x2e}}}
 };
 
 static const value_string mbim_service_id_vals[] = {
@@ -1387,6 +1401,7 @@ static const value_string mbim_service_id_vals[] = {
     { UUID_BASIC_CONNECT_EXTENSIONS, "UUID_BASIC_CONNECT_EXTENSIONS"},
     { UUID_MS_SARCONTROL, "UUID_MS_SARCONTROL"},
     { UUID_MS_UICC_LOW_LEVEL, "UUID_MS_UICC_LOW_LEVEL"},
+    { UUID_MS_VOICE_EXTENSIONS, "UUID_MS_VOICE_EXTENSIONS"},
     { 0, NULL}
 };
 static value_string_ext mbim_service_id_vals_ext = VALUE_STRING_EXT_INIT(mbim_service_id_vals);
@@ -1708,6 +1723,12 @@ static const value_string mbim_uuid_ms_uicc_low_level_cid_vals[] = {
     { 0, NULL}
 };
 
+#define MBIM_CID_MS_VOICE_EXTENSIONS_NITZ    10
+static const value_string mbim_uuid_ms_voice_extensions_cid_vals[] = {
+    { MBIM_CID_MS_VOICE_EXTENSIONS_NITZ, "MS_NITZ"},
+    { 0, NULL}
+};
+
 struct mbim_uuid_info_ {
     int *hf_entry;
     const value_string *cid_list;
@@ -1738,7 +1759,8 @@ static const struct mbim_uuid_info_ mbim_uuid_info[UUID_MAX] = {
     { &hf_mbim_uuid_multiflow_cid, mbim_uuid_multiflow_cid_vals, NULL}, /* UUID_MULTIFLOW */
     { &hf_mbim_uuid_basic_connect_extensions_cid, mbim_uuid_basic_connect_extensions_cid_vals, NULL}, /* UUID_BASIC_CONNECT_EXTENSIONS */
     { &hf_mbim_uuid_ms_sarcontrol_cid, mbim_uuid_ms_sarcontrol_cid_vals, NULL}, /* UUID_MS_SARCONTROL */
-    { &hf_mbim_uuid_ms_uicc_low_level_cid, mbim_uuid_ms_uicc_low_level_cid_vals, NULL} /* UUID_MS_UICC_LOW_LEVEL */
+    { &hf_mbim_uuid_ms_uicc_low_level_cid, mbim_uuid_ms_uicc_low_level_cid_vals, NULL}, /* UUID_MS_UICC_LOW_LEVEL */
+    { &hf_mbim_uuid_ms_voice_extensions_cid, mbim_uuid_ms_voice_extensions_cid_vals, NULL} /* UUID_MS_VOICE_EXTENSIONS */
 };
 
 static const value_string mbim_device_caps_info_device_type_vals[] = {
@@ -7460,6 +7482,29 @@ mbim_dissect_ms_access_record(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree*
     }
 }
 
+static void
+mbim_dissect_ms_nitz(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_mbim_nitz_year, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_nitz_month, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_nitz_day, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_nitz_hour, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_nitz_minute, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_nitz_second, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_nitz_timezone_offset_minutes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_nitz_daylight_saving_time_offset_minutes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_nitz_data_class, ett_mbim_bitmap,
+        mbim_data_class_fields, ENC_LITTLE_ENDIAN);
+}
+
 static int
 dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -8479,6 +8524,21 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                         }
                         break;
+                    case UUID_MS_VOICE_EXTENSIONS:
+                        switch (cid) {
+                        case MBIM_CID_MS_VOICE_EXTENSIONS_NITZ:
+                            if (cmd_type == MBIM_COMMAND_SET) {
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                            }
+                            else if (info_buff_len) {
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                            }
+                            break;
+                        default:
+                            proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                            break;
+                        }
+                        break;
                     case UUID_EXT_IDX:
                         {
                             gint cid_idx;
@@ -9432,6 +9492,16 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                         }
                         break;
+                    case UUID_MS_VOICE_EXTENSIONS:
+                        switch (cid) {
+                        case MBIM_CID_MS_VOICE_EXTENSIONS_NITZ:
+                                mbim_dissect_ms_nitz(frag_tvb, pinfo, subtree, offset);
+                                break;
+                            default:
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                break;
+                        }
+                        break;
                     case UUID_EXT_IDX:
                         {
                             gint cid_idx;
@@ -10011,6 +10081,11 @@ proto_register_mbim(void)
         { &hf_mbim_uuid_ms_uicc_low_level_cid,
             { "CID", "mbim.control.cid",
                FT_UINT32, BASE_DEC, VALS(mbim_uuid_ms_uicc_low_level_cid_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_uuid_ms_voice_extensions_cid,
+            { "CID", "mbim.control.cid",
+               FT_UINT32, BASE_DEC, VALS(mbim_uuid_ms_voice_extensions_cid_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_cid,
@@ -14621,6 +14696,51 @@ proto_register_mbim(void)
         { &hf_mbim_ms_access_record_record_data,
             { "Record_Data", "mbim.control.ms_access_record.record_data",
                FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_nitz_year,
+            { "Year", "mbim.control.nitz.year",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_nitz_month,
+            { "Month", "mbim.control.nitz.month",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_nitz_day,
+            { "Day", "mbim.control.nitz.day",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_nitz_hour,
+            { "Hour", "mbim.control.nitz.hour",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_nitz_minute,
+            { "Minute", "mbim.control.nitz.minute",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_nitz_second,
+            { "Second", "mbim.control.nitz.second",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_nitz_timezone_offset_minutes,
+            { "Timezone Offset Minutes", "mbim.control.nitz.timezone_offset_minutes",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_nitz_daylight_saving_time_offset_minutes,
+            { "Daylight Saving Time Offset Minutes", "mbim.control.nitz.daylight_saving_time_offset_minutes",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_nitz_data_class,
+            { "Data Class", "mbim.control.nitz.data_class",
+               FT_UINT32, BASE_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_fragmented_payload,
