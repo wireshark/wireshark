@@ -527,7 +527,7 @@ sync_lookup_ip4(const guint32 addr)
 }
 
 static void
-sync_lookup_ip6(const ws_in6_addr *addr)
+sync_lookup_ip6(const ws_in6_addr *addrp)
 {
     gboolean completed = FALSE;
     sync_dns_data_t *sdd;
@@ -544,9 +544,9 @@ sync_lookup_ip6(const ws_in6_addr *addr)
      */
     sdd = g_new(sync_dns_data_t, 1);
     sdd->family = AF_INET6;
-    memcpy(&sdd->addr.ip6, addr, sizeof(sdd->addr.ip6));
+    memcpy(&sdd->addr.ip6, addrp, sizeof(sdd->addr.ip6));
     sdd->completed = &completed;
-    ares_gethostbyaddr(ghba_chan, &addr, sizeof(ws_in6_addr), AF_INET6,
+    ares_gethostbyaddr(ghba_chan, addrp, sizeof(ws_in6_addr), AF_INET6,
                        c_ares_ghba_sync_cb, sdd);
 
     /*
