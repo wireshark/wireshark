@@ -1861,7 +1861,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                         /* Merge SETUP data with OUT Data to pass to USB dissector */
                         transfer->more_frags = TRUE;
                         ep_out->active_transfer_key = pinfo->num;
-                        ep_out->requested_transfer_length = requested_length;
+                        ep_out->requested_transfer_length = 8 + requested_length;
                         ep_out->transfer_offset = 8;
                         ep_out->last_data_pid = pid;
                         ep_out->last_data_acked = FALSE;
