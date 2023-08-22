@@ -5265,13 +5265,17 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             curr_offset += (length - 1);
             continue;
         }
-        if ((rop == 2) || (rop == 6)) {
-            if (num_pkt_flt != 0) {
-                proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_num_pkt_flt, tvb, curr_offset, length - 1);
-                i++;
-                curr_offset += (length - 1);
-                continue;
-            }
+        if (((rop == 2) || (rop == 6)) && (num_pkt_flt != 0)) {
+            proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_num_pkt_flt, tvb, curr_offset, length - 1);
+            i++;
+            curr_offset += (length - 1);
+            continue;
+        }
+        if ((rop == 2) && (length > 1)) {
+            proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_extraneous_data, tvb, curr_offset, length - 1);
+            i++;
+            curr_offset += (length - 1);
+            continue;
         }
 
         /* Packet filter list */
