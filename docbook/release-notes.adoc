@@ -93,12 +93,14 @@ The following bugs have been fixed:
 
 * DHCPFO: Expert info list does not show all expert infos. wsbuglink:19216[].
 
-* Applying Color filtering fails when selecting the same field to color (i.e., changing frames without focusing in packet details). wsbuglink:19249[].
+* Applying color filtering fails when selecting the same field to color (i.e., changing frames without focusing in packet details). wsbuglink:19249[].
 
 * NAS 5GS Malformed Packet Decoding SOR transparent container PLMN ID and access technology list. wsbuglink:19273[].
 
 
 === New and Updated Features
+
+There are no new or updated features in this release.
 
 // === Removed Features and Support
 

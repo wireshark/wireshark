@@ -1,0 +1,439 @@
+commit 8b6dee68ea
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Aug 23 11:42:03 2023 -0700
+
+    Build: 3.6.16
+
+    [skip ci]
+
+commit eaa7a96c91
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Tue Aug 22 22:58:24 2023 +0200
+
+    addr_resolv: fix external reverse IPv6 lookup in tshark
+
+    Pass a pointer to the IPv6 address instead of a pointer to the pointer.
+
+    Fixes #19294
+
+    Fixes: v2.9.0rc0-666-g0542c5b700 ("Do IP address resolution synchronously before printing in TShark.")
+
+    (cherry picked from commit a6914ba92f6ca7f7f29075a71b5433dc855a8957)
+
+commit 5a9079b285
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Aug 21 18:03:03 2023 -0700
+
+    Release notes: Add an advisory
+
+commit 75e0ffcb42
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jun 24 00:34:50 2023 -0400
+
+    iscsi: Check bounds when extracting TargetAddress
+
+    Use tvb_ functions that do bounds checking when parsing the
+    TargetAddress string, instead of incrementing a pointer to an
+    extracted char* and sometimes accidentally overrunning the
+    string.
+
+    While we're there, go ahead and add support for IPv6 addresses.
+
+    Fix #19164
+
+    (backported from commit 94349bbdaeb384b12d554dd65e7be7ceb0e93d21)
+
+commit ad769625e0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Aug 21 11:34:03 2023 -0700
+
+    Update the release notes
+
+    [skip ci]
+
+commit 811b01c41d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Aug 21 11:17:43 2023 -0700
+
+    Prep for 3.6.16
+
+    [skip ci]
+
+commit 1c64cfad31
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 20 16:18:18 2023 +0000
+
+    [Automatic update for 2023-08-20]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit ccae0e4b6a
+Author: João Valverde <j@v6e.pt>
+Date:   Tue Jun 13 11:40:28 2023 +0100
+
+    Github: Fix Windows build
+
+    Replace deprecated and now removed 'cinst' command.
+
+    (cherry picked from commit 5a63a543cfdeafa808ed29333b60db3379a7bc74)
+
+commit d2b7a2c434
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 13 06:45:14 2023 -0400
+
+    Qt: Don't use winId() on a child widget (Qt Wayland issue)
+
+    On Qt Wayland, winId() should only be used on a top-level window:
+    https://bugreports.qt.io/browse/QTBUG-76983
+    https://bugreports.qt.io/browse/QTBUG-93103
+    https://bugs.kde.org/show_bug.cgi?id=424024
+    https://bugreports.qt.io/browse/QTBUG-75766
+
+    Using it on the child widget and getting a native window causes the
+    packet list to fail to redraw correctly when scrolling. (It does
+    redraw when the window is brought to the back and then back to the front.)
+
+    (cherry picked from commit 18018f7534c179d7f11cd94fab9cc3da9464c37a)
+
+commit 3e79701b20
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 13 16:18:32 2023 +0000
+
+    [Automatic update for 2023-08-13]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 55aaaa36a6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 1 12:44:27 2022 -0800
+
+    Qt: Redraw the packet bytes when our screen changes.
+
+    Blind attempt at fixing #18146 and #18326.
+
+    (cherry picked from commit a6aa2cdd5147e21685319233e9d7f7c7562f6947)
+
+commit 3b28289886
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Aug 11 07:35:10 2023 -0400
+
+    NAS 5GS: Don't double advance the offset
+
+    dissect_e212_mcc_mnc returns the new offset (offset + 3). If using
+    the return value, don't advance the offset separately.
+
+    Fix #19273
+
+    (cherry picked from commit 2539d14d15bcb7474d052b324a7fa25e12cf30c6)
+
+commit d3068e8d2e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 10 05:29:09 2023 -0400
+
+    btsdp: Keep offset advancing
+
+    hf_data_element_value is a FT_NONE, so we can add the item with
+    the expected length and get_hfi_length() will adjust the length
+    without throwing an exception. There's no need to add it with
+    zero length and call proto_item_set_len. Also, don't increment
+    the offset by 0 instead of the real length when there isn't
+    enough data in the packet, as that can lead to failing to advance
+    the offset.
+
+    When dissecting a sequence type (sequence or alternative) and
+    recursing into the sequence member, instead of using the main
+    packet tvb directly, create a subset using the indicated length
+    of the sequence. That will properly throw an exception if a
+    contained item is larger than the containing sequence, instead of
+    dissecting the same bytes as several different items (inside
+    the sequence recursively, as well in the outer loop.)
+
+    Fix #19258
+
+    (cherry picked from commit ef9c79ae81b00a63aa8638076ec81dc9482972e9)
+
+commit 016af38af0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 10 02:47:58 2023 -0400
+
+    btsdp: Finalize wmem_strbuf
+
+    The allocated wmem_strbuf isn't used after this, so it can
+    be finalized to save a bit of memory.
+
+    Related to #19259
+
+    (cherry picked from commit 7fecc31427e0ec5e55ac2611df94678940c1df7d)
+
+commit 863f6c3dc7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 10 01:19:21 2023 -0400
+
+    wmem: Fix leak in block_fast when realloc'ing jumbo blocks
+
+    In block fast wmem_allocator is used, keep the double linked
+    list of jumbo blocks accurate by pointing the prev pointer of
+    the old head (if it exists) to the newly allocated jumbo block.
+
+    This prevents a leak if a jumbo block which is not the most
+    recently added jumbo block is realloc'ed. If the prev pointer
+    isn't set properly, then all the jumbo blocks added afterwards
+    will be lost from the list and leaked.
+
+    Fix #19259
+
+    (cherry picked from commit d086f2733bc611eb310aafec51bd28d44166fa42)
+
+commit d2b1d3995c
+Author: Anders Broman <anders.broman@ericsson.com>
+Date:   Wed Aug 9 19:36:59 2023 +0000
+
+    F1AP: NotificationInformation is a normal IE not an extension.
+
+    (cherry picked from commit 2abe8ced1d318fe6290476ecf598b36b8b44bb86)
+
+commit 3de30e8705
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 6 16:19:40 2023 +0000
+
+    [Automatic update for 2023-08-06]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 0b22ad256f
+Author: Preben Guldberg <preben@guldberg.org>
+Date:   Thu Mar 9 22:40:35 2023 +0000
+
+    GUI: Colorize with filter could use an old filter
+
+    When right-clicking an item in the packet details and using "Colorize
+    with Filter", the colour may be applied using the wrong filter.
+
+    The code currently only updates the filter used for "Colorize with
+    Filter" if the packet details are visible and has focus. This is not
+    the case when you switch from one packet to another (at least by
+    clicking the other frame in the packet list).
+
+    The patch moves the emit of fieldFilterChanged() up to where the
+    filed_filter is identified. This seems the least intrusive.
+
+    Fix #19249
+
+    (backported from commit b50ed1dc8088ae0a844e5f451c19b8b333569e47)
+
+commit 28a7067c1b
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Aug 2 14:34:39 2023 +0200
+
+    TFTP: resuscitate tsize probe detection code (CID1471625)
+
+    TFTP tsize probes were no longer being recognized, due to parsing of
+    other options. Move the tsize probe detection code to the appropriate
+    conditional block.
+
+    (cherry picked from commit 4f99469b03b22c8b72a9905e0fb028a9482ae043)
+
+commit 0b874ad0f5
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Jul 27 20:21:19 2023 +0200
+
+    CP2179: Handle timetag info response without records
+
+    Fixes #19229
+
+    (cherry picked from commit 44dc70cc5aadca91cb8ba3710c59c3651b7b0d4d)
+
+commit 582657e381
+Author: Nardi Ivan <nardi.ivan@gmail.com>
+Date:   Mon Jul 31 21:15:56 2023 +0200
+
+    PFCP: fix dissection of Offending IE Information IE
+
+    (cherry picked from commit c058febb450de74d9f561d03284091091cec7e34)
+
+commit 2e7978412c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 30 16:18:58 2023 +0000
+
+    [Automatic update for 2023-07-30]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 860d59010c
+Author: Van Ly Vu <van.ly.vu@vestifi.de>
+Date:   Fri Jul 28 22:03:57 2023 +0200
+
+    Fix typo for field wlan.wfa.ie.wpau.cs.oui
+
+    (cherry picked from commit 5eb3fdc47a18ff8af8aff4ec60c18867ebdb61c7)
+
+commit 7c3f424294
+Author: Vadim Yanitskiy <vyanitskiy@sysmocom.de>
+Date:   Wed Jul 26 00:47:38 2023 +0700
+
+    GSM A DTAP: fix value-string for Signalling Access Protocol
+
+    Last time this value-string was edited in 959a2909612, and before
+    this commit there was only one value (all other values resevred):
+
+      case 0x01: str = "According to ITU-T Rec. Q.920 and ITU-T Rec. Q.930";
+      case 0x02: str = "Reserved: was allocated in earlier phases of the protocol";
+      case 0x03: str = "Reserved: was allocated in earlier phases of the protocol";
+      case 0x04: str = "Reserved: was allocated in earlier phases of the protocol";
+      case 0x05: str = "Reserved: was allocated in earlier phases of the protocol";
+      case 0x06: str = "Reserved: was allocated in earlier phases of the protocol";
+      default:   str = "Reserved";
+
+    This matches the definition of the "Signalling access protocol (octet 5)"
+    in recent version (17.8.0, 2022-10) of 3GPP TS 24.008.  However, the
+    above-mentioned commit replaced the switch statement with a value-string
+    conforming neither 3GPP TS 24.008, nor the earlier GSM 04.08.
+
+    Let's revert back to the correct description, and additionally take
+    a chance to specify the old meaning of reserved values (from GSM 04.08).
+
+    (cherry picked from commit a6bd924c0aab7f671fbfd785ec758cd7c1d59cda)
+
+commit a27ca42067
+Author: Yaniv Kaul <yaniv.kaul@scylladb.com>
+Date:   Tue Jul 25 13:28:25 2023 +0300
+
+    packet-cql.c: fix ERROR message parsing
+
+    offset parameter was not moved forward by 4 bytes, causing ERROR messages not to be parsed properly.
+
+    Signed-off-by: Yaniv Kaul <yaniv.kaul@scylladb.com>
+
+    (cherry picked from commit 7e08afb4786242e836455cd9807f95c4eafdc277)
+
+commit a6649bd412
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 23 16:18:59 2023 +0000
+
+    [Automatic update for 2023-07-23]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 1db31db095
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jul 22 11:13:39 2023 -0400
+
+    DHCPFO: Make expert infos appear in Expert Info Dialog
+
+    Remove a check for a NULL tree that prevents expert info
+    information from being added to the Expert Info Dialog when
+    there is no filter and hence no tree when tapping.
+
+    Fix #19216
+
+    (cherry picked from commit 3c6b6721ac1136e0d1e7e783e837450a21484c21)
+
+commit 35a40a5af9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jul 20 10:36:11 2023 -0700
+
+    GitLab CI: Update tags and variables
+
+commit f41c987fe6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jul 15 08:17:17 2023 -0400
+
+    dumpcap: Add a permissions warning about capabilities
+
+    If we have Linux capabilities, and dumpcap gets a permission error,
+    suggest that the user add the CAP_NET_RAW and CAP_NET_ADMIN capabilities
+    that dumpcap needs if Wireshark was not installed by a package.
+    (Distribution packages should set the capabilities.)
+
+    Fix #18279
+
+    (cherry picked from commit 7bfc3f2c13e45dff3241c5f36fd319b23e331ed5)
+
+commit c022a62e59
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Jul 17 21:26:38 2023 +0200
+
+    Qt: Change handling of folder name text entry
+
+    When changing text, don't use the crude method of setting all widgets
+    where setting of the radio button is sufficient. Setting all widgets
+    causes the text to be set as well, with cursor at the end of the input.
+
+    Closes #19213
+
+    (cherry picked from commit f307a16d36a60cadffd468bce7bc4bd7ba3a5199)
+
+commit c340559ad0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 16 16:19:13 2023 +0000
+
+    [Automatic update for 2023-07-16]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a7fc63e837
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jul 15 21:39:43 2023 -0400
+
+    Qt: Fix displayed marked packet count label
+
+    In PacketRangeGroupBox, we are accidentally showing the number
+    of marked packets in the entire capture file in the "Displayed"
+    column as well.
+
+    When actually exporting packets, only the displayed market packets
+    are exported if that column is selected, but the count shown to
+    the user is wrong. Fix that.
+
+    (cherry picked from commit 86652cef344bfcde4ae405af5c8bbcde0ef0ad38)
+
+commit 6422f36ad9
+Author: Nardi Ivan <nardi.ivan@gmail.com>
+Date:   Sat Jul 15 13:01:40 2023 +0200
+
+    TLS-utils: fix visualization of "max_ack_delay" transport parameter
+
+    Is there a smarter way?
+
+    Close #19209
+
+    (cherry picked from commit 2fb12ccdcf3513e1fe9b4d730cb9eb543416b1cc)
+
+commit ebb5b51e5f
+Author: David Perry <boolean263@protonmail.com>
+Date:   Tue Feb 21 08:11:46 2023 -0500
+
+    TLS: use macros for GREASE checks
+
+    The tests in `packet-tls-utils.c` for GREASE values aren't strictly
+    correct, in that they would falsely ignore a value such as 0x1a2a.
+
+    Create a macro to replace this test, which also serves to document the
+    intent of the test to future developers.
+
+    Also create a macro for the reserved values of QUIC transport parameters
+    which serve a similar function as GREASE.
+
+    (backported from commit 9730610c0b906361d72a17283cf69f140c2f8b79)
+
+    (cherry picked from commit 298ad817ae47ab4203d223245f54b3c1e0e0d437)
+
+commit 039a74816f
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Jul 13 13:46:02 2023 +0200
+
+    CFM: Workaround for TEST-ID TLV length specification bug
+
+    Fixes #19198
+
+commit 981244f902
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 12 11:37:38 2023 -0700
+
+    Version: 3.6.15 → 3.6.16
+
+    [skip ci]
