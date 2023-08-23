@@ -57441,12 +57441,12 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_mld_tid_to_link_map_neg,
-     {"Tid-To-Link Mapping Negation Supported",
+     {"TID-To-Link Mapping Negotiation Support",
       "wlan.eht.multi_link.common_info.mld_capabilities.tid_to_link_neg_sup",
       FT_UINT16, BASE_DEC, NULL, 0x0060, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_mld_freq_sep_for_str,
-     {"Frequency Separation For STR",
+     {"Frequency Separation For STR/AP MLD Type Indication",
       "wlan.eht.multi_link.common_info.mld_capabilities.freq_sep_for_str",
       FT_UINT16, BASE_DEC, NULL, 0x0F80, NULL, HFILL }},
 
