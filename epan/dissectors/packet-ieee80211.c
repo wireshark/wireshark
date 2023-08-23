@@ -28557,7 +28557,6 @@ dissect_qos_characteristics(tvbuff_t *tvb, packet_info *pinfo _U_,
   if (presence_bitmap & MEDIUM_TIME_PRESENT) {
     proto_tree_add_item(tree, hf_ieee80211_eht_qos_chars_medium_time, tvb,
                         offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
   }
 }
 
@@ -28580,7 +28579,6 @@ dissect_mlo_link_information(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
   proto_tree_add_item(tree, hf_ieee80211_eht_link_id_bitmap, tvb, offset, 2,
                       ENC_LITTLE_ENDIAN);
-  offset += 2;
 }
 
 static int * const ieee80211_eht_aid_bmapctl[] = {
@@ -28620,7 +28618,6 @@ dissect_aid_bitmap(tvbuff_t *tvb, packet_info *pinfo _U_,
       }
     }
   }
-  offset += pab_len;
 }
 
 static int *const eht_bw_indi_param_hdrs[] = {
