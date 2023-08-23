@@ -451,10 +451,10 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
             ), capture_output=True, env=env)
             # XXX Are there any other sanity checks we should run?
             if idb_compare_eq:
-                assert count_output(tshark_proc.stdout, r'Block: Interface Description Block') \
+                assert count_output(tshark_proc.stdout, r'Block \d+: Interface Description Block \d+') \
                         == check_val['idb_count']
             else:
-                assert count_output(tshark_proc.stdout, r'Block: Interface Description Block') \
+                assert count_output(tshark_proc.stdout, r'Block \d+: Interface Description Block \d+') \
                         >= check_val['idb_count']
                 idb_compare_eq = True
             assert count_output(tshark_proc.stdout, r'Option: User Application = Passthrough test #1') \
@@ -517,7 +517,7 @@ class TestTsharkCapture:
         check_capture_snapshot_len(self, cmd=cmd_tshark, env=test_env)
 
 
-class TestDumpcapCaspture:
+class TestDumpcapCapture:
     def test_dumpcap_capture_10_packets_to_file(self, cmd_dumpcap, check_capture_10_packets, base_env):
         '''Capture 10 packets from the network to a file using Dumpcap'''
         check_capture_10_packets(self, cmd=cmd_dumpcap, env=base_env)

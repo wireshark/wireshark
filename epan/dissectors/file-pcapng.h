@@ -55,6 +55,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
 /* File info */
 struct info {
+    guint32        block_number;
     guint32        section_number;
     guint32        interface_number;
     guint32        darwin_process_event_number;

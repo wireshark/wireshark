@@ -1851,15 +1851,16 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
 
     /* Name is either from local 'name', or from fixed block_type_vals */
     if (p_local_block_callback) {
-        proto_item_append_text(block_item, ": %s", p_local_block_callback->name);
+        proto_item_append_text(block_item, " %u: %s", info->block_number, p_local_block_callback->name);
         proto_item_append_text(block_type_item, ": (%s)", p_local_block_callback->name);
         proto_item_append_text(block_type_value_item, ": (%s)", p_local_block_callback->name);
     }
     else {
-        proto_item_append_text(block_item, ": %s", val_to_str_const(block_type, block_type_vals, "Unknown"));
+        proto_item_append_text(block_item, " %u: %s", info->block_number, val_to_str_const(block_type, block_type_vals, "Unknown"));
         proto_item_append_text(block_type_item, ": (%s)", val_to_str_const(block_type, block_type_vals, "Unknown"));
         proto_item_append_text(block_type_value_item, ": (%s)", val_to_str_const(block_type, block_type_vals, "Unknown"));
     }
+    info->block_number += 1;
 
     arg.block_item = block_item;
     arg.block_tree = block_tree;
@@ -2037,6 +2038,7 @@ dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         return 0;
     }
 
+    info.block_number = 1;
     info.section_number = 1;
     info.interface_number = 0;
     info.darwin_process_event_number = 0;
