@@ -88,7 +88,7 @@ The following bugs have been fixed:
 * Cannot read pcapng file captured on OpenBSD and read on FreeBSD. wsbuglink:19230[].
 * UI: While capturing the Wireshark icon changes from green to blue when new file is created. wsbuglink:19252[].
 * Conversation: heap-use-after-free after wmem_leave_file_scope. wsbuglink:19265[].
-* IP Packets with DSCP 44 does not indicate \"Voice-Admit\" wsbuglink:19270[].
+* IP Packets with DSCP 44 does not indicate "Voice-Admit" wsbuglink:19270[].
 * NAS 5GS Malformed Packet Decoding SOR transparent container PLMN ID and access technology list. wsbuglink:19273[].
 * UI: Auto scroll button in the toolbar is turned on when manually scrolling to the end of packet list. wsbuglink:19274[].
 
@@ -96,15 +96,7 @@ The following bugs have been fixed:
 
 There are no new or updated features in this release.
 
-=== Removed Features and Support
-
-// === Removed Dissectors
-
-// === New File Format Decoding Support
-
-// [commaize]
-// --
-// --
+// === Removed Features and Support
 
 === New Protocol Support
 
@@ -113,7 +105,7 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.7.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.8.. | ag packet- | sort -u)
 [commaize]
 --
 BT SDP
