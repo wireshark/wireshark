@@ -778,19 +778,24 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint16 pgmhdr_sport;
-	guint16 pgmhdr_dport;
-	guint8  pgmhdr_type;
+	guint32 pgmhdr_sport;
+	guint32 pgmhdr_dport;
+	guint32 pgmhdr_type;
 	guint8  pgmhdr_opts;
 	guint16 pgmhdr_cksum;
-	guint16 pgmhdr_tsdulen;
+	guint32 pgmhdr_tsdulen;
 	guint32 sqn;
 	guint16 afi;
+
+	proto_tree *pgm_tree = NULL;
+	proto_tree *opt_tree = NULL;
+	proto_tree *type_tree = NULL;
+	proto_item *tf, *hidden_item;
+	ptvcursor_t* cursor;
 
 	guint       plen   = 0;
 	proto_item *ti;
 	const char *pktname;
-	const char *pollstname;
 	char       *gsi;
 	gboolean    isdata = FALSE;
 	guint       pgmlen, reportedlen;
@@ -801,250 +806,217 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	pinfo->srcport = pgmhdr_sport = tvb_get_ntohs(tvb, 0);
-	pinfo->destport = pgmhdr_dport = tvb_get_ntohs(tvb, 2);
+	ti = proto_tree_add_protocol_format(tree, proto_pgm, tvb, 0, -1,
+		"Pragmatic General Multicast");
+	pgm_tree = proto_item_add_subtree(ti, ett_pgm);
 
-	pgmhdr_type = tvb_get_guint8(tvb, 4);
+	cursor = ptvcursor_new(pinfo->pool, pgm_tree, tvb, 0);
+
+	hidden_item = proto_tree_add_item(pgm_tree, hf_pgm_port, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_item_set_hidden(hidden_item);
+	hidden_item = proto_tree_add_item(pgm_tree, hf_pgm_port, tvb, 2, 2, ENC_BIG_ENDIAN);
+	proto_item_set_hidden(hidden_item);
+	ptvcursor_add_ret_uint(cursor, hf_pgm_main_sport, 2, ENC_BIG_ENDIAN, &pgmhdr_sport);
+	pinfo->srcport = pgmhdr_sport;
+	ptvcursor_add_ret_uint(cursor, hf_pgm_main_dport, 2, ENC_BIG_ENDIAN, &pgmhdr_dport);
+	pinfo->destport = pgmhdr_dport;
+	ptvcursor_add_ret_uint(cursor, hf_pgm_main_type, 1, ENC_BIG_ENDIAN, &pgmhdr_type);
 	pktname = val_to_str(pgmhdr_type, type_vals, "Unknown (0x%02x)");
+	proto_item_append_text(ti, ": Type %s Src Port %u, Dst Port %u",
+	                       pktname, pgmhdr_sport, pgmhdr_dport);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%-5s", pktname);
 
 	pgmhdr_opts = tvb_get_guint8(tvb, 5);
+	tf = proto_tree_add_uint_format_value(pgm_tree, hf_pgm_main_opts, tvb,
+		ptvcursor_current_offset(cursor), 1, pgmhdr_opts, "%s (0x%x)",
+		optsstr(pinfo->pool, pgmhdr_opts), pgmhdr_opts);
+	opt_tree = proto_item_add_subtree(tf, ett_pgm_optbits);
+	ptvcursor_set_tree(cursor, opt_tree);
+
+	ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_opt, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_netsig, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_varlen, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_pgm_main_opts_parity, 1, ENC_BIG_ENDIAN);
+	ptvcursor_set_tree(cursor, pgm_tree);
+
+	/* Checksum may be 0 (not available), but not for DATA packets */
 	pgmhdr_cksum = tvb_get_ntohs(tvb, 6);
+	if ((pgmhdr_type != PGM_RDATA_PCKT) && (pgmhdr_type != PGM_ODATA_PCKT) &&
+	    (pgmhdr_cksum == 0))
+	{
+		proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
+								pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+	} else {
+		reportedlen = tvb_reported_length(tvb);
+		pgmlen = tvb_captured_length(tvb);
+		if (pgm_check_checksum && pgmlen >= reportedlen) {
+			vec_t cksum_vec[1];
+
+			SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pgmlen);
+			proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum_status, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
+									pinfo, in_cksum(&cksum_vec[0], 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+		} else {
+			proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
+									pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+		}
+	}
+	ptvcursor_advance(cursor, 2);
+
 	gsi = tvb_bytes_to_str(pinfo->pool, tvb, 8, 6);
-	pgmhdr_tsdulen = tvb_get_ntohs(tvb, 14);
+	ptvcursor_add(cursor, hf_pgm_main_gsi, 6, ENC_NA);
+	proto_item_append_text(ti, ", GSI %s", gsi);
+	ptvcursor_add_ret_uint(cursor, hf_pgm_main_tsdulen, 2, ENC_BIG_ENDIAN, &pgmhdr_tsdulen);
 	sqn = tvb_get_ntohl(tvb, 16);
+	col_append_fstr(pinfo->cinfo, COL_INFO,
+		     " sqn 0x%x gsi %s", sqn, gsi);
 
 	switch(pgmhdr_type) {
 	case PGM_SPM_PCKT:
-	case PGM_NAK_PCKT:
-	case PGM_NNAK_PCKT:
-	case PGM_NCF_PCKT:
-	case PGM_POLR_PCKT:
-	case PGM_ACK_PCKT:
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-				"%-5s sqn 0x%x gsi %s", pktname, sqn, gsi);
+		type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+											ett_pgm_spm, NULL, "%s Packet", pktname);
+		ptvcursor_set_tree(cursor, type_tree);
+
+		ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_spm_trail, 4, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_spm_lead, 4, ENC_BIG_ENDIAN);
+		afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+		ti = ptvcursor_add(cursor, hf_pgm_spm_pathafi, 2, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_spm_res, 2, ENC_BIG_ENDIAN);
+
+		switch (afi) {
+		case AFNUM_INET:
+			ptvcursor_add(cursor, hf_pgm_spm_path, 4, ENC_BIG_ENDIAN);
+			break;
+
+		case AFNUM_INET6:
+			ptvcursor_add(cursor, hf_pgm_spm_path6, 16, ENC_NA);
+			break;
+
+		default:
+			expert_add_info(pinfo, ti, &ei_address_format_invalid);
+			ptvcursor_free(cursor);
+			return tvb_captured_length(tvb);
+		}
 		break;
 	case PGM_RDATA_PCKT:
 	case PGM_ODATA_PCKT:
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-			    "%-5s sqn 0x%x gsi %s tsdulen %d", pktname, sqn, gsi,
-			    pgmhdr_tsdulen);
-
 		isdata = TRUE;
+		type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+											ett_pgm_data, NULL, "%s Packet", pktname);
+		ptvcursor_set_tree(cursor, type_tree);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+			    " tsdulen %d", pgmhdr_tsdulen);
+
+		ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_spm_trail, 4, ENC_BIG_ENDIAN);
+		break;
+	case PGM_NAK_PCKT:
+	case PGM_NNAK_PCKT:
+	case PGM_NCF_PCKT:
+		type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+											ett_pgm_nak, NULL, "%s Packet", pktname);
+		ptvcursor_set_tree(cursor, type_tree);
+
+		ptvcursor_add(cursor, hf_pgm_nak_sqn, 4, ENC_BIG_ENDIAN);
+		afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+		ti = ptvcursor_add(cursor, hf_pgm_nak_srcafi, 2, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_nak_srcres, 2, ENC_BIG_ENDIAN);
+
+		switch (afi) {
+		case AFNUM_INET:
+			ptvcursor_add(cursor, hf_pgm_nak_src, 4, ENC_BIG_ENDIAN);
+			break;
+
+		case AFNUM_INET6:
+			ptvcursor_add(cursor, hf_pgm_nak_src6, 16, ENC_NA);
+			break;
+
+		default:
+			expert_add_info(pinfo, ti, &ei_address_format_invalid);
+			break;
+		}
+
+		afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+		ti = ptvcursor_add(cursor, hf_pgm_nak_grpafi, 2, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_nak_grpres, 2, ENC_BIG_ENDIAN);
+
+		switch (afi) {
+		case AFNUM_INET:
+			ptvcursor_add(cursor, hf_pgm_nak_grp, 4, ENC_BIG_ENDIAN);
+			break;
+
+		case AFNUM_INET6:
+			ptvcursor_add(cursor, hf_pgm_nak_grp6, 16, ENC_NA);
+			break;
+
+		default:
+			expert_add_info(pinfo, ti, &ei_address_format_invalid);
+			ptvcursor_free(cursor);
+			return tvb_captured_length(tvb);
+		}
 		break;
 	case PGM_POLL_PCKT: {
-		guint16 poll_stype = tvb_get_ntohs(tvb, 22);
-		pollstname = val_to_str(poll_stype, poll_subtype_vals, "Unknown (0x%02x)");
+		guint32 poll_stype;
 
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-				"%-5s sqn 0x%x gsi %s subtype %s",
-					pktname, sqn, gsi, pollstname);
+		type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+											ett_pgm_poll, NULL, "%s Packet", pktname);
+		ptvcursor_set_tree(cursor, type_tree);
+
+		ptvcursor_add(cursor, hf_pgm_poll_sqn, 4, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_poll_round, 2, ENC_BIG_ENDIAN);
+		ptvcursor_add_ret_uint(cursor, hf_pgm_poll_subtype, 2, ENC_BIG_ENDIAN, &poll_stype);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				" subtype %s",
+				val_to_str(poll_stype, poll_subtype_vals, "Unknown (0x%02x)"));
+		afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+		ti = ptvcursor_add(cursor, hf_pgm_poll_pathafi, 2, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_poll_res, 2, ENC_BIG_ENDIAN);
+
+		switch (afi) {
+		case AFNUM_INET:
+			ptvcursor_add(cursor, hf_pgm_poll_path, 4, ENC_BIG_ENDIAN);
+			break;
+
+		case AFNUM_INET6:
+			ptvcursor_add(cursor, hf_pgm_poll_path6, 16, ENC_NA);
+			break;
+
+		default:
+			expert_add_info(pinfo, ti, &ei_address_format_invalid);
+			break;
 		}
+
+		ptvcursor_add(cursor, hf_pgm_poll_backoff_ivl, 4, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_poll_rand_str, 4, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_poll_matching_bmask, 4, ENC_BIG_ENDIAN);
 		break;
-	default:
-		return 20;
+	}
+	case PGM_POLR_PCKT:
+		type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+											ett_pgm_polr, NULL, "%s Packet", pktname);
+		ptvcursor_set_tree(cursor, type_tree);
+
+		ptvcursor_add(cursor, hf_pgm_polr_sqn, 4, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_polr_round, 2, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_polr_res, 2, ENC_BIG_ENDIAN);
+		break;
+	case PGM_ACK_PCKT:
+		type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+											ett_pgm_ack, NULL, "%s Packet", pktname);
+		ptvcursor_set_tree(cursor, type_tree);
+
+		ptvcursor_add(cursor, hf_pgm_ack_sqn, 4, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_ack_bitmap, 4, ENC_BIG_ENDIAN);
+		break;
 	}
 
-	{
-		proto_tree *pgm_tree = NULL;
-		proto_tree *opt_tree = NULL;
-		proto_tree *type_tree = NULL;
-		proto_item *tf, *hidden_item;
-		ptvcursor_t* cursor;
+	if (pgmhdr_opts & PGM_OPT)
+		dissect_pgmopts(cursor, pinfo, pktname);
 
-		ti = proto_tree_add_protocol_format(tree, proto_pgm,
-			tvb, 0, -1,
-			"Pragmatic General Multicast: Type %s"
-			    " Src Port %u, Dst Port %u, GSI %s", pktname,
-			pgmhdr_sport, pgmhdr_dport, gsi);
+	if (isdata)
+		decode_pgm_ports(tvb, ptvcursor_current_offset(cursor), pinfo, tree, pgmhdr_sport, pgmhdr_dport);
 
-		pgm_tree = proto_item_add_subtree(ti, ett_pgm);
-
-		cursor = ptvcursor_new(pinfo->pool, pgm_tree, tvb, 0);
-
-		hidden_item = proto_tree_add_item(pgm_tree, hf_pgm_port, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_item_set_hidden(hidden_item);
-		hidden_item = proto_tree_add_item(pgm_tree, hf_pgm_port, tvb, 2, 2, ENC_BIG_ENDIAN);
-		proto_item_set_hidden(hidden_item);
-		ptvcursor_add(cursor, hf_pgm_main_sport, 2, ENC_BIG_ENDIAN);
-		ptvcursor_add(cursor, hf_pgm_main_dport, 2, ENC_BIG_ENDIAN);
-		ptvcursor_add(cursor, hf_pgm_main_type, 1, ENC_BIG_ENDIAN);
-
-		tf = proto_tree_add_uint_format_value(pgm_tree, hf_pgm_main_opts, tvb,
-			ptvcursor_current_offset(cursor), 1, pgmhdr_opts, "%s (0x%x)",
-			optsstr(pinfo->pool, pgmhdr_opts), pgmhdr_opts);
-		opt_tree = proto_item_add_subtree(tf, ett_pgm_optbits);
-		ptvcursor_set_tree(cursor, opt_tree);
-
-		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_opt, 1, ENC_BIG_ENDIAN);
-		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_netsig, 1, ENC_BIG_ENDIAN);
-		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_varlen, 1, ENC_BIG_ENDIAN);
-		ptvcursor_add(cursor, hf_pgm_main_opts_parity, 1, ENC_BIG_ENDIAN);
-		ptvcursor_set_tree(cursor, pgm_tree);
-
-		/* Checksum may be 0 (not available), but not for DATA packets */
-		if ((pgmhdr_type != PGM_RDATA_PCKT) && (pgmhdr_type != PGM_ODATA_PCKT) &&
-		    (pgmhdr_cksum == 0))
-		{
-			proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
-									pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
-		} else {
-			reportedlen = tvb_reported_length(tvb);
-			pgmlen = tvb_captured_length(tvb);
-			if (pgm_check_checksum && pgmlen >= reportedlen) {
-				vec_t cksum_vec[1];
-
-				SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pgmlen);
-				proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum_status, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
-										pinfo, in_cksum(&cksum_vec[0], 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
-			} else {
-				proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
-										pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-			}
-		}
-		ptvcursor_advance(cursor, 2);
-
-		ptvcursor_add(cursor, hf_pgm_main_gsi, 6, ENC_NA);
-		ptvcursor_add(cursor, hf_pgm_main_tsdulen, 2, ENC_BIG_ENDIAN);
-
-		switch(pgmhdr_type) {
-		case PGM_SPM_PCKT:
-			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
-												ett_pgm_spm, NULL, "%s Packet", pktname);
-			ptvcursor_set_tree(cursor, type_tree);
-
-			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_spm_trail, 4, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_spm_lead, 4, ENC_BIG_ENDIAN);
-			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ti = ptvcursor_add(cursor, hf_pgm_spm_pathafi, 2, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_spm_res, 2, ENC_BIG_ENDIAN);
-
-			switch (afi) {
-			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_spm_path, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_spm_path6, 16, ENC_NA);
-				break;
-
-			default:
-				expert_add_info(pinfo, ti, &ei_address_format_invalid);
-				ptvcursor_free(cursor);
-				return tvb_captured_length(tvb);
-			}
-			break;
-		case PGM_RDATA_PCKT:
-		case PGM_ODATA_PCKT:
-			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
-												ett_pgm_data, NULL, "%s Packet", pktname);
-			ptvcursor_set_tree(cursor, type_tree);
-
-			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_spm_trail, 4, ENC_BIG_ENDIAN);
-			break;
-		case PGM_NAK_PCKT:
-		case PGM_NNAK_PCKT:
-		case PGM_NCF_PCKT:
-			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
-												ett_pgm_nak, NULL, "%s Packet", pktname);
-			ptvcursor_set_tree(cursor, type_tree);
-
-			ptvcursor_add(cursor, hf_pgm_nak_sqn, 4, ENC_BIG_ENDIAN);
-			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ti = ptvcursor_add(cursor, hf_pgm_nak_srcafi, 2, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_nak_srcres, 2, ENC_BIG_ENDIAN);
-
-			switch (afi) {
-			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_nak_src, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_nak_src6, 16, ENC_NA);
-				break;
-
-			default:
-				expert_add_info(pinfo, ti, &ei_address_format_invalid);
-				break;
-			}
-
-			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ti = ptvcursor_add(cursor, hf_pgm_nak_grpafi, 2, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_nak_grpres, 2, ENC_BIG_ENDIAN);
-
-			switch (afi) {
-			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_nak_grp, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_nak_grp6, 16, ENC_NA);
-				break;
-
-			default:
-				expert_add_info(pinfo, ti, &ei_address_format_invalid);
-				ptvcursor_free(cursor);
-				return tvb_captured_length(tvb);
-			}
-			break;
-		case PGM_POLL_PCKT:
-			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
-												ett_pgm_poll, NULL, "%s Packet", pktname);
-			ptvcursor_set_tree(cursor, type_tree);
-
-			ptvcursor_add(cursor, hf_pgm_poll_sqn, 4, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_poll_round, 2, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_poll_subtype, 2, ENC_BIG_ENDIAN);
-			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ti = ptvcursor_add(cursor, hf_pgm_poll_pathafi, 2, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_poll_res, 2, ENC_BIG_ENDIAN);
-
-			switch (afi) {
-			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_poll_path, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_poll_path6, 16, ENC_NA);
-				break;
-
-			default:
-				expert_add_info(pinfo, ti, &ei_address_format_invalid);
-				break;
-			}
-
-			ptvcursor_add(cursor, hf_pgm_poll_backoff_ivl, 4, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_poll_rand_str, 4, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_poll_matching_bmask, 4, ENC_BIG_ENDIAN);
-			break;
-		case PGM_POLR_PCKT:
-			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
-												ett_pgm_polr, NULL, "%s Packet", pktname);
-			ptvcursor_set_tree(cursor, type_tree);
-
-			ptvcursor_add(cursor, hf_pgm_polr_sqn, 4, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_polr_round, 2, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_polr_res, 2, ENC_BIG_ENDIAN);
-			break;
-		case PGM_ACK_PCKT:
-			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
-												ett_pgm_ack, NULL, "%s Packet", pktname);
-			ptvcursor_set_tree(cursor, type_tree);
-
-			ptvcursor_add(cursor, hf_pgm_ack_sqn, 4, ENC_BIG_ENDIAN);
-			ptvcursor_add(cursor, hf_pgm_ack_bitmap, 4, ENC_BIG_ENDIAN);
-			break;
-		}
-
-		if (pgmhdr_opts & PGM_OPT)
-			dissect_pgmopts(cursor, pinfo, pktname);
-
-		if (isdata)
-			decode_pgm_ports(tvb, ptvcursor_current_offset(cursor), pinfo, tree, pgmhdr_sport, pgmhdr_dport);
-
-		ptvcursor_free(cursor);
-	}
+	ptvcursor_free(cursor);
 	return tvb_captured_length(tvb);
 }
 
