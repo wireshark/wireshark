@@ -41,13 +41,13 @@ with support for relative RPATHs).
 Wireshark can be compiled on Windows using https://www.msys2.org/[MSYS2].
 Check the Developer's guide for instructions.
 
-Support for building a Windows installer using Linux cross-compilation.
+Wireshark can be cross-compiled for Windows using Linux.
 Check the Developer's guide for instructions.
 
 Packet list sorting has been updated.
 
-* menu:Tools[Browser (SSL Keylog)] can launch your web browser with the
-  SSLKEYLOGFILE environment variable set to the appropriate value.
+menu:Tools[Browser (SSL Keylog)] can launch your web browser with the
+SSLKEYLOGFILE environment variable set to the appropriate value.
 
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
@@ -195,7 +195,7 @@ The following features are new (or have been significantly updated) since versio
 * Installation of development header must be done explicitly using the CMake
   command ``cmake --install <builddir> --component Development``.
 
-* The "init.lua" file is now loaded from any of the Lua plugins directory.
+* The "init.lua" file is now loaded from any of the Lua plugin directories.
   Previously it was loaded from the personal configuration directory. (For
   backward-compatibility this is still allowed; note that deprecated features
   may be removed in a future release).
