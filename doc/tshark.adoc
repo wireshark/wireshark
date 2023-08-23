@@ -2492,6 +2492,15 @@ before the file extension.
 This interface is subject to change, adding the possibility to filter on files.
 --
 
+--print-timers::
++
+--
+Print timing information for each pass tshark does to process a capture
+file, as a JSON array. The output contains the total elapsed time for
+each pass and aggregate counters for per-packet operations, currently
+dissection and filtering.
+--
+
 include::dissection-options.adoc[tag=!not_tshark]
 
 include::diagnostic-options.adoc[]

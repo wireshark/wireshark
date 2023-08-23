@@ -141,6 +141,7 @@
 #define LONGOPT_CAPTURE_COMMENT         LONGOPT_BASE_APPLICATION+6
 #define LONGOPT_HEXDUMP                 LONGOPT_BASE_APPLICATION+7
 #define LONGOPT_SELECTED_FRAME          LONGOPT_BASE_APPLICATION+8
+#define LONGOPT_PRINT_TIMERS            LONGOPT_BASE_APPLICATION+9
 
 capture_file cfile;
 
@@ -264,6 +265,77 @@ static void tshark_cmdarg_err(const char *msg_format, va_list ap);
 static void tshark_cmdarg_err_cont(const char *msg_format, va_list ap);
 
 static GHashTable *output_only_tables = NULL;
+
+static gboolean opt_print_timers = FALSE;
+struct elapsed_pass_s {
+    gint64 dissect;
+    gint64 dfilter_read;
+    gint64 dfilter_filter;
+};
+static struct {
+    gint64                 dfilter_expand;
+    gint64                 dfilter_compile;
+    struct elapsed_pass_s  first_pass;
+    gint64                 elapsed_first_pass;
+    struct elapsed_pass_s  second_pass;
+    gint64                 elapsed_second_pass;
+}
+tshark_elapsed;
+
+static void
+print_elapsed_json(const char *cf_name, const char *dfilter)
+{
+    json_dumper dumper = {
+        .output_file = stderr,
+        .flags = JSON_DUMPER_FLAGS_PRETTY_PRINT,
+    };
+
+    if (tshark_elapsed.elapsed_first_pass == 0) {
+        // Should not happen
+        ws_warning("Print timers requested but no timing info provided");
+        return;
+    }
+
+#define DUMP(name, val) \
+        json_dumper_set_member_name(&dumper, name); \
+        json_dumper_value_anyf(&dumper, "%"PRId64, val)
+
+    json_dumper_begin_object(&dumper);
+    json_dumper_set_member_name(&dumper, "version");
+    json_dumper_value_string(&dumper, get_ws_vcs_version_info_short());
+    if (cf_name) {
+        json_dumper_set_member_name(&dumper, "path");
+        json_dumper_value_string(&dumper, cf_name);
+    }
+    if (dfilter) {
+        json_dumper_set_member_name(&dumper, "filter");
+        json_dumper_value_string(&dumper, dfilter);
+    }
+    json_dumper_set_member_name(&dumper, "time_unit");
+    json_dumper_value_string(&dumper, "millisecond");
+    DUMP("elapsed", tshark_elapsed.elapsed_first_pass +
+                        tshark_elapsed.elapsed_second_pass);
+    DUMP("dfilter_expand", tshark_elapsed.dfilter_expand);
+    DUMP("dfilter_compile", tshark_elapsed.dfilter_compile);
+    json_dumper_begin_array(&dumper);
+    json_dumper_begin_object(&dumper);
+    DUMP("elapsed", tshark_elapsed.elapsed_first_pass);
+    DUMP("dissect", tshark_elapsed.first_pass.dissect);
+    DUMP("display_filter", tshark_elapsed.first_pass.dfilter_filter);
+    DUMP("read_filter", tshark_elapsed.first_pass.dfilter_read);
+    json_dumper_end_object(&dumper);
+    if (tshark_elapsed.elapsed_second_pass) {
+        json_dumper_begin_object(&dumper);
+        DUMP("elapsed", tshark_elapsed.elapsed_second_pass);
+        DUMP("dissect", tshark_elapsed.second_pass.dissect);
+        DUMP("display_filter", tshark_elapsed.second_pass.dfilter_filter);
+        DUMP("read_filter", tshark_elapsed.second_pass.dfilter_read);
+        json_dumper_end_object(&dumper);
+    }
+    json_dumper_end_array(&dumper);
+    json_dumper_end_object(&dumper);
+    json_dumper_finish(&dumper);
+}
 
 static void
 list_capture_types(void)
@@ -628,14 +700,18 @@ _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
     df_error_t *df_err;
     char *err_off;
     char *expanded;
+    gint64 elapsed_start;
 
+    elapsed_start = g_get_monotonic_time();
     expanded = dfilter_expand(text, &df_err);
     if (expanded == NULL) {
         cmdarg_err("%s", df_err->msg);
         df_error_free(&df_err);
         return FALSE;
     }
+    tshark_elapsed.dfilter_expand = g_get_monotonic_time() - elapsed_start;
 
+    elapsed_start = g_get_monotonic_time();
     ok = dfilter_compile_full(expanded, dfp, &df_err, DF_OPTIMIZE, caller);
     if (!ok ) {
         cmdarg_err("%s", df_err->msg);
@@ -648,6 +724,7 @@ _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
         }
         df_error_free(&df_err);
     }
+    tshark_elapsed.dfilter_compile = g_get_monotonic_time() - elapsed_start;
 
     g_free(expanded);
     return ok;
@@ -866,6 +943,7 @@ main(int argc, char *argv[])
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         {"hexdump", ws_required_argument, NULL, LONGOPT_HEXDUMP},
         {"selected-frame", ws_required_argument, NULL, LONGOPT_SELECTED_FRAME},
+        {"print-timers", ws_no_argument, NULL, LONGOPT_PRINT_TIMERS},
         {0, 0, 0, 0}
     };
     gboolean             arg_error = FALSE;
@@ -1752,6 +1830,9 @@ main(int argc, char *argv[])
                     goto clean_exit;
                 }
                 break;
+            case LONGOPT_PRINT_TIMERS:
+                opt_print_timers = TRUE;
+                break;
             default:
             case '?':        /* Bad flag - print usage message */
                 switch(ws_optopt) {
@@ -2604,6 +2685,17 @@ main(int argc, char *argv[])
         g_free(keylist);
     }
 
+    if (opt_print_timers) {
+        if (cf_name == NULL) {
+            /* We're doind a live capture. That isn't currently supported
+             * with timers. */
+            ws_message("Ignoring option --print-timers because we are doing a live capture");
+        }
+        else {
+            print_elapsed_json(cf_name, dfilter);
+        }
+    }
+
     /* Memory cleanup */
     reset_tap_listeners();
     funnel_dump_all_text_windows();
@@ -3130,6 +3222,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
     frame_data     fdlocal;
     guint32        framenum;
     gboolean       passed;
+    gint64         elapsed_start;
 
     /* The frame number of this packet is one more than the count of
        frames in this packet. */
@@ -3174,13 +3267,18 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
             cinfo = &cf->cinfo;
         }
 
+        elapsed_start = g_get_monotonic_time();
         epan_dissect_run(edt, cf->cd_t, rec,
                 frame_tvbuff_new_buffer(&cf->provider, &fdlocal, buf),
                 &fdlocal, cinfo);
+        tshark_elapsed.first_pass.dissect += g_get_monotonic_time() - elapsed_start;
 
         /* Run the read filter if we have one. */
-        if (cf->rfcode)
+        if (cf->rfcode) {
+            elapsed_start = g_get_monotonic_time();
             passed = dfilter_apply_edt(cf->rfcode, edt);
+            tshark_elapsed.first_pass.dfilter_read += g_get_monotonic_time() - elapsed_start;
+        }
     }
 
     if (passed) {
@@ -3194,6 +3292,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
          * if a display filter was given and it matches this packet.
          */
         if (edt && cf->dfcode) {
+            elapsed_start = g_get_monotonic_time();
             if (dfilter_apply_edt(cf->dfcode, edt) && edt->pi.fd->dependent_frames) {
                 g_hash_table_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
             }
@@ -3204,6 +3303,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
                  * display filter. Selected frame number is ordinal, count is cardinal. */
                 dfilter_load_field_references(cf->dfcode, edt->tree);
             }
+            tshark_elapsed.first_pass.dfilter_filter += g_get_monotonic_time() - elapsed_start;
         }
 
         cf->count++;
@@ -3367,6 +3467,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
     column_info    *cinfo;
     gboolean        passed;
     wtap_block_t    block = NULL;
+    gint64          elapsed_start;
 
     /* If we're not running a display filter and we're not printing any
        packet information, we don't need to do a dissection. This means
@@ -3414,13 +3515,18 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         /* epan_dissect_run (and epan_dissect_reset) unref the block.
          * We need it later, e.g. in order to copy the options. */
         block = wtap_block_ref(rec->block);
+        elapsed_start = g_get_monotonic_time();
         epan_dissect_run_with_taps(edt, cf->cd_t, rec,
                 frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                 fdata, cinfo);
+        tshark_elapsed.second_pass.dissect += g_get_monotonic_time() - elapsed_start;
 
-        /* Run the read/display filter if we have one. */
-        if (cf->dfcode)
+        /* Run the display filter if we have one. */
+        if (cf->dfcode) {
+            elapsed_start = g_get_monotonic_time();
             passed = dfilter_apply_edt(cf->dfcode, edt);
+            tshark_elapsed.second_pass.dfilter_filter += g_get_monotonic_time() - elapsed_start;
+        }
     }
 
     if (passed) {
@@ -3759,6 +3865,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
     char        *shb_user_appl;
     pass_status_t first_pass_status, second_pass_status;
+    gint64 elapsed_start;
 
     if (save_file != NULL) {
         /* Set up to write to the capture file. */
@@ -3836,10 +3943,12 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (perform_two_pass_analysis) {
         ws_debug("tshark: perform_two_pass_analysis, do_dissection=%s", do_dissection ? "TRUE" : "FALSE");
 
+        elapsed_start = g_get_monotonic_time();
         first_pass_status = process_cap_file_first_pass(cf, max_packet_count,
                 max_byte_count,
                 &err_pass1,
                 &err_info_pass1);
+        tshark_elapsed.elapsed_first_pass = g_get_monotonic_time() - elapsed_start;
 
         ws_debug("tshark: done with first pass");
 
@@ -3855,9 +3964,11 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
              * we report any second-pass errors), so all the errors show up
              * at the end.
              */
+            elapsed_start = g_get_monotonic_time();
             second_pass_status = process_cap_file_second_pass(cf, pdh, &err, &err_info,
                     &err_framenum,
                     max_write_packet_count);
+            tshark_elapsed.elapsed_second_pass = g_get_monotonic_time() - elapsed_start;
 
             ws_debug("tshark: done with second pass");
         }
@@ -3867,12 +3978,17 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         ws_debug("tshark: perform one pass analysis, do_dissection=%s", do_dissection ? "TRUE" : "FALSE");
 
         first_pass_status = PASS_SUCCEEDED; /* There is no first pass */
+
+        elapsed_start = g_get_monotonic_time();
         second_pass_status = process_cap_file_single_pass(cf, pdh,
                 max_packet_count,
                 max_byte_count,
                 max_write_packet_count,
                 &err, &err_info,
                 &err_framenum);
+        tshark_elapsed.elapsed_first_pass = g_get_monotonic_time() - elapsed_start;
+
+        ws_debug("tshark: done with single pass");
     }
 
     if (first_pass_status != PASS_SUCCEEDED ||
@@ -4026,6 +4142,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     column_info    *cinfo;
     gboolean        passed;
     wtap_block_t    block = NULL;
+    gint64          elapsed_start;
 
     /* Count this packet. */
     cf->count++;
@@ -4081,13 +4198,18 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
         /* epan_dissect_run (and epan_dissect_reset) unref the block.
          * We need it later, e.g. in order to copy the options. */
         block = wtap_block_ref(rec->block);
+        elapsed_start = g_get_monotonic_time();
         epan_dissect_run_with_taps(edt, cf->cd_t, rec,
                 frame_tvbuff_new_buffer(&cf->provider, &fdata, buf),
                 &fdata, cinfo);
+        tshark_elapsed.first_pass.dissect += g_get_monotonic_time() - elapsed_start;
 
         /* Run the filter if we have it. */
-        if (cf->dfcode)
+        if (cf->dfcode) {
+            elapsed_start = g_get_monotonic_time();
             passed = dfilter_apply_edt(cf->dfcode, edt);
+            tshark_elapsed.first_pass.dfilter_filter += g_get_monotonic_time() - elapsed_start;
+        }
     }
 
     if (passed) {

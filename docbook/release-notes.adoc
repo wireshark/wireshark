@@ -194,6 +194,8 @@ The following features are new (or have been significantly updated) since versio
 * The Windows build has a new SpeexDSP external dependency (https://www.speex.org).
   The speex code that was previously bundled has been removed.
 
+* New `--print-timers` option added to tshark.
+
 === Removed Features and Support
 
 * With the addition of the universal and consistent filtering support for
