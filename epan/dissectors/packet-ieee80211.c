@@ -17709,9 +17709,11 @@ add_ff_eht_su_beamforming_rpt(proto_tree *tree, tvbuff_t *tvb,
   }
 
   if (codebook_info == 0) {
-    phi_bits = 4; psi_bits = 2;
+    phi_bits = 4;
+    psi_bits = 2;
   } else {
-    phi_bits = 6, psi_bits = 4;
+    phi_bits = 6;
+    psi_bits = 4;
   }
 
   feedback_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
