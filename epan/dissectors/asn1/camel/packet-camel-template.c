@@ -86,12 +86,12 @@ static int hf_camel_CAMEL_CallResult = -1;
 
 /* Used by persistent data */
 static int hf_camelsrt_SessionId=-1;
-static int hf_camelsrt_RequestNumber=-1;
+//static int hf_camelsrt_RequestNumber=-1;
 static int hf_camelsrt_Duplicate=-1;
 static int hf_camelsrt_RequestFrame=-1;
 static int hf_camelsrt_ResponseFrame=-1;
-static int hf_camelsrt_DeltaTime=-1;
-static int hf_camelsrt_SessionTime=-1;
+//static int hf_camelsrt_DeltaTime=-1;
+//static int hf_camelsrt_SessionTime=-1;
 static int hf_camelsrt_DeltaTime31=-1;
 static int hf_camelsrt_DeltaTime75=-1;
 static int hf_camelsrt_DeltaTime65=-1;
@@ -1378,12 +1378,12 @@ void proto_register_camel(void) {
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_camelsrt_RequestNumber,
-      { "Request Number",
-        "camel.srt.request_number",
-        FT_UINT64, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }
-    },
+    //{ &hf_camelsrt_RequestNumber,
+    //  { "Request Number",
+    //    "camel.srt.request_number",
+    //    FT_UINT64, BASE_DEC, NULL, 0x0,
+    //    NULL, HFILL }
+    //},
     { &hf_camelsrt_Duplicate,
       { "Request Duplicate",
         "camel.srt.duplicate",
@@ -1402,18 +1402,18 @@ void proto_register_camel(void) {
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "SRT Response Frame", HFILL }
     },
-    { &hf_camelsrt_DeltaTime,
-      { "Service Response Time",
-        "camel.srt.deltatime",
-        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-        "DeltaTime between Request and Response", HFILL }
-    },
-    { &hf_camelsrt_SessionTime,
-      { "Session duration",
-        "camel.srt.sessiontime",
-        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-        "Duration of the TCAP session", HFILL }
-    },
+    //{ &hf_camelsrt_DeltaTime,
+    //  { "Service Response Time",
+    //    "camel.srt.deltatime",
+    //    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+    //    "DeltaTime between Request and Response", HFILL }
+    //},
+    //{ &hf_camelsrt_SessionTime,
+    //  { "Session duration",
+    //    "camel.srt.sessiontime",
+    //    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+    //    "Duration of the TCAP session", HFILL }
+    //},
     { &hf_camelsrt_DeltaTime31,
       { "Service Response Time",
         "camel.srt.deltatime31",

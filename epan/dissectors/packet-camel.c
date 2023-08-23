@@ -91,12 +91,12 @@ static int hf_camel_CAMEL_CallResult = -1;
 
 /* Used by persistent data */
 static int hf_camelsrt_SessionId=-1;
-static int hf_camelsrt_RequestNumber=-1;
+//static int hf_camelsrt_RequestNumber=-1;
 static int hf_camelsrt_Duplicate=-1;
 static int hf_camelsrt_RequestFrame=-1;
 static int hf_camelsrt_ResponseFrame=-1;
-static int hf_camelsrt_DeltaTime=-1;
-static int hf_camelsrt_SessionTime=-1;
+//static int hf_camelsrt_DeltaTime=-1;
+//static int hf_camelsrt_SessionTime=-1;
 static int hf_camelsrt_DeltaTime31=-1;
 static int hf_camelsrt_DeltaTime75=-1;
 static int hf_camelsrt_DeltaTime65=-1;
@@ -4625,7 +4625,6 @@ dissect_camel_TimeAndTimezone(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
  gchar hour[3];
  gchar minute[3];
  gchar second[3];
- gchar timezone_digits[3];
 
  guint8 oct;
  char   sign;
@@ -4649,19 +4648,18 @@ dissect_camel_TimeAndTimezone(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   (void) g_strlcpy(hour, digit_str+8, 3);
   (void) g_strlcpy(minute, digit_str+10, 3);
   (void) g_strlcpy(second, digit_str+12, 3);
-  (void) g_strlcpy(timezone_digits, digit_str+14, 3);
 
 /*
 The Time Zone indicates the difference, expressed in quarters of an hour, between the local time and GMT. In the first of the two semi octets,
 the first bit (bit 3 of the seventh octet of the TP Service Centre Time Stamp field) represents the algebraic sign of this difference (0: positive, 1: negative).
 */
-  if (!ws_hexstrtou8(timezone_digits, NULL, &oct)){
-    return offset;
-  }
+  oct = tvb_get_guint8(parameter_tvb,7);
+
+  /* packet-gsm_sms.c time dis_field_scts_aux() */
   sign = (oct & 0x08)?'-':'+';
   oct = (oct >> 4) + (oct & 0x07) * 10;
 
-  proto_item_append_text(item, "(%s-%s-%s %s:%s:%s GMT %c %d hours %d minutes)", year,month,day,hour,minute,second,sign, oct / 4, oct % 4 * 15);
+  proto_item_append_text(item, "(%s-%s-%s %s:%s:%s GMT %c%d hours %d minutes)", year,month,day,hour,minute,second,sign, oct / 4, oct % 4 * 15);
 
 
 
@@ -8419,12 +8417,12 @@ void proto_register_camel(void) {
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_camelsrt_RequestNumber,
-      { "Request Number",
-        "camel.srt.request_number",
-        FT_UINT64, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }
-    },
+    //{ &hf_camelsrt_RequestNumber,
+    //  { "Request Number",
+    //    "camel.srt.request_number",
+    //    FT_UINT64, BASE_DEC, NULL, 0x0,
+    //    NULL, HFILL }
+    //},
     { &hf_camelsrt_Duplicate,
       { "Request Duplicate",
         "camel.srt.duplicate",
@@ -8443,18 +8441,18 @@ void proto_register_camel(void) {
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "SRT Response Frame", HFILL }
     },
-    { &hf_camelsrt_DeltaTime,
-      { "Service Response Time",
-        "camel.srt.deltatime",
-        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-        "DeltaTime between Request and Response", HFILL }
-    },
-    { &hf_camelsrt_SessionTime,
-      { "Session duration",
-        "camel.srt.sessiontime",
-        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-        "Duration of the TCAP session", HFILL }
-    },
+    //{ &hf_camelsrt_DeltaTime,
+    //  { "Service Response Time",
+    //    "camel.srt.deltatime",
+    //    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+    //    "DeltaTime between Request and Response", HFILL }
+    //},
+    //{ &hf_camelsrt_SessionTime,
+    //  { "Session duration",
+    //    "camel.srt.sessiontime",
+    //    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+    //    "Duration of the TCAP session", HFILL }
+    //},
     { &hf_camelsrt_DeltaTime31,
       { "Service Response Time",
         "camel.srt.deltatime31",
