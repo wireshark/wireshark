@@ -100,7 +100,6 @@ void SSLKeylogDialog::on_launchActivated()
     browserProcess.setProcessEnvironment(env);
     bool ok = browserProcess.startDetached();
     if (ok) {
-        accept();
         return;
     }
 
