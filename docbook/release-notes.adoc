@@ -29,9 +29,9 @@ A new display filter feature for filtering raw bytes has been added.
 
 Display filter autocomplete is smarter about not suggesting invalid syntax.
 
-New GUI dialog (under Tools menu) to lookup a MAC address in the IEEE OUI registry.
+menu:Tools[MAC Address Blocks] can lookup a MAC address in the IEEE OUI registry.
 
-Some external text files have been compiled in for improved start-up times.
+Some external configuration files have been compiled in for improved start-up times.
 
 The installation target no longer installs development headers by default.
 
@@ -80,7 +80,7 @@ The following features are new (or have been significantly updated) since versio
 
 * Wireshark now builds with Qt6 by default. To use Qt5 instead pass USE_qt6=OFF to CMake.
 
-* ciscodump support for Cisco IOS XE 17.x
+* The "ciscodump" extcap supports Cisco IOS XE 17.x.
 
 * The default interval between GUI updates when capturing has been decreased
   from 500ms to 100ms, and is now configurable.
@@ -89,12 +89,6 @@ The following features are new (or have been significantly updated) since versio
   in configured MaxMind databases (and geolocation lookup can be enabled with
   *-Ng*.) This is most relevant for tshark, where geolocation lookups are
   synchronous.
-
-* Implement built-in dissector for FiRa UWB Controller Interface (UCI) protocol.
-  Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
-
-* The reassemble_streaming_data_and_call_subdissector() API has been added to provide a simpler way to
-  reassemble the streaming data of a high level protocol that is not on top of TCP.
 
 * The display filter drop-down list is now sorted by "most recently used" instead
   of "most recently created".
@@ -153,16 +147,13 @@ The following features are new (or have been significantly updated) since versio
   have been removed and replaced with static binary data. You can dump the
   respective internal data using `tshark -G manuf|enterprises|services`.
 
-* The Windows build has a new SpeexDSP external dependency (https://www.speex.org).
-  The speex code that was previously bundled has been removed.
-
-* The Lua console dialogs under Tools were refactored and redesigned. It now
-  consists of a single dialog window for input and output.
+* The Lua console dialogs under the menu:Tools[] menu were refactored and redesigned.
+  It now consists of a single dialog window for input and output.
 
 * Wireshark now shows byte units in the statistics in the user-selected language
   (uses the system default language by default).
 
-* Packet list sorting updates include:
+* Packet list sorting has been improved:
 
   ** When sorting packet list with a filter applied, only the visible packets are
      sorted, which greatly increases sorting speed.
@@ -180,7 +171,7 @@ The following features are new (or have been significantly updated) since versio
 
   ** Sorting can be interrupted.
 
-* When changing the dissector via the Decode As table for values that
+* When changing the dissector via the "Decode As" table for values that
   have default dissectors registered, selecting "(none)" will select
   no dissection (while still allowing heuristic dissectors to attempt to
   dissect.) The previous behavior was to reset the dissector to the default.
@@ -192,28 +183,31 @@ The following features are new (or have been significantly updated) since versio
   The extcap personal folder is now ``$HOME/.local/lib/wireshark/extcap``.
   Previously it was ``$XDG_CONFIG_HOME/wireshark/extcap``.
 
-* Installation of development header must be done explicitly using the CMake
-  command ``cmake --install <builddir> --component Development``.
-
 * The "init.lua" file is now loaded from any of the Lua plugin directories.
   Previously it was loaded from the personal configuration directory. (For
   backward-compatibility this is still allowed; note that deprecated features
   may be removed in a future release).
 
+* Installation of development headers must be done explicitly using the CMake
+  command `cmake --install <builddir> --component Development`.
+
+* The Windows build has a new SpeexDSP external dependency (https://www.speex.org).
+  The speex code that was previously bundled has been removed.
+
 === Removed Features and Support
 
 * With the addition of the universal and consistent filtering support for
-column text, the previous support in the -e option to tshark for displaying
-column text via the column title has been removed in general. Those field names
-cannot be used elsewhere (as they may not be legal filter names) and create
-confusion if more than one column has the same title or if a column is renamed.
-Prefer the column format instead, e.g. "_ws.col.info" for "_ws.col.Info".
-However, for backwards compatibilty with existing tools and scripts, the
-titles of the default columns can continue to be used with "tshark -e"
-(but not elsewhere.)
+  column text, the previous support in the -e option to tshark for displaying
+  column text via the column title has been removed in general. Those field names
+  cannot be used elsewhere (as they may not be legal filter names) and create
+  confusion if more than one column has the same title or if a column is renamed.
+  Prefer the column format instead, e.g. "_ws.col.info" for "_ws.col.Info".
+  However, for backwards compatibilty with existing tools and scripts, the
+  titles of the default columns can continue to be used with "tshark -e"
+  (but not elsewhere.)
 
 * The bundled script "dtd_gen.lua" that was disabled by default has been removed
-  from the installation. It can be found in the Wireshark Wiki under "Contrib".
+  from the installation. link:https://wiki.wireshark.org/Contrib[It can be found in the Wireshark Wiki under "Contrib"].
 
 // === Removed Dissectors
 
@@ -230,39 +224,39 @@ titles of the default columns can continue to be used with "tshark -e"
 // git log --oneline --diff-filter=A --stat v3.7.0rc0.. epan/dissectors plugins
 [commaize]
 --
-Video Protocol 9 (VP9)
-SAP GUI (SAPDiag)
+ASAM Capture Module Protocol (CMP)
+DECT DLC protocol layer (DECT-DLC)
+DECT NWK protocol layer (DECT-NWK)
+DECT proprietary Mitel OMM/RFP Protocol (also named AaMiDe)
+Digital Object Identifier Resolution Protocol (DO-IRP)
+FiRa UWB Controller Interface (UCI)
+FiveCo's Register Access Protocol (5CoRAP)
+Fortinet FortiGate Cluster Protocol (FGCP)
+GPS L1 C/A LNAV navigation messages
+High Speed Fahrzeugzugang (HSFZ)
+ID3v2
+Low Level Signalling (ATSC3 LLS)
+Management Component Transport Protocol - Control Protocol (MCTP CP)
+Management Component Transport Protocol (MCTP)
+Matter home automation protocol
+Multi-Drop Bus (MDB)
+Non-volatile Memory Express - Management Interface (NVMe-MI) over MCTP
 SAP Enqueue Server (SAPEnqueue)
+SAP GUI (SAPDiag)
 SAP HANA SQL Command Network Protocol (SAPHDB)
 SAP Internet Graphic Server (SAP IGS)
 SAP Message Server (SAPMS)
 SAP Network Interface (SAPNI)
 SAP Router (SAPROUTER)
 SAP Secure Network Connection (SNC)
-Management Component Transport Protocol (MCTP)
-Management Component Transport Protocol - Control Protocol (MCTP CP)
-Non-volatile Memory Express - Management Interface (NVMe-MI) over MCTP
-DECT proprietary Mitel OMM/RFP Protocol (also named AaMiDe)
-DECT DLC protocol layer (DECT-DLC)
-DECT NWK protocol layer (DECT-NWK)
-Low Level Signalling (ATSC3 LLS)
-Train Real-Time Data Protocol (TRDP)
-Windows Delivery Optimization (MS-DO)
-FiRa UWB Controller Interface (UCI)
-Matter home automation protocol
-UBX protocol of u-blox GNSS receivers (UBX)
-GPS L1 C/A LNAV navigation messages
 SBAS L1 Navigation Messages (SBAS L1)
-FiveCo's Register Access Protocol (5CoRAP)
-UDP Tracker Protocol for BitTorrent (BT-Tracker)
 SINEC AP1 Protocol (SINEC AP)
-ID3v2
-Digital Object Identifier Resolution Protocol (DO-IRP)
-High Speed Fahrzeugzugang (HSFZ)
+Train Real-Time Data Protocol (TRDP)
+UBX protocol of u-blox GNSS receivers (UBX)
+UDP Tracker Protocol for BitTorrent (BT-Tracker)
+Video Protocol 9 (VP9)
+Windows Delivery Optimization (MS-DO)
 Zabbix Protocol (Zabbix)
-ASAM Capture Module Protocol (CMP)
-Fortinet FortiGate Cluster Protocol (FGCP)
-Multi-Drop Bus (MDB)
 --
 
 === Updated Protocol Support
@@ -317,6 +311,7 @@ Too many other protocol updates have been made to list them all here.
 // === New and Updated Capture Interfaces support
 
 === New and Updated Codec support
+
 Adaptive Multi-Rate (AMR), if compiled with https://sourceforge.net/projects/opencore-amr/[opencore-amr]
 
 //_Non-empty section placeholder._
@@ -326,6 +321,9 @@ Adaptive Multi-Rate (AMR), if compiled with https://sourceforge.net/projects/ope
 * Lua function "package.prepend_path" has been removed. If you need it please
   consider adding your own package.path customization code or installing your
   dependencies in Wireshark's default paths.
+
+* The reassemble_streaming_data_and_call_subdissector() API has been added to provide a simpler way to
+  reassemble the streaming data of a high level protocol that is not on top of TCP.
 
 == Getting Wireshark
 
