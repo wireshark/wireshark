@@ -362,7 +362,7 @@ dissect_iperf2_extended_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     offset += 4;
     proto_tree_add_item(extended_tree, hf_iperf2_rate_units, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    ti = proto_tree_add_item(extended_tree, hf_iperf2_realtime, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(extended_tree, hf_iperf2_realtime, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     // There may be an optional permit key at the end of this header. Flags are not reliable - do some heuristics here instead.
