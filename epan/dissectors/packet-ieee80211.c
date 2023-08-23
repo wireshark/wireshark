@@ -4764,6 +4764,26 @@ static int hf_ieee80211_eht_bw_indi_param_reserved = -1;
 static int hf_ieee80211_eht_bw_indi_param_disabled_subchan_bitmap = -1;
 static int hf_ieee80211_eht_bw_indi_param_reserved1 = -1;
 static int hf_ieee80211_eht_bw_indi_diabled_bitmap = -1;
+static int hf_ieee80211_eht_mimo_ctrl_field = -1;
+static int hf_ieee80211_eht_mimo_ctrl_nc_index = -1;
+static int hf_ieee80211_eht_mimo_ctrl_nr_index = -1;
+static int hf_ieee80211_eht_mimo_ctrl_bw = -1;
+static int hf_ieee80211_eht_mimo_ctrl_grouping = -1;
+static int hf_ieee80211_eht_mimo_ctrl_feedback_type = -1;
+static int hf_ieee80211_eht_mimo_ctrl_reserved1 = -1;
+static int hf_ieee80211_eht_mimo_ctrl_remaining_feedback_segments = -1;
+static int hf_ieee80211_eht_mimo_ctrl_first_feedback_segment = -1;
+static int hf_ieee80211_eht_mimo_ctrl_partial_bw_info = -1;
+static int hf_ieee80211_eht_mimo_ctrl_sounding_dialog_token_number = -1;
+static int hf_ieee80211_eht_mimo_ctrl_codebook_info = -1;
+static int hf_ieee80211_eht_mimo_ctrl_reserved2 = -1;
+
+/* be: Compressed beamforming report etc */
+static int hf_ieee80211_eht_compressed_beamforming_report_snr = -1;
+static int hf_ieee80211_eht_compressed_beamform_scidx = -1;
+
+/* be: MU Exclusive beamforming report */
+static int hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr = -1;
 
 static int hf_ieee80211_ff_ant_selection = -1;
 static int hf_ieee80211_ff_ant_selection_0 = -1;
@@ -6091,6 +6111,7 @@ static int hf_ieee80211_vht_mu_exclusive_beamforming_delta_snr = -1;
 static int hf_ieee80211_ff_he_action = -1;
 static int hf_ieee80211_ff_protected_he_action = -1;
 static int hf_ieee80211_ff_protected_ftm_action = -1;
+static int hf_ieee80211_ff_eht_action = -1;
 static int hf_ieee80211_ff_protected_eht_action = -1;
 static int hf_ieee80211_he_mimo_control_nc_index = -1;
 static int hf_ieee80211_he_mimo_control_nr_index = -1;
@@ -6108,8 +6129,6 @@ static int hf_ieee80211_he_mimo_control_field = -1;
 static int hf_ieee80211_he_compressed_beamforming_report_snr = -1;
 static int hf_ieee80211_he_compressed_beamform_scidx = -1;
 static int hf_ieee80211_beamforming_report_len = -1;
-
-static int hf_ieee80211_ff_eht_action = -1;
 
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
@@ -7800,9 +7819,19 @@ static int hf_ieee80211_oci_oct_frequency_segment_1 = -1;
 /*                              802.11BE fields                              */
 /* ************************************************************************* */
 static int hf_ieee80211_eht_eml_control_field = -1;
-static int hf_ieee80211_eht_eml_emlsr_mode = -1;
-static int hf_ieee80211_eht_eml_emlmr_mode = -1;
-static int hf_ieee80211_eht_eml_link_bitmap = -1;
+static int hf_ieee80211_eht_eml_control_emlsr_mode = -1;
+static int hf_ieee80211_eht_eml_control_emlmr_mode = -1;
+static int hf_ieee80211_eht_eml_control_emlsr_para_update_control = -1;
+static int hf_ieee80211_eht_eml_control_reserved = -1;
+static int hf_ieee80211_eht_eml_control_link_bitmap = -1;
+static int hf_ieee80211_eht_eml_control_link_enable_id = -1;
+static int hf_ieee80211_eht_eml_control_mcs_map_count = -1;
+static int hf_ieee80211_eht_eml_control_mcs_map_count_bw = -1;
+static int hf_ieee80211_eht_eml_control_mcs_map_count_reserved = -1;
+static int hf_ieee80211_eht_emlsr_para_update = -1;
+static int hf_ieee80211_eht_emlsr_para_update_padding_delay = -1;
+static int hf_ieee80211_eht_emlsr_para_update_tran_delay = -1;
+static int hf_ieee80211_eht_emlsr_para_update_reserved = -1;
 
 static int hf_ieee80211_multiple_bssid_configuration_bssid_count = -1;
 static int hf_ieee80211_multiple_bssid_configuration_full_set_rx_periodicity = -1;
@@ -8094,6 +8123,7 @@ static gint ett_pasn_comeback_tree = -1;
 
 static gint ett_pasn_auth_frame = -1;
 
+/* 802.11be trees */
 static gint ett_eht_multi_link_control = -1;
 static gint ett_eht_multi_link_common_info = -1;
 static gint ett_eht_multi_link_common_info_link_id = -1;
@@ -8125,6 +8155,16 @@ static gint ett_eht_eht_multi_link_tc = -1;
 static gint ett_eht_qos_characteristics = -1;
 static gint ett_eht_aid_bmapctl_tree = -1;
 static gint ett_eht_bw_indication_param = -1;
+static gint ett_eht_eml_control = -1;
+static gint ett_eht_eml_control_link_map = -1;
+static gint ett_eht_eml_control_mcs_map_count = -1;
+static gint ett_eht_emlsr_para_update = -1;
+static gint ett_eht_mimo_ctrl = -1;
+static gint ett_eht_beamforming_rpt_ru_index = -1;
+static gint ett_eht_beamforming_feedback_tree = -1;
+static gint ett_ff_eht_mimo_beamforming_report_snr = -1;
+static gint ett_ff_eht_mimo_mu_exclusive_report = -1;
+static gint ett_eht_mu_exclusive_beamforming_rpt_ru_index = -1;
 
 static gint ett_tag_measure_request_mode_tree = -1;
 static gint ett_tag_measure_request_type_tree = -1;
@@ -8345,6 +8385,7 @@ static expert_field ei_ieee80211_tbtt_unexpected = EI_INIT;
 static expert_field ei_ieee80211_eht_invalid_subelement = EI_INIT;
 static expert_field ei_ieee80211_eht_invalid_action = EI_INIT;
 static expert_field ei_ieee80211_eht_invalid_multi_link = EI_INIT;
+static expert_field ei_ieee80211_eht_invalid_nc_nr = EI_INIT;
 
 
 /* 802.11ad trees */
@@ -8448,8 +8489,6 @@ static gint ett_tbtt_infos = -1;
 static gint ett_rnr_bss_params_tree = -1;
 static gint ett_rnr_mld_params_tree = -1;
 
-/* 802.11be trees */
-static gint ett_eht_eml_control = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -14624,9 +14663,31 @@ add_ff_oct_mmpdu(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int of
 }
 
 static int * const eht_eml_control_field_mode_headers[] = {
-  &hf_ieee80211_eht_eml_emlsr_mode,
-  &hf_ieee80211_eht_eml_emlmr_mode,
+  &hf_ieee80211_eht_eml_control_emlsr_mode,
+  &hf_ieee80211_eht_eml_control_emlmr_mode,
+  &hf_ieee80211_eht_eml_control_emlsr_para_update_control,
+  &hf_ieee80211_eht_eml_control_reserved,
   NULL
+};
+
+static int * const eht_emlsr_para_update_headers[] = {
+  &hf_ieee80211_eht_emlsr_para_update_padding_delay,
+  &hf_ieee80211_eht_emlsr_para_update_tran_delay,
+  &hf_ieee80211_eht_emlsr_para_update_reserved,
+  NULL
+};
+
+static int * const eht_eml_control_mcs_map_count_headers[] = {
+  &hf_ieee80211_eht_eml_control_mcs_map_count_bw,
+  &hf_ieee80211_eht_eml_control_mcs_map_count_reserved,
+  NULL
+};
+
+static const value_string eht_eml_control_mcs_map_count_bw[] = {
+  {0x00, "80 MHz"},
+  {0x01, "160 MHz"},
+  {0x02, "320 MHz"},
+  {0, NULL}
 };
 
 static int * const eht_le_80_mcs_map_hdrs[] = {
@@ -14660,19 +14721,89 @@ static int * const eht_320_mcs_map_hdrs[] = {
 };
 
 static guint
-dissect_eht_eml_control_field(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+dissect_eht_eml_control_field(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
+  guint start = offset;
+  guint len = tvb_captured_length_remaining(tvb, offset);
+  guint8 mode = tvb_get_guint8(tvb, offset);
+  guint8 mcs_map_count;
+  proto_item *link_map_item;
+  proto_tree *link_map_tree;
+  guint16 bmap, f;
+
   proto_tree_add_bitmask_with_flags(tree, tvb, offset,
                                     hf_ieee80211_eht_eml_control_field,
                                     ett_eht_eml_control,
                                     eht_eml_control_field_mode_headers,
-                                    ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
-
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 1;
 
-  proto_tree_add_item(tree, hf_ieee80211_eht_eml_link_bitmap,
-                      tvb, offset, 2, ENC_BIG_ENDIAN);
-  return 3;
+  if (mode & 0x03) { /* EMLSR or EMLMR*/
+    if (len < 3) {
+      expert_add_info_format(pinfo, tree, &ei_ieee80211_eht_invalid_action, "EMLSR or EMLMR length %u is wrong", len);
+      return len;
+    }
+    link_map_item = proto_tree_add_item(tree,
+                      hf_ieee80211_eht_eml_control_link_bitmap,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    link_map_tree = proto_item_add_subtree(link_map_item,
+                     ett_eht_eml_control_link_map);
+    bmap = tvb_get_letohs(tvb, offset);
+    for (f = 0; f < 16; f++) {
+      if (bmap & (1 << f)) {
+        proto_tree_add_uint_format_value(link_map_tree,
+          hf_ieee80211_eht_eml_control_link_enable_id,
+          tvb, offset + (f/8), 1, f, "%u", f);
+      }
+    }
+    offset += 2;
+  }
+  if (mode & 0x02) { /* EMLMR */
+    if (len < 7) {
+      expert_add_info_format(pinfo, tree, &ei_ieee80211_eht_invalid_action, "EMLMR length %u is wrong", len);
+      return len;
+    }
+    mcs_map_count = tvb_get_guint8(tvb, offset) & 0x03;
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+        hf_ieee80211_eht_eml_control_mcs_map_count,
+        ett_eht_eml_control_mcs_map_count,
+        eht_eml_control_mcs_map_count_headers, ENC_LITTLE_ENDIAN,
+        BMT_NO_APPEND);
+    offset++;
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+      hf_ieee80211_eht_mcs_and_nss_le_80mhz,
+      ett_eht_phy_mcs_nss_set,
+      eht_le_80_mcs_map_hdrs,
+      ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset += 3;
+    if (mcs_map_count >= 1) {
+      proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+        hf_ieee80211_eht_mcs_and_nss_eq_160mhz,
+        ett_eht_phy_mcs_nss_set,
+        eht_160_mcs_map_hdrs,
+        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      offset += 3;
+    }
+    if (mcs_map_count >= 2) {
+      proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+        hf_ieee80211_eht_mcs_and_nss_eq_320mhz,
+        ett_eht_phy_mcs_nss_set,
+        eht_320_mcs_map_hdrs,
+        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      offset += 3;
+    }
+  }
+
+  if (mode & 0x04) { /* EMLSR Parameter Update */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+      hf_ieee80211_eht_emlsr_para_update, ett_eht_emlsr_para_update,
+      eht_emlsr_para_update_headers, ENC_LITTLE_ENDIAN,
+      BMT_NO_APPEND);
+    offset++;
+  }
+
+  return offset - start;
 }
 
 static int
@@ -15596,6 +15727,9 @@ static const range_string protected_he_action_rvals[] = {
 #define EHT_EPCS_PRIO_ACCESS_RESP       4
 #define EHT_EPCS_PRIO_ACCESS_TEAR_DOWN  5
 #define EHT_EML_OP_MODE_NOTIFICATION    6
+#define EHT_LINK_RECOMMENDATION         7
+#define EHT_MULTI_LINK_OP_UPDATE_REQ    8
+#define EHT_MULTI_LINK_OP_UPDATE_RESP   9
 
 static const range_string protected_eht_action_rvals[] = {
   { EHT_TID_LINK_MAP_REQ, EHT_TID_LINK_MAP_REQ,
@@ -15611,8 +15745,14 @@ static const range_string protected_eht_action_rvals[] = {
   { EHT_EPCS_PRIO_ACCESS_TEAR_DOWN, EHT_EPCS_PRIO_ACCESS_TEAR_DOWN,
         "EHT EPCS Priority Access Teardown" },
   { EHT_EML_OP_MODE_NOTIFICATION, EHT_EML_OP_MODE_NOTIFICATION,
-        "EHT EML operating mode notification" },
-  { EHT_EML_OP_MODE_NOTIFICATION + 1, 255, "Reserved" },
+        "EHT EML Operating Mode Notification" },
+  { EHT_LINK_RECOMMENDATION, EHT_LINK_RECOMMENDATION,
+        "EHT Link Recommendation" },
+  { EHT_MULTI_LINK_OP_UPDATE_REQ, EHT_MULTI_LINK_OP_UPDATE_REQ,
+        "EHT Multi-Link Operation Update Request" },
+  { EHT_MULTI_LINK_OP_UPDATE_RESP, EHT_MULTI_LINK_OP_UPDATE_RESP,
+        "EHT Multi-Link Operation Update Response" },
+  { EHT_MULTI_LINK_OP_UPDATE_RESP + 1, 255, "Reserved" },
   { 0, 0, NULL }
 };
 
@@ -16317,30 +16457,1355 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   guint start = offset;
   guint8 protected_eht_action;
   proto_item *item;
-  proto_tree *subtree;
+  int len = 0;
+  guint16 status;
+  gboolean invalid = FALSE;
+  /* Default Extension Element is Multi-Link */
+  guint8 ext_ids[1] = {ETAG_MULTI_LINK};
 
   offset += add_ff_category_code(tree, tvb, pinfo, offset);
 
   protected_eht_action = tvb_get_guint8(tvb, offset);
 
-  item = proto_tree_add_item(tree, hf_ieee80211_ff_protected_eht_action, tvb, offset,
-        1, ENC_NA);
+  item = proto_tree_add_item(tree, hf_ieee80211_ff_protected_eht_action, tvb,
+                             offset, 1, ENC_NA);
   offset += 1;
 
-  subtree = proto_item_add_subtree(item, ett_ff_protected_eht_action);
-
   switch (protected_eht_action) {
-  case EHT_EML_OP_MODE_NOTIFICATION:
-    offset += add_ff_dialog_token(subtree, tvb, pinfo, offset);
-    offset += dissect_eht_eml_control_field(tvb, pinfo, subtree, offset);
-    break;
+  case EHT_TID_LINK_MAP_REQ:
+    ext_ids[0] = ETAG_TID_TO_LINK_MAPPING;
+    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
 
+    /*
+     * Next contains one or two TID-To-Link mappings. We have to look into
+     * the elements to verify them because we don't have the length of this
+     * element and there might be other IEs after us.
+     */
+    if (tvb_captured_length_remaining(tvb, offset) >= 2) {
+      len = tvb_get_guint8(tvb, offset + 1);
+    } else {
+      invalid = TRUE;
+    }
+    if (!invalid && (len >= 1) &&
+        (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
+         0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0)) {
+      offset += len + 2;
+    } else {
+      invalid = TRUE;
+    }
+    if (invalid) {
+      proto_tree_add_expert_format(item, pinfo,
+                                   &ei_ieee80211_eht_invalid_action,
+                                   tvb, offset, 1,
+                                   "Invalid TID_TO_LINK_MAPPING_REQUEST. "
+                                   "There should be one or two Tid-To-Link IEs "
+                                   "but none found");
+      break;
+    }
+
+    len = 0;
+    if (tvb_captured_length_remaining(tvb, offset) >= 2) {
+      len = tvb_get_guint8(tvb, offset + 1);
+    }
+    if ((len >= 1) &&
+        (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
+         0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0)) {
+      offset += len + 2;
+    }
+    break;
+  case EHT_TID_LINK_MAP_RESP:
+    ext_ids[0] = ETAG_TID_TO_LINK_MAPPING;
+    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+
+    status = tvb_get_ntohs(tvb, offset);
+    offset += add_ff_status_code(tree, tvb, pinfo, offset);
+    if (status == 134) {
+      /* There should be one or two TID-To-Link mappings. */
+      if (tvb_captured_length_remaining(tvb, offset) >= 2) {
+        len = tvb_get_guint8(tvb, offset + 1);
+      } else {
+        invalid = TRUE;
+      }
+      if (!invalid && (len >= 1) &&
+          (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
+           0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0)) {
+        offset += len + 2;
+      } else {
+        invalid = TRUE;
+      }
+      if (invalid) {
+        proto_tree_add_expert_format(item, pinfo,
+                                     &ei_ieee80211_eht_invalid_action,
+                                     tvb, offset, 1,
+                                     "Invalid TID_TO_LINK_MAPPING_RESPONSE. "
+                                     "There should be one or two Tid-To-Link IEs "
+                                     "but none found");
+        break;
+      }
+
+      len = 0;
+      if (tvb_captured_length_remaining(tvb, offset) >= 2) {
+        len = tvb_get_guint8(tvb, offset + 1);
+      }
+      if ((len >= 1) &&
+          (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
+           0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0)) {
+        offset += len + 2;
+      }
+    }
+    break;
+  case EHT_TID_LINK_MAP_TEAR_DOWN:
+    /* Seems to be nothing to do here */
+    break;
+  case EHT_EPCS_PRIO_ACCESS_REQ:
+    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+    if (tvb_captured_length_remaining(tvb, offset) >= 2) {
+      len = tvb_get_guint8(tvb, offset + 1);
+      if (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
+          0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0) {
+        offset += len + 2;
+      }
+    }
+    break;
+  case EHT_EPCS_PRIO_ACCESS_RESP:
+    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+    offset += add_ff_status_code(tree, tvb, pinfo, offset);
+    if (tvb_captured_length_remaining(tvb, offset) >= 2) {
+      len = tvb_get_guint8(tvb, offset + 1);
+      if (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
+          0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0) {
+        offset += len + 2;
+      }
+    }
+    break;
+  case EHT_EPCS_PRIO_ACCESS_TEAR_DOWN:
+    break;
+  case EHT_EML_OP_MODE_NOTIFICATION:
+    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+    offset += dissect_eht_eml_control_field(tree, tvb, pinfo, offset);
+    break;
+  case EHT_LINK_RECOMMENDATION:
+    offset += add_ff_reason_code(tree, tvb, pinfo, offset);
+    if (tvb_captured_length_remaining(tvb, offset) >= 2) {
+      len = tvb_get_guint8(tvb, offset + 1);
+    } else {
+      invalid = TRUE;
+    }
+    ext_ids[0] = ETAG_AID_BITMAP;
+    if (!invalid && (len >= 1) &&
+        (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
+         0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0)) {
+      offset += len + 2;
+    } else {
+      invalid = TRUE;
+    }
+    if (invalid) {
+      proto_tree_add_expert_format(item, pinfo,
+                                   &ei_ieee80211_eht_invalid_action,
+                                   tvb, offset, 1,
+                                   "Invalid LINK_RECOMMENDATION. "
+                                   "There should be AID_BITMAP element"
+                                   "but none found");
+      break;
+    }
+
+    invalid = FALSE;
+    if (tvb_captured_length_remaining(tvb, offset) >= 2) {
+      len = tvb_get_guint8(tvb, offset + 1);
+    } else {
+      invalid = TRUE;
+    }
+    ext_ids[0] = ETAG_MULTI_LINK_TRAFFIC;
+    if (!invalid && (len >= 1) &&
+        (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
+         0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0)) {
+      offset += len + 2;
+    } else {
+      invalid = TRUE;
+    }
+    if (invalid) {
+      proto_tree_add_expert_format(item, pinfo,
+                                   &ei_ieee80211_eht_invalid_action,
+                                   tvb, offset, 1,
+                                   "Invalid LINK_RECOMMENDATION. "
+                                   "There should be MULTI_LINK_TRAFFIC element"
+                                   "but none found");
+      break;
+    }
+    break;
+  case EHT_MULTI_LINK_OP_UPDATE_REQ:
+    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+    if (tvb_captured_length_remaining(tvb, offset) >= 2) {
+      len = tvb_get_guint8(tvb, offset + 1);
+    } else {
+      invalid = TRUE;
+    }
+    if (!invalid && (len >= 1) &&
+        (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
+         0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0)) {
+      offset += len + 2;
+    } else {
+      invalid = TRUE;
+    }
+    if (invalid) {
+      proto_tree_add_expert_format(item, pinfo,
+                                   &ei_ieee80211_eht_invalid_action,
+                                   tvb, offset, 1,
+                                   "Invalid Multi-Link Operation Update Request. "
+                                   "There should be Reconf Multi-Link element"
+                                   "but none found");
+      break;
+    }
+    break;
+  case EHT_MULTI_LINK_OP_UPDATE_RESP:
+    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+    offset += add_ff_status_code(tree, tvb, pinfo, offset);
+    break;
   default:
+    proto_tree_add_expert_format(item, pinfo, &ei_ieee80211_eht_invalid_action,
+                                 tvb, offset, 1,
+                                 "Reserved Protected EHT Action %u",
+                                 protected_eht_action);
+
     break;
   }
 
   return offset - start;
 }
+
+/*
+ * Structure for handling the EHT scidx info. Allows for a compact
+ * representation.
+ */
+struct scidx_part {
+  guint start_val;      /* What we start at                 */
+  gboolean use_ng;      /* Should we use Ng or the inc next */
+  guint inc;            /* The increment when not using Ng  */
+  guint stop_val;       /* When we should stop              */
+  gboolean last_ent;    /* This is the last one in the list */
+};
+
+struct scidx_ctx {
+  guint8 ru_index;
+  struct scidx_part *scidx_array;
+  guint8 ng;
+  gboolean just_inited;
+  guint last_val;
+};
+
+static struct scidx_part ru_242_tone_1_20MHz_ng4[] = {
+  { -122, FALSE, 2, -120, FALSE },
+  { -120, TRUE,  0,   -4, FALSE },
+  {   -2, FALSE, 4,    2, FALSE },
+  {    4, TRUE,  0,  120, FALSE },
+  {  120, FALSE, 2,  122, TRUE  }
+};
+
+static struct scidx_part ru_242_tone_1_20MHz_ng16[] = {
+  { -122, FALSE,  6, -116, FALSE },
+  { -116, TRUE,   0,   -4, FALSE },
+  {   -2, FALSE,  4,    2, FALSE },
+  {    4, TRUE,   0,  116, FALSE },
+  {  116, FALSE,  6,  122, TRUE  }
+};
+
+/* Here, there is one per RU index */
+/*Start, UseNg, Inc,End, last */
+static struct scidx_part ru_242_tone_40MHz[] = {
+  { -244, TRUE, 0,   -4, TRUE },
+  {    4, TRUE, 0,  244, TRUE }
+};
+
+static struct scidx_part ru_242_tone_80MHz[] = {
+  { -500, TRUE, 0, -260, TRUE },
+  { -252, TRUE, 0,  -12, TRUE },
+  {   12, TRUE, 0,  252, TRUE },
+  {  260, TRUE, 0,  500, TRUE }
+};
+
+static struct scidx_part ru_242_tone_160MHz[] = {
+  { -1012, TRUE, 0, -772, TRUE },
+  {  -764, TRUE, 0, -524, TRUE },
+  {  -500, TRUE, 0, -260, TRUE },
+  {  -252, TRUE, 0,  -12, TRUE },
+  {    12, TRUE, 0,  252, TRUE },
+  {   260, TRUE, 0,  500, TRUE },
+  {   524, TRUE, 0,  764, TRUE },
+  {   772, TRUE, 0, 1012, TRUE }
+};
+
+static struct scidx_part ru_242_tone_320MHz[] = {
+  { -2036, TRUE, 0, -1796, TRUE },
+  { -1788, TRUE, 0, -1548, TRUE },
+  { -1524, TRUE, 0, -1284, TRUE },
+  { -1276, TRUE, 0, -1036, TRUE },
+  { -1012, TRUE, 0,  -772, TRUE },
+  {  -764, TRUE, 0,  -524, TRUE },
+  {  -500, TRUE, 0,  -260, TRUE },
+  {  -252, TRUE, 0,   -12, TRUE },
+  {    12, TRUE, 0,   252, TRUE },
+  {   260, TRUE, 0,   500, TRUE },
+  {   524, TRUE, 0,   764, TRUE },
+  {   772, TRUE, 0,  1012, TRUE },
+  {  1036, TRUE, 0,  1276, TRUE },
+  {  1284, TRUE, 0,  1524, TRUE },
+  {  1548, TRUE, 0,  1788, TRUE },
+  {  1796, TRUE, 0,  2036, TRUE }
+};
+
+/* All these ru_96 tone sets for NG=4 go in pairs. */
+static struct scidx_part ru_996_tone_80MHz_ng4[] = {
+  { -500, FALSE, 4,  -4, FALSE },
+  {    4, FALSE, 4, 500, TRUE }
+};
+
+static struct scidx_part ru_996_tone_80MHz_ng16[] = {
+  { -500,  TRUE, 0, -260, FALSE },
+  { -252,  TRUE, 0,  -12, FALSE },
+  {   -4, FALSE, 8,    4, FALSE },
+  {   12,  TRUE, 0,  252, FALSE },
+  {  260,  TRUE, 0,  500,  TRUE }
+};
+
+static struct scidx_part ru_996_tone_160MHz_ng4[] = {
+  { -1012, TRUE, 0, -516, FALSE },
+  {  -508, TRUE, 0,  -12,  TRUE },
+
+  {    12, TRUE, 0,  508, FALSE },
+  {   516, TRUE, 0, 1012,  TRUE }
+};
+
+static struct scidx_part ru_996_tone_160MHz_ng16[] = {
+  { -1012,  TRUE, 0, -772, FALSE },
+  {  -764,  TRUE, 0, -524, FALSE },
+  {  -516, FALSE, 8, -508, FALSE },
+  {  -500,  TRUE, 0, -260, FALSE },
+  {  -252,  TRUE, 0, -12 ,  TRUE },
+
+  {    12,  TRUE, 0,  252, FALSE },
+  {   260,  TRUE, 0,  500, FALSE },
+  {   508, FALSE, 8,  516, FALSE },
+  {   524,  TRUE, 0,  764, FALSE },
+  {   772,  TRUE, 0, 1012,  TRUE }
+};
+
+static struct scidx_part ru_996_tone_320MHz_ng4[] = {
+  { -2036,  TRUE, 0, -1540, FALSE },
+  { -1532,  TRUE, 0, -1036,  TRUE },
+
+  { -1012,  TRUE, 0,  -516, FALSE },
+  {  -508,  TRUE, 0,   -12,  TRUE },
+
+  {    12,  TRUE, 0,   508, FALSE },
+  {   516,  TRUE, 0,  1012,  TRUE },
+
+  {  1036,  TRUE, 0,  1532, FALSE },
+  {  1540,  TRUE, 0,  2036,  TRUE }
+};
+
+static struct scidx_part ru_996_tone_320MHz_ng16[] = {
+  { -2036,  TRUE, 0, -1796, FALSE },
+  { -1788,  TRUE, 0, -1548, FALSE },
+  { -1540, FALSE, 8, -1532, FALSE },
+  { -1524,  TRUE, 0, -1284, FALSE },
+  { -1276,  TRUE, 0, -1036,  TRUE },
+
+  { -1012,  TRUE, 0,  -772, FALSE },
+  {  -764,  TRUE, 0,  -524, FALSE },
+  {  -516, FALSE, 8,  -508, FALSE },
+  {  -500,  TRUE, 0,  -260, FALSE },
+  {  -252,  TRUE, 0,   -12,  TRUE },
+
+  {    12,  TRUE, 0,   252, FALSE },
+  {   260,  TRUE, 0,   500, FALSE },
+  {   508, FALSE, 8,   516, FALSE },
+  {   524,  TRUE, 0,   764, FALSE },
+  {   772,  TRUE, 0,  1012,  TRUE },
+
+  {  1036,  TRUE, 0,  1276, FALSE },
+  {  1284,  TRUE, 0,  1524, FALSE },
+  {  1532, FALSE, 8,  1540, FALSE },
+  {  1548,  TRUE, 0,  1788, FALSE },
+  {  1796,  TRUE, 0,  2036,  TRUE }
+};
+
+
+static void
+init_eht_scidx(struct scidx_ctx *ctx, guint8 ru_index,
+               struct scidx_part *scidx_array, guint8 ng)
+{
+  ctx->ru_index = ru_index;
+  ctx->scidx_array = scidx_array;
+  ctx->ng = ng;
+  ctx->just_inited = TRUE;
+}
+
+/* What about the special 20MHz ones? */
+/* Figure out the next SCIDX */
+static gboolean
+next_eht_scidx(struct scidx_ctx *ctx, int *scidx)
+{
+  if (ctx->just_inited) {
+    ctx->last_val = ctx->scidx_array->start_val;
+    ctx->just_inited = FALSE;
+    *scidx = ctx->last_val;
+    return TRUE;
+  }
+
+  /* Move to the next val ... but check if it is a short seg first */
+  if (ctx->last_val == ctx->scidx_array->stop_val) {
+    if (ctx->scidx_array->last_ent) {
+        return FALSE;
+    } else {
+        /* Pretend like we just started again */
+        /* Also, note that the arrays need to be set up correctly */
+        ctx->scidx_array++;
+        if (ctx->last_val == ctx->scidx_array->start_val) {
+          if (ctx->scidx_array->use_ng) {
+            ctx->last_val += ctx->ng;
+          } else {
+            ctx->last_val += ctx->scidx_array->inc;
+          }
+        } else {
+          ctx->last_val = ctx->scidx_array->start_val;
+        }
+        *scidx = ctx->last_val;
+        return TRUE;
+    }
+  }
+
+  /*
+   * If the increment is not ng, then handle that.
+   */
+  if (ctx->scidx_array->use_ng) {
+    ctx->last_val += ctx->ng;
+  } else {
+    ctx->last_val += ctx->scidx_array->inc;
+  }
+  *scidx = ctx->last_val;
+
+  return TRUE;
+}
+
+static int
+add_ff_eht_mu_exclusive_20MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
+                                  int offset, guint8 nc_index,
+                                  guint8 grouping, guint16 partial_bw_info _U_)
+{
+  int start_offset = offset;
+  guint scidx;
+  struct scidx_ctx scidx_ctx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+  guint ss = 0, get_snr = 1;
+  gint8 snr, value;
+
+  if (ng == 4) {
+    init_eht_scidx(&scidx_ctx, 1, &ru_242_tone_1_20MHz_ng4[0], ng);
+  } else {
+    init_eht_scidx(&scidx_ctx, 1, &ru_242_tone_1_20MHz_ng16[0], ng);
+  }
+
+  ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                                                &ruii,
+                                                "RU Index %d for 20MHz, Partial BW "
+                                                "not all one.", 1);
+  while (next_eht_scidx(&scidx_ctx, &scidx)) {
+    for (ss = 1; ss <= nc_index; ss++) {
+      if (get_snr) {
+        snr = tvb_get_gint8(tvb, offset);
+        offset += 1;
+        value = snr & 0x0f;
+        get_snr = 0;
+      } else {
+        value = snr >> 4;
+        get_snr = 1;
+      }
+      proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                ss, scidx, value);
+    }
+  }
+  proto_item_set_len(ruii, offset - start_offset);
+  return offset - start_offset;
+}
+
+static int
+add_ff_eht_mu_exclusive_40MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
+                                  int offset, guint8 nc_index,
+                                  guint8 grouping, guint16 partial_bw_info)
+{
+  int start_offset = offset;
+  int i = 0;
+  struct scidx_ctx scidx_ctx;
+  guint scidx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+  guint ss = 0, get_snr = 1;
+  gint8 snr, value;
+
+  /* Add each of the RU index groups set */
+  for (i = 1; i <= 2; i++) {
+    int tree_offset = offset;
+    if ((partial_bw_info & (1 << i)) == 0x0) {
+      continue;  /* Only dissect those with the bit set */
+    }
+
+    init_eht_scidx(&scidx_ctx, i, &ru_242_tone_40MHz[i - 1], ng);
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "RU Index %d for 40MHz, Partial BW "
+                                                  "not all one.", i);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      for (ss = 1; ss <= nc_index; ss++) {
+        if (get_snr) {
+          snr = tvb_get_gint8(tvb, offset);
+          offset += 1;
+          value = snr & 0x0f;
+          get_snr = 0;
+        } else {
+          value = snr >> 4;
+          get_snr = 1;
+        }
+        proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                  tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                  ss, scidx, value);
+      }
+    }
+    proto_item_set_len(ruii, offset - tree_offset);
+  }
+
+  return offset - start_offset;
+}
+
+static int
+add_ff_eht_mu_exclusive_80MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
+                                  int offset, guint8 nc_index,
+                                  guint8 grouping, guint16 partial_bw_info)
+{
+  int start_offset = offset;
+  int i = 0;
+  struct scidx_ctx scidx_ctx;
+  guint scidx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+  guint ss = 0, get_snr = 1;
+  gint8 snr, value;
+
+  if (partial_bw_info == 0x1E) { /* Uses 996-tone RU indices */
+    if (ng == 4) {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_80MHz_ng4[0], ng);
+    } else {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_80MHz_ng16[0], ng);
+    }
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "996-tone RU Index %d for 80MHz", 1);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      for (ss = 1; ss <= nc_index; ss++) {
+        if (get_snr) {
+          snr = tvb_get_gint8(tvb, offset);
+          offset += 1;
+          value = snr & 0x0f;
+          get_snr = 0;
+        } else {
+          value = snr >> 4;
+          get_snr = 1;
+        }
+        proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                  tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                  ss, scidx, value);
+      }
+    }
+    proto_item_set_len(ruii, offset - start_offset);
+
+    return offset - start_offset;
+  }
+
+  /* Add each of the RU index groups */
+  for (i = 1; i <= 4; i++) {
+    int tree_offset = offset;
+    if ((partial_bw_info & (1 << i)) == 0x0) {
+      continue;  /* Only dissect those with the bit set */
+    }
+
+    init_eht_scidx(&scidx_ctx, i, &ru_242_tone_80MHz[i - 1], ng);
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "RU Index %d for 80MHz, Partial BW "
+                                                  "not all one.", i);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      for (ss = 1; ss <= nc_index; ss++) {
+        if (get_snr) {
+          snr = tvb_get_gint8(tvb, offset);
+          offset += 1;
+          value = snr & 0x0f;
+          get_snr = 0;
+        } else {
+          value = snr >> 4;
+          get_snr = 1;
+        }
+        proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                  tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                  ss, scidx, value);
+      }
+    }
+    proto_item_set_len(ruii, offset - tree_offset);
+  }
+
+  return offset - start_offset;
+}
+
+static int
+add_ff_eht_mu_exclusive_160MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
+                                   int offset, guint8 nc_index,
+                                   guint8 grouping, guint16 partial_bw_info)
+{
+  int start_offset = offset;
+  int tree_offset;
+  int i = 0;
+  struct scidx_ctx scidx_ctx;
+  guint scidx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+  guint ss = 0, get_snr = 1;
+  gint8 snr, value;
+
+  /* Is the first lot a 996-tone RU? */
+  if ((partial_bw_info & 0x1E) == 0x1E) { /* Uses 996-tone RU indices */
+    tree_offset = offset;
+    if (ng == 4) {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_160MHz_ng4[0], ng);
+    } else {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_160MHz_ng16[0], ng);
+    }
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "996-tone RU Index %d for 160MHz", 1);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      for (ss = 1; ss <= nc_index; ss++) {
+        if (get_snr) {
+          snr = tvb_get_gint8(tvb, offset);
+          offset += 1;
+          value = snr & 0x0f;
+          get_snr = 0;
+        } else {
+          value = snr >> 4;
+          get_snr = 1;
+        }
+        proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                  tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                  ss, scidx, value);
+      }
+    }
+    proto_item_set_len(ruii, offset - tree_offset);
+  } else {
+    /* Add each of the RU index groups for the lower 80MHz */
+    for (i = 1; i <= 4; i++) {
+      if ((partial_bw_info & (1 << i)) == 0x0) {
+        continue;  /* Only dissect those with the bit set */
+      }
+
+      tree_offset = offset;
+      init_eht_scidx(&scidx_ctx, i, &ru_242_tone_160MHz[i - 1], ng);
+      ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                    ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                                                    &ruii,
+                                                    "RU Index %d for 160MHz, Partial BW "
+                                                    "not all one, lower 80MHz.", i);
+      while (next_eht_scidx(&scidx_ctx, &scidx)) {
+        for (ss = 1; ss <= nc_index; ss++) {
+          if (get_snr) {
+            snr = tvb_get_gint8(tvb, offset);
+            offset += 1;
+            value = snr & 0x0f;
+            get_snr = 0;
+          } else {
+            value = snr >> 4;
+            get_snr = 1;
+          }
+          proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                    tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                    ss, scidx, value);
+        }
+      }
+      proto_item_set_len(ruii, offset - tree_offset);
+    }
+  }
+
+  /* Is the second lot a 996-tone RU? */
+  get_snr = 1;
+  if ((partial_bw_info & 0x1E0) == 0x1E0) { /* Uses 996-tone RU indices */
+    tree_offset = offset;
+    if (ng == 4) {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_160MHz_ng4[2], ng);
+    } else {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_160MHz_ng16[5], ng);
+    }
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "996-tone RU Index %d for 160MHz", 2);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      for (ss = 1; ss <= nc_index; ss++) {
+        if (get_snr) {
+          snr = tvb_get_gint8(tvb, offset);
+          offset += 1;
+          value = snr & 0x0f;
+          get_snr = 0;
+        } else {
+          value = snr >> 4;
+          get_snr = 1;
+        }
+        proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                  tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                  ss, scidx, value);
+      }
+    }
+    proto_item_set_len(ruii, offset - tree_offset);
+  } else {
+    /* Add each of the RU index groups for the lower 80MHz */
+    for (i = 5; i <= 8; i++) {
+      if ((partial_bw_info & (1 << i)) == 0x0) {
+        continue;  /* Only dissect those with the bit set */
+      }
+
+      tree_offset = offset;
+      init_eht_scidx(&scidx_ctx, i, &ru_242_tone_160MHz[i - 1], ng);
+      ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                    ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                                                    &ruii,
+                                                    "RU Index %d for 160MHz, Partial BW "
+                                                    "not all one, upper 80MHz.", i);
+      while (next_eht_scidx(&scidx_ctx, &scidx)) {
+        for (ss = 1; ss <= nc_index; ss++) {
+          if (get_snr) {
+            snr = tvb_get_gint8(tvb, offset);
+            offset += 1;
+            value = snr & 0x0f;
+            get_snr = 0;
+          } else {
+            value = snr >> 4;
+            get_snr = 1;
+          }
+          proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                    tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                    ss, scidx, value);
+        }
+      }
+      proto_item_set_len(ruii, offset - tree_offset);
+    }
+  }
+
+  return offset - start_offset;
+}
+
+static int
+add_ff_eht_mu_exclusive_320MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
+                                   int offset, guint8 nc_index,
+                                   guint8 grouping, guint16 partial_bw_info)
+{
+  int start_offset = offset;
+  int tree_offset = offset;
+  int i = 0, j = 0, k = 0;
+  struct scidx_ctx scidx_ctx;
+  guint scidx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+  guint ss = 0, get_snr = 1;
+  gint8 snr, value;
+
+  for ( i = 0; i < 4; i++) {
+    if (((partial_bw_info >> (2*i+1)) & 0x03) == 0x03) { /* Uses 996-tone RU indices */
+      if (ng == 4) {
+        init_eht_scidx(&scidx_ctx, i+1, &ru_996_tone_320MHz_ng4[i * 2], ng);
+      } else {
+        init_eht_scidx(&scidx_ctx, i+1, &ru_996_tone_320MHz_ng16[i * 5], ng);
+      }
+      ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                    ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                                                    &ruii,
+                                                    "996-tone RU Index %d for 320MHz",
+                                                    i+1);
+      tree_offset = offset;
+      while (next_eht_scidx(&scidx_ctx, &scidx)) {
+        for (ss = 1; ss <= nc_index; ss++) {
+          if (get_snr) {
+            snr = tvb_get_gint8(tvb, offset);
+            offset += 1;
+            value = snr & 0x0f;
+            get_snr = 0;
+          } else {
+            value = snr >> 4;
+            get_snr = 1;
+          }
+          proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                    tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                    ss, scidx, value);
+        }
+      }
+      proto_item_set_len(ruii, offset - tree_offset);
+    } else {
+      for (j = 2*i; j <= 2*i+1; j++) {
+        if ((partial_bw_info & (1 << (j+1))) == 0x0) {
+          continue;  /* Only dissect those with the bit set */
+        }
+        /* Each 484-tone RU contains two 242-tone RUs */
+        for (k = 2*j;k <= 2*j+1;k++) {
+          init_eht_scidx(&scidx_ctx, k+1, &ru_242_tone_320MHz[k], ng);
+          ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                            ett_eht_mu_exclusive_beamforming_rpt_ru_index,
+                            &ruii,
+                            "RU Index %d for 320MHz, Partial BW "
+                            "not all one.", k+1);
+          tree_offset = offset;
+          while (next_eht_scidx(&scidx_ctx, &scidx)) {
+            for (ss = 1; ss <= nc_index; ss++) {
+              if (get_snr) {
+                snr = tvb_get_gint8(tvb, offset);
+                offset += 1;
+                value = snr & 0x0f;
+                get_snr = 0;
+              } else {
+                value = snr >> 4;
+                get_snr = 1;
+              }
+              proto_tree_add_int_format(ru_index_tree, hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+                                        tvb, offset, 1, value, "Delta SNR for Stream %d for subcarrier %u: %d dB",
+                                        ss, scidx, value);
+            }
+          }
+          proto_item_set_len(ruii, offset - tree_offset);
+        }
+      }
+    }
+  }
+
+  return offset - start_offset;
+}
+
+static guint
+add_ff_eht_mu_exclusive_beamforming_rpt(proto_tree *tree, tvbuff_t *tvb,
+                                        packet_info *pinfo, int offset,
+                                        guint64 mimo_control)
+{
+  guint8 nc_index = mimo_control & 0x0F;
+  guint8 bw = (mimo_control >> 8) & 0x07;
+  guint8 grouping = (mimo_control >> 11) & 0x01;
+  guint16 partial_bw_info = (mimo_control >> 21) & 0x01FF;
+  proto_tree *exclusive_tree = NULL;
+  proto_item *fti = NULL;
+  guint start_offset = offset;
+  guint tree_len = 0, byte_count = 0;
+
+  exclusive_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+                     ett_ff_eht_mimo_mu_exclusive_report, &fti,
+                     "EHT MU Exclusive Beamforming Report");
+
+  switch (bw) {
+  case 0: /*  20 MHz */
+    tree_len = add_ff_eht_mu_exclusive_20MHz_rpt(exclusive_tree, tvb, pinfo, offset,
+                                                 nc_index, grouping, partial_bw_info);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  case 1: /*  40 MHz */
+    tree_len = add_ff_eht_mu_exclusive_40MHz_rpt(exclusive_tree, tvb, pinfo, offset,
+                                                 nc_index, grouping, partial_bw_info);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  case 2: /*  80 MHz */
+    tree_len = add_ff_eht_mu_exclusive_80MHz_rpt(exclusive_tree, tvb, pinfo, offset,
+                                                 nc_index, grouping, partial_bw_info);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  case 3: /* 160 MHz */
+    tree_len = add_ff_eht_mu_exclusive_160MHz_rpt(exclusive_tree, tvb, pinfo, offset,
+                                                  nc_index, grouping, partial_bw_info);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  case 4: /* 320 MHz */
+    tree_len = add_ff_eht_mu_exclusive_320MHz_rpt(exclusive_tree, tvb, pinfo, offset,
+                                                  nc_index, grouping, partial_bw_info);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  default:
+    /* Add EI about invalid BW setting */
+    break;
+  }
+
+  byte_count = tvb_reported_length_remaining(tvb, offset);
+  if (byte_count > 0)
+    offset += byte_count; /* Should fix the real problem. */
+
+  return offset - start_offset;
+}
+
+static int
+add_ff_eht_su_20MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                        int offset, guint8 nc_index, guint8 nr_index,
+                        guint8 grouping, guint16 partial_bw_info _U_,
+                        guint8 phi_bits, guint8 psi_bits)
+{
+  int start_offset = offset;
+  guint scidx;
+  struct scidx_ctx scidx_ctx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  guint bit_offset = offset * 8;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+
+  if (ng == 4) {
+    init_eht_scidx(&scidx_ctx, 1, &ru_242_tone_1_20MHz_ng4[0], ng);
+  } else {
+    init_eht_scidx(&scidx_ctx, 1, &ru_242_tone_1_20MHz_ng16[0], ng);
+  }
+
+  ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                ett_eht_beamforming_rpt_ru_index,
+                                                &ruii,
+                                                "RU Index %d for 20MHz, Partial BW "
+                                                "not all one.", 1);
+  while (next_eht_scidx(&scidx_ctx, &scidx)) {
+    bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo, offset,
+                                            bit_offset, scidx, nr_index + 1,
+                                            nc_index + 1, phi_bits, psi_bits,
+                                            hf_ieee80211_eht_compressed_beamform_scidx);
+    offset = bit_offset / 8;
+  }
+  proto_item_set_len(ruii, offset - start_offset);
+
+  return offset - start_offset;
+}
+
+static int
+add_ff_eht_su_40MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                        int offset, guint8 nc_index, guint8 nr_index,
+                        guint8 grouping, guint16 partial_bw_info,
+                        guint8 phi_bits, guint8 psi_bits)
+{
+  int start_offset = offset;
+  int i = 0;
+  struct scidx_ctx scidx_ctx;
+  guint scidx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  guint bit_offset = offset * 8;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+
+  /* Add each of the RU index groups set */
+  for (i = 1; i <= 2; i++) {
+    int tree_offset = offset;
+    if ((partial_bw_info & (1 << i)) == 0x0) {
+      continue;  /* Only dissect those with the bit set */
+    }
+
+    init_eht_scidx(&scidx_ctx, i, &ru_242_tone_40MHz[i - 1], ng);
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "RU Index %d for 40MHz, Partial BW "
+                                                  "not all one.", i);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo, offset,
+                                              bit_offset, scidx, nr_index + 1,
+                                              nc_index + 1, phi_bits, psi_bits,
+                                              hf_ieee80211_eht_compressed_beamform_scidx);
+      offset = bit_offset / 8;
+    }
+    proto_item_set_len(ruii, offset - tree_offset);
+  }
+
+  return offset - start_offset;
+}
+
+static int
+add_ff_eht_su_80MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                        int offset, guint8 nc_index, guint8 nr_index,
+                        guint8 grouping, guint16 partial_bw_info,
+                        guint8 phi_bits, guint8 psi_bits)
+{
+  int start_offset = offset;
+  int i = 0;
+  struct scidx_ctx scidx_ctx;
+  guint scidx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  guint bit_offset = offset * 8;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+
+  if (partial_bw_info == 0x1E) { /* Uses 996-tone RU indices */
+    if (ng == 4) {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_80MHz_ng4[0], ng);
+    } else {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_80MHz_ng16[0], ng);
+    }
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "996-tone RU Index %d for 80MHz", 1);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo, offset,
+                                              bit_offset, scidx, nr_index + 1,
+                                              nc_index + 1, phi_bits, psi_bits,
+                                              hf_ieee80211_eht_compressed_beamform_scidx);
+      offset = bit_offset / 8;
+    }
+    proto_item_set_len(ruii, offset - start_offset);
+
+    return offset - start_offset;
+  }
+
+  /* Add each of the RU index groups */
+  for (i = 1; i <= 4; i++) {
+    int tree_offset = offset;
+    if ((partial_bw_info & (1 << i)) == 0x0) {
+      continue;  /* Only dissect those with the bit set */
+    }
+
+    init_eht_scidx(&scidx_ctx, i, &ru_242_tone_80MHz[i - 1], ng);
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "RU Index %d for 80MHz, Partial BW "
+                                                  "not all one.", i);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo, offset,
+                                              bit_offset, scidx, nr_index + 1,
+                                              nc_index + 1, phi_bits, psi_bits,
+                                              hf_ieee80211_eht_compressed_beamform_scidx);
+      offset = bit_offset / 8;
+    }
+    proto_item_set_len(ruii, offset - tree_offset);
+  }
+
+  return offset - start_offset;
+}
+
+static int
+add_ff_eht_su_160MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                         int offset, guint8 nc_index, guint8 nr_index,
+                         guint8 grouping, guint16 partial_bw_info,
+                         guint8 phi_bits, guint8 psi_bits)
+{
+  int start_offset = offset;
+  int tree_offset;
+  int i = 0;
+  struct scidx_ctx scidx_ctx;
+  guint scidx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  guint bit_offset = offset * 8;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+
+  /* Is the first lot a 996-tone RU? */
+  if ((partial_bw_info & 0x1E) == 0x1E) { /* Uses 996-tone RU indices */
+    tree_offset = offset;
+    if (ng == 4) {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_160MHz_ng4[0], ng);
+    } else {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_160MHz_ng16[0], ng);
+    }
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "996-tone RU Index %d for 160MHz", 1);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo, offset,
+                                              bit_offset, scidx, nr_index + 1,
+                                              nc_index + 1, phi_bits, psi_bits,
+                                              hf_ieee80211_eht_compressed_beamform_scidx);
+      offset = bit_offset / 8;
+    }
+    proto_item_set_len(ruii, offset - tree_offset);
+  } else {
+    /* Add each of the RU index groups for the lower 80MHz */
+    for (i = 1; i <= 4; i++) {
+      if ((partial_bw_info & (1 << i)) == 0x0) {
+        continue;  /* Only dissect those with the bit set */
+      }
+
+      tree_offset = offset;
+      init_eht_scidx(&scidx_ctx, i, &ru_242_tone_160MHz[i - 1], ng);
+      ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                    ett_eht_beamforming_rpt_ru_index,
+                                                    &ruii,
+                                                    "RU Index %d for 160MHz, Partial BW "
+                                                    "not all one, lower 80MHz.", i);
+      while (next_eht_scidx(&scidx_ctx, &scidx)) {
+        bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo,
+                                                offset, bit_offset, scidx,
+                                                nr_index + 1, nc_index + 1,
+                                                phi_bits, psi_bits,
+                                                hf_ieee80211_eht_compressed_beamform_scidx);
+        offset = bit_offset / 8;
+      }
+      proto_item_set_len(ruii, offset - tree_offset);
+    }
+  }
+
+  /* Is the second lot a 996-tone RU? */
+  if ((partial_bw_info & 0x1E0) == 0x1E0) { /* Uses 996-tone RU indices */
+    tree_offset = offset;
+    if (ng == 4) {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_160MHz_ng4[2], ng);
+    } else {
+      init_eht_scidx(&scidx_ctx, i, &ru_996_tone_160MHz_ng16[5], ng);
+    }
+    ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                  ett_eht_beamforming_rpt_ru_index,
+                                                  &ruii,
+                                                  "996-tone RU Index %d for 160MHz", 2);
+    while (next_eht_scidx(&scidx_ctx, &scidx)) {
+      bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo, offset,
+                                              bit_offset, scidx, nr_index + 1,
+                                              nc_index + 1, phi_bits, psi_bits,
+                                              hf_ieee80211_eht_compressed_beamform_scidx);
+      offset = bit_offset / 8;
+    }
+    proto_item_set_len(ruii, offset - tree_offset);
+  } else {
+    /* Add each of the RU index groups for the lower 80MHz */
+    for (i = 5; i <= 8; i++) {
+      if ((partial_bw_info & (1 << i)) == 0x0) {
+        continue;  /* Only dissect those with the bit set */
+      }
+
+      tree_offset = offset;
+      init_eht_scidx(&scidx_ctx, i, &ru_242_tone_160MHz[i - 1], ng);
+      ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                    ett_eht_beamforming_rpt_ru_index,
+                                                    &ruii,
+                                                    "RU Index %d for 160MHz, Partial BW "
+                                                    "not all one, upper 80MHz.", i);
+      while (next_eht_scidx(&scidx_ctx, &scidx)) {
+        bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo,
+                                                offset, bit_offset, scidx,
+                                                nr_index + 1, nc_index + 1,
+                                                phi_bits, psi_bits,
+                                                hf_ieee80211_eht_compressed_beamform_scidx);
+        offset = bit_offset / 8;
+      }
+      proto_item_set_len(ruii, offset - tree_offset);
+    }
+  }
+
+  return offset - start_offset;
+}
+
+static int
+add_ff_eht_su_320MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                         int offset, guint8 nc_index, guint8 nr_index,
+                         guint8 grouping, guint16 partial_bw_info,
+                         guint8 phi_bits, guint8 psi_bits)
+{
+  int start_offset = offset;
+  int tree_offset = offset;
+  int i = 0, j = 0, k = 0;
+  struct scidx_ctx scidx_ctx;
+  guint scidx;
+  guint8 ng = grouping == 0 ? 4 : 16;
+  guint bit_offset = offset * 8;
+  proto_tree *ru_index_tree = NULL;
+  proto_item *ruii = NULL;
+
+  /* Resolution is 40 MHz */
+  for (i = 0; i < 4; i++) {
+    if (((partial_bw_info >> (2*i+1)) & 0x03) == 0x03) { /* Uses 996-tone RU indices */
+      if (ng == 4) {
+        init_eht_scidx(&scidx_ctx, i+1, &ru_996_tone_320MHz_ng4[i * 2], ng);
+      } else {
+        init_eht_scidx(&scidx_ctx, i+1, &ru_996_tone_320MHz_ng16[i * 5], ng);
+      }
+      ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                    ett_eht_beamforming_rpt_ru_index,
+                                                    &ruii,
+                                                    "996-tone RU Index %d for 320MHz",
+                                                    i+1);
+      tree_offset = offset;
+      while (next_eht_scidx(&scidx_ctx, &scidx)) {
+        bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo,
+                                                offset, bit_offset, scidx,
+                                                nr_index + 1, nc_index + 1,
+                                                phi_bits, psi_bits,
+                                                hf_ieee80211_eht_compressed_beamform_scidx);
+        offset = bit_offset / 8;
+      }
+      proto_item_set_len(ruii, offset - tree_offset);
+    } else {
+      for (j = 2*i; j <= 2*i+1; j++) {
+        if ((partial_bw_info & (1 << (j+1))) == 0x0) {
+          continue;  /* Only dissect those with the bit set */
+        }
+        /* Each 484-tone RU contains two 242-tone RUs */
+        for (k = 2*j;k <= 2*j+1;k++) {
+          init_eht_scidx(&scidx_ctx, k+1, &ru_242_tone_320MHz[k], ng);
+          ru_index_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                            ett_eht_beamforming_rpt_ru_index,
+                            &ruii,
+                            "RU Index %d for 320MHz, Partial BW "
+                            "not all one.", k+1);
+          tree_offset = offset;
+          while (next_eht_scidx(&scidx_ctx, &scidx)) {
+            bit_offset = dissect_he_feedback_matrix(ru_index_tree, tvb, pinfo, offset,
+                           bit_offset, scidx, nr_index + 1,
+                           nc_index + 1, phi_bits, psi_bits,
+                           hf_ieee80211_eht_compressed_beamform_scidx);
+            offset = bit_offset / 8;
+          }
+          proto_item_set_len(ruii, offset - tree_offset);
+        }
+      }
+    }
+  }
+
+  return offset - start_offset;
+}
+
+static guint
+add_ff_eht_su_beamforming_rpt(proto_tree *tree, tvbuff_t *tvb,
+                              packet_info *pinfo, int offset,
+                              guint64 mimo_control)
+{
+  guint8 nc_index = mimo_control & 0x0F;
+  guint8 nr_index = (mimo_control >> 4) & 0x0F;
+  guint8 bw = (mimo_control >> 8) & 0x07;
+  guint8 grouping = (mimo_control >> 11) & 0x01;
+  guint16 partial_bw_info = (mimo_control >> 21) & 0x01FF;
+  guint8 codebook_info = (mimo_control >> 36) & 0x01;
+  proto_tree *snr_tree = NULL, *feedback_tree = NULL;
+  proto_item *fti = NULL;
+  guint8 i = 0, phi_bits, psi_bits;
+  guint start_offset = offset;
+  guint tree_len = 0, byte_count = 0;
+
+  snr_tree = proto_tree_add_subtree(tree, tvb, offset, nc_index + 1,
+               ett_ff_eht_mimo_beamforming_report_snr, NULL,
+               "Average Signal to Noise Ratio");
+
+  for (i = 0; i < nc_index + 1; i++) {
+    gint8 snr = tvb_get_gint8(tvb, offset);
+
+    proto_tree_add_int_format(snr_tree,
+      hf_ieee80211_eht_compressed_beamforming_report_snr, tvb, offset, 1,
+      snr, "Stream %d: %s%0.2fdB (0x%02x)", i,
+      (snr == 127 ? ">=" : (snr == -128 ? "<=" : "")),
+      (float)((float)88 + snr)/4, (guint8)snr);
+    offset++;
+  }
+
+  if (codebook_info == 0) {
+    phi_bits = 4; psi_bits = 2;
+  } else {
+    phi_bits = 6, psi_bits = 4;
+  }
+
+  feedback_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                         ett_eht_beamforming_feedback_tree,
+                                         &fti, "Feedback Matrices");
+  switch (bw) {
+  case 0: /*  20 MHz */
+    tree_len = add_ff_eht_su_20MHz_rpt(feedback_tree, tvb, pinfo, offset,
+                                       nc_index, nr_index, grouping,
+                                       partial_bw_info, phi_bits, psi_bits);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  case 1: /*  40 MHz */
+    tree_len = add_ff_eht_su_40MHz_rpt(feedback_tree, tvb, pinfo, offset,
+                                       nc_index, nr_index, grouping,
+                                       partial_bw_info, phi_bits, psi_bits);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  case 2: /*  80 MHz */
+    tree_len = add_ff_eht_su_80MHz_rpt(feedback_tree, tvb, pinfo, offset,
+                                       nc_index, nr_index, grouping,
+                                       partial_bw_info, phi_bits, psi_bits);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  case 3: /* 160 MHz */
+    tree_len = add_ff_eht_su_160MHz_rpt(feedback_tree, tvb, pinfo, offset,
+                                        nc_index, nr_index, grouping,
+                                        partial_bw_info, phi_bits, psi_bits);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  case 4: /* 320 MHz */
+    tree_len = add_ff_eht_su_320MHz_rpt(feedback_tree, tvb, pinfo, offset,
+                                        nc_index, nr_index, grouping,
+                                        partial_bw_info, phi_bits, psi_bits);
+    proto_item_set_len(fti, tree_len);
+    offset += tree_len;
+    break;
+  default:
+    /* Add EI about invalid BW setting */
+    break;
+  }
+
+  byte_count = tvb_reported_length_remaining(tvb, offset);
+  if (byte_count > 0)
+    offset += byte_count; /* Should fix the real problem. */
+
+  return offset - start_offset;
+}
+
+static const val64_string eht_mimo_bw_vals[] = {
+  { 0, "20 MHz" },
+  { 1, "40 MHz" },
+  { 2, "80 MHz" },
+  { 3, "160 MHz" },
+  { 4, "320 MHz" },
+  { 5, "Reserved" },
+  { 6, "Reserved" },
+  { 7, "Reserved" },
+  { 0, NULL }
+};
+
+static const val64_string eht_mimo_grouping_vals[] = {
+  { 0, "Ng = 4" },
+  { 1, "Ng = 16" },
+  { 0, NULL }
+};
+
+static const val64_string eht_feedback_type_vals[] = {
+  { 0, "SU" },
+  { 1, "MU" },
+  { 2, "CQI" },
+  { 3, "Reserved" },
+  { 0, NULL }
+};
+
+static int * const eht_mimo_ctrl_hdrs[] = {
+  &hf_ieee80211_eht_mimo_ctrl_nc_index,
+  &hf_ieee80211_eht_mimo_ctrl_nr_index,
+  &hf_ieee80211_eht_mimo_ctrl_bw,
+  &hf_ieee80211_eht_mimo_ctrl_grouping,
+  &hf_ieee80211_eht_mimo_ctrl_feedback_type,
+  &hf_ieee80211_eht_mimo_ctrl_reserved1,
+  &hf_ieee80211_eht_mimo_ctrl_remaining_feedback_segments,
+  &hf_ieee80211_eht_mimo_ctrl_first_feedback_segment,
+  &hf_ieee80211_eht_mimo_ctrl_partial_bw_info,
+  &hf_ieee80211_eht_mimo_ctrl_sounding_dialog_token_number,
+  &hf_ieee80211_eht_mimo_ctrl_codebook_info,
+  &hf_ieee80211_eht_mimo_ctrl_reserved2,
+  NULL
+};
 
 static guint
 add_ff_eht_mimo_control_etc(proto_tree *tree _U_, tvbuff_t *tvb _U_,
@@ -16348,6 +17813,54 @@ add_ff_eht_mimo_control_etc(proto_tree *tree _U_, tvbuff_t *tvb _U_,
                             int offset _U_)
 {
   guint start = offset;
+  guint64 mimo_control = tvb_get_guint40(tvb, offset, ENC_LITTLE_ENDIAN);
+  guint8 feedback_type = (mimo_control >> 12) & 0x03;
+  guint8 nc_index = mimo_control & 0x0F;
+  guint8 nr_index = (mimo_control >> 4) & 0x0F;
+  proto_item *mci = NULL;
+
+  mci = proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                          hf_ieee80211_eht_mimo_ctrl_field,
+                                          ett_eht_mimo_ctrl, eht_mimo_ctrl_hdrs,
+                                          ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+
+  /*
+   * Validate nc_index and nr_index and go no further if they exceed the
+   * limits.
+   *
+   * 802.11be D3.0
+   */
+  if (nc_index > 7) {
+    proto_tree_add_expert_format(mci, pinfo, &ei_ieee80211_eht_invalid_nc_nr,
+                                 tvb, offset, 1, "Nc indices (%d) > 7 are "
+                                 "reserved", nc_index);
+    return offset;
+  }
+  if (nr_index == 0 || nr_index > 7) {
+    proto_tree_add_expert_format(mci, pinfo, &ei_ieee80211_eht_invalid_nc_nr,
+                                 tvb, offset, 1, "Nr indices (%d) 0 and > 7 "
+                                 "are resered", nr_index);
+    return offset;
+  }
+  offset += 5;
+
+  switch (feedback_type) {
+  case SU_FEEDBACK:
+    offset += add_ff_eht_su_beamforming_rpt(tree, tvb, pinfo, offset,
+                                            mimo_control);
+    break;
+  case MU_FEEDBACK:
+    offset += add_ff_eht_su_beamforming_rpt(tree, tvb, pinfo, offset,
+                                            mimo_control);
+    offset += add_ff_eht_mu_exclusive_beamforming_rpt(tree, tvb, pinfo, offset,
+                                                      mimo_control);
+    break;
+  case CQI_FEEDBACK:
+    /* TODO */
+    break;
+  default:
+    break;
+  }
 
   return offset - start;
 }
@@ -55695,21 +57208,62 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_eml_control_field,
      {"EML Control Field", "wlan.eht.eml_control",
-      FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_eml_emlsr_mode,
+    {&hf_ieee80211_eht_eml_control_emlsr_mode,
      {"EMLSR Mode", "wlan.eht.eml_control.emlsr_mode",
       FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_eml_emlmr_mode,
+    {&hf_ieee80211_eht_eml_control_emlmr_mode,
      {"EMLMR Mode", "wlan.eht.eml_control.emlmr_mode",
       FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_eml_link_bitmap,
-     {"Link bitmap", "wlan.eht.eml_control.link_bitmap",
+    {&hf_ieee80211_eht_eml_control_emlsr_para_update_control,
+     {"EMLSR Parameter Update Control", "wlan.eht.eml_control.emlsr_para_update_control",
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_eml_control_reserved,
+     {"Reserved", "wlan.eht.eml_control.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_eml_control_link_bitmap,
+     {"Link Bitmap", "wlan.eht.eml_control.link_bitmap",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-          {&hf_ieee80211_eht_multi_link_control,
+    {&hf_ieee80211_eht_eml_control_link_enable_id,
+     {"Enable Link ID",
+       "wlan.eht.eml_control.link_map.enable_id",
+       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_eml_control_mcs_map_count,
+     {"MCS Map Count Control", "wlan.eht.eml_control.mcs_map_count",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_eml_control_mcs_map_count_bw,
+     {"MCS Map Count Control BW", "wlan.eht.eml_control.mcs_map_count.bw",
+      FT_UINT8, BASE_HEX, VALS(eht_eml_control_mcs_map_count_bw), 0x03, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_eml_control_mcs_map_count_reserved,
+     {"Reserved", "wlan.eht.eml_control.mcs_map_count.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_emlsr_para_update,
+     {"EMLSR Parameter Update", "wlan.eht.emlsr_parameter_update",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_emlsr_para_update_padding_delay,
+     {"EMLSR Padding Delay", "wlan.eht.emlsr_parameter_update.padding_delay",
+      FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_emlsr_para_update_tran_delay,
+     {"EMLSR Transition Delay", "wlan.eht.emlsr_parameter_update.transition_delay",
+      FT_UINT8, BASE_HEX, NULL, 0x38, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_emlsr_para_update_reserved,
+     {"Reserved", "wlan.eht.emlsr_parameter_update.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xc0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control,
      {"Multi-Link Control", "wlan.eht.multi_link_control",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
@@ -56889,6 +58443,74 @@ proto_register_ieee80211(void)
       "wlan.eht.bw_indication.disabled_subchannel_bitmap",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_mimo_ctrl_field,
+     {"EHT MIMO Control", "wlan.eht.mimo.control",
+      FT_UINT40, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_nc_index,
+     {"Nc Index", "wlan.eht.mimo.control.nc_index",
+      FT_UINT40, BASE_DEC, NULL, 0x000000000F, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_nr_index,
+     {"Nr Index", "wlan.eht.mimo.control.nr_index",
+      FT_UINT40, BASE_DEC, NULL, 0x00000000F0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_bw,
+     {"BW", "wlan.eht.mimo.control.bw",
+      FT_UINT40, BASE_DEC|BASE_VAL64_STRING, VALS64(eht_mimo_bw_vals),
+      0x0000000700, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_grouping,
+     {"Grouping", "wlan.eht.mimo.control.grouping",
+      FT_UINT40, BASE_DEC|BASE_VAL64_STRING, VALS64(eht_mimo_grouping_vals),
+      0x0000000800, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_feedback_type,
+     {"Feedback Type", "wlan.eht.mimo.control.feedback_type",
+      FT_UINT40, BASE_DEC|BASE_VAL64_STRING, VALS64(eht_feedback_type_vals),
+      0x0000003000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_reserved1,
+     {"Reserved", "wlan.eht.mimo.control.reserved1",
+      FT_UINT40, BASE_HEX, NULL, 0x000001C000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_remaining_feedback_segments,
+     {"Remaining Feedback Segments",
+      "wlan.eht.mimo.control.remaining_feedback_segments",
+      FT_UINT40, BASE_DEC, NULL, 0x00000E0000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_first_feedback_segment,
+     {"First Feedback Segment", "wlan.eht.mimo.control.first_feedback_segment",
+      FT_UINT40, BASE_DEC, NULL, 0x0000100000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_partial_bw_info,
+     {"Partial BW Info", "wlan.eht.mimo.control.partial_bw_info",
+      FT_UINT40, BASE_HEX, NULL, 0x003FE00000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_sounding_dialog_token_number,
+     {"Sounding Dialog Token Number",
+      "wlan.eht.mimo.control.soounding_dialog_token_number",
+      FT_UINT40, BASE_DEC, NULL, 0x0FC0000000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_codebook_info,
+     {"Codebook Information", "wlan.eht.mimo.control.codebook_info",
+      FT_UINT40, BASE_DEC, NULL, 0x1000000000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mimo_ctrl_reserved2,
+     {"Reserved", "wlan.eht.mimo.control.reserved2",
+      FT_UINT40, BASE_HEX, NULL, 0xE000000000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_compressed_beamforming_report_snr,
+     {"AgvSNR", "wlan.eht.mimo.beamforming_report.avgsnr",
+      FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_compressed_beamform_scidx,
+     {"SCIDX", "wlan.eht.mimo.beamforming_report.scidx",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
+     {"Delta SNR", "wlan.eht.mu.exclusive_beamforming_report.delta_snr",
+      FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -57123,6 +58745,7 @@ proto_register_ieee80211(void)
     &ett_pasn_comeback_tree,
     &ett_pasn_auth_frame,
 
+    /* 802.11be tree */
     &ett_eht_multi_link_control,
     &ett_eht_multi_link_common_info,
     &ett_eht_multi_link_common_info_link_id,
@@ -57154,6 +58777,16 @@ proto_register_ieee80211(void)
     &ett_eht_qos_characteristics,
     &ett_eht_aid_bmapctl_tree,
     &ett_eht_bw_indication_param,
+    &ett_eht_eml_control,
+    &ett_eht_eml_control_link_map,
+    &ett_eht_eml_control_mcs_map_count,
+    &ett_eht_emlsr_para_update,
+    &ett_eht_mimo_ctrl,
+    &ett_eht_beamforming_rpt_ru_index,
+    &ett_eht_beamforming_feedback_tree,
+    &ett_ff_eht_mimo_beamforming_report_snr,
+    &ett_ff_eht_mimo_mu_exclusive_report,
+    &ett_eht_mu_exclusive_beamforming_rpt_ru_index,
 
     &ett_tag_measure_request_mode_tree,
     &ett_tag_measure_request_type_tree,
@@ -57424,9 +59057,6 @@ proto_register_ieee80211(void)
 
     &ett_ff_fils_discovery_frame_control,
     &ett_ff_fils_discovery_capability,
-
-    /* 802.11be tree */
-    &ett_eht_eml_control,
   };
 
   static ei_register_info ei[] = {
@@ -57649,6 +59279,9 @@ proto_register_ieee80211(void)
       { "wlan.eht.invalid_multi_link", PI_PROTOCOL, PI_ERROR,
          "Invalid EHT Multi-Link element", EXPFILL }},
 
+     {&ei_ieee80211_eht_invalid_nc_nr,
+       { "wlan.eht.invalid_nc_nr", PI_PROTOCOL, PI_WARN,
+         "Invalid NR or NC in EHT MIMO Control", EXPFILL }},
   };
 
   expert_module_t *expert_ieee80211;
