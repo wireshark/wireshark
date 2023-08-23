@@ -31,6 +31,7 @@ public:
 private slots:
     void on_launchActivated();
     void on_saveActivated();
+    void on_resetActivated();
     void on_browseKeylogPath();
     void on_browseBrowserPath();
 
