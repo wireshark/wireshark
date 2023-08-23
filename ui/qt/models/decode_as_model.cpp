@@ -462,7 +462,8 @@ bool DecodeAsModel::removeRows(int row, int count, const QModelIndex &/*parent*/
         return false;
 
     beginRemoveRows(QModelIndex(), row, row);
-    decode_as_items_.removeAt(row);
+    DecodeAsItem* item = decode_as_items_.takeAt(row);
+    delete item;
     endRemoveRows();
 
     return true;
