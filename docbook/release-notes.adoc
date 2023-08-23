@@ -293,6 +293,7 @@ Windows Delivery Optimization (MS-DO)
 Z21 LAN Protocol (Z21)
 Zabbix
 Zigbee TLV
+ZigBee Direct (ZBD)
 --
 
 === Updated Protocol Support

@@ -660,6 +660,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-yppasswd.h
 	packet-ypserv.h
 	packet-ypxfr.h
+	packet-zbee-direct.h
 	packet-zbee.h
 	packet-zbee-aps.h
 	packet-zbee-nwk.h
@@ -2100,6 +2101,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-z21.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-z3950.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zabbix.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-direct.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-aps.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-nwk.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-nwk-gp.c
