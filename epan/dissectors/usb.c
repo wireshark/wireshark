@@ -80,7 +80,7 @@ static const value_string usb_vendors_vals[] = {
     { 0x03fb, "OPTi, Inc." },
     { 0x03fc, "Elitegroup Computer Systems" },
     { 0x03fd, "Xilinx, Inc." },
-    { 0x03fe, "Farallon Comunications" },
+    { 0x03fe, "Farallon Communications" },
     { 0x0400, "National Semiconductor Corp." },
     { 0x0401, "National Registry, Inc." },
     { 0x0402, "ALi Corp." },

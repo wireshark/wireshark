@@ -13820,7 +13820,7 @@ static const value_string q708_ispc_operator_name[] = {
 	{ 15116, "Telefónica Móviles del Uruguay S.A." },
 	{ 15129, "Cable & Wireless" },
 	{ 15130, "Cable & Wireless" },
-	{ 15136, "TOP COMUNICATIONS ESTEGIA, C.A." },
+	{ 15136, "TOP COMMUNICATIONS ESTEGIA, C.A." },
 	{ 15216, "LIBRE TECNOLOGIAS S.A.S" },
 	{ 15217, "SETROC MOBILE GROUP SAS" },
 	{ 15218, "SETROC MOBILE GROUP SAS" },
