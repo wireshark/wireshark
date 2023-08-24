@@ -1726,7 +1726,7 @@ validate_single_byte_ascii_encoding(const guint encoding)
 	    case ENC_KEYPAD_BC_TBCD:
 	    case ENC_ETSI_TS_102_221_ANNEX_A:
 	    case ENC_APN_STR:
-		case ENC_DECT_STANDARD_4BITS_TBCD:
+	    case ENC_DECT_STANDARD_4BITS_TBCD:
 	    REPORT_DISSECTOR_BUG("Invalid string encoding type passed to tvb_get_string_XXX");
 	    break;
 	    default:
