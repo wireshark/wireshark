@@ -147,6 +147,26 @@ static int hf_rdp_serverMsgChannelData = -1;
 static int hf_rdp_serverMultiTransportData = -1;
 static int hf_rdp_serverUnknownData = -1;
 
+static int hf_rdp_rdstls_version = -1;
+static int hf_rdp_rdstls_pduType = -1;
+static int hf_rdp_rdstls_dataTypeCapabilities = -1;
+static int hf_rdp_rdstls_supportedVersions = -1;
+static int hf_rdp_rdstls_dataTypeAuthReq = -1;
+static int hf_rdp_rdstls_redirectionGuidLen = -1;
+static int hf_rdp_rdstls_redirectionGuid = -1;
+static int hf_rdp_rdstls_usernameLen = -1;
+static int hf_rdp_rdstls_username = -1;
+static int hf_rdp_rdstls_domainLen = -1;
+static int hf_rdp_rdstls_domain = -1;
+static int hf_rdp_rdstls_passwordLen = -1;
+static int hf_rdp_rdstls_password = -1;
+static int hf_rdp_rdstls_sessionId = -1;
+static int hf_rdp_rdstls_autoReconnectCookieLen = -1;
+static int hf_rdp_rdstls_autoReconnectCookie = -1;
+static int hf_rdp_rdstls_dataTypeAuthResp = -1;
+static int hf_rdp_rdstls_resultCode = -1;
+
+
 static int hf_rdp_securityExchangePDU = -1;
 static int hf_rdp_clientInfoPDU = -1;
 static int hf_rdp_validClientLicenseData = -1;
@@ -791,6 +811,33 @@ typedef struct rdp_field_info_t {
 #define FI_SUBTREE(_hf_, _len_, _ett_, _sf_) { _hf_, _len_, NULL, _ett_, RDP_FI_SUBTREE, _sf_ }
 #define FI_TERMINATOR {NULL, 0, NULL, 0, 0, NULL}
 
+static const value_string rdp_rdstls_pduTypes_vals[] = {
+  { 0x0001, "RDSTLS capabilities" },
+  { 0x0002, "RDSTLS authReq" },
+  { 0x0004, "RDSTLS authResp" },
+  { 0, NULL }
+};
+
+static const value_string rdp_rdstls_authDataTypes_vals[] = {
+  { 0x0001, "PASSWORD_CREDS" },
+  { 0x0002, "AUTORECONNECT_COOKIE" },
+  { 0x0003, "FEDAUTH_TOKEN"},
+  { 0x0004, "LogonCert" },
+  { 0, NULL }
+};
+
+static const value_string rdp_rdstls_result_vals[] = {
+  { 0x00000000, "Success" },
+  { 0x00000005, "Access denied" },
+  { 0x0000052e, "Logon failure"},
+  { 0x00000530, "Invalid logon hours" },
+  { 0x00000532, "Password expired" },
+  { 0x00000533, "Account disabled" },
+  { 0x00000773, "Password must change" },
+  { 0x00000775, "Account locked out" },
+  { 0, NULL }
+};
+
 static const value_string rdp_headerType_vals[] = {
   { CS_CORE,           "clientCoreData" },
   { CS_SECURITY,       "clientSecurityData" },
@@ -850,11 +897,12 @@ static const value_string rdp_connectionType_vals[] = {
 };
 
 static const value_string rdp_selectedProtocol_vals[] = {
-  {   0x0, "Standard RDP Security" },
-  {   0x1, "TLS 1.0, 1.1 or 1.2" },
-  {   0x2, "CredSSP" },
-  {   0x4, "RDSTLS protocol" },
-  {   0x8, "CredSSP with Early User Authorization Result PDU" },
+  {   0x00, "Standard RDP Security" },
+  {   0x01, "TLS 1.0, 1.1 or 1.2" },
+  {   0x02, "CredSSP" },
+  {   0x04, "RDSTLS protocol" },
+  {   0x08, "CredSSP with Early User Authorization Result PDU" },
+  {   0x10, "RDS AAD Auth security" },
   {   0x0, NULL},
 };
 
@@ -1268,6 +1316,7 @@ rdp_get_conversation_data(packet_info *pinfo)
     rdp_info->encryptionLevel  = 0;
     rdp_info->licenseAgreed    = 0;
     rdp_info->maxChannels      = 0;
+    rdp_info->isRdstls         = FALSE;
     memset(&rdp_info->serverAddr, 0, sizeof(rdp_info->serverAddr));
 
     conversation_add_proto_data(conversation, proto_rdp, rdp_info);
@@ -2968,6 +3017,7 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
 static int
 dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   guint32 length;
+  guint32 selectedProto;
   proto_item *length_item;
   static int * const flag_bits[] = {
     &hf_rdp_negRsp_flag_extended_client_data_supported,
@@ -2991,7 +3041,14 @@ dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     expert_add_info_format(pinfo, length_item, &ei_rdp_neg_len_invalid, "RDP Negotiate Response length is %u, not 8", length);
     return offset;
   }
-  proto_tree_add_item(tree, hf_rdp_selectedProtocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_rdp_selectedProtocol, tvb, offset, 4, ENC_LITTLE_ENDIAN, &selectedProto);
+  if (selectedProto == 0x00000004) {
+	  /* if it's RDSTLS auth then mark it as such so that we can try decoding RDSTLS
+	   * packets in the heuristic
+	   */
+	  rdp_conv_info_t *info = rdp_get_conversation_data(pinfo);
+	  info->isRdstls = true;
+  }
   offset += 4;
   return offset;
 }
@@ -3333,13 +3390,150 @@ dissect_rdp_fastpath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 static gboolean
+dissect_rdp_rdstls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U_, void* data _U_)
+{
+	gint pdu_length = 6;
+	int datatype_hf;
+	guint32 cbRedirectionGuid = 0;
+	guint32 cbUsername = 0;
+	guint32 cbDomain = 0;
+	guint32 cbPassword = 0;
+	guint32 cbCookie = 0;
+
+	rdp_field_info_t passCred_fields[] = {
+		{&hf_rdp_rdstls_redirectionGuidLen, 2, &cbRedirectionGuid, 0, 0, NULL},
+		{&hf_rdp_rdstls_redirectionGuid,    0, &cbRedirectionGuid, 0, RDP_FI_STRING|RDP_FI_UNICODE, NULL },
+		{&hf_rdp_rdstls_usernameLen, 2, &cbUsername, 0, 0, NULL},
+		{&hf_rdp_rdstls_username,    0, &cbUsername, 0, RDP_FI_STRING|RDP_FI_UNICODE, NULL },
+		{&hf_rdp_rdstls_domainLen, 2, &cbDomain, 0, 0, NULL},
+		{&hf_rdp_rdstls_domain,    0, &cbDomain, 0, RDP_FI_STRING|RDP_FI_UNICODE, NULL },
+		{&hf_rdp_rdstls_passwordLen, 2, &cbPassword, 0, 0, NULL},
+		{&hf_rdp_rdstls_password,    0, &cbPassword, 0, 0, NULL },
+	};
+
+	rdp_field_info_t reconCookie_fields[] = {
+		{&hf_rdp_rdstls_sessionId, 4, NULL, 0, 0, NULL},
+		{&hf_rdp_rdstls_autoReconnectCookieLen, 2, &cbCookie, 0, 0, NULL},
+		{&hf_rdp_rdstls_autoReconnectCookie,    0, &cbCookie, 0, 0, NULL },
+	};
+	rdp_field_info_t *authReqFields = NULL;
+
+	/* this is called from heuristics so let's do some preliminary checks */
+	if (tvb_captured_length_remaining(tvb, 0) < 6)
+		return FALSE;
+
+	guint16 version = tvb_get_guint16(tvb, 0, ENC_LITTLE_ENDIAN);
+	if (version != 0x0001)
+		return FALSE;
+
+	guint16 pduType = tvb_get_guint16(tvb, 2, ENC_LITTLE_ENDIAN);
+	guint16 dataType = tvb_get_guint16(tvb, 4, ENC_LITTLE_ENDIAN);
+	switch (pduType) {
+	case 1:
+		/* capabilities */
+
+		if (dataType != 1)
+			return FALSE;
+
+		pdu_length += 2;
+		datatype_hf = hf_rdp_rdstls_dataTypeCapabilities;
+		break;
+	case 2: {
+		/* auth request */
+		guint nstrings;
+		gint tmpOffset = 6;
+
+		datatype_hf = hf_rdp_rdstls_dataTypeAuthReq;
+		switch (dataType) {
+		case 1:
+			/* Authentication Request PDU with Password Credentials */
+			nstrings = 4;
+			authReqFields = passCred_fields;
+			break;
+		case 2:
+			/* Authentication Request PDU with Auto-Reconnect Cookie */
+
+			/* SessionId */
+			if(tvb_captured_length_remaining(tvb, tmpOffset) < 4)
+				return FALSE;
+			tmpOffset += 4;
+
+			authReqFields = reconCookie_fields;
+			nstrings = 1;
+			break;
+		default:
+			return FALSE;
+		}
+
+		for (guint i = 0; i < nstrings; i++) {
+			if(tvb_captured_length_remaining(tvb, tmpOffset) < 2)
+				return FALSE;
+
+			guint tmpStringLength = tvb_get_guint16(tvb, tmpOffset, ENC_LITTLE_ENDIAN);
+			tmpOffset += 2;
+			if(tvb_captured_length_remaining(tvb, tmpOffset) < (gint)tmpStringLength)
+				return FALSE;
+
+			pdu_length += 2 + tmpStringLength;
+			tmpOffset += tmpStringLength;
+		}
+		break;
+	}
+	case 4:
+		/* RDSTLS Authentication Response PDU */
+		if (dataType != 1)
+			return FALSE;
+
+		pdu_length += 4;
+		datatype_hf = hf_rdp_rdstls_dataTypeAuthResp;
+		break;
+	default:
+		return FALSE;
+	}
+
+	proto_item *item = proto_tree_add_item(parent_tree, proto_rdp, tvb, 0, pdu_length, ENC_NA);
+	proto_item *tree = proto_item_add_subtree(item, ett_rdp);
+
+	proto_tree_add_item(tree, hf_rdp_rdstls_version, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_rdp_rdstls_pduType, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, datatype_hf, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+
+	gint offset = 6;
+	switch (pduType) {
+	case 1:
+		/* capabilities */
+		col_set_str(pinfo->cinfo, COL_INFO, "RDSTLS Capabilities");
+		proto_tree_add_item(tree, hf_rdp_rdstls_supportedVersions, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		break;
+	case 2:
+		/* auth req */
+		col_set_str(pinfo->cinfo, COL_INFO, "RDSTLS AuthReq");
+		dissect_rdp_fields(tvb, offset, pinfo, tree, authReqFields, pdu_length-6);
+		break;
+	case 4:
+		/* auth resp */
+		col_set_str(pinfo->cinfo, COL_INFO, "RDSTLS AuthResp");
+		proto_tree_add_item(tree, hf_rdp_rdstls_resultCode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		break;
+	}
+	return TRUE;
+}
+
+
+static gboolean
 dissect_rdp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
     heur_dtbl_entry_t *hdtbl_entry;
+    rdp_conv_info_t *info;
 
     if (dissector_try_heuristic(rdp_heur_subdissector_list, tvb, pinfo, parent_tree,
                                 &hdtbl_entry, NULL)) {
         return TRUE;
     }
+
+	info = rdp_get_conversation_data(pinfo);
+	if (info && info->isRdstls && dissect_rdp_rdstls(tvb, pinfo, parent_tree, NULL))
+		return TRUE;
+
     return dissect_rdp_fastpath(tvb, pinfo, parent_tree, NULL);
 }
 
@@ -3517,6 +3711,79 @@ proto_register_rdp(void) {
       { "serverMultiTransportData", "rdp.server.multiTransportData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+	{ &hf_rdp_rdstls_version,
+	  { "Version", "rdp.rdstls.version",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_pduType,
+	  { "Pdu type", "rdp.rdstls.pdutype",
+		FT_UINT16, BASE_HEX, VALS(rdp_rdstls_pduTypes_vals), 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_dataTypeCapabilities,
+	  { "Data type", "rdp.rdstls.datatype",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_supportedVersions,
+	  { "Supported versions", "rdp.rdstls.supportedversions",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_dataTypeAuthReq,
+	  { "Data type", "rdp.rdstls.datatype",
+		FT_UINT16, BASE_HEX, VALS(rdp_rdstls_authDataTypes_vals), 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_redirectionGuidLen,
+	  { "redirectionGUID length", "rdp.rdstls.redirectionguidlen",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_redirectionGuid,
+	  { "redirectionGUID", "rdp.rdstls.redirectionguid",
+		FT_STRINGZ, BASE_NONE, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_usernameLen,
+	  { "Username length", "rdp.rdstls.usernamelen",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_username,
+	  { "Username", "rdp.rdstls.username",
+		FT_STRINGZ, BASE_NONE, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_domainLen,
+	  { "Domain length", "rdp.rdstls.domainlen",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_domain,
+	  { "Domain", "rdp.rdstls.domain",
+		FT_STRINGZ, BASE_NONE, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_passwordLen,
+	  { "Password length", "rdp.rdstls.passwordlen",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_password,
+	  { "Password", "rdp.rdstls.password",
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_sessionId,
+	  { "SessionId", "rdp.rdstls.sessionid",
+		FT_UINT32, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_autoReconnectCookieLen,
+	  { "AutoReconnect cookie length", "rdp.rdstls.reconnectcookielen",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_autoReconnectCookie,
+	  { "AutoReconnect cookie", "rdp.rdstls.reconnectcookie",
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_dataTypeAuthResp,
+	  { "Data type", "rdp.rdstls.datatype",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_rdstls_resultCode,
+	  { "Result code", "rdp.rdstls.resultcode",
+		FT_UINT32, BASE_HEX, VALS(rdp_rdstls_result_vals), 0,
+		NULL, HFILL }},
+
     { &hf_rdp_serverUnknownData,
       { "serverUnknownData", "rdp.unknownData.server",
         FT_NONE, BASE_NONE, NULL, 0,

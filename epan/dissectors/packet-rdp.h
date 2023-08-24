@@ -49,6 +49,7 @@ typedef struct _rdp_conv_info_t {
   guint32 licenseAgreed;
   rdp_server_address_t serverAddr;
   guint8  maxChannels;
+  gboolean isRdstls;
   rdp_channel_def_t staticChannels[RDP_MAX_CHANNELS+1];
 } rdp_conv_info_t;
 
