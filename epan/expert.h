@@ -102,8 +102,9 @@ expert_update_comment_count(guint64 count);
         pi is supplied
  @param pi Current protocol item (or NULL)
  @param eiindex The registered expert info item
+ @return the newly created expert info tree
  */
-WS_DLL_PUBLIC void
+WS_DLL_PUBLIC proto_item *
 expert_add_info(packet_info *pinfo, proto_item *pi, expert_field *eiindex);
 
 /** Add an expert info.
@@ -114,8 +115,9 @@ expert_add_info(packet_info *pinfo, proto_item *pi, expert_field *eiindex);
  @param pi Current protocol item (or NULL)
  @param eiindex The registered expert info item
  @param format Printf-style format string for additional arguments
+ @return the newly created expert info tree
  */
-WS_DLL_PUBLIC void
+WS_DLL_PUBLIC proto_item *
 expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *eiindex,
                        const char *format, ...) G_GNUC_PRINTF(4, 5);
 

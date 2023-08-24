@@ -487,8 +487,9 @@ frame_add_comment(wtap_block_t block _U_, guint option_id, wtap_opttype_e option
 
 			comment_item = comments_tree;
 		}
-		expert_add_info_format(fr_user_data->pinfo, comment_item, &ei_comments_text,
+		hidden_item = expert_add_info_format(fr_user_data->pinfo, comment_item, &ei_comments_text,
 				"%s",  option->stringval);
+		proto_item_set_hidden(hidden_item);
 	}
 	fr_user_data->n_changes++;
 	return TRUE;

@@ -530,7 +530,7 @@ expert_create_tree(proto_item *pi, int group, int severity, const char *msg)
 	return proto_item_add_subtree(ti, ett_subexpert);
 }
 
-static void
+static proto_tree*
 expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int severity, int hf_index, gboolean use_vaformat,
 			const char *format, va_list ap)
 {
@@ -547,7 +547,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 
 	/* if this packet isn't loaded because of a read filter, don't output anything */
 	if (pinfo == NULL || pinfo->num == 0) {
-		return;
+		return NULL;
 	}
 
 	if (severity > highest_severity) {
@@ -603,7 +603,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	tap = have_tap_listener(expert_tap);
 
 	if (!tap)
-		return;
+		return tree;
 
 	ei = wmem_new(pinfo->pool, expert_info_t);
 
@@ -624,42 +624,49 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	}
 
 	tap_queue_packet(expert_tap, pinfo, ei);
+	return tree;
 }
 
 /* Helper function for expert_add_info() to work around compiler's special needs on ARM */
-static inline void
+static inline proto_tree*
 expert_add_info_internal(packet_info *pinfo, proto_item *pi, expert_field *expindex, ...)
 {
 	/* the va_list is ignored */
 	va_list            unused;
 	expert_field_info *eiinfo;
+	proto_tree        *tree;
 
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
 	va_start(unused, expindex);
-	expert_set_info_vformat(pinfo, pi, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, unused);
+	tree = expert_set_info_vformat(pinfo, pi, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, unused);
 	va_end(unused);
+	return tree;
 }
 
-void
+proto_item *
 expert_add_info(packet_info *pinfo, proto_item *pi, expert_field *expindex)
 {
-	expert_add_info_internal(pinfo, pi, expindex);
+	proto_tree        *tree;
+	tree = expert_add_info_internal(pinfo, pi, expindex);
+	return (proto_item *)tree;
 }
 
-void
+proto_item *
 expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *expindex, const char *format, ...)
 {
 	va_list            ap;
 	expert_field_info *eiinfo;
+	proto_tree        *tree;
 
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
 	va_start(ap, format);
-	expert_set_info_vformat(pinfo, pi, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, TRUE, format, ap);
+	tree = expert_set_info_vformat(pinfo, pi, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, TRUE, format, ap);
 	va_end(ap);
+	return (proto_item *)tree;
 }
 
 /* Helper function for expert_add_expert() to work around compiler's special needs on ARM */
