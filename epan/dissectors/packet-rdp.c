@@ -1334,7 +1334,8 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
   guint32           info_flags = 0;
   guint             encoding;
 
-  while (((c = fields++)->pfield) != NULL) {
+  for ( ; fields->pfield != NULL; fields++) {
+    c = fields;
     if ((c->fixedLength == 0) && (c->variableLength)) {
       len = *(c->variableLength);
     } else {
