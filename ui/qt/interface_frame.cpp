@@ -494,7 +494,9 @@ void InterfaceFrame::showRunOnFile(void)
 void InterfaceFrame::showContextMenu(QPoint pos)
 {
     QMenu * ctx_menu = new QMenu(this);
-    ctx_menu->setAttribute(Qt::WA_DeleteOnClose);
+    // Work around QTBUG-106718. For some reason Qt::WA_DeleteOnClose +
+    // Qt::QueuedConnection don't work here.
+    QObject::connect(ctx_menu, &QMenu::triggered, ctx_menu, &QMenu::deleteLater);
 
     ctx_menu->addAction(tr("Start capture"), this, [=] () {
         QStringList ifaces;
