@@ -47,13 +47,13 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
     ui->manufTableView->setContextMenuPolicy(Qt::ActionsContextMenu);
     ui->manufTableView->setColumnHidden(ManufTableModel::COL_SHORT_NAME, true);
 
-    QAction *select_action = new QAction(tr("Select all"));
-    connect(select_action, &QAction::triggered, ui->manufTableView, &QTableView::selectAll);
+    QAction *select_action = new QAction(tr("Select all"), ui->manufTableView);
     ui->manufTableView->addAction(select_action);
+    connect(select_action, &QAction::triggered, ui->manufTableView, &QTableView::selectAll);
 
-    QAction *copy_action = new QAction(tr("Copy"));
-    connect(copy_action, &QAction::triggered, this, &ManufDialog::copyToClipboard);
+    QAction *copy_action = new QAction(tr("Copy"), ui->manufTableView);
     ui->manufTableView->addAction(copy_action);
+    connect(copy_action, &QAction::triggered, this, &ManufDialog::copyToClipboard);
 
     QPushButton *find_button = ui->buttonBox->addButton(tr("Find"), QDialogButtonBox::ActionRole);
     find_button->setDefault(true);
