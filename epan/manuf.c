@@ -41,6 +41,12 @@ typedef struct {
 #include "manuf-data.c"
 
 static int
+compare_oui24_registry(const void *a, const void *b)
+{
+    return memcmp(a, ((const manuf_registry_t *)b)->oui24, 3);
+}
+
+static int
 compare_oui24_entry(const void *a, const void *b)
 {
     return memcmp(a, ((const manuf_oui24_t *)b)->oui24, 3);
@@ -69,7 +75,7 @@ select_registry(const uint8_t addr[6])
 {
     manuf_registry_t *entry;
 
-    entry = bsearch(addr, ieee_registry_table, G_N_ELEMENTS(ieee_registry_table), sizeof(manuf_registry_t), compare_oui24_entry);
+    entry = bsearch(addr, ieee_registry_table, G_N_ELEMENTS(ieee_registry_table), sizeof(manuf_registry_t), compare_oui24_registry);
     if (entry)
         return entry->kind;
     return MA_L;
