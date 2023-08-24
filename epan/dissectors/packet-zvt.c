@@ -558,10 +558,10 @@ static inline gint dissect_zvt_tlv_receipt_param(
 
 static inline gint dissect_zvt_tlv_characters_per_line(
         tvbuff_t *tvb, gint offset, gint len,
-        packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info _U_)
+        packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info _U_)
 {
-    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 1, NULL, FALSE);
-    proto_tree_add_string(tree, hf_zvt_characters_per_line, tvb, offset, 1, str);
+    proto_tree_add_item(tree, hf_zvt_characters_per_line, tvb, offset, 1,
+            ENC_BCD_DIGITS_0_9 | ENC_BIG_ENDIAN);
     return len;
 }
 
@@ -765,10 +765,10 @@ static inline gint dissect_zvt_card_type(
 
 
 static inline gint dissect_zvt_terminal_id(
-        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 4, NULL, FALSE);
-    proto_tree_add_string(tree, hf_zvt_terminal_id, tvb, offset, 4, str);
+    proto_tree_add_item(tree, hf_zvt_terminal_id, tvb, offset, 4,
+            ENC_BCD_DIGITS_0_9 | ENC_BIG_ENDIAN);
     return 4;
 }
 
@@ -834,22 +834,23 @@ static inline gint dissect_zvt_expiry_date(
 
 
 static inline gint dissect_zvt_trace_number(
-        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 3, NULL, FALSE);
-    proto_tree_add_string(tree, hf_zvt_trace_number, tvb, offset, 3, str);
+    proto_tree_add_item(tree, hf_zvt_trace_number, tvb, offset, 3,
+            ENC_BCD_DIGITS_0_9 | ENC_BIG_ENDIAN);
     return 3;
 }
 
 
 static inline gint dissect_zvt_card_number(
-        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     guint8 tens = tvb_get_guint8(tvb, offset) & 0x0f;
     guint8 ones = tvb_get_guint8(tvb, offset + 1) & 0x0f;
     guint8 length = tens * 10 + ones;
-    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset + 2, length, NULL, FALSE);
-    proto_tree_add_string(tree, hf_zvt_card_number, tvb, offset + 2, length, str);
+
+    proto_tree_add_item(tree, hf_zvt_card_number, tvb, offset + 2, length,
+            ENC_BCD_DIGITS_0_9 | ENC_BIG_ENDIAN);
     return 2 + length;
 }
 
