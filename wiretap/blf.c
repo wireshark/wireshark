@@ -2167,7 +2167,14 @@ blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint6
     ws_buffer_append(params->buf, tmpbuf, (gsize)16);
 
     /* We'll write this as a WS UPPER PDU packet with a data blob */
+    blf_lookup_interface(params, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_status_header.channel, ws_strdup_printf("ETH-%u", ethernet_status_header.channel));
     blf_init_rec(params, timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_status_header.channel, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
+
+    if ((ethernet_status_header.flags & BLF_ETH_STATUS_HARDWARECHANNEL) == BLF_ETH_STATUS_HARDWARECHANNEL) {
+        /* If HW channel valid */
+        wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethernet_status_header.hardwareChannel);
+    }
+
 
     return TRUE;
 }

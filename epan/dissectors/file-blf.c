@@ -319,6 +319,28 @@ static const value_string blf_eth_status_ethernetphy_vals[] = {
     { 0, NULL }
 };
 
+static const value_string blf_bustype_vals[] = {
+    { BLF_BUSTYPE_CAN,      "CAN" },
+    { BLF_BUSTYPE_LIN,      "LIN" },
+    { BLF_BUSTYPE_MOST,     "MOST"},
+    { BLF_BUSTYPE_FLEXRAY,  "FLEXRAY"},
+    { BLF_BUSTYPE_J1708,    "J1708"},
+    { BLF_BUSTYPE_ETHERNET, "ETHERNET"},
+    { BLF_BUSTYPE_WLAN,     "WLAN"},
+    { BLF_BUSTYPE_AFDX,     "AFDX"},
+
+    { 0, NULL }
+};
+
+#define BLF_BUSTYPE_CAN 1
+#define BLF_BUSTYPE_LIN 5
+#define BLF_BUSTYPE_MOST 6
+#define BLF_BUSTYPE_FLEXRAY 7
+#define BLF_BUSTYPE_J1708 9
+#define BLF_BUSTYPE_ETHERNET 11
+#define BLF_BUSTYPE_WLAN 13
+#define BLF_BUSTYPE_AFDX 14
+
 void proto_register_file_blf(void);
 void proto_reg_handoff_file_blf(void);
 static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset);
@@ -807,7 +829,8 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
     blf_tree = proto_item_add_subtree(ti, ett_blf);
 
     /* uint16_t channel {}; */
-    proto_tree_add_item(blf_tree, hf_blf_eth_status_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
+    uint32_t channel;
+    proto_tree_add_item_ret_uint(blf_tree, hf_blf_eth_status_channel, tvb, offset, 2, ENC_BIG_ENDIAN, &channel);
     offset += 2;
     /* uint16_t flags; */
     uint16_t flags = tvb_get_ntohs(tvb, offset);
@@ -820,7 +843,7 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
     if ((flags & BLF_ETH_STATUS_LINKSTATUS) == 0) {
         proto_item_append_text(ti, " - Invalid");
     } else {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(linkstatus, blf_eth_status_linkstatus_vals, "Unknown"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "ETH-%u %s",channel, val_to_str_const(linkstatus, blf_eth_status_linkstatus_vals, "Unknown"));
     }
     offset += 1;
     /* uint8_t ethernetPhy {};*/
@@ -861,9 +884,12 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
     }
     offset += 1;
     /* uint8_t hardwareChannel {};*/
-    ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_hardwarechannel, tvb, offset, 1, ENC_BIG_ENDIAN);
+    uint32_t hardwarechannel;
+    ti = proto_tree_add_item_ret_uint(blf_tree, hf_blf_eth_status_hardwarechannel, tvb, offset, 1, ENC_BIG_ENDIAN, &hardwarechannel);
     if ((flags & BLF_ETH_STATUS_HARDWARECHANNEL) == 0) {
         proto_item_append_text(ti, " - Invalid");
+    } else {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Hwchannel %u", hardwarechannel);
     }
     offset += 1;
     /* uint32_t bitrate {}; */
@@ -953,7 +979,7 @@ proto_register_file_blf(void) {
         { &hf_blf_app_text_channelno,
             { "Channel number", "blf.object.app_text.channelno", FT_UINT32, BASE_DEC, NULL, 0x0000ff00, NULL, HFILL }},
         { &hf_blf_app_text_busstype,
-            { "Bus type", "blf.object.app_text.bustype", FT_UINT32, BASE_DEC, NULL, 0x00ff0000, NULL, HFILL }},
+            { "Bus type", "blf.object.app_text.bustype", FT_UINT32, BASE_DEC, VALS(blf_bustype_vals), 0x00ff0000, NULL, HFILL}},
         { &hf_blf_app_text_can_fd_channel,
             { "CAN FD-Channel", "blf.object.app_text.can_fd_channel", FT_BOOLEAN, 32, NULL, 0x01000000, NULL, HFILL }},
         { &hf_blf_app_text_text,
