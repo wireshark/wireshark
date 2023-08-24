@@ -965,7 +965,7 @@ dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
      * The IMEI consists of 15 digits (see 3GPP TS 23.003).
      */
     ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
-    proto_tree_add_item(ie_tree, hf_bssap_imei, ie_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
+    proto_tree_add_item(ie_tree, hf_bssap_imei, ie_tvb, 0, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
     return offset + ie_len;
 
@@ -996,7 +996,7 @@ dissect_bssap_imeisv(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  The IMEISV consists of 16 digits (see 3GPP TS 23.003).
      */
     ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
-    proto_tree_add_item(ie_tree, hf_bssap_imeisv, ie_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
+    proto_tree_add_item(ie_tree, hf_bssap_imeisv, ie_tvb, 0, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
     return offset + ie_len;
 
@@ -1396,7 +1396,7 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     number_tvb = tvb_new_subset_length(tvb, offset, ie_len-1);
-    proto_tree_add_item(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
+    proto_tree_add_item(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
 
     return offset + ie_len-1;
@@ -1546,7 +1546,7 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     number_tvb = tvb_new_subset_length(tvb, offset, ie_len - 1);
-    proto_tree_add_item(ie_tree, hf_bssap_vlr_number, number_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
+    proto_tree_add_item(ie_tree, hf_bssap_vlr_number, number_tvb, 0, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
     return offset + ie_len - 1;
 

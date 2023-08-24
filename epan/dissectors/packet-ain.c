@@ -929,7 +929,7 @@ dissect_ain_AINDigits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
   proto_tree_add_item(subtree, hf_ain_numbering_plan, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(subtree, hf_ain_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
+  proto_tree_add_item(subtree, hf_ain_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
 
   return offset;
@@ -1530,7 +1530,7 @@ dissect_ain_CarrierFormat(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   proto_tree_add_item(subtree, hf_ain_nr_digits, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
 
   /* 2nd Digit 1st Digit .. */
-  proto_tree_add_item(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
+  proto_tree_add_item(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
 
   return offset;
@@ -3185,7 +3185,7 @@ dissect_ain_AMAslpID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
   subtree = proto_item_add_subtree(actx->created_item, ett_ain_amaslpid);
 
-  proto_tree_add_item(subtree, hf_ain_amaslpid, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_BCD_DIGITS_0_9);
+  proto_tree_add_item(subtree, hf_ain_amaslpid, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
 
   return offset;

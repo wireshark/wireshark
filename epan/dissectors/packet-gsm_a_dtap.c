@@ -1207,7 +1207,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
         curr_offset++;
         en_len--;
 
-        item = proto_tree_add_item_ret_display_string(subtree, hf_gsm_a_dtap_emergency_bcd_num, tvb, curr_offset, en_len, ENC_BCD_DIGITS_0_9, pinfo->pool, &digit_str);
+        item = proto_tree_add_item_ret_display_string(subtree, hf_gsm_a_dtap_emergency_bcd_num, tvb, curr_offset, en_len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &digit_str);
 
         /* Check for values that aren't digits; they get mapped to '?' */
         if(strchr(digit_str,'?')){
@@ -2270,7 +2270,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     num_string_len = len - (curr_offset - offset);
 
-    item = proto_tree_add_item_ret_display_string(tree, header_field, tvb, curr_offset, num_string_len, ENC_KEYPAD_ABC_TBCD, pinfo->pool, extracted_address);
+    item = proto_tree_add_item_ret_display_string(tree, header_field, tvb, curr_offset, num_string_len, ENC_KEYPAD_ABC_TBCD|ENC_LITTLE_ENDIAN, pinfo->pool, extracted_address);
 
     /* Check for an end mark, which gets mapped to '?' */
     if(strchr(*extracted_address,'?')){

@@ -1389,7 +1389,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mintype);
 
-    proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_BCD_DIGITS_0_9, pinfo->pool, &digit_str);
+    proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &digit_str);
     proto_item_append_text(actx->created_item, " - %s", digit_str);
 }
 
@@ -1433,7 +1433,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             if(octet_len == 0)
                 return;
             offset++;
-            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, pinfo->pool, &digit_str);
+            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD|ENC_LITTLE_ENDIAN, pinfo->pool, &digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
         case 2:
@@ -1474,7 +1474,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         switch ((octet&0xf)){
         case 1:
             /* BCD Coding */
-            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, pinfo->pool, &digit_str);
+            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD|ENC_LITTLE_ENDIAN, pinfo->pool, &digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
         case 2:

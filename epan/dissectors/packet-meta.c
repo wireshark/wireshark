@@ -342,14 +342,14 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             break;
         case META_ID_IMSI:
             imsi_item = proto_tree_add_item(meta_tree, hf_meta_item_imsi_digits, tvb,
-                offs, 8, ENC_BCD_DIGITS_0_9);
+                offs, 8, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
             imsi_tree = proto_item_add_subtree(imsi_item, ett_meta_imsi);
             proto_tree_add_item(imsi_tree, hf_meta_item_imsi_value,
                 tvb, offs, 8, ENC_LITTLE_ENDIAN);
             break;
         case META_ID_IMEI:
             imei_item = proto_tree_add_item(meta_tree, hf_meta_item_imei_digits, tvb,
-                offs, 8, ENC_BCD_DIGITS_0_9);
+                offs, 8, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
             imei_tree = proto_item_add_subtree(imei_item, ett_meta_imei);
             proto_tree_add_item(imei_tree, hf_meta_item_imei_value,
                 tvb, offs, 8, ENC_LITTLE_ENDIAN);

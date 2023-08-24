@@ -223,7 +223,7 @@ de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     curr_offset = offset;
 
-    proto_tree_add_item_ret_display_string(tree, hf_sgsap_imeisv, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9, pinfo->pool, &imeisv_str);
+    proto_tree_add_item_ret_display_string(tree, hf_sgsap_imeisv, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &imeisv_str);
     if (add_string) {
         /* (len<<2)+4 = the maximum number of bytes to produce (including the terminating nul character). */
         snprintf(add_string, (len<<2)+4, " - %s", imeisv_str);

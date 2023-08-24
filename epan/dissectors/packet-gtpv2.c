@@ -2407,7 +2407,7 @@ dissect_gtpv2_mei(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    proto_tree_add_item_ret_display_string(tree, hf_gtpv2_mei, tvb, offset, length, ENC_BCD_DIGITS_0_9, pinfo->pool, &mei_str);
+    proto_tree_add_item_ret_display_string(tree, hf_gtpv2_mei, tvb, offset, length, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &mei_str);
     proto_item_append_text(item, "%s", mei_str);
 }
 
@@ -4306,7 +4306,7 @@ dissect_gtpv2_mm_context_common_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset += 1;
     /* (m+2) to r Mobile Equipment Identity (MEI) */
     if (mei_len) {
-        proto_tree_add_item(tree, hf_gtpv2_mei, tvb, offset, mei_len, ENC_BCD_DIGITS_0_9);
+        proto_tree_add_item(tree, hf_gtpv2_mei, tvb, offset, mei_len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
         offset += mei_len;
     }
     return offset;

@@ -199,7 +199,7 @@ static const ain_err_t ain_err_tab[] = {
 
   proto_tree_add_item(subtree, hf_ain_numbering_plan, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(subtree, hf_ain_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
+  proto_tree_add_item(subtree, hf_ain_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
 #.FN_BODY CarrierFormat VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
@@ -218,7 +218,7 @@ static const ain_err_t ain_err_tab[] = {
   proto_tree_add_item(subtree, hf_ain_nr_digits, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
 
   /* 2nd Digit 1st Digit .. */
-  proto_tree_add_item(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
+  proto_tree_add_item(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
 #.FN_BODY AMAslpID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
@@ -231,7 +231,7 @@ static const ain_err_t ain_err_tab[] = {
 
   subtree = proto_item_add_subtree(actx->created_item, ett_ain_amaslpid);
 
-  proto_tree_add_item(subtree, hf_ain_amaslpid, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_BCD_DIGITS_0_9);
+  proto_tree_add_item(subtree, hf_ain_amaslpid, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
 #.FIELD_ATTR
 DisplayInformation/notificationIndicator ABBREV=displayInformation.notificationIndicator

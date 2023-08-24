@@ -3541,9 +3541,9 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
      * allocated string will be returned.
      */
     if (skip_first) {
-        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST, pinfo->pool, &imsi_str);
+        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST, pinfo->pool, &imsi_str);
     } else {
-        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9, pinfo->pool, &imsi_str);
+        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN, pinfo->pool, &imsi_str);
     }
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);

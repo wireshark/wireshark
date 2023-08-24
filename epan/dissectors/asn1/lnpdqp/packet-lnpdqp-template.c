@@ -192,7 +192,7 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         if(no_of_digits == 0)
             return;
         offset++;
-        proto_tree_add_item_ret_display_string(subtree, hf_lnpdqp_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, pinfo->pool, &digit_str);
+        proto_tree_add_item_ret_display_string(subtree, hf_lnpdqp_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD|ENC_LITTLE_ENDIAN, pinfo->pool, &digit_str);
         proto_item_append_text(actx->created_item, " - %s", digit_str);
         break;
     case 2:

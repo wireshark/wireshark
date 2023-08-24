@@ -4996,11 +4996,11 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
             switch (octet) {
                 case 1:
                     /* IMEI */
-                    proto_tree_add_item(tree, hf_isakmp_notify_data_3gpp_device_identity_imei, tvb, offset, length, ENC_BCD_DIGITS_0_9);
+                    proto_tree_add_item(tree, hf_isakmp_notify_data_3gpp_device_identity_imei, tvb, offset, length, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
                     break;
                 case 2:
                     /* IMEISV */
-                    proto_tree_add_item(tree, hf_isakmp_notify_data_3gpp_device_identity_imeisv, tvb, offset, length, ENC_BCD_DIGITS_0_9);
+                    proto_tree_add_item(tree, hf_isakmp_notify_data_3gpp_device_identity_imeisv, tvb, offset, length, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
                     break;
                 default:
                     proto_tree_add_expert(tree, pinfo, &ei_isakmp_notify_data_3gpp_unknown_device_identity, tvb, offset, length);
@@ -5055,7 +5055,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
 
             /*IE Octet 5 to j | Digit_N+1 | Digit_N | */
             current_em_num_len -= 2; //Not counting octets 3 and 4
-            proto_tree_add_item(current_emergency_call_number_tree, hf_iskamp_notify_data_3gpp_emergency_call_number, tvb, offset, current_em_num_len, ENC_BCD_DIGITS_0_9);
+            proto_tree_add_item(current_emergency_call_number_tree, hf_iskamp_notify_data_3gpp_emergency_call_number, tvb, offset, current_em_num_len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
             offset += current_em_num_len; //moving to the next number in the list
           }
         }

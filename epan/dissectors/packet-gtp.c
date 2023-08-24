@@ -7115,7 +7115,7 @@ decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * 
      * set to '1111'. Both IMEI and IMEISV are BCD encoded.
      */
     next_tvb = tvb_new_subset_length(tvb, offset, length);
-    proto_tree_add_item_ret_display_string(ext_imeisv, hf_gtp_ext_imeisv, next_tvb, 0, -1, ENC_BCD_DIGITS_0_9, pinfo->pool, &digit_str);
+    proto_tree_add_item_ret_display_string(ext_imeisv, hf_gtp_ext_imeisv, next_tvb, 0, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &digit_str);
     proto_item_append_text(te, ": %s", digit_str);
 
     return 3 + length;

@@ -6078,7 +6078,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
         * allocated string will be returned.
         */
-        proto_tree_add_item(tree, hf_pfcp_user_id_imei, tvb, offset, length_imei, ENC_BCD_DIGITS_0_9);
+        proto_tree_add_item(tree, hf_pfcp_user_id_imei, tvb, offset, length_imei, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
         offset += length_imei;
     }
 

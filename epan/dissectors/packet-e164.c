@@ -811,7 +811,7 @@ dissect_e164(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encod
 		str_encoding = ENC_UTF_8;
 		break;
 	case E164_ENC_BCD:
-		str_encoding = ENC_BCD_DIGITS_0_9;
+		str_encoding = ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN;
 		break;
 	case E164_ENC_BINARY:
 	default:

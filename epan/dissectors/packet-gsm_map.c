@@ -3624,7 +3624,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           dissect_e164_msisdn(tvb, tree, 1, tvb_reported_length(tvb)-1, E164_ENC_BCD);
       break;
       default:
-          proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9);
+          proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
           break;
       }
       break;
@@ -3633,7 +3633,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_e212_imsi(tvb, pinfo, tree,  1, tvb_reported_length(tvb)-1, FALSE);
       break;
   default:
-      proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9);
+      proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
       break;
   }
 
@@ -3845,7 +3845,7 @@ dissect_gsm_map_TBCD_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
      return offset;
 
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_tbcd_digits);
- proto_tree_add_item(subtree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, ENC_KEYPAD_ABC_TBCD);
+ proto_tree_add_item(subtree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, ENC_KEYPAD_ABC_TBCD|ENC_LITTLE_ENDIAN);
 
 
   return offset;

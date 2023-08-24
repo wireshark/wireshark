@@ -1024,7 +1024,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           dissect_e164_msisdn(tvb, tree, 1, tvb_reported_length(tvb)-1, E164_ENC_BCD);
       break;
       default:
-          proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9);
+          proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
           break;
       }
       break;
@@ -1033,7 +1033,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_e212_imsi(tvb, pinfo, tree,  1, tvb_reported_length(tvb)-1, FALSE);
       break;
   default:
-      proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9);
+      proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
       break;
   }
 

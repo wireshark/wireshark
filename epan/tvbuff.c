@@ -3382,7 +3382,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt0_9_bcd, skip_first, odd, FALSE);
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt0_9_bcd, skip_first, odd, !(encoding & ENC_LITTLE_ENDIAN));
 		break;
 
 	case ENC_KEYPAD_ABC_TBCD:
@@ -3392,7 +3392,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_keypad_abc_tbcd, skip_first, odd, FALSE);
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_keypad_abc_tbcd, skip_first, odd, !(encoding & ENC_LITTLE_ENDIAN));
 		break;
 
 	case ENC_KEYPAD_BC_TBCD:
@@ -3402,7 +3402,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_ansi_tbcd, skip_first, odd, FALSE);
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_ansi_tbcd, skip_first, odd, !(encoding & ENC_LITTLE_ENDIAN));
 		break;
 
 	case ENC_3GPP_TS_23_038_7BITS_UNPACKED:

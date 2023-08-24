@@ -1398,7 +1398,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
         case 3:
             /* IMEI */
-            proto_tree_add_item(tree, hf_nas_eps_emm_imei, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
+            proto_tree_add_item(tree, hf_nas_eps_emm_imei, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST);
             break;
         case 6:
             /* GUTI */
@@ -2455,7 +2455,7 @@ de_emm_ext_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
                                      tvb, curr_offset, 1, ENC_NA, &length);
         curr_offset++;
         if (length > 0) {
-            proto_tree_add_item(sub_tree, hf_eps_emm_ext_emerg_num_list_emerg_num, tvb, curr_offset, length, ENC_BCD_DIGITS_0_9);
+            proto_tree_add_item(sub_tree, hf_eps_emm_ext_emerg_num_list_emerg_num, tvb, curr_offset, length, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
             curr_offset += length;
         }
         proto_tree_add_item_ret_uint(sub_tree, hf_eps_emm_ext_emerg_num_list_sub_serv_field_len,
@@ -3871,19 +3871,19 @@ de_esm_remote_ue_context_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
                     break;
                 case 3:
                     {
-                        proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_msisdn, tvb, curr_offset, user_id_len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
+                        proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_msisdn, tvb, curr_offset, user_id_len, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST);
                         curr_offset += user_id_len;
                     }
                     break;
                 case 4:
                     {
-                        proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_imei, tvb, curr_offset, user_id_len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
+                        proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_imei, tvb, curr_offset, user_id_len, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST);
                         curr_offset += user_id_len;
                     }
                     break;
                 case 5:
                     {
-                        proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_imeisv, tvb, curr_offset, user_id_len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
+                        proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_imeisv, tvb, curr_offset, user_id_len, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST);
                         curr_offset += user_id_len;
                     }
                     break;

@@ -232,7 +232,7 @@ de_gsm_r_uus1_chpc_forward(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_tree_add_bitmask(sub_tree, tvb, curr_offset, hf_gsm_r_uus1_chpc_cause, ett_gsm_r_uus1_chpc_cause, cause_flags, ENC_NA);
     curr_offset += 1;
 
-    proto_tree_add_item(sub_tree, hf_gsm_r_uus1_chpc_gref, tvb, curr_offset, 4, ENC_BCD_DIGITS_0_9);
+    proto_tree_add_item(sub_tree, hf_gsm_r_uus1_chpc_gref, tvb, curr_offset, 4, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
     curr_offset += 4;
 
     return (curr_offset - offset);
@@ -553,7 +553,7 @@ de_gsm_r_uus1_alert_controller(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     proto_tree_add_item(sub_tree, hf_gsm_r_uus1_elem_len, tvb, curr_offset+1, 1, ENC_NA);
     curr_offset += 2;
 
-    proto_tree_add_item_ret_display_string(sub_tree, hf_gsm_r_uus1_alert_controller_gref, tvb, curr_offset, 4, ENC_BCD_DIGITS_0_9, pinfo->pool, &gref_str);
+    proto_tree_add_item_ret_display_string(sub_tree, hf_gsm_r_uus1_alert_controller_gref, tvb, curr_offset, 4, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &gref_str);
     proto_item_append_text(item, ": %s", gref_str);
     curr_offset += 4;
 

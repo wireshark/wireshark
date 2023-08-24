@@ -293,7 +293,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
      return offset;
 
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_tbcd_digits);
- proto_tree_add_item(subtree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, ENC_KEYPAD_ABC_TBCD);
+ proto_tree_add_item(subtree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, ENC_KEYPAD_ABC_TBCD|ENC_LITTLE_ENDIAN);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY LongSignalInfo VAL_PTR = &parameter_tvb

@@ -4077,7 +4077,7 @@ dissect_ansi_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, p
   proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators_fields, ENC_NA);
   offset = 1;
 
-  proto_tree_add_item(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, ENC_BCD_DIGITS_0_9);
+  proto_tree_add_item(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
   offset += 2;
   proto_tree_add_item(parameter_tree, hf_ansi_isup_circuit_code, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -4115,7 +4115,7 @@ dissect_ansi_isup_param_carrier_id(tvbuff_t *parameter_tvb, packet_info *pinfo _
   proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, offset, 1, flags, ENC_BIG_ENDIAN);
   offset++;
 
-  proto_tree_add_item(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, ENC_BCD_DIGITS_0_9);
+  proto_tree_add_item(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 
 }
 
@@ -7356,7 +7356,7 @@ dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, packet_info *pinfo
   proto_tree_add_item(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  proto_tree_add_item_ret_display_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-2, ENC_BCD_DIGITS_0_9, pinfo->pool, &digit_str);
+  proto_tree_add_item_ret_display_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-2, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &digit_str);
 
   proto_item_append_text(parameter_item, " %s", digit_str);
 
