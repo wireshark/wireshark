@@ -1201,7 +1201,7 @@ void register_dcerpc_auth_subdissector(guint8 auth_level, guint8 auth_type,
 
     d->auth_level = auth_level;
     d->auth_type = auth_type;
-    memcpy(&d->auth_fns, fns, sizeof(dcerpc_auth_subdissector_fns));
+    d->auth_fns = *fns;
 
     dcerpc_auth_subdissector_list = g_slist_append(dcerpc_auth_subdissector_list, d);
 }
