@@ -470,7 +470,7 @@ static int File__gc(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE File_compressed RO Whether the File is compressed or not.
 
-    See `wtap_encaps` in init.lua for available types.  Set to `wtap_encaps.PER_PACKET` if packets can
+    See `wtap_encaps` for available types.  Set to `wtap_encaps.PER_PACKET` if packets can
     have different types, then later set `FrameInfo.encap` for each packet during read()/seek_read(). */
 static int File_get_compressed(lua_State* L) {
     File f = checkFile(L,1);

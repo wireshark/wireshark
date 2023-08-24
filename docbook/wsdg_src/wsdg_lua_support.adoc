@@ -17,8 +17,9 @@ and writers.
 If Lua is enabled, Wireshark will first try to load a file named `init.lua`
 from the global link:{wireshark-users-guide-url}ChPluginFolders.html[_plugins directory_].
 and then from the user’s
-link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_personal plugins directory_]. Then all files ending with _.lua_ are loaded from the global plugins
-directory. Then Then all files ending with _.lua_ in the personal Lua plugin's
+link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_personal plugins directory_].
+Then all files ending with _.lua_ are loaded from the global plugins
+directory. Then all files ending with _.lua_ in the personal Lua plugin's
 directory.
 
 Whether or not Lua scripts are enabled can be controlled via the

@@ -62,11 +62,6 @@ else
 endif
 	rm -f debian/*.shlibs
 	rm -rf $(CURDIR)/debian/tmp/usr/share/wireshark/COPYING
-	mkdir -p $(CURDIR)/debian/tmp/etc/wireshark/
-	mv $(CURDIR)/debian/tmp/usr/share/wireshark/init.lua \
-		$(CURDIR)/debian/tmp/etc/wireshark/
-	ln -s /etc/wireshark/init.lua \
-		$(CURDIR)/debian/tmp/usr/share/wireshark/init.lua
 
 override_dh_install:
 	dh_install

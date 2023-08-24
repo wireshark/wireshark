@@ -260,7 +260,7 @@ static int FieldInfo_get_display(lua_State* L) {
 }
 
 /* WSLUA_ATTRIBUTE FieldInfo_type RO The internal field type, a number which
-   matches one of the `ftype` values in `init.lua`.
+   matches one of the `ftype` values.
 
    @since 1.99.8
  */

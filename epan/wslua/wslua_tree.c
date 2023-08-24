@@ -324,7 +324,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
      the number `123`, both in the tree as well as for the second return value of
      this function. To do so, you must set the `encoding` argument of this function
      to the appropriate string `ENC_*` value, bitwise-or'd with the `ENC_STRING`
-     value (see `init.lua`). `ENC_STRING` is guaranteed to be a unique bit flag, and
+     value. `ENC_STRING` is guaranteed to be a unique bit flag, and
      thus it can added instead of bitwise-or'ed as well. Only single-byte ASCII digit
      string encoding types can be used for this, such as `ENC_ASCII` and `ENC_UTF_8`.
 

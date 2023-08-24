@@ -259,13 +259,13 @@ static int FrameInfo_get_data (lua_State* L) {
 
 /* WSLUA_ATTRIBUTE FrameInfo_rec_type RW The record type of the packet frame
 
-    See `wtap_rec_types` in `init.lua` for values. */
+    See `wtap_rec_types` for values. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,rec_type,rec->rec_type);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,rec_type,rec->rec_type,guint);
 
 /* WSLUA_ATTRIBUTE FrameInfo_flags RW The presence flags of the packet frame.
 
-    See `wtap_presence_flags` in `init.lua` for bit values. */
+    See `wtap_presence_flags` for bit values. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,flags,rec->presence_flags);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,flags,rec->presence_flags,guint32);
 
@@ -280,7 +280,7 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,original_length,rec->rec_header.pa
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,original_length,rec->rec_header.packet_header.len,guint32);
 
 /* WSLUA_ATTRIBUTE FrameInfo_encap RW The packet encapsulation type for the frame/packet,
-    if the file supports per-packet types. See `wtap_encaps` in `init.lua` for possible
+    if the file supports per-packet types. See `wtap_encaps` for possible
     packet encapsulation types to use as the value for this field. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap,int);
@@ -443,10 +443,10 @@ static int FrameInfoConst_get_data (lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FrameInfoConst_rec_type RO The record type of the packet frame - see `wtap_presence_flags` in `init.lua` for values. */
+/* WSLUA_ATTRIBUTE FrameInfoConst_rec_type RO The record type of the packet frame - see `wtap_presence_flags` for values. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,rec_type,rec->rec_type);
 
-/* WSLUA_ATTRIBUTE FrameInfoConst_flags RO The presence flags of the packet frame - see `wtap_presence_flags` in `init.lua` for bits. */
+/* WSLUA_ATTRIBUTE FrameInfoConst_flags RO The presence flags of the packet frame - see `wtap_presence_flags` for bits. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,flags,rec->presence_flags);
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_captured_length RO The captured packet length, and thus the length of the buffer in the FrameInfoConst.data field. */
@@ -457,7 +457,7 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,original_length,rec->rec_head
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_encap RO The packet encapsulation type, if the file supports per-packet types.
 
-      See `wtap_encaps` in `init.lua` for possible packet encapsulation types to use as the value for this field. */
+      See `wtap_encaps` for possible packet encapsulation types to use as the value for this field. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,encap,rec->rec_header.packet_header.pkt_encap);
 
 WSLUA_ATTRIBUTES FrameInfoConst_attributes[] = {

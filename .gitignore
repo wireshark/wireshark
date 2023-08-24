@@ -28,7 +28,6 @@
 *scanner.c
 *_dict.c
 *_lex.h
-init.lua
 epan/dissectors/dcerpc/idl2wrs
 epan/dissectors/dcerpc/*/packet-dcerpc-*.[hc]
 epan/dissectors/mesa
