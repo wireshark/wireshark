@@ -4604,14 +4604,14 @@ dissect_cablelabs_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		((strncmp((const gchar*)option_data->vendor_class_id, "pktc", strlen("pktc")) == 0) ||
 		 (strncmp((const gchar*)option_data->vendor_class_id, "docsis", strlen("docsis")) == 0) ||
 		 (strncmp((const gchar*)option_data->vendor_class_id, "OpenCable2.0", strlen("OpenCable2.0")) == 0) ||
-			(strncmp((const gchar*)option_data->vendor_class_id, "CableHome", strlen("CableHome")) == 0) ||
-			(strncmp((const gchar*)option_data->vendor_class_id, "RPD", strlen("RPD")) == 0) ||
-			(strncmp((const gchar*)option_data->vendor_class_id, "RMD", strlen("RMD")) == 0) ||
-			(strncmp((const gchar*)option_data->vendor_class_id, "ECM", strlen("ECM")) == 0) ||
-			(strncmp((const gchar*)option_data->vendor_class_id, "PTA", strlen("PTA")) == 0) ||
-			(strncmp((const gchar*)option_data->vendor_class_id, "DEMARC", strlen("DEMARC")) == 0) ||
-			(strncmp((const gchar*)option_data->vendor_class_id, "TR", strlen("TR")) == 0) ||
-			(strncmp((const gchar*)option_data->vendor_class_id, "SROUTER", strlen("SROUTER")) == 0))) {
+		 (strncmp((const gchar*)option_data->vendor_class_id, "CableHome", strlen("CableHome")) == 0) ||
+		 (strncmp((const gchar*)option_data->vendor_class_id, "RPD", strlen("RPD")) == 0) ||
+		 (strncmp((const gchar*)option_data->vendor_class_id, "RMD", strlen("RMD")) == 0) ||
+		 (strncmp((const gchar*)option_data->vendor_class_id, "ECM", strlen("ECM")) == 0) ||
+		 (strncmp((const gchar*)option_data->vendor_class_id, "PTA", strlen("PTA")) == 0) ||
+		 (strncmp((const gchar*)option_data->vendor_class_id, "DEMARC", strlen("DEMARC")) == 0) ||
+		 (strncmp((const gchar*)option_data->vendor_class_id, "TR", strlen("TR")) == 0) ||
+		 (strncmp((const gchar*)option_data->vendor_class_id, "SROUTER", strlen("SROUTER")) == 0))) {
 		/* CableLabs standard - see www.cablelabs.com/projects */
 		proto_item_append_text(tree, " (CableLabs)");
 		vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
