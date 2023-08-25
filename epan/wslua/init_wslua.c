@@ -1207,6 +1207,10 @@ static int lua_funnel_console_eval(const char *console_input,
         if (error_hint) {
             *error_hint = g_strdup(lua_error_msg(lcode));
         }
+        /* If we have an error message return it. */
+        if (error_ptr && !lua_isnil(L, -1)) {
+            *error_ptr = g_strdup(lua_tostring(L, -1));
+        }
         return -1;
     }
 
