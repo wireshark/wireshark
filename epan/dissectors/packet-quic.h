@@ -12,11 +12,13 @@
 
 #include "ws_symbol_export.h"
 
+#include <glibconfig.h>
 #include <wsutil/wsgcrypt.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
 
 /**
  * Metadata for a STREAM frame.
@@ -26,6 +28,7 @@ typedef struct _quic_stream_info {
     guint64     stream_id;      /**< 62-bit Stream ID. */
     guint64     stream_offset;  /**< 62-bit stream offset. */
     guint32     offset;         /**< Offset within the stream (different for reassembled data). */
+    guint32     inorder_offset; /**< Offset of the inorder data. */
     struct quic_info_data *quic_info;    /**< Opaque data structure to find the QUIC session. */
     gboolean    from_server;
 } quic_stream_info;
@@ -96,6 +99,12 @@ quic_get_stream_id_le(guint streamid, guint sub_stream_id, guint *sub_stream_id_
 WS_DLL_PUBLIC gboolean
 quic_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_out);
 
+
+/**
+ * Retrieves the initial client DCID from the packet info, if available
+ */
+WS_DLL_PUBLIC gboolean
+quic_conn_data_get_conn_client_dcid_initial(struct _packet_info *pinfo, quic_cid_t *dcid);
 
 #ifdef __cplusplus
 }

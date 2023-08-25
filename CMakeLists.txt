@@ -1359,6 +1359,9 @@ ws_find_package(ZSTD ENABLE_ZSTD HAVE_ZSTD "1.0.0")
 # Enhanced HTTP/2 dissection
 ws_find_package(NGHTTP2 ENABLE_NGHTTP2 HAVE_NGHTTP2 "1.11.0")
 
+# Enhanced HTTP/3 dissection
+ws_find_package(NGHTTP3 ENABLE_NGHTTP3 HAVE_NGHTTP3 "0.6.0")
+
 # Embedded Lua interpreter
 if(FETCH_lua)
 	# Download and build lua
@@ -1921,6 +1924,11 @@ set_package_properties(NGHTTP2 PROPERTIES
 	URL "https://nghttp2.org"
 	PURPOSE "Header decompression in HTTP2"
 )
+set_package_properties(NGHTTP3 PROPERTIES
+	DESCRIPTION "HTTP/3 C library and tools"
+	URL "https://nghttp2.org"
+	PURPOSE "Header decompression in HTTP3"
+)
 set_package_properties(CARES PROPERTIES
 	DESCRIPTION "Library for asynchronous DNS requests"
 	URL "https://c-ares.org/"
@@ -2192,6 +2200,10 @@ if(USE_REPOSITORY)
 	if (NGHTTP2_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${NGHTTP2_DLL_DIR}/${NGHTTP2_DLL}")
 		list (APPEND THIRD_PARTY_PDBS "${NGHTTP2_DLL_DIR}/${NGHTTP2_PDB}")
+	endif(NGHTTP2_FOUND)
+	if (NGHTTP3_FOUND)
+		list (APPEND THIRD_PARTY_DLLS "${NGHTTP3_DLL_DIR}/${NGHTTP3_DLL}")
+		list (APPEND THIRD_PARTY_PDBS "${NGHTTP3_DLL_DIR}/${NGHTTP3_PDB}")
 	endif(NGHTTP2_FOUND)
 	if (PCRE2_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${PCRE2_DLL_DIR}/${PCRE2_DLL}")

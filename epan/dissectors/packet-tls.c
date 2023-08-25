@@ -2581,6 +2581,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
     if (!PINFO_FD_VISITED(pinfo)) {
         // 1. (First pass:) If a previous handshake message needed reasembly.
+        ssl_debug_printf("%s Handshake %s fragmented", G_STRFUNC, (*hs_reassembly_id_p) ? " is " : " is not ");
         if (*hs_reassembly_id_p) {
             // Continuation, so a previous fragment *must* exist.
             fh = fragment_get(&tls_hs_reassembly_table, pinfo, *hs_reassembly_id_p, NULL);
@@ -2788,9 +2789,13 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         if (is_first_msg && msg_type == SSL_HND_SERVER_HELLO && length > 2) {
-            guint16 server_version;
+            guint16 server_version, max_supported_version;
 
-            tls_scan_server_hello(tvb, offset + 4, offset + 4 + length, &server_version, &is_hrr);
+            tls_scan_server_hello(tvb, offset + 4, offset + 4 + length, &server_version, &is_hrr, &max_supported_version);
+            if (ssl && ssl->session.version != server_version && ssl->session.version == max_supported_version) {
+                server_version = max_supported_version;
+            }
+
             ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO, FALSE, server_version);
             if (is_hrr) {
                 msg_type_str = "Hello Retry Request";
@@ -2864,6 +2869,7 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_SERVER_HELLO:
+                ssl_debug_printf("%s SSL_HND_SERVER_HELLO\n", G_STRFUNC);
                 ssl_dissect_hnd_srv_hello(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
                         offset, offset + length, session, ssl, FALSE, is_hrr);
                 if (ssl) {
@@ -4121,15 +4127,26 @@ tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, gui
         ws_assert_not_reached();
     }
 
+    ssl_debug_printf("%s Looking for QUIC %s of size %d..%d for client_random of size %d bytes: ",
+        G_STRFUNC, label, secret_min_len, secret_max_len, ssl->client_random.data_len);
+    ssl_print_data("Client random", ssl->client_random.data, ssl->client_random.data_len);
+    ssl_print_data("Server random", ssl->server_random.data, ssl->server_random.data_len);
+
     StringInfo *secret = (StringInfo *)g_hash_table_lookup(key_map, &ssl->client_random);
-    if (!secret || secret->data_len < secret_min_len || secret->data_len > secret_max_len) {
-        ssl_debug_printf("%s Cannot find QUIC %s of size %d..%d, found bad size %d!\n",
-                         G_STRFUNC, label, secret_min_len, secret_max_len, secret ? secret->data_len : 0);
+
+    if (!secret) {
+        ssl_debug_printf("%s Can not find QUIC %s of size %d..%d: not found\n",
+            G_STRFUNC, label, secret_min_len, secret_max_len);
+        return 0;
+    }
+
+    if (secret->data_len < secret_min_len || secret->data_len > secret_max_len) {
+        ssl_debug_printf("%s Cannot find QUIC %s: size %d out of bounds %d..%d\n",
+            G_STRFUNC, label, secret->data_len, secret_min_len, secret_max_len);
         return 0;
     }
 
     ssl_debug_printf("%s Retrieved QUIC traffic secret.\n", G_STRFUNC);
-    ssl_print_string("Client Random", &ssl->client_random);
     ssl_print_string(label, secret);
     memcpy(secret_out, secret->data, secret->data_len);
     return secret->data_len;

@@ -5567,6 +5567,25 @@ proto_reg_handoff_quic(void)
     quic_follow_tap = register_tap("quic_follow");
 }
 
+gboolean
+quic_conn_data_get_conn_client_dcid_initial(struct _packet_info *pinfo, quic_cid_t *dcid)
+{
+    if (pinfo == NULL || dcid == NULL) {
+        return false;
+    }
+
+    quic_info_data_t * conn = quic_connection_from_conv(pinfo);
+    if (conn == NULL) {
+        return false;
+    }
+
+    dcid->len = conn->client_dcid_initial.len;
+    memset(dcid->cid, 0, QUIC_MAX_CID_LENGTH);
+    memcpy(dcid->cid, conn->client_dcid_initial.cid, dcid->len);
+
+    return true;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

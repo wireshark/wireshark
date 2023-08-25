@@ -177,6 +177,7 @@ LIBSSH_VERSION=0.9.6
 # mmdbresolve
 MAXMINDDB_VERSION=1.4.3
 NGHTTP2_VERSION=1.46.0
+NGHTTP3_VERSION=0.6.0
 SPANDSP_VERSION=0.0.6
 SPEEXDSP_VERSION=1.2.0
 if [ "$SPANDSP_VERSION" ]; then
@@ -2038,6 +2039,42 @@ uninstall_nghttp2() {
     fi
 }
 
+install_nghttp3() {
+    if [ "$NGHTTP3_VERSION" -a ! -f nghttp3-$NGHTTP3_VERSION-done ] ; then
+        echo "Downloading, building, and installing nghttp3:"
+        [ -f nghttp3-$NGHTTP3_VERSION.tar.xz ] || curl -L -O https://github.com/ngtcp2/nghttp3/releases/download/v$NGHTTP3_VERSION/nghttp3-$NGHTTP3_VERSION.tar.xz || exit 1
+        $no_build && echo "Skipping installation" && return
+        xzcat nghttp3-$NGHTTP3_VERSION.tar.xz | tar xf - || exit 1
+        cd nghttp3-$NGHTTP3_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-lib-only || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch nghttp3-$NGHTTP3_VERSION-done
+    fi
+}
+
+uninstall_nghttp3() {
+    if [ ! -z "$installed_nghttp3_version" ] ; then
+        echo "Uninstalling nghttp3:"
+        cd nghttp3-$installed_nghttp3_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm nghttp3-$installed_nghttp3_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf nghttp3-$installed_nghttp3_version
+            rm -rf nghttp3-$installed_nghttp3_version.tar.xz
+        fi
+
+        installed_nghttp3_version=""
+    fi
+}
+
 install_libtiff() {
     if [ "$LIBTIFF_VERSION" -a ! -f tiff-$LIBTIFF_VERSION-done ] ; then
         echo "Downloading, building, and installing libtiff:"
@@ -2574,6 +2611,17 @@ install_all() {
         uninstall_nghttp2 -r
     fi
 
+    if [ ! -z "$installed_nghttp3_version" -a \
+              "$installed_nghttp3_version" != "$NGHTTP3_VERSION" ] ; then
+        echo "Installed nghttp3 version is $installed_nghttp3_version"
+        if [ -z "$NGHTTP3_VERSION" ] ; then
+            echo "nghttp3 is not requested"
+        else
+            echo "Requested nghttp3 version is $NGHTTP3_VERSION"
+        fi
+        uninstall_nghttp3 -r
+    fi
+
     if [ ! -z "$installed_libssh_version" -a \
               "$installed_libssh_version" != "$LIBSSH_VERSION" ] ; then
         echo "Installed libssh version is $installed_libssh_version"
@@ -3074,6 +3122,8 @@ install_all() {
 
     install_nghttp2
 
+    install_nghttp3
+
     install_libtiff
 
     install_spandsp
@@ -3126,6 +3176,8 @@ uninstall_all() {
         uninstall_libtiff
 
         uninstall_nghttp2
+
+        uninstall_nghttp3
 
         uninstall_libssh
 
@@ -3342,6 +3394,7 @@ then
     installed_cares_version=`ls c-ares-*-done 2>/dev/null | sed 's/c-ares-\(.*\)-done/\1/'`
     installed_libssh_version=`ls libssh-*-done 2>/dev/null | sed 's/libssh-\(.*\)-done/\1/'`
     installed_nghttp2_version=`ls nghttp2-*-done 2>/dev/null | sed 's/nghttp2-\(.*\)-done/\1/'`
+    installed_nghttp3_version=`ls nghttp3-*-done 2>/dev/null | sed 's/nghttp3-\(.*\)-done/\1/'`
     installed_libtiff_version=`ls tiff-*-done 2>/dev/null | sed 's/tiff-\(.*\)-done/\1/'`
     installed_spandsp_version=`ls spandsp-*-done 2>/dev/null | sed 's/spandsp-\(.*\)-done/\1/'`
     installed_speexdsp_version=`ls speexdsp-*-done 2>/dev/null | sed 's/speexdsp-\(.*\)-done/\1/'`

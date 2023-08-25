@@ -103,6 +103,9 @@
 /* Define to use nghttp2 */
 #cmakedefine HAVE_NGHTTP2 1
 
+/* Define to use nghttp3 */
+#cmakedefine HAVE_NGHTTP3 1
+
 /* Define to use the libcap library */
 #cmakedefine HAVE_LIBCAP 1
 

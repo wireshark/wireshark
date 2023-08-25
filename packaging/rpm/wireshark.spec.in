@@ -308,6 +308,11 @@ development of Wireshark scripts and plugins.
 %else
   -DENABLE_NGHTTP2=OFF \
 %endif
+%if %{with nghttp3}
+  -DENABLE_NGHTTP3=ON \
+%else
+  -DENABLE_NGHTTP3=OFF \
+%endif
 %if %{with sdjournal}
   -DBUILD_sdjournal=ON \
 %else

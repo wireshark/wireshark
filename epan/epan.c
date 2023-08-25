@@ -89,6 +89,10 @@
 #include <nghttp2/nghttp2.h>
 #endif
 
+#ifdef HAVE_NGHTTP3
+#include <nghttp3/nghttp3.h>
+#endif
+
 #ifdef HAVE_BROTLI
 #include <brotli/decode.h>
 #endif
@@ -826,6 +830,13 @@ epan_gather_compile_info(feature_list l)
 #else
 	without_feature(l, "nghttp2");
 #endif /* HAVE_NGHTTP2 */
+
+	/* nghttp3 */
+#ifdef HAVE_NGHTTP3
+	with_feature(l, "nghttp3 %s", NGHTTP3_VERSION);
+#else
+	without_feature(l, "nghttp3");
+#endif /* HAVE_NGHTTP3 */
 
 	/* brotli */
 #ifdef HAVE_BROTLI
