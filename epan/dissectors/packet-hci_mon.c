@@ -32,6 +32,7 @@ static int hf_system_note = -1;
 static int hf_priority = -1;
 static int hf_ident_length = -1;
 static int hf_ident = -1;
+static int hf_message = -1;
 static int hf_cookie = -1;
 static int hf_format = -1;
 static int hf_version = -1;
@@ -127,6 +128,19 @@ static const value_string format_vals[] = {
     { 0x00, NULL }
 };
 static value_string_ext(format_vals_ext) = VALUE_STRING_EXT_INIT(format_vals);
+
+static const value_string priority_vals[] = {
+    { 0, "EMERG" },
+    { 1, "ALERT" },
+    { 2, "CRIT" },
+    { 3, "ERR" },
+    { 4, "WARNING" },
+    { 5, "NOTICE" },
+    { 6, "INFO" },
+    { 7, "DEBUG" },
+    { 0, NULL }
+};
+static value_string_ext(priority_vals_ext) = VALUE_STRING_EXT_INIT(priority_vals);
 
 #define EVENT_COMMAND_COMPLETE               0x0001
 #define EVENT_COMMAND_STATUS                 0x0002
@@ -414,16 +428,14 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(hci_mon_tree, hf_priority, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item_ret_uint(hci_mon_tree, hf_priority, tvb, offset, 1, ENC_NA, &ident_length);
+        proto_tree_add_item_ret_uint(hci_mon_tree, hf_ident_length, tvb, offset, 1, ENC_NA, &ident_length);
         offset += 1;
 
-        /*
-         * XXX - this is both counted and NUL-terminated, so you have
-         * <length> bytes of string followed by a NUL.  We'll just
-         * treat it as counted.
-         */
-        proto_tree_add_item(hci_mon_tree, hf_priority, tvb, offset, ident_length, ENC_NA | ENC_ASCII);
-        offset += ident_length + 1; /* Skip the terminating NUL */
+        proto_tree_add_item(hci_mon_tree, hf_ident, tvb, offset, ident_length, ENC_NA | ENC_ASCII);
+        offset += ident_length;
+
+        proto_tree_add_item(hci_mon_tree, hf_message, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA | ENC_ASCII);
+        offset = tvb_reported_length(tvb);
 
         break;
 
@@ -545,7 +557,7 @@ proto_register_hci_mon(void)
         },
         { &hf_priority,
           { "Priority",                          "hci_mon.priority",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &priority_vals_ext, 0x0,
             NULL, HFILL}
         },
         { &hf_ident_length,
@@ -555,6 +567,11 @@ proto_register_hci_mon(void)
         },
         { &hf_ident,
           { "Ident",                             "hci_mon.ident",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_message,
+          { "Message",                           "hci_mon.message",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
