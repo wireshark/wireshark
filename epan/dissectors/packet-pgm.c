@@ -32,7 +32,7 @@
  * an *insufficient* description of said changes.  In particular,
  * it doesn't indicate what the packet type code for ACK is.
  *
- * Luigi Risso's PGMCC code for FreeBSD, at
+ * Luigi Rizzo's PGMCC code for FreeBSD, at
  *
  *     https://web.archive.org/web/20020302084503/http://info.iet.unipi.it/~luigi/pgm-code/
  *
