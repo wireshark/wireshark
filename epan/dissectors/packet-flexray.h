@@ -10,16 +10,12 @@
 #ifndef __PACKET_FLEXRAY_H__
 #define __PACKET_FLEXRAY_H__
 
-/* Structure that gets passed between dissectors. */
-/* Structure that gets passed between dissectors (containing of
- frame id, counter cycle and channel).
-*/
-typedef struct flexray_info
-{
-	guint16 id;
-	guint8  cc;
-	guint8  ch;
-	guint16 bus_id;
+/* Structure that gets passed between dissectors (containing of frame id, counter cycle and channel). */
+typedef struct flexray_info {
+    guint16 id;
+    guint8  cc;
+    guint8  ch;
+    guint16 bus_id;
 } flexray_info_t;
 
 #define FLEXRAY_ID_CYCLE_MASK    0x000000FF
@@ -38,11 +34,11 @@ gboolean flexray_set_source_and_destination_columns(packet_info* pinfo, flexray_
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 8
+ * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
