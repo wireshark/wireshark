@@ -229,7 +229,7 @@ Source Package:
   extends: .build-ubuntu
   stage: .pre
   rules:
-    - !reference [.if-merged]
+    - !reference [.if-w-w-only-merged]
     - !reference [.if-2x-daily-schedule]
   script:
     - ../tools/make-version.py --set-release ..
