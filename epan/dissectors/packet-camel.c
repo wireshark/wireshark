@@ -103,7 +103,8 @@ static int hf_camelsrt_DeltaTime65=-1;
 static int hf_camelsrt_DeltaTime22=-1;
 static int hf_camelsrt_DeltaTime35=-1;
 static int hf_camelsrt_DeltaTime80=-1;
-static int hf_camel_timeandtimezone_bcd = -1;
+static int hf_camel_timeandtimezone_time = -1;
+static int hf_camel_timeandtimezone_tz = -1;
 
 static int hf_camel_PAR_cancelFailed_PDU = -1;    /* PAR_cancelFailed */
 static int hf_camel_PAR_requestedInfoError_PDU = -1;  /* PAR_requestedInfoError */
@@ -834,6 +835,7 @@ static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
 static expert_field ei_camel_unknown_returnErrorData = EI_INIT;
 static expert_field ei_camel_par_wrong_length = EI_INIT;
+static expert_field ei_camel_bcd_not_digit = EI_INIT;
 
 /* Preference settings default */
 #define MAX_SSN 254
@@ -4627,7 +4629,7 @@ dissect_camel_TimeAndTimezone(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
  gchar second[3];
 
  guint8 oct;
- char   sign;
+ int8_t tz;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
@@ -4640,14 +4642,7 @@ dissect_camel_TimeAndTimezone(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
     return offset;
   }
   subtree = proto_item_add_subtree(actx->created_item, ett_camel_timeandtimezone);
-  item = proto_tree_add_item_ret_display_string(subtree, hf_camel_timeandtimezone_bcd, parameter_tvb, 0, -1, ENC_BCD_DIGITS_0_9, actx->pinfo->pool, &digit_str);
-
-  (void) g_strlcpy(year, digit_str, 5);
-  (void) g_strlcpy(month, digit_str+4, 3);
-  (void) g_strlcpy(day, digit_str+6, 3);
-  (void) g_strlcpy(hour, digit_str+8, 3);
-  (void) g_strlcpy(minute, digit_str+10, 3);
-  (void) g_strlcpy(second, digit_str+12, 3);
+  item = proto_tree_add_item_ret_display_string(subtree, hf_camel_timeandtimezone_time, parameter_tvb, 0, 7, ENC_BCD_DIGITS_0_9, actx->pinfo->pool, &digit_str);
 
 /*
 The Time Zone indicates the difference, expressed in quarters of an hour, between the local time and GMT. In the first of the two semi octets,
@@ -4656,11 +4651,25 @@ the first bit (bit 3 of the seventh octet of the TP Service Centre Time Stamp fi
   oct = tvb_get_guint8(parameter_tvb,7);
 
   /* packet-gsm_sms.c time dis_field_scts_aux() */
-  sign = (oct & 0x08)?'-':'+';
-  oct = (oct >> 4) + (oct & 0x07) * 10;
+  tz = (oct >> 4) + (oct & 0x07) * 10;
+  tz = (oct & 0x08) ? -tz : tz;
 
-  proto_item_append_text(item, "(%s-%s-%s %s:%s:%s GMT %c%d hours %d minutes)", year,month,day,hour,minute,second,sign, oct / 4, oct % 4 * 15);
+  proto_tree_add_int_format_value(subtree, hf_camel_timeandtimezone_tz, parameter_tvb, 7, 1, tz, "GMT %+d hours %d minutes", tz / 4, tz % 4 * 15);
 
+  /* ENC_BCD_DIGITS_0_9 truncates if the nibble is 0xf. */
+  if (strlen(digit_str) < 14 || strchr(digit_str, '?')) {
+    expert_add_info(actx->pinfo, item, &ei_camel_bcd_not_digit);
+    return offset;
+  }
+
+  (void) g_strlcpy(year, digit_str, 5);
+  (void) g_strlcpy(month, digit_str+4, 3);
+  (void) g_strlcpy(day, digit_str+6, 3);
+  (void) g_strlcpy(hour, digit_str+8, 3);
+  (void) g_strlcpy(minute, digit_str+10, 3);
+  (void) g_strlcpy(second, digit_str+12, 3);
+
+  proto_item_append_text(item, " (%s-%s-%s %s:%s:%s)",year,month,day,hour,minute,second);
 
 
   return offset;
@@ -8489,11 +8498,17 @@ void proto_register_camel(void) {
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         "DeltaTime between EventReportGPRS and ContinueGPRS", HFILL }
     },
-    { &hf_camel_timeandtimezone_bcd,
-      { "Time and timezone",
-        "camel.timeandtimezone_bcd",
+    { &hf_camel_timeandtimezone_time,
+      { "Time",
+        "camel.timeandtimezone.time",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
+    },
+    { &hf_camel_timeandtimezone_tz,
+      { "Time Zone",
+        "camel.timeandtimezone.timezone",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        "Difference, expressed in quarters of an hour, between local time and GMT", HFILL }
     },
 #ifdef REMOVED
 #endif
@@ -10671,6 +10686,7 @@ void proto_register_camel(void) {
      { &ei_camel_unknown_returnResultData, { "camel.unknown.returnResultData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
      { &ei_camel_unknown_returnErrorData, { "camel.unknown.returnErrorData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
      { &ei_camel_par_wrong_length, { "camel.par_wrong_length", PI_PROTOCOL, PI_ERROR, "Wrong length of parameter", EXPFILL }},
+     { &ei_camel_bcd_not_digit, { "camel.bcd_not_digit", PI_MALFORMED, PI_WARN, "BCD number contains a value that is not a digit", EXPFILL }},
   };
 
   expert_module_t* expert_camel;

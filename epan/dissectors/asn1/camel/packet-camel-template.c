@@ -98,7 +98,8 @@ static int hf_camelsrt_DeltaTime65=-1;
 static int hf_camelsrt_DeltaTime22=-1;
 static int hf_camelsrt_DeltaTime35=-1;
 static int hf_camelsrt_DeltaTime80=-1;
-static int hf_camel_timeandtimezone_bcd = -1;
+static int hf_camel_timeandtimezone_time = -1;
+static int hf_camel_timeandtimezone_tz = -1;
 
 #include "packet-camel-hf.c"
 
@@ -149,6 +150,7 @@ static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
 static expert_field ei_camel_unknown_returnErrorData = EI_INIT;
 static expert_field ei_camel_par_wrong_length = EI_INIT;
+static expert_field ei_camel_bcd_not_digit = EI_INIT;
 
 /* Preference settings default */
 #define MAX_SSN 254
@@ -1450,11 +1452,17 @@ void proto_register_camel(void) {
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         "DeltaTime between EventReportGPRS and ContinueGPRS", HFILL }
     },
-    { &hf_camel_timeandtimezone_bcd,
-      { "Time and timezone",
-        "camel.timeandtimezone_bcd",
+    { &hf_camel_timeandtimezone_time,
+      { "Time",
+        "camel.timeandtimezone.time",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
+    },
+    { &hf_camel_timeandtimezone_tz,
+      { "Time Zone",
+        "camel.timeandtimezone.timezone",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        "Difference, expressed in quarters of an hour, between local time and GMT", HFILL }
     },
 #ifdef REMOVED
 #endif
@@ -1494,6 +1502,7 @@ void proto_register_camel(void) {
      { &ei_camel_unknown_returnResultData, { "camel.unknown.returnResultData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
      { &ei_camel_unknown_returnErrorData, { "camel.unknown.returnErrorData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
      { &ei_camel_par_wrong_length, { "camel.par_wrong_length", PI_PROTOCOL, PI_ERROR, "Wrong length of parameter", EXPFILL }},
+     { &ei_camel_bcd_not_digit, { "camel.bcd_not_digit", PI_MALFORMED, PI_WARN, "BCD number contains a value that is not a digit", EXPFILL }},
   };
 
   expert_module_t* expert_camel;
