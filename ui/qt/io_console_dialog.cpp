@@ -59,6 +59,7 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
             .arg(eval_button->shortcut().toString(QKeySequence::NativeText)));
 
     ui->outputTextEdit->setFont(mainApp->monospaceFont());
+    ui->outputTextEdit->setReadOnly(true);
 
     ui->hintLabel->clear();
 
