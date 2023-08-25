@@ -90,6 +90,21 @@
  * [MS-DHCPE] DHCPv4 Option Code 77 (0x4D) - User Class Option
  *     https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dhcpe/fe8a2dd4-1e8c-4546-bacd-4ae10de02058
  *
+ *  * Copyright 2023, Colin McInnes <colin.mcinnes [AT] vecima.com>
+ * Added additional CableLabs Vendor Class IDs (Option 60) to CableLabs heuristic from:
+ * Remote PHY Specification
+ *     https://www.cablelabs.com/specifications/CM-SP-R-PHY
+ * Flexible MAC Architecture System Specification
+ *     https://www.cablelabs.com/specifications/CM-SP-FMA-SYS
+ * Data-Over-Cable Service Interface Specifications, eDOCSIS Specification
+ *     https://www.cablelabs.com/specifications/CM-SP-eDOCSIS
+ * Data-Over-Cable Service Interface Specifications, IPv4 and IPv6 eRouter Specification
+ *     https://www.cablelabs.com/specifications/CM-SP-eRouter
+ * OpenCable Tuning Resolver Interface Specification
+ *     https://www.cablelabs.com/specifications/OC-SP-TRIF
+ * DPoE Demarcation Device Specification
+ *     https://www.cablelabs.com/specifications/DPoE-SP-DEMARCv1.0
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -4573,11 +4588,30 @@ dissect_cablelabs_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	dhcp_option_data_t *option_data = (dhcp_option_data_t*)data;
 	proto_tree* vendor_tree;
 
+	/* Vendor Class IDs
+	 * DOCSIS - docsis
+	 * CableHome - CableHome
+	 * OpenCable2.0 - OpenCable2.0
+	 * PacketCable - pktc
+	 * DEMARC - DEMARC
+	 * sRouter - SROUTER
+	 * Remote PHY - RPD
+	 * eDOCSIS - PTA or ECM
+	 * OpenCable TRIF - TR
+	 */
+
 	if ((option_data->vendor_class_id != NULL) &&
 		((strncmp((const gchar*)option_data->vendor_class_id, "pktc", strlen("pktc")) == 0) ||
 		 (strncmp((const gchar*)option_data->vendor_class_id, "docsis", strlen("docsis")) == 0) ||
 		 (strncmp((const gchar*)option_data->vendor_class_id, "OpenCable2.0", strlen("OpenCable2.0")) == 0) ||
-		 (strncmp((const gchar*)option_data->vendor_class_id, "CableHome", strlen("CableHome")) == 0))) {
+			(strncmp((const gchar*)option_data->vendor_class_id, "CableHome", strlen("CableHome")) == 0) ||
+			(strncmp((const gchar*)option_data->vendor_class_id, "RPD", strlen("RPD")) == 0) ||
+			(strncmp((const gchar*)option_data->vendor_class_id, "RMD", strlen("RMD")) == 0) ||
+			(strncmp((const gchar*)option_data->vendor_class_id, "ECM", strlen("ECM")) == 0) ||
+			(strncmp((const gchar*)option_data->vendor_class_id, "PTA", strlen("PTA")) == 0) ||
+			(strncmp((const gchar*)option_data->vendor_class_id, "DEMARC", strlen("DEMARC")) == 0) ||
+			(strncmp((const gchar*)option_data->vendor_class_id, "TR", strlen("TR")) == 0) ||
+			(strncmp((const gchar*)option_data->vendor_class_id, "SROUTER", strlen("SROUTER")) == 0))) {
 		/* CableLabs standard - see www.cablelabs.com/projects */
 		proto_item_append_text(tree, " (CableLabs)");
 		vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
