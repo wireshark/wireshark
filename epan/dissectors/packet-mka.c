@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/uat.h>
 
 #include "packet-eapol.h"
 
@@ -55,6 +56,7 @@ static int hf_mka_actor_mi = -1;
 static int hf_mka_actor_mn = -1;
 static int hf_mka_algo_agility = -1;
 static int hf_mka_cak_name = -1;
+static int hf_mka_cak_name_info = -1;
 
 static int hf_mka_padding = -1;
 
@@ -174,6 +176,141 @@ static const value_string macsec_tlvs[] = {
   { 0, NULL }
 };
 
+
+/*** UAT: CKN INFO ***/
+
+#define DATAFILE_CKN_INFO "mka_ckn_info"
+
+typedef struct _mka_ckn_info_key {
+  /* CKN: a byte array of 0 to 32 bytes. */
+  guchar *ckn;
+  guint ckn_len;
+} mka_ckn_info_key_t;
+
+typedef struct _mka_ckn_info {
+  mka_ckn_info_key_t key;
+  gchar *name;
+} mka_ckn_info_t;
+
+static mka_ckn_info_t *mka_ckn_uat_data = NULL;
+static guint num_mka_ckn_uat_data = 0;
+static GHashTable *ht_mka_ckn = NULL;
+
+UAT_BUFFER_CB_DEF(mka_ckn_uat_data, ckn, mka_ckn_info_t, key.ckn, key.ckn_len)
+UAT_CSTRING_CB_DEF(mka_ckn_uat_data, name, mka_ckn_info_t)
+
+static guint
+ckn_key_hash_func(gconstpointer k) {
+  const mka_ckn_info_key_t *key = (const mka_ckn_info_key_t *)k;
+  size_t i;
+  guint hash = 0;
+  guint8 *tmp = (guint8 *)key->ckn;
+
+  /* Reduce to guint32 by XOR */
+  for (i = 0; i < key->ckn_len; i++) {
+    hash ^= tmp[i] << 8 * (i % 4);
+  }
+
+  return hash;
+}
+
+static gint
+ckn_key_equal_func(gconstpointer c1, gconstpointer c2) {
+  const mka_ckn_info_key_t *ckn1 = (const mka_ckn_info_key_t *)c1;
+  const mka_ckn_info_key_t *ckn2 = (const mka_ckn_info_key_t *)c2;
+  if (ckn1->ckn_len != ckn2->ckn_len) return 0;
+  if (memcmp(ckn1->ckn, ckn2->ckn, ckn1->ckn_len) != 0) return 0;
+
+  return 1;
+}
+
+static void *
+ckn_info_copy_cb(void *n, const void *o, size_t size _U_) {
+  mka_ckn_info_t       *new_rec = (mka_ckn_info_t *)n;
+  const mka_ckn_info_t *old_rec = (const mka_ckn_info_t *)o;
+
+  new_rec->key.ckn_len = old_rec->key.ckn_len;
+  new_rec->key.ckn = (guchar *)g_memdup2(old_rec->key.ckn, old_rec->key.ckn_len);
+  new_rec->key.ckn_len = old_rec->key.ckn_len;
+  new_rec->name = g_strdup(old_rec->name);
+
+  return new_rec;
+}
+
+static gboolean
+ckn_info_update_cb(void *r, char **err) {
+  mka_ckn_info_t *rec = (mka_ckn_info_t *)r;
+
+  if (rec->key.ckn_len == 0 || rec->key.ckn_len > 32) {
+    *err = ws_strdup_printf("Invalid CKN length! CKNs need to be between 1 and 32 bytes.");
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+static void
+ckn_info_free_cb(void *r) {
+  mka_ckn_info_t *rec = (mka_ckn_info_t *)r;
+  g_free(rec->key.ckn);
+  g_free(rec->name);
+}
+
+static void
+ckn_info_reset_cb(void) {
+  if (ht_mka_ckn) {
+    g_hash_table_destroy(ht_mka_ckn);
+    ht_mka_ckn = NULL;
+  }
+}
+
+static void
+ckn_info_post_update_cb(void) {
+  guint i;
+
+  ckn_info_reset_cb();
+
+  ht_mka_ckn = g_hash_table_new(&ckn_key_hash_func, &ckn_key_equal_func);
+
+  for (i = 0; i < num_mka_ckn_uat_data; i++) {
+    g_hash_table_insert(ht_mka_ckn, &(mka_ckn_uat_data[i].key), &(mka_ckn_uat_data[i]));
+  }
+}
+
+static const gchar *
+ckn_info_lookup(guint8 ckn[], guint32 ckn_len) {
+  mka_ckn_info_key_t tmp_key = { .ckn = ckn, .ckn_len = ckn_len };
+
+  if (ht_mka_ckn == NULL) {
+    return NULL;
+  }
+
+  mka_ckn_info_t *tmp = (mka_ckn_info_t *)g_hash_table_lookup(ht_mka_ckn, &tmp_key);
+
+  if (tmp == NULL) {
+    return NULL;
+  }
+
+  return tmp->name;
+}
+
+static void
+mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 ckn_len) {
+  proto_item *ti;
+
+  guint8 cak_name[32]; /* Only accept CKN between 1 and 32 bytes! */
+  if (1 <= ckn_len && ckn_len <= 32) {
+    tvb_memcpy(tvb, cak_name, offset, ckn_len);
+
+    const gchar *tmp_string = ckn_info_lookup(cak_name, ckn_len);
+    if (tmp_string != NULL) {
+      ti = proto_tree_add_string(tree, hf_mka_cak_name_info, tvb, offset, ckn_len, tmp_string);
+      proto_item_set_generated(ti);
+    }
+  }
+}
+
+
 static void
 dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr)
 {
@@ -230,6 +367,7 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   cak_len = basic_param_set_len - 28;
   proto_tree_add_item(basic_param_set_tree, hf_mka_cak_name,
                       tvb, offset, cak_len, ENC_NA);
+  mka_add_ckn_info(basic_param_set_tree, tvb, offset, cak_len);
   offset += cak_len;
 
   if (basic_param_set_len%4) {
@@ -495,6 +633,7 @@ dissect_distributed_cak(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *
   cak_len = distributed_cak_len - 24;
   proto_tree_add_item(distributed_cak_tree, hf_mka_cak_name,
                       tvb, offset, cak_len, ENC_NA);
+  mka_add_ckn_info(distributed_cak_tree, tvb, offset, cak_len);
   offset += cak_len;
 
   if (distributed_cak_len%4) {
@@ -803,7 +942,10 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 void
 proto_register_mka(void)
 {
+  module_t         *mka_module;
   expert_module_t  *expert_mka = NULL;
+
+  uat_t *mka_ckn_info_uat = NULL;
 
   static ei_register_info ei[] = {
     { &ei_mka_undecoded, {
@@ -933,6 +1075,11 @@ proto_register_mka(void)
     { &hf_mka_cak_name, {
         "CAK Name", "mka.cak_name",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_mka_cak_name_info, {
+        "CAK Name Info", "mka.cak_name.info",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_mka_padding, {
@@ -1126,6 +1273,33 @@ proto_register_mka(void)
   expert_mka = expert_register_protocol(proto_mka);
   expert_register_field_array(expert_mka, ei, array_length(ei));
 
+  mka_module = prefs_register_protocol(proto_mka, NULL);
+
+  /* UAT: CKN info */
+  static uat_field_t mka_ckn_uat_fields[] = {
+    UAT_FLD_BUFFER(mka_ckn_uat_data, ckn, "CKN", "The CKN as byte array"),
+    UAT_FLD_CSTRING(mka_ckn_uat_data, name, "Info", "CKN information string to be displayed"),
+    UAT_END_FIELDS
+  };
+
+  mka_ckn_info_uat = uat_new("CKN Info",
+    sizeof(mka_ckn_info_t),                 /* record size           */
+    DATAFILE_CKN_INFO,                      /* filename              */
+    TRUE,                                   /* from profile          */
+    (void **) &mka_ckn_uat_data,            /* data_ptr              */
+    &num_mka_ckn_uat_data,                  /* numitems_ptr          */
+    UAT_AFFECTS_DISSECTION,                 /* but not fields        */
+    NULL,                                   /* help                  */
+    ckn_info_copy_cb,                       /* copy callback         */
+    ckn_info_update_cb,                     /* update callback       */
+    ckn_info_free_cb,                       /* free callback         */
+    ckn_info_post_update_cb,                /* post update callback  */
+    ckn_info_reset_cb,                      /* reset callback        */
+    mka_ckn_uat_fields                      /* UAT field definitions */
+  );
+
+  prefs_register_uat_preference(mka_module, "ckn_info", "CKN Info",
+    "A table to define names of CKNs", mka_ckn_info_uat);
 }
 
 void
