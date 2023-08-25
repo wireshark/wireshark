@@ -21,6 +21,38 @@
 #include <epan/ptvcursor.h>
 #include <epan/expert.h>
 
+/*
+ * RFC 3208
+ *
+ * Plus https://dl.acm.org/doi/pdf/10.1145/347057.347390 for PGMCC,
+ * whence the ACK packet type comes; there are some I-Ds for PGMCC,
+ * draft-ietf-rmt-bb-pgmcc-00 through draft-ietf-rmt-bb-pgmcc-03,
+ * but none of them give any description of the packet-level
+ * changes to PGM, unlike the paper in question, which merely gives
+ * an *insufficient* description of said changes.  In particular,
+ * it doesn't indicate what the packet type code for ACK is.
+ *
+ * Luigi Risso's PGMCC code for FreeBSD, at
+ *
+ *     https://web.archive.org/web/20020302084503/http://info.iet.unipi.it/~luigi/pgm-code/
+ *
+ * uses 0x0b (11) for ACK, as does tcpdump's dissector.
+ *
+ * A capture file attached to
+ *
+ *     https://gitlab.com/wireshark/wireshark/-/issues/4798
+ *
+ * has packets that use 0x0d for ACK, as did this dissector, and
+ * as does OpenPGM at https://github.com/steve-o/openpgm.  It may
+ * be that some proprietary PGMCC implementations, such as SmartPGM,
+ * do so as well.
+ *
+ * We use *both*, treating *either one* as a PGMCC ACK, pending
+ * more information, such as an answer to
+ *
+ *    https://github.com/steve-o/openpgm/issues/75.
+ */
+
 void proto_register_pgm(void);
 void proto_reg_handoff_pgm(void);
 
@@ -38,7 +70,13 @@ static gboolean pgm_check_checksum = TRUE;
 #define PGM_NCF_PCKT 0x0A
 #define PGM_POLL_PCKT 0x01
 #define PGM_POLR_PCKT 0x02
-#define PGM_ACK_PCKT 0x0D
+
+/*
+ * See above comment for why there are two values for the PGMCC
+ * ACK packet's packet type.
+ */
+#define PGM_ACK_PCKT 0x0B
+#define PGM_ACK2_PCKT 0x0D
 
 /* option flags (main PGM header) */
 #define PGM_OPT 0x01
@@ -730,6 +768,7 @@ static const value_string type_vals[] = {
 	{ PGM_POLL_PCKT,  "POLL" },
 	{ PGM_POLR_PCKT,  "POLR" },
 	{ PGM_ACK_PCKT,   "ACK" },
+	{ PGM_ACK2_PCKT,  "ACK" },
 	{ 0,              NULL }
 };
 
@@ -1001,6 +1040,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		ptvcursor_add(cursor, hf_pgm_polr_res, 2, ENC_BIG_ENDIAN);
 		break;
 	case PGM_ACK_PCKT:
+	case PGM_ACK2_PCKT:
 		type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
 											ett_pgm_ack, NULL, "%s Packet", pktname);
 		ptvcursor_set_tree(cursor, type_tree);
