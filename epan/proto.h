@@ -2528,6 +2528,8 @@ proto_register_protocol_in_name_only(const char *name, const char *short_name, c
     int parent_proto, enum ftenum field_type);
 
 /** Deregister a protocol.
+ This is only used internally for reloading Lua plugins and must not be used
+ by dissectors or plugins.
  @param short_name abbreviated name of the protocol
  @return TRUE if protocol is removed */
 gboolean
