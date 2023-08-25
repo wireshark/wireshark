@@ -15,20 +15,17 @@
 #include <epan/proto.h>
 
 /* Flags for CAN FD frames. */
-#define CANFD_BRS	0x01 /* Bit Rate Switch (second bitrate for payload data) */
-#define CANFD_ESI	0x02 /* Error State Indicator of the transmitting node */
-#define CANFD_FDF	0x04 /* FD flag - if set, this is an FD frame */
+#define CANFD_BRS 0x01 /* Bit Rate Switch (second bitrate for payload data) */
+#define CANFD_ESI 0x02 /* Error State Indicator of the transmitting node */
+#define CANFD_FDF 0x04 /* FD flag - if set, this is an FD frame */
 
 /* Structure that gets passed between dissectors. */
-struct can_info
-{
-	guint32 id;
-	guint32 len;
-	gboolean fd;
-	guint16 bus_id;
-};
-
-typedef struct can_info can_info_t;
+typedef struct can_info {
+    guint32 id;
+    guint32 len;
+    gboolean fd;
+    guint16 bus_id;
+} can_info_t;
 
 /* controller area network (CAN) kernel definitions
  * These masks are usually defined within <linux/can.h> but are not
@@ -68,7 +65,7 @@ typedef struct can_info can_info_t;
 #define CAN_ERR_PROT_BIT1        0x10 /* unable to send recessive bit */
 #define CAN_ERR_PROT_OVERLOAD    0x20 /* bus overload */
 #define CAN_ERR_PROT_ACTIVE      0x40 /* active error announcement */
-#define CAN_ERR_PROT_TX          0x80 /* error occured on transmission */
+#define CAN_ERR_PROT_TX          0x80 /* error occurred on transmission */
 
 /* error in CAN protocol (location) / data[3] */
 #define CAN_ERR_PROT_LOC_UNSPEC  0x00 /* unspecified */
@@ -101,11 +98,11 @@ gboolean socketcan_set_source_and_destination_columns(packet_info* pinfo, can_in
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 8
+ * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

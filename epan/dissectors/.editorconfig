@@ -1949,10 +1949,6 @@ indent_size = 2
 indent_style = tab
 indent_size = tab
 
-[packet-socketcan.[ch]]
-indent_style = tab
-indent_size = tab
-
 [packet-spdy.[ch]]
 indent_size = 2
 
