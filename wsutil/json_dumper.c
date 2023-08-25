@@ -388,6 +388,11 @@ json_dumper_end_nested_element(json_dumper *dumper, enum json_dumper_element_typ
         return FALSE;
     }
 
+    // if the object/array was non-empty, add a newline and indentation.
+    if (dumper->state[dumper->current_depth]) {
+        print_newline_indent(dumper, dumper->current_depth - 1);
+    }
+
     switch (type) {
         case JSON_DUMPER_TYPE_OBJECT:
             jd_putc(dumper, '}');
