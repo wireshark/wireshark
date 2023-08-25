@@ -74,7 +74,7 @@ static int hf_http3_frame_payload     = -1;
 
 static int hf_http3_data = -1;
 
-static int hf_http3_headers                 = -1;
+//static int hf_http3_headers                 = -1;
 static int hf_http3_headers_count           = -1;
 static int hf_http3_header                  = -1;
 static int hf_http3_header_length           = -1;
@@ -87,7 +87,7 @@ static int hf_http3_header_request_full_uri = -1;
 static int hf_http3_header_qpack_blocked               = -1;
 static int hf_http3_header_qpack_blocked_stream_rcint  = -1;
 static int hf_http3_header_qpack_blocked_decoder_wicnt = -1;
-static int hf_http3_header_qpack_fatal                 = -1;
+//static int hf_http3_header_qpack_fatal                 = -1;
 
 #ifdef HAVE_NGHTTP3
 /* Static HTTP3 headers */
@@ -143,12 +143,12 @@ static int hf_http3_headers_via                         = -1;
 static int hf_http3_headers_www_authenticate            = -1;
 #endif
 
-static int hf_http3_qpack                                    = -1;
+//static int hf_http3_qpack                                    = -1;
 static int hf_http3_qpack_encoder                            = -1;
-static int hf_http3_qpack_encoder_length                     = -1;
+//static int hf_http3_qpack_encoder_length                     = -1;
 static int hf_http3_qpack_encoder_icnt                       = -1;
 static int hf_http3_qpack_encoder_icnt_inc                   = -1;
-static int hf_http3_qpack_encoder_opcode                     = -1;
+//static int hf_http3_qpack_encoder_opcode                     = -1;
 static int hf_http3_qpack_encoder_opcode_insert_indexed      = -1;
 static int hf_http3_qpack_encoder_opcode_insert_indexed_ref  = -1;
 static int hf_http3_qpack_encoder_opcode_insert_indexed_val  = -1;
@@ -159,7 +159,7 @@ static int hf_http3_qpack_encoder_opcode_insert_hname        = -1;
 static int hf_http3_qpack_encoder_opcode_insert_val          = -1;
 static int hf_http3_qpack_encoder_opcode_insert_hval         = -1;
 static int hf_http3_qpack_encoder_opcode_duplicate           = -1;
-static int hf_http3_qpack_encoder_opcode_duplicate_val       = -1;
+//static int hf_http3_qpack_encoder_opcode_duplicate_val       = -1;
 static int hf_http3_qpack_encoder_opcode_dtable_cap          = -1;
 static int hf_http3_qpack_encoder_opcode_dtable_cap_val      = -1;
 
@@ -177,11 +177,11 @@ static int hf_http3_priority_update_element_id        = -1;
 static int hf_http3_priority_update_field_value       = -1;
 
 /* QPACK dissection EIs */
-static expert_field ei_http3_qpack_enc_update = EI_INIT;
+//static expert_field ei_http3_qpack_enc_update = EI_INIT;
 static expert_field ei_http3_qpack_failed     = EI_INIT;
 /* HTTP3 dissection EIs */
 static expert_field ei_http3_unknown_stream_type = EI_INIT;
-static expert_field ei_http3_data_not_decoded    = EI_INIT;
+//static expert_field ei_http3_data_not_decoded    = EI_INIT;
 /* Encoded data EIs */
 static expert_field ei_http3_header_encoded_state = EI_INIT;
 /* HTTP3 header decoding EIs */
@@ -580,7 +580,7 @@ http3_nghttp3_malloc(size_t size, void *user_data _U_)
 static void
 http3_nghttp3_free(void *ptr, void *user_data _U_)
 {
-    return wmem_free(wmem_file_scope(), ptr);
+    wmem_free(wmem_file_scope(), ptr);
 }
 
 static void *
@@ -1759,7 +1759,7 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     proto_tree *stream_tree;
     const gchar *stream_display_name;
 
-    ti_stream = proto_tree_add_item(tree, hf_http3_stream_uni, tvb, offset, 1, ENC_NA);
+    ti_stream = proto_tree_add_item(tree, hf_http3_stream_uni, tvb, offset, -1, ENC_NA);
     stream_tree = proto_item_add_subtree(ti_stream, ett_http3_stream_uni);
 
     if (stream_info->offset == 0) {
@@ -1767,20 +1767,19 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
                                             &lenvar);
         offset += lenvar;
         http3_stream->uni_stream_type = stream_type;
+        if (http3_is_reserved_code(stream_type)) {
+            // Reserved to exercise requirement that unknown types are ignored.
+            proto_item_set_text(ti_stream_type, "Stream Type: Reserved (%#" PRIx64 ")", stream_type);
+            stream_display_name = "Reserved";
+        }
+        else {
+            stream_display_name = val64_to_str_const(stream_type, http3_stream_types, "Unknown");
+        }
+        proto_item_set_text(ti_stream, "UNI STREAM: %s off=%" PRIu64 "", stream_display_name, stream_info->stream_offset);
     } else {
         stream_type = http3_stream->uni_stream_type;
-        ti_stream_type = proto_tree_add_item(stream_tree, hf_http3_stream_uni_type, tvb, offset, -1, ENC_NA);
+        /*ti_stream_type = proto_tree_add_item(stream_tree, hf_http3_stream_uni_type, tvb, offset, -1, ENC_NA);*/
     }
-
-    if (http3_is_reserved_code(stream_type)) {
-        // Reserved to exercise requirement that unknown types are ignored.
-        proto_item_set_text(ti_stream_type, "Stream Type: Reserved (%#" PRIx64 ")", stream_type);
-        stream_display_name = "Reserved";
-    } else {
-        stream_display_name = val64_to_str_const(stream_type, http3_stream_types, "Unknown");
-    }
-
-    proto_item_set_text(ti_stream, "UNI STREAM: %s off=%" PRIu64 "", stream_display_name, stream_info->stream_offset);
 
     switch (stream_type) {
     case HTTP3_STREAM_TYPE_CONTROL:
@@ -2214,11 +2213,11 @@ proto_register_http3(void)
             NULL, HFILL }
         },
         /* Headers */
-        { &hf_http3_headers,
-             { "Header", "http3.headers",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }
-        },
+        //{ &hf_http3_headers,
+        //     { "Header", "http3.headers",
+        //        FT_UINT32, BASE_DEC, NULL, 0x0,
+        //        NULL, HFILL }
+        //},
         { &hf_http3_headers_count,
              { "Headers Count", "http3.headers.count",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2274,26 +2273,26 @@ proto_register_http3(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_http3_header_qpack_fatal,
-            { "QPACK decoding error", "http3.header.qpack.fatal",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_http3_qpack,
-            { "QPACK", "http3.qpack",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
-        },
+        //{ &hf_http3_header_qpack_fatal,
+        //    { "QPACK decoding error", "http3.header.qpack.fatal",
+        //        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        //        NULL, HFILL }
+        //},
+        //{ &hf_http3_qpack,
+        //    { "QPACK", "http3.qpack",
+        //        FT_BYTES, BASE_NONE, NULL, 0x0,
+        //        NULL, HFILL }
+        //},
         { &hf_http3_qpack_encoder,
             { "QPACK encoder", "http3.qpack.encoder",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_http3_qpack_encoder_length,
-            { "QPACK encoder update length", "http3.qpack.encoder.length",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }
-        },
+        //{ &hf_http3_qpack_encoder_length,
+        //    { "QPACK encoder update length", "http3.qpack.encoder.length",
+        //        FT_UINT32, BASE_DEC, NULL, 0x0,
+        //        NULL, HFILL }
+        //},
         { &hf_http3_qpack_encoder_icnt,
             { "QPACK encoder instruction count", "http3.qpack.encoder.icnt",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2304,11 +2303,11 @@ proto_register_http3(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-       { &hf_http3_qpack_encoder_opcode,
-            { "QPACK encoder opcode", "http3.qpack.encoder.opcode",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
-              NULL, HFILL }
-        },
+       //{ &hf_http3_qpack_encoder_opcode,
+       //     { "QPACK encoder opcode", "http3.qpack.encoder.opcode",
+       //       FT_BYTES, BASE_NONE, NULL, 0x0,
+       //       NULL, HFILL }
+       // },
         { &hf_http3_qpack_encoder_opcode_insert_indexed,
             { "Insert with Name Reference", "http3.qpack.encoder.opcode.insert_indexed",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2359,11 +2358,11 @@ proto_register_http3(void)
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_http3_qpack_encoder_opcode_duplicate_val,
-            { "Duplicate Index", "http3.qpack.encoder.opcode.duplicate.val",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
-              NULL, HFILL }
-        },
+        //{ &hf_http3_qpack_encoder_opcode_duplicate_val,
+        //    { "Duplicate Index", "http3.qpack.encoder.opcode.duplicate.val",
+        //      FT_BYTES, BASE_NONE, NULL, 0x0,
+        //      NULL, HFILL }
+        //},
         { &hf_http3_qpack_encoder_opcode_dtable_cap,
             { "Set Dynamic Table Capacity", "http3.qpack.encoder.opcode.dtable_cap",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2455,16 +2454,16 @@ proto_register_http3(void)
           { "http3.unknown_stream_type", PI_UNDECODED, PI_WARN,
             "An unknown stream type was encountered", EXPFILL }
         },
-        { &ei_http3_data_not_decoded,
-            { "http3.data_not_decoded", PI_UNDECODED, PI_WARN,
-              "Data not decoded", EXPFILL }
-         },
-         { &ei_http3_qpack_enc_update ,
-           { "http3.qpack_enc_update", PI_UNDECODED, PI_WARN,
-             "Success decoding QPACK buffer", EXPFILL }
-         },
+        //{ &ei_http3_data_not_decoded,
+        //    { "http3.data_not_decoded", PI_UNDECODED, PI_WARN,
+        //      "Data not decoded", EXPFILL }
+        // },
+        // { &ei_http3_qpack_enc_update,
+        //   { "http3.qpack_enc_update", PI_UNDECODED, PI_WARN,
+        //     "Success decoding QPACK buffer", EXPFILL }
+        // },
          { &ei_http3_qpack_failed,
-           { "http3.qpack_enc_failed", PI_UNDECODED, PI_WARN,
+           { "http3.qpack_enc_failed", PI_UNDECODED, PI_NOTE,
              "Error decoding QPACK buffer", EXPFILL }
          },
          { &ei_http3_header_encoded_state ,
@@ -2472,15 +2471,15 @@ proto_register_http3(void)
              "HTTP3 header encoded block", EXPFILL }
          },
          { &ei_http3_header_decoding_failed ,
-           { "http3.expert.header_decoding.failed", PI_UNDECODED, PI_WARN,
+           { "http3.expert.header_decoding.failed", PI_UNDECODED, PI_NOTE,
              "Failed to decode HTTP3 header name/value", EXPFILL }
          },
          { &ei_http3_header_decoding_blocked,
-           { "http3.expert.header_decoding.blocked", PI_UNDECODED, PI_WARN,
+           { "http3.expert.header_decoding.blocked", PI_UNDECODED, PI_NOTE,
              "Failed to decode HTTP3 header name/value (blocked on QPACK)", EXPFILL}
          },
          { &ei_http3_header_decoding_no_output,
-           { "http3.expert.header_decoding.no_output", PI_UNDECODED, PI_WARN,
+           { "http3.expert.header_decoding.no_output", PI_UNDECODED, PI_NOTE,
              "Failed to decode HTTP3 header name/value (QPACK decoder no emission)", EXPFILL}
          },
     };

@@ -87,6 +87,7 @@ $X64Archives = @{
     "lz4/lz4-1.9.3-1-win64ws.zip" = "7129515893ffdc439f4ffe9673c4bc43f9042e910bb2607e68dde6b99a1ab058";
     "minizip/minizip-1.2.11-4-win64ws.zip" = "dd6bf24e2d946465ad19aa4f8c38e0db91da6585887935de68011982cd6fb2cb";
     "nghttp2/nghttp2-1.49.0-1-win64ws.zip" = "215919ec20be62101d4704ec2464bfb72c5677126c5245b92ba495a3d30642ca";
+    "nghttp3/nghttp3-0.14.0-1-x64-windows-ws.zip" = "233ab84530cbf2800bc55723f91269600ea6792907b14413acf5e26ff31019b1";
     "opus/opus-1.3.1-3-win64ws.zip" = "1f7a55a6d2d7215dffa4a43bca8ca05024bd4ba1ac3d0d0c405fd38b09cc2205";
     "pcre2/pcre2-10.40-1-win64ws.zip" = "17eee615990b23bc859a862c19f5ac10c61776587603bc452285abe073a0fad9";
     "sbc/sbc-2.0-1-x64-windows-ws.zip" = "d1a58f977dcffa168b11b280bd10228191582d263b7c901e50cde7c1c43d9c04";

@@ -8950,7 +8950,7 @@ ssl_is_authoritative_version_message(guint8 content_type, guint8 handshake_type,
  */
 void
 tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
-                      guint16 *server_version, gboolean *is_hrr, guint16 *max_supported_version)
+                      guint16 *server_version, gboolean *is_hrr)
 {
     /* SHA256("HelloRetryRequest") */
     static const guint8 tls13_hrr_random_magic[] = {
@@ -8985,12 +8985,7 @@ tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
                 break;  /* not enough data for type, length and data */
             }
             if (ext_type == SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS && ext_len == 2) {
-                guint16 higher_version = tvb_get_ntohs(tvb, offset + 4);
-                if (max_supported_version) {
-                    *max_supported_version = higher_version;
-                } else {
-                    *server_version = higher_version;
-                }
+                *server_version = tvb_get_ntohs(tvb, offset + 4);
                 return;
             }
             offset += 4 + ext_len;
