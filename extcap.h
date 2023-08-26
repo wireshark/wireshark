@@ -89,11 +89,10 @@ extcap_get_if_dlts(const gchar * ifname, char ** err_str);
  * Append a list of all extcap capture interfaces to the specified list.
  * Initializes the extcap interface list if that hasn't already been done.
  * @param list An existing GList of if_info_t.
- * @param err_str Set to NULL on success, error description on failure.
  * @return An updated list on success, an unchanged list on failure.
  */
 GList *
-append_extcap_interface_list(GList *list, char **err_str);
+append_extcap_interface_list(GList *list);
 
 /**
  * Retrieves information about an extcap executable.

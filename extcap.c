@@ -668,7 +668,7 @@ extcap_get_help_for_ifname(const char *ifname)
 }
 
 GList *
-append_extcap_interface_list(GList *list, char **err_str _U_)
+append_extcap_interface_list(GList *list)
 {
     GList *interface_list = NULL;
     extcap_interface *data = NULL;
