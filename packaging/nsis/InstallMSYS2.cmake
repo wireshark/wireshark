@@ -5,65 +5,65 @@ if(USE_MSYSTEM)
 	# (use msys2checkdeps.py to list required libraries / check for missing or unused libraries)
 	file(GLOB MINGW_DLLS
 		${MINGW_BIN}/libLerc.dll
-		${MINGW_BIN}/libb2-1.dll
+		${MINGW_BIN}/libb2-*.dll
 		${MINGW_BIN}/libbrotlicommon.dll
 		${MINGW_BIN}/libbrotlidec.dll
 		${MINGW_BIN}/libbrotlienc.dll
-		${MINGW_BIN}/libbz2-1.dll
+		${MINGW_BIN}/libbz2-*.dll
 		${MINGW_BIN}/libbcg729.dll
-		${MINGW_BIN}/libcares-2.dll
-		${MINGW_BIN}/libcrypto-3-x64.dll
+		${MINGW_BIN}/libcares-*.dll
+		${MINGW_BIN}/libcrypto-*-x64.dll
 		${MINGW_BIN}/libdeflate.dll
 		${MINGW_BIN}/libdouble-conversion.dll
-		${MINGW_BIN}/libexpat-1.dll
-		${MINGW_BIN}/libffi-8.dll
-		${MINGW_BIN}/libfreetype-6.dll
-		${MINGW_BIN}/libgcc_s_seh-1.dll
-		${MINGW_BIN}/libgcrypt-20.dll
-		${MINGW_BIN}/libglib-2.0-0.dll
-		${MINGW_BIN}/libgmodule-2.0-0.dll
-		${MINGW_BIN}/libgmp-10.dll
-		${MINGW_BIN}/libgnutls-30.dll
-		${MINGW_BIN}/libgpg-error-0.dll
+		${MINGW_BIN}/libexpat-*.dll
+		${MINGW_BIN}/libffi-*.dll
+		${MINGW_BIN}/libfreetype-*.dll
+		${MINGW_BIN}/libgcc_s_seh-*.dll
+		${MINGW_BIN}/libgcrypt-*.dll
+		${MINGW_BIN}/libglib-2.0-*.dll
+		${MINGW_BIN}/libgmodule-2.0-*.dll
+		${MINGW_BIN}/libgmp-*.dll
+		${MINGW_BIN}/libgnutls-*.dll
+		${MINGW_BIN}/libgpg-error-*.dll
 		${MINGW_BIN}/libgraphite2.dll
-		${MINGW_BIN}/libharfbuzz-0.dll
-		${MINGW_BIN}/libhogweed-6.dll
-		${MINGW_BIN}/libiconv-2.dll
-		${MINGW_BIN}/libicudt72.dll
-		${MINGW_BIN}/libicuin72.dll
-		${MINGW_BIN}/libicuuc72.dll
+		${MINGW_BIN}/libharfbuzz-*.dll
+		${MINGW_BIN}/libhogweed-*.dll
+		${MINGW_BIN}/libiconv-*.dll
+		${MINGW_BIN}/libicudt*.dll
+		${MINGW_BIN}/libicuin*.dll
+		${MINGW_BIN}/libicuuc*.dll
 		${MINGW_BIN}/libilbc.dll
-		${MINGW_BIN}/libidn2-0.dll
-		${MINGW_BIN}/libintl-8.dll
-		${MINGW_BIN}/libjbig-0.dll
-		${MINGW_BIN}/libjpeg-8.dll
+		${MINGW_BIN}/libidn2-*.dll
+		${MINGW_BIN}/libintl-*.dll
+		${MINGW_BIN}/libjbig-*.dll
+		${MINGW_BIN}/libjpeg-*.dll
 		${MINGW_BIN}/liblz4.dll
-		${MINGW_BIN}/liblzma-5.dll
+		${MINGW_BIN}/liblzma-*.dll
 		${MINGW_BIN}/libmd4c.dll
 		${MINGW_BIN}/libmaxminddb.dll
-		${MINGW_BIN}/libminizip-1.dll
-		${MINGW_BIN}/libnettle-8.dll
-		${MINGW_BIN}/libnghttp2-14.dll
-		${MINGW_BIN}/libopus-0.dll
-		${MINGW_BIN}/libp11-kit-0.dll
-		${MINGW_BIN}/libpcre2-16-0.dll
-		${MINGW_BIN}/libpcre2-8-0.dll
-		${MINGW_BIN}/libpng16-16.dll
-		${MINGW_BIN}/libsbc-1.dll
-		${MINGW_BIN}/libsharpyuv-0.dll
-		${MINGW_BIN}/libsmi-2.dll
+		${MINGW_BIN}/libminizip-*.dll
+		${MINGW_BIN}/libnettle-*.dll
+		${MINGW_BIN}/libnghttp2-*.dll
+		${MINGW_BIN}/libopus-*.dll
+		${MINGW_BIN}/libp11-kit-*.dll
+		${MINGW_BIN}/libpcre2-16-*.dll
+		${MINGW_BIN}/libpcre2-8-*.dll
+		${MINGW_BIN}/libpng16-*.dll
+		${MINGW_BIN}/libsbc-*.dll
+		${MINGW_BIN}/libsharpyuv-*.dll
+		${MINGW_BIN}/libsmi-*.dll
 		${MINGW_BIN}/libsnappy.dll
-		${MINGW_BIN}/libspandsp-2.dll
-		${MINGW_BIN}/libspeexdsp-1.dll
+		${MINGW_BIN}/libspandsp-*.dll
+		${MINGW_BIN}/libspeexdsp-*.dll
 		${MINGW_BIN}/libssh.dll
-		${MINGW_BIN}/libstdc++-6.dll
-		${MINGW_BIN}/libtasn1-6.dll
-		${MINGW_BIN}/libtiff-6.dll
-		${MINGW_BIN}/libunistring-2.dll
-		${MINGW_BIN}/libwebp-7.dll
-		${MINGW_BIN}/libunistring-5.dll
-		${MINGW_BIN}/libwinpthread-1.dll
-		${MINGW_BIN}/libxml2-2.dll
+		${MINGW_BIN}/libstdc++-*.dll
+		${MINGW_BIN}/libtasn1-*.dll
+		${MINGW_BIN}/libtiff-*.dll
+		${MINGW_BIN}/libunistring-*.dll
+		${MINGW_BIN}/libwebp-*.dll
+		${MINGW_BIN}/libunistring-*.dll
+		${MINGW_BIN}/libwinpthread-*.dll
+		${MINGW_BIN}/libxml2-*.dll
 		${MINGW_BIN}/libzstd.dll
 		${MINGW_BIN}/lua51.dll
 		${MINGW_BIN}/zlib1.dll
