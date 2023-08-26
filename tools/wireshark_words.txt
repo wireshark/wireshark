@@ -4,6 +4,7 @@
 10gig
 16apsk
 1xrtt
+20west
 3gpp2
 3pcap
 5views
@@ -190,6 +191,7 @@ carrierid
 casio
 categorizes
 cblock
+ccache
 cccid
 ccitt
 ccpch
@@ -566,6 +568,7 @@ frcrpt
 freebsd
 frontend
 fsctl
+ftenum
 ftype
 ftypes
 fujitsu
@@ -709,6 +712,7 @@ interleaving
 interop
 interruptible
 interworking
+intval
 inuse
 invalidation
 invalidly
@@ -1236,6 +1240,7 @@ reencyption
 reentry
 reestablishing
 reestablishment
+refactored
 referer
 referrer
 regex
@@ -1583,6 +1588,7 @@ type1
 type2
 type3
 typedef
+typeof
 uarfcn
 uavcan
 uboot

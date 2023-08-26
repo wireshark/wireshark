@@ -58491,7 +58491,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_mimo_ctrl_sounding_dialog_token_number,
      {"Sounding Dialog Token Number",
-      "wlan.eht.mimo.control.soounding_dialog_token_number",
+      "wlan.eht.mimo.control.sounding_dialog_token_number",
       FT_UINT40, BASE_DEC, NULL, 0x0FC0000000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_mimo_ctrl_codebook_info,

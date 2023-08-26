@@ -1080,7 +1080,7 @@ proto_register_file_blf(void) {
     };
 
     proto_blf = proto_register_protocol("BLF File Format", "File-BLF", "file-blf");
-    proto_blf_ethernetstatus_obj = proto_register_protocol("BLF Ethernet Status", "BLF-Ethermet-Status", "blf-ethermet-status");
+    proto_blf_ethernetstatus_obj = proto_register_protocol("BLF Ethernet Status", "BLF-Ethernet-Status", "blf-ethernet-status");
 
     proto_register_field_array(proto_blf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

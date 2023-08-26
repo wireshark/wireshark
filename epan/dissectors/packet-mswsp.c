@@ -7976,7 +7976,7 @@ proto_register_mswsp(void)
 	static ei_register_info ei[] = {
 		{ &ei_mswsp_invalid_variant_type, { "mswsp.invalid_variant_type", PI_PROTOCOL, PI_ERROR, "Invalid variant type", EXPFILL }},
 		{ &ei_missing_msg_context, { "mswsp.msg.cpmgetrows.missing_msg_context", PI_SEQUENCE, PI_WARN, "previous messages needed for context not captured", EXPFILL }},
-		{ &ei_mswsp_msg_cpmsetbinding_ccolumns, { "mswsp.msg.cpmsetbinding.ccolumns.invalude", PI_PROTOCOL, PI_WARN, "Invalid number of cColumns for packet", EXPFILL }}
+		{ &ei_mswsp_msg_cpmsetbinding_ccolumns, { "mswsp.msg.cpmsetbinding.ccolumns.invalid", PI_PROTOCOL, PI_WARN, "Invalid number of cColumns for packet", EXPFILL }}
 	};
 	int i;
 

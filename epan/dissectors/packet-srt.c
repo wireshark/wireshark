@@ -1110,7 +1110,7 @@ void proto_register_srt(void)
             VALS(srt_hs_request_types), 0, NULL, HFILL}},
 
         {&hf_srt_handshake_failure_type, {
-            "Handshake FAULURE code", "srt.hs.reqtype",
+            "Handshake FAILURE code", "srt.hs.reqtype",
             FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL}},
 

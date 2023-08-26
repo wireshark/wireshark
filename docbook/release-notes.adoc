@@ -202,7 +202,7 @@ The following features are new (or have been significantly updated) since versio
   cannot be used elsewhere (as they may not be legal filter names) and create
   confusion if more than one column has the same title or if a column is renamed.
   Prefer the column format instead, e.g. "_ws.col.info" for "_ws.col.Info".
-  However, for backwards compatibilty with existing tools and scripts, the
+  However, for backwards compatibility with existing tools and scripts, the
   titles of the default columns can continue to be used with "tshark -e"
   (but not elsewhere.)
 

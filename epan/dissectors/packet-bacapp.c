@@ -14518,7 +14518,7 @@ fAuthenticationFactor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
         switch (tag_no) {
         case 0: /* format-type */
-            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "formet-type: ", NULL);
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "format-type: ", NULL);
             break;
         case 1: /* format-class */
             offset = fUnsignedTag(tvb, pinfo, tree, offset, "format-class: ");
@@ -14553,7 +14553,7 @@ fAuthenticationFactorFormat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         switch (tag_no) {
         case 0: /* format-type */
-            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "formet-type: ", NULL);
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "format-type: ", NULL);
             break;
         case 1: /* vendor-id */
             offset = fUnsignedTag(tvb, pinfo, tree, offset, "vendor-id: ");
