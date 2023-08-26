@@ -31,6 +31,9 @@ FROM E2AP-CommonDataTypes
         E2nodeConfigurationUpdate,
         E2nodeConfigurationUpdateAcknowledge,
         E2nodeConfigurationUpdateFailure,
+        E2RemovalRequest,
+        E2RemovalResponse,
+        E2RemovalFailure,
         E2setupFailure,
         E2setupRequest,
         E2setupResponse,
@@ -52,13 +55,20 @@ FROM E2AP-CommonDataTypes
         RICsubscriptionDeleteRequest,
         RICsubscriptionDeleteResponse,
         RICsubscriptionDeleteRequired,
-        E2RemovalFailure,
-        E2RemovalRequest,
-        E2RemovalResponse
+        RICsubscriptionModificationRequest,
+        RICsubscriptionModificationResponse,
+        RICsubscriptionModificationFailure,
+        RICsubscriptionModificationRequired,
+        RICsubscriptionModificationConfirm,
+        RICsubscriptionModificationRefuse,
+        RICqueryRequest,
+        RICqueryResponse,
+        RICqueryFailure
 FROM E2AP-PDU-Contents
 
         id-E2connectionUpdate,
         id-E2nodeConfigurationUpdate,
+        id-E2removal,
         id-E2setup,
         id-ErrorIndication,
         id-Reset,
@@ -69,7 +79,9 @@ FROM E2AP-PDU-Contents
         id-RICsubscription,
         id-RICsubscriptionDelete,
         id-RICsubscriptionDeleteRequired,
-        id-E2removal
+        id-RICsubscriptionModification,
+        id-RICsubscriptionModificationRequired,
+        id-RICquery
 FROM E2AP-Constants;
 
 -- **************************************************************
@@ -140,6 +152,9 @@ E2AP-ELEMENTARY-PROCEDURES E2AP-ELEMENTARY-PROCEDURE ::= {
 E2AP-ELEMENTARY-PROCEDURES-CLASS-1 E2AP-ELEMENTARY-PROCEDURE ::= {
         ricSubscription										|
         ricSubscriptionDelete								|
+        ricSubscriptionModification							|
+        ricSubscriptionModificationRequired					|
+        ricQuery											|
         ricServiceUpdate									|
         ricControl											|
         e2setup												|
@@ -259,6 +274,30 @@ ricSubscriptionDeleteRequired E2AP-ELEMENTARY-PROCEDURE ::= {
         INITIATING MESSAGE		RICsubscriptionDeleteRequired
         PROCEDURE CODE			id-RICsubscriptionDeleteRequired
         CRITICALITY				ignore
+}
+
+ricSubscriptionModification	E2AP-ELEMENTARY-PROCEDURE ::= {
+        INITIATING MESSAGE		RICsubscriptionModificationRequest
+        SUCCESSFUL OUTCOME		RICsubscriptionModificationResponse
+        UNSUCCESSFUL OUTCOME	RICsubscriptionModificationFailure
+        PROCEDURE CODE			id-RICsubscriptionModification
+        CRITICALITY				reject
+}
+
+ricSubscriptionModificationRequired	E2AP-ELEMENTARY-PROCEDURE ::= {
+        INITIATING MESSAGE		RICsubscriptionModificationRequired
+        SUCCESSFUL OUTCOME		RICsubscriptionModificationConfirm
+        UNSUCCESSFUL OUTCOME	RICsubscriptionModificationRefuse
+        PROCEDURE CODE			id-RICsubscriptionModificationRequired
+        CRITICALITY				reject
+}
+
+ricQuery E2AP-ELEMENTARY-PROCEDURE ::= {
+        INITIATING MESSAGE		RICQueryRequest
+        SUCCESSFUL OUTCOME		RICQueryResponse
+        UNSUCCESSFUL OUTCOME	RICQueryFailure
+        PROCEDURE CODE			id-RICquery
+        CRITICALITY				reject
 }
 
 END

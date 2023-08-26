@@ -1,0 +1,448 @@
+-- ASN1START
+-- **************************************************************
+-- E2SM-KPM Information Element Definitions
+-- **************************************************************
+
+E2SM-KPM-IEs {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) oran(53148) e2(1) version3(3) e2sm(2) e2sm-KPMMON-IEs (2)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+--   IEs
+-- **************************************************************
+
+IMPORTS
+        CGI,
+        FiveQI,
+        PLMNIdentity,
+        QCI,
+        QosFlowIdentifier,
+        RANfunction-Name,
+        RIC-Format-Type,
+        RIC-Style-Name,
+        RIC-Style-Type,
+        S-NSSAI,
+        UEID
+FROM E2SM-COMMON-IEs;
+
+TimeStamp ::= OCTET STRING (SIZE(8))
+
+BinIndex ::= INTEGER (1.. 65535, ...)
+
+BinRangeValue ::= CHOICE {
+        valueInt				INTEGER,
+        valueReal			REAL,
+        ...
+}
+
+GranularityPeriod ::= INTEGER (1.. 4294967295)
+
+-- LogicalOR ::= ENUMERATED {true, ...}
+
+MeasurementType ::= CHOICE {
+        measName				MeasurementTypeName,
+        measID				MeasurementTypeID,
+        ...
+}
+
+MeasurementTypeName ::= PrintableString(SIZE(1.. 150, ...))
+
+MeasurementTypeID ::= INTEGER (1.. 65536, ...)
+
+MeasurementLabel ::= SEQUENCE {
+        noLabel					ENUMERATED {true, ...}				OPTIONAL,
+        plmnID					PLMNIdentity							OPTIONAL,
+        sliceID					S-NSSAI									OPTIONAL,
+        fiveQI					FiveQI									OPTIONAL,
+        qFI						QosFlowIdentifier						OPTIONAL,
+        qCI						QCI										OPTIONAL,
+        qCImax					QCI										OPTIONAL,
+        qCImin					QCI										OPTIONAL,
+        aRPmax					INTEGER (1.. 15, ...)				OPTIONAL,
+        aRPmin					INTEGER (1.. 15, ...)				OPTIONAL,
+        bitrateRange			INTEGER (1.. 65535, ...)			OPTIONAL,
+        layerMU-MIMO			INTEGER (1.. 65535, ...)			OPTIONAL,
+        sUM						ENUMERATED {true, ...}				OPTIONAL,
+        distBinX					INTEGER (1.. 65535, ...)			OPTIONAL,
+        distBinY					INTEGER (1.. 65535, ...)			OPTIONAL,
+        distBinZ					INTEGER (1.. 65535, ...)			OPTIONAL,
+        preLabelOverride		ENUMERATED {true, ...}				OPTIONAL,
+        startEndInd				ENUMERATED {start, end, ...}		OPTIONAL,
+        min						ENUMERATED {true, ...}				OPTIONAL,
+        max						ENUMERATED {true, ...}				OPTIONAL,
+        avg						ENUMERATED {true, ...}				OPTIONAL,
+        ...,
+        ssbIndex					INTEGER (1.. 65535, ...)			OPTIONAL,
+        nonGoB-BFmode-Index	INTEGER (1.. 65535, ...)			OPTIONAL,
+        mIMO-mode-Index		INTEGER (1.. 2, ...)					OPTIONAL
+}
+
+TestCondInfo ::= SEQUENCE{
+        testType				TestCond-Type,
+        testExpr				TestCond-Expression						OPTIONAL,
+        testValue			TestCond-Value								OPTIONAL,
+        ...
+}
+
+TestCond-Type ::= CHOICE{
+        gBR					ENUMERATED {true, ...},
+        aMBR					ENUMERATED {true, ...},
+        isStat				ENUMERATED {true, ...},
+        isCatM				ENUMERATED {true, ...},
+        rSRP					ENUMERATED {true, ...},
+        rSRQ					ENUMERATED {true, ...},
+        ...,
+        ul-rSRP				ENUMERATED {true, ...},
+        cQI					ENUMERATED {true, ...},
+        fiveQI				ENUMERATED {true, ...},
+        qCI					ENUMERATED {true, ...},
+        sNSSAI				ENUMERATED {true, ...}
+}
+
+TestCond-Expression ::= ENUMERATED {
+equal,
+greaterthan,
+lessthan,
+contains,
+present,
+...
+}
+
+TestCond-Value ::= CHOICE{
+        valueInt				INTEGER,
+        valueEnum			INTEGER,
+        valueBool			BOOLEAN,
+        valueBitS			BIT STRING,
+        valueOctS			OCTET STRING,
+        valuePrtS			PrintableString,
+        ...,
+        valueReal			REAL
+}
+
+-- **************************************************************
+--   Lists
+-- **************************************************************
+
+maxnoofCells					INTEGER ::= 16384
+-- maxnoofRICStyles				INTEGER ::= 63
+maxnoofMeasurementInfo		INTEGER ::= 65535
+maxnoofLabelInfo				INTEGER ::= 2147483647
+maxnoofMeasurementRecord	INTEGER ::= 65535
+maxnoofMeasurementValue		INTEGER ::= 2147483647
+maxnoofConditionInfo			INTEGER ::= 32768
+-- maxnoofUEID						INTEGER ::= 65535
+maxnoofConditionInfoPerSub	INTEGER ::= 32768
+maxnoofUEIDPerSub				INTEGER ::= 65535
+maxnoofUEMeasReport			INTEGER ::= 65535
+maxnoofBin						INTEGER ::= 65535
+
+BinRangeDefinition ::= SEQUENCE {
+binRangeListX		BinRangeList,
+binRangeListY		BinRangeList			OPTIONAL -- This IE shall not be present for a distribution measurement type that doesn't use Distribution Bin Y --,
+binRangeListZ		BinRangeList			OPTIONAL -- This IE shall not be present for a distribution measurement type that doesn't use Distribution Bin Z --,
+...
+}
+
+BinRangeList ::= SEQUENCE (SIZE(1..maxnoofBin)) OF BinRangeItem
+
+BinRangeItem ::= SEQUENCE {
+        binIndex				BinIndex,
+        startValue			BinRangeValue,
+        endValue				BinRangeValue,
+        ...
+}
+
+DistMeasurementBinRangeList ::= SEQUENCE (SIZE(1..maxnoofMeasurementInfo)) OF DistMeasurementBinRangeItem
+
+DistMeasurementBinRangeItem ::= SEQUENCE {
+        measType				MeasurementType,
+        binRangeDef			BinRangeDefinition,
+        ...
+}
+
+MeasurementInfoList ::= SEQUENCE (SIZE(1..maxnoofMeasurementInfo)) OF MeasurementInfoItem
+
+MeasurementInfoItem ::= SEQUENCE {
+        measType				MeasurementType,
+        labelInfoList		LabelInfoList,
+        ...
+}
+
+LabelInfoList ::= SEQUENCE (SIZE(1..maxnoofLabelInfo)) OF LabelInfoItem
+
+LabelInfoItem ::= SEQUENCE {
+        measLabel			MeasurementLabel,
+        ...
+}
+
+MeasurementData ::= SEQUENCE (SIZE(1..maxnoofMeasurementRecord)) OF MeasurementDataItem
+
+MeasurementDataItem ::= SEQUENCE {
+measRecord				MeasurementRecord,
+incompleteFlag			ENUMERATED {true, ...}					OPTIONAL,
+...
+}
+
+MeasurementRecord ::= SEQUENCE (SIZE(1..maxnoofMeasurementValue)) OF MeasurementRecordItem
+
+MeasurementRecordItem ::= CHOICE {
+        integer				INTEGER (0.. 4294967295),
+        real					REAL,
+        noValue				NULL,
+        ...
+}
+
+MeasurementInfo-Action-List ::= SEQUENCE (SIZE(1..maxnoofMeasurementInfo)) OF MeasurementInfo-Action-Item
+
+MeasurementInfo-Action-Item ::= SEQUENCE {
+        measName				MeasurementTypeName,
+        measID				MeasurementTypeID				OPTIONAL,
+        ...,
+        binRangeDef			BinRangeDefinition			OPTIONAL
+}
+
+MeasurementCondList ::= SEQUENCE (SIZE(1..maxnoofMeasurementInfo)) OF MeasurementCondItem
+
+MeasurementCondItem ::= SEQUENCE {
+        measType				MeasurementType,
+        matchingCond		MatchingCondList,
+        ...,
+        binRangeDef			BinRangeDefinition			OPTIONAL
+}
+
+MeasurementCondUEidList ::= SEQUENCE (SIZE(1..maxnoofMeasurementInfo)) OF MeasurementCondUEidItem
+
+MeasurementCondUEidItem ::= SEQUENCE {
+        measType					MeasurementType,
+        matchingCond			MatchingCondList,
+        matchingUEidList		MatchingUEidList			OPTIONAL,
+        ...,
+        matchingUEidPerGP		MatchingUEidPerGP			OPTIONAL
+}
+
+MatchingCondList ::= SEQUENCE (SIZE(1..maxnoofConditionInfo)) OF MatchingCondItem
+
+MatchingCondItem ::= SEQUENCE {
+matchingCondChoice	MatchingCondItem-Choice,
+logicalOR				LogicalOR						OPTIONAL,
+...
+}
+
+MatchingCondItem-Choice ::= CHOICE{
+        measLabel			MeasurementLabel,
+        testCondInfo		TestCondInfo,
+        ...
+}
+
+MatchingUEidList ::= SEQUENCE (SIZE(1..maxnoofUEID)) OF MatchingUEidItem
+
+MatchingUEidItem ::= SEQUENCE{
+        ueID					UEID,
+        ...
+}
+
+MatchingUEidPerGP ::= SEQUENCE (SIZE(1..maxnoofMeasurementRecord)) OF MatchingUEidPerGP-Item
+
+MatchingUEidPerGP-Item ::= SEQUENCE{
+        matchedPerGP				CHOICE{
+                noUEmatched 				ENUMERATED {true, ...},
+                oneOrMoreUEmatched		MatchingUEidList-PerGP,
+                ...
+        },
+        ...
+}
+
+MatchingUEidList-PerGP ::= SEQUENCE (SIZE(1..maxnoofUEID)) OF MatchingUEidItem-PerGP
+
+MatchingUEidItem-PerGP ::= SEQUENCE{
+        ueID					UEID,
+        ...
+}
+
+
+MatchingUeCondPerSubList ::= SEQUENCE (SIZE(1..maxnoofConditionInfoPerSub)) OF MatchingUeCondPerSubItem
+
+MatchingUeCondPerSubItem ::= SEQUENCE{
+        testCondInfo		TestCondInfo,
+        ...,
+        logicalOR			LogicalOR				OPTIONAL
+}
+
+MatchingUEidPerSubList ::= SEQUENCE (SIZE(2..maxnoofUEIDPerSub)) OF MatchingUEidPerSubItem
+
+MatchingUEidPerSubItem ::= SEQUENCE{
+        ueID					UEID,
+        ...
+}
+
+UEMeasurementReportList ::= SEQUENCE (SIZE(1..maxnoofUEMeasReport)) OF UEMeasurementReportItem
+
+UEMeasurementReportItem ::= SEQUENCE{
+        ueID				UEID,
+        measReport		E2SM-KPM-IndicationMessage-Format1,
+        ...
+}
+
+
+
+-- **************************************************************
+-- E2SM-KPM Service Model IEs
+-- **************************************************************
+
+-- **************************************************************
+--   Event Trigger Definition OCTET STRING contents
+-- **************************************************************
+
+E2SM-KPM-EventTriggerDefinition ::= SEQUENCE{
+        eventDefinition-formats			CHOICE{
+                eventDefinition-Format1			E2SM-KPM-EventTriggerDefinition-Format1,
+                ...
+        },
+        ...
+}
+
+E2SM-KPM-EventTriggerDefinition-Format1 ::= SEQUENCE{
+        reportingPeriod					INTEGER (1.. 4294967295),
+        ...
+}
+
+-- **************************************************************
+--   Action Definition OCTET STRING contents
+-- **************************************************************
+
+E2SM-KPM-ActionDefinition ::= SEQUENCE{
+        ric-Style-Type					RIC-Style-Type,
+        actionDefinition-formats 	CHOICE{
+                actionDefinition-Format1		E2SM-KPM-ActionDefinition-Format1,
+                actionDefinition-Format2		E2SM-KPM-ActionDefinition-Format2,
+                actionDefinition-Format3		E2SM-KPM-ActionDefinition-Format3,
+                ...,
+                actionDefinition-Format4		E2SM-KPM-ActionDefinition-Format4,
+                actionDefinition-Format5		E2SM-KPM-ActionDefinition-Format5
+        },
+        ...
+}
+
+E2SM-KPM-ActionDefinition-Format1 ::= SEQUENCE {
+        measInfoList					MeasurementInfoList,
+        granulPeriod					GranularityPeriod,
+        cellGlobalID					CGI							OPTIONAL,
+        ...,
+        distMeasBinRangeInfo			DistMeasurementBinRangeList		OPTIONAL
+}
+
+E2SM-KPM-ActionDefinition-Format2 ::= SEQUENCE {
+        ueID								UEID,
+        subscriptInfo					E2SM-KPM-ActionDefinition-Format1,
+        ...
+}
+
+E2SM-KPM-ActionDefinition-Format3 ::= SEQUENCE {
+        measCondList					MeasurementCondList,
+        granulPeriod					GranularityPeriod,
+        cellGlobalID					CGI							OPTIONAL,
+        ...
+}
+
+E2SM-KPM-ActionDefinition-Format4 ::= SEQUENCE {
+        matchingUeCondList			MatchingUeCondPerSubList,
+        subscriptionInfo				E2SM-KPM-ActionDefinition-Format1,
+        ...
+}
+
+E2SM-KPM-ActionDefinition-Format5 ::= SEQUENCE {
+        matchingUEidList				MatchingUEidPerSubList,
+        subscriptionInfo				E2SM-KPM-ActionDefinition-Format1,
+        ...
+}
+
+
+-- **************************************************************
+--   Indication Header OCTET STRING contents
+-- **************************************************************
+
+E2SM-KPM-IndicationHeader ::= SEQUENCE{
+        indicationHeader-formats		CHOICE{
+                indicationHeader-Format1		E2SM-KPM-IndicationHeader-Format1,
+                ...
+        },
+        ...
+}
+
+E2SM-KPM-IndicationHeader-Format1 ::= SEQUENCE{
+        colletStartTime				TimeStamp,
+        fileFormatversion				PrintableString (SIZE (0..15), ...)		OPTIONAL,
+        senderName						PrintableString (SIZE (0..400), ...)	OPTIONAL,
+        senderType						PrintableString (SIZE (0..8), ...)		OPTIONAL,
+        vendorName						PrintableString (SIZE (0..32), ...)		OPTIONAL,
+        ...
+}
+
+-- **************************************************************
+--   Indication Message OCTET STRING contents
+-- **************************************************************
+
+E2SM-KPM-IndicationMessage ::= SEQUENCE{
+        indicationMessage-formats		CHOICE{
+                indicationMessage-Format1		E2SM-KPM-IndicationMessage-Format1,
+                indicationMessage-Format2		E2SM-KPM-IndicationMessage-Format2,
+                ...,
+                indicationMessage-Format3		E2SM-KPM-IndicationMessage-Format3
+        },
+        ...
+}
+
+E2SM-KPM-IndicationMessage-Format1 ::= SEQUENCE {
+        measData							MeasurementData,
+        measInfoList					MeasurementInfoList						OPTIONAL,
+        granulPeriod					GranularityPeriod 						OPTIONAL,
+        ...
+}
+
+E2SM-KPM-IndicationMessage-Format2 ::= SEQUENCE {
+        measData							MeasurementData,
+        measCondUEidList				MeasurementCondUEidList,
+        granulPeriod					GranularityPeriod 						OPTIONAL,
+        ...
+}
+
+E2SM-KPM-IndicationMessage-Format3 ::= SEQUENCE {
+        ueMeasReportList				UEMeasurementReportList,
+        ...
+}
+
+
+-- ***************************************************************
+--   RAN Function Definition OCTET STRING contents
+-- ***************************************************************
+
+E2SM-KPM-RANfunction-Description ::= SEQUENCE{
+        ranFunction-Name					RANfunction-Name,
+        ric-EventTriggerStyle-List		SEQUENCE (SIZE(1..maxnoofRICStyles)) OF RIC-EventTriggerStyle-Item 		OPTIONAL,
+        ric-ReportStyle-List				SEQUENCE (SIZE(1..maxnoofRICStyles)) OF RIC-ReportStyle-Item 				OPTIONAL,
+        ...
+}
+
+RIC-EventTriggerStyle-Item ::= SEQUENCE{
+        ric-EventTriggerStyle-Type			RIC-Style-Type,
+        ric-EventTriggerStyle-Name			RIC-Style-Name,
+        ric-EventTriggerFormat-Type		RIC-Format-Type,
+        ...
+}
+
+RIC-ReportStyle-Item ::= SEQUENCE{
+        ric-ReportStyle-Type						RIC-Style-Type,
+        ric-ReportStyle-Name						RIC-Style-Name,
+        ric-ActionFormat-Type					RIC-Format-Type,
+        measInfo-Action-List						MeasurementInfo-Action-List,
+        ric-IndicationHeaderFormat-Type		RIC-Format-Type,
+        ric-IndicationMessageFormat-Type		RIC-Format-Type,
+        ...
+}
+
+END
+
+-- ASN1STOP

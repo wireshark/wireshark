@@ -82,7 +82,13 @@ CauseRICrequest ::= ENUMERATED {
         control-failed-to-execute,
         system-not-ready,
         unspecified,
-        ...
+        ... ,
+        ric-subscription-end-time-expired,
+        ric-subscription-end-time-invalid,
+        duplicate-ric-request-id,
+        eventTriggerNotSupported,
+        requested-information-unavailable,
+        invalid-information-request
 }
 
 CauseRICservice ::= ENUMERATED{
@@ -149,7 +155,7 @@ E2nodeComponentID ::= CHOICE{
 }
 
 E2nodeComponentInterfaceE1 ::= SEQUENCE{
-        gNB-CU-CP-ID		GNB-CU-UP-ID,
+        gNB-CU-UP-ID		GNB-CU-UP-ID,
         ...
 }
 
@@ -197,6 +203,7 @@ ENB-ID ::= CHOICE {
 }
 -- **************************************************************
 -- copied from 3GPP 38.423 (XnAP) IEs
+-- note: choice-extension removed
 -- **************************************************************
 ENB-ID-Choice ::= CHOICE {
         enb-ID-macro			BIT STRING (SIZE(20)),
@@ -269,6 +276,7 @@ GlobalenGNB-ID ::= SEQUENCE {
 }
 -- **************************************************************
 -- copied from 3GPP 38.423 (XnAP) IEs
+-- note: choice-extension removed
 -- **************************************************************
 GlobalgNB-ID	::= SEQUENCE {
         plmn-id				PLMN-Identity,
@@ -279,6 +287,7 @@ GlobalgNB-ID	::= SEQUENCE {
 
 -- **************************************************************
 -- copied from 3GPP 38.423 (XnAP) IEs
+-- note: choice-extension removed
 -- **************************************************************
 GlobalngeNB-ID	::= SEQUENCE {
         plmn-id			PLMN-Identity,
@@ -304,13 +313,18 @@ GlobalRIC-ID ::= SEQUENCE{
 }
 
 -- **************************************************************
--- copied from 3GPP 38.463 (E1AP) IEs
+-- copied from 3GPP 37.483 (E1AP) IEs
 -- **************************************************************
 GNB-CU-UP-ID::= 	INTEGER (0..68719476735)
+
+-- **************************************************************
+-- copied from 3GPP 38.473 (F1AP) IEs
+-- **************************************************************
 GNB-DU-ID::= 		INTEGER (0..68719476735)
 
 -- **************************************************************
 -- copied from 3GPP 38.423 (XnAP) IEs
+-- note: choice-extension removed
 -- **************************************************************
 GNB-ID-Choice ::= CHOICE {
         gnb-ID					BIT STRING (SIZE(22..32)),
@@ -360,6 +374,9 @@ RANfunctionRevision ::= INTEGER (0..4095)
 -- Following IE defined in E2SM
 -- **************************************************************
 RICactionDefinition ::= OCTET STRING
+
+-- new in E2AP-v03.00
+RICactionExecutionOrder ::= INTEGER (0..255, ...)
 
 RICactionID ::= INTEGER (0..255)
 
@@ -421,9 +438,11 @@ RICindicationType ::= ENUMERATED{
 
 RICrequestID ::= SEQUENCE {
         ricRequestorID				INTEGER (0..65535),
-        ricInstanceID	INTEGER (0..65535),
+        ricInstanceID				INTEGER (0..65535),
         ...
 }
+
+RICsubscriptionTime ::= OCTET STRING (SIZE(8))
 
 RICsubsequentAction ::=SEQUENCE{
         ricSubsequentActionType		RICsubsequentActionType,
@@ -436,6 +455,22 @@ RICsubsequentActionType ::= ENUMERATED{
         wait,
         ...
 }
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICqueryHeader ::= OCTET STRING
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICqueryDefinition ::= OCTET STRING
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICqueryOutcome ::= OCTET STRING
+
 
 RICtimeToWait ::= ENUMERATED{
         w1ms,

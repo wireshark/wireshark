@@ -34,6 +34,11 @@ E2SM-RC-CallProcessID
 E2SM-RC-ControlHeader
 E2SM-RC-ControlMessage
 E2SM-RC-ControlOutcome
+# New for v3
+E2SM-RC-QueryOutcome
+E2SM-RC-QueryDefinition
+E2SM-RC-QueryHeader
+
 
 E2SM-NI-EventTriggerDefinition
 E2SM-NI-ActionDefinition
@@ -73,8 +78,6 @@ CoreCPID
 
 #.TYPE_ATTR
 #E2SM-KPM-IndicationMessage DISPLAY=BASE_DEC STRINGS=VALS(e2ap_E2SM_KPM_IndicationMessage_vals)
-
-#.TYPE_ATTR
 #E2SM-KPM-IndicationHeader DISPLAY=BASE_DEC STRINGS=VALS(e2ap_E2SM_KPM_IndicationHeader_vals)
 
 #.TYPE_RENAME
@@ -289,6 +292,31 @@ SuccessfulOutcome/value successfulOutcome_value
     functions->ric_control_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
   }
 
+#.FN_BODY RICqueryOutcome VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
+  if (functions && functions->ric_control_outcome_dissector) {
+    functions->ric_query_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY RICqueryDefinition VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
+  if (functions && functions->ric_control_outcome_dissector) {
+    functions->ric_query_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY RICqueryHeader VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
+  if (functions && functions->ric_control_outcome_dissector) {
+    functions->ric_query_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  }
+
+
 
 #.FN_BODY RICeventTriggerDefinition VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
@@ -349,7 +377,10 @@ id-E2nodeConfigurationUpdate	             ProcedureCode
 id-E2connectionUpdate                        ProcedureCode
 id-RICsubscriptionDeleteRequired             ProcedureCode
 id-E2removal                                 ProcedureCode
-
+# New for v3
+id-RICsubscriptionModification               ProcedureCode
+id-RICsubscriptionModificationRequired       ProcedureCode
+id-RICquery                                  ProcedureCode
 
 
 
@@ -377,7 +408,7 @@ id-RICcallProcessID                           ProtocolIE-ID
 id-RICcontrolAckRequest                       ProtocolIE-ID
 id-RICcontrolHeader                           ProtocolIE-ID
 id-RICcontrolMessage                          ProtocolIE-ID
-#id-RICcontrolStatus                           ProtocolIE-ID
+id-RICcontrolStatus                           ProtocolIE-ID
 id-RICindicationHeader                        ProtocolIE-ID
 id-RICindicationMessage                       ProtocolIE-ID
 id-RICindicationSN                            ProtocolIE-ID
@@ -415,7 +446,43 @@ id-E2nodeTNLassociationRemoval                ProtocolIE-ID
 id-E2nodeTNLassociationRemoval-Item           ProtocolIE-ID
 id-RICsubscriptionToBeRemoved                 ProtocolIE-ID
 id-RICsubscription-withCause-Item             ProtocolIE-ID
-
+# New for v3
+id-RICsubscriptionStartTime                         ProtocolIE-ID
+id-RICsubscriptionEndTime                           ProtocolIE-ID
+id-RICeventTriggerDefinitionToBeModified            ProtocolIE-ID
+id-RICactionsToBeRemovedForModification-List        ProtocolIE-ID
+id-RICaction-ToBeRemovedForModification-Item        ProtocolIE-ID
+id-RICactionsToBeModifiedForModification-List       ProtocolIE-ID
+id-RICaction-ToBeModifiedForModification-Item       ProtocolIE-ID
+id-RICactionsToBeAddedForModification-List          ProtocolIE-ID
+id-RICaction-ToBeAddedForModification-Item          ProtocolIE-ID
+id-RICactionsRemovedForModification-List            ProtocolIE-ID
+id-RICaction-RemovedForModification-Item            ProtocolIE-ID
+id-RICactionsFailedToBeRemovedForModification-List  ProtocolIE-ID
+id-RICaction-FailedToBeRemovedForModification-Item  ProtocolIE-ID
+id-RICactionsModifiedForModification-List           ProtocolIE-ID
+id-RICaction-ModifiedForModification-Item           ProtocolIE-ID
+id-RICactionsFailedToBeModifiedForModification-List ProtocolIE-ID
+id-RICaction-FailedToBeModifiedForModification-Item ProtocolIE-ID
+id-RICactionsAddedForModification-List              ProtocolIE-ID
+id-RICaction-AddedForModification-Item              ProtocolIE-ID
+id-RICactionsFailedToBeAddedForModification-List    ProtocolIE-ID
+id-RICaction-FailedToBeAddedForModification-Item    ProtocolIE-ID
+id-RICactionsRequiredToBeModified-List              ProtocolIE-ID
+id-RICaction-RequiredToBeModified-Item              ProtocolIE-ID
+id-RICactionsRequiredToBeRemoved-List               ProtocolIE-ID
+id-RICaction-RequiredToBeRemoved-Item               ProtocolIE-ID
+id-RICactionsConfirmedForModification-List          ProtocolIE-ID
+id-RICaction-ConfirmedForModification-Item          ProtocolIE-ID
+id-RICactionsRefusedToBeModified-List               ProtocolIE-ID
+id-RICaction-RefusedToBeModified-Item               ProtocolIE-ID
+id-RICactionsConfirmedForRemoval-List               ProtocolIE-ID
+id-RICaction-ConfirmedForRemoval-Item               ProtocolIE-ID
+id-RICactionsRefusedToBeRemoved-List                ProtocolIE-ID
+id-RICaction-RefusedToBeRemoved-Item                ProtocolIE-ID
+id-RICqueryHeader                                   ProtocolIE-ID
+id-RICqueryDefinition                               ProtocolIE-ID
+id-RICqueryOutcome                                  ProtocolIE-ID
 #.END
 
 
@@ -454,8 +521,8 @@ RICindicationSN                             N e2ap.ies id-RICindicationSN
 RICindicationType                           N e2ap.ies id-RICindicationType
 RICrequestID                                N e2ap.ies id-RICrequestID
 RICsubscriptionDetails                      N e2ap.ies id-RICsubscriptionDetails
-RICcontrolHeader                            N e2ap.ies id-RICcontrolHeader
-RICcontrolMessage                           N e2ap.ies id-RICcontrolMessage
+#RICcontrolHeader                            N e2ap.ies id-RICcontrolHeader
+#RICcontrolMessage                           N e2ap.ies id-RICcontrolMessage
 
 TimeToWait                                  N e2ap.ies id-TimeToWait
 #RICcontrolOutcome                           N e2ap.ies id-RICcontrolOutcome
@@ -489,7 +556,43 @@ E2nodeTNLassociationRemoval-Item            N e2ap.ies id-E2nodeTNLassociationRe
 RICsubscription-List-withCause              N e2ap.ies id-RICsubscriptionToBeRemoved
 RICsubscription-withCause-Item              N e2ap.ies id-RICsubscription-withCause-Item
 
-
+# New for v3
+RICsubscriptionTime                         N e2ap.ies id-RICsubscriptionStartTime
+RICsubscriptionTime                         N e2ap.ies id-RICsubscriptionEndTime
+RICeventTriggerDefinition                   N e2ap.ies id-RICeventTriggerDefinitionToBeModified
+RICactions-ToBeRemovedForModification-List  N e2ap.ies id-RICactionsToBeRemovedForModification-List
+RICaction-ToBeRemovedForModification-Item   N e2ap.ies id-RICaction-ToBeRemovedForModification-Item
+RICactions-ToBeModifiedForModification-List N e2ap.ies id-RICactionsToBeModifiedForModification-List
+RICaction-ToBeModifiedForModification-Item  N e2ap.ies id-RICaction-ToBeModifiedForModification-Item
+RICactions-ToBeAddedForModification-List    N e2ap.ies id-RICactionsToBeAddedForModification-List
+RICaction-ToBeAddedForModification-Item     N e2ap.ies id-RICaction-ToBeAddedForModification-Item
+RICactions-RemovedForModification-List      N e2ap.ies id-RICactionsRemovedForModification-List
+RICaction-RemovedForModification-Item       N e2ap.ies id-RICaction-RemovedForModification-Item
+RICactions-FailedToBeRemovedForModification-List      N e2ap.ies id-RICactionsFailedToBeRemovedForModification-List
+RICaction-FailedToBeRemovedForModification-Item       N e2ap.ies id-RICaction-FailedToBeRemovedForModification-Item
+RICactions-ModifiedForModification-List               N e2ap.ies id-RICactionsModifiedForModification-List
+RICaction-ModifiedForModification-Item                N e2ap.ies id-RICaction-ModifiedForModification-Item
+RICactions-FailedToBeModifiedForModification-List     N e2ap.ies id-RICactionsFailedToBeModifiedForModification-List
+RICaction-FailedToBeModifiedForModification-Item      N e2ap.ies id-RICaction-FailedToBeModifiedForModification-Item
+RICactions-AddedForModification-List                  N e2ap.ies id-RICactionsAddedForModification-List
+RICaction-AddedForModification-Item                   N e2ap.ies id-RICaction-AddedForModification-Item
+RICactions-FailedToBeAddedForModification-List        N e2ap.ies id-RICactionsFailedToBeAddedForModification-List
+RICaction-FailedToBeAddedForModification-Item         N e2ap.ies id-RICaction-FailedToBeAddedForModification-Item
+RICactions-RequiredToBeModified-List                  N e2ap.ies id-RICactionsRequiredToBeModified-List
+RICaction-RequiredToBeModified-Item                   N e2ap.ies id-RICaction-RequiredToBeModified-Item
+RICactions-RequiredToBeRemoved-List                   N e2ap.ies id-RICactionsRequiredToBeRemoved-List
+RICaction-RequiredToBeRemoved-Item                    N e2ap.ies id-RICaction-RequiredToBeRemoved-Item
+RICactions-ConfirmedForModification-List              N e2ap.ies id-RICactionsConfirmedForModification-List
+RICaction-ConfirmedForModification-Item               N e2ap.ies id-RICaction-ConfirmedForModification-Item
+RICactions-RefusedToBeModified-List                   N e2ap.ies id-RICactionsRefusedToBeModified-List
+RICaction-RefusedToBeModified-Item                    N e2ap.ies id-RICaction-RefusedToBeModified-Item
+RICactions-ConfirmedForRemoval-List                   N e2ap.ies id-RICactionsConfirmedForRemoval-List
+RICaction-ConfirmedForRemoval-Item                    N e2ap.ies id-RICaction-ConfirmedForRemoval-Item
+RICactions-RefusedToBeRemoved-List                    N e2ap.ies id-RICactionsRefusedToBeRemoved-List
+RICaction-RefusedToBeRemoved-Item                     N e2ap.ies id-RICaction-RefusedToBeRemoved-Item
+RICqueryHeader                                        N e2ap.ies id-RICqueryHeader
+RICqueryDefinition                                    N e2ap.ies id-RICqueryDefinition
+RICqueryOutcome                                       N e2ap.ies id-RICqueryOutcome
 
 #e2ap-PROTOCOL-EXTENSION
 
@@ -537,6 +640,18 @@ RICsubscriptionDeleteRequired            N e2ap.proc.sout id-RICsubscriptionDele
 E2RemovalFailure                         N e2ap.proc.uout id-E2removal
 E2RemovalRequest                         N e2ap.proc.imsg id-E2removal
 E2RemovalResponse                        N e2ap.proc.sout id-E2removal
+
+RICsubscriptionModificationFailure       N e2ap.proc.uout id-RICsubscriptionModification
+RICsubscriptionModificationRequest       N e2ap.proc.imsg id-RICsubscriptionModification
+RICsubscriptionModificationResponse      N e2ap.proc.sout id-RICsubscriptionModification
+
+RICsubscriptionModificationRefuse        N e2ap.proc.uout id-RICsubscriptionModificationRequired
+RICsubscriptionModificationRequired      N e2ap.proc.imsg id-RICsubscriptionModificationRequired
+RICsubscriptionModificationConfirm       N e2ap.proc.sout id-RICsubscriptionModificationRequired
+
+RICQueryFailure                          N e2ap.proc.uout id-RICquery
+RICQueryRequest                          N e2ap.proc.imsg id-RICquery
+RICQueryResponse                         N e2ap.proc.sout id-RICquery
 
 
 

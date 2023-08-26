@@ -33,6 +33,7 @@ IMPORTS
         RANfunctionOID,
         RANfunctionRevision,
         RICactionDefinition,
+        RICactionExecutionOrder,
         RICactionID,
         RICactionType,
         RICcallProcessID,
@@ -47,6 +48,10 @@ IMPORTS
         RICindicationType,
         RICrequestID,
         RICsubsequentAction,
+        RICsubscriptionTime,
+        RICqueryHeader,
+        RICqueryDefinition,
+        RICqueryOutcome,
         TimeToWait,
         TNLinformation,
         TNLusage,
@@ -102,11 +107,42 @@ FROM E2AP-Containers
         id-RICactions-Admitted,
         id-RICactions-NotAdmitted,
         id-RICaction-ToBeSetup-Item,
+        id-RICactionsToBeRemovedForModification-List,
+        id-RICaction-ToBeRemovedForModification-Item,
+        id-RICactionsToBeModifiedForModification-List,
+        id-RICaction-ToBeModifiedForModification-Item,
+        id-RICactionsToBeAddedForModification-List,
+        id-RICaction-ToBeAddedForModification-Item,
+        id-RICactionsRemovedForModification-List,
+        id-RICaction-RemovedForModification-Item,
+        id-RICactionsFailedToBeRemovedForModification-List,
+        id-RICaction-FailedToBeRemovedForModification-Item,
+        id-RICactionsModifiedForModification-List,
+        id-RICaction-ModifiedForModification-Item,
+        id-RICactionsFailedToBeModifiedForModification-List,
+        id-RICaction-FailedToBeModifiedForModification-Item,
+        id-RICactionsAddedForModification-List,
+        id-RICaction-AddedForModification-Item,
+        id-RICactionsFailedToBeAddedForModification-List,
+        id-RICaction-FailedToBeAddedForModification-Item,
+        id-RICactionsRequiredToBeModified-List,
+        id-RICaction-RequiredToBeModified-Item,
+        id-RICactionsRequiredToBeRemoved-List,
+        id-RICaction-RequiredToBeRemoved-Item,
+        id-RICactionsConfirmedForModification-List,
+        id-RICaction-ConfirmedForModification-Item,
+        id-RICactionsRefusedToBeModified-List,
+        id-RICaction-RefusedToBeModified-Item,
+        id-RICactionsConfirmedForRemoval-List,
+        id-RICaction-ConfirmedForRemoval-Item,
+        id-RICactionsRefusedToBeRemoved-List,
+        id-RICaction-RefusedToBeRemoved-Item,
         id-RICcallProcessID,
         id-RICcontrolAckRequest,
         id-RICcontrolHeader,
         id-RICcontrolMessage,
         id-RICcontrolOutcome,
+        id-RICeventTriggerDefinitionToBeModified,
         id-RICindicationHeader,
         id-RICindicationMessage,
         id-RICindicationSN,
@@ -116,6 +152,11 @@ FROM E2AP-Containers
         id-RICsubscriptionDetails,
         id-RICsubscriptionToBeRemoved,
         id-RICsubscription-withCause-Item,
+        id-RICsubscriptionStartTime,
+        id-RICsubscriptionEndTime,
+        id-RICqueryHeader,
+        id-RICqueryDefinition,
+        id-RICqueryOutcome,
         id-TimeToWait,
         id-TNLinformation,
         id-TransactionID,
@@ -130,7 +171,7 @@ FROM E2AP-Constants;
 
 -- **************************************************************
 --
--- MESSAGES FOR NEAR-RT RIC FUNCTIONAL PROCEDURES
+-- MESSAGES FOR RIC FUNCTIONAL PROCEDURES
 --
 -- **************************************************************
 
@@ -153,7 +194,9 @@ RICsubscriptionRequest-IEs E2AP-PROTOCOL-IES ::= {
         { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
         { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
         { ID id-RICsubscriptionDetails		CRITICALITY reject	TYPE RICsubscriptionDetails			PRESENCE mandatory},
-        ...
+        ...,
+        { ID id-RICsubscriptionStartTime	CRITICALITY reject	TYPE RICsubscriptionTime			PRESENCE optional}|
+        { ID id-RICsubscriptionEndTime		CRITICALITY reject	TYPE RICsubscriptionTime			PRESENCE optional}
 }
 
 
@@ -175,7 +218,9 @@ RICaction-ToBeSetup-Item ::= SEQUENCE {
         ricActionType				RICactionType,
         ricActionDefinition			RICactionDefinition 	OPTIONAL,
         ricSubsequentAction			RICsubsequentAction 	OPTIONAL,
-        ...
+        ...,
+        ricActionExecutionOrder		RICactionExecutionOrder	OPTIONAL		-- New in E2APv03.00
+
 }
 
 -- **************************************************************
@@ -236,7 +281,7 @@ RICsubscriptionFailure ::= SEQUENCE {
 RICsubscriptionFailure-IEs E2AP-PROTOCOL-IES ::= {
         { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
         { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
-        { ID id-Cause		CRITICALITY reject	TYPE Cause		PRESENCE mandatory	}|
+        { ID id-Cause						CRITICALITY reject	TYPE Cause		PRESENCE mandatory	}|
         { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
         ...
 }
@@ -325,10 +370,330 @@ RICsubscription-withCause-ItemIEs	E2AP-PROTOCOL-IES ::= {
 
 RICsubscription-withCause-Item ::= SEQUENCE {
         ricRequestID				RICrequestID,
-        ranFunctionID  				RANfunctionID,
+        ranFunctionID				RANfunctionID,
         cause						Cause,
         ...
 }
+
+-- **************************************************************
+--
+-- RIC Subscription Modification Elementary Procedure
+--
+-- **************************************************************
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION MODIFICATION REQUEST
+--
+-- **************************************************************
+RICsubscriptionModificationRequest ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionModificationRequest-IEs}},
+        ...
+}
+
+RICsubscriptionModificationRequest-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICrequestID								CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+        { ID id-RANfunctionID								CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+        { ID id-RICeventTriggerDefinitionToBeModified		CRITICALITY ignore	TYPE RICeventTriggerDefinition	PRESENCE optional}|
+        { ID id-RICactionsToBeRemovedForModification-List	CRITICALITY ignore	TYPE RICactions-ToBeRemovedForModification-List	PRESENCE optional}|
+        { ID id-RICactionsToBeModifiedForModification-List	CRITICALITY ignore	TYPE RICactions-ToBeModifiedForModification-List	PRESENCE optional}|
+        { ID id-RICactionsToBeAddedForModification-List		CRITICALITY ignore	TYPE RICactions-ToBeAddedForModification-List		PRESENCE optional},
+        ...
+}
+
+RICactions-ToBeRemovedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-ToBeRemovedForModification-ItemIEs}	}
+
+RICaction-ToBeRemovedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-ToBeRemovedForModification-Item	CRITICALITY ignore 	TYPE RICaction-ToBeRemovedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-ToBeRemovedForModification-Item ::= SEQUENCE {
+        ricActionID					RICactionID,
+        ...
+}
+
+RICactions-ToBeModifiedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-ToBeModifiedForModification-ItemIEs} }
+
+RICaction-ToBeModifiedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-ToBeModifiedForModification-Item	CRITICALITY ignore 	TYPE RICaction-ToBeModifiedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-ToBeModifiedForModification-Item ::= SEQUENCE {
+        ricActionID					RICactionID,
+        ricActionDefinition			RICactionDefinition		OPTIONAL,
+        ricActionExecutionOrder		RICactionExecutionOrder	OPTIONAL,
+        ricSubsequentAction			RICsubsequentAction		OPTIONAL,
+        ...
+}
+
+
+RICactions-ToBeAddedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-ToBeAddedForModification-ItemIEs} }
+
+RICaction-ToBeAddedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-ToBeAddedForModification-Item	CRITICALITY ignore 	TYPE RICaction-ToBeAddedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-ToBeAddedForModification-Item ::= SEQUENCE {
+        ricActionID					RICactionID,
+        ricActionType				RICactionType,
+        ricActionDefinition			RICactionDefinition,
+        ricActionExecutionOrder		RICactionExecutionOrder,
+        ricSubsequentAction			RICsubsequentAction		OPTIONAL,
+        ...
+}
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION MODIFICATION RESPONSE
+--
+-- **************************************************************
+RICsubscriptionModificationResponse ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionModificationResponse-IEs}},
+        ...
+}
+
+RICsubscriptionModificationResponse-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICrequestID										CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+        { ID id-RANfunctionID										CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+        { ID id-RICactionsRemovedForModification-List				CRITICALITY ignore	TYPE RICactions-RemovedForModification-List	PRESENCE optional}|
+        { ID id-RICactionsFailedToBeRemovedForModification-List		CRITICALITY ignore	TYPE RICactions-FailedToBeRemovedForModification-List	PRESENCE optional}|
+        { ID id-RICactionsModifiedForModification-List				CRITICALITY ignore	TYPE RICactions-ModifiedForModification-List	PRESENCE optional}|
+        { ID id-RICactionsFailedToBeModifiedForModification-List	CRITICALITY ignore	TYPE RICactions-FailedToBeModifiedForModification-List	PRESENCE optional}|
+        { ID id-RICactionsAddedForModification-List					CRITICALITY ignore	TYPE RICactions-AddedForModification-List	PRESENCE optional}|
+        { ID id-RICactionsFailedToBeAddedForModification-List		CRITICALITY ignore	TYPE RICactions-FailedToBeAddedForModification-List		PRESENCE optional},
+        ...
+}
+
+RICactions-RemovedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-RemovedForModification-ItemIEs} }
+
+RICaction-RemovedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-RemovedForModification-Item	CRITICALITY ignore 	TYPE RICaction-RemovedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-RemovedForModification-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        ...
+}
+RICactions-FailedToBeRemovedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-FailedToBeRemovedForModification-ItemIEs} }
+
+RICaction-FailedToBeRemovedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-FailedToBeRemovedForModification-Item	CRITICALITY ignore 	TYPE RICaction-FailedToBeRemovedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-FailedToBeRemovedForModification-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        cause						Cause,
+        ...
+}
+
+RICactions-ModifiedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-ModifiedForModification-ItemIEs} }
+
+RICaction-ModifiedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-ModifiedForModification-Item	CRITICALITY ignore 	TYPE RICaction-ModifiedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-ModifiedForModification-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        ...
+}
+
+RICactions-FailedToBeModifiedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-FailedToBeModifiedForModification-ItemIEs} }
+
+RICaction-FailedToBeModifiedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-FailedToBeModifiedForModification-Item	CRITICALITY ignore 	TYPE RICaction-FailedToBeModifiedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-FailedToBeModifiedForModification-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        cause						Cause,
+        ...
+}
+
+RICactions-AddedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-AddedForModification-ItemIEs} }
+
+RICaction-AddedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-AddedForModification-Item	CRITICALITY ignore 	TYPE RICaction-AddedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-AddedForModification-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        ...
+}
+
+RICactions-FailedToBeAddedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-FailedToBeAddedForModification-ItemIEs} }
+
+RICaction-FailedToBeAddedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-FailedToBeAddedForModification-Item	CRITICALITY ignore 	TYPE RICaction-FailedToBeAddedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-FailedToBeAddedForModification-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        cause						Cause,
+        ...
+}
+
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION MODIFICATION FAILURE
+--
+-- **************************************************************
+RICsubscriptionModificationFailure ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionModificationFailure-IEs}},
+        ...
+}
+
+RICsubscriptionModificationFailure-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+        { ID id-Cause						CRITICALITY reject	TYPE Cause		PRESENCE mandatory}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+        ...
+}
+
+-- **************************************************************
+--
+-- RIC Subscription Modification Required Elementary Procedure
+--
+-- **************************************************************
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION MODIFICATION REQUIRED
+--
+-- **************************************************************
+RICsubscriptionModificationRequired ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionModificationRequired-IEs}},
+        ...
+}
+
+RICsubscriptionModificationRequired-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICrequestID						CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+        { ID id-RANfunctionID						CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+        { ID id-RICactionsRequiredToBeModified-List	CRITICALITY ignore	TYPE RICactions-RequiredToBeModified-List	PRESENCE optional}|
+        { ID id-RICactionsRequiredToBeRemoved-List	CRITICALITY ignore	TYPE RICactions-RequiredToBeRemoved-List	PRESENCE optional},
+        ...
+}
+
+RICactions-RequiredToBeModified-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-RequiredToBeModified-ItemIEs} }
+
+RICaction-RequiredToBeModified-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-RequiredToBeModified-Item	CRITICALITY ignore 	TYPE RICaction-RequiredToBeModified-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-RequiredToBeModified-Item ::=	SEQUENCE {
+        ricActionID				RICactionID,
+        ricTimeToWait			RICtimeToWait,
+        ...
+}
+
+RICactions-RequiredToBeRemoved-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-RequiredToBeRemoved-ItemIEs} }
+
+RICaction-RequiredToBeRemoved-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-RequiredToBeRemoved-Item	CRITICALITY ignore 	TYPE RICaction-RequiredToBeRemoved-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-RequiredToBeRemoved-Item ::=	SEQUENCE {
+        ricActionID				RICactionID,
+        cause					Cause,
+        ...
+}
+
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION MODIFICATION CONFIRM
+--
+-- **************************************************************
+RICsubscriptionModificationConfirm ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionModificationConfirm-IEs}},
+        ...
+}
+
+RICsubscriptionModificationConfirm-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICrequestID							CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+        { ID id-RANfunctionID							CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+        { ID id-RICactionsConfirmedForModification-List	CRITICALITY ignore	TYPE RICactions-ConfirmedForModification-List	PRESENCE optional}|
+        { ID id-RICactionsRefusedToBeModified-List		CRITICALITY ignore	TYPE RICactions-RefusedToBeModified-List	PRESENCE optional}|
+        { ID id-RICactionsConfirmedForRemoval-List		CRITICALITY ignore	TYPE RICactions-ConfirmedForRemoval-List	PRESENCE optional}|
+        { ID id-RICactionsRefusedToBeRemoved-List		CRITICALITY ignore	TYPE RICactions-RefusedToBeRemoved-List		PRESENCE optional},
+        ...
+}
+
+RICactions-ConfirmedForModification-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-ConfirmedForModification-ItemIEs} }
+
+RICaction-ConfirmedForModification-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-ConfirmedForModification-Item			CRITICALITY ignore 	TYPE RICaction-ConfirmedForModification-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-ConfirmedForModification-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        ...
+}
+RICactions-RefusedToBeModified-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-RefusedToBeModified-ItemIEs} }
+
+RICaction-RefusedToBeModified-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-RefusedToBeModified-Item			CRITICALITY ignore 	TYPE RICaction-RefusedToBeModified-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-RefusedToBeModified-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        cause						Cause,
+        ...
+}
+
+RICactions-ConfirmedForRemoval-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-ConfirmedForRemoval-ItemIEs} }
+
+RICaction-ConfirmedForRemoval-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-ConfirmedForRemoval-Item			CRITICALITY ignore 	TYPE RICaction-ConfirmedForRemoval-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-ConfirmedForRemoval-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        ...
+}
+
+RICactions-RefusedToBeRemoved-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer {{RICaction-RefusedToBeRemoved-ItemIEs} }
+
+RICaction-RefusedToBeRemoved-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICaction-RefusedToBeRemoved-Item			CRITICALITY ignore 	TYPE RICaction-RefusedToBeRemoved-Item 	PRESENCE mandatory },
+        ...
+}
+
+RICaction-RefusedToBeRemoved-Item ::=	SEQUENCE {
+        ricActionID					RICactionID,
+        cause						Cause,
+        ...
+}
+
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION MODIFICATION REFUSE
+--
+-- **************************************************************
+RICsubscriptionModificationRefuse ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionModificationRefuse-IEs}},
+        ...
+}
+
+
+RICsubscriptionModificationRefuse-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+        { ID id-Cause						CRITICALITY reject	TYPE Cause		PRESENCE mandatory}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+        ...
+}
+
 
 -- **************************************************************
 --
@@ -350,7 +715,7 @@ RICindication-IEs E2AP-PROTOCOL-IES ::= {
         { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
         { ID id-RICactionID					CRITICALITY reject	TYPE RICactionID					PRESENCE mandatory	}|
         { ID id-RICindicationSN				CRITICALITY reject	TYPE RICindicationSN				PRESENCE optional	}|
-        { ID id-RICindicationType			CRITICALITY reject	TYPE RICindicationType  			PRESENCE mandatory	}|
+        { ID id-RICindicationType			CRITICALITY reject	TYPE RICindicationType				PRESENCE mandatory	}|
         { ID id-RICindicationHeader			CRITICALITY reject	TYPE RICindicationHeader			PRESENCE mandatory	}|
         { ID id-RICindicationMessage		CRITICALITY reject	TYPE RICindicationMessage			PRESENCE mandatory	}|
         { ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	},
@@ -414,6 +779,64 @@ RICcontrolFailure-IEs E2AP-PROTOCOL-IES ::= {
         { ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	}|
         { ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
         { ID id-RICcontrolOutcome			CRITICALITY reject	TYPE RICcontrolOutcome				PRESENCE optional	},
+        ...,
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	}
+}
+
+-- **************************************************************
+--
+-- RIC QUERY Elementary Procedure
+--
+-- **************************************************************
+-- **************************************************************
+--
+-- RIC QUERY REQUEST
+--
+-- **************************************************************
+RICQueryRequest ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICQueryRequest-IEs}},
+        ...
+}
+
+RICQueryRequest-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
+        { ID id-RICqueryHeader				CRITICALITY reject	TYPE RICqueryHeader					PRESENCE mandatory	}|
+        { ID id-RICqueryDefinition			CRITICALITY reject	TYPE RICqueryDefinition					PRESENCE mandatory	},
+        ...
+}
+
+-- **************************************************************
+--
+-- RIC QUERY RESPONSE
+--
+-- **************************************************************
+RICQueryResponse ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICQueryResponse-IEs}},
+        ...
+}
+
+RICQueryResponse-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
+        { ID id-RICqueryOutcome				CRITICALITY reject	TYPE RICqueryOutcome					PRESENCE mandatory	},
+        ...
+}
+-- **************************************************************
+--
+-- RIC QUERY FAILURE
+--
+-- **************************************************************
+RICQueryFailure ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICQueryFailure-IEs}},
+        ...
+}
+
+RICQueryFailure-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
+        { ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
         ...
 }
 
@@ -543,7 +966,7 @@ E2connectionUpdate-ItemIEs 	E2AP-PROTOCOL-IES ::= {
 
 E2connectionUpdate-Item ::= SEQUENCE {
         tnlInformation					TNLinformation,
-        tnlUsage  						TNLusage,
+        tnlUsage						TNLusage,
         ...
 }
 
@@ -839,7 +1262,7 @@ RANfunction-ItemIEs 	E2AP-PROTOCOL-IES ::= {
 
 RANfunction-Item ::= SEQUENCE {
         ranFunctionID				RANfunctionID,
-        ranFunctionDefinition  		RANfunctionDefinition,
+        ranFunctionDefinition		RANfunctionDefinition,
         ranFunctionRevision			RANfunctionRevision,
         ranFunctionOID				RANfunctionOID,
         ...
@@ -870,7 +1293,7 @@ RICserviceUpdateAcknowledge ::= SEQUENCE {
 
 RICserviceUpdateAcknowledge-IEs E2AP-PROTOCOL-IES ::= {
         { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
-        { ID id-RANfunctionsAccepted		CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE mandatory	}|
+        { ID id-RANfunctionsAccepted		CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE optional	}|
         { ID id-RANfunctionsRejected		CRITICALITY reject	TYPE RANfunctionsIDcause-List		PRESENCE optional	},
         ...
 }
@@ -961,7 +1384,7 @@ E2RemovalResponse ::= SEQUENCE {
         ...
 }
 
-E2RemovalResponseIEs  E2AP-PROTOCOL-IES ::= {
+E2RemovalResponseIEs E2AP-PROTOCOL-IES ::= {
         { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID							PRESENCE mandatory	}|
         { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
         ...

@@ -77,6 +77,9 @@ static int dissect_E2SM_RC_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_E2SM_RC_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_RC_QueryOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_RC_QueryDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_RC_QueryHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static int dissect_E2SM_NI_EventTriggerDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_NI_ActionDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -132,6 +135,9 @@ e2ap_get_private_data(packet_info *pinfo)
 
 /****************************************************************************************************************/
 /* We learn which set of RAN functions pointers corresponds to a given ranFunctionID when we see E2SetupRequest */
+/* TODO: unfortunately, it seems that different versions of these protocols are not backward-compatible, so     */
+/* it would be good to show where (going by OID) the dissector isn't at the same version as the message..       */
+/* An alternative would be to have multiple versions of each protocol and have them register in tables...       */
 typedef int (*pdu_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 /* Function pointers for a RANFunction */
@@ -141,6 +147,10 @@ typedef struct {
     pdu_dissector_t ric_control_header_dissector;
     pdu_dissector_t ric_control_message_dissector;
     pdu_dissector_t ric_control_outcome_dissector;
+    /* new for v3 */
+    pdu_dissector_t ric_query_outcome_dissector;
+    pdu_dissector_t ric_query_definition_dissector;
+    pdu_dissector_t ric_query_header_dissector;
 
     pdu_dissector_t ran_action_definition_dissector;
     pdu_dissector_t ran_indication_message_dissector;
@@ -170,6 +180,9 @@ static const ran_function_name_mapping_t g_ran_functioname_table[MAX_RANFUNCTION
                         NULL,
                         NULL,
                         NULL,
+                        NULL,
+                        NULL,
+                        NULL,
 
                         dissect_E2SM_KPM_ActionDefinition_PDU,
                         dissect_E2SM_KPM_IndicationMessage_PDU,
@@ -183,6 +196,10 @@ static const ran_function_name_mapping_t g_ran_functioname_table[MAX_RANFUNCTION
                         dissect_E2SM_RC_ControlHeader_PDU,
                         dissect_E2SM_RC_ControlMessage_PDU,
                         dissect_E2SM_RC_ControlOutcome_PDU,
+                        /* new for v3 */
+                        dissect_E2SM_RC_QueryOutcome_PDU,
+                        dissect_E2SM_RC_QueryDefinition_PDU,
+                        dissect_E2SM_RC_QueryHeader_PDU,
 
                         dissect_E2SM_RC_ActionDefinition_PDU,
                         dissect_E2SM_RC_IndicationMessage_PDU,
@@ -196,6 +213,9 @@ static const ran_function_name_mapping_t g_ran_functioname_table[MAX_RANFUNCTION
                         dissect_E2SM_NI_ControlHeader_PDU,
                         dissect_E2SM_NI_ControlMessage_PDU,
                         dissect_E2SM_NI_ControlOutcome_PDU,
+                        NULL,
+                        NULL,
+                        NULL,
 
                         dissect_E2SM_NI_ActionDefinition_PDU,
                         dissect_E2SM_NI_IndicationMessage_PDU,

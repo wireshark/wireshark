@@ -27,7 +27,7 @@ IMPORTS
         InterfaceType,
         Interface-MessageID,
         NRFrequencyInfo,
-        -- NR-CGI,
+        NR-CGI,
         NR-PCI,
         RANfunction-Name,
         RIC-Format-Type,
@@ -51,7 +51,7 @@ maxnoofRRCstate							INTEGER ::= 8
 maxnoofParametersToReport				INTEGER ::= 65535
 maxnoofPolicyConditions					INTEGER ::= 65535
 maxnoofAssociatedRANParameters			INTEGER ::= 65535
--- maxnoofUEID								INTEGER ::= 65535
+maxnoofUEID								INTEGER ::= 65535
 maxnoofCellID							INTEGER ::= 65535
 maxnoofRANOutcomeParameters				INTEGER ::= 255
 maxnoofParametersinStructure			INTEGER ::= 65535
@@ -61,27 +61,22 @@ maxnoofCellInfo							INTEGER ::= 65535
 maxnoofUEeventInfo						INTEGER ::= 65535
 maxnoofRANparamTest						INTEGER ::= 255
 maxnoofNeighbourCell					INTEGER ::= 65535
--- maxnoofRICStyles						INTEGER ::= 63
+maxnoofRICStyles						INTEGER ::= 63
 maxnoofCallProcessTypes					INTEGER ::= 65535
 maxnoofCallProcessBreakpoints			INTEGER ::= 65535
 maxnoofInsertIndication					INTEGER ::= 65535
 maxnoofControlAction					INTEGER ::= 65535
 maxnoofPolicyAction						INTEGER ::= 65535
 maxnoofInsertIndicationActions			INTEGER ::= 63
-maxnoofMulCtrlActions				INTEGER ::= 63
+maxnoofMulCtrlActions					INTEGER ::= 63
+maxGroupDefinitionIdentifierParameters	INTEGER ::= 255
+maxnoofAssociatedEntityFilters			INTEGER ::= 255
+maxnoofFormatTypes						INTEGER ::= 63
 
 
 -- *****************************************************
 -- IEs
 -- *****************************************************
-
--- N.B.. copied from ric 2.01...
--- copied from v16.2.0
-NR-CGI ::= SEQUENCE {
-        pLMNIdentity		PLMNIdentity,
-        nRCellIdentity		NRCellIdentity,
-        ...
-}
 
 LogicalOR ::= ENUMERATED {true, false, ...}
 
@@ -203,8 +198,7 @@ EventTrigger-UEevent-Info-Item ::= SEQUENCE {
 -- RAN Parameter related IEs
 -------------------------------
 
--- RANParameter-ID 	::= INTEGER (1..2^32, ...)
-RANParameter-ID 	::= INTEGER (1..4294967296, ...)
+RANParameter-ID 	::= INTEGER (1..4294967295, ...)
 
 RANParameter-Name ::= PrintableString (SIZE(1..150, ...))
 
@@ -306,7 +300,7 @@ RANParameter-Testing ::= SEQUENCE (SIZE(1..maxnoofRANparamTest)) OF RANParameter
 
 RANParameter-TestingCondition ::= CHOICE {
         ranP-Choice-comparison				ENUMERATED {equal, difference, greaterthan, lessthan, contains, starts-with, ...},
-        ranP-Choice-presence				ENUMERATED {present, configured, rollover, non-zero, ...},
+        ranP-Choice-presence				ENUMERATED {present, configured, rollover, non-zero, ..., value-change},
         ...
 }
 
@@ -348,13 +342,24 @@ RANParameter-Testing-LIST ::= SEQUENCE (SIZE(1..maxnoofItemsinList)) OF RANParam
 
 RANParameter-Testing-STRUCTURE ::= SEQUENCE (SIZE(1..maxnoofParametersinStructure)) OF RANParameter-Testing-Item
 
+UE-Group-Definition ::= SEQUENCE {
+        ueGroupDefinitionIdentifier-LIST SEQUENCE (SIZE(1..maxGroupDefinitionIdentifierParameters)) OF UEGroupDefinitionIdentifier-Item,
+        ...
+}
+
+UEGroupDefinitionIdentifier-Item ::= SEQUENCE {
+        ranParameter-ID						RANParameter-ID,
+        ranParameter-valueType				RANParameter-ValueType,
+        logicalOR							LogicalOR							OPTIONAL,
+        ...
+}
 
 
 ----------------------------
 -- RIC Service related IEs
 ----------------------------
 
-RAN-CallProcess-ID ::= INTEGER (1..232, ...)
+RAN-CallProcess-ID ::= INTEGER (1..4294967295, ...)
 
 RIC-CallProcessType-ID ::= INTEGER (1..65535, ...)
 
@@ -380,6 +385,11 @@ RIC-InsertIndication-ID ::= INTEGER (1..65535, ...)
 
 RIC-InsertIndication-Name ::= PrintableString (SIZE(1..150, ...))
 
+UE-Group-ID ::= INTEGER (1..65535, ...)
+
+EntityFilter-ID ::=	INTEGER (1..255, ...)
+
+
 RIC-PolicyAction ::= SEQUENCE {
         ric-PolicyAction-ID					RIC-ControlAction-ID,
         ranParameters-List					SEQUENCE (SIZE(1..maxnoofAssociatedRANParameters)) OF RIC-PolicyAction-RANParameter-Item		OPTIONAL,
@@ -391,6 +401,24 @@ RIC-PolicyAction ::= SEQUENCE {
 RIC-PolicyAction-RANParameter-Item ::= SEQUENCE {
         ranParameter-ID						RANParameter-ID,
         ranParameter-valueType				RANParameter-ValueType,
+        ...
+}
+
+UE-Filter-ID ::= INTEGER (1..65535, ...)
+
+Associated-UE-Info ::= SEQUENCE {
+associatedUEInfo-List					SEQUENCE (SIZE(1..maxnoofUEInfo)) OF Associated-UE-Info-Item,
+...
+}
+
+Associated-UE-Info-Item ::= SEQUENCE {
+        ueFilterID							UE-Filter-ID,
+        ueType								CHOICE {
+                ueType-Choice-Individual		EventTrigger-UE-Info-Item-Choice-Individual,
+                ueType-Choice-Group				EventTrigger-UE-Info-Item-Choice-Group,
+                ...
+        },
+        logicalOR							LogicalOR 							OPTIONAL,
         ...
 }
 
@@ -410,7 +438,7 @@ E2SM-RC-EventTrigger ::= SEQUENCE {
                 eventTrigger-Format2					E2SM-RC-EventTrigger-Format2,
                 eventTrigger-Format3					E2SM-RC-EventTrigger-Format3,
                 eventTrigger-Format4					E2SM-RC-EventTrigger-Format4,
-                eventTrigger-Format5					E2SM-RC-EventTrigger-Format5,
+                eventTrigger-Format5					NULL,
                 ...
         },
         ...
@@ -494,7 +522,9 @@ TriggerType-Choice ::= CHOICE {
         triggerType-Choice-RRCstate		TriggerType-Choice-RRCstate,
         triggerType-Choice-UEID			TriggerType-Choice-UEID,
         triggerType-Choice-L2state		TriggerType-Choice-L2state,
-        ...
+        ...,
+        triggerType-Choice-UEcontext	TriggerType-Choice-UEcontext,
+        triggerType-Choice-L2MACschChg	TriggerType-Choice-L2MACschChg
 }
 
 TriggerType-Choice-RRCstate ::= SEQUENCE {
@@ -518,11 +548,23 @@ TriggerType-Choice-L2state ::= SEQUENCE {
         ...
 }
 
+TriggerType-Choice-UEcontext ::= SEQUENCE {
+        associatedUECtxtVariables				RANParameter-Testing,
+        ...
+}
 
-E2SM-RC-EventTrigger-Format5 ::= SEQUENCE {
-        onDemand								ENUMERATED {true, ...},
-        associatedUEInfo						EventTrigger-UE-Info				OPTIONAL,
-        associatedCellInfo						EventTrigger-Cell-Info				OPTIONAL,
+TriggerType-Choice-L2MACschChg ::= SEQUENCE {
+        l2MACschChgType							L2MACschChgType-Choice,
+        ...
+}
+
+L2MACschChgType-Choice ::= CHOICE {
+        triggerType-Choice-MIMOandBFconfig		TriggerType-Choice-MIMOandBFconfig,
+        ...
+}
+
+TriggerType-Choice-MIMOandBFconfig ::= SEQUENCE {
+        mIMOtransModeState						ENUMERATED {enabled, disabled, ...},
         ...
 }
 
@@ -651,7 +693,7 @@ ric-indicationMessage-formats		CHOICE {
                 indicationMessage-Format1			E2SM-RC-IndicationMessage-Format1,
                 indicationMessage-Format2			E2SM-RC-IndicationMessage-Format2,
                 indicationMessage-Format3			E2SM-RC-IndicationMessage-Format3,
-                indicationMessage-Format4			E2SM-RC-IndicationMessage-Format4,
+                indicationMessage-Format4			NULL,
                 indicationMessage-Format5			E2SM-RC-IndicationMessage-Format5,
                 ...,
                 indicationMessage-Format6			E2SM-RC-IndicationMessage-Format6
@@ -704,27 +746,6 @@ E2SM-RC-IndicationMessage-Format3-Item ::= SEQUENCE {
         ...
 }
 
-E2SM-RC-IndicationMessage-Format4 ::= SEQUENCE {
-        ueInfo-List								SEQUENCE (SIZE(0..maxnoofUEID)) OF E2SM-RC-IndicationMessage-Format4-ItemUE,
-        cellInfo-List							SEQUENCE (SIZE(0..maxnoofCellID)) OF E2SM-RC-IndicationMessage-Format4-ItemCell,
-        ...
-}
-
-
-E2SM-RC-IndicationMessage-Format4-ItemUE ::= SEQUENCE {
-        ueID									UEID,
-        ueContextInfo							OCTET STRING				OPTIONAL,
-        cellGlobal-ID							CGI,
-        ...
-}
-
-
-E2SM-RC-IndicationMessage-Format4-ItemCell ::= SEQUENCE {
-        cellGlobal-ID						CGI,
-        cellContextInfo						OCTET STRING 				OPTIONAL,
-        neighborRelation-Table				NeighborRelation-Info		OPTIONAL,
-        ...
-}
 
 E2SM-RC-IndicationMessage-Format5 ::= SEQUENCE{
         ranP-Requested-List					SEQUENCE (SIZE(0..maxnoofAssociatedRANParameters)) OF E2SM-RC-IndicationMessage-Format5-Item,
@@ -788,7 +809,8 @@ E2SM-RC-ControlHeader ::= SEQUENCE {
         ric-controlHeader-formats			CHOICE {
         controlHeader-Format1		E2SM-RC-ControlHeader-Format1,
                 ...,
-                controlHeader-Format2				E2SM-RC-ControlHeader-Format2
+                controlHeader-Format2				E2SM-RC-ControlHeader-Format2,
+                controlHeader-Format3				E2SM-RC-ControlHeader-Format3
         },
         ...
 }
@@ -807,6 +829,14 @@ E2SM-RC-ControlHeader-Format2 ::= SEQUENCE {
         ...
 }
 
+E2SM-RC-ControlHeader-Format3 ::= SEQUENCE {
+        ue-Group-ID							UE-Group-ID,
+        ue-Group-Definition					UE-Group-Definition,
+        ric-Style-Type						RIC-Style-Type,
+        ric-ControlAction-ID				RIC-ControlAction-ID,
+        ...
+}
+
 -- ***************************************************
 -- Control Message OCTET STRING contents
 -- ***************************************************
@@ -815,8 +845,8 @@ E2SM-RC-ControlMessage ::= SEQUENCE {
         ric-controlMessage-formats			CHOICE {
                 controlMessage-Format1			E2SM-RC-ControlMessage-Format1,
                 ...,
-                controlMessage-Format2				E2SM-RC-ControlMessage-Format2
-
+                controlMessage-Format2				E2SM-RC-ControlMessage-Format2,
+                controlMessage-Format3				E2SM-RC-ControlMessage-Format3
         },
         ...
 }
@@ -849,6 +879,32 @@ E2SM-RC-ControlMessage-Format2-ControlAction-Item ::= SEQUENCE {
         ranP-List								E2SM-RC-ControlMessage-Format1,
         ...
 }
+
+E2SM-RC-ControlMessage-Format3 ::= SEQUENCE {
+        listOfEntityFilters						SEQUENCE (SIZE(0..maxnoofAssociatedEntityFilters)) OF E2SM-RC-EntityFilter		OPTIONAL,
+        entityAgnosticControlRanP-List						SEQUENCE (SIZE(0..maxnoofAssociatedRANParameters)) OF EntityAgnostic-ranP-ControlParameters		OPTIONAL,
+        ...
+}
+
+E2SM-RC-EntityFilter ::= SEQUENCE {
+        entityFilter-ID						EntityFilter-ID,
+        entityFilter-Definition				RANParameter-Testing,
+        entitySpecificControlRanP-List						SEQUENCE (SIZE(1..maxnoofAssociatedRANParameters)) OF EntitySpecific-ranP-ControlParameters,
+        ...
+}
+
+EntityAgnostic-ranP-ControlParameters ::= SEQUENCE {
+        ranParameter-ID						RANParameter-ID,
+        ranParameter-valueType				RANParameter-ValueType,
+        ...
+}
+
+EntitySpecific-ranP-ControlParameters ::= SEQUENCE {
+        ranParameter-ID						RANParameter-ID,
+        ranParameter-valueType				RANParameter-ValueType,
+        ...
+}
+
 
 -- ****************************************************
 -- Control Outcome OCTET STRING contents
@@ -910,6 +966,94 @@ E2SM-RC-ControlOutcome-Format3-Item ::= SEQUENCE {
         ...
 }
 
+-- ***************************************************
+-- Query Header OCTET STRING contents
+-- ***************************************************
+
+E2SM-RC-QueryHeader ::= SEQUENCE {
+        ric-queryHeader-formats			CHOICE {
+        queryHeader-Format1				E2SM-RC-QueryHeader-Format1,
+                ...
+        },
+        ...
+}
+
+E2SM-RC-QueryHeader-Format1 ::= SEQUENCE {
+        ric-Style-Type						RIC-Style-Type,
+        associatedE2NodeInfo				RANParameter-Testing				OPTIONAL,
+        associatedUEInfo					Associated-UE-Info					OPTIONAL,
+        ...
+}
+
+-- ***************************************************
+-- Query Definition OCTET STRING contents
+-- ***************************************************
+
+E2SM-RC-QueryDefinition ::= SEQUENCE {
+        ric-queryDefinition-formats			CHOICE {
+                queryRequest-Format1			E2SM-RC-QueryDefinition-Format1,
+                ...
+        },
+        ...
+}
+
+E2SM-RC-QueryDefinition-Format1 ::= SEQUENCE {
+        ranP-List							SEQUENCE (SIZE(1..maxnoofAssociatedRANParameters)) OF E2SM-RC-QueryDefinition-Format1-Item,
+        ...
+}
+
+E2SM-RC-QueryDefinition-Format1-Item ::= SEQUENCE {
+        ranParameter-ID						RANParameter-ID,
+        ranParameter-Definition				RANParameter-Definition				OPTIONAL,
+        ...
+}
+
+-- ***************************************************
+-- Query Outcome OCTET STRING contents
+-- ***************************************************
+
+E2SM-RC-QueryOutcome ::= SEQUENCE {
+        ric-queryOutcome-formats			CHOICE {
+                queryOutcome-Format1			E2SM-RC-QueryOutcome-Format1,
+                queryOutcome-Format2			E2SM-RC-QueryOutcome-Format2,
+                ...
+        },
+        ...
+}
+
+E2SM-RC-QueryOutcome-Format1 ::= SEQUENCE {
+        cellInfo-List							SEQUENCE (SIZE(1..maxnoofCellID)) OF E2SM-RC-QueryOutcome-Format1-ItemCell,
+        ...
+}
+
+E2SM-RC-QueryOutcome-Format1-ItemCell ::= SEQUENCE {
+        cellGlobal-ID						CGI,
+        ranP-List							SEQUENCE (SIZE(0..maxnoofAssociatedRANParameters)) OF E2SM-RC-QueryOutcome-Format1-ItemParameters,
+        neighborRelation-Table				NeighborRelation-Info		OPTIONAL,
+        ...
+}
+
+E2SM-RC-QueryOutcome-Format1-ItemParameters ::= SEQUENCE {
+        ranParameter-ID						RANParameter-ID,
+        ranParameter-valueType				RANParameter-ValueType		OPTIONAL,
+        ...
+}
+E2SM-RC-QueryOutcome-Format2 ::= SEQUENCE {
+        ueInfo-List								SEQUENCE (SIZE(0..maxnoofUEID)) OF E2SM-RC-QueryOutcome-Format2-ItemUE,
+        ...
+}
+
+E2SM-RC-QueryOutcome-Format2-ItemUE::= SEQUENCE {
+        ueID								UEID,
+        ranP-List							SEQUENCE (SIZE(0..maxnoofAssociatedRANParameters)) OF E2SM-RC-QueryOutcome-Format2-ItemParameters,
+        ueFilterID							UE-Filter-ID				OPTIONAL,	...
+}
+
+E2SM-RC-QueryOutcome-Format2-ItemParameters ::= SEQUENCE {
+        ranParameter-ID						RANParameter-ID,
+        ranParameter-valueType				RANParameter-ValueType		OPTIONAL,
+        ...
+}
 
 -- **************************************************************
 -- RAN Function Definition IEs
@@ -922,7 +1066,8 @@ E2SM-RC-RANFunctionDefinition ::= SEQUENCE{
         ranFunctionDefinition-Insert			RANFunctionDefinition-Insert				OPTIONAL,
         ranFunctionDefinition-Control			RANFunctionDefinition-Control				OPTIONAL,
         ranFunctionDefinition-Policy			RANFunctionDefinition-Policy				OPTIONAL,
-        ...
+        ...,
+        ranFunctionDefinition-Query				RANFunctionDefinition-Query					OPTIONAL
 }
 
 -------------------------------
@@ -1090,14 +1235,24 @@ RANFunctionDefinition-Control-Action-Item ::= SEQUENCE {
         ric-ControlAction-ID					RIC-ControlAction-ID,
         ric-ControlAction-Name					RIC-ControlAction-Name,
         ran-ControlActionParameters-List		SEQUENCE (SIZE (1..maxnoofAssociatedRANParameters)) OF ControlAction-RANParameter-Item		OPTIONAL,
-        ...
+        ...,
+        ueGroup-ControlAction-Supported			ENUMERATED {true, false, ...}
 }
 
 ControlAction-RANParameter-Item ::= SEQUENCE {
         ranParameter-ID						RANParameter-ID,
         ranParameter-name					RANParameter-Name,
         ...,
-        ranParameter-Definition				RANParameter-Definition		OPTIONAL
+        ranParameter-Definition				RANParameter-Definition		OPTIONAL,
+        listOfAdditionalSupportedFormats-UEGroupControl		ListOfAdditionalSupportedFormats-UEGroupControl	OPTIONAL
+}
+
+ListOfAdditionalSupportedFormats-UEGroupControl ::= SEQUENCE (SIZE(0..maxnoofFormatTypes)) OF AdditionalSupportedFormat-UEGroupControl
+
+AdditionalSupportedFormat-UEGroupControl ::= SEQUENCE {
+        ric-ControlHeaderFormat-Type			RIC-Format-Type,
+        ric-ControlMessageFormat-Type			RIC-Format-Type,
+        ...
 }
 
 -------------------------------
@@ -1143,6 +1298,33 @@ PolicyCondition-RANParameter-Item ::= SEQUENCE {
         ranParameter-Definition				RANParameter-Definition		OPTIONAL
 }
 
+-------------------------------
+-- Query
+-------------------------------
+
+RANFunctionDefinition-Query ::= SEQUENCE {
+        ric-QueryStyle-List					SEQUENCE (SIZE(1..maxnoofRICStyles)) OF RANFunctionDefinition-Query-Item,
+        ...
+}
+
+
+RANFunctionDefinition-Query-Item ::= SEQUENCE {
+        ric-QueryStyle-Type						RIC-Style-Type,
+        ric-QueryStyle-Name						RIC-Style-Name,
+        ric-QueryHeaderFormat-Type				RIC-Format-Type,
+        ric-QueryDefinitionFormat-Type				RIC-Format-Type,
+        ric-QueryOutcomeFormat-Type			RIC-Format-Type,
+        ran-QueryParameters-List				SEQUENCE (SIZE (1..maxnoofAssociatedRANParameters)) OF  Query-RANParameter-Item			OPTIONAL,
+        ...
+}
+
+
+Query-RANParameter-Item ::= SEQUENCE {
+        ranParameter-ID						RANParameter-ID,
+        ranParameter-name					RANParameter-Name,
+        ranParameter-Definition				RANParameter-Definition		OPTIONAL,
+        ...
+}
 
 
 END

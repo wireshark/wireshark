@@ -269,18 +269,18 @@ UEID-ENB ::= SEQUENCE{
 
 -- copied from v16.5.0
 -- ENB-ID ::= CHOICE {
---        macro-eNB-ID	BIT STRING (SIZE (20)),
---        home-eNB-ID		BIT STRING (SIZE (28)),
---        ... ,
---        short-Macro-eNB-ID		BIT STRING (SIZE(18)),
---        long-Macro-eNB-ID		BIT STRING (SIZE(21))
+--         macro-eNB-ID	BIT STRING (SIZE (20)),
+--         home-eNB-ID		BIT STRING (SIZE (28)),
+--         ... ,
+--         short-Macro-eNB-ID		BIT STRING (SIZE(18)),
+--         long-Macro-eNB-ID		BIT STRING (SIZE(21))
 -- }
 
 -- copied from v16.5.0
 -- GlobalENB-ID ::= SEQUENCE {
 --         pLMNIdentity			PLMNIdentity,
---        eNB-ID					ENB-ID,
---        ...
+--         eNB-ID					ENB-ID,
+--         ...
 -- }
 
 
@@ -344,9 +344,9 @@ E-UTRA-TAC ::= OCTET STRING (SIZE(2))
 
 -- copied from v16.5.0
 -- GlobalenGNB-ID ::= SEQUENCE {
---        pLMN-Identity			PLMNIdentity,
---        en-gNB-ID				EN-GNB-ID,
---        ...
+--         pLMN-Identity			PLMNIdentity,
+--         en-gNB-ID				EN-GNB-ID,
+--         ...
 -- }
 
 
@@ -442,11 +442,11 @@ NgENB-ID ::= CHOICE {
 NRCellIdentity ::= BIT STRING (SIZE(36))
 
 -- copied from v16.2.0
--- NR-CGI ::= SEQUENCE {
---        pLMNIdentity		PLMNIdentity,
---        nRCellIdentity		NRCellIdentity,
---        ...
--- }
+NR-CGI ::= SEQUENCE {
+        pLMNIdentity		PLMNIdentity,
+        nRCellIdentity		NRCellIdentity,
+        ...
+}
 
 -- copied from v16.2.0
 PLMNIdentity ::= OCTET STRING (SIZE(3))
@@ -488,13 +488,13 @@ GlobalNGRANNodeID ::= CHOICE {
 
 
 -- **************************************************************
--- IEs derived from 3GPP 38.463 (E1AP)
+-- IEs derived from 3GPP 37.483 (E1AP)
 -- **************************************************************
 
--- copied from v16.5.0
+-- copied from v17.1.0
 GNB-CU-CP-UE-E1AP-ID		::= INTEGER (0..4294967295)
 
--- copied from v16.5.0
+-- copied from v17.1.0
 -- GNB-CU-UP-ID				::= INTEGER (0..68719476735)
 
 
