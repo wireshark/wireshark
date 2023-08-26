@@ -15,8 +15,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
-#include <wsutil/inet_ipv6.h>
-#include <glib.h>
 
 /* This is not IANA assigned nor registered */
 #define PORT_UBT 15560
@@ -441,7 +439,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
                 break;
 
             default:
-                proto_tree_add_expert_format(message_subtree2, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP");
+                proto_tree_add_expert_format(message_subtree2, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP Type");
                 offset += IP_SIZE - 2;
 
             }
@@ -601,7 +599,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
                     break;
 
                 default:
-                    proto_tree_add_expert_format(message_subtree4, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP");
+                    proto_tree_add_expert_format(message_subtree4, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP Type");
                     offset += IP_SIZE - 2;
 
                 }
@@ -730,7 +728,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
                     break;
 
                 default:
-                    proto_tree_add_expert_format(message_subtree4, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP");
+                    proto_tree_add_expert_format(message_subtree4, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP Type");
                     offset += IP_SIZE - 2;
 
                 }
@@ -788,7 +786,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
                 break;
 
             default:
-                proto_tree_add_expert_format(message_subtree2, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP");
+                proto_tree_add_expert_format(message_subtree2, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP Type");
                 offset += IP_SIZE - 2;
 
             }
@@ -1265,7 +1263,7 @@ proto_register_ubt(void)
         },
 
         { &hf_ubt_dt_serveripv6,/* IPv6 address of server */
-            { "Server IP Address (IPv6)", "ubt.server_ipaddressv46",
+            { "Server IP Address (IPv6)", "ubt.server_ipaddressv6",
             FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1310,7 +1308,7 @@ proto_register_ubt(void)
             { "Max Messages", "ubt.max_msgs",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
-        },
+        }
 
     };
 
