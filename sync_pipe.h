@@ -29,11 +29,6 @@
  */
 #define SP_MAX_MSG_LEN  4096
 
-
-/* Size of buffer to hold decimal representation of
-   signed/unsigned 64-bit int */
-#define SP_DECISIZE 20
-
 /*
  * Indications sent out on the sync pipe (from child to parent).
  * We might want to switch to something like Thrift
@@ -54,21 +49,31 @@
  */
 #define SP_QUIT         'Q'     /* "gracefully" capture quit message (SIGUSR1) */
 
-/* write a single message header to the recipient pipe */
-extern ssize_t
-pipe_write_header(int pipe_fd, char indicator, int length);
-
-/* write a message to the recipient pipe in the standard format
-   (3 digit message length (excluding length and indicator field),
-   1 byte message indicator and the rest is the message).
+/* Write a message, with a string body, to the recipient pipe in the
+   standard format (1-byte message indicator, 3-byte message length
+   (excluding length and indicator field), and the string.
    If msg is NULL, the message has only a length and indicator. */
 extern void
-pipe_write_block(int pipe_fd, char indicator, const char *msg);
+sync_pipe_write_string_msg(int pipe_fd, char indicator, const char *msg);
+
+/* Write a message, with an unsigned integer body, to the recipient
+   pipe in the standard format (1-byte message indicator, 3-byte
+   message length (excluding length and indicator field), and the
+   unsigned integer, as a string. */
+extern void
+sync_pipe_write_uint_msg(int pipe_fd, char indicator, unsigned int num);
 
 /** the child encountered an error, notify the parent */
+/* Write a message, with two message strings as the body, to the
+   recipient pipe.  The header is an SP_ERROR_MSG header, with the
+   length being the length of two string submessages; the submessages
+   are the body of the message, with each submessage being a message
+   with an indicator of SP_ERROR_MSG, the first message having
+   first message string and the second message having the second message
+   string. */
 extern void
-sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
-                           const char *secondary_error_msg);
+sync_pipe_write_errmsgs_to_parent(int pipe_fd, const char *error_msg,
+                                  const char *secondary_error_msg);
 
 /** Has the parent signalled the child to stop? */
 #define SIGNAL_PIPE_CTRL_ID_NONE "none"

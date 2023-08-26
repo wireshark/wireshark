@@ -537,7 +537,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
         execv(argv[0], argv);
         snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
                    argv[0], g_strerror(errno));
-        sync_pipe_errmsg_to_parent(2, errmsg, "");
+        sync_pipe_write_errmsgs_to_parent(2, errmsg, "");
 
         /* Exit with "_exit()", so that we don't close the connection
            to the X server (and cause stuff buffered up by our parent but
@@ -2042,7 +2042,7 @@ signal_pipe_capquit_to_child(capture_session *cap_session)
 
     /* it doesn't matter *what* we send here, the first byte will stop the capture */
     /* simply sending a "QUIT" string */
-    /*pipe_write_block(cap_session->signal_pipe_write_fd, SP_QUIT, quit_msg);*/
+    /*sync_pipe_write_string_msg(cap_session->signal_pipe_write_fd, SP_QUIT, quit_msg);*/
     ret = ws_write(cap_session->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
     if(ret == -1) {
         ws_warning("%d header: error %s", cap_session->signal_pipe_write_fd, win32strerror(GetLastError()));

@@ -23,11 +23,10 @@
 
 
 /* write a single message header to the recipient pipe */
-ssize_t
-pipe_write_header(int pipe_fd, char indicator, int length)
+static ssize_t
+sync_pipe_write_header(int pipe_fd, char indicator, unsigned int length)
 {
     guchar header[1+3]; /* indicator + 3-byte len */
-
 
     ws_assert(length <= SP_MAX_MSG_LEN);
 
@@ -42,12 +41,12 @@ pipe_write_header(int pipe_fd, char indicator, int length)
 }
 
 
-/* write a message to the recipient pipe in the standard format
-   (3 digit message length (excluding length and indicator field),
-   1 byte message indicator and the rest is the message).
+/* Write a message, with a string body, to the recipient pipe in the
+   standard format (1-byte message indicator, 3-byte message length
+   (excluding length and indicator field), and the string.
    If msg is NULL, the message has only a length and indicator. */
 void
-pipe_write_block(int pipe_fd, char indicator, const char *msg)
+sync_pipe_write_string_msg(int pipe_fd, char indicator, const char *msg)
 {
     ssize_t ret;
     int len;
@@ -61,7 +60,7 @@ pipe_write_block(int pipe_fd, char indicator, const char *msg)
     }
 
     /* write header (indicator + 3-byte len) */
-    ret = pipe_write_header(pipe_fd, indicator, len);
+    ret = sync_pipe_write_header(pipe_fd, indicator, len);
     if(ret == -1) {
         return;
     }
@@ -81,14 +80,38 @@ pipe_write_block(int pipe_fd, char indicator, const char *msg)
 }
 
 
+/* Size of buffer to hold decimal representation of
+   signed/unsigned 64-bit int */
+#define SP_DECISIZE 20
+
+/* Write a message, with an unsigned integer body, to the recipient
+   pipe in the standard format (1-byte message indicator, 3-byte
+   message length (excluding length and indicator field), and the
+   unsigned integer, as a string. */
 void
-sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
-                           const char *secondary_error_msg)
+sync_pipe_write_uint_msg(int pipe_fd, char indicator, unsigned int num)
 {
-    /* Write a message header containing the length of the two messages followed by the primary and secondary error messagess */
-    pipe_write_header(pipe_fd, SP_ERROR_MSG, (int) (strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4));
-    pipe_write_block(pipe_fd, SP_ERROR_MSG, error_msg);
-    pipe_write_block(pipe_fd, SP_ERROR_MSG, secondary_error_msg);
+    char count_str[SP_DECISIZE+1+1];
+
+    snprintf(count_str, sizeof(count_str), "%u", num);
+    sync_pipe_write_string_msg(pipe_fd, indicator, count_str);
+}
+
+/* Write a message, with a primary and secondary error message as the body,
+   to the recipient pipe.  The header is an SP_ERROR_MSG header, with the
+   length being the length of two string submessages; the submessages
+   are the body of the message, with each submessage being a message
+   with an indicator of SP_ERROR_MSG, the first message having the
+   primary error message string and the second message having the secondary
+   error message string. */
+void
+sync_pipe_write_errmsgs_to_parent(int pipe_fd, const char *error_msg,
+                                  const char *secondary_error_msg)
+{
+    sync_pipe_write_header(pipe_fd, SP_ERROR_MSG,
+                           (unsigned int) (strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4));
+    sync_pipe_write_string_msg(pipe_fd, SP_ERROR_MSG, error_msg);
+    sync_pipe_write_string_msg(pipe_fd, SP_ERROR_MSG, secondary_error_msg);
 }
 
 /*
