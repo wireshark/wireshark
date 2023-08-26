@@ -55,8 +55,8 @@ static long opt_optimize = 1;
 static int opt_show_types = 0;
 static int opt_dump_refs = 0;
 
-static gdouble elapsed_expand = 0;
-static gdouble elapsed_compile = 0;
+static gint64 elapsed_expand = 0;
+static gint64 elapsed_compile = 0;
 
 /*
  * Report an error in command-line arguments.
@@ -155,35 +155,36 @@ print_warnings(dfilter_t *df)
 static void
 print_elapsed(void)
 {
-    printf("\nElapsed: %.f µs (%.f µs + %.f µs)\n",
-            (elapsed_expand + elapsed_compile) * 1000 * 1000,
-            elapsed_expand * 1000 * 1000,
-            elapsed_compile * 1000 * 1000);
+    printf("\nElapsed: %"PRId64" µs (%"PRId64" µs + %"PRId64" µs)\n",
+            elapsed_expand + elapsed_compile,
+            elapsed_expand,
+            elapsed_compile);
 }
 
 static char *
-expand_filter(const char *text, GTimer *timer)
+expand_filter(const char *text)
 {
     char *expanded = NULL;
     df_error_t *err = NULL;
+    gint64 start;
 
-    g_timer_start(timer);
+    start = g_get_monotonic_time();
     expanded = dfilter_expand(text, &err);
-    g_timer_stop(timer);
-    elapsed_expand = g_timer_elapsed(timer, NULL);
     if (expanded == NULL) {
         fprintf(stderr, "Error: %s\n", err->msg);
         df_error_free(&err);
     }
+    elapsed_expand = g_get_monotonic_time() - start;
     return expanded;
 }
 
 static gboolean
-compile_filter(const char *text, dfilter_t **dfp, GTimer *timer)
+compile_filter(const char *text, dfilter_t **dfp)
 {
     unsigned df_flags = 0;
     gboolean ok;
     df_error_t *df_err = NULL;
+    gint64 start;
 
     if (opt_optimize > 0)
         df_flags |= DF_OPTIMIZE;
@@ -194,11 +195,8 @@ compile_filter(const char *text, dfilter_t **dfp, GTimer *timer)
     if (opt_lemon)
         df_flags |= DF_DEBUG_LEMON;
 
-    g_timer_start(timer);
+    start = g_get_monotonic_time();
     ok = dfilter_compile_full(text, dfp, &df_err, df_flags, "dftest");
-    g_timer_stop(timer);
-    elapsed_compile = g_timer_elapsed(timer, NULL);
-
     if (!ok) {
         fprintf(stderr, "Error: %s\n", df_err->msg);
         if (df_err->loc.col_start >= 0) {
@@ -207,6 +205,7 @@ compile_filter(const char *text, dfilter_t **dfp, GTimer *timer)
         }
         df_error_free(&df_err);
     }
+    elapsed_compile = g_get_monotonic_time() - start;
     return ok;
 }
 
@@ -217,7 +216,6 @@ main(int argc, char **argv)
     char        *text = NULL;
     char        *expanded_text = NULL;
     dfilter_t   *df = NULL;
-    GTimer      *timer = NULL;
     int          exit_status = EXIT_FAILURE;
 
     /*
@@ -405,10 +403,8 @@ main(int argc, char **argv)
 
     printf("Filter:\n %s\n\n", text);
 
-    timer = g_timer_new();
-
     /* Expand macros. */
-    expanded_text = expand_filter(text, timer);
+    expanded_text = expand_filter(text);
     if (expanded_text == NULL) {
         exit_status = WS_EXIT_INVALID_FILTER;
         goto out;
@@ -418,7 +414,7 @@ main(int argc, char **argv)
         printf("Filter (after expansion):\n %s\n\n", expanded_text);
 
     /* Compile it */
-    if (!compile_filter(expanded_text, &df, timer)) {
+    if (!compile_filter(expanded_text, &df)) {
         exit_status = WS_EXIT_INVALID_FILTER;
         goto out;
     }
@@ -457,7 +453,5 @@ out:
     dfilter_free(df);
     g_free(text);
     g_free(expanded_text);
-    if (timer != NULL)
-        g_timer_destroy(timer);
     exit(exit_status);
 }
