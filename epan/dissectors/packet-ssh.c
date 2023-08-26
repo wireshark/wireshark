@@ -2755,6 +2755,16 @@ ssh_decryption_set_mac_id(struct ssh_peer_data *peer)
     }
 }
 
+static bool
+gcry_cipher_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+{
+    gcry_cipher_hd_t hd = (gcry_cipher_hd_t)user_data;
+
+    gcry_cipher_close(hd);
+
+    return FALSE;
+}
+
 static void
 ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
         ssh_bignum *iv, ssh_bignum *key)
@@ -2800,6 +2810,10 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             ws_debug("ssh: can't set chacha20 cipher key %s", gcry_strerror(err));
             return;
         }
+
+        wmem_register_callback(wmem_file_scope(), gcry_cipher_destroy_cb, *hd1);
+        wmem_register_callback(wmem_file_scope(), gcry_cipher_destroy_cb, *hd2);
+
     } else if (CIPHER_AES128_CBC == peer_data->cipher_id  || CIPHER_AES192_CBC == peer_data->cipher_id || CIPHER_AES256_CBC == peer_data->cipher_id) {
         gint iKeyLen = CIPHER_AES128_CBC == peer_data->cipher_id?16:CIPHER_AES192_CBC == peer_data->cipher_id?24:32;
         if (gcry_cipher_open(hd1, CIPHER_AES128_CBC == peer_data->cipher_id?GCRY_CIPHER_AES128:CIPHER_AES192_CBC == peer_data->cipher_id?GCRY_CIPHER_AES192:GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_CBC_CTS)) {
@@ -2836,6 +2850,8 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
             return;
         }
+
+        wmem_register_callback(wmem_file_scope(), gcry_cipher_destroy_cb, *hd1);
 
     } else if (CIPHER_AES128_CTR == peer_data->cipher_id  || CIPHER_AES192_CTR == peer_data->cipher_id || CIPHER_AES256_CTR == peer_data->cipher_id) {
         gint iKeyLen = CIPHER_AES128_CTR == peer_data->cipher_id?16:CIPHER_AES192_CTR == peer_data->cipher_id?24:32;
@@ -2874,6 +2890,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             return;
         }
 
+        wmem_register_callback(wmem_file_scope(), gcry_cipher_destroy_cb, *hd1);
 
     } else if (CIPHER_AES128_GCM == peer_data->cipher_id  || CIPHER_AES256_GCM == peer_data->cipher_id) {
         gint iKeyLen = CIPHER_AES128_GCM == peer_data->cipher_id?16:32;
@@ -2905,6 +2922,8 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
             return;
         }
+
+        wmem_register_callback(wmem_file_scope(), gcry_cipher_destroy_cb, *hd1);
 
     } else {
         ssh_debug_printf("ssh: cipher (%d) is unknown or not set\n", peer_data->cipher_id);
