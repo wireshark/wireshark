@@ -51,6 +51,9 @@
  * Routines for DOCSIS 3.0 CM Control Message dissection.
  * Copyright 2010, Guido Reismueller <g.reismueller[AT]avm.de>
  *
+ * Routines for DOCSIS 4.0 TLVs dissection
+ * Copyright 2023, Andrii Vladyka <andrii.vladyka@harmonicinc.com>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -131,6 +134,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define MGT_DPT_ACK 59
 #define MGT_DPT_INFO 60
 #define MGT_RBA_SW 61
+#define MGT_EXT_RNG_REQ 67
 
 #define UCD_SYMBOL_RATE 1
 #define UCD_FREQUENCY 2
@@ -165,6 +169,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define UCD_UNUSED_SUBC_SPEC 31
 #define UCD_SYMB_IN_OFDMA_FRAME 32
 #define UCD_RAND_SEED 33
+#define EXTENDED_US_CHANNEL 34
 
 #define UCD_MODULATION 1
 #define UCD_DIFF_ENCODING 2
@@ -221,6 +226,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS 15
 #define RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS 16
 #define RNGRSP_COMMANDED_POWER 17
+#define RNGRSP_EXT_US_COMMANDED_POWER 18
 
 /* Commanded Power Sub-TLVs */
 #define RNGRSP_COMMANDED_POWER_DYNAMIC_RANGE_WINDOW 1
@@ -477,6 +483,19 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define SUCCESFUL_RANGING_AFTER_T3_RETRIES_EXCEEDED 8
 #define CM_OPERATING_ON_BATTERY_BACKUP 9
 #define CM_RETURNED_TO_AC_POWER 10
+#define MAC_REMOVAL_EVENT 11
+#define DS_OFDM_PROFILE_FAILURE 16
+#define PRIMARY_DS_CHANGE 17
+#define DPD_MISMATCH 18
+#define DEPRECATED 19
+#define NCP_PROFILE_FAILURE 20
+#define PLC_FAILURE 21
+#define NCP_PROFILE_RECOVERY 22
+#define PLC_RECOVERY 23
+#define OFDM_PROFILE_RECOVERY 24
+#define OFDMA_FAILURE 25
+#define MAP_STORAGE_OVERFLOW 26
+#define MAP_STORAGE_ALMOST_FULL 27
 
 /* Upstream Transmit Power Reporting */
 #define CM_DOESNT_REPORT_TRANSMIT_POWER 0
@@ -571,6 +590,14 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define OPT_REQ_REQ_STAT 1
 #define OPT_REQ_RXMER_THRESH_PARAMS 2
 #define OPT_REQ_RXMER_THRESH_PARAMS_MODULATION_ORDER 1
+#define OPT_REQ_TRIGGER_DEFINITION 7
+#define OPT_REQ_TRIGGER_DEFINITION_TRIGGER_TYPE 1
+#define OPT_REQ_TRIGGER_DEFINITION_MEASUREMENT_DURATION 2
+#define OPT_REQ_TRIGGER_DEFINITION_TRIGGERING_SID 3
+#define OPT_REQ_TRIGGER_DEFINITION_US_CHANNEL_ID 4
+#define OPT_REQ_TRIGGER_DEFINITION_OUDP_SOUND_AMBIG_OFFSET 5
+#define OPT_REQ_TRIGGER_DEFINITION_RXMER_TO_REPORT 6
+#define OPT_REQ_TRIGGER_DEFINITION_START_TIME 7
 
 #define OPT_RSP_RXMER_AND_SNR_MARGIN_DATA 1
 #define OPT_RSP_RXMER_PER_SUBCARRIER 1
@@ -642,6 +669,7 @@ static int proto_docsis_optreq = -1;
 static int proto_docsis_optrsp = -1;
 static int proto_docsis_optack = -1;
 static int proto_docsis_rba = -1;
+static int proto_docsis_ext_rngreq = -1;
 
 static int hf_docsis_sync_cmts_timestamp = -1;
 
@@ -711,6 +739,7 @@ static int hf_docsis_ucd_cent_freq_subc0 = -1;
 static int hf_docsis_ucd_subcarrier_range = -1;
 static int hf_docsis_ucd_symb_ofdma_frame = -1;
 static int hf_docsis_ucd_rand_seed = -1;
+static int hf_docsis_ucd_extended_us_channel = -1;
 
 static int hf_docsis_burst_mod_type = -1;
 static int hf_docsis_burst_diff_encoding = -1;
@@ -1183,10 +1212,20 @@ static int hf_docsis_optreq_reqstat_codew_thresh_comp_cand_prof = -1;
 static int hf_docsis_optreq_reqstat_ncp_field_stat = -1;
 static int hf_docsis_optreq_reqstat_ncp_crc_thresh_comp = -1;
 static int hf_docsis_optreq_reqstat_reserved = -1;
-static int hf_docsis_optreq_tlv_xrmer_thresh_data = -1;
+static int hf_docsis_optreq_tlv_rxmer_thresh_data = -1;
 static int hf_docsis_optreq_xmer_thresh_params_type = -1;
 static int hf_docsis_optreq_xmer_thresh_params_length = -1;
-static int hf_docsis_optreq_tlv_xrmer_thresh_data_mod_order = -1;
+static int hf_docsis_optreq_tlv_rxmer_thresh_data_mod_order = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_data = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_data_type = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_data_length = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_trigger_type = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_measure_duration = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_triggering_sid = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_us_chan_id = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_sound_ambig_offset = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_rx_mer_to_report = -1;
+static int hf_docsis_optreq_tlv_trigger_definition_start_time = -1;
 
 static int hf_docsis_optrsp_tlv_unknown = -1;
 static int hf_docsis_optrsp_prof_id = -1;
@@ -1195,10 +1234,10 @@ static int hf_docsis_optrsp_status = -1;
 static int hf_docsis_optrsp_tlv_data = -1;
 static int hf_docsis_optrsp_type = -1;
 static int hf_docsis_optrsp_length = -1;
-static int hf_docsis_optrsp_tlv_xrmer_snr_margin_data = -1;
+static int hf_docsis_optrsp_tlv_rxmer_snr_margin_data = -1;
 static int hf_docsis_optrsp_xmer_snr_margin_type = -1;
 static int hf_docsis_optrsp_xmer_snr_margin_length = -1;
-static int hf_docsis_optrsp_tlv_xrmer_snr_margin_data_rxmer_subc = -1;
+static int hf_docsis_optrsp_tlv_rxmer_snr_margin_data_rxmer_subc = -1;
 static int hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin = -1;
 
 static int hf_docsis_optack_prof_id = -1;
@@ -1226,6 +1265,7 @@ static int hf_docsis_mgt_dsap = -1;
 static int hf_docsis_mgt_ssap = -1;
 static int hf_docsis_mgt_30_transmit_power = -1;
 static int hf_docsis_mgt_31_transmit_power = -1;
+static int hf_docsis_mgt_40_transmit_power = -1;
 static int hf_docsis_mgt_control = -1;
 static int hf_docsis_mgt_version = -1;
 static int hf_docsis_mgt_type = -1;
@@ -1382,6 +1422,8 @@ static gint ett_docsis_optreq_tlv = -1;
 static gint ett_docsis_optreq_tlvtlv = -1;
 static gint ett_docsis_optreq_tlv_rxmer_thresh_params = -1;
 static gint ett_docsis_optreq_tlv_rxmer_thresh_params_tlv = -1;
+static gint ett_docsis_optreq_tlv_trigger_definition_params = -1;
+static gint ett_docsis_optreq_tlv_trigger_definition_params_tlv = -1;
 
 static gint ett_docsis_optrsp = -1;
 static gint ett_docsis_optrsp_tlv = -1;
@@ -1394,6 +1436,8 @@ static gint ett_docsis_optack = -1;
 static gint ett_docsis_rba = -1;
 static gint ett_docsis_rba_control_byte = -1;
 
+static gint ett_docsis_ext_rngreq = -1;
+
 static gint ett_docsis_mgmt = -1;
 static gint ett_mgmt_pay = -1;
 
@@ -1404,10 +1448,12 @@ static gint ett_docsis_tlv_reassembled = -1;
 static expert_field ei_docsis_mgmt_tlvlen_bad = EI_INIT;
 static expert_field ei_docsis_mgmt_tlvtype_unknown = EI_INIT;
 static expert_field ei_docsis_mgmt_version_unknown = EI_INIT;
+static expert_field ei_docsis_mgmt_opt_req_trigger_def_measure_duration = EI_INIT;
 
 static dissector_table_t docsis_mgmt_dissector_table;
 static dissector_handle_t docsis_tlv_handle;
 static dissector_handle_t docsis_ucd_handle;
+static dissector_handle_t docsis_rba_handle;
 
 static const value_string channel_tlv_vals[] = {
   {UCD_SYMBOL_RATE,  "Symbol Rate"},
@@ -1443,6 +1489,7 @@ static const value_string channel_tlv_vals[] = {
   {UCD_UNUSED_SUBC_SPEC,                "Unused Subcarrier Specification"},
   {UCD_SYMB_IN_OFDMA_FRAME,             "Symbols in OFDMA frame"},
   {UCD_RAND_SEED,                       "Randomization Seed"},
+  {EXTENDED_US_CHANNEL,                 "Extended Upstream Channel"},
   {0, NULL}
 };
 
@@ -1535,6 +1582,7 @@ static const value_string mgmt_type_vals[] = {
   {MGT_DPT_ACK,        "DOCSIS Time Protocol Acknowledge"},
   {MGT_DPT_INFO,       "DOCSIS Time Protocol Information"},
   {MGT_RBA_SW,         "DOCSIS Resource Block Assignment"},
+  {MGT_EXT_RNG_REQ,    "Extended Upstream Range Request"},
   {0, NULL}
 };
 
@@ -1635,6 +1683,7 @@ static const value_string rngrsp_tlv_vals[] = {
   {RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS, "Transmit Equalization Adjust for OFDMA Channels"},
   {RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS, "Transmit Equalization Set for OFDMA Channels"},
   {RNGRSP_COMMANDED_POWER, "Commanded Power"},
+  {RNGRSP_EXT_US_COMMANDED_POWER, "Extended Upstream Commanded Power"},
   {0, NULL}
 };
 
@@ -1989,6 +2038,19 @@ static const value_string symbol_cm_status_event_vals[] = {
   {SUCCESFUL_RANGING_AFTER_T3_RETRIES_EXCEEDED, "Successful ranging after T3 Retries Exceeded"},
   {CM_OPERATING_ON_BATTERY_BACKUP,              "CM Operating on Battery Backup"},
   {CM_RETURNED_TO_AC_POWER,                     "CM Returned to AC Power"},
+  {MAC_REMOVAL_EVENT,                           "MAC Removal Event"},
+  {DS_OFDM_PROFILE_FAILURE,                     "DS OFDM Profile Failure"},
+  {PRIMARY_DS_CHANGE,                           "Primary Downstream Change"},
+  {DPD_MISMATCH,                                "DPD Mismatch"},
+  {DEPRECATED,                                  "Deprecated"},
+  {NCP_PROFILE_FAILURE,                         "NCP Profile Failure"},
+  {PLC_FAILURE,                                 "PLC Failure"},
+  {NCP_PROFILE_RECOVERY,                        "NCP Profile Recovery"},
+  {PLC_RECOVERY,                                "PLC Recovery"},
+  {OFDM_PROFILE_RECOVERY,                       "OFDM Profile Recovery"},
+  {OFDMA_FAILURE,                               "OFDMA Failure"},
+  {MAP_STORAGE_OVERFLOW,                        "MAP Storage Overflow"},
+  {MAP_STORAGE_ALMOST_FULL,                     "MAP Storage Almost Full"},
   {0, NULL}
 };
 
@@ -2395,6 +2457,7 @@ static const value_string profile_id_vals[] = {
 static const value_string opt_opcode_vals[] = {
   {1, "Start"},
   {2, "Abort"},
+  {3, "FDX Triggered Start"},
   {0, NULL}
 };
 
@@ -2412,6 +2475,7 @@ static const value_string opt_status_vals[] = {
 static const value_string optreq_tlv_vals[] = {
   {OPT_REQ_REQ_STAT, "Requested Statistics"},
   {OPT_REQ_RXMER_THRESH_PARAMS, "RxMER Thresholding Parameters"},
+  {OPT_REQ_TRIGGER_DEFINITION, "Trigger Definition"},
   {0, NULL}
 };
 
@@ -2440,6 +2504,31 @@ static const value_string opreq_tlv_rxmer_thresh_params_mod_order[] = {
   {0, NULL}
 };
 
+static const value_string optreq_tlv_trigger_definition_vals[] = {
+  {OPT_REQ_TRIGGER_DEFINITION_TRIGGER_TYPE, "Trigger Type"},
+  {OPT_REQ_TRIGGER_DEFINITION_MEASUREMENT_DURATION, "Measurement Duration"},
+  {OPT_REQ_TRIGGER_DEFINITION_TRIGGERING_SID, "Triggering SID"},
+  {OPT_REQ_TRIGGER_DEFINITION_US_CHANNEL_ID, "US channel ID"},
+  {OPT_REQ_TRIGGER_DEFINITION_OUDP_SOUND_AMBIG_OFFSET, "OUDP Sounding Ambiguity Offset"},
+  {OPT_REQ_TRIGGER_DEFINITION_RXMER_TO_REPORT, "RxMER Measurement to Report"},
+  {OPT_REQ_TRIGGER_DEFINITION_START_TIME, "Time-Triggered Start Time"},
+  {0, NULL}
+};
+
+static const value_string optreq_tlv_triggered_definition_trigger_type_vals[] = {
+  {0, "OUDP Sounding Triggered"},
+  {1, "ECT RxMER Probe Triggered"},
+  {2, "Time Triggered"},
+  {0, NULL}
+};
+
+static const value_string optreq_tlv_triggered_definition_rx_mer_to_report_vals[] = {
+  {0, "Report RxMER per Subcarrier for all subcarriers"},
+  {1, "Report Average RxMER over all subcarriers"},
+  {2, "Report both RxMER per Subcarrier and Average RxMER for all subcarriers"},
+  {0, NULL}
+};
+
 static const value_string optrsp_tlv_vals [] = {
   {OPT_RSP_RXMER_AND_SNR_MARGIN_DATA, "RxMER and SNR Margin Data"},
   {0, NULL}
@@ -2465,6 +2554,11 @@ static const value_string rba_subband_direction_vals [] = {
   {0, NULL}
 };
 
+static const value_string extended_us_channel_vals [] = {
+  {0, "Channel is not an Extended Upstream Channel"},
+  {1, "Channel is an Extended Upstream Channel"},
+  {0, NULL}
+};
 
 static const true_false_string tfs_ucd_change_ind_vals = {"Changes", "No changes"};
 
@@ -3194,6 +3288,16 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
         expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
       }
       break;
+    case EXTENDED_US_CHANNEL:
+      if (length == 1)
+      {
+        proto_tree_add_item (tlv_tree, hf_docsis_ucd_extended_us_channel, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
     }    /* switch(type) */
     pos += length;
   }      /* tvb_reported_length_remaining(tvb, pos) > 0 */
@@ -3544,6 +3648,7 @@ dissect_rngrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * rngrsp_tre
       dissect_rngrsp_transmit_equalization_encodings_ofdma(tvb, rngrsptlv_tree, pos, tlvlen);
       break;
     case RNGRSP_COMMANDED_POWER:
+    case RNGRSP_EXT_US_COMMANDED_POWER:
       dissect_rngrsp_commanded_power(tvb, rngrsptlv_tree, pos, tlvlen);
       break;
 
@@ -3995,7 +4100,7 @@ dissect_dsareq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dsareq_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Addition Request: Transaction ID = %u", transid);
+                "Dynamic Service Addition Request Tran-id = %u ", transid);
 
   /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 2);
@@ -4063,7 +4168,7 @@ dissect_dscreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dscreq_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Change Request: Transaction ID = %u", transid);
+                "Dynamic Service Change Request Tran-id = %u ", transid);
 
   /* Call dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 2);
@@ -4132,7 +4237,7 @@ dissect_dsdreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dsdreq_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Delete Request: Transaction ID = %u", transid);
+                "Dynamic Service Delete Request Tran-id = %u ", transid);
 
   proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_rsvd, tvb, 2, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_sfid, tvb, 4, 4, ENC_BIG_ENDIAN);
@@ -5787,7 +5892,7 @@ dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint( dbcreq_tree, hf_docsis_dbcreq_fragment_sequence_number, tvb, 3, 1, ENC_BIG_ENDIAN, &fragment_sequence_number);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Bonding Change Request: Transaction ID = %u", transid);
+                "Dynamic Bonding Change Request: Tran-Id = %u ", transid);
   col_set_fence(pinfo->cinfo, COL_INFO);
 
   if(number_of_fragments > 1) {
@@ -5839,7 +5944,7 @@ dissect_dbcrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint( dbcrsp_tree, hf_docsis_dbcrsp_conf_code, tvb, 2, 1, ENC_BIG_ENDIAN, &confcode);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Bonding Change Response: Transaction ID = %u (%s)", transid,
+                "Dynamic Bonding Change Response: Tran-Id = %u (%s) ", transid,
                 val_to_str_ext (confcode, &docsis_conf_code_ext, "%d"));
 
   /* Call Dissector for Appendix C TLVs */
@@ -5859,7 +5964,7 @@ dissect_dbcack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   transid = tvb_get_ntohs (tvb, 0);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Bonding Change Acknowledge: Transaction ID = %u", transid);
+                "Dynamic Bonding Change Acknowledge: Tran-Id = %u ", transid);
 
   dbcack_item = proto_tree_add_item(tree, proto_docsis_dbcack, tvb, 0, -1, ENC_NA);
   dbcack_tree = proto_item_add_subtree (dbcack_item, ett_docsis_dbcack);
@@ -6954,7 +7059,7 @@ dissect_optreq_tlv_rxmer_thresholding_parameters (tvbuff_t * tvb, packet_info * 
   guint length;
   guint8 type;
 
-  it = proto_tree_add_item(tree, hf_docsis_optreq_tlv_xrmer_thresh_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  it = proto_tree_add_item(tree, hf_docsis_optreq_tlv_rxmer_thresh_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
   tlv_tree = proto_item_add_subtree (it, ett_docsis_optreq_tlv_rxmer_thresh_params);
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
@@ -6976,7 +7081,129 @@ dissect_optreq_tlv_rxmer_thresholding_parameters (tvbuff_t * tvb, packet_info * 
     case OPT_REQ_RXMER_THRESH_PARAMS_MODULATION_ORDER:
       if (length == 1)
       {
-        proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_xrmer_thresh_data_mod_order, tvb, pos, length, ENC_NA);
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_rxmer_thresh_data_mod_order, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    default:
+      proto_tree_add_item (tlvtlv_tree, hf_docsis_optreq_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
+      break;
+    } /* switch */
+    pos += length;
+  } /* while */
+}
+
+static void
+dissect_optreq_tlv_trigger_definition (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  proto_item *it, *tlv_item, *tlv_len_item, *subtree_item;
+  proto_tree *tlv_tree, *tlvtlv_tree;
+  guint pos = 0;
+  guint length, measurement_duration;
+  guint8 type;
+
+  it = proto_tree_add_item(tree, hf_docsis_optreq_tlv_trigger_definition_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  tlv_tree = proto_item_add_subtree (it, ett_docsis_optreq_tlv_trigger_definition_params);
+
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    length = tvb_get_guint8 (tvb, pos + 1);
+    tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
+                                            ett_docsis_optreq_tlv_trigger_definition_params_tlv, &tlv_item,
+                                            val_to_str(type, optreq_tlv_trigger_definition_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_data_type,
+                         tvb, pos, 1, type);
+    pos++;
+    tlv_len_item = proto_tree_add_item (tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_data_length,
+                                        tvb, pos, 1, ENC_NA);
+    pos++;
+
+    switch (type)
+    {
+    case OPT_REQ_TRIGGER_DEFINITION_TRIGGER_TYPE:
+      if (length == 1)
+      {
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_trigger_type, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case OPT_REQ_TRIGGER_DEFINITION_MEASUREMENT_DURATION:
+      if (length == 2)
+      {
+        subtree_item = proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_measure_duration,
+                                           tvb, pos, length, ENC_BIG_ENDIAN);
+        proto_item_append_text(subtree_item, " OFDM Symbols");
+        measurement_duration = tvb_get_guint8 (tvb, pos);
+        if (measurement_duration > 1024)
+        {
+          expert_add_info_format(pinfo, subtree_item, &ei_docsis_mgmt_opt_req_trigger_def_measure_duration,
+                                 "Measurement duration exceeds 1024 OFDM symbols: %u", measurement_duration);
+        }
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case OPT_REQ_TRIGGER_DEFINITION_TRIGGERING_SID:
+      if (length == 2)
+      {
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_triggering_sid,
+                            tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case OPT_REQ_TRIGGER_DEFINITION_US_CHANNEL_ID:
+      if (length == 1)
+      {
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_us_chan_id,
+                            tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case OPT_REQ_TRIGGER_DEFINITION_OUDP_SOUND_AMBIG_OFFSET:
+      if (length == 4)
+      {
+        subtree_item = proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_sound_ambig_offset,
+                            tvb, pos, length, ENC_BIG_ENDIAN);
+        proto_item_append_text(subtree_item, " DOCSIS time ticks (10.24 MHz)");
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case OPT_REQ_TRIGGER_DEFINITION_RXMER_TO_REPORT:
+      if (length == 1)
+      {
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_rx_mer_to_report,
+                            tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case OPT_REQ_TRIGGER_DEFINITION_START_TIME:
+      if (length == 4)
+      {
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_start_time,
+                            tvb, pos, length, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -7048,6 +7275,10 @@ dissect_optreq_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       next_tvb = tvb_new_subset_length(tvb, pos, length);
       dissect_optreq_tlv_rxmer_thresholding_parameters(next_tvb, pinfo, tlvtlv_tree);
       break;
+    case OPT_REQ_TRIGGER_DEFINITION:
+      next_tvb = tvb_new_subset_length(tvb, pos, length);
+      dissect_optreq_tlv_trigger_definition(next_tvb, pinfo, tlvtlv_tree);
+      break;
     default:
       proto_tree_add_item (tlvtlv_tree, hf_docsis_optreq_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
       expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
@@ -7098,7 +7329,7 @@ dissect_optrsp_tlv_rxmer_and_snr_margin_data (tvbuff_t * tvb, packet_info * pinf
   guint number_of_subcarriers = 0;
   guint i;
 
-  it = proto_tree_add_item(tree, hf_docsis_optrsp_tlv_xrmer_snr_margin_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  it = proto_tree_add_item(tree, hf_docsis_optrsp_tlv_rxmer_snr_margin_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
   tlv_tree = proto_item_add_subtree (it, ett_docsis_optrsp_tlv_rxmer_snr_margin_data);
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
@@ -7126,7 +7357,7 @@ dissect_optrsp_tlv_rxmer_and_snr_margin_data (tvbuff_t * tvb, packet_info * pinf
       }
       for(i=0; i < number_of_subcarriers;++i)
       {
-        proto_tree_add_item(tlvtlv_tree, hf_docsis_optrsp_tlv_xrmer_snr_margin_data_rxmer_subc, tvb, pos+i, 1, ENC_NA);
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optrsp_tlv_rxmer_snr_margin_data_rxmer_subc, tvb, pos+i, 1, ENC_NA);
       }
       break;
     case OPT_RSP_SNR_MARGIN:
@@ -7319,6 +7550,25 @@ dissect_rba (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 }
 
 static int
+dissect_ext_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
+{
+  proto_item *it;
+  proto_tree *ext_rngreq_tree;
+
+  guint32 sid, downstream_channel_id, upstream_channel_id;
+
+  it = proto_tree_add_item(tree, proto_docsis_ext_rngreq, tvb, 0, -1, ENC_NA);
+  ext_rngreq_tree = proto_item_add_subtree (it, ett_docsis_ext_rngreq);
+  proto_tree_add_item_ret_uint (ext_rngreq_tree, hf_docsis_rngreq_sid, tvb, 0, 2, ENC_BIG_ENDIAN, &sid);
+  proto_tree_add_item_ret_uint (ext_rngreq_tree, hf_docsis_mgt_down_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &downstream_channel_id);
+  proto_tree_add_item_ret_uint (ext_rngreq_tree, hf_docsis_mgt_upstream_chid, tvb, 3, 1, ENC_BIG_ENDIAN, &upstream_channel_id);
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "EXT-RNG-REQ: SID: %u, DS CH ID: %u, US CH ID: %u", sid, downstream_channel_id, upstream_channel_id);
+
+  return tvb_captured_length(tvb);
+}
+
+static int
 dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint32 type, version, dsap, ssap, msg_len;
@@ -7359,6 +7609,9 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
        && !(ssap==0 && dsap == 0) ) {
     //RNG_REQ or BONDED_INIT_RNG_REQ with upstream transmit power reporting, sent to 3.1 CMTS
     proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_31_transmit_power, tvb, 14, 2, ENC_BIG_ENDIAN);
+  } else if (type == MGT_EXT_RNG_REQ) {
+    //EXT_RNG_REQ with upstream transmit power reporting, sent to 4.0 CMTS
+    proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_40_transmit_power, tvb, 14, 2, ENC_BIG_ENDIAN);
   } else if ( ((type == MGT_RNG_REQ && version == 1) || (type == MGT_B_INIT_RNG_REQ && version == 4))
        && ssap != 0 ) {
     //RNG_REQ or BONDED_INIT_RNG_REQ with upstream transmit power reporting, sent to 3.0 CMTS
@@ -7706,6 +7959,11 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_ucd_rand_seed,
      {"Randomization Seed", "docsis_ucd.rand_seed",
       FT_BYTES, BASE_NONE, NULL, 0x00,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_extended_us_channel,
+     {"Extended Upstream Channel", "docsis_ucd.extended_us_channel",
+      FT_UINT8, BASE_DEC, VALS (extended_us_channel_vals), 0x00,
       NULL, HFILL}
     },
     {&hf_docsis_ucd_iuc,
@@ -8135,17 +8393,17 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_rngrsp_commanded_power_dynamic_range_window,
      {"Dynamic Range Window", "docsis_rngrsp.tlv.comm_pwr_dyn_range_window",
-      FT_INT8, BASE_DEC, NULL, 0x00,
+      FT_INT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x00,
       NULL, HFILL}
     },
     {&hf_docsis_rngrsp_commanded_power_ucid,
      {"UCID", "docsis_rngrsp.tlv.comm_pwr_ucid",
-      FT_INT8, BASE_DEC, NULL, 0x00,
+      FT_UINT8, BASE_DEC, NULL, 0x00,
       NULL, HFILL}
     },
     {&hf_docsis_rngrsp_commanded_power_trans_pow_lvl,
      {"Transmit Power Level (quarter dBmV)", "docsis_rngrsp.tlv.comm_pwr_trans_pow_lvl",
-      FT_INT16, BASE_DEC, NULL, 0x00,
+      FT_INT16, BASE_CUSTOM, CF_FUNC(fourth_db), 0x00,
       NULL, HFILL}
     },
 
@@ -9777,13 +10035,13 @@ proto_register_docsis_mgmt (void)
      {"Unknown Event Type", "docsis_cmstatus.unknown_event_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_status_event_descr,
-     {"Description", "docsis_cmstatus.status_event.description",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+     {"Description", "docsis_cmstatus.status_event.description", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_status_event_ds_ch_id,
-     {"Downstream Channel ID", "docsis_cmstatus.status_event.ds_chid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Downstream Channel ID", "docsis_cmstatus.status_event.ds_chid", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_status_event_us_ch_id,
-     {"Upstream Channel ID", "docsis_cmstatus.status_event.us_chid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Upstream Channel ID", "docsis_cmstatus.status_event.us_chid", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_status_event_dsid,
      {"DSID", "docsis_cmstatus.status_event.dsid", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
@@ -9801,19 +10059,19 @@ proto_register_docsis_mgmt (void)
      {"TLV Data", "docsis_cmstatus.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_type,
-     {"Type", "docsis_cmstatus.type",FT_UINT8, BASE_DEC, VALS(cmstatus_tlv_vals), 0x0, NULL, HFILL}
+     {"Type", "docsis_cmstatus.type", FT_UINT8, BASE_DEC, VALS(cmstatus_tlv_vals), 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_length,
-     {"Length", "docsis_cmstatus.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Length", "docsis_cmstatus.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_status_event_tlv_data,
      {"Status Event TLV Data", "docsis_cmstatus.status_event.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_status_event_type,
-     {"Status Event Type", "docsis_cmstatus.status_event.type",FT_UINT8, BASE_DEC, VALS(cmstatus_status_event_tlv_vals), 0x0, NULL, HFILL}
+     {"Status Event Type", "docsis_cmstatus.status_event.type", FT_UINT8, BASE_DEC, VALS(cmstatus_status_event_tlv_vals), 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_status_event_length,
-     {"Status Event Length", "docsis_cmstatus.status_event.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Status Event Length", "docsis_cmstatus.status_event.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
 
     /* CM_CTRL_REQ */
@@ -10034,10 +10292,10 @@ proto_register_docsis_mgmt (void)
      {"TLV Data", "docsis_ocd.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_ocd_type,
-     {"Type", "docsis_ocd.type",FT_UINT8, BASE_DEC, VALS(ocd_tlv_vals), 0x0, NULL, HFILL}
+     {"Type", "docsis_ocd.type", FT_UINT8, BASE_DEC, VALS(ocd_tlv_vals), 0x0, NULL, HFILL}
     },
     {&hf_docsis_ocd_length,
-     {"Length", "docsis_ocd.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Length", "docsis_ocd.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     /* DPD */
     {&hf_docsis_dpd_tlv_unknown,
@@ -10088,10 +10346,10 @@ proto_register_docsis_mgmt (void)
      {"TLV Data", "docsis_dpd.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_dpd_type,
-     {"Type", "docsis_dpd.type",FT_UINT8, BASE_DEC, VALS(dpd_tlv_vals), 0x0, NULL, HFILL}
+     {"Type", "docsis_dpd.type" ,FT_UINT8, BASE_DEC, VALS(dpd_tlv_vals), 0x0, NULL, HFILL}
     },
     {&hf_docsis_dpd_length,
-     {"Length", "docsis_dpd.length",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Length", "docsis_dpd.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     /* OPT-REQ */
     {&hf_docsis_optreq_tlv_unknown,
@@ -10110,10 +10368,10 @@ proto_register_docsis_mgmt (void)
      {"TLV Data", "docsis_optreq.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optreq_type,
-     {"Type", "docsis_optreq.type",FT_UINT8, BASE_DEC, VALS(optreq_tlv_vals), 0x0, NULL, HFILL}
+     {"Type", "docsis_optreq.type", FT_UINT8, BASE_DEC, VALS(optreq_tlv_vals), 0x0, NULL, HFILL}
     },
     {&hf_docsis_optreq_length,
-     {"Length", "docsis_optreq.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Length", "docsis_optreq.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_rxmer_stat_subc,
      {"RxMER Statistics per subcarrier", "docsis_optreq.reqstat.rxmer_stat_per_subcarrier", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x1, NULL, HFILL}
@@ -10139,17 +10397,47 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_optreq_reqstat_reserved,
      {"Reserved", "docsis_optreq.reqstat.reserved", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x00000080, NULL, HFILL}
     },
-    {&hf_docsis_optreq_tlv_xrmer_thresh_data,
+    {&hf_docsis_optreq_tlv_rxmer_thresh_data,
      {"TLV Data", "docsis_optreq.rxmer_thresh_params.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optreq_xmer_thresh_params_type,
-     {"Type", "docsis_optreq.rxmer_thres_params.type",FT_UINT8, BASE_DEC, VALS(optreq_tlv_rxmer_thresh_params_vals), 0x0, NULL, HFILL}
+     {"Type", "docsis_optreq.rxmer_thres_params.type", FT_UINT8, BASE_DEC, VALS(optreq_tlv_rxmer_thresh_params_vals), 0x0, NULL, HFILL}
     },
     {&hf_docsis_optreq_xmer_thresh_params_length,
-     {"Length", "docsis_optreq.rxmer_thres_params.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Length", "docsis_optreq.rxmer_thres_params.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optreq_tlv_xrmer_thresh_data_mod_order,
+    {&hf_docsis_optreq_tlv_rxmer_thresh_data_mod_order,
      {"Modulation Order", "docsis_optreq.rxmer_thres_params.mod_order", FT_UINT8, BASE_DEC, VALS(opreq_tlv_rxmer_thresh_params_mod_order), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_data,
+     {"TLV Data", "docsis_optreq.trigger_definition.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_data_type,
+     {"Type", "docsis_optreq.trigger_definition.type", FT_UINT8, BASE_DEC, VALS(optreq_tlv_trigger_definition_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_data_length,
+     {"Length", "docsis_optreq.trigger_definition.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_trigger_type,
+     {"Trigger Type", "docsis_optreq.trigger_definition.trigger_type", FT_UINT8, BASE_DEC, VALS(optreq_tlv_triggered_definition_trigger_type_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_measure_duration,
+     {"Measurement Duration", "docsis_optreq.trigger_definition.measurement_duration", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_triggering_sid,
+     {"Triggering SID", "docsis_optreq.trigger_definition.triggering_sid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_us_chan_id,
+     {"US Channel ID", "docsis_optreq.trigger_definition.us_chan_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_sound_ambig_offset,
+     {"OUDP Sounding Ambiguity Offset", "docsis_optreq.trigger_definition.sound_ambig_offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_rx_mer_to_report,
+     {"RxMER Measurement to Report", "docsis_optreq.trigger_definition.rx_mer_to_report", FT_UINT8, BASE_DEC, VALS(optreq_tlv_triggered_definition_rx_mer_to_report_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_trigger_definition_start_time,
+     {"Time-Triggered Start Time", "docsis_optreq.trigger_definition.start_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     /* OPT-RSP */
     {&hf_docsis_optrsp_tlv_unknown,
@@ -10168,21 +10456,21 @@ proto_register_docsis_mgmt (void)
      {"TLV Data", "docsis_optrsp.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optrsp_type,
-     {"Type", "docsis_optrsp.type",FT_UINT8, BASE_DEC, VALS(optreq_tlv_vals), 0x0, NULL, HFILL}
+     {"Type", "docsis_optrsp.type", FT_UINT8, BASE_DEC, VALS(optreq_tlv_vals), 0x0, NULL, HFILL}
     },
     {&hf_docsis_optrsp_length,
-     {"Length", "docsis_optrsp.length",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Length", "docsis_optrsp.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optrsp_tlv_xrmer_snr_margin_data,
+    {&hf_docsis_optrsp_tlv_rxmer_snr_margin_data,
      {"TLV Data", "docsis_optrsp.rxmer_snr_margin.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optrsp_xmer_snr_margin_type,
-     {"Type", "docsis_optrsp.xmer_snr_margin.type",FT_UINT8, BASE_DEC, VALS(optrsp_tlv_rxmer_snr_margin_vals), 0x0, NULL, HFILL}
+     {"Type", "docsis_optrsp.xmer_snr_margin.type", FT_UINT8, BASE_DEC, VALS(optrsp_tlv_rxmer_snr_margin_vals), 0x0, NULL, HFILL}
     },
     {&hf_docsis_optrsp_xmer_snr_margin_length,
-     {"Length", "docsis_optrsp.rxmer_snr_margin.length",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Length", "docsis_optrsp.rxmer_snr_margin.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optrsp_tlv_xrmer_snr_margin_data_rxmer_subc,
+    {&hf_docsis_optrsp_tlv_rxmer_snr_margin_data_rxmer_subc,
      {"RxMER", "docsis_optrsp.rxmer_snr_margin.rxmer_per_subc", FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0, NULL, HFILL}
     },
     {&hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin,
@@ -10279,6 +10567,11 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mgt_31_transmit_power,
      {"Upstream Transmit Power, sent to 3.1 CMTS", "docsis_mgmt.31_transmit_power",
       FT_UINT16, BASE_CUSTOM, CF_FUNC(fourth_db), 0x01FF,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mgt_40_transmit_power,
+     {"Upstream Transmit Power, sent to 4.0 CMTS", "docsis_mgmt.40_transmit_power",
+      FT_INT16, BASE_CUSTOM, CF_FUNC(fourth_db), 0x1FF,
       NULL, HFILL}
     },
     {&hf_docsis_mgt_control,
@@ -10485,6 +10778,8 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_optreq_tlvtlv,
     &ett_docsis_optreq_tlv_rxmer_thresh_params,
     &ett_docsis_optreq_tlv_rxmer_thresh_params_tlv,
+    &ett_docsis_optreq_tlv_trigger_definition_params,
+    &ett_docsis_optreq_tlv_trigger_definition_params_tlv,
     &ett_docsis_optrsp,
     &ett_docsis_optrsp_tlv,
     &ett_docsis_optrsp_tlvtlv,
@@ -10493,6 +10788,7 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_optack,
     &ett_docsis_rba,
     &ett_docsis_rba_control_byte,
+    &ett_docsis_ext_rngreq,
     &ett_docsis_mgmt,
     &ett_mgmt_pay,
     &ett_docsis_tlv_fragment,
@@ -10503,7 +10799,8 @@ proto_register_docsis_mgmt (void)
   static ei_register_info ei[] = {
     {&ei_docsis_mgmt_tlvlen_bad, {"docsis_mgmt.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
     {&ei_docsis_mgmt_tlvtype_unknown, { "docsis_mgmt.tlvtypeunknown", PI_PROTOCOL, PI_WARN, "Unknown TLV type", EXPFILL}},
-    {&ei_docsis_mgmt_version_unknown, { "docsis_mgmt.versionunknown", PI_PROTOCOL, PI_WARN, "Unknown MAC management version", EXPFILL}},
+    {&ei_docsis_mgmt_version_unknown, { "docsis_mgmt.versionunknown", PI_PROTOCOL, PI_WARN, "Unknown mac management version", EXPFILL}},
+    {&ei_docsis_mgmt_opt_req_trigger_def_measure_duration, { "docsis_mgmt.optreq_trigger_def.wrongduration", PI_PROTOCOL, PI_WARN, "Wrong duration of FDX-triggered OPT-REQ", EXPFILL}},
    };
 
   expert_module_t* expert_docsis_mgmt;
@@ -10570,9 +10867,11 @@ proto_register_docsis_mgmt (void)
   proto_docsis_optrsp = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Response", "DOCSIS OPT-RSP", "docsis_optrsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_optack = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Acknowledge", "DOCSIS OPT-ACK", "docsis_optack", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_rba = proto_register_protocol_in_name_only("DOCSIS Resource Block Assignment Message", "DOCSIS RBA", "docsis_rba", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_ext_rngreq = proto_register_protocol_in_name_only("DOCSIS Extended Range Request Message", "DOCSIS EXT-RNG-REQ", "docsis_ext_rngreq", proto_docsis_mgmt, FT_BYTES);
 
   register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
   docsis_ucd_handle = register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
+  docsis_rba_handle = register_dissector ("docsis_rba", dissect_rba, proto_docsis_rba);
 }
 
 void
@@ -10628,7 +10927,8 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_OPT_REQ, create_dissector_handle( dissect_optreq, proto_docsis_optreq ));
   dissector_add_uint ("docsis_mgmt", MGT_OPT_RSP, create_dissector_handle( dissect_optrsp, proto_docsis_optrsp ));
   dissector_add_uint ("docsis_mgmt", MGT_OPT_ACK, create_dissector_handle( dissect_optack, proto_docsis_optack ));
-  dissector_add_uint ("docsis_mgmt", MGT_RBA_SW, create_dissector_handle( dissect_rba, proto_docsis_rba ));
+  dissector_add_uint ("docsis_mgmt", MGT_RBA_SW, docsis_rba_handle);
+  dissector_add_uint ("docsis_mgmt", MGT_EXT_RNG_REQ, create_dissector_handle( dissect_ext_rngreq, proto_docsis_ext_rngreq ));
 
   docsis_tlv_handle = find_dissector ("docsis_tlv");
 

@@ -83,6 +83,8 @@
 #define TLV_MGMT_EVENT_CTRL 66
 #define TLV_EM_MODE_INDICATOR 75
 #define TLV_EM_ID_LIST_FOR_CM 78
+#define TLV_FDX_TG_ASSIGNMENT 85
+#define TLV_FDX_RESET 86
 #define TLV_END 255
 
 /* Define DOCSIS 1.0 Class Of Service Configuration Types
@@ -351,6 +353,9 @@
 #define TLV_TCC_DYN_RNG_WIN 9
 #define TLV_TCC_P1_6HI 10
 #define TLV_TCC_ASSIGN_OFDMA_UP_DATA_PROF 11
+#define TLV_TCC_EXTENDED_DRW 14
+#define TLV_TCC_EXTENDED_US_RNG_PWR 15
+#define TLV_TCC_OUDP_SOUNDING_SID 16
 #define TLV_TCC_ERR 254
 
 /* Define TLV_TCC_RNG_PARMS sub-types
@@ -512,6 +517,13 @@
 #define CMTS_MC_SESS_ENC_GRP 1
 #define CMTS_MC_SESS_ENC_SRC 2
 #define CMTS_MC_SESS_ENC_CMIM 3
+
+/* Define TLV_FDX_TG_ASSIGNMENT sub-types
+ * These are subtypes of TLV_FDX_TG_ASSIGNMENT (85)
+ */
+#define TLV_FDX_TG_ASSIGNMENT_TG_ID 1
+#define TLV_FDX_TG_ASSIGNMENT_RBA_TYPE 2
+#define TLV_FDX_TG_ASSIGNMENT_RBA_MESSAGE 3
 
 extern value_string_ext docsis_conf_code_ext;
 

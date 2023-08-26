@@ -33,6 +33,7 @@ void proto_reg_handoff_docsis_tlv(void);
 /* Initialize the protocol and registered fields */
 static dissector_handle_t docsis_vsif_handle;
 static dissector_handle_t docsis_ucd_handle;
+static dissector_handle_t docsis_rba_handle;
 
 static int proto_docsis_tlv = -1;
 static int hf_docsis_tlv_down_freq = -1;
@@ -363,6 +364,9 @@ static int hf_docsis_tlv_tcc_init_tech= -1;
 static int hf_docsis_tlv_tcc_dyn_rng_win= -1;
 static int hf_docsis_tlv_tcc_p_16hi = -1;
 static int hf_docsis_tlv_tcc_oudp_iuc = -1;
+static int hf_docsis_tlv_tcc_extended_drw = -1;
+static int hf_docsis_tlv_tcc_extended_us_rng_pwr = -1;
+static int hf_docsis_tlv_tcc_oudp_sounding_sid = -1;
 /* static int hf_docsis_tlv_tcc_err = -1; */
 
 static int hf_docsis_rng_parms_us_ch_id = -1;
@@ -475,6 +479,11 @@ static int hf_docsis_tlv_em_mode_ind = -1;
 
 static int hf_docsis_tlv_em_id_list_for_cm_em_id = -1;
 
+static int hf_docsis_tlv_fdx_reset = -1;
+
+static int hf_docsis_tlv_fdx_tg_assignment_tg_id = -1;
+static int hf_docsis_tlv_fdx_tg_assignment_rba_type = -1;
+
 static int hf_docsis_tlv_unknown = -1;
 static int hf_docsis_tlv_unknown_type = -1;
 static int hf_docsis_tlv_unknown_length = -1;
@@ -559,6 +568,7 @@ static gint ett_docsis_tlv_sec_assoc = -1;
 static gint ett_docsis_tlv_ch_asgn = -1;
 static gint ett_docsis_cmts_mc_sess_enc = -1;
 static gint ett_docsis_em_id_list_for_cm = -1;
+static gint ett_docsis_tlv_tg_assignment = -1;
 static gint ett_docsis_tlv_unknown = -1;
 static gint ett_docsis_ucd_fragments = -1;
 static gint ett_docsis_ucd_fragment = -1;
@@ -787,6 +797,10 @@ static const value_string init_tech_vals[] = {
   {2, "Perform unicast ranging before normal ops"},
   {3, "Perform either broadcast or unicast ranging before normal ops"},
   {4, "Use new channel directly without reinitializing or ranging"},
+  {5, "Perform probing before normal ops"},
+  {6, "Perform unicast initial ranging before normal ops"},
+  {7, "Perform station ranging before normal ops"},
+  {8, "Use FDX channel directly"},
   {0, NULL},
 };
 
@@ -902,6 +916,18 @@ static const value_string docsis_time_prot_perf_sup_vals[] = {
   {4, "DTP support for DTP Level 4"},
   {5, "DTP support for DTP Level 5"},
   {6, "DTP supported but with no specified performance"},
+  {0, NULL},
+};
+
+static const value_string rba_type_vals[] = {
+  {0, "Use RBA-SW"},
+  {1, "Use RBA-HW"},
+  {0, NULL},
+};
+
+static const value_string fdx_reset_vals[] = {
+  {0, "Do not reset FDX state"},
+  {1, "Reset FDX state and restart FDX initialization"},
   {0, NULL},
 };
 
@@ -4002,6 +4028,42 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
           case TLV_TCC_ASSIGN_OFDMA_UP_DATA_PROF:
             dissect_tcc_oudp(tvb, tcc_tree, pos, length);
             break;
+          case TLV_TCC_EXTENDED_DRW:
+            if (length == 1)
+              {
+                proto_tree_add_item (tcc_tree,
+                                     hf_docsis_tlv_tcc_extended_drw, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case TLV_TCC_EXTENDED_US_RNG_PWR:
+            if (length == 2)
+              {
+                proto_tree_add_item (tcc_tree,
+                                     hf_docsis_tlv_tcc_extended_us_rng_pwr, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case TLV_TCC_OUDP_SOUNDING_SID:
+            if (length == 2)
+              {
+                proto_tree_add_item (tcc_tree,
+                                     hf_docsis_tlv_tcc_oudp_sounding_sid, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
           case TLV_TCC_ERR:
             dissect_tcc_err(tvb, pinfo, tcc_tree, pos, length);
             break;
@@ -5106,6 +5168,63 @@ dissect_em_id_list_for_cm(tvbuff_t * tvb, proto_tree *tree, int start, guint16 l
     }
 }
 
+static void
+dissect_fdx_tg_assignment(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+{
+  guint8 type, length;
+  proto_tree *tg_assignment_tree;
+  proto_item *tg_assignment_item;
+  int pos = start;
+  tvbuff_t *rba_tvb;
+
+  tg_assignment_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tg_assignment, &tg_assignment_item,
+                                  "85 FDX Transmission Group Assignment (Length = %u)", len);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+        {
+          case TLV_FDX_TG_ASSIGNMENT_TG_ID:
+            if (length == 1)
+              {
+                proto_tree_add_item (tg_assignment_tree,
+                                     hf_docsis_tlv_fdx_tg_assignment_tg_id, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, tg_assignment_item, &ei_docsis_tlv_tlvlen_bad,
+                                       "Wrong TLV length: %u", length);
+              }
+            break;
+          case TLV_FDX_TG_ASSIGNMENT_RBA_TYPE:
+            if (length == 1)
+              {
+                proto_tree_add_item (tg_assignment_tree,
+                                     hf_docsis_tlv_fdx_tg_assignment_rba_type, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, tg_assignment_item, &ei_docsis_tlv_tlvlen_bad,
+                                       "Wrong TLV length: %u", length);
+              }
+            break;
+          case TLV_FDX_TG_ASSIGNMENT_RBA_MESSAGE:
+            rba_tvb = tvb_new_subset_length (tvb, pos, length);
+            call_dissector (docsis_rba_handle, rba_tvb, pinfo, tg_assignment_tree);
+            break;
+          default:
+            dissect_unknown_tlv (tvb, pinfo, tg_assignment_tree, pos - 2, length + 2);
+            break;
+        }                       /* switch */
+      pos = pos + length;
+    }                           /* while */
+}
+
 static int
 dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
@@ -5551,6 +5670,19 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
               break;
             case TLV_EM_ID_LIST_FOR_CM:
               dissect_em_id_list_for_cm(tvb, tlv_tree, pos, length);
+              break;
+            case TLV_FDX_TG_ASSIGNMENT:
+              dissect_fdx_tg_assignment(tvb, pinfo, tlv_tree, pos, length);
+              break;
+            case TLV_FDX_RESET:
+              if (length == 1)
+                {
+                  proto_tree_add_item (tlv_tree, hf_docsis_tlv_fdx_reset, tvb, pos, length, ENC_BIG_ENDIAN);
+                }
+              else
+                {
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+                }
               break;
             case TLV_END:
               break;
@@ -7189,6 +7321,21 @@ proto_register_docsis_tlv (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
     },
+    {&hf_docsis_tlv_tcc_extended_drw,
+     {".14 Extended Dynamic Range Window", "docsis_tlv.tcc.extended_dynrngwin",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0,
+      "Extended Dynamic Range Window", HFILL}
+    },
+    {&hf_docsis_tlv_tcc_extended_us_rng_pwr,
+     {".15 Extended US Ranging Power", "docsis_tlv.tcc.extended_us_rng_pwr",
+      FT_UINT16, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0,
+      "Extended US Ranging Power", HFILL}
+    },
+    {&hf_docsis_tlv_tcc_oudp_sounding_sid,
+     {".16 OUDP Sounding SID", "docsis_tlv.tcc.oudp_sounding_sid",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "OUDP Sounding SID", HFILL}
+    },
 #if 0
     {&hf_docsis_tlv_tcc_err,
      {".10 TCC Error Encodings", "docsis_tlv.tcc.err",
@@ -7717,6 +7864,21 @@ proto_register_docsis_tlv (void)
        FT_UINT16, BASE_DEC, NULL, 0x0,
        NULL, HFILL}
     },
+    {&hf_docsis_tlv_fdx_tg_assignment_tg_id,
+      {"Transmission Group ID", "docsis_tlv.fdx_tg_assignment_tg_id",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL}
+    },
+    {&hf_docsis_tlv_fdx_tg_assignment_rba_type,
+      {"RBA Type", "docsis_tlv.fdx_tg_assignment_rba_type",
+       FT_UINT8, BASE_DEC, VALS (rba_type_vals), 0x0,
+       NULL, HFILL}
+    },
+    {&hf_docsis_tlv_fdx_reset,
+     {"86 FDX Reset", "docsis_tlv.fdx_reset",
+      FT_UINT8, BASE_DEC, VALS (fdx_reset_vals), 0x0,
+      "FDX Reset", HFILL}
+    },
     {&hf_docsis_tlv_unknown,
       {"Unknown TLV", "docsis_tlv.unknown",
        FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -7863,6 +8025,7 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_ch_asgn,
     &ett_docsis_cmts_mc_sess_enc,
     &ett_docsis_em_id_list_for_cm,
+    &ett_docsis_tlv_tg_assignment,
     &ett_docsis_tlv_unknown,
     &ett_docsis_ucd_fragment,
     &ett_docsis_ucd_fragments,
@@ -7898,6 +8061,7 @@ proto_reg_handoff_docsis_tlv (void)
 
   docsis_vsif_handle = find_dissector("docsis_vsif");
   docsis_ucd_handle = find_dissector("docsis_ucd");
+  docsis_rba_handle = find_dissector("docsis_rba");
 
   reassembly_table_register(&ucd_reassembly_table,
                         &addresses_reassembly_table_functions);
