@@ -97,23 +97,23 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     /* Try to get the local interface list */
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
     if (ret != 0) {
-        /* Add the extcap interfaces that can exist, even if no native interfaces have been found */
+        ws_info("sync_interface_list_open() failed. %s (%s)",
+                  primary_msg ? primary_msg : "no message",
+                  secondary_msg ? secondary_msg : "no secondary message");
+        if (err_str) {
+            *err_str = primary_msg;
+        } else {
+            g_free(primary_msg);
+        }
+        g_free(secondary_msg);
+        *err = CANT_GET_INTERFACE_LIST;
+
+        /*
+         * Add the extcap interfaces that can exist; they may exist
+         * even if no native interfaces have been found.
+         */
         ws_info("Loading External Capture Interface List ...");
         if_list = append_extcap_interface_list(if_list);
-        if ( g_list_length(if_list) == 0 ) {
-
-            ws_info("Capture Interface List failed. Error %d, %s (%s)",
-                  *err, primary_msg ? primary_msg : "no message",
-                  secondary_msg ? secondary_msg : "no secondary message");
-            if (err_str) {
-                *err_str = primary_msg;
-            } else {
-                g_free(primary_msg);
-            }
-            g_free(secondary_msg);
-            *err = CANT_GET_INTERFACE_LIST;
-
-        }
         return if_list;
     }
 

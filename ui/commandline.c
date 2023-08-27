@@ -232,6 +232,7 @@ void commandline_early_options(int argc, char *argv[])
     int err;
     GList *if_list;
     gchar *err_str;
+    int exit_status;
 #else
     gboolean capture_option_specified;
 #endif
@@ -303,15 +304,31 @@ void commandline_early_options(int argc, char *argv[])
                 break;
             case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
+                exit_status = EXIT_SUCCESS;
                 if_list = capture_interface_list(&err, &err_str, NULL);
+                if (err != 0) {
+                    /*
+                     * An error occurred when fetching the local
+                     * interfaces.  Report it.
+                     */
+#ifdef _WIN32
+                    create_console();
+#endif /* _WIN32 */
+                    cmdarg_err("%s", err_str);
+                    g_free(err_str);
+                    exit_status = WS_EXIT_PCAP_ERROR;
+                }
                 if (if_list == NULL) {
-                    if (err == 0)
+                    /*
+                     * No interfaces were found.  If that's not the
+                     * result of an error when fetching the local
+                     * interfaces, let the user know.
+                     */
+                    if (err == 0) {
                         cmdarg_err("There are no interfaces on which a capture can be done");
-                    else {
-                        cmdarg_err("%s", err_str);
-                        g_free(err_str);
+                        exit_status = WS_EXIT_NO_INTERFACES;
                     }
-                    exit(WS_EXIT_INVALID_INTERFACE);
+                    exit(exit_status);
                 }
 #ifdef _WIN32
                 create_console();
@@ -321,7 +338,7 @@ void commandline_early_options(int argc, char *argv[])
 #ifdef _WIN32
                 destroy_console();
 #endif /* _WIN32 */
-                exit(EXIT_SUCCESS);
+                exit(exit_status);
 #else /* HAVE_LIBPCAP */
                 capture_option_specified = TRUE;
 #endif /* HAVE_LIBPCAP */

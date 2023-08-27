@@ -32,6 +32,10 @@ class ExitCodes(enum.IntEnum):
     IFACE_HAS_NO_TIMESTAMP_TYPES = 7
     INIT_FAILED = 8
     OPEN_ERROR = 9
+    PCAP_NOT_SUPPORTED = 10
+    DUMPCAP_NOT_SUPPORTED = 11
+    NO_INTERFACES = 12
+    PCAP_ERROR = 13
 
 def run(*args, capture_output=False, stdout=None, stderr=None, encoding='utf-8', **kwargs):
     ''' Wrapper for subprocess.run() that captures and decodes output.'''

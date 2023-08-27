@@ -1333,20 +1333,31 @@ main(int argc, char *argv[])
                 break;
             case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
+                exit_status = EXIT_SUCCESS;
                 if_list = capture_interface_list(&err, &err_str,NULL);
+                if (err != 0) {
+                    /*
+                     * An error occurred when fetching the local
+                     * interfaces.  Report it.
+                     */
+                    cmdarg_err("%s", err_str);
+                    g_free(err_str);
+                    exit_status = WS_EXIT_PCAP_ERROR;
+                }
                 if (if_list == NULL) {
-                    if (err == 0)
+                    /*
+                     * No interfaces were found.  If that's not the
+                     * result of an error when fetching the local
+                     * interfaces, let the user know.
+                     */
+                    if (err == 0) {
                         cmdarg_err("There are no interfaces on which a capture can be done");
-                    else {
-                        cmdarg_err("%s", err_str);
-                        g_free(err_str);
+                        exit_status = WS_EXIT_NO_INTERFACES;
                     }
-                    exit_status = WS_EXIT_INVALID_INTERFACE;
                     goto clean_exit;
                 }
                 capture_opts_print_interfaces(if_list);
                 free_interface_list(if_list);
-                exit_status = EXIT_SUCCESS;
                 goto clean_exit;
 #else
                 capture_option_specified = TRUE;

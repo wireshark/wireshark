@@ -22,5 +22,9 @@
 #define WS_EXIT_IFACE_HAS_NO_TIMESTAMP_TYPES 7
 #define WS_EXIT_INIT_FAILED                  8
 #define WS_EXIT_OPEN_ERROR                   9
+#define WS_EXIT_PCAP_NOT_SUPPORTED           10
+#define WS_EXIT_DUMPCAP_NOT_SUPPORTED        11
+#define WS_EXIT_NO_INTERFACES                12
+#define WS_EXIT_PCAP_ERROR                   13
 
 #endif /* __WS_EXIT_CODES_H__ */
