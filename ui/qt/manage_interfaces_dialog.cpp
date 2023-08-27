@@ -209,6 +209,18 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 
 ManageInterfacesDialog::~ManageInterfacesDialog()
 {
+    if (result() == QDialog::Accepted) {
+#ifdef HAVE_LIBPCAP
+        sourceModel->save();
+#endif
+#ifdef HAVE_PCAP_REMOTE
+        remoteAccepted();
+#endif
+        prefs_main_write();
+        mainApp->refreshLocalInterfaces();
+        emit ifsChanged();
+    }
+
     delete ui;
 }
 
@@ -250,19 +262,6 @@ void ManageInterfacesDialog::updateWidgets()
     hint.prepend("<small><i>");
     hint.append("</i></small>");
     ui->hintLabel->setText(hint);
-}
-
-void ManageInterfacesDialog::on_buttonBox_accepted()
-{
-#ifdef HAVE_LIBPCAP
-    sourceModel->save();
-#endif
-#ifdef HAVE_PCAP_REMOTE
-    remoteAccepted();
-#endif
-    prefs_main_write();
-    mainApp->refreshLocalInterfaces();
-    emit ifsChanged();
 }
 
 #ifdef HAVE_LIBPCAP

@@ -59,8 +59,6 @@ signals:
 private slots:
     void updateWidgets();
 
-    void on_buttonBox_accepted();
-
 #ifdef HAVE_LIBPCAP
     void on_addPipe_clicked();
     void on_delPipe_clicked();
