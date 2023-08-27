@@ -3,7 +3,7 @@ name: Build MSYS2
 on: [push]
 
 jobs:
-  msys2-mingw64:
+  msys2-ucrt64:
     runs-on: windows-latest
     defaults:
       run:
@@ -15,18 +15,39 @@ jobs:
           msystem: UCRT64
           update: true
           install: base-devel
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: tools/msys2-setup.sh --install-all --noconfirm
       - name: Build
-        env:
-          PKG_COMMIT: ${{ github.sha }}
         run: |
           mkdir build && cd build
-          wget "https://raw.githubusercontent.com/wireshark/wireshark/${PKG_COMMIT}/packaging/msys2/mingw-w64-wireshark-git/PKGBUILD"
-          makepkg-mingw --cleanbuild --syncdeps --force --install --noconfirm
-      - name: Show version
-        run: |
-          wireshark.exe --version
+          cmake -G Ninja -DFETCH_lua=Yes ..
+          ninja
+          ninja test
+          ninja wireshark_nsis_prep
+          ninja wireshark_nsis
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: package
-          path: build/mingw-w64-*-wireshark*-any.pkg.tar.zst
+          name: nsis-installer
+          path: build/packaging/nsis/wireshark-*-x64.exe
+
+  install-nsis:
+    runs-on: windows-latest
+    needs: msys2-ucrt64
+    steps:
+      - name: Download installer
+        uses: actions/download-artifact@v3
+        with:
+          name: nsis-installer
+          path: downloads
+      - name: Run installer
+        working-directory: downloads
+        run: |
+          Get-ChildItem -Path wireshark-*-x64.exe | ForEach-Object {
+            Start-Process $_.FullName -ArgumentList '/S /D=C:\Wireshark' -Wait
+          }
+      - name: Show version
+        run: C:\Wireshark\wireshark.exe --version
+
