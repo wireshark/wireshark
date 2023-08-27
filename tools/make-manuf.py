@@ -262,6 +262,8 @@ def main():
             manuf = ieee_row[2].strip()
             # The Organization Name field occasionally contains HTML entities. Undo them.
             manuf = html.unescape(manuf)
+            # "Watts A\S"
+            manuf = manuf.replace('\\', '/')
             if manuf == 'IEEE Registration Authority':
                 continue
             if manuf == 'Private':
