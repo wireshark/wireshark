@@ -1,4 +1,4 @@
-Wireshark 4.1.0 Release Notes
+Wireshark 4.1.1 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 4.2.
@@ -133,9 +133,9 @@ Wireshark 4.1.0 Release Notes
        -Y, -R, and -e options to tshark, the "Apply as Filter" GUI
        option, etc.
 
-        • The filter field names are prefixed by "ws.col", followed by a
-       lowercase version of the COL name found in epan/column-utils.h,
-       e.g. "_ws.col.info" or "_ws.col.protocol"
+        • The filter field names are prefixed by "_ws.col", followed by
+       a lowercase version of the COL_ name found in
+       epan/column-utils.h, e.g. "_ws.col.info" or "_ws.col.protocol"
 
         • Using the column names as a filter is slower than other filter
        types because the columns must be constructed, so when the same
@@ -221,26 +221,26 @@ Wireshark 4.1.0 Release Notes
 
   New Protocol Support
 
-   ASAM Capture Module Protocol (CMP), DECT DLC protocol layer
-   (DECT-DLC), DECT NWK protocol layer (DECT-NWK), DECT proprietary
-   Mitel OMM/RFP Protocol (also named AaMiDe), Digital Object Identifier
-   Resolution Protocol (DO-IRP), FiRa UWB Controller Interface (UCI),
-   FiveCo’s Register Access Protocol (5CoRAP), Fortinet FortiGate
-   Cluster Protocol (FGCP), GPS L1 C/A LNAV navigation messages, High
-   Speed Fahrzeugzugang (HSFZ), ID3v2, Low Level Signalling (ATSC3 LLS),
-   Management Component Transport Protocol (MCTP), Management Component
-   Transport Protocol - Control Protocol (MCTP CP), Matter home
-   automation protocol, Multi-Drop Bus (MDB), Non-volatile Memory
-   Express - Management Interface (NVMe-MI) over MCTP, SAP Enqueue
-   Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA SQL Command Network
-   Protocol (SAPHDB), SAP Internet Graphic Server (SAP IGS), SAP Message
-   Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
-   (SAPROUTER), SAP Secure Network Connection (SNC), SBAS L1 Navigation
-   Messages (SBAS L1), SINEC AP1 Protocol (SINEC AP), Train Real-Time
-   Data Protocol (TRDP), UBX protocol of u-blox GNSS receivers (UBX),
-   UDP Tracker Protocol for BitTorrent (BT-Tracker), Video Protocol 9
-   (VP9), Windows Delivery Optimization (MS-DO), and Zabbix Protocol
-   (Zabbix)
+   Aruba UBT Protocol, ASAM Capture Module Protocol (CMP), DECT DLC
+   protocol layer (DECT-DLC), DECT NWK protocol layer (DECT-NWK), DECT
+   proprietary Mitel OMM/RFP Protocol (also named AaMiDe), Digital
+   Object Identifier Resolution Protocol (DO-IRP), FiRa UWB Controller
+   Interface (UCI), FiveCo’s Register Access Protocol (5CoRAP), Fortinet
+   FortiGate Cluster Protocol (FGCP), GPS L1 C/A LNAV navigation
+   messages, High Speed Fahrzeugzugang (HSFZ), ID3v2, Low Level
+   Signalling (ATSC3 LLS), Management Component Transport Protocol
+   (MCTP), Management Component Transport Protocol - Control Protocol
+   (MCTP CP), Matter home automation protocol, Multi-Drop Bus (MDB),
+   Non-volatile Memory Express - Management Interface (NVMe-MI) over
+   MCTP, SAP Enqueue Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA
+   SQL Command Network Protocol (SAPHDB), SAP Internet Graphic Server
+   (SAP IGS), SAP Message Server (SAPMS), SAP Network Interface (SAPNI),
+   SAP Router (SAPROUTER), SAP Secure Network Connection (SNC), SBAS L1
+   Navigation Messages (SBAS L1), SINEC AP1 Protocol (SINEC AP), Train
+   Real-Time Data Protocol (TRDP), UBX protocol of u-blox GNSS receivers
+   (UBX), UDP Tracker Protocol for BitTorrent (BT-Tracker), Video
+   Protocol 9 (VP9), Windows Delivery Optimization (MS-DO), and Zabbix
+   Protocol (Zabbix)
 
   Updated Protocol Support
 

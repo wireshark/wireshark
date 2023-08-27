@@ -115,6 +115,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     loop - OpenBSD loopback
     loratap - LoRaTap
     ltalk - Localtalk
+    mdb - MDB (Multi-Drop Bus)
     message_analyzer_wfp_capture2_v4 - Message Analyzer WFP Capture2 v4
     message_analyzer_wfp_capture2_v6 - Message Analyzer WFP Capture2 v6
     message_analyzer_wfp_capture_auth_v4 - Message Analyzer WFP Capture Auth v4
