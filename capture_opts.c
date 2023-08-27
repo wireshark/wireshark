@@ -601,19 +601,14 @@ fill_in_interface_opts_from_ifinfo(interface_options *interface_opts,
     interface_opts->extcap = g_strdup(if_info->extcap);
 }
 
-static gboolean
-fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
-                                           const char *name)
+static if_info_t*
+find_ifinfo_by_name(GList *if_list, const char *name)
 {
-    gboolean    matched;
-    GList       *if_list;
-    int         err;
     GList       *if_entry;
-    if_info_t   *if_info;
+    if_info_t   *matched_if_info;
     size_t      prefix_length;
 
-    matched = FALSE;
-    if_list = capture_interface_list(&err, NULL, NULL);
+    matched_if_info = NULL;
     if (if_list != NULL) {
         /*
          * Try and do an exact match (case insensitive) on  the
@@ -623,7 +618,7 @@ fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
         for (if_entry = g_list_first(if_list); if_entry != NULL;
              if_entry = g_list_next(if_entry))
         {
-            if_info = (if_info_t *)if_entry->data;
+            if_info_t *if_info = (if_info_t *)if_entry->data;
 
             /*
              * Does the specified name match the interface name
@@ -633,7 +628,7 @@ fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
                 /*
                  * Yes.
                  */
-                matched = TRUE;
+                matched_if_info = if_info;
                 break;
             }
 
@@ -647,7 +642,7 @@ fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
                 /*
                  * Yes.
                  */
-                matched = TRUE;
+                matched_if_info = if_info;
                 break;
             }
 
@@ -664,17 +659,17 @@ fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
                     /*
                      * Yes.
                      */
-                    matched = TRUE;
+                    matched_if_info = if_info;
                 }
                 g_string_free(combined_name, TRUE);
-                if (matched == TRUE) {
+                if (matched_if_info != NULL) {
                     break;
                 }
             }
 #endif
         }
 
-        if (!matched) {
+        if (matched_if_info == NULL) {
             /*
              * We didn't find it; attempt a case-insensitive prefix match
              * of the friendly name.
@@ -683,7 +678,7 @@ fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
             for (if_entry = g_list_first(if_list); if_entry != NULL;
                  if_entry = g_list_next(if_entry))
             {
-                if_info = (if_info_t *)if_entry->data;
+                if_info_t *if_info = (if_info_t *)if_entry->data;
 
                 if (if_info->friendly_name != NULL &&
                     g_ascii_strncasecmp(if_info->friendly_name, name, prefix_length) == 0) {
@@ -691,21 +686,14 @@ fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
                      * We found an interface whose friendly name matches
                      * with a case-insensitive prefix match.
                      */
-                    matched = TRUE;
+                    matched_if_info = if_info;
                     break;
                 }
             }
         }
     }
 
-    if (matched) {
-        /*
-         * We found an interface that matches.
-         */
-        fill_in_interface_opts_from_ifinfo(interface_opts, if_info);
-    }
-    free_interface_list(if_list);
-    return matched;
+    return matched_if_info;
 }
 
 static int
@@ -782,9 +770,26 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         /*
          * Search for that name in the interface list and, if we found
          * it, fill in fields in the interface_opts structure.
+         *
+         * XXX - if we can't get the interface list, we don't report
+         * an error, as, on Windows, that might be due to WinPcap or
+         * Npcap not being installed, but the specified "interface"
+         * might be the standard input ("=") or a pipe, and dumpcap
+         * should support capturing from the standard input or from
+         * a pipe even if there's no capture support from *pcap.
+         *
+         * Perhaps doing something similar to what was suggested
+         * for numerical interfaces should be done.
          */
-        if (!fill_in_interface_opts_from_ifinfo_by_name(&interface_opts,
-                                                        optarg_str_p)) {
+        if_list = capture_interface_list(&err, &err_str, NULL);
+        if_info = find_ifinfo_by_name(if_list, optarg_str_p);
+        if (if_info != NULL) {
+            /*
+             * We found the interface in the list; fill in the
+             * interface_opts structure from its if_info.
+             */
+            fill_in_interface_opts_from_ifinfo(&interface_opts, if_info);
+        } else {
             /*
              * We didn't find the interface in the list; just use
              * the specified name, so that, for example, if an
@@ -800,6 +805,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             interface_opts.if_type = capture_opts->default_options.if_type;
             interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
         }
+        free_interface_list(if_list);
     }
 
     interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
