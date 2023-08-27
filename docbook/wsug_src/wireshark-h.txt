@@ -1,4 +1,4 @@
-Wireshark 3.6.16 (v3.6.16rc0-4-ga7fc63e8376e)
+Wireshark 3.6.17 (v3.6.17rc0-1-g14c52fb41a3b)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
