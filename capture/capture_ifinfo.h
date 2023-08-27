@@ -70,7 +70,10 @@ typedef struct {
 } if_addr_t;
 
 /**
- * Fetch the interface list from a child process.
+ * Return the list of interfaces.
+ *
+ * Local interfaces are fetched by running dumpcap.
+ * The remote and extcap interfaces are appended to the list after that.
  */
 extern GList *capture_interface_list(int *err, char **err_str, void (*update_cb)(void));
 

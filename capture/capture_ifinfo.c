@@ -94,7 +94,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
         *err_str = NULL;
     }
 
-    /* Try to get our interface list */
+    /* Try to get the local interface list */
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
     if (ret != 0) {
         /* Add the extcap interfaces that can exist, even if no native interfaces have been found */
@@ -175,6 +175,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     g_strfreev(raw_list);
 
 #ifdef HAVE_PCAP_REMOTE
+    /* Add the remote interface list */
     if (remote_interface_list && g_list_length(remote_interface_list) > 0) {
         if_list = append_remote_list(if_list);
     }
