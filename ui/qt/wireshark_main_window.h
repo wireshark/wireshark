@@ -181,6 +181,7 @@ private:
 
     bool capture_stopping_;
     bool capture_filter_valid_;
+    bool use_capturing_title_;
 #ifdef HAVE_LIBPCAP
     capture_session cap_session_;
     CaptureOptionsDialog *capture_options_dialog_;
@@ -230,6 +231,7 @@ private:
     void setForCapturedPackets(bool have_captured_packets);
     void setMenusForFileSet(bool enable_list_files);
     void setWindowIcon(const QIcon &icon);
+    void updateTitlebar();
     QString replaceWindowTitleVariables(QString title);
 
     void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth);

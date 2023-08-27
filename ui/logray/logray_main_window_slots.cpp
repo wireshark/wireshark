@@ -506,6 +506,7 @@ void LograyMainWindow::captureCaptureUpdateFinished(capture_session *session) {
 
     /* Update the main window as appropriate */
     updateForUnsavedChanges();
+    setTitlebarForCaptureFile();
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
@@ -527,6 +528,7 @@ void LograyMainWindow::captureCaptureFixedFinished(capture_session *) {
 
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping_ = false;
+    setTitlebarForCaptureFile();
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
@@ -549,7 +551,7 @@ void LograyMainWindow::captureCaptureFixedFinished(capture_session *) {
 void LograyMainWindow::captureCaptureFailed(capture_session *) {
     /* Capture isn't stopping any more. */
     capture_stopping_ = false;
-
+    setTitlebarForCaptureFile();
     setForCaptureInProgress(false);
     showWelcome();
 
@@ -757,6 +759,7 @@ void LograyMainWindow::captureFileReadFinished() {
 
 void LograyMainWindow::captureFileClosing() {
     setMenusForCaptureFile(true);
+    setTitlebarForCaptureFile();
     setForCapturedPackets(false);
     setForCaptureInProgress(false);
 

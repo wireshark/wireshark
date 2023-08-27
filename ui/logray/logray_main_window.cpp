@@ -322,7 +322,8 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     freeze_focus_(NULL),
     was_maximized_(false),
     capture_stopping_(false),
-    capture_filter_valid_(false)
+    capture_filter_valid_(false),
+    use_capturing_title_(false)
 #ifdef HAVE_LIBPCAP
     , capture_options_dialog_(NULL)
     , info_data_()
@@ -356,7 +357,7 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
             << REGISTER_LOG_STAT_GROUP_UNSORTED;
 
     setWindowIcon(mainApp->normalIcon());
-    setTitlebarForCaptureFile();
+    updateTitlebar();
     setMenusForCaptureFile();
     setForCapturedPackets(false);
     setMenusForFileSet(false);
@@ -391,7 +392,7 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
     connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updatePreferenceActions()));
     connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(setTitlebarForCaptureFile()));
+    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateTitlebar()));
 
     connect(mainApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
     updateRecentCaptures();
@@ -2320,24 +2321,8 @@ void LograyMainWindow::initExportObjectsMenus()
 // Titlebar
 void LograyMainWindow::setTitlebarForCaptureFile()
 {
-    if (capture_file_.capFile() && capture_file_.capFile()->filename) {
-        setWSWindowTitle(QString("[*]%1").arg(capture_file_.fileDisplayName()));
-        //
-        // XXX - on non-Mac platforms, put in the application
-        // name?  Or do so only for temporary files?
-        //
-        if (!capture_file_.capFile()->is_tempfile) {
-            //
-            // Set the file path; that way, for macOS, it'll set the
-            // "proxy icon".
-            //
-            setWindowFilePath(capture_file_.filePath());
-        }
-        setWindowModified(cf_has_unsaved_data(capture_file_.capFile()));
-    } else {
-        /* We have no capture file. */
-        setWSWindowTitle();
-    }
+    use_capturing_title_ = false;
+    updateTitlebar();
 }
 
 QString LograyMainWindow::replaceWindowTitleVariables(QString title)
@@ -2414,10 +2399,30 @@ void LograyMainWindow::setWSWindowTitle(QString title)
 
 void LograyMainWindow::setTitlebarForCaptureInProgress()
 {
-    if (capture_file_.capFile()) {
+    use_capturing_title_ = true;
+    updateTitlebar();
+}
+
+void LograyMainWindow::updateTitlebar()
+{
+    if (use_capturing_title_ && capture_file_.capFile()) {
         setWSWindowTitle(tr("Capturing from %1").arg(cf_get_tempfile_source(capture_file_.capFile())));
+    } else if (capture_file_.capFile() && capture_file_.capFile()->filename) {
+        setWSWindowTitle(QString("[*]%1").arg(capture_file_.fileDisplayName()));
+        //
+        // XXX - on non-Mac platforms, put in the application
+        // name?  Or do so only for temporary files?
+        //
+        if (!capture_file_.capFile()->is_tempfile) {
+            //
+            // Set the file path; that way, for macOS, it'll set the
+            // "proxy icon".
+            //
+            setWindowFilePath(capture_file_.filePath());
+        }
+        setWindowModified(cf_has_unsaved_data(capture_file_.capFile()));
     } else {
-        /* We have no capture in progress. */
+        /* We have no capture file. */
         setWSWindowTitle();
     }
 }
@@ -2582,7 +2587,7 @@ void LograyMainWindow::setWindowIcon(const QIcon &icon) {
 }
 
 void LograyMainWindow::updateForUnsavedChanges() {
-    setTitlebarForCaptureFile();
+    updateTitlebar();
     setMenusForCaptureFile();
 }
 
@@ -2596,6 +2601,7 @@ void LograyMainWindow::changeEvent(QEvent* event)
             main_ui_->retranslateUi(this);
             // make sure that the "Clear Menu" item is retranslated
             mainApp->emitAppSignal(WiresharkApplication::RecentCapturesChanged);
+            updateTitlebar();
             break;
         case QEvent::LocaleChange: {
             QString locale = QLocale::system().name();
