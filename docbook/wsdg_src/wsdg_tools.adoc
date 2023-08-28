@@ -314,6 +314,7 @@ _windows.h_, _WS2_32.lib_)
 
 Official releases are or were built with the following Visual {cpp} versions:
 
+* Wireshark 4.2.x: Microsoft Visual {cpp} 2022.
 * Wireshark 4.0.x: Microsoft Visual {cpp} 2022.
 * Wireshark 3.6.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.4.x: Microsoft Visual {cpp} 2019.
@@ -362,6 +363,12 @@ You can use Chocolatey to install Visual Studio, e.g:
 ----
 PS:\> choco install visualstudiocommunity2022 visualstudio2022-workload-nativedesktop
 ----
+
+If you wish to build Arm64 executables you must install the following components:
+
+Microsoft.VisualStudio.Component.VC.Tools.ARM64:: MSVC v143 - VS 2022 C++ ARM64/ARM64EC build tools (Latest)
+
+Microsoft.VisualStudio.Component.VC.Runtimes.ARM64.Spectre:: MSVC v143 - VS 2022 C++ ARM64/ARM64EC Spectre-mitigated libs (Latest)
 
 ==== cl.exe (C Compiler)
 
