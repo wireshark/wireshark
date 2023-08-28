@@ -82,6 +82,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_set_uint8_option_value@Base 2.1.2
  wtap_block_unref@Base 3.5.0
  wtap_buffer_append_epdu_end@Base 4.1.0
+ wtap_buffer_append_epdu_string@Base 4.1.1rc0
  wtap_buffer_append_epdu_tag@Base 4.1.0
  wtap_buffer_append_epdu_uint@Base 4.1.0
  wtap_cleanup@Base 2.3.0
