@@ -11,6 +11,7 @@
  * Copyright 2016, Uli Heilmeier <uh@heilmeier.eu>
  * Copyright 2017, Adam Wujek <adam.wujek@cern.ch>
  * Copyright 2022, Dr. Lars Voelker <lars.voelker@technica-engineering.de>
+ * Copyright 2023, Adam Wujek <dev_public@wujek.eu> for CERN
  *
  * Revisions:
  * - Markus Seehofer 09.08.2005 <mseehofe@nt.hirschmann.de>
@@ -34,7 +35,8 @@
  *   - Added support for C37.238-2017
  * - Dr. Lars Voelker 05-01-2022 <lars.voelker@technica-engineering.de>
  *   - Added analysis support
- *
+ * - Adam Wujek 28.08.2023 <dev_public@wujek.eu>
+ *   - Added support for L1Sync
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -45,6 +47,7 @@
 #include "config.h"
 
 #include <math.h>
+#include <locale.h>
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
@@ -67,6 +70,8 @@ void proto_register_ptp(void);
 void proto_reg_handoff_ptp(void);
 
 static int proto_ptp = -1;
+/* To keep the decimal point based on locale */
+static char * decimal_point;
 
 /***********************************************************************************/
 /* Definitions and fields for PTPv1 dissection.                                    */
@@ -841,6 +846,20 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_SIG_TLV_DURATION_FIELD_LEN                           4
 #define PTP_V2_SIG_TLV_RENEWAL_INVITED_LEN                          1
 
+/* PTPv2.1 L1 SYNC flags field length */
+#define PTP_V2_SIG_TLV_L1SYNC_FLAGS_BASIC_FORMAT                    2
+#define PTP_V2_SIG_TLV_L1SYNC_FLAGS_EXT_FORMAT                      3
+
+/* PTPv2.1 L1 SYNC field offsets */
+#define PTP_V2_SIG_TLV_L1SYNC_FLAGS_OFFSET                          4
+#define PTP_V2_SIG_TLV_L1SYNC_FLAGS1_OFFSET                         4
+#define PTP_V2_SIG_TLV_L1SYNC_FLAGS2_OFFSET                         5
+#define PTP_V2_SIG_TLV_L1SYNCEXT_FLAGS3_OFFSET                      6
+#define PTP_V2_SIG_TLV_L1SYNCEXT_PHASE_OFFSET_TX_OFFSET             7
+#define PTP_V2_SIG_TLV_L1SYNCEXT_PHASE_OFFSET_TX_TIMESTAMP_OFFSET   15
+#define PTP_V2_SIG_TLV_L1SYNCEXT_FREQ_OFFSET_TX_OFFSET              25
+#define PTP_V2_SIG_TLV_L1SYNCEXT_FREQ_OFFSET_TX_TIMESTAMP_OFFSET    33
+
 /* PTP_V2_TLV_TYPE_ORGANIZATION_EXTENSION field offsets */
 #define PTP_V2_SIG_TLV_ORGANIZATIONID_OFFSET                        4
 #define PTP_V2_SIG_TLV_ORGANIZATIONSUBTYPE_OFFSET                   7
@@ -1005,6 +1024,22 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_MM_CLOCKIDENTITY                         PTP_V2_MM_TLV_DATAFIELD_OFFSET + 10
 #define PTP_V2_MM_DOMAINNUMBER                          PTP_V2_MM_TLV_DATAFIELD_OFFSET + 18
 #define PTP_V2_MM_RESERVED2                             PTP_V2_MM_TLV_DATAFIELD_OFFSET + 19
+
+/* Bitmasks for PTP_V2_SIG_TLV_L1SYNC_FLAGS1_OFFSET */
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_TCR_BITMASK     0x1 << 8
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_RCR_BITMASK     0x2 << 8
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_CR_BITMASK      0x4 << 8
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_OPE_BITMASK     0x8 << 8
+
+/* Bitmasks for PTP_V2_SIG_TLV_L1SYNC_FLAGS2_OFFSET */
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_ITC_BITMASK     0x1
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_IRC_BITMASK     0x2
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_IC_BITMASK      0x4
+
+/* Bitmasks for PTP_V2_SIG_TLV_L1SYNCEXT_FLAGS3_OFFSET */
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_TCT_BITMASK     0x1
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_POV_BITMASK     0x2
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_FOV_BITMASK     0x4
 
 /* Subtypes for the OUI_IEEE_C37_238 organization ID */
 #define PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV    1        /* Defined in IEEE Std C37.238-2011 */
@@ -1651,6 +1686,35 @@ static int hf_ptp_as_sig_tlv_flags_comp_mean_link_delay = -1;
 static int hf_ptp_as_sig_tlv_flags_one_step_receive_capable = -1;
 static int hf_ptp_as_sig_tlv_gptp_capable_message_interval = -1;
 
+/* Fields for L1SYNC TLV */
+static int hf_ptp_v2_sig_tlv_flags2 = -1;
+static int hf_ptp_v2_sig_tlv_flags3 = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_tcr = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_tcr = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_rcr = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_rcr = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_cr = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_cr = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_ope = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_ope = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_itc = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_itc = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_irc = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_irc = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_ic = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_ic = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_tct = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_pov = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_fov = -1;
+static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_ns = -1;
+static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_subns = -1;
+static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_s = -1;
+static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_ns = -1;
+static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_ns = -1;
+static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_subns = -1;
+static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_s = -1;
+static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_ns = -1;
+
 /* Fields for CERN White Rabbit TLV (OE TLV subtype) */
 static int hf_ptp_v2_sig_oe_tlv_cern_subtype = -1;
 static int hf_ptp_v2_sig_oe_tlv_cern_wrMessageID = -1;
@@ -1826,6 +1890,7 @@ static gint ett_ptp_v2_ptptext = -1;
 static gint ett_ptp_v2_timeInterval = -1;
 static gint ett_ptp_v2_tlv = -1;
 static gint ett_ptp_v2_tlv_log_period = -1;
+static gint ett_ptp_v2_sig_l1sync_flags = -1;
 static gint ett_ptp_as_sig_tlv_flags = -1;
 static gint ett_ptp_oe_wr_flags = -1;
 static gint ett_ptp_oe_smpte_data = -1;
@@ -2808,6 +2873,44 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
     *cur_offset = *cur_offset + 8;
 }
 
+static void
+dissect_ptp_v2_timetstamp(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree,
+                          const char* name, int hf_ptp_v2_timestamp_s,
+                          int hf_ptp_v2_timestamp_ns)
+{
+    gint64      time_s;
+    guint32     time_ns;
+    proto_tree *ptptimestamp_subtree;
+
+    time_s = tvb_get_ntoh48(tvb, *cur_offset);
+    time_ns = tvb_get_ntohl(tvb, *cur_offset + 6);
+
+    ptptimestamp_subtree = proto_tree_add_subtree_format(tree,
+                                                         tvb,
+                                                         *cur_offset,
+                                                         10,
+                                                         ett_ptp_v2_timeInterval,
+                                                         NULL,
+                                                         "%s: %" G_GINT64_MODIFIER "d%s%09" G_GINT32_MODIFIER "d nanoseconds",
+                                                         name, time_s, decimal_point, time_ns);
+
+    proto_tree_add_uint64(ptptimestamp_subtree,
+                          hf_ptp_v2_timestamp_s,
+                          tvb,
+                          *cur_offset,
+                          6,
+                          time_s);
+
+    proto_tree_add_int(ptptimestamp_subtree,
+                       hf_ptp_v2_timestamp_ns,
+                       tvb,
+                       *cur_offset + 6,
+                       4,
+                       time_ns);
+
+    *cur_offset = *cur_offset + 10;
+}
+
 /* Code to actually dissect the PTPv2 packets */
 
 static void
@@ -3132,6 +3235,16 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                                       "Unknown PTP WR Message (%u)"
                                                       )
                                           );
+                        }
+                }
+                if (tlv_type == PTP_V2_TLV_TYPE_L1_SYNC) {
+                        guint16 l1sync_flags;
+
+                        col_append_str(pinfo->cinfo, COL_INFO, " PTP L1 SYNC");
+                        l1sync_flags = tvb_get_ntohs(tvb, tlv_offset + PTP_V2_SIG_TLV_L1SYNC_FLAGS_OFFSET);
+
+                        if (l1sync_flags & PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_OPE_BITMASK) {
+                                col_append_str(pinfo->cinfo, COL_INFO, " ext");
                         }
                 }
                 tlv_offset += PTP_V2_SIG_TLV_TYPE_LEN +
@@ -4354,6 +4467,112 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                         break;
                                     }
                                 }
+                                break;
+                            }
+
+                            case PTP_V2_TLV_TYPE_L1_SYNC:
+                            {
+                                guint16 l1sync_flags;
+                                proto_item *l1Flags_ti;
+                                proto_tree *ptp_tlv_l1sync_flags_tree;
+                                /* In the basic format of the L1_SYNC flags field is 2 bytes */
+                                guint8 flags_len = PTP_V2_SIG_TLV_L1SYNC_FLAGS_BASIC_FORMAT;
+
+                                /* Version with 2 bytes flags field */
+                                static int * const data_mode_flags2[] = {
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags2_ope,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags2_cr,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags2_rcr,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags2_tcr,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags2_ic,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags2_irc,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags2_itc,
+                                        NULL
+                                };
+
+                                /* Version with 3 bytes flags field */
+                                static int * const data_mode_flags3[] = {
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_ope,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_cr,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_rcr,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_tcr,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_ic,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_irc,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_itc,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_fov,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_pov,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_tct,
+                                        NULL
+                                };
+
+                                /* Get the value of flags */
+                                l1sync_flags = tvb_get_ntohs(tvb, tlv_offset + PTP_V2_SIG_TLV_L1SYNC_FLAGS_OFFSET);
+
+                                /* Check if the frame has extended format of L1_SYNC flags field */
+                                if (l1sync_flags & PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_OPE_BITMASK) {
+                                        flags_len = PTP_V2_SIG_TLV_L1SYNC_FLAGS_EXT_FORMAT;
+                                }
+
+                                l1Flags_ti = proto_tree_add_item(ptp_tlv_tree,
+                                                                 flags_len == PTP_V2_SIG_TLV_L1SYNC_FLAGS_BASIC_FORMAT ? hf_ptp_v2_sig_tlv_flags2 : hf_ptp_v2_sig_tlv_flags3,
+                                                                 tvb,
+                                                                 tlv_offset + PTP_V2_SIG_TLV_L1SYNC_FLAGS_OFFSET,
+                                                                 flags_len,
+                                                                 ENC_BIG_ENDIAN);
+
+                                ptp_tlv_l1sync_flags_tree = proto_item_add_subtree(l1Flags_ti, ett_ptp_v2_sig_l1sync_flags);
+
+                                /* Check if the frame has extended format */
+                                if (!(l1sync_flags & PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_OPE_BITMASK)) {
+                                        proto_tree_add_bitmask_list(ptp_tlv_l1sync_flags_tree,
+                                                                    tvb,
+                                                                    tlv_offset + PTP_V2_SIG_TLV_L1SYNC_FLAGS_OFFSET,
+                                                                    flags_len,
+                                                                    data_mode_flags2,
+                                                                    ENC_BIG_ENDIAN);
+                                } else {
+                                        guint16 value_offset;
+
+                                        proto_tree_add_bitmask_list(ptp_tlv_l1sync_flags_tree,
+                                                                    tvb,
+                                                                    tlv_offset + PTP_V2_SIG_TLV_L1SYNC_FLAGS_OFFSET,
+                                                                    flags_len,
+                                                                    data_mode_flags3,
+                                                                    ENC_BIG_ENDIAN);
+
+                                        value_offset = tlv_offset + PTP_V2_SIG_TLV_L1SYNCEXT_PHASE_OFFSET_TX_OFFSET;
+                                        dissect_ptp_v2_timeInterval(tvb,
+                                                                    &value_offset,
+                                                                    ptp_tlv_tree,
+                                                                    "phaseOffsetTx",
+                                                                    hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_ns,
+                                                                    hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_subns);
+
+                                        value_offset = tlv_offset + PTP_V2_SIG_TLV_L1SYNCEXT_PHASE_OFFSET_TX_TIMESTAMP_OFFSET;
+                                        dissect_ptp_v2_timetstamp(tvb,
+                                                                  &value_offset,
+                                                                  ptp_tlv_tree,
+                                                                  "phaseOffsetTxTimestamp",
+                                                                  hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_s,
+                                                                  hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_ns);
+
+                                        value_offset = tlv_offset + PTP_V2_SIG_TLV_L1SYNCEXT_FREQ_OFFSET_TX_OFFSET;
+                                        dissect_ptp_v2_timeInterval(tvb,
+                                                                    &value_offset,
+                                                                    ptp_tlv_tree,
+                                                                    "freqOffsetTx",
+                                                                    hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_ns,
+                                                                    hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_subns);
+
+                                        value_offset = tlv_offset + PTP_V2_SIG_TLV_L1SYNCEXT_FREQ_OFFSET_TX_TIMESTAMP_OFFSET;
+                                        dissect_ptp_v2_timetstamp(tvb,
+                                                                  &value_offset,
+                                                                  ptp_tlv_tree,
+                                                                  "freqOffsetTxTimestamp",
+                                                                  hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_s,
+                                                                  hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_ns);
+                                }
+
                                 break;
                             }
 
@@ -6683,6 +6902,141 @@ proto_register_ptp(void)
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
+        { &hf_ptp_v2_sig_tlv_flags2,
+          { "flags",           "ptp.v2.sig.tlv.l1sync.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_flags3,
+          { "flags",           "ptp.v2.sig.tlv.l1sync.flags",
+            FT_UINT24, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags2_tcr, /* Version with 2 bytes flags field */
+          { "txCoherentIsRequired",           "ptp.v2.sig.tlv.l1sync.flags.tcr",
+            FT_BOOLEAN, 16, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_TCR_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_tcr, /* Version with 3 bytes flags field */
+          { "txCoherentIsRequired",           "ptp.v2.sig.tlv.l1sync.flags.tcr",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_TCR_BITMASK << 8,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags2_rcr, /* Version with 2 bytes flags field */
+          { "rxCoherentIsRequired",           "ptp.v2.sig.tlv.l1sync.flags.rcr",
+            FT_BOOLEAN, 16, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_RCR_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_rcr, /* Version with 3 bytes flags field */
+          { "rxCoherentIsRequired",           "ptp.v2.sig.tlv.l1sync.flags.rcr",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_RCR_BITMASK << 8,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags2_cr, /* Version with 2 bytes flags field */
+          { "congruentIsRequired",           "ptp.v2.sig.tlv.l1sync.flags.cr",
+            FT_BOOLEAN, 16, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_CR_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_cr, /* Version with 3 bytes flags field */
+          { "congruentIsRequired",           "ptp.v2.sig.tlv.l1sync.flags.cr",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_CR_BITMASK << 8,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags2_ope, /* Version with 2 bytes flags field */
+          { "optParamsEnabled",           "ptp.v2.sig.tlv.l1sync.flags.ope",
+            FT_BOOLEAN, 16, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_OPE_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_ope, /* Version with 3 bytes flags field */
+          { "optParamsEnabled",           "ptp.v2.sig.tlv.l1sync.flags.ope",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_OPE_BITMASK << 8,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags2_itc, /* Version with 2 bytes flags field */
+          { "isTxCoherent",           "ptp.v2.sig.tlv.l1sync.flags.itc",
+            FT_BOOLEAN, 16, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_ITC_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_itc, /* Version with 3 bytes flags field */
+          { "isTxCoherent",           "ptp.v2.sig.tlv.l1sync.flags.itc",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_ITC_BITMASK << 8,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags2_irc, /* Version with 2 bytes flags field */
+          { "isRxCoherent",           "ptp.v2.sig.tlv.l1sync.flags.irc",
+            FT_BOOLEAN, 16, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_IRC_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_irc, /* Version with 3 bytes flags field */
+          { "isRxCoherent",           "ptp.v2.sig.tlv.l1sync.flags.irc",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_IRC_BITMASK << 8,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags2_ic, /* Version with 2 bytes flags field */
+          { "isCongruent",           "ptp.v2.sig.tlv.l1sync.flags.ic",
+            FT_BOOLEAN, 16, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_IC_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_ic, /* Version with 3 bytes flags field */
+          { "isCongruent",           "ptp.v2.sig.tlv.l1sync.flags.ic",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_IC_BITMASK << 8,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_fov,
+          { "frequencyOffsetTxValid", "ptp.v2.sig.tlv.l1sync.flags.fov",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_FOV_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_pov,
+          { "phaseOffsetTxValid",    "ptp.v2.sig.tlv.l1sync.flags.pov",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_POV_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_tct,
+          { "timestampsCorrectedTx", "ptp.v2.sig.tlv.l1sync.flags.tct",
+            FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_TCT_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_ns,
+          { "Ns",           "ptp.v2.sig.tlv.l1sync.phaseOffsetTx.ns",
+            FT_INT64, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_subns,
+          { "SubNs",           "ptp.v2.sig.tlv.l1sync.phaseOffsetTx.subns",
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_s,
+          { "S",           "ptp.v2.sig.tlv.l1sync.phaseOffsetTxTimestamp.s",
+            FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_ns,
+          { "Ns",           "ptp.v2.sig.tlv.l1sync.phaseOffsetTxTimestamp.ns",
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_ns,
+          { "Ns",           "ptp.v2.sig.tlv.l1sync.freqOffsetTx.ns",
+            FT_INT64, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_subns,
+          { "SubNs",           "ptp.v2.sig.tlv.l1sync.freqOffsetTx.subns",
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_s,
+          { "S",           "ptp.v2.sig.tlv.l1sync.freqOffsetTxTimestamp.s",
+            FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_ns,
+          { "Ns",           "ptp.v2.sig.tlv.l1sync.freqOffsetTxTimestamp.ns",
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
+            NULL, HFILL }
+        },
         { &hf_ptp_v2_sig_oe_tlv_cern_subtype,
           { "organizationSubType", "ptp.v2.sig.oe.organizationSubType",
             FT_UINT24, BASE_HEX, VALS(ptp_v2_org_cern_subtype_vals), 0x00,
@@ -7604,6 +7958,7 @@ proto_register_ptp(void)
         &ett_ptp_v2_timeInterval,
         &ett_ptp_v2_tlv,
         &ett_ptp_v2_tlv_log_period,
+        &ett_ptp_v2_sig_l1sync_flags,
         &ett_ptp_as_sig_tlv_flags,
         &ett_ptp_oe_wr_flags,
         &ett_ptp_oe_smpte_data,
@@ -7642,6 +7997,8 @@ proto_register_ptp(void)
     expert_ptp = expert_register_protocol(proto_ptp);
     expert_register_field_array(expert_ptp, ei, array_length(ei));
 
+    /* Get the decimal point based on locale */
+    decimal_point = localeconv()->decimal_point;
 /* Configuration */
 
     module_t *ptp_module = prefs_register_protocol(proto_ptp, NULL);
