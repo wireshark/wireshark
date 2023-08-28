@@ -824,6 +824,17 @@ warn_about_capture_filter(const char *rfilter)
 }
 #endif
 
+#ifdef HAVE_LIBPCAP
+static GList *
+capture_opts_get_interface_list(int *err, char **err_str)
+{
+    /*
+     * This isn't a GUI tool, so no need for a callback.
+     */
+    return capture_interface_list(err, err_str, NULL);
+}
+#endif
+
 int
 main(int argc, char *argv[])
 {
@@ -1095,7 +1106,7 @@ main(int argc, char *argv[])
     init_report_message("TShark", &tshark_report_routines);
 
 #ifdef HAVE_LIBPCAP
-    capture_opts_init(&global_capture_opts);
+    capture_opts_init(&global_capture_opts, capture_opts_get_interface_list);
     capture_session_init(&global_capture_session, &cfile,
             capture_input_new_file, capture_input_new_packets,
             capture_input_drops, capture_input_error,

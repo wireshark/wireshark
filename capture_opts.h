@@ -249,6 +249,8 @@ typedef struct interface_options_tag {
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
+    GList             *(*get_iface_list)(int *, gchar **);
+                                              /**< routine to call to get the interface list */
     GArray            *ifaces;                /**< the interfaces to use for the
                                                    next capture, entries are of
                                                    type interface_options */
@@ -337,9 +339,16 @@ typedef struct capture_options_tag {
     guint              extcap_terminate_id;   /**< extcap process termination source ID */
 } capture_options;
 
-/* initialize the capture_options with some reasonable values */
+/*
+ * Initialize the capture_options with some reasonable values, and
+ * provide a routine it can use to fetch a list of capture options
+ * if it needs it.
+ *
+ * (Getting that list might involve running dumpcap, so we don't want
+ * to waste time doing that if we don't have to.)
+ */
 extern void
-capture_opts_init(capture_options *capture_opts);
+capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, gchar **));
 
 /* clean internal structures */
 extern void

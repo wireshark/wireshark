@@ -428,6 +428,23 @@ macos_enable_layer_backing(void)
 }
 #endif
 
+#ifdef HAVE_LIBPCAP
+static GList *
+capture_opts_get_interface_list(int *err, char **err_str)
+{
+    /*
+     * XXX - should this pass an update callback?
+     * We already have a window up by the time we start parsing
+     * the majority of the command-line arguments, because
+     * we need to do a bunch of initialization work before
+     * parsing those arguments, and we want to let the user
+     * know that we're doing that initialization, given that
+     * it can take a while.
+     */
+    return capture_interface_list(err, err_str, NULL);
+}
+#endif
+
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *qt_argv[])
 {
@@ -749,7 +766,7 @@ int main(int argc, char *qt_argv[])
 #ifdef HAVE_LIBPCAP
     /* Set the initial values in the capture options. This might be overwritten
        by preference settings and then again by the command line parameters. */
-    capture_opts_init(&global_capture_opts);
+    capture_opts_init(&global_capture_opts, capture_opts_get_interface_list);
 #endif
 
     /*

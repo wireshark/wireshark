@@ -42,8 +42,9 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
 
 
 void
-capture_opts_init(capture_options *capture_opts)
+capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, gchar **))
 {
+    capture_opts->get_iface_list                  = get_iface_list;
     capture_opts->ifaces                          = g_array_new(FALSE, FALSE, sizeof(interface_options));
     capture_opts->all_ifaces                      = g_array_new(FALSE, FALSE, sizeof(interface_t));
     capture_opts->num_selected                    = 0;
@@ -741,7 +742,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("There is no interface with that adapter index");
             return 1;
         }
-        if_list = capture_interface_list(&err, &err_str, NULL);
+        if_list = capture_opts->get_iface_list(&err, &err_str);
         if (if_list == NULL) {
             if (err == 0)
                 cmdarg_err("There are no interfaces on which a capture can be done");
@@ -781,7 +782,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
          * Perhaps doing something similar to what was suggested
          * for numerical interfaces should be done.
          */
-        if_list = capture_interface_list(&err, &err_str, NULL);
+        if_list = capture_opts->get_iface_list(&err, &err_str);
         if_info = find_ifinfo_by_name(if_list, optarg_str_p);
         if (if_info != NULL) {
             /*

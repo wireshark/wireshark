@@ -963,25 +963,6 @@ show_filter_code(capture_options *capture_opts)
 }
 
 /*
- * capture_interface_list() is expected to do the right thing to get
- * a list of interfaces.
- *
- * In most of the programs in the Wireshark suite, "the right thing"
- * is to run dumpcap and ask it for the list, because dumpcap may
- * be the only program in the suite with enough privileges to get
- * the list.
- *
- * In dumpcap itself, however, we obviously can't run dumpcap to
- * ask for the list.  Therefore, our capture_interface_list() should
- * just call get_interface_list().
- */
-GList *
-capture_interface_list(int *err, char **err_str, void(*update_cb)(void) _U_)
-{
-    return get_interface_list(err, err_str);
-}
-
-/*
  * Output a machine readable list of the interfaces
  * This list is retrieved by the sync_interface_list_open() function
  * The actual output of this function can be viewed with the command "dumpcap -D -Z none"
@@ -5500,7 +5481,7 @@ main(int argc, char *argv[])
 
     /* Set the initial values in the capture options. This might be overwritten
        by the command line parameters. */
-    capture_opts_init(&global_capture_opts);
+    capture_opts_init(&global_capture_opts, get_interface_list);
     /* We always save to a file - if no file was specified, we save to a
        temporary file. */
     global_capture_opts.saving_to_file      = TRUE;
@@ -5767,7 +5748,7 @@ main(int argc, char *argv[])
         int    err;
         gchar *err_str;
 
-        if_list = capture_interface_list(&err, &err_str, NULL);
+        if_list = get_interface_list(&err, &err_str);
         if (if_list == NULL) {
             if (err == 0) {
                 /*
