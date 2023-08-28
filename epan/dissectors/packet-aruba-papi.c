@@ -421,11 +421,11 @@ static const value_string licmgr_type_vals[] = {
     { 0,     NULL     }
 };
 static int
-dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
+dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *licmgr_tree, *licmgr_subtree;
-    guint offset_end, payload_len;
+    guint offset_end, payload_len, offset = 0;
 
     ti = proto_tree_add_item(tree, hf_papi_licmgr, tvb, offset, -1, ENC_NA);
     licmgr_tree = proto_item_add_subtree(ti, ett_papi_licmgr);
@@ -655,10 +655,6 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_tree_add_item(papi_tree, hf_papi_hdr_srcipv6, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
         offset += IPv6_ADDR_SIZE;
 
-    }
-
-    if(dest_port == LICENSE_MANAGER && src_port == LICENSE_MANAGER){
-        offset = dissect_papi_license_manager(tvb, pinfo, offset, papi_tree);
     }
 
     if(g_papi_debug)
@@ -962,6 +958,7 @@ proto_register_papi(void)
 void
 proto_reg_handoff_papi(void)
 {
+    dissector_add_uint("papi.port", LICENSE_MANAGER, create_dissector_handle(dissect_papi_license_manager, -1));
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PAPI, papi_handle);
 }
 /*
