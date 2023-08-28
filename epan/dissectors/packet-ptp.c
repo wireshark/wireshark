@@ -3824,8 +3824,13 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 proto_tree_add_item_ret_uint(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds, tvb,
                     PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, ENC_BIG_ENDIAN, &ts_ns);
 
-                ti_tstamp = proto_tree_add_uint(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_32bit, tvb,
-                    PTP_V2_FU_PRECISEORIGINTIMESTAMP_OFFSET, 10, (guint32)(ts_sec * NS_PER_S + ts_ns) % 0x100000000);
+                ti_tstamp = proto_tree_add_bytes_format_value(ptp_tree,
+                                                              hf_ptp_v2_fu_preciseorigintimestamp_32bit,
+                                                              tvb,
+                                                              PTP_V2_FU_PRECISEORIGINTIMESTAMP_OFFSET,
+                                                              10,
+                                                              NULL,
+                                                              "%ld", (guint32)(ts_sec * NS_PER_S + ts_ns) % 0x100000000);
 
                 proto_item_set_hidden(ti_tstamp);
                 proto_item_set_generated(ti_tstamp);
@@ -6695,7 +6700,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_fu_preciseorigintimestamp_32bit,
           { "preciseOriginTimestamp (32bit)",           "ptp.v2.fu.preciseorigintimestamp.32bit",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         /* Fields for PTP_Follow_up TLVs */
