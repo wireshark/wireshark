@@ -919,6 +919,18 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_TLV_TYPE_AUTHENTICATION_CHALLENGE                0x2001
 #define PTP_V2_TLV_TYPE_SECURITY_ASSOCIATION_UPDATE             0x2002
 #define PTP_V2_TLV_TYPE_CUM_FREQ_SCALE_FACTOR_OFFSET            0x2003
+#define PTP_V2_TLV_TYPE_ORGANIZATION_EXTENSION_PROPAGATE        0x4000
+#define PTP_V2_TLV_TYPE_ENHANCED_ACCURACY_METRICS               0x4001
+#define PTP_V2_TLV_TYPE_ORGANIZATION_EXTENSION_DO_NOT_PROPAGATE 0x8000
+#define PTP_V2_TLV_TYPE_L1_SYNC                                 0x8001
+#define PTP_V2_TLV_TYPE_PORT_COMMUNICATION_AVAILABILITY         0x8002
+#define PTP_V2_TLV_TYPE_PROTOCOL_ADDRESS                        0x8003
+#define PTP_V2_TLV_TYPE_SLAVE_RX_SYNC_TIMING_DATA               0x8004
+#define PTP_V2_TLV_TYPE_SLAVE_RX_SYNC_COMPUTED_DATA             0x8005
+#define PTP_V2_TLV_TYPE_SLAVE_TX_EVENT_TIMESTAMPS               0x8006
+#define PTP_V2_TLV_TYPE_CUMULATIVE_RATE_RATIO                   0x8007
+#define PTP_V2_TLV_TYPE_PAD                                     0x8008
+#define PTP_V2_TLV_TYPE_AUTHENTICATION2                         0x8009
 
 /* Signalling TLV Object IDs */
 #define PTP_AS_TLV_OID_TYPE_802                               0x0080C2
@@ -974,6 +986,10 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_NAME                 0x201F
 #define PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_MAX_KEY              0x2020
 #define PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_PROPERTIES           0x2021
+#define PTP_V2_MM_ID_EXTERNAL_PORT_CONFIGURATION_ENABLED        0x3001
+#define PTP_V2_MM_ID_MASTER_ONLY                                0x3002
+#define PTP_V2_MM_ID_HOLDOVER_UPGRADE_ENABLE                    0x3003
+#define PTP_V2_MM_ID_EXT_PORT_CONFIG_PORT_DATA_SET              0x3004
 #define PTP_V2_MM_ID_TC_DEFAULT_DATA_SET                        0x4000
 #define PTP_V2_MM_ID_TC_PORT_DATA_SET                           0x4001
 #define PTP_V2_MM_ID_PRIMARY_DOMAIN                             0x4002
@@ -1112,6 +1128,10 @@ static const value_string ptp_v2_managementID_vals[] = {
     {PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_NAME        ,"ALTERNATE_TIME_OFFSET_NAME"},
     {PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_MAX_KEY     ,"ALTERNATE_TIME_OFFSET_MAX_KEY"},
     {PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_PROPERTIES  ,"ALTERNATE_TIME_OFFSET_PROPERTIES"},
+    {PTP_V2_MM_ID_EXTERNAL_PORT_CONFIGURATION_ENABLED,"EXTERNAL_PORT_CONFIGURATION_ENABLED"},
+    {PTP_V2_MM_ID_MASTER_ONLY                       ,"MASTER_ONLY"},
+    {PTP_V2_MM_ID_HOLDOVER_UPGRADE_ENABLE           ,"HOLDOVER_UPGRADE_ENABLE"},
+    {PTP_V2_MM_ID_EXT_PORT_CONFIG_PORT_DATA_SET     ,"EXT_PORT_CONFIG_PORT_DATA_SET"},
     {PTP_V2_MM_ID_TC_DEFAULT_DATA_SET               ,"TC_DEFAULT_DATA_SET"},
     {PTP_V2_MM_ID_TC_PORT_DATA_SET                  ,"TC_PORT_DATA_SET"},
     {PTP_V2_MM_ID_PRIMARY_DOMAIN                    ,"PRIMARY_DOMAIN"},
@@ -1166,6 +1186,10 @@ static const value_string ptp_v2_managementID_infocolumn_vals[] = {
     {PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_NAME        ,"Alternate time offset name"},
     {PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_MAX_KEY     ,"Alternate time offset max key"},
     {PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_PROPERTIES  ,"Alternate time offset properties"},
+    {PTP_V2_MM_ID_EXTERNAL_PORT_CONFIGURATION_ENABLED,"External port configuration enabled"},
+    {PTP_V2_MM_ID_MASTER_ONLY                       ,"Master only"},
+    {PTP_V2_MM_ID_HOLDOVER_UPGRADE_ENABLE           ,"Holdover upgrade enable"},
+    {PTP_V2_MM_ID_EXT_PORT_CONFIG_PORT_DATA_SET     ,"External port config port data set"},
     {PTP_V2_MM_ID_TC_DEFAULT_DATA_SET               ,"Transparent clock default dataset"},
     {PTP_V2_MM_ID_TC_PORT_DATA_SET                  ,"Transparent clock port dataset"},
     {PTP_V2_MM_ID_PRIMARY_DOMAIN                    ,"Primary domain"},
@@ -1191,6 +1215,18 @@ static const value_string ptp_v2_TLV_type_vals[] = {
     {PTP_V2_TLV_TYPE_AUTHENTICATION_CHALLENGE       ,"Authentication challenge"},
     {PTP_V2_TLV_TYPE_SECURITY_ASSOCIATION_UPDATE    ,"Security association update"},
     {PTP_V2_TLV_TYPE_CUM_FREQ_SCALE_FACTOR_OFFSET   ,"Cum. freq. scale factor offset"},
+    {PTP_V2_TLV_TYPE_ORGANIZATION_EXTENSION_PROPAGATE,"Organization extension propagate"},
+    {PTP_V2_TLV_TYPE_ENHANCED_ACCURACY_METRICS      ,"Enhanced accuracy metrics"},
+    {PTP_V2_TLV_TYPE_ORGANIZATION_EXTENSION_DO_NOT_PROPAGATE, "Organization extension do not propagate"},
+    {PTP_V2_TLV_TYPE_L1_SYNC                        ,"L1 sync"},
+    {PTP_V2_TLV_TYPE_PORT_COMMUNICATION_AVAILABILITY,"Port communication availability"},
+    {PTP_V2_TLV_TYPE_PROTOCOL_ADDRESS               ,"Protocol address"},
+    {PTP_V2_TLV_TYPE_SLAVE_RX_SYNC_TIMING_DATA      ,"Slave rx sync timing data"},
+    {PTP_V2_TLV_TYPE_SLAVE_RX_SYNC_COMPUTED_DATA    ,"Slave rx sync computed data"},
+    {PTP_V2_TLV_TYPE_SLAVE_TX_EVENT_TIMESTAMPS      ,"Slave tx event timestamps"},
+    {PTP_V2_TLV_TYPE_CUMULATIVE_RATE_RATIO          ,"Cumulative rate ratio"},
+    {PTP_V2_TLV_TYPE_PAD                            ,"Pad"},
+    {PTP_V2_TLV_TYPE_AUTHENTICATION2                ,"Authentication"},
     {0                                              , NULL}
 };
 static value_string_ext ptp_v2_TLV_type_vals_ext =
@@ -1277,6 +1313,7 @@ static const value_string ptp_v2_timeSource_vals[] = {
     {0x10,  "ATOMIC_CLOCK"},
     {0x20,  "GPS"},
     {0x30,  "TERRESTRIAL_RADIO"},
+    {0x39,  "SERIAL_TIME_CODE"},
     {0x40,  "PTP"},
     {0x50,  "NTP"},
     {0x60,  "HAND_SET"},
@@ -1334,7 +1371,9 @@ value_string_ext ptp_v2_portState_vals_ext =
 const value_string ptp_v2_delayMechanism_vals[] = {
     {0x01,  "E2E"},
     {0x02,  "P2P"},
-    {0xFE,  "DISABLED"},
+    {0x03,  "COMMON_P2P"},
+    {0x04,  "SPECIAL"},
+    {0xFE,  "NO_MECHANISM"},
     {0,     NULL}
 };
 
