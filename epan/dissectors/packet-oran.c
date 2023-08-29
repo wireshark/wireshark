@@ -829,7 +829,8 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
 
 /* Add section (type + PRB range) for C-Plane, U-Plane */
 static void
-write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *protocol_item, guint32 section_id, guint32 start_prbx, guint32 num_prbx)
+write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *protocol_item,
+                   guint32 section_id, guint32 start_prbx, guint32 num_prbx, guint32 rb)
 {
     switch (num_prbx) {
     case 0:
@@ -839,7 +840,8 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
         write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u)", section_id, start_prbx);
         break;
     default:
-        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u-%3u)", section_id, start_prbx, start_prbx + num_prbx - 1);
+        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u-%3u%s)", section_id, start_prbx,
+                                 start_prbx + (num_prbx-1)*(1+rb), rb ? " (every-other)" : "");
     }
 }
 
@@ -1170,7 +1172,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         offset++;
 
         /* rb */
-        proto_tree_add_item(oran_tree, hf_oran_rb, tvb, offset, 1, ENC_NA);
+        guint32 rb;
+        proto_tree_add_item_ret_uint(oran_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
         /* symInc */
         proto_tree_add_item(oran_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
         /* startPrbc */
@@ -1201,7 +1204,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
         }
 
-        write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbc, numPrbc);
+        write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbc, numPrbc, rb);
         proto_item_append_text(sectionHeading, ", Symbols: %d", numSymbol);
 
         if (numPrbc == 0) {
@@ -2693,7 +2696,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
         offset++;
         /* rb */
-        proto_tree_add_item(section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA);
+        guint32 rb;
+        proto_tree_add_item_ret_uint(section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
         /* symInc */
         proto_tree_add_item(section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
         /* startPrbu */
@@ -2724,7 +2728,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
 
-        write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu);
+        write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu, rb);
 
         /* TODO: should this use the same pref as c-plane? */
         if (numPrbu == 0) {
@@ -2733,7 +2737,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             startPrbu = 0;  /* may already be 0... */
         }
 
-        for (guint i = 0; i < numPrbu; ++i) {
+        for (guint i = 0; i < numPrbu; i++) {
             /* Create subtree */
             proto_item *prbHeading = proto_tree_add_string_format(section_tree, hf_oran_samples_prb,
                                                                   tvb, offset, nBytesPerPrb,
@@ -2746,7 +2750,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 offset += 1;
             }
             /* Show PRB number in root */
-            proto_item_append_text(prbHeading, " %u", startPrbu + i);
+            proto_item_append_text(prbHeading, " %u", startPrbu + i*(1+rb));
 
 
             proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
