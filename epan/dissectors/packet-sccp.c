@@ -3174,6 +3174,11 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
                                      PARAMETER_SEQUENCING_SEGMENTING, offset,
                                      SEQUENCING_SEGMENTING_LENGTH, &sccp_info);
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
+
+    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+                                      PARAMETER_DATA, variable_pointer1, &sccp_info);
+
     break;
 
   case SCCP_MSG_TYPE_AK:
