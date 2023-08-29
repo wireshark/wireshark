@@ -92,51 +92,51 @@ select_registry(const uint8_t addr[6])
     return MA_L;
 }
 
-static struct ws_manuf *
+static bool
 manuf_oui24_lookup(const uint8_t addr[6], struct ws_manuf *result)
 {
     const manuf_oui24_t *oui24 = bsearch(addr, global_manuf_oui24_table, G_N_ELEMENTS(global_manuf_oui24_table), sizeof(manuf_oui24_t), compare_oui24_entry);
     if (!oui24)
-        return NULL;
+        return false;
 
     memcpy(result->addr, oui24->oui24, sizeof(oui24->oui24));
     result->mask = 24;
     result->short_name = oui24->short_name;
     result->long_name = oui24->long_name;
-    return result;
+    return true;
 }
 
-static struct ws_manuf *
+static bool
 manuf_oui28_lookup(const uint8_t addr[6], struct ws_manuf *result)
 {
     const uint8_t addr28[6] = { addr[0], addr[1], addr[2], addr[3] & 0xF0, };
     const manuf_oui28_t *oui28 = bsearch(addr28, global_manuf_oui28_table, G_N_ELEMENTS(global_manuf_oui28_table), sizeof(manuf_oui28_t), compare_oui28_entry);
     if (!oui28)
-        return NULL;
+        return false;
 
     memcpy(result->addr, oui28->oui28, sizeof(oui28->oui28));
     result->mask = 28;
     result->short_name = oui28->short_name;
     result->long_name = oui28->long_name;
-    return result;
+    return true;
 }
 
-static struct ws_manuf *
+static bool
 manuf_oui36_lookup(const uint8_t addr[6], struct ws_manuf *result)
 {
     const uint8_t addr36[6] = { addr[0], addr[1], addr[2], addr[3], addr[4] & 0xF0, };
     const manuf_oui36_t *oui36 = bsearch(addr36, global_manuf_oui36_table, G_N_ELEMENTS(global_manuf_oui36_table), sizeof(manuf_oui36_t), compare_oui36_entry);
     if (!oui36)
-        return NULL;
+        return false;
 
     memcpy(result->addr, oui36->oui36, sizeof(oui36->oui36));
     result->mask = 36;
     result->short_name = oui36->short_name;
     result->long_name = oui36->long_name;
-    return result;
+    return true;
 }
 
-struct ws_manuf *
+bool
 ws_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result)
 {
     memset(result, 0, sizeof(*result));
@@ -149,15 +149,10 @@ ws_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result)
     switch (select_registry(addr_copy)) {
         case MA_L:
             return manuf_oui24_lookup(addr_copy, result);
-            break;
         case MA_M:
             return manuf_oui28_lookup(addr_copy, result);
-            break;
         case MA_S:
             return manuf_oui36_lookup(addr_copy, result);
-            break;
-        default:
-            break;
     }
     ws_assert_not_reached();
 }

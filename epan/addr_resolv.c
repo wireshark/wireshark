@@ -1705,7 +1705,7 @@ manuf_name_lookup(const guint8 *addr)
 
     /* Try the global manuf tables. */
     struct ws_manuf manuf;
-    if (ws_manuf_lookup(addr, &manuf) != NULL) {
+    if (ws_manuf_lookup(addr, &manuf)) {
         /* Found it */
         return manuf_hash_new_entry(addr, manuf.short_name, manuf.long_name);
     }
