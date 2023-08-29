@@ -1049,7 +1049,7 @@ static const value_string acn_blob_dimmer_rack_properties2_field_name[] = {
   { 47, "Allow Backplane Communication Errors" },
   { 48, "Activate Presets on Boot" },
   { 49, "SmartLink2 Power Supply Enable" },
-  { 40, "Remote Record Enable" },
+  { 50, "Remote Record Enable" },
   { 51, "System Number" },
   { 52, "Architectural Priority" },
   { 53, "Data Loss Preset Space DMX A" },
@@ -6521,7 +6521,7 @@ dissect_broker_redirect_v4(tvbuff_t *tvb, proto_tree *tree, int offset)
 static guint32
 dissect_broker_redirect_v6(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-  /* ipv4 address */
+  /* ipv6 address */
   proto_tree_add_item(tree, hf_rdmnet_broker_redirect_ipv6_address, tvb, offset, 16, ENC_NA);
   offset += 16;
 
@@ -8743,7 +8743,7 @@ proto_register_acn(void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Redirect IPv4 TCP port", HFILL }
     },
-    /* Broker Redirect IPv6 Address */
+    /* Broker Redirect IPv6 Address. TODO: is filter correct here? */
     { &hf_rdmnet_broker_redirect_ipv6_address,
       { "IPv6 Address", "rdmnet.broker.redirect_ipv6.ipv4_address",
         FT_IPv6, BASE_NONE, NULL, 0x0,

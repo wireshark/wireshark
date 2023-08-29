@@ -516,8 +516,6 @@ class ValueString:
         self.min_value =  99999
         self.max_value = -99999
 
-        #print('ValueString', name)
-
         # Now parse out each entry in the value_string
         matches = re.finditer(r'\{\s*([0-9_A-Za-z]*)\s*,\s*(".*?")\s*}\s*,', self.raw_vals)
         for m in matches:
@@ -549,15 +547,16 @@ class ValueString:
                     self.parsed_vals[value], 'now', label)
                 warnings_found += 1
             else:
-                # Add into table
+                # Add into table, while checking for repeated label
                 self.parsed_vals[value] = label
                 if do_extra_checks and label in self.seen_labels:
+                    # These are commonly repeated..
                     exceptions = [ 'reserved', 'invalid', 'unused', 'not used', 'unknown', 'undefined', 'spare',
                                    'unallocated', 'not assigned', 'implementation specific', 'unspecified',
                                    'other', 'for further study', 'future', 'vendor specific', 'obsolete', 'none',
                                    'shall not be used', 'national use', 'unassigned', 'oem', 'user defined',
                                    'manufacturer specific', 'not specified', 'proprietary', 'operator-defined',
-                                   'dynamically allocated', 'user specified' ]
+                                   'dynamically allocated', 'user specified', 'xxx', 'default', 'planned', 'not req' ]
                     excepted = False
                     for ex in exceptions:
                         if label.lower().find(ex) != -1:
@@ -589,9 +588,23 @@ class ValueString:
                     global warnings_found
                     warnings_found += 1
 
-        # Look for repeated labels
-        #for val in self.parsed_vals:
+        # Do most of the labels match the number?
+        matching_label_entries = set()
+        for val in self.parsed_vals:
+            if self.parsed_vals[val].find(str(val)) != -1:
+                # TODO: pick out multiple values rather than concat into wrong number
+                parsed_value = int(''.join(d for d in self.parsed_vals[val] if d.isdecimal()))
+                if val == parsed_value:
+                    matching_label_entries.add(val)
 
+        if len(matching_label_entries) >= 4 and len(matching_label_entries) > 0 and len(matching_label_entries) < num_items and len(matching_label_entries) >= num_items-1:
+            # Be forgiving about first or last entry
+            first_val = list(self.parsed_vals)[0]
+            last_val =  list(self.parsed_vals)[-1]
+            if not first_val in matching_label_entries or not last_val in matching_label_entries:
+                return
+
+            print('Warning:', self.file, ': value_string', self.name, 'Labels match value except for 1!', matching_label_entries, num_items, self)
 
     def __str__(self):
         return  self.name + '= { ' + self.raw_vals + ' }'

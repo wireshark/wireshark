@@ -531,7 +531,7 @@ static const value_string parameter_tag_values[] = {
   { ERROR_CODE_PARAMETER_TAG,                              "Error code" },
   { STATUS_TYPE_INDENTIFICATION_PARAMETER_TAG,             "Status type/identification" },
   { PROTOCOL_DATA_PARAMETER_TAG,                           "Protocol data" },
-  { RELEASE_REASON_PARAMETER_TAG,                          "Reason" },
+  { RELEASE_REASON_PARAMETER_TAG,                          "Release Reason" },
   { TEI_STATUS_PARAMETER_TAG,                              "TEI status" },
   { 0,                           NULL } };
 
@@ -547,7 +547,7 @@ static const value_string parameter_tag_ig_values[] = {
   { ERROR_CODE_PARAMETER_TAG,                              "Error code" },
   { STATUS_TYPE_INDENTIFICATION_PARAMETER_TAG,             "Status type/identification" },
   { PROTOCOL_DATA_PARAMETER_TAG,                           "Protocol data" },
-  { RELEASE_REASON_PARAMETER_TAG,                          "Reason" },
+  { RELEASE_REASON_PARAMETER_TAG,                          "Release Reason" },
   { TEI_STATUS_PARAMETER_TAG,                              "TEI status" },
   { ASP_IDENTIFIER_PARAMETER_TAG,                          "ASP identifier"},
   { 0,                           NULL } };

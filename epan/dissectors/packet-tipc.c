@@ -355,6 +355,7 @@ static const value_string tipc_error_code_values[] = {
 	{ 2, "NO_REMOTE_PORT"},
 	{ 3, "NO_REMOTE_PROCESSOR"},
 	{ 4, "DEST_OVERLOADED"},
+	{ 5, "CONN_SHUTDOWN"},
 	{ 6, "NO_CONNECTION"},
 	{ 7, "COMMUNICATION_ERROR"},
 	{ 0, NULL}
