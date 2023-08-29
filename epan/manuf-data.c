@@ -14,7 +14,7 @@
  *
  */
 
-static manuf_registry_t ieee_registry_table[] = {
+static const manuf_registry_t ieee_registry_table[] = {
     { { 0x00, 0x1B, 0xC5 }, MA_S },
     { { 0x00, 0x50, 0xC2 }, MA_S },
     { { 0x00, 0x55, 0xDA }, MA_M },
@@ -349,7 +349,7 @@ static manuf_registry_t ieee_registry_table[] = {
     { { 0xFC, 0xD2, 0xB6 }, MA_M },
 };
 
-static manuf_oui24_t global_manuf_oui24_table[] = {
+static const manuf_oui24_t global_manuf_oui24_table[] = {
     { { 0x00, 0x00, 0x00 }, "Xerox",        "Xerox Corporation" },
     { { 0x00, 0x00, 0x01 }, "Xerox",        "Xerox Corporation" },
     { { 0x00, 0x00, 0x02 }, "Xerox",        "Xerox Corporation" },
@@ -34369,7 +34369,7 @@ static manuf_oui24_t global_manuf_oui24_table[] = {
     { { 0xFC, 0xFE, 0xC2 }, "InvensysCont", "Invensys Controls UK Limited" },
 };
 
-static manuf_oui28_t global_manuf_oui28_table[] = {
+static const manuf_oui28_t global_manuf_oui28_table[] = {
     { { 0x00, 0x55, 0xDA, 0x00 }, "ShinkoTechno", "Shinko Technos co.,ltd." },
     { { 0x00, 0x55, 0xDA, 0x10 }, "KoolPOS",      "KoolPOS Inc." },
     { { 0x00, 0x55, 0xDA, 0x20 }, "ConnectedInf", "Beijing Connected Information Technology Co.,Ltd." },
@@ -39228,7 +39228,7 @@ static manuf_oui28_t global_manuf_oui28_table[] = {
     { { 0xFC, 0xD2, 0xB6, 0xE0 }, "Univer",       "Univer S.p.A." },
 };
 
-static manuf_oui36_t global_manuf_oui36_table[] = {
+static const manuf_oui36_t global_manuf_oui36_table[] = {
     { { 0x00, 0x1B, 0xC5, 0x00, 0x00 }, "Converging",   "Converging Systems Inc." },
     { { 0x00, 0x1B, 0xC5, 0x00, 0x10 }, "OpenRBcomDir", "OpenRB.com, Direct SIA" },
     { { 0x00, 0x1B, 0xC5, 0x00, 0x20 }, "GORAMOJanusz", "GORAMO - Janusz Gorecki" },

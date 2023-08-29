@@ -308,7 +308,7 @@ def main():
 ''')
 
     # Write the prefix map
-    manuf_fd.write("static manuf_registry_t ieee_registry_table[] = {\n")
+    manuf_fd.write("static const manuf_registry_t ieee_registry_table[] = {\n")
     keys = list(prefix_map.keys())
     keys.sort()
     for oui in keys:
@@ -316,7 +316,7 @@ def main():
     manuf_fd.write("};\n\n")
 
     # write the MA-L table
-    manuf_fd.write("static manuf_oui24_t global_manuf_oui24_table[] = {\n")
+    manuf_fd.write("static const manuf_oui24_t global_manuf_oui24_table[] = {\n")
     keys = list(oui_d[MA_L].keys())
     keys.sort()
     for oui in keys:
@@ -335,7 +335,7 @@ def main():
     manuf_fd.write("};\n\n")
 
     # write the MA-M table
-    manuf_fd.write("static manuf_oui28_t global_manuf_oui28_table[] = {\n")
+    manuf_fd.write("static const manuf_oui28_t global_manuf_oui28_table[] = {\n")
     keys = list(oui_d[MA_M].keys())
     keys.sort()
     for oui in keys:
@@ -354,7 +354,7 @@ def main():
     manuf_fd.write("};\n\n")
 
     #write the MA-S table
-    manuf_fd.write("static manuf_oui36_t global_manuf_oui36_table[] = {\n")
+    manuf_fd.write("static const manuf_oui36_t global_manuf_oui36_table[] = {\n")
     keys = list(oui_d[MA_S].keys())
     keys.sort()
     for oui in keys:
