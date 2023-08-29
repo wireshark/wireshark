@@ -7928,7 +7928,7 @@ ssl_dissect_hnd_hello_ext_compress_certificate(ssl_common_dissect_t *hf, tvbuff_
 static guint32
 ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                                     proto_tree *tree, guint32 offset, guint32 offset_end,
-                                                    guint8 hnd_type _U_, SslDecryptSession *ssl _U_)
+                                                    guint8 hnd_type, SslDecryptSession *ssl _U_)
 {
     gboolean use_varint_encoding = TRUE;    // Whether this is draft -27 or newer.
     guint32 next_offset;
@@ -8132,6 +8132,10 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, connectionid_length, ENC_NA);
                 if (connectionid_length >= 1 && connectionid_length <= QUIC_MAX_CID_LENGTH) {
                     cid.len = connectionid_length;
+                    // RFC 9000 5.1.1 "If the preferred_address transport
+                    // parameter is sent, the sequence number of the supplied
+                    // connection ID is 1."
+                    cid.seq_num = 1;
                     tvb_memcpy(tvb, cid.cid, offset, connectionid_length);
                     quic_add_connection(pinfo, &cid);
                 }
@@ -8274,10 +8278,14 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_ENABLE_MULTIPATH_DRAFT04:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_enable_multipath,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                if (value == 1) {
+                    quic_add_multipath(pinfo);
+                }
                 offset += parameter_length;
             break;
             case SSL_HND_QUIC_TP_ENABLE_MULTIPATH:
                 /* No Payload */
+                quic_add_multipath(pinfo);
             break;
             default:
                 offset += parameter_length;

@@ -309,6 +309,9 @@ static const fragment_items quic_crypto_fragment_items = {
  * - 3 packet number spaces: Initial, Handshake, 0/1-RTT (appdata).
  * - 4 header protection ciphers: initial, 0-RTT, HS, 1-RTT.
  * - 5 payload protection ciphers: initial, 0-RTT, HS, 1-RTT (KP0), 1-RTT (KP1).
+ *
+ * XXX: The multipath draft features introduces separate number spaces for
+ * each Destination Connection ID, not yet handled.
  */
 
 /* Loss bits feature: https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
@@ -420,6 +423,8 @@ struct quic_info_data {
     bool            client_loss_bits_send : 1; /**< The client wants to send loss bits info */
     bool            server_loss_bits_recv : 1; /**< The server is able to read loss bits info */
     bool            server_loss_bits_send : 1; /**< The server wants to send loss bits info */
+    bool            client_multipath : 1; /**< The client supports multipath */
+    bool            server_multipath : 1; /**< The server supports multipath */
     int             hash_algo;      /**< Libgcrypt hash algorithm for key derivation. */
     int             cipher_algo;    /**< Cipher algorithm for packet number and packet encryption. */
     int             cipher_mode;    /**< Cipher mode for packet encryption. */
@@ -470,6 +475,7 @@ typedef struct quic_packet_info quic_packet_info_t;
 typedef struct quic_datagram {
     quic_info_data_t       *conn;
     quic_packet_info_t      first_packet;
+    uint64_t                seq_num; /**< Sequence number of the connection ID */
     bool                    from_server : 1;
     bool                    stateless_reset : 1;
 } quic_datagram;
@@ -1027,7 +1033,7 @@ quic_connection_equal(gconstpointer a, gconstpointer b)
 }
 
 static gboolean
-quic_cids_has_match(const quic_cid_item_t *items, const quic_cid_t *raw_cid)
+quic_cids_has_match(const quic_cid_item_t *items, quic_cid_t *raw_cid)
 {
     while (items) {
         const quic_cid_t *cid = &items->data;
@@ -1035,6 +1041,7 @@ quic_cids_has_match(const quic_cid_item_t *items, const quic_cid_t *raw_cid)
         // actual CID, so accept any prefix match against "cid".
         // Note that this explicitly matches an empty CID.
         if (raw_cid->len >= cid->len && !memcmp(raw_cid->cid, cid->cid, cid->len)) {
+            raw_cid->seq_num = cid->seq_num;
             return TRUE;
         }
         items = items->next;
@@ -1084,7 +1091,7 @@ quic_connection_from_conv(packet_info *pinfo)
  * If connection is found, "from_server" is set accordingly.
  */
 static quic_info_data_t *
-quic_connection_find_dcid(packet_info *pinfo, const quic_cid_t *dcid, gboolean *from_server)
+quic_connection_find_dcid(packet_info *pinfo, quic_cid_t *dcid, gboolean *from_server)
 {
     /* https://tools.ietf.org/html/draft-ietf-quic-transport-22#section-5.2
      *
@@ -1095,6 +1102,7 @@ quic_connection_find_dcid(packet_info *pinfo, const quic_cid_t *dcid, gboolean *
      * connection IDs, QUIC processes the packet as part of that connection."
      */
     quic_info_data_t *conn = NULL;
+    const quic_cid_t *original_dcid;
     gboolean check_ports = FALSE;
 
     if (dcid && dcid->len > 0) {
@@ -1102,19 +1110,21 @@ quic_connection_find_dcid(packet_info *pinfo, const quic_cid_t *dcid, gboolean *
         if (!quic_cids_is_known_length(dcid)) {
             return NULL;
         }
-        conn = (quic_info_data_t *) wmem_map_lookup(quic_client_connections, dcid);
-        if (conn) {
+        if (wmem_map_lookup_extended(quic_client_connections, dcid, (const void**)&original_dcid, (void**)&conn)) {
             // DCID recognized by client, so it was from server.
             *from_server = TRUE;
             // On collision (both client and server choose the same CID), check
             // the port to learn about the side.
             // This is required for supporting draft -10 which has a single CID.
             check_ports = !!wmem_map_lookup(quic_server_connections, dcid);
+            // Copy the other information, like sequence number (for multipath).
+            *dcid = *original_dcid;
         } else {
-            conn = (quic_info_data_t *) wmem_map_lookup(quic_server_connections, dcid);
-            if (conn) {
+            if (wmem_map_lookup_extended(quic_server_connections, dcid, (const void**)&original_dcid, (void**)&conn)) {
                 // DCID recognized by server, so it was from client.
                 *from_server = FALSE;
+                // Copy the other information, like sequence number.
+                *dcid = *original_dcid;
             }
         }
     } else {
@@ -1178,6 +1188,9 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
 
     if (!is_long_packet && !conn) {
         // For short packets, first try to find a match based on the address.
+        // (This is necessary to match a zero-length connection ID - for
+        // other cases, the second method below also works, and it can vary
+        // which is faster to try first.)
         conn = quic_connection_find_dcid(pinfo, NULL, from_server);
         /* Since we don't know the DCID, check all connections multiplexed
          * on the same 5-tuple for a match. */
@@ -1276,13 +1289,15 @@ quic_connection_update_initial(quic_info_data_t *conn, const quic_cid_t *scid, c
  * remember it for connection tracking.
  */
 static void
-quic_connection_add_cid(quic_info_data_t *conn, const quic_cid_t *new_cid, gboolean from_server)
+quic_connection_add_cid(quic_info_data_t *conn, quic_cid_t *new_cid, gboolean from_server)
 {
     DISSECTOR_ASSERT(new_cid->len > 0);
     quic_cid_item_t *items = from_server ? &conn->server_cids : &conn->client_cids;
 
     if (quic_cids_has_match(items, new_cid)) {
         // CID is already known for this connection.
+        // XXX: If the same CID is reused with a new sequence number and
+        // multipath is being used, that's an issue. (Expert info?)
         return;
     }
 
@@ -2500,6 +2515,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_MP_NEW_CONNECTION_ID:{
             gint32 len_sequence;
             gint32 len_retire_prior_to;
+            uint64_t seq_num;
             gint32 nci_length;
             gint32 lenvar = 0;
             gboolean valid_cid = FALSE;
@@ -2515,7 +2531,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                  break;
             }
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, &seq_num, &len_sequence);
             offset += len_sequence;
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_nci_retire_prior_to, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_retire_prior_to);
@@ -2535,6 +2551,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             if (valid_cid && quic_info) {
                 tvb_memcpy(tvb, cid.cid, offset, nci_length);
                 cid.len = nci_length;
+                cid.seq_num = seq_num;
                 quic_connection_add_cid(quic_info, &cid, from_server);
             }
             offset += nci_length;
@@ -2828,7 +2845,8 @@ static gboolean
 quic_hp_cipher_init(quic_hp_cipher *hp_cipher, int hash_algo, guint8 key_length, guint8 *secret, guint32 version);
 static gboolean
 quic_pp_cipher_init(quic_pp_cipher *pp_cipher, int hash_algo, guint8 key_length, guint8 *secret, guint32 version);
-
+static gboolean
+quic_multipath_negotiated(quic_info_data_t *conn);
 
 /**
  * Given a QUIC message (header + non-empty payload), the actual packet number,
@@ -2841,7 +2859,7 @@ quic_pp_cipher_init(quic_pp_cipher *pp_cipher, int hash_algo, guint8 key_length,
  */
 static void
 quic_decrypt_message(quic_pp_cipher *pp_cipher, tvbuff_t *head, guint header_length,
-                     guint8 first_byte, guint pkn_len, guint64 packet_number, quic_decrypt_result_t *result, wmem_allocator_t *pool)
+                     guint8 first_byte, guint pkn_len, guint64 packet_number, quic_decrypt_result_t *result, packet_info *pinfo)
 {
     gcry_error_t    err;
     guint8         *header;
@@ -2850,13 +2868,16 @@ quic_decrypt_message(quic_pp_cipher *pp_cipher, tvbuff_t *head, guint header_len
     guint8          atag[16];
     guint           buffer_length;
     const guchar  **error = &result->error;
+    quic_datagram *dgram_info;
+
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
 
     DISSECTOR_ASSERT(pp_cipher != NULL);
     DISSECTOR_ASSERT(pp_cipher->pp_cipher != NULL);
     DISSECTOR_ASSERT(pkn_len < header_length);
     DISSECTOR_ASSERT(1 <= pkn_len && pkn_len <= 4);
     // copy header, but replace encrypted first byte and PKN by plaintext.
-    header = (guint8 *)tvb_memdup(pool, head, 0, header_length);
+    header = (guint8 *)tvb_memdup(pinfo->pool, head, 0, header_length);
     header[0] = first_byte;
     for (guint i = 0; i < pkn_len; i++) {
         header[header_length - 1 - i] = (guint8)(packet_number >> (8 * i));
@@ -2874,6 +2895,14 @@ quic_decrypt_message(quic_pp_cipher *pp_cipher, tvbuff_t *head, guint header_len
     memcpy(nonce, pp_cipher->pp_iv, TLS13_AEAD_NONCE_LENGTH);
     /* Packet number is left-padded with zeroes and XORed with write_iv */
     phton64(nonce + sizeof(nonce) - 8, pntoh64(nonce + sizeof(nonce) - 8) ^ packet_number);
+    /* QUIC Multipath draft also uses the lower 32 bits of the CID
+     * sequence number (which MUST NOT go over 2^32 when multipath
+     * is used; also, the nonce must be at least 12 bytes.)
+     */
+    if (dgram_info && dgram_info->conn && quic_multipath_negotiated(dgram_info->conn)) {
+        DISSECTOR_ASSERT_CMPINT(TLS13_AEAD_NONCE_LENGTH, >=, 12);
+        phton32(nonce + sizeof(nonce) - 12, pntoh32(nonce + sizeof(nonce) - 12) ^ (UINT32_MAX & dgram_info->seq_num));
+    }
 
     gcry_cipher_reset(pp_cipher->pp_cipher);
     err = gcry_cipher_setiv(pp_cipher->pp_cipher, nonce, TLS13_AEAD_NONCE_LENGTH);
@@ -3429,7 +3458,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
      */
     if (!PINFO_FD_VISITED(pinfo)) {
         if (!quic_packet->decryption.error && quic_is_pp_cipher_initialized(pp_cipher)) {
-            quic_decrypt_message(pp_cipher, tvb, offset, first_byte, pkn_len, quic_packet->packet_number, &quic_packet->decryption, pinfo->pool);
+            quic_decrypt_message(pp_cipher, tvb, offset, first_byte, pkn_len, quic_packet->packet_number, &quic_packet->decryption, pinfo);
         }
     }
 
@@ -3534,7 +3563,7 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
 }
 
 void
-quic_add_connection(packet_info *pinfo, const quic_cid_t *cid)
+quic_add_connection(packet_info *pinfo, quic_cid_t *cid)
 {
     quic_datagram *dgram_info;
 
@@ -3563,6 +3592,30 @@ quic_add_loss_bits(packet_info *pinfo, guint64 value)
             if (value == 1) {
                 conn->client_loss_bits_send = TRUE;
             }
+        }
+    }
+}
+
+/* Check if "multipath" feature has been negotiated */
+static gboolean
+quic_multipath_negotiated(quic_info_data_t *conn)
+{
+    return conn->client_multipath && conn->server_multipath;
+}
+
+void
+quic_add_multipath(packet_info *pinfo)
+{
+    quic_datagram *dgram_info;
+    quic_info_data_t *conn;
+
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    if (dgram_info && dgram_info->conn) {
+        conn = dgram_info->conn;
+        if (dgram_info->from_server) {
+            conn->server_multipath = TRUE;
+        } else {
+            conn->client_multipath = TRUE;
         }
     }
 }
@@ -4255,6 +4308,8 @@ quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
  *  into a single UDP datagram"
  * For the first packet of the datagram, we simply save the DCID for later usage (no real check).
  * For any subsequent packets, we control if DCID is valid.
+ * XXX: Generic Segmentation Offload (GSO) captures from Linux create headaches
+ * here, and even more so with short header packets. (#19109)
  */
 static gboolean
 check_dcid_on_coalesced_packet(tvbuff_t *tvb, const quic_datagram *dgram_info,
@@ -4343,6 +4398,11 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         dgram_info->conn = conn;
         dgram_info->from_server = from_server;
+        /* Senders MUST not coalesce packets with a different Connection ID
+         * into the same datagram, so we can store the connection ID sequence
+         * number here.
+         */
+        dgram_info->seq_num = dcid.seq_num;
 #if 0
         proto_tree_add_debug_text(quic_tree, "Connection: %d %p DCID=%s SCID=%s from_server:%d", pinfo->num, dgram_info->conn, cid_to_string(pinfo->pool, &dcid), cid_to_string(pinfo->pool, &scid), dgram_info->from_server);
     } else {
