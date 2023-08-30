@@ -606,6 +606,9 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define DIPLEXER_US_UPPER_BAND_EDGE 1
 #define DIPLEXER_DS_LOWER_BAND_EDGE 2
 #define DIPLEXER_DS_UPPER_BAND_EDGE 3
+#define DIPLEXER_US_UPPER_BAND_EDGE_OVERRIDE 4
+#define DIPLEXER_DS_LOWER_BAND_EDGE_OVERRIDE 5
+#define DIPLEXER_DS_UPPER_BAND_EDGE_OVERRIDE 6
 
 #define FDX_ALLOCATED_SPECTRUM 1
 #define FDX_TOTAL_NUMBER_OF_SUB_BANDS 2
@@ -1059,6 +1062,9 @@ static int hf_docsis_mdd_diplexer_band_edge_length = -1;
 static int hf_docsis_mdd_diplexer_us_upper_band_edge = -1;
 static int hf_docsis_mdd_diplexer_ds_lower_band_edge = -1;
 static int hf_docsis_mdd_diplexer_ds_upper_band_edge = -1;
+static int hf_docsis_mdd_diplexer_us_upper_band_edge_override = -1;
+static int hf_docsis_mdd_diplexer_ds_lower_band_edge_override = -1;
+static int hf_docsis_mdd_diplexer_ds_upper_band_edge_override = -1;
 
 static int hf_docsis_mdd_full_duplex_descriptor = -1;
 static int hf_docsis_mdd_full_duplex_descriptor_length = -1;
@@ -2140,6 +2146,9 @@ static const value_string mdd_diplexer_band_edge_vals[] = {
   {DIPLEXER_US_UPPER_BAND_EDGE, "Diplexer Upstream Upper Band Edge"},
   {DIPLEXER_DS_LOWER_BAND_EDGE, "Diplexer Downstream Lower Band Edge"},
   {DIPLEXER_DS_UPPER_BAND_EDGE, "Diplexer Downstream Upper Band Edge"},
+  {DIPLEXER_US_UPPER_BAND_EDGE_OVERRIDE, "Diplexer Upstream Upper Band Edge Override"},
+  {DIPLEXER_DS_LOWER_BAND_EDGE_OVERRIDE, "Diplexer Downstream Lower Band Edge Override"},
+  {DIPLEXER_DS_UPPER_BAND_EDGE_OVERRIDE, "Diplexer Downstream Upper Band Edge Override"},
   {0, NULL}
 };
 
@@ -2582,6 +2591,8 @@ static const value_string unique_unlimited[] = {
 };
 
 static const unit_name_string local_units_hz = { "Hz", NULL };
+
+static const unit_name_string local_units_mhz = { " MHz", NULL };
 
 static void
 ofdma_ir_pow_ctrl_start_pow(char *buf, guint32 value)
@@ -5534,6 +5545,7 @@ dissect_mdd_diplexer_band_edge(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tre
 {
   guint8 type;
   guint32 length;
+  guint16 override_mhz;
   proto_tree *mdd_tree;
   proto_item *mdd_item;
   int pos;
@@ -5552,7 +5564,7 @@ dissect_mdd_diplexer_band_edge(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tre
     pos++;
     proto_item_set_len(mdd_item, length + 2);
 
-    if (length == 1)
+    if (length == 1 || length == 2)
     {
       switch(type)
       {
@@ -5564,6 +5576,30 @@ dissect_mdd_diplexer_band_edge(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tre
         break;
       case DIPLEXER_DS_UPPER_BAND_EDGE:
         proto_tree_add_item (mdd_tree, hf_docsis_mdd_diplexer_ds_upper_band_edge, tvb, pos, length, ENC_BIG_ENDIAN);
+        break;
+      case DIPLEXER_US_UPPER_BAND_EDGE_OVERRIDE:
+        proto_tree_add_item (mdd_tree, hf_docsis_mdd_diplexer_us_upper_band_edge_override, tvb, pos, length, ENC_BIG_ENDIAN);
+        override_mhz = tvb_get_ntohs (tvb, pos);
+        if (override_mhz != 204 && override_mhz != 300 && override_mhz != 396 && override_mhz != 492 && override_mhz != 684)
+          {
+            expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown Diplexer Upstream Upper Band Edge Override value: %u", override_mhz);
+          }
+        break;
+      case DIPLEXER_DS_LOWER_BAND_EDGE_OVERRIDE:
+        proto_tree_add_item (mdd_tree, hf_docsis_mdd_diplexer_ds_lower_band_edge_override, tvb, pos, length, ENC_BIG_ENDIAN);
+        override_mhz = tvb_get_ntohs (tvb, pos);
+        if (override_mhz != 108 && override_mhz != 258 && override_mhz != 372 && override_mhz != 492 && override_mhz != 606 && override_mhz != 834)
+          {
+            expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown Diplexer Downstream Lower Band Edge Override value: %u", override_mhz);
+          }
+        break;
+      case DIPLEXER_DS_UPPER_BAND_EDGE_OVERRIDE:
+        proto_tree_add_item (mdd_tree, hf_docsis_mdd_diplexer_ds_upper_band_edge_override, tvb, pos, length, ENC_BIG_ENDIAN);
+        override_mhz = tvb_get_ntohs (tvb, pos);
+        if (override_mhz != 1002 && override_mhz != 1218 && override_mhz != 1794)
+          {
+            expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown Diplexer Downstream Upper Band Edge Override value: %u", override_mhz);
+          }
         break;
       default:
         expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown Diplexer Band Edge TLV type: %u", type);
@@ -9842,6 +9878,21 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_diplexer_ds_upper_band_edge,
      {"Diplexer Downstream Upper Band Edge", "docsis_mdd.diplexer_ds_upper_band_edge",
       FT_UINT8, BASE_DEC, VALS(mdd_diplexer_ds_upper_band_edge_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_diplexer_us_upper_band_edge_override,
+     {"Diplexer Upstream Upper Band Edge Override", "docsis_mdd.diplexer_us_upper_band_edge_override",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &local_units_mhz, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_diplexer_ds_lower_band_edge_override,
+     {"Diplexer Downstream Lower Band Edge Override", "docsis_mdd.diplexer_ds_lower_band_edge_override",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &local_units_mhz, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_diplexer_ds_upper_band_edge_override,
+     {"Diplexer Downstream Upper Band Edge Override", "docsis_mdd.diplexer_ds_upper_band_edge_override",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &local_units_mhz, 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_mdd_full_duplex_descriptor,
