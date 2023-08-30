@@ -10622,7 +10622,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_mgt_40_transmit_power,
      {"Upstream Transmit Power, sent to 4.0 CMTS", "docsis_mgmt.40_transmit_power",
-      FT_INT16, BASE_CUSTOM, CF_FUNC(fourth_db), 0x1FF,
+      FT_INT16, BASE_CUSTOM, CF_FUNC(fourth_db), 0x01FF,
       NULL, HFILL}
     },
     {&hf_docsis_mgt_control,
