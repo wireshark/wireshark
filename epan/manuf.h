@@ -29,9 +29,10 @@ struct ws_manuf_iter {
 
 typedef struct ws_manuf_iter ws_manuf_iter_t;
 
+/* Returns the short name. Takes an optional pointer to return the long name. */
 WS_DLL_PUBLIC
-bool
-ws_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result);
+const char *
+ws_manuf_lookup_str(const uint8_t addr[6], const char **long_name_ptr);
 
 WS_DLL_PUBLIC
 void

@@ -1704,10 +1704,11 @@ manuf_name_lookup(const guint8 *addr)
     }
 
     /* Try the global manuf tables. */
-    struct ws_manuf manuf;
-    if (ws_manuf_lookup(addr, &manuf)) {
+    const char *short_name, *long_name;
+    short_name = ws_manuf_lookup_str(addr, &long_name);
+    if (short_name != NULL) {
         /* Found it */
-        return manuf_hash_new_entry(addr, manuf.short_name, manuf.long_name);
+        return manuf_hash_new_entry(addr, short_name, long_name);
     }
 
     /* Add the address as a hex string */

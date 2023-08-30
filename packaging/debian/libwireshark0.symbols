@@ -2158,7 +2158,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ws_manuf_dump@Base 4.1.0
  ws_manuf_iter_init@Base 4.1.0
  ws_manuf_iter_next@Base 4.1.0
- ws_manuf_lookup@Base 4.1.0
+ ws_manuf_lookup_str@Base 4.1.0
  wscbor_chunk_free@Base 3.5.1
  wscbor_chunk_mark_errors@Base 3.5.1
  wscbor_chunk_read@Base 3.5.1
