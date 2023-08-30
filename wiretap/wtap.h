@@ -1637,15 +1637,32 @@ void cleanup_open_routines(void);
  *    a wtap_open_type indication of how the open routine
  *      determines whether a file is of that type;
  *    an open routine;
- *    an optional list of extensions used for this file type, so that
- *      a file's extension can be used as a hint to indicate what file
- *      types it's likely to be (so that matching open routines can
- *      be called before non-matching open routines, to reduce the
- *      chances that a file will be misidentified due to an heuristic
- *      test with a weak heuristic being done before a heuristic test
- *      for the file's type);
+ *    an optional list of extensions used for this file type;
  *    data to be passed to Lua file readers - this should be NULL for
  *      non-Lua (C) file readers.
+ *
+ * The list of file extensions is used for several purposes:
+ *
+ *   It's used as a hint when calling open routines to open a file;
+ *   heuristic open routines whose list of extensions includes the
+ *   file's extension are called before heuristic open routines
+ *   whose (possibly-empty) list of extensions doesn't contain the
+ *   file's extension, to reduce the chances that a file will be
+ *   misidentified due to an heuristic test with a weak heuristic
+ *   being done before a heuristic test for the file's type.
+ *
+ *   It's used in Save dialogs to specify the extension to be used
+ *   when writing out a file.
+ *
+ *   It's used to decide which extensions should be considered
+ *   "capture file extensions" in order to find the "base name"
+ *   for a file (capture file extensions and compression extensions
+ *   are removed, but other putative extensions aren't, so the
+ *   "base name" of a file named "hello.world" is "hello.world",
+ *   the "base name" of a file named "hello.pcap", "hello.pcapng",
+ *   "hello.pcap.gz", or "hello.pcapng.gz", for example, is "hello",
+ *   and the "base name" of a file named "hello.world.pcap" etc.
+ *   is "hello.world".
  */
 struct open_info {
     const char *name;                 /* Description */
