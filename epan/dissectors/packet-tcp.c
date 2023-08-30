@@ -461,6 +461,8 @@ static expert_field ei_tcp_option_snack_sequence = EI_INIT;
 static expert_field ei_tcp_option_wscale_shift_invalid = EI_INIT;
 static expert_field ei_tcp_option_mss_absent = EI_INIT;
 static expert_field ei_tcp_option_mss_present = EI_INIT;
+static expert_field ei_tcp_option_sack_perm_absent = EI_INIT;
+static expert_field ei_tcp_option_sack_perm_present = EI_INIT;
 static expert_field ei_tcp_short_segment = EI_INIT;
 static expert_field ei_tcp_ack_nonzero = EI_INIT;
 static expert_field ei_tcp_connection_synack = EI_INIT;
@@ -5411,15 +5413,21 @@ dissect_tcpopt_exp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 }
 
 static int
-dissect_tcpopt_sack_perm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_tcpopt_sack_perm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item *item;
     proto_tree *exp_tree;
     proto_item *length_item;
     int offset = 0;
+    struct tcpheader *tcph = (struct tcpheader *)data;
 
     item = proto_tree_add_item(tree, proto_tcp_option_sack_perm, tvb, offset, -1, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_sack_perm);
+
+    if (!(tcph->th_flags & TH_SYN))
+    {
+        expert_add_info(pinfo, item, &ei_tcp_option_sack_perm_present);
+    }
 
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     length_item = proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -7163,6 +7171,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length,
     struct tcpheader *tcph = (struct tcpheader *)data;
     gboolean          mss_seen = FALSE;
     gboolean          eol_seen = FALSE;
+    gboolean          sack_perm_seen = FALSE;
 
     while (length > 0) {
         opt = tvb_get_guint8(tvb, offset);
@@ -7182,6 +7191,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length,
                the next option by using the length in the option. */
             if (opt == TCPOPT_EOL) {
                 local_proto = proto_tcp_option_eol;
+                eol_seen = true;
             } else if (opt == TCPOPT_NOP) {
                 local_proto = proto_tcp_option_nop;
 
@@ -7243,6 +7253,9 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length,
             if (opt == TCPOPT_MSS)
             {
                 mss_seen = TRUE;
+            } else if (opt == TCPOPT_SACK_PERM)
+            {
+                sack_perm_seen = TRUE;
             }
 
             next_tvb = tvb_new_subset_length(tvb, offset, optlen);
@@ -7252,14 +7265,18 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length,
             offset += optlen;
             length -= (optlen-2); //already accounted for type and len bytes
         }
-
-        if (opt == TCPOPT_EOL)
-            eol_seen = true;
     }
 
-    if ((tcph->th_flags & TH_SYN) && (mss_seen != TRUE))
+    if (tcph->th_flags & TH_SYN)
     {
-        expert_add_info(pinfo, opt_item, &ei_tcp_option_mss_absent);
+        if (mss_seen == FALSE)
+        {
+            expert_add_info(pinfo, opt_item, &ei_tcp_option_mss_absent);
+        }
+        if (sack_perm_seen == FALSE)
+        {
+            expert_add_info(pinfo, opt_item, &ei_tcp_option_sack_perm_absent);
+        }
     }
 }
 
@@ -9655,6 +9672,8 @@ proto_register_tcp(void)
         { &ei_tcp_option_wscale_shift_invalid, { "tcp.options.wscale.shift.invalid", PI_PROTOCOL, PI_WARN, "Window scale shift exceeds 14", EXPFILL }},
         { &ei_tcp_option_mss_absent, { "tcp.options.mss.absent", PI_PROTOCOL, PI_NOTE, "The SYN packet does not contain a MSS option", EXPFILL }},
         { &ei_tcp_option_mss_present, { "tcp.options.mss.present", PI_PROTOCOL, PI_WARN, "The non-SYN packet does contain a MSS option", EXPFILL }},
+        { &ei_tcp_option_sack_perm_absent, { "tcp.options.sack_perm.absent", PI_PROTOCOL, PI_NOTE, "The SYN packet does not contain a SACK PERM option", EXPFILL }},
+        { &ei_tcp_option_sack_perm_present, { "tcp.options.sack_perm.present", PI_PROTOCOL, PI_WARN, "The non-SYN packet does contain a SACK PERM option", EXPFILL }},
         { &ei_tcp_short_segment, { "tcp.short_segment", PI_MALFORMED, PI_WARN, "Short segment", EXPFILL }},
         { &ei_tcp_ack_nonzero, { "tcp.ack.nonzero", PI_PROTOCOL, PI_NOTE, "The acknowledgment number field is nonzero while the ACK flag is not set", EXPFILL }},
         { &ei_tcp_connection_synack, { "tcp.connection.synack", PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK)", EXPFILL }},
