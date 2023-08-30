@@ -362,7 +362,7 @@ typedef struct _http3_session_info {
 /**
  * Lookup or create new HTTP3 session object for the pinfo.
  */
-http3_session_info_t *http3_session_lookup_or_create(packet_info *pinfo);
+static http3_session_info_t *http3_session_lookup_or_create(packet_info *pinfo);
 
 /**
  * HTTP3 Header dissection support.
@@ -1095,7 +1095,7 @@ http3_session_new(void)
     return http3_session;
 }
 
-http3_session_info_t *
+static http3_session_info_t *
 http3_session_lookup_or_create(packet_info *pinfo)
 {
     http3_session_info_t *http3_session;
