@@ -140,7 +140,7 @@ add_extensions(GSList *extensions, const gchar *extension,
  */
 static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Wireshark/tcpdump/... - pcap", TRUE, "pcap;cap;dmp" },
-	{ "Wireshark/... - pcapng", TRUE, "pcapng;ntar" },
+	{ "Wireshark/... - pcapng", TRUE, "pcapng;ntar;scap" },
 	{ "Network Monitor, Surveyor, NetScaler", TRUE, "cap" },
 	{ "InfoVista 5View capture", TRUE, "5vw" },
 	{ "Sniffer (DOS)", TRUE, "cap;enc;trc;fdc;syc" },
@@ -375,7 +375,7 @@ wtap_get_all_capture_file_extensions_list(void)
  */
 static const struct open_info open_info_base[] = {
 	{ "Wireshark/tcpdump/... - pcap",           OPEN_INFO_MAGIC,     libpcap_open,             "pcap",     NULL, NULL },
-	{ "Wireshark/... - pcapng",                 OPEN_INFO_MAGIC,     pcapng_open,              "pcapng",   NULL, NULL },
+	{ "Wireshark/... - pcapng",                 OPEN_INFO_MAGIC,     pcapng_open,              "pcapng;scap", NULL, NULL },
 	{ "Sniffer (DOS)",                          OPEN_INFO_MAGIC,     ngsniffer_open,           NULL,       NULL, NULL },
 	{ "Snoop, Shomiti/Finisar Surveyor",        OPEN_INFO_MAGIC,     snoop_open,               NULL,       NULL, NULL },
 	{ "AIX iptrace",                            OPEN_INFO_MAGIC,     iptrace_open,             NULL,       NULL, NULL },
