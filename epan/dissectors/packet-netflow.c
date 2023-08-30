@@ -1732,6 +1732,24 @@ static const value_string v10_template_types_ixia[] = {
     {  309, "GTP Downlink QCI/QFI"},
     {  310, "GTP Uplink APN/DNN"},
     {  311, "GTP Downlink APN/DNN"},
+    {  312, "GTP NSSAI SD"},
+    {  313, "GTP NSSAI SST"},
+    {  314, "GTP 5QI - UP"},
+    {  315, "GTP 5QI - DOWN"},
+    {  316, "STUN Response"},
+    {  317, "STUN Reflexive Transport Address IPv6"},
+    {  318, "STUN Reflexive Transport Address IPv4"},
+    {  319, "STUN Reflexive Transport Address Port"},
+    {  320, "HTTP Alternative Service"},
+    {  321, "Unidirectional Flow"},
+    {  322, "TLS Server Random"},
+    {  323, "TLS Session ID"},
+    {  324, "SIP To"},
+    {  325, "SIP From"},
+    {  326, "SIP Call ID"},
+    {  327, "SIP Content Type"},
+    {  328, "SIP Route"},
+    {  329, "SIP Geolocation"},
     { 0, NULL }
 };
 static value_string_ext v10_template_types_ixia_ext = VALUE_STRING_EXT_INIT(v10_template_types_ixia);
@@ -3568,6 +3586,24 @@ static int      hf_pie_ixia_gtp_up_QCI_QFI              = -1;
 static int      hf_pie_ixia_gtp_down_QCI_QFI            = -1;
 static int      hf_pie_ixia_gtp_up_APN_DNN              = -1;
 static int      hf_pie_ixia_gtp_down_APN_DNN            = -1;
+static int      hf_pie_ixia_gtp_NSSAI_SD                = -1;
+static int      hf_pie_ixia_gtp_NSSAI_SST               = -1;
+static int      hf_pie_ixia_gtp_5QI_up                  = -1;
+static int      hf_pie_ixia_gtp_5QI_down                = -1;
+static int      hf_pie_ixia_stun_response               = -1;
+static int      hf_pie_ixia_stun_reflexive_ta_ipv4      = -1;
+static int      hf_pie_ixia_stun_reflexive_ta_ipv6      = -1;
+static int      hf_pie_ixia_stun_reflexive_ta_port      = -1;
+static int      hf_pie_ixia_http_alt_svc                = -1;
+static int      hf_pie_ixia_unidirectional              = -1;
+static int      hf_pie_ixia_http_tls_server_rand        = -1;
+static int      hf_pie_ixia_http_tls_session_id         = -1;
+static int      hf_pie_ixia_sip_to                      = -1;
+static int      hf_pie_ixia_sip_from                    = -1;
+static int      hf_pie_ixia_sip_call_id                 = -1;
+static int      hf_pie_ixia_sip_content_type            = -1;
+static int      hf_pie_ixia_sip_route                   = -1;
+static int      hf_pie_ixia_sip_geolocation             = -1;
 
 static int      hf_pie_netscaler                                         = -1;
 static int      hf_pie_netscaler_roundtriptime                           = -1;
@@ -11005,6 +11041,79 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 311):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_down_APN_DNN,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 312):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_NSSAI_SD,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 313):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_NSSAI_SST,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 314):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_5QI_up,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 315):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_5QI_down,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 316):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_stun_response,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 317):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_stun_reflexive_ta_ipv6,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 318):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_stun_reflexive_ta_ipv4,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 319):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_stun_reflexive_ta_port,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 320):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_alt_svc,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 321):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_unidirectional,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 322):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_tls_server_rand,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 323):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_tls_session_id,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 324):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_to,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 325):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_from,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 326):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_call_id,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 327):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_content_type,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 328):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_route,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 329):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_geolocation,
                                      tvb, offset, length, ENC_ASCII);
             break;
             /* END Ixia Communications */
@@ -19399,6 +19508,132 @@ proto_register_netflow(void)
          {"GTP Downlink APN/DNN", "cflow.pie.ixia.gtp-downlink-APN-DNN",
           FT_STRING, BASE_NONE, NULL, 0x0,
           "Mobile Session Downlink Access Point Name or Data Network Name", HFILL}
+        },
+
+        /* ixia, 3054 / 312 */
+        {&hf_pie_ixia_gtp_NSSAI_SD,
+         {"GTP NSSAI SD", "cflow.pie.ixia.gtp-NSSAI-SD",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Mobile Session NSSAI Service Differentiator", HFILL}
+        },
+
+        /* ixia, 3054 / 313 */
+        {&hf_pie_ixia_gtp_NSSAI_SST,
+         {"GTP NSSAI SST", "cflow.pie.ixia.gtp-NSSAI-SST",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Mobile Session NSSAI Slice/Service Type", HFILL}
+        },
+
+        /* ixia, 3054 / 314 */
+        {&hf_pie_ixia_gtp_5QI_up,
+         {"GTP Uplink 5QI", "cflow.pie.ixia.gtp-5QI-up",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Mobile Session Uplink 5G QoS Identifier", HFILL}
+        },
+
+        /* ixia, 3054 / 315 */
+        {&hf_pie_ixia_gtp_5QI_down,
+         {"GTP Downlink 5QI", "cflow.pie.ixia.gtp-5QI-down",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Mobile Session Downlink 5G QoS Identifier", HFILL}
+        },
+
+        /* ixia, 3054 / 316 */
+        {&hf_pie_ixia_stun_response,
+         {"STUN Response", "cflow.pie.ixia.stun-response",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of STUN responses", HFILL}
+        },
+
+        /* ixia, 3054 / 317 */
+        {&hf_pie_ixia_stun_reflexive_ta_ipv6,
+         {"STUN IPv6 Address", "cflow.pie.ixia.stun-reflexive-ta-ipv6",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          "STUN Reflexive Transport IPv6 Address", HFILL}
+        },
+
+        /* ixia, 3054 / 318 */
+        {&hf_pie_ixia_stun_reflexive_ta_ipv4,
+         {"STUN IPv4 Address", "cflow.pie.ixia.stun-reflexive-ta-ipv4",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          "STUN Reflexive Transport IPv4 Address", HFILL}
+        },
+
+        /* ixia, 3054 / 319 */
+        {&hf_pie_ixia_stun_reflexive_ta_port,
+         {"STUN Port", "cflow.pie.ixia.stun-reflexive-ta-port",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "STUN Reflexive Transport Address Port", HFILL}
+        },
+
+        /* ixia, 3054 / 320 */
+        {&hf_pie_ixia_http_alt_svc,
+         {"HTTP Alt-svc", "cflow.pie.ixia.http-alt-svc",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "HTTP Alternative Service", HFILL}
+        },
+
+        /* ixia, 3054 / 321 */
+        {&hf_pie_ixia_unidirectional,
+         {"Unidirectional flow", "cflow.pie.ixia.flow-is-unidirectional",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Flow is unidirectional - 1:True, 0:False", HFILL}
+        },
+
+        /* ixia, 3054 / 322 */
+        {&hf_pie_ixia_http_tls_server_rand,
+         {"TLS Server Random", "cflow.pie.ixia.tls-server-rand",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "SSL/TLS Server Random", HFILL}
+        },
+
+        /* ixia, 3054 / 323 */
+        {&hf_pie_ixia_http_tls_session_id,
+         {"TLS Session ID", "cflow.pie.ixia.tls-session-id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "SSL/TLS Session ID", HFILL}
+        },
+
+        /* ixia, 3054 / 324 */
+        {&hf_pie_ixia_sip_to,
+         {"SIP To", "cflow.pie.ixia.sip-to",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "SIP Header To", HFILL}
+        },
+
+        /* ixia, 3054 / 325 */
+        {&hf_pie_ixia_sip_from,
+         {"SIP From", "cflow.pie.ixia.sip-from",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "SIP Header From", HFILL}
+        },
+
+        /* ixia, 3054 / 326 */
+        {&hf_pie_ixia_sip_call_id,
+         {"SIP Call ID", "cflow.pie.ixia.sip-call-id",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "SIP Header Call-ID", HFILL}
+        },
+
+        /* ixia, 3054 / 327 */
+        {&hf_pie_ixia_sip_content_type,
+         {"SIP Content Type", "cflow.pie.ixia.sip-content-type",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "SIP Header Content-Type", HFILL}
+        },
+
+        /* ixia, 3054 / 328 */
+        {&hf_pie_ixia_sip_route,
+         {"SIP Route", "cflow.pie.ixia.sip-route",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "SIP Header Route", HFILL}
+        },
+
+        /* ixia, 3054 / 329 */
+        {&hf_pie_ixia_sip_geolocation,
+         {"SIP Geolocation", "cflow.pie.ixia.sip-geolocation",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "SIP Header Geolocation", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
