@@ -1522,18 +1522,39 @@ typedef struct wtap_wslua_file_info {
  * the user can ask to see all capture files (as identified
  * by file extension) or particular types of capture files.
  *
- * Each file type has a description, a flag indicating whether it's
- * a capture file or just some file whose contents we can dissect,
- * and a list of extensions the file might have.
+ * Each item has a human-readable description of the file types
+ * (possibly more than one!) that use all of this set of extensions,
+ * a flag indicating whether it's a capture file or just some file
+ * whose contents we can dissect, and a list of extensions files of
+ * that type might have.
  *
- * Some file types aren't real file types, they're just generic types,
+ * Note that entries in this table do *not* necessarily correspoond
+ * to single file types; for example, the entry that lists just "cap"
+ * is for several file formats, all of which use the extension ".cap".
+ *
+ * Also note that a given extension may appear in multiple entries;
+ * for example, "cap" (again!) is in an entry for some file types
+ * that use only ".cap" and in entries for file types that use
+ * ".cap" and some other extensions, and ".trc" is used both for
+ * DOS Sniffer Token Ring captures ("trc") and EyeSDN USB ISDN
+ * trace files ("tr{a}c{e}").
+ *
+ * Some entries aren't for capture file types, they're just generic types,
  * such as "text file" or "XML file", that can be used for, among other
- * things, captures we can read, or for extensions such as ".cap" that
- * were unimaginatively chosen by several different sniffers for their
- * file formats.
+ * things, captures we can read, or for file formats we can read in
+ * order to dissect the contents of the file (think of this as "Fileshark",
+ * which is a program that we really should have).  Those are marked
+ * specially, because, in file section dialogs, the user should be able
+ * to select "All Capture Files" and get a set of extensions that are
+ * associated with capture file formats, but not with files in other
+ * formats that might or might not contain captured packets (such as
+ * .txt or .xml") or formats that aren't capture files but that we
+ * support as "we're being Fileshark now" (such as .jpeg).  The routine
+ * that constructs a list of extensions for "All Capture Files" omits
+ * extensions for those entries.
  */
 struct file_extension_info {
-    /* the file type name */
+    /* the file type description */
     const char *name;
 
     /* TRUE if this is a capture file type */
@@ -1546,8 +1567,7 @@ struct file_extension_info {
 /*
  * For registering file types that we can open.
  *
- * Each file type has an open routine and an optional list of extensions
- * the file might have.
+ * Each file type has an open routine.
  *
  * The open routine should return:
  *
@@ -1597,7 +1617,6 @@ typedef wtap_open_return_val (*wtap_open_routine_t)(struct wtap*, int *,
  * the ones that don't, to handle the case where a file of one type
  * might be recognized by the heuristics for a different file type.
  */
-
 typedef enum {
     OPEN_INFO_MAGIC = 0,
     OPEN_INFO_HEURISTIC = 1
@@ -1607,13 +1626,34 @@ WS_DLL_PUBLIC void init_open_routines(void);
 
 void cleanup_open_routines(void);
 
+/*
+ * Information about a given file type that applies to all subtypes of
+ * the file type.
+ *
+ * Each file type has:
+ *
+ *    a human-readable description of the file type, for use in the
+ *      user interface;
+ *    a wtap_open_type indication of how the open routine
+ *      determines whether a file is of that type;
+ *    an open routine;
+ *    an optional list of extensions used for this file type, so that
+ *      a file's extension can be used as a hint to indicate what file
+ *      types it's likely to be (so that matching open routines can
+ *      be called before non-matching open routines, to reduce the
+ *      chances that a file will be misidentified due to an heuristic
+ *      test with a weak heuristic being done before a heuristic test
+ *      for the file's type);
+ *    data to be passed to Lua file readers - this should be NULL for
+ *      non-Lua (C) file readers.
+ */
 struct open_info {
-    const char *name;
-    wtap_open_type type;
-    wtap_open_routine_t open_routine;
-    const char *extensions;
-    gchar **extensions_set; /* populated using extensions member during initialization */
-    void* wslua_data; /* should be NULL for C-code file readers */
+    const char *name;                 /* Description */
+    wtap_open_type type;              /* Open routine type */
+    wtap_open_routine_t open_routine; /* Open routine */
+    const char *extensions;           /* List of extensions used for this file type */
+    gchar **extensions_set;           /* Array of those extensions; populated using extensions member during initialization */
+    void* wslua_data;                 /* Data for Lua file readers */
 };
 WS_DLL_PUBLIC struct open_info *open_routines;
 
