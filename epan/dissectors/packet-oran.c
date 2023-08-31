@@ -65,7 +65,9 @@ static int hf_oran_sectionType = -1;
 
 static int hf_oran_udCompHdr = -1;
 static int hf_oran_udCompHdrIqWidth = -1;
+static int hf_oran_udCompHdrIqWidth_pref = -1;
 static int hf_oran_udCompHdrMeth = -1;
+static int hf_oran_udCompHdrMeth_pref = -1;
 static int hf_oran_numberOfUEs = -1;
 static int hf_oran_timeOffset = -1;
 static int hf_oran_frameStructure_fft = -1;
@@ -2719,6 +2721,18 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             proto_tree_add_item(section_tree, hf_oran_rsvd8, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
+        else {
+            /* Showing comp values from prefs */
+            /* iqWidth */
+            proto_item *iq_width_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrIqWidth_pref, tvb, 0, 0, sample_bit_width);
+            proto_item_append_text(iq_width_item, " (from preferences)");
+            proto_item_set_generated(iq_width_item);
+
+            /* udCompMethod */
+            proto_item *ud_comp_meth_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrMeth_pref, tvb, 0, 0, compression);
+            proto_item_append_text(ud_comp_meth_item, " (from preferences)");
+            proto_item_set_generated(ud_comp_meth_item);
+        }
 
         /* Work this out each time, as udCompHdr may have changed things */
         guint nBytesForSamples = (sample_bit_width * 12 * 2) / 8;
@@ -3659,7 +3673,6 @@ proto_register_oran(void)
           HFILL}
         },
 
-
         /* 6.3.3.13 */
         { &hf_oran_udCompHdrMeth,
          {"User Data Compression Method", "oran_fh_cus.udCompHdrMeth",
@@ -3669,12 +3682,28 @@ proto_register_oran(void)
           "the user data in every section in the C-Plane message",
           HFILL}
          },
+        { &hf_oran_udCompHdrMeth_pref,
+         {"User Data Compression Method", "oran_fh_cus.udCompHdrMeth",
+          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(ud_comp_header_meth), 0x0,
+          "Defines the compression method for "
+          "the user data in every section in the C-Plane message",
+          HFILL}
+         },
 
         /* 6.3.3.13 */
-        {&hf_oran_udCompHdrIqWidth,
+        { &hf_oran_udCompHdrIqWidth,
          {"User Data IQ width", "oran_fh_cus.udCompHdrWidth",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
           RVALS(ud_comp_header_width), 0xf0,
+          "Defines the IQ bit width "
+          "for the user data in every section in the C-Plane message",
+          HFILL}
+        },
+        { &hf_oran_udCompHdrIqWidth_pref,
+         {"User Data IQ width", "oran_fh_cus.udCompHdrWidth",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
           "Defines the IQ bit width "
           "for the user data in every section in the C-Plane message",
           HFILL}
