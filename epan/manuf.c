@@ -169,10 +169,51 @@ ws_manuf_lookup_str(const uint8_t addr[6], const char **long_name_ptr)
     return short_name;
 }
 
+static inline struct ws_manuf *
+copy_oui24(struct ws_manuf *dst, const manuf_oui24_t *src)
+{
+    memcpy(dst->addr, src->oui24, sizeof(src->oui24));
+    dst->addr[3] = 0;
+    dst->addr[4] = 0;
+    dst->addr[5] = 0;
+    dst->mask = 24;
+    dst->short_name = src->short_name;
+    dst->long_name = src->long_name;
+    return dst;
+}
+
+static inline struct ws_manuf *
+copy_oui28(struct ws_manuf *dst, const manuf_oui28_t *src)
+{
+    memcpy(dst->addr, src->oui28, sizeof(src->oui28));
+    dst->addr[4] = 0;
+    dst->addr[5] = 0;
+    dst->mask = 28;
+    dst->short_name = src->short_name;
+    dst->long_name = src->long_name;
+    return dst;
+}
+
+static inline struct ws_manuf *
+copy_oui36(struct ws_manuf *dst, const manuf_oui36_t *src)
+{
+    memcpy(dst->addr, src->oui36, sizeof(src->oui36));
+    dst->addr[5] = 0;
+    dst->mask = 36;
+    dst->short_name = src->short_name;
+    dst->long_name = src->long_name;
+    return dst;
+}
+
 void
 ws_manuf_iter_init(ws_manuf_iter_t *iter)
 {
-    memset(iter, 0, sizeof(*iter));
+    iter->idx24 = 0;
+    copy_oui24(&iter->buf24, &global_manuf_oui24_table[iter->idx24]);
+    iter->idx28 = 0;
+    copy_oui28(&iter->buf28, &global_manuf_oui28_table[iter->idx28]);
+    iter->idx36 = 0;
+    copy_oui36(&iter->buf36, &global_manuf_oui36_table[iter->idx36]);
 }
 
 /**
@@ -186,60 +227,59 @@ ws_manuf_iter_init(ws_manuf_iter_t *iter)
 bool
 ws_manuf_iter_next(ws_manuf_iter_t *iter, struct ws_manuf *result)
 {
-    struct ws_manuf manuf[3] = { 0 };
+    struct ws_manuf *vector[3] = { NULL, NULL, NULL };
+    size_t idx = 0;
     struct ws_manuf *ptr;
-
-    ptr = manuf;
 
     /* Read current positions. */
     if (iter->idx24 < G_N_ELEMENTS(global_manuf_oui24_table)) {
-        const manuf_oui24_t *ptr24 = &global_manuf_oui24_table[iter->idx24];
-        memcpy(ptr->addr, ptr24->oui24, sizeof(ptr24->oui24));
-        ptr->mask = 24;
-        ptr->short_name = ptr24->short_name;
-        ptr->long_name = ptr24->long_name;
-        ptr++;
+        vector[idx++] = &iter->buf24;
     }
     if (iter->idx28 < G_N_ELEMENTS(global_manuf_oui28_table)) {
-        const manuf_oui28_t *ptr28 = &global_manuf_oui28_table[iter->idx28];
-        memcpy(ptr->addr, ptr28->oui28, sizeof(ptr28->oui28));
-        ptr->mask = 28;
-        ptr->short_name = ptr28->short_name;
-        ptr->long_name = ptr28->long_name;
-        ptr++;
+        vector[idx++] = &iter->buf28;
     }
     if (iter->idx36 < G_N_ELEMENTS(global_manuf_oui36_table)) {
-        const manuf_oui36_t *ptr36 = &global_manuf_oui36_table[iter->idx36];
-        memcpy(ptr->addr, ptr36->oui36, sizeof(ptr36->oui36));
-        ptr->mask = 36;
-        ptr->short_name = ptr36->short_name;
-        ptr->long_name = ptr36->long_name;
+        vector[idx++] = &iter->buf36;
     }
 
-    /* None read. */
-    if (manuf->mask == 0)
+    /* None remaining, we're done. */
+    if (idx == 0)
         return false;
 
     /* Select smallest current prefix out of the 3 registries.
      * There is at least one entry and index 0 is non-empty. */
-    ptr = &manuf[0];
-    for (size_t i = 1; i < G_N_ELEMENTS(manuf); i++) {
-        if (manuf[i].mask && memcmp(manuf[i].addr, ptr->addr, 6) < 0) {
-            ptr = &manuf[i];
+    ptr = vector[0];
+    for (size_t i = 1; i < idx; i++) {
+        if (vector[i] && memcmp(vector[i]->addr, ptr->addr, 6) < 0) {
+            ptr = vector[i];
         }
     }
 
-    /* Advance iterator. */
-    if (ptr->mask == 24)
+    /* We have the next smallest element, return result. */
+    memcpy(result, ptr, sizeof(struct ws_manuf));
+
+    /* Advance iterator and copy new element. */
+    if (ptr->mask == 24) {
         iter->idx24++;
-    else if (ptr->mask == 28)
+        if (iter->idx24 < G_N_ELEMENTS(global_manuf_oui24_table)) {
+            copy_oui24(&iter->buf24, &global_manuf_oui24_table[iter->idx24]);
+        }
+    }
+    else if (ptr->mask == 28) {
         iter->idx28++;
-    else if (ptr->mask == 36)
+        if (iter->idx28 < G_N_ELEMENTS(global_manuf_oui28_table)) {
+            copy_oui28(&iter->buf28, &global_manuf_oui28_table[iter->idx28]);
+        }
+    }
+    else if (ptr->mask == 36) {
         iter->idx36++;
+        if (iter->idx36 < G_N_ELEMENTS(global_manuf_oui36_table)) {
+            copy_oui36(&iter->buf36, &global_manuf_oui36_table[iter->idx36]);
+        }
+    }
     else
         ws_assert_not_reached();
 
-    *result = *ptr;
     return true;
 }
 

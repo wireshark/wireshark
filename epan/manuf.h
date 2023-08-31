@@ -25,6 +25,9 @@ struct ws_manuf {
 /* Internal structure, not supposed to be accessed by users. */
 struct ws_manuf_iter {
     size_t idx24, idx28, idx36;
+    struct ws_manuf buf24;
+    struct ws_manuf buf28;
+    struct ws_manuf buf36;
 };
 
 typedef struct ws_manuf_iter ws_manuf_iter_t;
