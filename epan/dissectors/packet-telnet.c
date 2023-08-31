@@ -39,6 +39,8 @@ static int hf_telnet_auth_mod_how = -1;
 static int hf_telnet_auth_mod_cred_fwd = -1;
 static int hf_telnet_auth_mod_enc = -1;
 static int hf_telnet_auth_krb5_type = -1;
+static int hf_telnet_auth_ssl_status = -1;
+static int hf_telnet_auth_data = -1;
 
 static int hf_telnet_string_subopt_value = -1;
 static int hf_telnet_naws_subopt_width = -1;
@@ -980,12 +982,8 @@ static const true_false_string auth_mod_cred_fwd = {
   "Client WILL forward auth creds",
   "Client will NOT forward auth creds"
 };
-static const true_false_string auth_mod_who = {
-  "Mask server to client",
-  "Mask client to server"
-};
 static const true_false_string auth_mod_how = {
-  "MUTUAL authentication",
+  "Mutual authentication",
   "One Way authentication"
 };
 #define TN_AM_OFF               0x00
@@ -1078,11 +1076,6 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   tvbuff_t *krb5_tvb;
   guint8    krb5_cmd;
 
-  dissect_authentication_type_pair(pinfo, tvb, offset, tree);
-  offset+=2;
-  len-=2;
-
-
   krb5_cmd=tvb_get_guint8(tvb, offset);
   proto_tree_add_uint(tree, hf_telnet_auth_krb5_type, tvb, offset, 1, krb5_cmd);
   offset++;
@@ -1130,16 +1123,66 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   /* nothing more to dissect */
 }
 
+
+#define TN_AUTH_SSL_START  1
+#define TN_AUTH_SSL_ACCEPT 2
+#define TN_AUTH_SSL_REJECT 3
+
+static const value_string ssl_auth_status[] = {
+  { TN_AUTH_SSL_START,  "Start" },
+  { TN_AUTH_SSL_ACCEPT, "Accepted" },
+  { TN_AUTH_SSL_REJECT, "Rejected" },
+  { 0, NULL }
+};
+
+static void
+dissect_ssl_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, guint8 acmd)
+{
+  guint ssl_status;
+
+  proto_tree_add_item_ret_uint(tree, hf_telnet_auth_ssl_status, tvb, offset, 1, ENC_NA, &ssl_status);
+
+  if (acmd == TN_AC_REPLY && ssl_status == TN_AUTH_SSL_ACCEPT)
+    /* TLS negotiation will immediately follow this packet. */
+    ssl_starttls_ack(tls_handle, pinfo, telnet_handle);
+}
+
+/* as per RFC2941 */
+static void
+dissect_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, int len, proto_tree *tree, guint8 acmd)
+{
+  guint8 auth_type;
+
+  dissect_authentication_type_pair(pinfo, tvb, offset, tree);
+  auth_type = tvb_get_guint8(tvb, offset);
+  offset += 2;
+  len -= 2;
+
+  switch (auth_type) {
+  case TN_AT_NULL:
+    break;
+
+  case TN_AT_SSL:
+    dissect_ssl_authentication_data(pinfo, tvb, offset, tree, acmd);
+    break;
+
+  case TN_AT_KRB5:
+    dissect_krb5_authentication_data(pinfo, tvb, offset, len, tree, acmd);
+    break;
+
+  default:
+    /* We don't (yet) know how to dissect the data for this authentication type. */
+    if (len > 0)
+      proto_tree_add_bytes_format(tree, hf_telnet_auth_data, tvb, offset, len, NULL, "Unhandled authentication data");
+  }
+}
+
 static void
 dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len,
                               proto_tree *tree, proto_item *item _U_)
 {
   guint8  acmd;
 
-/* XXX here we should really split it up in a conversation struct keeping
-   track of what method we actually use and not just assume it is always
-   kerberos v5
-*/
   acmd=tvb_get_guint8(tvb, offset);
   proto_tree_add_uint(tree, hf_telnet_auth_cmd, tvb, offset, 1, acmd);
   offset++;
@@ -1148,9 +1191,9 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
   switch(acmd){
   case TN_AC_REPLY:
   case TN_AC_IS:
-    /* XXX here we shouldn't just assume it is krb5 */
-    dissect_krb5_authentication_data(pinfo, tvb, offset, len, tree, acmd);
+    dissect_authentication_data(pinfo, tvb, offset, len, tree, acmd);
     break;
+
   case TN_AC_SEND:
     while(len>0){
       dissect_authentication_type_pair(pinfo, tvb, offset, tree);
@@ -1158,6 +1201,7 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
       len-=2;
     }
     break;
+
   case TN_AC_NAME:
     proto_tree_add_item(tree, hf_telnet_auth_name, tvb, offset, len, ENC_ASCII);
     break;
@@ -2177,11 +2221,11 @@ proto_register_telnet(void)
     },
     { &hf_telnet_auth_mod_who,
       { "Who", "telnet.auth.mod.who", FT_BOOLEAN, 8,
-        TFS(&auth_mod_who), 0x01, "Modifier: Who to mask", HFILL }
+        TFS(&tfs_s2c_c2s), 0x01, "Modifier: Who will authenticate", HFILL }
     },
     { &hf_telnet_auth_mod_how,
       { "How", "telnet.auth.mod.how", FT_BOOLEAN, 8,
-        TFS(&auth_mod_how), 0x02, "Modifier: How to mask", HFILL }
+        TFS(&auth_mod_how), 0x02, "Modifier: Authentication flow", HFILL }
     },
     { &hf_telnet_auth_mod_enc,
       { "Encrypt", "telnet.auth.mod.enc", FT_UINT8, BASE_DEC,
@@ -2190,6 +2234,14 @@ proto_register_telnet(void)
     { &hf_telnet_auth_krb5_type,
       { "Command", "telnet.auth.krb5.cmd", FT_UINT8, BASE_DEC,
         VALS(auth_krb5_types), 0, "Krb5 Authentication sub-command", HFILL }
+    },
+    { &hf_telnet_auth_ssl_status,
+      { "Status", "telnet.auth.ssl.status", FT_UINT8, BASE_DEC,
+        VALS(ssl_auth_status), 0, "SSL authentication status", HFILL }
+    },
+    { &hf_telnet_auth_data,
+      { "Authentication data", "telnet.auth.data", FT_BYTES, BASE_NONE,
+        NULL, 0, NULL, HFILL }
     },
     { &hf_telnet_string_subopt_value,
       { "Value", "telnet.string_subopt.value", FT_STRING, BASE_NONE,
