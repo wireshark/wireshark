@@ -863,9 +863,16 @@ https://archlinux.org/[Arch Linux] has good support for MinGW using packages
 from the https://aur.archlinux.org/[AUR]. Note that the mingw-w64 AUR packages
 sometimes break. If that happens you may be required to fix it or skip the
 package until it is fixed by the maintainer, if it's an optional dependency.
-You may also want to consider using the "ownstuff"
-https://wiki.archlinux.org/title/unofficial_user_repositories[unofficial user repository].
-This will greatly simplify the initial setup and subsequent upgrades.
+You may also want to consider using an
+https://wiki.archlinux.org/title/unofficial_user_repositories[unofficial user repository]
+(such as the https://martchus.no-ip.biz/repo/arch/ownstuff/[ownstuff] repository)
+to provide pre-compiled packages. This will greatly simplify the initial setup
+and subsequent upgrades.
+
+CAUTION: AUR packages and unofficial user repositories are user-produced
+content. These packages are completely unofficial and have not been thoroughly
+vetted. It is your decision whether to trust their maintainers and you take
+full responsibility for choosing to use them.
 
 You will need to install an https://wiki.archlinux.org/title/AUR_helpers[AUR helper].
 This guide assumes `paru` is being used.
