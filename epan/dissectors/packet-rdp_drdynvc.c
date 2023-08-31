@@ -564,8 +564,8 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			col_set_str(pinfo->cinfo, COL_INFO, "Data compressed");
 			break;
 		case DRDYNVC_SOFT_SYNC_REQUEST_PDU: {
-			guint16 ntunnels;
-			guint16 flags;
+			guint32 ntunnels;
+			guint32 flags;
 
 			col_set_str(pinfo->cinfo, COL_INFO, "SoftSync Request");
 
@@ -576,13 +576,11 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			proto_tree_add_item(tree, hf_rdp_drdynvc_softsync_req_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
-			flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(tree, hf_rdp_drdynvc_softsync_req_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(tree, hf_rdp_drdynvc_softsync_req_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN, &flags);
 			offset += 2;
 			// XXX: TODO should decode flags but they are always set to SOFT_SYNC_TCP_FLUSHED|SOFT_SYNC_CHANNEL_LIST_PRESENT
 
-			ntunnels = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(tree, hf_rdp_drdynvc_softsync_req_ntunnels, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(tree, hf_rdp_drdynvc_softsync_req_ntunnels, tvb, offset, 2, ENC_LITTLE_ENDIAN, &ntunnels);
 			offset += 2;
 
 			if (flags & 0x02) { /* SOFT_SYNC_CHANNEL_LIST_PRESENT */
@@ -615,7 +613,6 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						if (!label)
 							showLabel = "DVC";
 						dvc_tree = proto_tree_add_subtree(channel_tree, tvb, offset, 4, ett_rdp_drdynvc_softsync_dvc, NULL, showLabel);
-
 						proto_tree_add_item(dvc_tree, hf_rdp_drdynvc_softsync_req_channel_dvcid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
 						if (label) {
@@ -636,8 +633,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			proto_tree_add_item(tree, hf_rdp_drdynvc_pad, tvb, offset, 1, ENC_NA);
 			offset++;
 
-			proto_tree_add_item(tree, hf_rdp_drdynvc_softsync_resp_ntunnels, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			ntunnels = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(tree, hf_rdp_drdynvc_softsync_resp_ntunnels, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ntunnels);
 			offset += 4;
 
 			if (ntunnels) {
@@ -733,7 +729,7 @@ void proto_register_rdp_drdynvc(void) {
 			FT_UINT16, BASE_DEC, NULL, 0,
 			NULL, HFILL }},
 		{ &hf_rdp_drdynvc_softsync_req_ntunnels,
-		  { "Length", "rdp_drdynvc.softsyncreq.ntunnels",
+		  { "NumberOfTunnels", "rdp_drdynvc.softsyncreq.ntunnels",
 			FT_UINT16, BASE_DEC, NULL, 0,
 			NULL, HFILL }},
 		{ &hf_rdp_drdynvc_softsync_req_channel_tunnelType,
