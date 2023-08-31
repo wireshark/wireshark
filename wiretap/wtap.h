@@ -1579,8 +1579,8 @@ struct file_extension_info {
  *      WTAP_OPEN_NOT_MINE if the file it's reading isn't one of the
  *      types it handles.
  *
- * If the routine handles this type of file, it should set the "file_type"
- * field in the "struct wtap" to the type of the file.
+ * If the routine handles this type of file, it should set the
+ * "file_type_subtype" field in the "struct wtap" to the type of the file.
  *
  * Note that the routine does not have to free the private data pointer on
  * error. The caller takes care of that by calling wtap_close on error.
@@ -1641,28 +1641,13 @@ void cleanup_open_routines(void);
  *    data to be passed to Lua file readers - this should be NULL for
  *      non-Lua (C) file readers.
  *
- * The list of file extensions is used for several purposes:
- *
- *   It's used as a hint when calling open routines to open a file;
- *   heuristic open routines whose list of extensions includes the
- *   file's extension are called before heuristic open routines
- *   whose (possibly-empty) list of extensions doesn't contain the
- *   file's extension, to reduce the chances that a file will be
- *   misidentified due to an heuristic test with a weak heuristic
- *   being done before a heuristic test for the file's type.
- *
- *   It's used in Save dialogs to specify the extension to be used
- *   when writing out a file.
- *
- *   It's used to decide which extensions should be considered
- *   "capture file extensions" in order to find the "base name"
- *   for a file (capture file extensions and compression extensions
- *   are removed, but other putative extensions aren't, so the
- *   "base name" of a file named "hello.world" is "hello.world",
- *   the "base name" of a file named "hello.pcap", "hello.pcapng",
- *   "hello.pcap.gz", or "hello.pcapng.gz", for example, is "hello",
- *   and the "base name" of a file named "hello.world.pcap" etc.
- *   is "hello.world".
+ * The list of file extensions is used as a hint when calling open routines
+ * to open a file; heuristic open routines whose list of extensions includes
+ * the file's extension are called before heuristic open routines whose
+ * (possibly-empty) list of extensions doesn't contain the file's extension,
+ * to reduce the chances that a file will be misidentified due to an heuristic
+ * test with a weak heuristic being done before a heuristic test for the
+ * file's type.
  */
 struct open_info {
     const char *name;                 /* Description */
@@ -2355,7 +2340,7 @@ typedef enum {
  * WTAP_ENCAP_ types and the given bitmask of comment types.
  */
 WS_DLL_PUBLIC
-GArray *wtap_get_savable_file_types_subtypes_for_file(int file_type,
+GArray *wtap_get_savable_file_types_subtypes_for_file(int file_type_subtype,
     const GArray *file_encaps, guint32 required_comment_types,
     ft_sort_order sort_order);
 
@@ -2384,7 +2369,7 @@ int wtap_pcapng_file_type_subtype(void);
  * the block in question.
  */
 WS_DLL_PUBLIC
-block_support_t wtap_file_type_subtype_supports_block(int filetype,
+block_support_t wtap_file_type_subtype_supports_block(int file_type_subtype,
     wtap_block_type_t type);
 
 /**
@@ -2392,20 +2377,74 @@ block_support_t wtap_file_type_subtype_supports_block(int filetype,
  * the option in queston for the block in question.
  */
 WS_DLL_PUBLIC
-option_support_t wtap_file_type_subtype_supports_option(int filetype,
+option_support_t wtap_file_type_subtype_supports_option(int file_type_subtype,
     wtap_block_type_t type, guint opttype);
 
-/*** various file extension functions ***/
+/* Return a list of all extensions that are used by all capture file
+ * types, including compressed extensions, e.g. not just "pcap" but
+ * also "pcap.gz" if we can read gzipped files.
+ *
+ * "Capture files" means "include file types that correspond to
+ * collections of network packets, but not file types that
+ * store data that just happens to be transported over protocols
+ * such as HTTP but that aren't collections of network packets",
+ * so that it could be used for "All Capture Files" without picking
+ * up JPEG files or files such as that - those aren't capture files,
+ * and we *do* have them listed in the long list of individual file
+ * types, so omitting them from "All Capture Files" is the right
+ * thing to do.
+ *
+ * All strings in the list are allocated with g_malloc() and must be freed
+ * with g_free().
+ *
+ * This is used to generate a list of extensions to look for if the user
+ * chooses "All Capture Files" in a file open dialog.
+ */
 WS_DLL_PUBLIC
 GSList *wtap_get_all_capture_file_extensions_list(void);
-WS_DLL_PUBLIC
-const char *wtap_default_file_extension(int filetype);
-WS_DLL_PUBLIC
-GSList *wtap_get_file_extensions_list(int filetype, gboolean include_compressed);
+
+/* Return a list of all extensions that are used by all file types that
+ * we can read, including compressed extensions, e.g. not just "pcap" but
+ * also "pcap.gz" if we can read gzipped files.
+ *
+ * "File type" means "include file types that correspond to collections
+ * of network packets, as well as file types that store data that just
+ * happens to be transported over protocols such as HTTP but that aren't
+ * collections of network packets, and plain text files".
+ *
+ * All strings in the list are allocated with g_malloc() and must be freed
+ * with g_free().
+ */
 WS_DLL_PUBLIC
 GSList *wtap_get_all_file_extensions_list(void);
+
+/*
+ * Free a list returned by wtap_get_file_extension_type_extensions(),
+ * wtap_get_all_capture_file_extensions_list, wtap_get_file_extensions_list(),
+ * or wtap_get_all_file_extensions_list().
+ */
 WS_DLL_PUBLIC
 void wtap_free_extensions_list(GSList *extensions);
+
+/*
+ * Return the default file extension to use with the specified file type
+ * and subtype; that's just the extension, without any ".".
+ */
+WS_DLL_PUBLIC
+const char *wtap_default_file_extension(int file_type_subtype);
+
+/* Return a list of file extensions that are used by the specified file type
+ * and subtype.
+ *
+ * If include_compressed is TRUE, the list will include compressed
+ * extensions, e.g. not just "pcap" but also "pcap.gz" if we can read
+ * gzipped files.
+ *
+ * All strings in the list are allocated with g_malloc() and must be freed
+ * with g_free().
+ */
+WS_DLL_PUBLIC
+GSList *wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed);
 
 WS_DLL_PUBLIC
 const char *wtap_encap_name(int encap);
