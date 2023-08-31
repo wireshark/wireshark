@@ -408,6 +408,14 @@ static int mtp3_str_addr_len(const address* addr _U_)
     return 50;
 }
 
+static const char* mtp3_addr_col_filter_str(const address* addr _U_, gboolean is_src)
+{
+    if (is_src)
+        return "mtp3.opc";
+
+    return "mtp3.dpc";
+}
+
 int mtp3_addr_len(void)
 {
     return sizeof(mtp3_addr_pc_t);
@@ -1103,7 +1111,7 @@ proto_register_mtp3(void)
                   "MTP3 Service indicator",
                   proto_mtp3, FT_UINT8, BASE_HEX);
 
-  mtp3_address_type = address_type_dissector_register("AT_SS7PC", "SS7 Point Code", mtp3_addr_to_str, mtp3_str_addr_len, NULL, NULL,
+  mtp3_address_type = address_type_dissector_register("AT_SS7PC", "SS7 Point Code", mtp3_addr_to_str, mtp3_str_addr_len, NULL, mtp3_addr_col_filter_str,
                                                             mtp3_addr_len, mtp3_addr_name_res_str, mtp3_addr_name_res_len);
 
 
