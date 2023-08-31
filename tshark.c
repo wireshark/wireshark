@@ -2921,9 +2921,9 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
     if (really_quiet == FALSE) {
         if (cap_session->state == CAPTURE_PREPARING) {
-            ws_message("Capture started.");
+            ws_info("Capture started.");
         }
-        ws_message("File: \"%s\"", new_file);
+        ws_info("File: \"%s\"", new_file);
     }
 
     ws_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
