@@ -30,9 +30,9 @@ ManufTableItem::ManufTableItem(struct ws_manuf *ptr) :
     }
     // Note: since 'ptr' is not stable, a deep copy is needed.
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    block_bytes_ = QByteArray(reinterpret_cast<const char *>(ptr->addr), size);
+    block_bytes_ = QByteArray(reinterpret_cast<const char *>(ptr->block), size);
 #else
-    block_bytes_ = QByteArray(reinterpret_cast<const char *>(ptr->addr), static_cast<int>(size));
+    block_bytes_ = QByteArray(reinterpret_cast<const char *>(ptr->block), static_cast<int>(size));
 #endif
 
     char buf[64];

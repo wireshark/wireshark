@@ -172,10 +172,9 @@ ws_manuf_lookup_str(const uint8_t addr[6], const char **long_name_ptr)
 static inline struct ws_manuf *
 copy_oui24(struct ws_manuf *dst, const manuf_oui24_t *src)
 {
-    memcpy(dst->addr, src->oui24, sizeof(src->oui24));
-    dst->addr[3] = 0;
-    dst->addr[4] = 0;
-    dst->addr[5] = 0;
+    memcpy(dst->block, src->oui24, sizeof(src->oui24));
+    dst->block[3] = 0;
+    dst->block[4] = 0;
     dst->mask = 24;
     dst->short_name = src->short_name;
     dst->long_name = src->long_name;
@@ -185,9 +184,8 @@ copy_oui24(struct ws_manuf *dst, const manuf_oui24_t *src)
 static inline struct ws_manuf *
 copy_oui28(struct ws_manuf *dst, const manuf_oui28_t *src)
 {
-    memcpy(dst->addr, src->oui28, sizeof(src->oui28));
-    dst->addr[4] = 0;
-    dst->addr[5] = 0;
+    memcpy(dst->block, src->oui28, sizeof(src->oui28));
+    dst->block[4] = 0;
     dst->mask = 28;
     dst->short_name = src->short_name;
     dst->long_name = src->long_name;
@@ -197,8 +195,7 @@ copy_oui28(struct ws_manuf *dst, const manuf_oui28_t *src)
 static inline struct ws_manuf *
 copy_oui36(struct ws_manuf *dst, const manuf_oui36_t *src)
 {
-    memcpy(dst->addr, src->oui36, sizeof(src->oui36));
-    dst->addr[5] = 0;
+    memcpy(dst->block, src->oui36, sizeof(src->oui36));
     dst->mask = 36;
     dst->short_name = src->short_name;
     dst->long_name = src->long_name;
@@ -250,7 +247,7 @@ ws_manuf_iter_next(ws_manuf_iter_t *iter, struct ws_manuf *result)
      * There is at least one entry and index 0 is non-empty. */
     ptr = vector[0];
     for (size_t i = 1; i < idx; i++) {
-        if (vector[i] && memcmp(vector[i]->addr, ptr->addr, 6) < 0) {
+        if (vector[i] && memcmp(vector[i]->block, ptr->block, MANUF_BLOCK_SIZE) < 0) {
             ptr = vector[i];
         }
     }
@@ -288,15 +285,15 @@ ws_manuf_block_str(char *buf, size_t buf_size, const struct ws_manuf *ptr)
 {
     if (ptr->mask == 24) {
         snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8,
-            ptr->addr[0], ptr->addr[1], ptr->addr[2]);
+            ptr->block[0], ptr->block[1], ptr->block[2]);
     }
     else if (ptr->mask == 28) {
         snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8"/%"PRIu8,
-            ptr->addr[0], ptr->addr[1], ptr->addr[2], ptr->addr[3], ptr->mask);
+            ptr->block[0], ptr->block[1], ptr->block[2], ptr->block[3], ptr->mask);
     }
     else if (ptr->mask == 36) {
         snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8"/%"PRIu8,
-            ptr->addr[0], ptr->addr[1], ptr->addr[2], ptr->addr[3], ptr->addr[4], ptr->mask);
+            ptr->block[0], ptr->block[1], ptr->block[2], ptr->block[3], ptr->block[4], ptr->mask);
     }
     else {
         ws_assert_not_reached();

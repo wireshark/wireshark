@@ -15,8 +15,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define MANUF_BLOCK_SIZE 5
+
 struct ws_manuf {
-    uint8_t addr[6];
+    uint8_t block[MANUF_BLOCK_SIZE];
     uint8_t mask;
     const char *short_name;
     const char *long_name;
