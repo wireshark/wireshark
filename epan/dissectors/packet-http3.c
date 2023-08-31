@@ -1623,7 +1623,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             opcode_ti   = proto_tree_add_item(tree, hf_http3_qpack_encoder_opcode_dtable_cap, tvb, opcode_offset,
                                             opcode_len, ENC_NA);
             opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
-            proto_tree_add_uint64(tree, hf_http3_qpack_encoder_opcode_dtable_cap_val, tvb, opcode_offset, opcode_len,
+            proto_tree_add_uint64(opcode_tree, hf_http3_qpack_encoder_opcode_dtable_cap_val, tvb, opcode_offset, opcode_len,
                                   dynamic_capacity);
             proto_item_set_text(opcode_ti, "QPACK encoder opcode: Set DTable Cap=%" PRIu64 "", dynamic_capacity);
         } else if (opcode == QPACK_OPCODE_DUPLICATE) {
@@ -1644,8 +1644,8 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             decoded += inc;
 
             opcode_len = offset + decoded - opcode_offset;
-            opcode_ti  = proto_tree_add_item(tree, hf_http3_qpack_encoder_opcode_duplicate, tvb, opcode_offset,
-                                            opcode_len, ENC_NA);
+            proto_tree_add_item(tree, hf_http3_qpack_encoder_opcode_duplicate, tvb, opcode_offset,
+                                opcode_len, ENC_NA);
         } else {
             HTTP3_DISSECTOR_DPRINTF("Opcode=%" PRIu8 ": UNKNOWN", opcode);
             can_continue = 0;
@@ -1868,7 +1868,7 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     switch (QUIC_STREAM_TYPE(stream_info->stream_id)) {
     case QUIC_STREAM_CLIENT_BIDI:
         /* Used for HTTP requests and responses. */
-        offset = dissect_http3_client_bidi_stream(tvb, pinfo, http3_tree, offset, stream_info, http3_stream);
+        dissect_http3_client_bidi_stream(tvb, pinfo, http3_tree, offset, stream_info, http3_stream);
         break;
 
     case QUIC_STREAM_SERVER_BIDI:
@@ -1879,7 +1879,7 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case QUIC_STREAM_CLIENT_UNI:
     case QUIC_STREAM_SERVER_UNI:
-        offset = dissect_http3_uni_stream(tvb, pinfo, http3_tree, offset, stream_info, http3_stream);
+        dissect_http3_uni_stream(tvb, pinfo, http3_tree, offset, stream_info, http3_stream);
         break;
     }
 
