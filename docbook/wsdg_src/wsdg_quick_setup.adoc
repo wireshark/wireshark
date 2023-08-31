@@ -6,7 +6,7 @@
 
 [#ChSetupUNIX]
 
-=== UN*X: Step-by-step guide
+=== UN*X
 
 [#ChSetupUNIXBuildEnvironmentSetup]
 
