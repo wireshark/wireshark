@@ -1033,7 +1033,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
             try_append_method_path_info(pinfo, tree, method_header_value, path_header_value, authority_header_value);
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_STATUS) == 0) {
             const gchar *reason_phase =
-                val_to_str((guint)strtoul(header_value, NULL, 10), vals_http_status_code, "Unknown");
+                val_to_str_const((guint)strtoul(header_value, NULL, 10), vals_http_status_code, "Unknown");
             /* append response status and reason phrase to info column (for example, HEADERS: 200 OK) */
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s", header_value, reason_phase);
             /* append response status and reason phrase to header_tree and Stream node */
