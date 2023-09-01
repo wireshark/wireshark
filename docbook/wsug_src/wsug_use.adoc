@@ -438,7 +438,7 @@ The fields “Automatic”, “Seconds” and “...seconds” are mutually excl
 |menu:Time Display Format[Seconds: 0]||Selecting this tells Wireshark to display time stamps with a precision of one second, see <<ChWorkTimeFormatsSection>>.
 |menu:Time Display Format[...seconds: 0....]||Selecting this tells Wireshark to display time stamps with a precision of one second, decisecond, centisecond, millisecond, microsecond or nanosecond, see <<ChWorkTimeFormatsSection>>.
 |menu:Time Display Format[Display Seconds with hours and minutes]||Selecting this tells Wireshark to display time stamps in seconds, with hours and minutes.
-|menu:Name Resolution[Resolve Name]||This item allows you to trigger a name resolve of the current packet only, see <<ChAdvNameResolutionSection>>.
+|menu:Name Resolution[Edit Resolved Name]||This item allows you to manually enter names to resolve IP addresses in the current packet, see <<ChAdvNameResolutionSection>>.
 |menu:Name Resolution[Enable for MAC Layer]||This item allows you to control whether or not Wireshark translates MAC addresses into names, see <<ChAdvNameResolutionSection>>.
 |menu:Name Resolution[Enable for Network Layer]||This item allows you to control whether or not Wireshark translates network addresses into names, see <<ChAdvNameResolutionSection>>.
 |menu:Name Resolution[Enable for Transport Layer]||This item allows you to control whether or not Wireshark translates transport addresses into names, see <<ChAdvNameResolutionSection>>.
