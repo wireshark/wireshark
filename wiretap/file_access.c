@@ -471,10 +471,25 @@ init_open_routines(void)
 }
 
 /*
- * Registers a new file reader - currently only called by wslua code for Lua readers.
- * If first_routine is true, it's added before other readers of its type (magic or heuristic).
- * Also, it checks for an existing reader of the same name and errors if it finds one; if
- * you want to handle that condition more gracefully, call wtap_has_open_info() first.
+ * Registers a new file reader - currently only called by wslua code for
+ * Lua readers and by compiled file reader plugins.
+ *
+ * If first_routine is true, the reader added before other readers of its
+ * type (magic or heuristic).  This should be done only in cases where
+ * this reader's open test must be performed early, to avoid false
+ * positives for other readers' tests treating files for this reader
+ * as being for another reader.
+ *
+ * XXX - given that there is no guarantee that registration routines will
+ * be called in a given order, all this really does is divide readers for
+ * a given type (magic or heuristic) into two categories, with open routines
+ * for readers in the first category (first_routine true) all being called
+ * before readers in the second category; it does not guarantee a particular
+ * total order for open routines.
+ *
+ * Checks for an existing reader of the same name and errors if it finds one;
+ * if you want to handle that condition more gracefully, call
+ * wtap_has_open_info() first.
  */
 void
 wtap_register_open_info(struct open_info *oi, const gboolean first_routine)
@@ -2026,8 +2041,8 @@ add_extensions_for_file_type_subtype(int file_type_subtype, GSList *extensions,
 	return extensions;
 }
 
-/* Return a list of file extensions that are used by the specified file type;
- * and subtype.
+/* Return a list of file extensions that are used by the specified file
+ * type/subtype.
  *
  * If include_compressed is TRUE, the list will include compressed
  * extensions, e.g. not just "pcap" but also "pcap.gz" if we can read
