@@ -492,6 +492,8 @@ static const char *reserved_filter_names[] = {
 	"all",
 	"true",
 	"false",
+	"nan",
+	"inf",
 	NULL
 };
 
