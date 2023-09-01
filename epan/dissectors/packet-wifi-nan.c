@@ -2519,140 +2519,140 @@ proto_register_nan(void)
         { &hf_nan_attribute_type,
             {
             "Attribute Type",
-            "nan.attribute.type",
+            "wifi_nan.attribute.type",
             FT_UINT8, BASE_DEC, VALS(attribute_types), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attribute_len,
             {
             "Attribute Length",
-            "nan.attribute.len",
+            "wifi_nan.attribute.len",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_action_subtype,
             {
             "Subtype",
-            "nan.action.subtype",
+            "wifi_nan.action.subtype",
             FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(action_frame_type_values), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_instance_id,
             {
             "Instance ID",
-            "nan.instance_id",
+            "wifi_nan.instance_id",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_service_id,
             {
             "Service ID",
-            "nan.service_id",
+            "wifi_nan.service_id",
             FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_map_id,
             {
             "Map ID",
-            "nan.map_id",
+            "wifi_nan.map_id",
             FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_oui,
             {
             "OUI",
-            "nan.oui",
+            "wifi_nan.oui",
             FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_type_status,
             {
             "Type and Status",
-            "nan.type_status",
+            "wifi_nan.type_status",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_reason_code,
             {
             "Reason Code",
-            "nan.reason_code",
+            "wifi_nan.reason_code",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(reason_code_values), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_status_1,
              {
              "Status",
-             "nan.status",
+             "wifi_nan.status",
              FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(status_type1_values), 0xF0, NULL, HFILL
              }
         },
         { &hf_nan_status_2,
              {
              "Status",
-             "nan.status",
+             "wifi_nan.status",
              FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(status_type2_values), 0xF0, NULL, HFILL
              }
         },
         { &hf_nan_bss_id,
             {
             "BSS ID",
-            "nan.bss_id",
+            "wifi_nan.bss_id",
             FT_UINT48, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_availability_intervals_bitmap,
              {
              "Availability Intervals Bitmap",
-             "nan.availability_intervals_bitmap",
+             "wifi_nan.availability_intervals_bitmap",
              FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_mac_address,
             {
             "MAC Address",
-            "nan.mac_address",
+            "wifi_nan.mac_address",
             FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_publish_id,
             {
             "Publish ID",
-            "nan.publish_id",
+            "wifi_nan.publish_id",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_dialog_tokens,
             {
             "Dialog Token",
-            "nan.dialog_token",
+            "wifi_nan.dialog_token",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_time_bitmap,
             {
             "Time Bitmap",
-            "nan.time_bitmap",
+            "wifi_nan.time_bitmap",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_time_bitmap_len,
             {
             "Time Bitmap Length",
-            "nan.time_bitmap.len",
+            "wifi_nan.time_bitmap.len",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_time_bitmap_ctrl,
             {
             "Time Bitmap Control",
-            "nan.time_bitmap.ctrl",
+            "wifi_nan.time_bitmap.ctrl",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_time_bitmap_ctrl_bit_duration,
             {
             "Bit Duration",
-            "nan.time_bitmap.ctrl.bit_duration",
+            "wifi_nan.time_bitmap.ctrl.bit_duration",
             FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(availability_entry_time_bitmap_ctr_bit_duration_type),
             0x0007, NULL, HFILL
             }
@@ -2660,7 +2660,7 @@ proto_register_nan(void)
         { &hf_nan_time_bitmap_ctrl_period,
             {
             "Period",
-            "nan.time_bitmap.ctrl.period",
+            "wifi_nan.time_bitmap.ctrl.period",
             FT_UINT16, BASE_DEC, VALS(availability_entry_time_bitmap_ctr_period_type),
             0x0038, NULL, HFILL
             }
@@ -2668,1400 +2668,1400 @@ proto_register_nan(void)
         { &hf_nan_time_bitmap_ctrl_start_offset,
             {
             "Start Offset",
-            "nan.time_bitmap.ctrl.start_offset",
+            "wifi_nan.time_bitmap.ctrl.start_offset",
             FT_UINT16, BASE_DEC, NULL, 0x7FC0, NULL, HFILL
             }
         },
         { &hf_nan_map_ctrl_map_id,
              {
              "Map ID",
-             "nan.map_ctrl.map_id",
+             "wifi_nan.map_ctrl.map_id",
              FT_UINT8, BASE_HEX_DEC, NULL, 0xF, NULL, HFILL
              }
         },
         { &hf_nan_map_ctrl_availability_interval_duration,
              {
              "Availability Interval Duration",
-             "nan.map_ctrl.interval_duration",
+             "wifi_nan.map_ctrl.interval_duration",
              FT_UINT8, BASE_DEC, VALS(map_ctrl_availability_interval_duration), 0x30, NULL, HFILL
              }
         },
         { &hf_nan_map_ctrl_repeat,
              {
              "Repeat",
-             "nan.map_ctrl.repeat",
+             "wifi_nan.map_ctrl.repeat",
              FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL
              }
         },
         { &hf_nan_map_ctrl_field,
              {
              "Map Control",
-             "nan.map_ctrl",
+             "wifi_nan.map_ctrl",
              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_non_op_channel_global_op_class,
             {
             "Global Operation Class",
-            "nan.non_op_channel.global_op_class",
+            "wifi_nan.non_op_channel.global_op_class",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_non_op_channel_channel,
             {
             "Channel",
-            "nan.non_op_channel.channel",
+            "wifi_nan.non_op_channel.channel",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_non_op_channel_center_freq,
             {
             "Channel Center Frequency",
-            "nan.non_op_channel.center_freq",
+            "wifi_nan.non_op_channel.center_freq",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_non_beacon_tbtt_offset,
             {
             "TBTT Offset",
-            "nan.non_beacon.tbtt_offset",
+            "wifi_nan.non_beacon.tbtt_offset",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_non_beacon_interval,
             {
             "Beacon Interval",
-            "nan.non_beacon.interval",
+            "wifi_nan.non_beacon.interval",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_master_preference,
             {
             "Master Preference",
-            "nan.master_indication.preference",
+            "wifi_nan.master_indication.preference",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_master_random_factor,
             {
             "Random Factor",
-            "nan.master_indication.random_factor",
+            "wifi_nan.master_indication.random_factor",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_cluster_anchor_master_rank,
             {
             "Anchor Master Rank",
-            "nan.cluster.anchor_master_rank",
+            "wifi_nan.cluster.anchor_master_rank",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_cluster_hop_count,
             {
             "Hop Count to Anchor Master",
-            "nan.cluster.hop_count",
+            "wifi_nan.cluster.hop_count",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_cluster_beacon_transmission_time,
             {
             "Anchor Master Beacon Transmission Time",
-            "nan.cluster.beacon_transmission_time",
+            "wifi_nan.cluster.beacon_transmission_time",
             FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_requestor_instance_id,
             {
             "Requestor Instance ID",
-            "nan.sda.requestor_instance_id",
+            "wifi_nan.sda.requestor_instance_id",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_sc,
             {
             "Service Control",
-            "nan.sda.sc",
+            "wifi_nan.sda.sc",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_sc_type,
             {
             "Service Control Type",
-            "nan.sda.sc.type",
+            "wifi_nan.sda.sc.type",
             FT_UINT8, BASE_HEX, VALS(service_ctr_type), 0x03, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_sc_matching_filter,
             {
             "Matching Filter Present",
-            "nan.sda.sc.matching_filter",
+            "wifi_nan.sda.sc.matching_filter",
             FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_sc_service_response,
             {
             "Service Response Filter Present",
-            "nan.sda.sc.service_response",
+            "wifi_nan.sda.sc.service_response",
             FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_sc_service_info,
             {
             "Service Info Present",
-            "nan.sda.sc.service_info",
+            "wifi_nan.sda.sc.service_info",
             FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_sc_discovery_range,
             {
             "Discovery Range Limited",
-            "nan.sda.sc.discovery_range",
+            "wifi_nan.sda.sc.discovery_range",
             FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_sc_binding_bitmap,
             {
             "Binding Bitmap Present",
-            "nan.sda.sc.binding_bitmap",
+            "wifi_nan.sda.sc.binding_bitmap",
             FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_binding_bitmap,
             {
             "Binding Bitmap",
-            "nan.sda.binding_bitmap",
+            "wifi_nan.sda.binding_bitmap",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_matching_filter_len,
             {
             "Matching Filter Length",
-            "nan.sda.matching_filter_len",
+            "wifi_nan.sda.matching_filter_len",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_matching_filter_val,
             {
             "Matching Filter Value",
-            "nan.sda.matching_filter_val",
+            "wifi_nan.sda.matching_filter_val",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_service_response_filter_len,
             {
             "Service Response Filter Length",
-            "nan.sda.service_response_filter_len",
+            "wifi_nan.sda.service_response_filter_len",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_srf_ctr,
             {
             "SRF Control",
-            "nan.sda.srf_ctr",
+            "wifi_nan.sda.srf_ctr",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_srf_ctr_type,
             {
             "SRF Type",
-            "nan.sda.srf_type",
+            "wifi_nan.sda.srf_type",
             FT_BOOLEAN, 8, TFS(&srf_type_flags), 0x01, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_srf_ctr_include,
             {
             "Include",
-            "nan.sda.srf_include",
+            "wifi_nan.sda.srf_include",
             FT_BOOLEAN, 8, TFS(&srf_include_flags), 0x02, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_srf_ctr_bloom_filter_index,
             {
             "Bloom Filter Index",
-            "nan.sda.srf_bloom_filter_index",
+            "wifi_nan.sda.srf_bloom_filter_index",
             FT_UINT8, BASE_DEC_HEX, NULL, 0x0C, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_srf_address_set,
             {
             "Address Set",
-            "nan.sda.srf_address_set",
+            "wifi_nan.sda.srf_address_set",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_service_info_len,
             {
             "Service Info Length",
-            "nan.sda.service_info_len",
+            "wifi_nan.sda.service_info_len",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sda_service_info,
             {
             "Service Info",
-            "nan.sda.service_info",
+            "wifi_nan.sda.service_info",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr,
             {
             "SDEA Control",
-            "nan.sdea.ctr",
+            "wifi_nan.sdea.ctr",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_fsd,
             {
             "FSD Required",
-            "nan.sdea.ctr_fsd",
+            "wifi_nan.sdea.ctr_fsd",
             FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_fsd_w_gas,
             {
             "FSD with GAS",
-            "nan.sdea.ctr_fsd_w_gas",
+            "wifi_nan.sdea.ctr_fsd_w_gas",
             FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_data_path,
             {
             "Data Path Required",
-            "nan.sdea.ctr_data_path",
+            "wifi_nan.sdea.ctr_data_path",
             FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_data_path_type,
             {
             "Data Path Type",
-            "nan.sdea.ctr_data_path_type",
+            "wifi_nan.sdea.ctr_data_path_type",
             FT_BOOLEAN, 16, TFS(&sdea_ctr_data_path_type_flags), 0x0008, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_reserved_multicast_type,
             {
             "Reserved (Multicast Type)",
-            "nan.sdea.ctr_reserved_multicast_type",
+            "wifi_nan.sdea.ctr_reserved_multicast_type",
             FT_BOOLEAN, 16, TFS(&sdea_ctr_reserved_multicast_type_flags), 0x0010, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_qos,
             {
             "QoS Required",
-            "nan.sdea.ctr_qos",
+            "wifi_nan.sdea.ctr_qos",
             FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_security,
             {
             "Security Required",
-            "nan.sdea.ctr_security",
+            "wifi_nan.sdea.ctr_security",
             FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_ranging,
             {
             "Ranging Required",
-            "nan.sdea.ctr_ranging",
+            "wifi_nan.sdea.ctr_ranging",
             FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_range_limit,
             {
             "Range Limit Present",
-            "nan.sdea.ctr_range_limit",
+            "wifi_nan.sdea.ctr_range_limit",
             FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ctr_service_update_indicator,
             {
             "Service Update Indicator Present",
-            "nan.sdea.ctr_service_update_indicator",
+            "wifi_nan.sdea.ctr_service_update_indicator",
             FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_ingress_range_limit,
             {
             "Ingress Range Limit",
-            "nan.sdea.range_limit_ingress",
+            "wifi_nan.sdea.range_limit_ingress",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_egress_range_limit,
             {
             "Egress Range Limit",
-            "nan.sdea.range_limit_egress",
+            "wifi_nan.sdea.range_limit_egress",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_service_update_indicator,
             {
             "Service Update Indicator",
-            "nan.sdea.service_update_indicator",
+            "wifi_nan.sdea.service_update_indicator",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_service_info_length,
             {
             "Service Info Length",
-            "nan.sdea.service_info_len",
+            "wifi_nan.sdea.service_info_len",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_service_info_protocol_type,
             {
             "Service Protocol Type",
-            "nan.sdea.service_info_protocol_type",
+            "wifi_nan.sdea.service_info_protocol_type",
             FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(service_info_protocol_type), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_sdea_service_info_specific,
             {
             "Service Specific info",
-            "nan.sdea.service_info_specific",
+            "wifi_nan.sdea.service_info_specific",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_connection_cap_bitmap,
              {
              "Connection Capability Bitmap",
-             "nan.connection_cap.bitmap",
+             "wifi_nan.connection_cap.bitmap",
              FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_connection_cap_wifi_direct,
              {
              "Wifi Direct",
-             "nan.connection_cap.wifi_direct",
+             "wifi_nan.connection_cap.wifi_direct",
              FT_BOOLEAN, 16, NULL, 0x1, NULL, HFILL
              }
         },
         { &hf_nan_attr_connection_cap_p2ps,
              {
              "P2Ps",
-             "nan.connection_cap.p2ps",
+             "wifi_nan.connection_cap.p2ps",
              FT_BOOLEAN, 16, NULL, 0x2, NULL, HFILL
              }
         },
         { &hf_nan_attr_connection_cap_tdls,
              {
              "TDLS",
-             "nan.connection_cap.tdls",
+             "wifi_nan.connection_cap.tdls",
              FT_BOOLEAN, 16, NULL, 0x4, NULL, HFILL
              }
         },
         { &hf_nan_attr_connection_cap_wlan_infra,
              {
              "WLAN Infrastructure",
-             "nan.connection_cap.wlan_infra",
+             "wifi_nan.connection_cap.wlan_infra",
              FT_BOOLEAN, 16, NULL, 0x8, NULL, HFILL
              }
         },
         { &hf_nan_attr_connection_cap_ibss,
              {
              "IBSS",
-             "nan.connection_cap.ibss",
+             "wifi_nan.connection_cap.ibss",
              FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL
              }
         },
         { &hf_nan_attr_connection_cap_mesh,
              {
              "Mesh",
-             "nan.connection_cap.mesh",
+             "wifi_nan.connection_cap.mesh",
              FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL
              }
         },
         { &hf_nan_attr_wlan_infra_device_role,
             {
             "Device Role",
-            "nan.wlan_infra.device_role",
+            "wifi_nan.wlan_infra.device_role",
             FT_UINT8, BASE_DEC, VALS(device_role), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_p2p_device_role_device,
              {
              "P2P Device",
-             "nan.p2p.device",
+             "wifi_nan.p2p.device",
              FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL
              }
         },
         { &hf_nan_attr_p2p_device_role_group_owner,
              {
              "P2P Group Owner",
-             "nan.p2p.group_owner",
+             "wifi_nan.p2p.group_owner",
              FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL
              }
         },
         { &hf_nan_attr_p2p_device_role_client,
              {
              "P2P Client",
-             "nan.p2p.client",
+             "wifi_nan.p2p.client",
              FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL
              }
         },
         { &hf_nan_attr_p2p_device_role,
              {
              "P2P Device Role",
-             "nan.p2p.device_role",
+             "wifi_nan.p2p.device_role",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_mesh_id,
             {
             "Mesh ID",
-            "nan.mesh.id",
+            "wifi_nan.mesh.id",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_further_av_map_id,
             {
             "Map ID",
-            "nan.furth.av.map.id",
+            "wifi_nan.furth.av.map.id",
             FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(furth_av_map_id), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_further_av_map_entry_av_interval_duration,
             {
             "Availability Interval Duration",
-            "nan.further_av_map.entry.av_interval_duration",
+            "wifi_nan.further_av_map.entry.av_interval_duration",
             FT_UINT8, BASE_DEC, VALS(map_ctrl_availability_interval_duration), 0x03, NULL, HFILL
             }
         },
         { &hf_nan_attr_further_av_map_op_class,
              {
              "Operating Class",
-             "nan.further_av_map.entry.op_class",
+             "wifi_nan.further_av_map.entry.op_class",
              FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_further_av_map_channel_num,
              {
              "Channel Number",
-             "nan.further_av_map.entry.channel_number",
+             "wifi_nan.further_av_map.entry.channel_number",
              FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_further_av_map_entry_ctrl,
              {
              "Entry Control Fields",
-             "nan.further_av_map.entry.ctrl",
+             "wifi_nan.further_av_map.entry.ctrl",
              FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_country_code,
              {
              "Condensed Country String",
-             "nan.country_code",
+             "wifi_nan.country_code",
              FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_protocol,
              {
              "Ranging Protocol",
-             "nan.ranging.protocol",
+             "wifi_nan.ranging.protocol",
              FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_cluster_disc_id,
              {
              "Cluster ID",
-             "nan.cluster_disc.id",
+             "wifi_nan.cluster_disc.id",
              FT_UINT48, BASE_HEX, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_cluster_disc_time_offset,
              {
              "Cluster Time Offset",
-             "nan.cluster_disc.time_offset",
+             "wifi_nan.cluster_disc.time_offset",
              FT_UINT64, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_cluster_disc_anchor_master_rank,
              {
              "Anchor Master Rank",
-             "nan.cluster_disc.anchor_master_rank",
+             "wifi_nan.cluster_disc.anchor_master_rank",
              FT_UINT64, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_device_cap_map_id_apply_to,
             {
             "Apply to",
-            "nan.device_cap.map_id_apply_to",
+            "wifi_nan.device_cap.map_id_apply_to",
             FT_BOOLEAN, 8, TFS(&device_cap_map_id_apply_to_flags), 0x01, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_map_id_associated_maps,
             {
             "Map ID",
-            "nan.device_cap.map_id_associated_maps",
+            "wifi_nan.device_cap.map_id_associated_maps",
             FT_UINT8, BASE_HEX_DEC, NULL, 0x1E, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_committed_dw,
             {
             "Committed DW Info",
-            "nan.device_cap.committed_dw_info",
+            "wifi_nan.device_cap.committed_dw_info",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_committed_dw_24ghz,
             {
             "2.4 GHz DW",
-            "nan.device_cap.committed_dw_info.24ghz",
+            "wifi_nan.device_cap.committed_dw_info.24ghz",
             FT_UINT16, BASE_DEC, NULL, 0x0007, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_committed_dw_5ghz,
             {
             "5 GHz DW",
-            "nan.device_cap.committed_dw_info.5ghz",
+            "wifi_nan.device_cap.committed_dw_info.5ghz",
             FT_UINT16, BASE_DEC, NULL, 0x0038, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_committed_dw_24ghz_overwrite,
             {
             "2.4 GHz DW Overwrite",
-            "nan.device_cap.committed_dw_info.24ghz_overwrite",
+            "wifi_nan.device_cap.committed_dw_info.24ghz_overwrite",
             FT_UINT16, BASE_DEC, NULL, 0x03C0, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_committed_dw_5ghz_overwrite,
             {
             "5 GHz DW Overwrite",
-            "nan.device_cap.committed_dw_info.5ghz_overwrite",
+            "wifi_nan.device_cap.committed_dw_info.5ghz_overwrite",
             FT_UINT16, BASE_DEC, NULL, 0x3C00, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_supported_bands,
             {
             "Supported Bands",
-            "nan.device_cap.supported_bands",
+            "wifi_nan.device_cap.supported_bands",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_supported_bands_reserved_tv_whitespaces,
             {
             "Reserved (for TV white spaces)",
-            "nan.device_cap.supported_bands.tv_whitespaces",
+            "wifi_nan.device_cap.supported_bands.tv_whitespaces",
             FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_supported_bands_sub_1ghz,
             {
             "Sub-1 GHz",
-            "nan.device_cap.supported_bands.sub_1ghz",
+            "wifi_nan.device_cap.supported_bands.sub_1ghz",
             FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_supported_bands_24ghz,
             {
             "2.4 GHz",
-            "nan.device_cap.supported_bands.24ghz",
+            "wifi_nan.device_cap.supported_bands.24ghz",
             FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_supported_bands_reserved_36ghz,
             {
             "Reserved (for 3.6 GHz)",
-            "nan.device_cap.supported_bands.reserved_36ghz",
+            "wifi_nan.device_cap.supported_bands.reserved_36ghz",
             FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_supported_bands_5ghz,
             {
             "4.9 and 5 GHz",
-            "nan.device_cap.supported_bands.5ghz",
+            "wifi_nan.device_cap.supported_bands.5ghz",
             FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_supported_bands_reserved_60ghz,
             {
             "Reserved (for 60 GHz)",
-            "nan.device_cap.supported_bands.reserved_60ghz",
+            "wifi_nan.device_cap.supported_bands.reserved_60ghz",
             FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_op_mode,
             {
             "Operation Mode",
-            "nan.device_cap.op_mode",
+            "wifi_nan.device_cap.op_mode",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_op_mode_phy,
             {
             "PHY Mode",
-            "nan.device_cap.op_mode.phy",
+            "wifi_nan.device_cap.op_mode.phy",
             FT_BOOLEAN, 8, TFS(&device_cap_op_mode_phy_flags), 0x01, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_op_mode_vht8080,
             {
             "VHT 80+80",
-            "nan.device_cap.op_mode.vht8080",
+            "wifi_nan.device_cap.op_mode.vht8080",
             FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_op_mode_vht160,
             {
             "VHT 160",
-            "nan.device_cap.op_mode.vht160",
+            "wifi_nan.device_cap.op_mode.vht160",
             FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_op_mode_reserved_paging_ndl,
             {
             "Reserved (Paging NDL Support)",
-            "nan.device_cap.op_mode.reserved_paging_ndl",
+            "wifi_nan.device_cap.op_mode.reserved_paging_ndl",
             FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_antennas,
             {
             "Antennas",
-            "nan.device_cap.antennas",
+            "wifi_nan.device_cap.antennas",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_antennas_tx,
             {
             "Number of TX antennas",
-            "nan.device_cap.antennas.tx",
+            "wifi_nan.device_cap.antennas.tx",
             FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_antennas_rx,
             {
             "Number of RX antennas",
-            "nan.device_cap.antennas.rx",
+            "wifi_nan.device_cap.antennas.rx",
             FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_max_channel_switch_time,
             {
             "Max Channel Switch Time (us)",
-            "nan.device_cap.max_channel_switch_time",
+            "wifi_nan.device_cap.max_channel_switch_time",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_capabilities,
             {
             "Capabilities",
-            "nan.device_cap.capabilities",
+            "wifi_nan.device_cap.capabilities",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_capabilities_dfs_master,
             {
             "DFS Master",
-            "nan.device_cap.capabilities.dfs_master",
+            "wifi_nan.device_cap.capabilities.dfs_master",
             FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_capabilities_extended_key_id,
             {
             "Extended key ID",
-            "nan.device_cap.capabilities.extended_key_id",
+            "wifi_nan.device_cap.capabilities.extended_key_id",
             FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_capabilities_simul_ndp_reception,
             {
             "Simultaneous NDP data reception",
-            "nan.device_cap.capabilities.simul_ndp_reception",
+            "wifi_nan.device_cap.capabilities.simul_ndp_reception",
             FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL
             }
         },
         { &hf_nan_attr_device_cap_capabilities_ndpe_attr_support,
             {
             "NDPE attribute support",
-            "nan.device_cap.capabilities.ndpe_attr_support",
+            "wifi_nan.device_cap.capabilities.ndpe_attr_support",
             FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndp_type,
              {
              "Type",
-             "nan.ndp.type",
+             "wifi_nan.ndp.type",
              FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(ndp_type_values), 0xF, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndp_initiator,
             {
             "Initiator NDI",
-            "nan.ndp.initiator_ndi",
+            "wifi_nan.ndp.initiator_ndi",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndp_id,
              {
              "NDP ID",
-             "nan.ndp.id",
+             "wifi_nan.ndp.id",
              FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndp_ctrl_confirm,
              {
              "Confirm Required",
-             "nan.ndp.ctrl.confirm",
+             "wifi_nan.ndp.ctrl.confirm",
              FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndp_ctrl_security_pres,
              {
              "Security Present",
-             "nan.ndp.ctrl.security_pres",
+             "wifi_nan.ndp.ctrl.security_pres",
              FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndp_ctrl_publish_id_pres,
              {
              "Publish ID Present",
-             "nan.ndp.ctrl.publish_id_pres",
+             "wifi_nan.ndp.ctrl.publish_id_pres",
              FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndp_ctrl_responder_ndi_pres,
              {
              "Responder NDI Present",
-             "nan.ndp.ctrl.responder_ndi_pres",
+             "wifi_nan.ndp.ctrl.responder_ndi_pres",
              FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndp_ctrl_sepcific_info_pres,
              {
              "NDP Specific Info Present",
-             "nan.ndp.ctrl.specific_info_pres",
+             "wifi_nan.ndp.ctrl.specific_info_pres",
              FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndp_control,
              {
              "NDP Control",
-             "nan.ndp.ctrl",
+             "wifi_nan.ndp.ctrl",
              FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndp_responder_ndi,
              {
              "Responder NDI",
-             "nan.ndp.responder.ndi",
+             "wifi_nan.ndp.responder.ndi",
              FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndp_specific_info,
              {
              "NDP Specific Info",
-             "nan.ndp.specific_info",
+             "wifi_nan.ndp.specific_info",
              FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndpe_tlv_type,
              {
              "Type",
-             "nan.ndpe.tlv.type",
+             "wifi_nan.ndpe.tlv.type",
              FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(ndpe_tlv_type_values), 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndpe_tlv_len,
              {
              "Length",
-             "nan.ndpe.tlv.len",
+             "wifi_nan.ndpe.tlv.len",
              FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndpe_tlv_ipv6_interface_identifier,
              {
              "Interface Identifier",
-             "nan.ndpe.tlv.ipv6_interface_identifier",
+             "wifi_nan.ndpe.tlv.ipv6_interface_identifier",
              FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_availability_sequence_id,
             {
             "Sequence ID",
-            "nan.availability.sequence_id",
+            "wifi_nan.availability.sequence_id",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_ctr,
             {
             "Attribute Control",
-            "nan.availability.ctr",
+            "wifi_nan.availability.ctr",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_map_id,
             {
             "Map ID",
-            "nan.availability.map_id",
+            "wifi_nan.availability.map_id",
             FT_UINT16, BASE_HEX_DEC, NULL, 0x000F, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_committed_changed,
             {
             "Committed Changed",
-            "nan.availability.committed_changed",
+            "wifi_nan.availability.committed_changed",
             FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_potential_changed,
             {
             "Potential Changed",
-            "nan.availability.potential_changed",
+            "wifi_nan.availability.potential_changed",
             FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_public_availability_changed,
             {
             "Public Availability Attribute Changed",
-            "nan.availability.public_availability_changed",
+            "wifi_nan.availability.public_availability_changed",
             FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_ndc_changed,
             {
             "NDC Attribute Changed",
-            "nan.availability.ndc_changed",
+            "wifi_nan.availability.ndc_changed",
             FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_reserved_multicast_schedule_changed,
             {
             "Reserved (Multicast Schedule Attribute Changed)",
-            "nan.availability.reserved_multicast_schedule_changed",
+            "wifi_nan.availability.reserved_multicast_schedule_changed",
             FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_reserved_multicast_schedule_change_changed,
             {
             "Reserved (Multicast Schedule Change Attribute Change Changed)",
-            "nan.availability.reserved_multicast_schedule_change_changed",
+            "wifi_nan.availability.reserved_multicast_schedule_change_changed",
             FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_len,
             {
             "Length",
-            "nan.availability.entry.len",
+            "wifi_nan.availability.entry.len",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_ctr,
             {
             "Entry Control",
-            "nan.availability.entry.ctr",
+            "wifi_nan.availability.entry.ctr",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_ctr_type,
             {
             "Availability Type",
-            "nan.availability.entry.ctr.type",
+            "wifi_nan.availability.entry.ctr.type",
             FT_UINT16, BASE_HEX, VALS(availability_entry_type), 0x0007, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_ctr_pref,
             {
             "Usage Preference",
-            "nan.availability.entry.ctr.pref",
+            "wifi_nan.availability.entry.ctr.pref",
             FT_UINT16, BASE_DEC, NULL, 0x0018, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_ctr_utilization,
             {
             "Utilization",
-            "nan.availability.entry.ctr.utilization",
+            "wifi_nan.availability.entry.ctr.utilization",
             FT_UINT16, BASE_DEC, NULL, 0x00E0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_ctr_rx_nss,
             {
             "Rx Nss",
-            "nan.availability.entry.ctr.rx_nss",
+            "wifi_nan.availability.entry.ctr.rx_nss",
             FT_UINT16, BASE_DEC, NULL, 0x0F00, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_ctr_time_bitmap,
             {
             "Time Bitmap Present",
-            "nan.availability.entry.ctr.time_bitmap",
+            "wifi_nan.availability.entry.ctr.time_bitmap",
             FT_BOOLEAN, 16, NULL, 0x1000, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_type,
             {
             "Type",
-            "nan.availability.entry.entries.type",
+            "wifi_nan.availability.entry.entries.type",
             FT_BOOLEAN, 8, TFS(&availability_entry_entries_type_flags), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_non_contiguous_bw,
             {
             "Non-contiguous Bandwidth",
-            "nan.availability.entry.entries.non_contiguous_bw",
+            "wifi_nan.availability.entry.entries.non_contiguous_bw",
             FT_BOOLEAN, 8, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_num_entries,
             {
             "Number of Entries",
-            "nan.availability.entry.entries.num_entries",
+            "wifi_nan.availability.entry.entries.num_entries",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_band,
             {
             "Band Entry",
-            "nan.availability.entry.entries.band",
+            "wifi_nan.availability.entry.entries.band",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(availability_entry_entries_band_type), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_channel_op_class,
             {
             "Operating Class",
-            "nan.availability.entry.entries.channel.op_class",
+            "wifi_nan.availability.entry.entries.channel.op_class",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_channel_bitmap,
             {
             "Channel Bitmap",
-            "nan.availability.entry.entries.channel.bitmap",
+            "wifi_nan.availability.entry.entries.channel.bitmap",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_primary_channel_bitmap,
             {
             "Primary Channel Bitmap",
-            "nan.availability.entry.entries.channel.primary_bitmap",
+            "wifi_nan.availability.entry.entries.channel.primary_bitmap",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_aux_channel_bitmap,
             {
             "Auxiliary Channel Bitmap",
-            "nan.availability.entry.entries.channel.aux_bitmap",
+            "wifi_nan.availability.entry.entries.channel.aux_bitmap",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_channel_set,
             {
             "Channel Bitmap - Channel Set",
-            "nan.ava.chan.set",
+            "wifi_nan.ava.chan.set",
             FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_start_freq,
             {
             "Starting Frequency",
-            "nan.av.entry.start.freq",
+            "wifi_nan.av.entry.start.freq",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(op_starting_freq), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_bandwidth,
             {
             "Bandwidth",
-            "nan.av.entry.bandwidth",
+            "wifi_nan.av.entry.bandwidth",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(op_channel_spacing), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndc_id,
             {
             "NDC ID",
-            "nan.ndc.id",
+            "wifi_nan.ndc.id",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndc_ctrl,
             {
             "Control",
-            "nan.ndc.ctrl",
+            "wifi_nan.ndc.ctrl",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndc_ctrl_selected,
             {
             "Selected NDC",
-            "nan.ndc.ctrl.selected",
+            "wifi_nan.ndc.ctrl.selected",
             FT_BOOLEAN, 8, TFS(&ndc_ctr_selected_flags), 0x01, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndc_map_id_related_sch,
             {
             "NAN Availability associated with schedule time bitmap",
-            "nan.ndc.map.id.rel",
+            "wifi_nan.ndc.map.id.rel",
             FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndl_type,
              {
              "Type",
-             "nan.ndl.type",
+             "wifi_nan.ndl.type",
              FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(ndl_type_values), 0xF, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndl_control,
              {
              "NDL Control",
-             "nan.ndl.ctrl",
+             "wifi_nan.ndl.ctrl",
              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ndl_ctrl_peer_id,
             {
             "NDL Peer ID Present",
-            "nan.ndl.ctrl.peer_id",
+            "wifi_nan.ndl.ctrl.peer_id",
             FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndl_ctrl_immutable_schedule_pres,
             {
             "Immutable Schedule Present",
-            "nan.ndl.ctrl.immutable_schedule_pres",
+            "wifi_nan.ndl.ctrl.immutable_schedule_pres",
             FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndl_ctrl_ndc_pres,
             {
             "NDC Attribute Present",
-            "nan.ndl.ctrl.ndc_pres",
+            "wifi_nan.ndl.ctrl.ndc_pres",
             FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndl_ctrl_qos,
             {
             "NDL QoS Present",
-            "nan.ndl.ctrl.qos_pres",
+            "wifi_nan.ndl.ctrl.qos_pres",
             FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndl_ctrl_max_idle_pres,
             {
             "Max Idle period Present",
-            "nan.ndl.ctrl.max_idle_period_pres",
+            "wifi_nan.ndl.ctrl.max_idle_period_pres",
             FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndl_ctrl_type,
             {
             "NDL Type",
-            "nan.ndl.ctrl.type",
+            "wifi_nan.ndl.ctrl.type",
             FT_UINT8, BASE_DEC, VALS(ndl_type_string), 0x20, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndl_ctrl_setup_reason,
             {
             "NDL Setup Reason",
-            "nan.ndl.ctrl.setup_reason",
+            "wifi_nan.ndl.ctrl.setup_reason",
             FT_UINT8, BASE_DEC, VALS(ndl_setup_reason), 0xC0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndl_reserved_peer_id,
             {
             "Reserved (NDL Peer ID)",
-            "nan.ndl.peer_id",
+            "wifi_nan.ndl.peer_id",
             FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndl_max_idle,
             {
             "Max Idle Period",
-            "nan.ndl.max.idle",
+            "wifi_nan.ndl.max.idle",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndlqos_min_time_slots,
             {
             "Minimum Time Slots",
-            "nan.ndl_qos.min_time_slots",
+            "wifi_nan.ndl_qos.min_time_slots",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ndlqos_max_latency,
             {
             "Maximum Latency",
-            "nan.ndl_qos.max_latency",
+            "wifi_nan.ndl_qos.max_latency",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_unaligned_sch_ctrl,
              {
              "Attribute Control",
-             "nan.unaligned_schedule.ctrl",
+             "wifi_nan.unaligned_schedule.ctrl",
              FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_unaligned_sch_ctrl_schedule_id,
             {
             "Schedule ID",
-            "nan.unaligned_schedule.ctrl.schedule_id",
+            "wifi_nan.unaligned_schedule.ctrl.schedule_id",
             FT_UINT16, BASE_HEX_DEC, NULL, 0xF, NULL, HFILL
             }
         },
         { &hf_nan_attr_unaligned_sch_ctrl_seq_id,
             {
             "Sequence ID",
-            "nan.unaligned_schedule.ctrl.sequence_id",
+            "wifi_nan.unaligned_schedule.ctrl.sequence_id",
             FT_UINT16, BASE_HEX_DEC, NULL, 0x0F00, NULL, HFILL
             }
         },
         { &hf_nan_attr_unaligned_sch_starting_time,
             {
             "Starting Time",
-            "nan.unaligned_schedule.starting_time",
+            "wifi_nan.unaligned_schedule.starting_time",
             FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_unaligned_sch_duration,
             {
             "Duration",
-            "nan.unaligned_schedule.duration",
+            "wifi_nan.unaligned_schedule.duration",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_unaligned_sch_period,
             {
             "Period",
-            "nan.unaligned_schedule.period",
+            "wifi_nan.unaligned_schedule.period",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_unaligned_sch_count_down,
             {
             "Count Down",
-            "nan.unaligned_schedule.count_down",
+            "wifi_nan.unaligned_schedule.count_down",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_unaligned_sch_ulw_overwrite,
              {
              "ULW Overwrite",
-             "nan.unaligned_schedule.ulw_overwrite",
+             "wifi_nan.unaligned_schedule.ulw_overwrite",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_unaligned_sch_ulw_overwrite_all,
              {
              "Overwrite All",
-             "nan.unaligned_schedule.ulw_overwrite.overwrite_all",
+             "wifi_nan.unaligned_schedule.ulw_overwrite.overwrite_all",
              FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL
              }
         },
         { &hf_nan_attr_unaligned_sch_ulw_overwrite_map_id,
              {
              "Map ID",
-             "nan.unaligned_schedule.ulw_overwrite.map_id",
+             "wifi_nan.unaligned_schedule.ulw_overwrite.map_id",
              FT_UINT8, BASE_HEX_DEC, NULL, 0x1E, NULL, HFILL
              }
         },
         { &hf_nan_attr_unaligned_sch_ulw_ctrl,
              {
              "ULW Control Field",
-             "nan.attribute.ulw.ctrl",
+             "wifi_nan.attribute.ulw.ctrl",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_unaligned_sch_ulw_ctrl_type,
              {
              "Type",
-             "nan.unaligned_schedule.ulw_ctrl.type",
+             "wifi_nan.unaligned_schedule.ulw_ctrl.type",
              FT_UINT8, BASE_DEC_HEX, VALS(unaligned_sch_ulw_type), 0x3, NULL, HFILL
              }
         },
         { &hf_nan_attr_unaligned_sch_ulw_ctrl_channel_av,
              {
              "Channel Availability",
-             "nan.unaligned_schedule.ulw_ctrl.channel_availability",
+             "wifi_nan.unaligned_schedule.ulw_ctrl.channel_availability",
              FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL
              }
         },
         { &hf_nan_attr_unaligned_sch_ulw_ctrl_rxnss,
              {
              "Rx Nss",
-             "nan.unaligned_schedule.ulw_ctrl.rx_nss",
+             "wifi_nan.unaligned_schedule.ulw_ctrl.rx_nss",
              FT_UINT8, BASE_HEX, NULL, 0x78, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_info_location_info_avail,
             {
             "Location Info Availability",
-            "nan.ranging_info.location_info_availability",
+            "wifi_nan.ranging_info.location_info_availability",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ranging_info_location_info_avail_lci,
              {
              "LCI Local Coordinates",
-             "nan.ranging_info.location_info_availability.local_coord",
+             "wifi_nan.ranging_info.location_info_availability.local_coord",
              FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_info_location_info_avail_geospatial,
              {
              "Geospatial LCI WGS84",
-             "nan.ranging_info.location_info_availability.geospatial",
+             "wifi_nan.ranging_info.location_info_availability.geospatial",
              FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_info_location_info_avail_civic_location,
              {
              "Civic Location",
-             "nan.ranging_info.location_info_availability.civic_location",
+             "wifi_nan.ranging_info.location_info_availability.civic_location",
              FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_info_location_info_avail_last_movement_pres,
              {
              "Last Movement Indication",
-             "nan.ranging_info.location_info_availability.last_movement_indication",
+             "wifi_nan.ranging_info.location_info_availability.last_movement_indication",
              FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_info_last_movement_indication,
             {
             "Last Movement Indication",
-            "nan.ranging_info.last_movement_indication",
+            "wifi_nan.ranging_info.last_movement_indication",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ranging_setup_type,
              {
              "Type",
-             "nan.ranging_setup.type",
+             "wifi_nan.ranging_setup.type",
              FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(ranging_setup_type_values), 0xF, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_setup_ctrl,
             {
             "Ranging Control",
-            "nan.ranging_setup.ctrl",
+            "wifi_nan.ranging_setup.ctrl",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ranging_setup_ctrl_report_req,
             {
             "Ranging Report Required",
-            "nan.ranging_setup.ctrl.report_required",
+            "wifi_nan.ranging_setup.ctrl.report_required",
             FT_BOOLEAN, 3, NULL, 0x1, NULL, HFILL
             }
         },
         { &hf_nan_attr_ranging_setup_ctrl_ftm_params,
             {
             "FTM Parameters Present",
-            "nan.ranging_setup.ctrl.ftm_params",
+            "wifi_nan.ranging_setup.ctrl.ftm_params",
             FT_BOOLEAN, 3, NULL, 0x2, NULL, HFILL
             }
         },
         { &hf_nan_attr_ranging_setup_ctrl_entry_list,
             {
             "Ranging Schedule Entry List Present",
-            "nan.ranging_setup.ctrl.sch_entry_pres",
+            "wifi_nan.ranging_setup.ctrl.sch_entry_pres",
             FT_BOOLEAN, 3, NULL, 0x4, NULL, HFILL
             }
         },
         { &hf_nan_attr_ranging_setup_ftm_params,
             {
             "FTM Parameters",
-            "nan.ranging_setup.ftm",
+            "wifi_nan.ranging_setup.ftm",
             FT_UINT24, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_ranging_setup_ftm_max_burst_duration,
              {
              "Max Burst Duration",
-             "nan.ranging_setup.ftm.max_burst_duration",
+             "wifi_nan.ranging_setup.ftm.max_burst_duration",
              FT_UINT24, BASE_HEX_DEC, NULL, 0xF, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_setup_ftm_min_delta,
              {
              "Min Delta FTM",
-             "nan.ranging_setup.ftm.min_delta_ftm",
+             "wifi_nan.ranging_setup.ftm.min_delta_ftm",
              FT_UINT24, BASE_HEX_DEC, NULL, 0x03F0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_setup_ftm_max_per_burst,
              {
              "Max FTMs per Burst",
-             "nan.ranging_setup.ftm.max_ftms_per_burst",
+             "wifi_nan.ranging_setup.ftm.max_ftms_per_burst",
              FT_UINT24, BASE_HEX_DEC, NULL, 0x7C00, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_setup_ftm_format_bw,
              {
              "FTM Format and Bandwidth",
-             "nan.ranging_setup.ftm.format_bw",
+             "wifi_nan.ranging_setup.ftm.format_bw",
              FT_UINT24, BASE_HEX_DEC, NULL, 0x1F8000, NULL, HFILL
              }
         },
         { &hf_nan_attr_ftm_range_report,
              {
              "FTM Range Report",
-             "nan.ftm.range_report",
+             "wifi_nan.ftm.range_report",
              FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_cipher_suite_capabilities,
             {
             "Capabilities",
-            "nan.cipher_suite.capabilities",
+            "wifi_nan.cipher_suite.capabilities",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_cipher_suite_id,
             {
             "Cipher Suite ID",
-            "nan.cipher_suite.id",
+            "wifi_nan.cipher_suite.id",
             FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_security_context_identifier,
             {
             "Security Context Identifier",
-            "nan.security_context.identifier",
+            "wifi_nan.security_context.identifier",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_security_context_identifier_len,
             {
             "Security Context Identifier Length",
-            "nan.security_context.identifier_len",
+            "wifi_nan.security_context.identifier_len",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_security_context_identifier_type,
             {
             "Security Context Identifier Type",
-            "nan.security_context.identifier_type",
+            "wifi_nan.security_context.identifier_type",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(security_context_iden_type), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_shared_key_rsna_descriptor,
              {
              "IEEE 802.11 RSNA Key Descriptor",
-             "nan.shared_key.rsna_key_descriptor",
+             "wifi_nan.shared_key.rsna_key_descriptor",
              FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_vendor_specific_body,
             {
             "Body",
-            "nan.vendor_specific.body",
+            "wifi_nan.vendor_specific.body",
             FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_container_element_id,
             {
             "Element Id",
-            "nan.container.element.id",
+            "wifi_nan.container.element.id",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_container_element_len,
             {
             "Element Length",
-            "nan.container.element.len",
+            "wifi_nan.container.element.len",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
@@ -4119,7 +4119,7 @@ proto_register_nan(void)
     static ei_register_info ei[] = {
         { &ei_nan_elem_len_invalid,
             {
-            "nan.expert.elem_len_invalid",
+            "wifi_nan.expert.elem_len_invalid",
             PI_MALFORMED, PI_ERROR,
             "Element length invalid",
             EXPFILL
@@ -4127,7 +4127,7 @@ proto_register_nan(void)
         },
         { &ei_nan_unknown_attr_id,
             {
-            "nan.expert.unknown_attr_id",
+            "wifi_nan.expert.unknown_attr_id",
             PI_PROTOCOL, PI_ERROR,
             "Unknown attribute ID",
             EXPFILL
@@ -4135,7 +4135,7 @@ proto_register_nan(void)
         },
         { &ei_nan_unknown_op_class,
             {
-            "nan.expert.unknown_op_class",
+            "wifi_nan.expert.unknown_op_class",
             PI_PROTOCOL, PI_COMMENT,
             "Unknown Operating Class - Channel Set unavailable",
             EXPFILL
@@ -4143,7 +4143,7 @@ proto_register_nan(void)
         },
         { &ei_nan_unknown_beacon_type,
             {
-            "nan.expert.unknown_beacon_type",
+            "wifi_nan.expert.unknown_beacon_type",
             PI_PROTOCOL, PI_WARN,
             "Unknown beacon type - Beacon type detection error",
             EXPFILL
@@ -4152,9 +4152,9 @@ proto_register_nan(void)
     };
 
     proto_nan = proto_register_protocol(
-        "NAN protocol",
-        "NAN",
-        "nan");
+        "Wi-Fi Neighbor Awareness Networking (NAN)",
+        "Wi-Fi NAN",
+        "wifi_nan");
 
     proto_register_field_array(proto_nan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

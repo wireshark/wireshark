@@ -211,6 +211,8 @@ The following features are new (or have been significantly updated) since versio
 * The bundled script "dtd_gen.lua" that was disabled by default has been removed
   from the installation. link:https://wiki.wireshark.org/Contrib[It can be found in the Wireshark Wiki under "Contrib"].
 
+* The Wi-Fi NAN dissector filter name has been changed from 'nan' to 'wifi_nan'.
+
 // === Removed Dissectors
 
 // === New File Format Decoding Support
