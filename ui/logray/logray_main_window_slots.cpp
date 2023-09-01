@@ -2431,8 +2431,10 @@ void LograyMainWindow::editResolvedName()
     //int column = packet_list_->selectedColumn();
     int column = -1;
 
-    if (packet_list_->currentIndex().isValid()) {
-        column = packet_list_->currentIndex().column();
+    if (packet_list_->contextMenuActive() || packet_list_->hasFocus()) {
+        if (packet_list_->currentIndex().isValid()) {
+            column = packet_list_->currentIndex().column();
+        }
     }
 
     main_ui_->addressEditorFrame->editAddresses(capture_file_, column);

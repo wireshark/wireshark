@@ -44,7 +44,7 @@ public:
     };
 
     explicit FieldInformation(field_info * fi, QObject * parent = Q_NULLPTR);
-    explicit FieldInformation(ProtoNode * node, QObject * parent = Q_NULLPTR);
+    explicit FieldInformation(const ProtoNode * node, QObject * parent = Q_NULLPTR);
 
     bool isValid() const;
     bool isLink() const ;

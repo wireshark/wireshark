@@ -18,7 +18,7 @@ FieldInformation::FieldInformation(field_info *fi, QObject * parent)
     parent_fi_ = NULL;
 }
 
-FieldInformation::FieldInformation(ProtoNode *node, QObject * parent)
+FieldInformation::FieldInformation(const ProtoNode *node, QObject * parent)
 :QObject(parent)
 {
     fi_ = NULL;

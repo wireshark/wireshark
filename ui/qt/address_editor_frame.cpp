@@ -30,6 +30,7 @@
 
 // To do:
 // - Fill in currently resolved address.
+// - Allow editing other kinds of addresses.
 
 AddressEditorFrame::AddressEditorFrame(QWidget *parent) :
     AccordionFrame(parent),
@@ -50,6 +51,48 @@ AddressEditorFrame::~AddressEditorFrame()
     delete ui;
 }
 
+QString AddressEditorFrame::addressToString(const FieldInformation& finfo)
+{
+    address addr;
+    ws_in4_addr ipv4;
+    const ws_in6_addr* ipv6;
+
+    if (!finfo.isValid()) {
+        return QString();
+    }
+
+    switch (finfo.headerInfo().type) {
+
+    case FT_IPv4:
+        // FieldInformation.toString gives us the result of
+        // proto_item_fill_display_label, but that gives us
+        // the currently resolved version, if resolution is
+        // available and enabled. We want the unresolved string.
+        ipv4 = fvalue_get_uinteger(finfo.fieldInfo()->value);
+        set_address(&addr, AT_IPv4, 4, &ipv4);
+        return gchar_free_to_qstring(address_to_str(NULL, &addr));
+    case FT_IPv6:
+        ipv6 = fvalue_get_ipv6(finfo.fieldInfo()->value);
+        set_address(&addr, AT_IPv6, sizeof(ws_in6_addr), ipv6);
+        return gchar_free_to_qstring(address_to_str(NULL, &addr));
+    default:
+        return QString();
+    }
+}
+
+void AddressEditorFrame::addAddresses(const ProtoNode& node, QStringList& addresses)
+{
+    QString addrString = addressToString(FieldInformation(&node));
+    if (!addrString.isEmpty()) {
+        addresses << addrString;
+    }
+    ProtoNode::ChildIterator kids = node.children();
+    while (kids.element().isValid()) {
+        addAddresses(kids.element(), addresses);
+        kids.next();
+    }
+}
+
 void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
 {
     cap_file_ = cf.capFile();
@@ -66,10 +109,16 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
 
     epan_dissect_t edt;
     QStringList addresses;
+    QString selectedString;
 
     ui->addressComboBox->clear();
 
-    epan_dissect_init(&edt, cap_file_->epan, FALSE, FALSE);
+    // Dissect the record with a visible tree and fill in the custom
+    // columns. We don't really need to have a visible tree (we should
+    // have one in cap_file_->edt->tree as we have a current frame), but
+    // this is only a single frame that's previously been dissected so
+    // the performance hit is slight anyway.
+    epan_dissect_init(&edt, cap_file_->epan, TRUE, TRUE);
     col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
     epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->rec,
@@ -77,23 +126,33 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
         cap_file_->current_frame, &cap_file_->cinfo);
     epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
-    /* First check selected column */
-    if (isAddressColumn(&cap_file_->cinfo, column)) {
-        addresses << cap_file_->cinfo.col_expr.col_expr_val[column];
-    }
+    addAddresses(ProtoNode(edt.tree), addresses);
 
-    for (int col = 0; col < cap_file_->cinfo.num_cols; col++) {
-        /* Then check all columns except the selected */
-        if ((col != column) && (isAddressColumn(&cap_file_->cinfo, col))) {
-            addresses << cap_file_->cinfo.col_expr.col_expr_val[col];
+    if (column >= 0) {
+        // Check selected column
+        if (isAddressColumn(&cap_file_->cinfo, column)) {
+            // This always gets the unresolved value.
+            // XXX: For multifield custom columns, we don't have a good
+            // function to return each string separately before joining
+            // them. Since we know that IP addresses don't include commas,
+            // we could split on commas here, and check each field value
+            // to find the first one that is an IP address in our list.
+            selectedString = cap_file_->cinfo.col_expr.col_expr_val[column];
         }
+    } else if (cap_file_->finfo_selected) {
+        selectedString = addressToString(FieldInformation(cap_file_->finfo_selected));
     }
 
     epan_dissect_cleanup(&edt);
 
     displayPreviousUserDefinedHostname();
 
+    addresses.removeDuplicates();
     ui->addressComboBox->addItems(addresses);
+    int index = ui->addressComboBox->findText(selectedString);
+    if (index != -1) {
+        ui->addressComboBox->setCurrentIndex(index);
+    }
     ui->nameLineEdit->setFocus();
     updateWidgets();
 }
@@ -124,6 +183,14 @@ void AddressEditorFrame::keyPressEvent(QKeyEvent *event)
 void AddressEditorFrame::displayPreviousUserDefinedHostname()
 {
     QString addr = ui->addressComboBox->currentText();
+    // XXX: If there's a resolved name that wasn't manually entered,
+    // we should probably display that too. Possibly even if network
+    // name resolution is off globally, as get_edited_resolved_name() does.
+    // It's possible to have such names from DNS lookups if the global is
+    // turned on then turned back off, from NRBs, or from DNS packets.
+    // There's no clean API call to always get the resolved name, but
+    // we could access the hash tables directly the way that
+    // models/resolved_addresses_models.cpp does.
     resolved_name_t* previous_entry = get_edited_resolved_name(addr.toUtf8().constData());
     if (previous_entry)
     {
@@ -176,7 +243,19 @@ void AddressEditorFrame::on_buttonBox_accepted()
         return;
     }
     on_buttonBox_rejected();
-    emit redissectPackets();
+    // There's no point in redissecting packets if the network resolution
+    // global is off. There is a use case for editing several names before
+    // turning on the preference to avoid a lot of expensive redissects.
+    // (Statistics->Resolved Addresses still displays them even when
+    // resolution is disabled, so the user can check what has been input.)
+    //
+    // XXX: Can entering a new name but having nothing happen because
+    // network name resolution is off be confusing to the user? The GTK
+    // dialog had a simple checkbox, the "Name Resolution Preferences..."
+    // is a little more complicated but hopefully obvious enough.
+    if (gbl_resolv_flags.network_name) {
+        emit redissectPackets();
+    }
 }
 
 void AddressEditorFrame::on_buttonBox_rejected()
@@ -192,10 +271,27 @@ bool AddressEditorFrame::isAddressColumn(epan_column_info *cinfo, int column)
 
     if (((cinfo->columns[column].col_fmt == COL_DEF_SRC) ||
          (cinfo->columns[column].col_fmt == COL_RES_SRC) ||
+         (cinfo->columns[column].col_fmt == COL_UNRES_SRC) ||
          (cinfo->columns[column].col_fmt == COL_DEF_DST) ||
-         (cinfo->columns[column].col_fmt == COL_RES_DST)) &&
+         (cinfo->columns[column].col_fmt == COL_RES_DST) ||
+         (cinfo->columns[column].col_fmt == COL_UNRES_DST) ||
+         (cinfo->columns[column].col_fmt == COL_DEF_NET_SRC) ||
+         (cinfo->columns[column].col_fmt == COL_RES_NET_SRC) ||
+         (cinfo->columns[column].col_fmt == COL_UNRES_NET_SRC) ||
+         (cinfo->columns[column].col_fmt == COL_DEF_NET_DST) ||
+         (cinfo->columns[column].col_fmt == COL_RES_NET_DST) ||
+         (cinfo->columns[column].col_fmt == COL_UNRES_NET_DST)) &&
         strlen(cinfo->col_expr.col_expr_val[column]))
     {
+        return true;
+    }
+
+    if ((cinfo->columns[column].col_fmt == COL_CUSTOM) &&
+         cinfo->columns[column].col_custom_fields) {
+        // We could cycle through all the col_custom_fields_ids and
+        // see if proto_registrar_get_ftype() says that any of them
+        // are FT_IPv4 or FT_IPv6, but let's just check the string
+        // against all the addresses we found from the tree.
         return true;
     }
 

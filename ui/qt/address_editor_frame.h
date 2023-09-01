@@ -14,6 +14,9 @@
 
 #include "capture_file.h"
 
+#include <ui/qt/utils/field_information.h>
+#include <ui/qt/utils/proto_node.h>
+
 namespace Ui {
 class AddressEditorFrame;
 }
@@ -52,6 +55,8 @@ private:
     Ui::AddressEditorFrame *ui;
     capture_file *cap_file_;
 
+    static QString addressToString(const FieldInformation& finfo);
+    static void addAddresses(const ProtoNode& node, QStringList& addresses);
     bool isAddressColumn(struct epan_column_info *cinfo, int column);
 };
 

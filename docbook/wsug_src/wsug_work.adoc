@@ -244,6 +244,7 @@ description of each item.
 |menu:Collapse Subtrees[]|menu:View[]| Collapse the currently selected subtree.
 |menu:Expand All[]|menu:View[]| Expand all subtrees in all packets in the capture.
 |menu:Collapse All[]|menu:View[]| Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees are expanded when you display a packet. This menu item collapses the tree view of all packets in the capture list.
+|menu:Edit Resolved Name[]|menu:View[]| Allows you to enter a name to resolve for the selected address.
 |menu:Apply as Column[]|| Use the selected protocol item to create a new column in the packet list.
 
 |menu:Apply as Filter[]|menu:Analyze[]|

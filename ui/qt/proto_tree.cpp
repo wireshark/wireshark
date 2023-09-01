@@ -286,6 +286,11 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     if (! buildForDialog)
     {
+        if (finfo->headerInfo().type == FT_IPv4 || finfo->headerInfo().type == FT_IPv6) {
+            action = window()->findChild<QAction *>("actionViewEditResolvedName");
+            ctx_menu->addAction(action);
+            ctx_menu->addSeparator();
+        }
         action = window()->findChild<QAction *>("actionAnalyzeApplyAsColumn");
         ctx_menu->addAction(action);
         ctx_menu->addSeparator();
