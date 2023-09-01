@@ -310,8 +310,8 @@ static const fragment_items quic_crypto_fragment_items = {
  * - 4 header protection ciphers: initial, 0-RTT, HS, 1-RTT.
  * - 5 payload protection ciphers: initial, 0-RTT, HS, 1-RTT (KP0), 1-RTT (KP1).
  *
- * XXX: The multipath draft features introduces separate number spaces for
- * each Destination Connection ID, not yet handled.
+ * The multipath draft features introduces separate appdata number spaces for
+ * each Destination Connection ID.
  */
 
 /* Loss bits feature: https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
@@ -437,6 +437,8 @@ struct quic_info_data {
     quic_pp_state_t server_pp;
     guint64         max_client_pkn[3];  /**< Packet number spaces for Initial, Handshake and appdata. */
     guint64         max_server_pkn[3];
+    wmem_map_t      *max_client_mp_pkn; /**< Appdata packet number spaces for multipath, by sequence number. */
+    wmem_map_t      *max_server_mp_pkn;
     quic_cid_item_t client_cids;    /**< SCID of client from first Initial Packet. */
     quic_cid_item_t server_cids;    /**< SCID of server from first Retry/Handshake. */
     quic_cid_t      client_dcid_initial;    /**< DCID from Initial Packet. */
@@ -495,6 +497,9 @@ static wmem_map_t *quic_initial_connections;    /* Initial.DCID -> connection */
 static wmem_list_t *quic_connections;   /* All unique connections. */
 static guint32 quic_cid_lengths;        /* Bitmap of CID lengths. */
 static guint quic_connections_count;
+
+static gboolean
+quic_multipath_negotiated(quic_info_data_t *conn);
 
 /* Returns the QUIC draft version or 0 if not applicable. */
 static inline guint8 quic_draft_version(guint32 version) {
@@ -965,7 +970,7 @@ quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, quic_hp_cipher *hp_cipher, i
  * Retrieve the maximum valid packet number space for a peer.
  */
 static guint64 *
-quic_max_packet_number(quic_info_data_t *quic_info, gboolean from_server, guint8 first_byte)
+quic_max_packet_number(quic_info_data_t *quic_info, uint64_t seq_num, gboolean from_server, guint8 first_byte)
 {
     int pkn_space;
     if ((first_byte & 0x80) && quic_get_long_packet_type(first_byte, quic_info->version) == QUIC_LPT_INITIAL) {
@@ -978,10 +983,38 @@ quic_max_packet_number(quic_info_data_t *quic_info, gboolean from_server, guint8
         // Long header (0-RTT) or Short Header (1-RTT appdata).
         pkn_space = 2;
     }
-    if (from_server) {
-        return &quic_info->max_server_pkn[pkn_space];
+    if (quic_multipath_negotiated(quic_info) && seq_num > 0) {
+        /* The multipath draft states that key negotiation must
+         * happen before 2^32 CID sequence numbers are used, so
+         * possibly we could get away with using GUINT_TO_POINTER
+         * and saving some memory here.
+         */
+        wmem_map_t **mp_pkn_map;
+        if (from_server) {
+            if (quic_info->max_server_mp_pkn == NULL) {
+                quic_info->max_server_mp_pkn = wmem_map_new(wmem_file_scope(), wmem_int64_hash, g_int64_equal);
+            }
+            mp_pkn_map = &quic_info->max_server_mp_pkn;
+        } else {
+            if (quic_info->max_client_mp_pkn == NULL) {
+                quic_info->max_client_mp_pkn = wmem_map_new(wmem_file_scope(), wmem_int64_hash, g_int64_equal);
+            }
+            mp_pkn_map = &quic_info->max_client_mp_pkn;
+        }
+        uint64_t *pkt_num = wmem_map_lookup(*mp_pkn_map, &seq_num);
+        if (pkt_num == NULL) {
+            uint64_t *seq_num_p = wmem_new(wmem_file_scope(), uint64_t);
+            *seq_num_p = seq_num;
+            pkt_num = wmem_new0(wmem_file_scope(), uint64_t);
+            wmem_map_insert(*mp_pkn_map, seq_num_p, pkt_num);
+        }
+        return pkt_num;
     } else {
-        return &quic_info->max_client_pkn[pkn_space];
+        if (from_server) {
+            return &quic_info->max_server_pkn[pkn_space];
+        } else {
+            return &quic_info->max_client_pkn[pkn_space];
+        }
     }
 }
 
@@ -990,11 +1023,12 @@ quic_max_packet_number(quic_info_data_t *quic_info, gboolean from_server, guint8
  */
 static void
 quic_set_full_packet_number(quic_info_data_t *quic_info, quic_packet_info_t *quic_packet,
-                            gboolean from_server, guint8 first_byte, guint32 pkn32)
+                            uint64_t seq_num, gboolean from_server,
+                            guint8 first_byte, guint32 pkn32)
 {
     guint       pkn_len = (first_byte & 3) + 1;
     guint64     pkn_full;
-    guint64     max_pn = *quic_max_packet_number(quic_info, from_server, first_byte);
+    guint64     max_pn = *quic_max_packet_number(quic_info, seq_num, from_server, first_byte);
 
     /* Sequential first pass, try to reconstruct full packet number. */
     pkn_full = quic_pkt_adjust_pkt_num(max_pn, pkn32, 8 * pkn_len);
@@ -2845,8 +2879,6 @@ static gboolean
 quic_hp_cipher_init(quic_hp_cipher *hp_cipher, int hash_algo, guint8 key_length, guint8 *secret, guint32 version);
 static gboolean
 quic_pp_cipher_init(quic_pp_cipher *pp_cipher, int hash_algo, guint8 key_length, guint8 *secret, guint32 version);
-static gboolean
-quic_multipath_negotiated(quic_info_data_t *conn);
 
 /**
  * Given a QUIC message (header + non-empty payload), the actual packet number,
@@ -3931,7 +3963,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
                 }
             }
             if (!error) {
-                quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
+                quic_set_full_packet_number(conn, quic_packet, dgram_info->seq_num, from_server, first_byte, pkn32);
                 quic_packet->first_byte = first_byte;
             }
         }
@@ -3999,7 +4031,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     }
     if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
         // Packet number is verified to be valid, remember it.
-        *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
+        *quic_max_packet_number(conn, dgram_info->seq_num, from_server, first_byte) = quic_packet->packet_number;
     }
     offset += tvb_reported_length_remaining(tvb, offset);
 
@@ -4047,7 +4079,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         guint32 pkn32 = 0;
         quic_hp_cipher *hp_cipher = quic_get_1rtt_hp_cipher(pinfo, conn, from_server, &error);
         if (quic_is_hp_cipher_initialized(hp_cipher) && quic_decrypt_header(tvb, 1 + dcid.len, hp_cipher, conn->cipher_algo, &first_byte, &pkn32, loss_bits_negotiated)) {
-            quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
+            quic_set_full_packet_number(conn, quic_packet, dgram_info->seq_num, from_server, first_byte, pkn32);
             quic_packet->first_byte = first_byte;
         }
         if (error) {
@@ -4118,7 +4150,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
                              conn, quic_packet, from_server, pp_cipher, first_byte, quic_packet->pkn_len);
         if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
             // Packet number is verified to be valid, remember it.
-            *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
+            *quic_max_packet_number(conn, dgram_info->seq_num, from_server, first_byte) = quic_packet->packet_number;
         }
     }
     offset += tvb_reported_length_remaining(tvb, offset);
