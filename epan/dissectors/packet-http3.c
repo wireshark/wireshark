@@ -1106,8 +1106,10 @@ http3_session_lookup_or_create(packet_info *pinfo)
         /* Look up the session data in the conn map */
         http3_session = (http3_session_info_t *)wmem_map_lookup(HTTP3_CONN_INFO_MAP, &initial_dcid);
         if (http3_session == NULL) {
+            quic_cid_t *dcid_p = wmem_new0(wmem_file_scope(), quic_cid_t);
+            *dcid_p = initial_dcid;
             http3_session = http3_session_new();
-            wmem_map_insert(HTTP3_CONN_INFO_MAP, &initial_dcid, http3_session);
+            wmem_map_insert(HTTP3_CONN_INFO_MAP, dcid_p, http3_session);
         }
     } else {
         /* Initial DCID can not be found, use the 5-tuple for lookup */
