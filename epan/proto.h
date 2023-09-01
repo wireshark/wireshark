@@ -2548,7 +2548,7 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format,
  @param label_str the string to fill
  @todo think about changing the parameter profile */
 WS_DLL_PUBLIC void
-proto_item_fill_label(field_info *finfo, gchar *label_str);
+proto_item_fill_label(const field_info *finfo, gchar *label_str);
 
 /** Fill the given display_label_str with the string representation of a field
  * formatted according to its type and field display specifier.
@@ -2558,7 +2558,7 @@ proto_item_fill_label(field_info *finfo, gchar *label_str);
  @return The length of the label excluding the terminating '\0'.
  */
 WS_DLL_PUBLIC int
-proto_item_fill_display_label(field_info *fi, gchar *display_label_str, const int label_str_size);
+proto_item_fill_display_label(const field_info *fi, gchar *display_label_str, const int label_str_size);
 
 /** Register a new protocol.
  @param name the full name of the new protocol
@@ -2936,14 +2936,14 @@ struct epan_dissect;
  @param edt epan dissecting
  @return TRUE if we can do a "match selected" on the field, FALSE otherwise. */
 WS_DLL_PUBLIC gboolean
-proto_can_match_selected(field_info *finfo, struct epan_dissect *edt);
+proto_can_match_selected(const field_info *finfo, struct epan_dissect *edt);
 
 /** Construct a "match selected" display filter string.
  @param finfo field_info
  @param edt epan dissecting
  @return the wmem NULL alloced display filter string.  Needs to be freed with wmem_free(NULL, ...) */
 WS_DLL_PUBLIC char*
-proto_construct_match_selected_string(field_info *finfo, struct epan_dissect *edt);
+proto_construct_match_selected_string(const field_info *finfo, struct epan_dissect *edt);
 
 /** Find field from offset in tvb.
  @param tree tree of interest
