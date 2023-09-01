@@ -1648,6 +1648,9 @@ void cleanup_open_routines(void);
  * to reduce the chances that a file will be misidentified due to an heuristic
  * test with a weak heuristic being done before a heuristic test for the
  * file's type.
+ *
+ * The list of extensions should be NULL for magic-number open routines,
+ * as it will not be used for any purpose (no such hinting is done).
  */
 struct open_info {
     const char *name;                 /* Description */
