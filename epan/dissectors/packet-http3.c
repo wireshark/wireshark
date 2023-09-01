@@ -2371,7 +2371,7 @@ proto_register_http3(void)
               NULL, HFILL }
         },
         { &hf_http3_qpack_encoder_opcode_dtable_cap_val,
-            { "Capacity", "http3.qpack.encoder.opcode.dtable_cap",
+            { "Capacity", "http3.qpack.encoder.opcode.dtable_cap.val",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
