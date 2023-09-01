@@ -101,27 +101,6 @@ static void log3gpp_close(wtap* wth)
     wth->priv = NULL;
 }
 
-#if 0
-static gboolean
-log3gpp_dump(wtap_dumper* wdh _U_, const wtap_rec* rec _U_,
-    const guchar* buf _U_, int* err _U_, gchar** err_info _U_)
-{
-    return TRUE;
-}
-#endif
-
-
-/******************************************************/
-/* Close a file we've been writing to.                */
-/******************************************************/
-#if 0
-static gboolean
-log3gpp_dump_finish(wtap_dumper* wdh _U_, int* err _U_)
-{
-    return TRUE;
-}
-#endif
-
 /********************************************/
 /* Open file (for reading)                 */
 /********************************************/
@@ -464,52 +443,6 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
                                 seek_off);
     return FALSE;
 }
-
-
-/***************************/
-/* Dump functions          */
-/***************************/
-
-/*****************************************************/
-/* The file that we are writing to has been opened.  */
-/* Set other dump callbacks.                         */
-/*****************************************************/
-#if 0
-gboolean log3gpp_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err _U_)
-{
-    /* Fill in other dump callbacks */
-    wdh->subtype_write = log3gpp_dump;
-    wdh->subtype_finish = log3gpp_dump_finish;
-
-    return TRUE;
-}
-#endif
-
-/*****************************************/
-/* Write a single packet out to the file */
-/*****************************************/
-/*
-static gboolean do_fwrite(const void *data, size_t size, size_t count, FILE *stream, int *err_p)
-{
-    size_t nwritten;
-
-    nwritten = fwrite(data, size, count, stream);
-    if (nwritten != count) {
-        if (nwritten == 0 && ferror(stream))
-        {
-            *err_p = errno;
-        }
-        else
-        {
-            *err_p = WTAP_ERR_SHORT_WRITE;
-        }
-
-        return FALSE;
-    }
-    return TRUE;
-}*/
-
-
 
 /****************************/
 /* Private helper functions */
@@ -908,22 +841,6 @@ void register_log3gpp(void)
     wtap_register_backwards_compatibility_lua_name("LOG_3GPP",
                                                    log3gpp_file_type_subtype);
 }
-
-#if 0
-/* Register with wtap */
-void wtap_register_phonelog(void) {
-        static struct file_type_subtype_info fi =
-        { "3GPP Log", "3gpp_log", "*.log", NULL, TRUE, FALSE, 0, NULL, NULL, NULL };
-
-        static struct open_info phonelog_oi =
-        { "3gpp_log", OPEN_INFO_MAGIC, log3gpp_open, "*.log", NULL, NULL };
-
-        wtap_register_open_info(&phonelog_oi, TRUE);
-
-        encap_3gpp_log = wtap_register_encap_type("3GPP Log","3gpp_log");
-        wf_3gpp_log =  wtap_register_file_type_subtype(&fi, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-}
-#endif
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
