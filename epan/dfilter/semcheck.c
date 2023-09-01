@@ -253,9 +253,6 @@ static fvalue_t*
 mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s,
 				df_loc_t loc)
 {
-	static const true_false_string  default_tf = { "True", "False" };
-	const true_false_string		*tf = &default_tf;
-
 	/* Early return? */
 	switch(hfinfo->type) {
 		case FT_NONE:
@@ -286,9 +283,9 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
 		case FT_FRAMENUM: /* hfinfo->strings contains ft_framenum_type_t, not strings */
+		case FT_BOOLEAN:
 			return NULL;
 
-		case FT_BOOLEAN:
 		case FT_CHAR:
 		case FT_UINT8:
 		case FT_UINT16:
@@ -310,30 +307,6 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 
 		case FT_NUM_TYPES:
 			ws_assert_not_reached();
-	}
-
-	/* TRUE/FALSE *always* exist for FT_BOOLEAN. */
-	if (hfinfo->type == FT_BOOLEAN) {
-		if (hfinfo->strings) {
-			tf = (const true_false_string *)hfinfo->strings;
-		}
-
-		if (g_ascii_strcasecmp(s, tf->true_string) == 0) {
-			return mk_uint64_fvalue(TRUE);
-		}
-		else if (g_ascii_strcasecmp(s, tf->false_string) == 0) {
-			return mk_uint64_fvalue(FALSE);
-		}
-		else {
-			/*
-			 * Prefer this error message to whatever error message
-			 * has already been set.
-			 */
-			df_error_free(&dfw->error);
-			dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot be found among the possible values for %s.",
-				s, hfinfo->abbrev);
-			return NULL;
-		}
 	}
 
 	/* Do val_strings exist? */

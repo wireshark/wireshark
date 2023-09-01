@@ -597,7 +597,7 @@ Signed integer::
   decimal, octal, hexadecimal or binary.
 
 Boolean::
-  Can be 1 or "True" or "TRUE", 0 or "False" or "FALSE" (without quotes).
+  Can be 1 or "True", 0 or "False" (without quotes).
 +
 A Boolean field is present regardless if its value is true or false. For example,
 `tcp.flags.syn` is present in all TCP packets containing the flag, whether

@@ -1114,18 +1114,28 @@ static enum ft_result sint64_val_to_sinteger64(const fvalue_t *src, gint64 *dst)
 /* BOOLEAN-specific */
 
 static gboolean
-boolean_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+boolean_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
-	if (strcmp(s, "True") == 0 || strcmp(s, "TRUE") == 0) {
+	if (g_ascii_strcasecmp(s, "true") == 0) {
 		fv->value.uinteger64 = 1;
 		return TRUE;
 	}
-	if (strcmp(s, "False") == 0 || strcmp(s, "FALSE") == 0) {
+	if (g_ascii_strcasecmp(s, "false") == 0) {
 		fv->value.uinteger64 = 0;
 		return TRUE;
 	}
 
-	return uint64_from_literal(fv, s, allow_partial_value, err_msg);
+	char *endptr;
+	errno = 0;
+	gint64 val = g_ascii_strtoll(s, &endptr, 0);
+	if (errno == 0 && *endptr == '\0') {
+		/* This is a valid number. */
+		fv->value.uinteger64 = (val != 0);
+		return TRUE;
+	}
+	if (err_msg)
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid boolean", s);
+	return FALSE;
 }
 
 static char *

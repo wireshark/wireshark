@@ -490,6 +490,8 @@ static const char *reserved_filter_names[] = {
 	"in",
 	"any",
 	"all",
+	"true",
+	"false",
 	NULL
 };
 
