@@ -284,16 +284,17 @@ const char *
 ws_manuf_block_str(char *buf, size_t buf_size, const struct ws_manuf *ptr)
 {
     if (ptr->mask == 24) {
+        /* The mask is implied as the full 24 bits when printing a traditional OUI.*/
         snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8,
             ptr->block[0], ptr->block[1], ptr->block[2]);
     }
     else if (ptr->mask == 28) {
-        snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8"/%"PRIu8,
-            ptr->block[0], ptr->block[1], ptr->block[2], ptr->block[3], ptr->mask);
+        snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8"/28",
+            ptr->block[0], ptr->block[1], ptr->block[2], ptr->block[3]);
     }
     else if (ptr->mask == 36) {
-        snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8"/%"PRIu8,
-            ptr->block[0], ptr->block[1], ptr->block[2], ptr->block[3], ptr->block[4], ptr->mask);
+        snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8"/36",
+            ptr->block[0], ptr->block[1], ptr->block[2], ptr->block[3], ptr->block[4]);
     }
     else {
         ws_assert_not_reached();
