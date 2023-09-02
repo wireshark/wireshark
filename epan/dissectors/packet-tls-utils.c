@@ -2748,6 +2748,10 @@ gint ssl_get_keyex_alg(gint cipher)
         return KEX_SRP_SHA_RSA;
     case 0xc0ff:
         return KEX_ECJPAKE;
+    case 0xe003:
+    case 0xe013:
+    case 0xe053:
+        return KEX_ECC_SM2;
     default:
         break;
     }
