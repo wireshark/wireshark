@@ -16,6 +16,7 @@
 #include "nstime.h"
 #include "epochs.h"
 #include "time_util.h"
+#include "strtoi.h"
 
 /* this is #defined so that we can clearly see that we have the right number of
    zeros, rather than as a guard against the number of nanoseconds in a second
@@ -516,24 +517,34 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
 guint8
 unix_epoch_to_nstime(nstime_t *nstime, const char *ptr)
 {
-    struct tm tm;
-    char *ptr_new;
+    gint64 secs;
+    const char *ptr_new;
 
     gint n_chars = 0;
     guint frac = 0;
     guint8 ret_val = 0;
     const char *start = ptr;
 
-    memset(&tm, 0, sizeof(tm));
-    tm.tm_isdst = -1;
     nstime_set_unset(nstime);
 
-    if (!(ptr_new = ws_strptime(ptr, "%s", &tm))) {
+    /*
+     * Extract the seconds as a 64-bit signed number, as time_t
+     * might be 64-bit.
+     */
+    if (!ws_strtoi64(ptr, &ptr_new, &secs)) {
         return 0;
     }
 
-    /* No UTC offset given; ISO 8601 says this means local time */
-    nstime->secs = mktime(&tm);
+    /* For now, reject times before the Epoch. */
+    if (secs < 0) {
+        return 0;
+    }
+
+    /* Make sure it fits. */
+    nstime->secs = (time_t) secs;
+    if (nstime->secs != secs) {
+        return 0;
+    }
 
     /* Now let's test for fractional seconds */
     if (*ptr_new == '.' || *ptr_new == ',') {
@@ -561,7 +572,7 @@ unix_epoch_to_nstime(nstime_t *nstime, const char *ptr)
         /* If we didn't get frac, it's still its default of 0 */
     }
     else {
-        tm.tm_sec = 0;
+        frac = 0;
     }
     nstime->nsecs = frac;
 
