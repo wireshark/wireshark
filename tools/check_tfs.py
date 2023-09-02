@@ -421,7 +421,7 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                     found = True
 
                 if found:
-                    print("Error:" if exact_case else "Warn: ", filename, i, "- could have used", t, 'from tfs.c instead: ', tfs_items[t],
+                    print("Error:" if exact_case else "Warn: ", filename, f, "- could have used", c, 'from tfs.c instead: ', common_tfs[c],
                           '' if exact_case else '  (capitalisation differs)')
                     if exact_case:
                         errors_found += 1
