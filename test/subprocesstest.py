@@ -79,8 +79,11 @@ def cat_cap_file_command(cap_files):
         return 'copy {} CON'.format(quoted_paths)
     return 'cat {}'.format(quoted_paths)
 
-def count_output(text, search_pat):
+def count_output(text, search_pat=None):
     '''Returns the number of output lines (search_pat=None), otherwise returns a match count.'''
+
+    if not text:
+        return 0
 
     if not search_pat:
         return len(text.splitlines())

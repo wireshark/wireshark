@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import subprocess
+import subprocesstest
+from subprocesstest import count_output, grep_output
 import pytest
 
 
@@ -48,78 +49,56 @@ def cmd_dftest(program):
 def checkDFilterCount(dfilter_cmd, base_env):
     def checkDFilterCount_real(dfilter, expected_count, prefs=None):
         """Run a display filter and expect a certain number of packets."""
-        output = subprocess.check_output(dfilter_cmd(dfilter, prefs=prefs),
+        proc = subprocesstest.check_run(dfilter_cmd(dfilter, prefs=prefs),
+                                         capture_output=True,
                                          universal_newlines=True,
-                                         stderr=subprocess.STDOUT,
                                          env=base_env)
-
-        dfp_count = output.count("\n")
-        msg = "Expected %d, got: %s\noutput: %r" % \
-            (expected_count, dfp_count, output)
-        assert dfp_count == expected_count, msg
+        assert count_output(proc.stdout) == expected_count
     return checkDFilterCount_real
 
 @pytest.fixture
 def checkDFilterCountWithSelectedFrame(dfilter_cmd, base_env):
     def checkDFilterCount_real(dfilter, expected_count, selected_frame, prefs=None):
         """Run a display filter and expect a certain number of packets."""
-        output = subprocess.check_output(dfilter_cmd(dfilter, frame_number=selected_frame, prefs=prefs),
+        proc = subprocesstest.check_run(dfilter_cmd(dfilter, frame_number=selected_frame, prefs=prefs),
+                                         capture_output=True,
                                          universal_newlines=True,
-                                         stderr=subprocess.STDOUT,
                                          env=base_env)
-
-        dfp_count = output.count("\n")
-        msg = "Expected %d, got: %s\noutput: %r" % \
-            (expected_count, dfp_count, output)
-        assert dfp_count == expected_count, msg
+        assert count_output(proc.stdout) == expected_count
     return checkDFilterCount_real
 
 @pytest.fixture
 def checkDFilterCountReadFilter(dfilter_cmd, base_env):
     def checkDFilterCount_real(dfilter, expected_count):
         """Run a read filter in two pass mode and expect a certain number of packets."""
-        output = subprocess.check_output(dfilter_cmd(dfilter, read_filter=True),
+        proc = subprocesstest.check_run(dfilter_cmd(dfilter, read_filter=True),
+                                         capture_output=True,
                                          universal_newlines=True,
-                                         stderr=subprocess.STDOUT,
                                          env=base_env)
-
-        dfp_count = output.count("\n")
-        msg = "Expected %d, got: %s\noutput: %r" % \
-            (expected_count, dfp_count, output)
-        assert dfp_count == expected_count, msg
+        assert count_output(proc.stdout) == expected_count
     return checkDFilterCount_real
 
 @pytest.fixture
 def checkDFilterFail(cmd_dftest, base_env):
     def checkDFilterFail_real(dfilter, error_message):
         """Run a display filter and expect dftest to fail."""
-        proc = subprocess.Popen([cmd_dftest, '--', dfilter],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
+        proc = subprocesstest.run([cmd_dftest, '--', dfilter],
+                                capture_output=True,
                                 universal_newlines=True,
                                 env=base_env)
-        outs, errs = proc.communicate()
-        assert error_message in errs, \
-            'Unexpected dftest stderr:\n%s\nstdout:\n%s' % (errs, outs)
-        assert proc.returncode == 4, \
-            'Unexpected dftest exit code: %d. stdout:\n%s\n' % \
-            (proc.returncode, outs)
+        assert proc.returncode == 4
+        assert error_message in proc.stderr
     return checkDFilterFail_real
 
 @pytest.fixture
 def checkDFilterSucceed(cmd_dftest, base_env):
     def checkDFilterSucceed_real(dfilter, expect_stdout=None):
         """Run a display filter and expect dftest to succeed."""
-        proc = subprocess.Popen([cmd_dftest, '--', dfilter],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
+        proc = subprocesstest.run([cmd_dftest, '--', dfilter],
+                                capture_output=True,
                                 universal_newlines=True,
                                 env=base_env)
-        outs, errs = proc.communicate()
-        assert proc.returncode == 0, \
-            'Unexpected dftest exit code: %d. stderr:\n%s\n' % \
-            (proc.returncode, errs)
+        assert proc.returncode == 0
         if expect_stdout:
-            assert expect_stdout in outs, \
-                'Expected the string %s in the output' % expect_stdout
+            assert expect_stdout in proc.stdout
     return checkDFilterSucceed_real
