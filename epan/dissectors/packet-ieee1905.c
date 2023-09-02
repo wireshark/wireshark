@@ -4270,7 +4270,7 @@ dissect_beacon_metrics_response(tvbuff_t *tvb, packet_info *pinfo _U_,
          * is the next field. Create a new TVB?
          */
         new_len = tvb_get_guint8(tvb, offset + 1);
-        new_tvb = tvb_new_subset_length_caplen(tvb, offset + 2, new_len, new_len);
+        new_tvb = tvb_new_subset_length(tvb, offset + 2, new_len);
 
         dissect_measurement_report(new_tvb, pinfo, report_tree);
 

@@ -2363,7 +2363,7 @@ dissect_multipath_lookup_response(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
                         ENC_ASCII | ENC_NA);
     if (result_len > 0) {
-        json_tvb = tvb_new_subset_length_caplen(tvb, offset, result_len, result_len);
+        json_tvb = tvb_new_subset_length(tvb, offset, result_len);
         call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
     }
     offset += result_len;
@@ -2413,7 +2413,7 @@ dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
                           ENC_ASCII | ENC_NA);
       if (result_len > 0) {
-        json_tvb = tvb_new_subset_length_caplen(tvb, offset, result_len, result_len);
+        json_tvb = tvb_new_subset_length(tvb, offset, result_len);
         call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
       }
       offset += result_len;
@@ -2621,7 +2621,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (has_json_value(request, opcode)) {
       tvbuff_t *json_tvb;
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
-      json_tvb = tvb_new_subset_length_caplen(tvb, offset, value_len, value_len);
+      json_tvb = tvb_new_subset_length(tvb, offset, value_len);
       call_dissector(json_handle, json_tvb, pinfo, tree);
 
     } else if (opcode == CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP ||
@@ -3172,7 +3172,7 @@ static void d_s_o_clustermap_change_notification_req(tvbuff_t *tvb,
   // The payload is the clustermap in JSON
   proto_tree_add_item(tree, hf_server_clustermap_value, tvb, offset, size,
                       ENC_ASCII | ENC_NA);
-  tvbuff_t *json_tvb = tvb_new_subset_length_caplen(tvb, offset, size, size);
+  tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 }
 
@@ -3190,7 +3190,7 @@ static void d_s_o_authenticate_req(tvbuff_t *tvb,
   // The payload is an JSON object with the authentication request
   proto_tree_add_item(tree, hf_server_authentication, tvb, offset, size,
                       ENC_ASCII | ENC_NA);
-  tvbuff_t *json_tvb = tvb_new_subset_length_caplen(tvb, offset, size, size);
+  tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 }
 
@@ -3208,7 +3208,7 @@ static void d_s_o_active_external_users_req(tvbuff_t *tvb,
   // The payload is an JSON array with the list of the users
   proto_tree_add_item(tree, hf_server_external_users, tvb, offset, size,
                       ENC_ASCII | ENC_NA);
-  tvbuff_t *json_tvb = tvb_new_subset_length_caplen(tvb, offset, size, size);
+  tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 }
 
@@ -3246,8 +3246,7 @@ static void d_s_o_server_ignored_response(tvbuff_t *tvb,
     expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_value,
                            "Success should not carry value");
   } else {
-    tvbuff_t *json_tvb = tvb_new_subset_length_caplen(tvb, offset, size,
-                                                      size);
+    tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
     call_dissector(json_handle, json_tvb, pinfo, tree);
   }
 }
@@ -3264,8 +3263,7 @@ static void d_s_o_authenticate_res(tvbuff_t *tvb ,
   // Payload is JSON (for success and if there is an error)
   proto_tree_add_item(tree, hf_server_authentication, tvb, offset, size,
                       ENC_ASCII | ENC_NA);
-  tvbuff_t *json_tvb = tvb_new_subset_length_caplen(tvb, offset, size,
-                                                    size);
+  tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 }
 
@@ -3281,8 +3279,7 @@ static void d_s_o_get_authorization_res(tvbuff_t *tvb,
   // Payload is JSON (for success and if there is an error)
   proto_tree_add_item(tree, hf_server_get_authorization, tvb, offset, size,
                       ENC_ASCII | ENC_NA);
-  tvbuff_t *json_tvb = tvb_new_subset_length_caplen(tvb, offset, size,
-                                                    size);
+  tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 
 }
@@ -3542,7 +3539,7 @@ static void dissect_client_value(tvbuff_t *tvb,
       proto_tree_add_item(tree, hf_value, tvb, offset, size, ENC_ASCII | ENC_NA);
       if (status == STATUS_NOT_MY_VBUCKET || is_xerror(datatype, status)) {
         tvbuff_t *json_tvb;
-        json_tvb = tvb_new_subset_length_caplen(tvb, offset, size, size);
+        json_tvb = tvb_new_subset_length(tvb, offset, size);
         call_dissector(json_handle, json_tvb, pinfo, tree);
       } else if (opcode == CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP) {
         dissect_multipath_lookup_response(tvb, pinfo, tree, offset, size);

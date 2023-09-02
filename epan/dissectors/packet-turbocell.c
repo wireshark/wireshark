@@ -177,7 +177,7 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             proto_tree *mpdu_tree;
             proto_tree *subframe_tree;
 
-            next_tvb = tvb_new_subset_length_caplen(tvb, 0x14, -1, tvb_get_ntohs(tvb, 0x14));
+            next_tvb = tvb_new_subset_length(tvb, 0x14, tvb_get_ntohs(tvb, 0x14));
             parent_item = proto_tree_add_protocol_format(tree, proto_aggregate, next_tvb, 0,
                                                          tvb_reported_length_remaining(next_tvb, 0), "Turbocell Aggregate Frames");
             mpdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_parent_tree);

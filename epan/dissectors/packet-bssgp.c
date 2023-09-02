@@ -1962,7 +1962,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
              * Reporting Cell Identifier: This field is encoded as the Source Cell Identifier IE
              * (UTRAN Source Cell ID) as defined in 3GPP TS 25.413
              */
-            new_tvb = tvb_new_subset_length_caplen(tvb, curr_offset, len, len);
+            new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
             curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, pinfo, tree, NULL);
             /* Octet (m+1)-n UTRA SI Container
              * UTRA SI Container: This field contains System Information Container valid for the reporting cell
@@ -1985,7 +1985,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                 proto_tree_add_expert_format(tree, pinfo, &ei_bssgp_ran_inf_app_cont_utra_si, tvb, curr_offset-1, 1, "UTRA SI Container - not present");
                 return(curr_offset - offset);
             }
-            new_tvb = tvb_new_subset_length_caplen(tvb, curr_offset, (len - (curr_offset - offset)), (len - (curr_offset - offset)));
+            new_tvb = tvb_new_subset_length(tvb, curr_offset, (len - (curr_offset - offset)));
             call_dissector_only(rrc_sys_info_cont_handle, new_tvb, pinfo, tree, NULL);
             curr_offset = curr_offset + (len - (curr_offset - offset));
             break;

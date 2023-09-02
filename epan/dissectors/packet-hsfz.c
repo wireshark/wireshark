@@ -269,7 +269,7 @@ dissect_hsfz_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             hsfz_info.source_address = source_addr;
             hsfz_info.target_address = target_addr;
 
-            tvbuff_t *subtvb = tvb_new_subset_length_caplen(tvb, offset, hsfz_length - 2, hsfz_length - 2);
+            tvbuff_t *subtvb = tvb_new_subset_length(tvb, offset, hsfz_length - 2);
             call_dissector_with_data(uds_handle, subtvb, pinfo, tree, &hsfz_info);
         } else {
             proto_tree_add_item(hsfz_tree, hf_hsfz_data, tvb, offset, hsfz_length - 2, ENC_NA);

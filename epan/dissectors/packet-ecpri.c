@@ -463,7 +463,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         if (pref_message_type_decoding)
         {
 
-            tvbuff_t *fh_tvb = tvb_new_subset_length_caplen(tvb, offset, payload_size, payload_size);
+            tvbuff_t *fh_tvb = tvb_new_subset_length(tvb, offset, payload_size);
             /***********************************************************************************************/
             /* See whether O-RAN fronthaul sub-dissector that handles this, otherwise decode vanilla eCPRI */
             /* N.B. FH CUS dissector only handles:                                                         */

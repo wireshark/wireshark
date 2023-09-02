@@ -730,7 +730,7 @@ dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         return -1;
     }
 
-    subtvb = tvb_new_subset_length_caplen(tvb, offset, str_len, str_len);
+    subtvb = tvb_new_subset_length(tvb, offset, str_len);
 
     if (encoding == DLT_MSG_VERB_PARAM_SCOD_ASCII) {
         buf = tvb_get_stringz_enc(pinfo->pool, subtvb, 0, &tmp_length, ENC_ASCII);
@@ -1038,10 +1038,10 @@ dissect_dlt_non_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *r
             proto_item_append_text(ti, " (%s)", message_id_name);
         }
 
-        subtvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), tvb_captured_length_remaining(tvb, offset));
+        subtvb = tvb_new_subset_remaining(tvb, offset);
         dissect_dlt_non_verbose_payload_message(subtvb, pinfo, tree, 0, payload_le, msg_type, msg_type_info_comb, message_id);
     } else if(msg_type == DLT_MSG_TYPE_LOG_MSG) {
-        subtvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), tvb_captured_length_remaining(tvb, offset));
+        subtvb = tvb_new_subset_remaining(tvb, offset);
         if (dissect_dlt_non_verbose_payload_message_handoff(subtvb, pinfo, root_tree, payload_le, msg_type, msg_type_info_comb, message_id, ecu_id) <= 0) {
             proto_tree_add_item(tree, hf_dlt_payload_data, tvb, offset, tvb_captured_length_remaining(tvb, offset), payload_le);
         }

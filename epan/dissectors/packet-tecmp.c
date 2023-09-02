@@ -1595,7 +1595,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item_append_text(ti_tecmp_payload, " Status Device");
 
             if (vendor_data_len > 0) {
-                sub_tvb = tvb_new_subset_length_caplen(tvb, offset, (gint)vendor_data_len, (gint)vendor_data_len);
+                sub_tvb = tvb_new_subset_length(tvb, offset, (gint)vendor_data_len);
                 ti_tecmp_vendor_data = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_vendor_data, tvb, offset, (gint)vendor_data_len, ENC_NA);
 
                 dissect_tecmp_status_device_vendor_data(sub_tvb, pinfo, ti_tecmp_vendor_data, (guint8)device_type, (guint8)vendor_id, timestamp_ns);
@@ -1632,7 +1632,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 12;
 
                 if (vendor_data_len > 0) {
-                    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, (gint)vendor_data_len, (gint)vendor_data_len);
+                    sub_tvb = tvb_new_subset_length(tvb, offset, (gint)vendor_data_len);
                     ti_tecmp_vendor_data = proto_tree_add_item(tecmp_tree_bus, hf_tecmp_payload_status_vendor_data,
                                                                tvb, offset, (gint)vendor_data_len, ENC_NA);
 
@@ -1650,7 +1650,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item_append_text(ti_tecmp_payload, " Status Configuration");
 
             if (vendor_data_len > 0) {
-                sub_tvb = tvb_new_subset_length_caplen(tvb, offset, (gint)vendor_data_len, (gint)vendor_data_len);
+                sub_tvb = tvb_new_subset_length(tvb, offset, (gint)vendor_data_len);
                 ti_tecmp_vendor_data = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_vendor_data, tvb,
                                                            offset, (gint)vendor_data_len, ENC_NA);
 
@@ -1757,7 +1757,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         first = FALSE;
 
         if (length > 0) {
-            sub_tvb = tvb_new_subset_length_caplen(tvb, offset, (gint)length, (gint)length);
+            sub_tvb = tvb_new_subset_length(tvb, offset, (gint)length);
             offset2 = 0;
 
             switch (data_type) {

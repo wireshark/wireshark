@@ -27639,8 +27639,7 @@ get_subelt_tvb(tvbuff_t *tvb, packet_info *pinfo, int offset, int *overhead)
     return tvb_comp;
   } else {
     *overhead = 0;
-    return tvb_new_subset_length_caplen(tvb, offset + 2, subelt_len,
-                                        subelt_len);
+    return tvb_new_subset_length(tvb, offset + 2, subelt_len);
   }
 }
 
@@ -40038,7 +40037,7 @@ dissect_ieee80211_unknown_pv(tvbuff_t *tvb, packet_info *pinfo _U_,
   if (phdr->fcs_len == 4)
     len -= 4;
   len -= 2;  /* We have already dealt with two bytes */
-  next_tvb = tvb_new_subset_length_caplen(tvb, 2, len, len);
+  next_tvb = tvb_new_subset_length(tvb, 2, len);
   call_data_dissector(next_tvb, pinfo, hdr_tree);
   proto_tree_add_checksum(hdr_tree, tvb, len + 2, hf_ieee80211_fcs, hf_ieee80211_fcs_status, &ei_ieee80211_fcs, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 

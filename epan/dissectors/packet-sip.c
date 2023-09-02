@@ -1985,7 +1985,7 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
 
         /* If we have a SIP diagnostics sub dissector call it */
         if (sip_uri_userinfo_handle) {
-            next_tvb = tvb_new_subset_length_caplen(tvb, uri_offsets->uri_user_start, uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1,
+            next_tvb = tvb_new_subset_length(tvb, uri_offsets->uri_user_start,
                                       uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1);
             call_dissector(sip_uri_userinfo_handle, next_tvb, pinfo, uri_item_tree);
         }
@@ -2856,7 +2856,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                         if (sip_via_branch_handle && g_ascii_strcasecmp(param_name, "branch") == 0)
                         {
                             tvbuff_t *next_tvb;
-                            next_tvb = tvb_new_subset_length_caplen(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1, current_offset - parameter_name_end - 1);
+                            next_tvb = tvb_new_subset_length(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1);
 
                             call_dissector(sip_via_branch_handle, next_tvb, pinfo, tree);
                         }
@@ -2888,7 +2888,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                             }
                         } else if (g_ascii_strcasecmp(param_name, "be-route") == 0) {
                             tvbuff_t* next_tvb;
-                            next_tvb = tvb_new_subset_length_caplen(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1, current_offset - parameter_name_end - 1);
+                            next_tvb = tvb_new_subset_length(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1);
                             call_dissector(sip_via_be_route_handle, next_tvb, pinfo, proto_item_add_subtree(via_parameter_item, ett_sip_via_be_route));
                         }
                     }

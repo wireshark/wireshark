@@ -390,7 +390,7 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
                 next_tvb = new_tvb;
                 complete = TRUE;
             } else {
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
+                next_tvb = tvb_new_subset_length(tvb, offset, data_length);
             }
         }
     }

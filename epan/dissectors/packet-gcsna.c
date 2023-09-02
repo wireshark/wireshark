@@ -216,7 +216,7 @@ gcsna_message_GCSNA1xCircuitService(proto_item *item, tvbuff_t *tvb, packet_info
     proto_tree_add_item(tree, hf_gcsna_tlacEncapsulated, tvb, *offset, -1, ENC_NA);
 
     if (cdma2k_handle) {
-        new_tvb = tvb_new_subset_length_caplen(tvb, *offset, -1, -1);
+        new_tvb = tvb_new_subset_length(tvb, *offset, -1);
         call_dissector(cdma2k_handle, new_tvb, pinfo, mainTree);
     }
     /* set the offset to the end of the message */

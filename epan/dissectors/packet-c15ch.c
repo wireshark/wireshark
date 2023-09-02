@@ -4242,7 +4242,7 @@ static int dissect_c15ch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         proto_tree_add_item(c15ch_tree, hf_c15ch_realtime, tvb, 32, 4, ENC_BIG_ENDIAN);
     }
 
-    next_tvb = tvb_new_subset_length_caplen(tvb, HEADER_SZ, -1, payload_length);
+    next_tvb = tvb_new_subset_length(tvb, HEADER_SZ, payload_length);
     /* call dissector to dissect the rest of the packet, based on msg_type */
     retv = HEADER_SZ + dissector_try_uint(c15ch_dissector_table, msg_type, next_tvb, pinfo, tree);
     return retv;
@@ -4609,7 +4609,7 @@ static int dissect_c15ch_encap_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                             tvb, 1, 4, ENC_BIG_ENDIAN);
 
         /*length of ISUP portion == expected length == 268 */
-        next_tvb = tvb_new_subset_length_caplen(tvb, 5, 268, 268);
+        next_tvb = tvb_new_subset_length(tvb, 5, 268);
         call_dissector(general_isup_handle, next_tvb, pinfo, tree);
     }
 
@@ -4684,7 +4684,7 @@ static int dissect_c15ch_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                             tvb, 41, 8, ENC_NA);
 
         /*length of ISUP portion == expected length == 271 */
-        next_tvb = tvb_new_subset_length_caplen(tvb, 49, 271, 271);
+        next_tvb = tvb_new_subset_length(tvb, 49, 271);
         call_dissector(general_isup_handle, next_tvb, pinfo, tree);
     }
 
@@ -5380,7 +5380,7 @@ static int dissect_c15ch_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                             tvb, 9, 4, ENC_BIG_ENDIAN);
         if (q931_msg_len && bytes_to_skip)
         {
-            next_tvb = tvb_new_subset_length_caplen(tvb, 13 + bytes_to_skip, q931_msg_len - bytes_to_skip, q931_msg_len - bytes_to_skip);
+            next_tvb = tvb_new_subset_length(tvb, 13 + bytes_to_skip, q931_msg_len - bytes_to_skip);
             call_dissector(general_q931_handle, next_tvb, pinfo, tree);
         }
     }
@@ -5567,8 +5567,7 @@ static int dissect_c15ch_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                             tvb, 298, 4, ENC_BIG_ENDIAN);
 
         /* skip bytes to get to SCCP message type */
-        next_tvb = tvb_new_subset_length_caplen(tvb, 23 + 2,
-                                    275 - 2, 275 - 2);
+        next_tvb = tvb_new_subset_length(tvb, 23 + 2, 275 - 2);
 
         /* sccp dissector call */
         call_dissector(general_sccp_handle, next_tvb, pinfo, tree);

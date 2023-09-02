@@ -928,7 +928,7 @@ static int dissect_ubx_rxm_sfrbx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     if (gnssid == GNSS_ID_GPS) {
         // send the GPS nav msg (preprocessed by UBX) to the next dissector
-        next_tvb = tvb_new_subset_length_caplen(tvb, 8, 4 * numwords, 4 * numwords);
+        next_tvb = tvb_new_subset_length(tvb, 8, 4 * numwords);
     }
     else {
         // UBX-RXM-SFRBX has the nav msg encoded in little endian. As this is not

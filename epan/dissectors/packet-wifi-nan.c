@@ -2005,7 +2005,7 @@ dissect_attr_element_container(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
         sub_offset++;
 
         ieee80211_tagged_field_data_t field_data = { 0 };
-        tvbuff_t* ie_tvb = tvb_new_subset_length_caplen(tvb, sub_offset, element_len, element_len);
+        tvbuff_t* ie_tvb = tvb_new_subset_length(tvb, sub_offset, element_len);
         field_data.item_tag = sub_tree;
         dissector_try_uint_new(ie_handle_table, element_id, ie_tvb, pinfo, sub_tree, TRUE, &field_data);
         sub_offset += element_len;
@@ -2267,7 +2267,7 @@ dissect_attr_vendor_specific(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, 
     }
 
     guint sub_offset = offset + 3;
-    tvbuff_t* ie_tvb = tvb_new_subset_length_caplen(tvb, sub_offset, -1, -1);
+    tvbuff_t* ie_tvb = tvb_new_subset_length(tvb, sub_offset, -1);
     ieee80211_tagged_field_data_t field_data = { 0 };
     field_data.item_tag = attr_tree;
     dissector_try_uint_new(ie_handle_table, TAG_VENDOR_SPECIFIC_IE, ie_tvb, pinfo, attr_tree, TRUE, &field_data);

@@ -4794,7 +4794,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     int * const *hfs;
     bluetooth_data_t *bluetooth_data = NULL;
 
-    tvb = tvb_new_subset_length_caplen(old_tvb, old_offset, length, length);
+    tvb = tvb_new_subset_length(old_tvb, old_offset, length);
 
     DISSECTOR_ASSERT(att_data);
 
@@ -5250,13 +5250,13 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
         if (characteristic_dissector)
-            call_dissector_with_data(characteristic_dissector, tvb_new_subset_length_caplen(tvb, offset, tvb_reported_length_remaining(tvb, offset) / 2, tvb_reported_length_remaining(tvb, offset) / 2), pinfo, sub_tree, att_data);
+            call_dissector_with_data(characteristic_dissector, tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) / 2), pinfo, sub_tree, att_data);
 
         sub_item = proto_tree_add_item(tree, hf_btatt_valid_range_upper_inclusive_value, tvb, offset + tvb_reported_length_remaining(tvb, offset) / 2, tvb_reported_length_remaining(tvb, offset) / 2, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
         if (characteristic_dissector)
-            call_dissector_with_data(characteristic_dissector, tvb_new_subset_length_caplen(tvb, offset + tvb_reported_length_remaining(tvb, offset) / 2, tvb_reported_length_remaining(tvb, offset) / 2, tvb_reported_length_remaining(tvb, offset) / 2), pinfo, sub_tree, att_data);
+            call_dissector_with_data(characteristic_dissector, tvb_new_subset_length(tvb, offset + tvb_reported_length_remaining(tvb, offset) / 2, tvb_reported_length_remaining(tvb, offset) / 2), pinfo, sub_tree, att_data);
 
         offset += tvb_reported_length_remaining(tvb, offset);
         }
@@ -5336,7 +5336,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(tree, hf_btatt_value_trigger_setting_analog, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         } else if (value == 4) {
-            btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a56", tvb_new_subset_length_caplen(tvb, offset, 1, 1), pinfo, tree, att_data);
+            btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a56", tvb_new_subset_length(tvb, offset, 1), pinfo, tree, att_data);
             offset += 1;
         } else if (value == 5 || value == 6) {
             proto_tree_add_item(tree, hf_btatt_value_trigger_setting_analog_one, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5797,13 +5797,13 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a0c", tvb_new_subset_length_caplen(tvb, offset, 9, 9), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a0c", tvb_new_subset_length(tvb, offset, 9), pinfo, tree, att_data);
         offset += 9;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a0f", tvb_new_subset_length_caplen(tvb, offset, 2, 2), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a0f", tvb_new_subset_length(tvb, offset, 2), pinfo, tree, att_data);
         offset += 2;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a14", tvb_new_subset_length_caplen(tvb, offset, 4, 4), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a14", tvb_new_subset_length(tvb, offset, 4), pinfo, tree, att_data);
         offset += 4;
 
         break;
@@ -6318,10 +6318,10 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2aae", tvb_new_subset_length_caplen(tvb, offset, 4, 4), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2aae", tvb_new_subset_length(tvb, offset, 4), pinfo, tree, att_data);
         offset += 4;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2aaf", tvb_new_subset_length_caplen(tvb, offset, 4, 4), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2aaf", tvb_new_subset_length(tvb, offset, 4), pinfo, tree, att_data);
         offset += 4;
 
         break;
@@ -6329,10 +6329,10 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a2f", tvb_new_subset_length_caplen(tvb, offset, 8, 8), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a2f", tvb_new_subset_length(tvb, offset, 8), pinfo, tree, att_data);
         offset += 8;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a6c", tvb_new_subset_length_caplen(tvb, offset, 3, 3), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a6c", tvb_new_subset_length(tvb, offset, 3), pinfo, tree, att_data);
         offset += 3;
 
         break;
@@ -7211,10 +7211,10 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a56", tvb_new_subset_length_caplen(tvb, offset, 1, 1), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a56", tvb_new_subset_length(tvb, offset, 1), pinfo, tree, att_data);
         offset += 1;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a58", tvb_new_subset_length_caplen(tvb, offset, 2, 2), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a58", tvb_new_subset_length(tvb, offset, 2), pinfo, tree, att_data);
         offset += 2;
 
         break;
@@ -7311,7 +7311,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             sub_item = proto_tree_add_item(tree, hf_btatt_plx_spot_check_measurement_timestamp, tvb, offset, 7, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
 
-            btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length_caplen(tvb, offset, 7, 7), pinfo, sub_tree, att_data);
+            btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length(tvb, offset, 7), pinfo, sub_tree, att_data);
             offset += 7;
         }
 
@@ -9884,7 +9884,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         sub_item = proto_tree_add_item(tree, hf_btatt_ots_object_first_created, tvb, offset, 7, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length_caplen(tvb, offset, 7, 7), pinfo, sub_tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length(tvb, offset, 7), pinfo, sub_tree, att_data);
         offset += 7;
 
         break;
@@ -9903,7 +9903,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         sub_item = proto_tree_add_item(tree, hf_btatt_ots_object_last_modified, tvb, offset, 7, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length_caplen(tvb, offset, 7, 7), pinfo, sub_tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length(tvb, offset, 7), pinfo, sub_tree, att_data);
         offset += 7;
 
         break;
@@ -10110,10 +10110,10 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
         case 0x06: /* Created Between */
         case 0x07: /* Modified Between */
-            btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length_caplen(tvb, offset, 7, 7), pinfo, tree, att_data);
+            btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length(tvb, offset, 7), pinfo, tree, att_data);
             offset += 7;
 
-            btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length_caplen(tvb, offset, 7, 7), pinfo, tree, att_data);
+            btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a08", tvb_new_subset_length(tvb, offset, 7), pinfo, tree, att_data);
             offset += 7;
 
             break;

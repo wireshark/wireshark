@@ -1548,7 +1548,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         offset += 2;
 
         if (msg_payload_type_length > 0) {
-            tvbuff_t *sub_tvb = tvb_new_subset_length_caplen(tvb, offset, (gint)msg_payload_type_length, (gint)msg_payload_type_length);
+            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, (gint)msg_payload_type_length);
             call_dissector(eth_handle, sub_tvb, pinfo, root_tree);
         }
         offset += (gint)msg_payload_type_length;

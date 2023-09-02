@@ -514,7 +514,7 @@ static int dissect_sbas_l1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             &ei_sbas_l1_crc, NULL, cmp_crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     // try to dissect MT data
-    next_tvb = tvb_new_subset_length_caplen(tvb, 1, 28, 28);
+    next_tvb = tvb_new_subset_length(tvb, 1, 28);
     if (!dissector_try_uint(sbas_l1_mt_dissector_table, mt, next_tvb, pinfo, tree)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }

@@ -1706,7 +1706,7 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
     offset += 6;
 
     /* Setup a new tvb representing just the data payload of this particular message */
-    data_tvb = tvb_new_subset_length_caplen( tvb, offset, (tvb_reported_length_remaining(tvb, offset)-2), (tvb_reported_length_remaining(tvb, offset)-2));
+    data_tvb = tvb_new_subset_length(tvb, offset, (tvb_reported_length_remaining(tvb, offset)-2));
 
     save_fragmented = pinfo->fragmented;
 

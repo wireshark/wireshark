@@ -4320,7 +4320,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
         next_tvb = tvb_new_composite();
-        tvb_composite_append(next_tvb, tvb_new_subset_length_caplen(tvb, setup_offset, 7, 7));
+        tvb_composite_append(next_tvb, tvb_new_subset_length(tvb, setup_offset, 7));
 
         data_tvb = tvb_new_subset_remaining(tvb, offset);
         tvb_composite_append(next_tvb, data_tvb);
@@ -4332,7 +4332,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                 tvb_captured_length(next_tvb));
         add_new_data_source(pinfo, next_tvb, "USB Control");
     } else {
-        next_tvb = tvb_new_subset_length_caplen(tvb, setup_offset, 7, 7);
+        next_tvb = tvb_new_subset_length(tvb, setup_offset, 7);
     }
 
     /* at this point, offset contains the number of bytes that we

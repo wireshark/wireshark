@@ -3006,7 +3006,7 @@ dissect_someip_payload_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset += length_of_length / 8;
         int endpos = offset_orig + (length_of_length / 8) + (guint32)length;
         proto_item_set_end(ti, tvb, endpos);
-        subtvb = tvb_new_subset_length_caplen(tvb, 0, endpos, endpos);
+        subtvb = tvb_new_subset_length(tvb, 0, endpos);
     }
 
     offset += dissect_someip_payload_parameters(subtvb, pinfo, subtree, offset, config->items, config->num_of_items, config->wtlv_encoding);
@@ -3085,7 +3085,7 @@ dissect_someip_payload_array_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     if (length != -1) {
         if (length <= tvb_captured_length_remaining(tvb, offset)) {
-            subtvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
+            subtvb = tvb_new_subset_length(tvb, offset, length);
             /* created subtvb. so we set offset=0 */
             offset = 0;
         } else {
@@ -3291,7 +3291,7 @@ dissect_someip_payload_union(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     if (item != NULL) {
-        subtvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
+        subtvb = tvb_new_subset_length(tvb, offset, length);
         dissect_someip_payload_parameter(subtvb, pinfo, subtree, 0, (guint8)item->data_type, item->id_ref, item->name, item->hf_id, -1);
     } else {
         expert_someip_payload_config_error(tree, pinfo, tvb, offset, 0, "Union type not configured");
@@ -3481,7 +3481,7 @@ dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 break;
             }
 
-            tvbuff_t *subtvb = tvb_new_subset_length_caplen(tvb, offset - 2, param_length + 2, param_length + 2);
+            tvbuff_t *subtvb = tvb_new_subset_length(tvb, offset - 2, param_length + 2);
             if (item != NULL) {
                 dissect_someip_payload_parameter(subtvb, pinfo, tree, 2, (guint8)item->data_type, item->id_ref, item->name, item->hf_id, 0);
             } else {
@@ -3735,7 +3735,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                      someip_tp_head, &someip_tp_frag_items, &update_col_info, someip_tree);
         }
     } else {
-        subtvb = tvb_new_subset_length_caplen(tvb, SOMEIP_HDR_LEN, someip_payload_length, someip_payload_length);
+        subtvb = tvb_new_subset_length(tvb, SOMEIP_HDR_LEN, someip_payload_length);
     }
 
     if (subtvb!=NULL) {

@@ -290,7 +290,7 @@ dissect_id3v2_apic_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
 	id3v2_dissect_textz_item(tvb, tree, &offset, id3_encoding, hf_id3v2_frame_apic_description);
 
-	image_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, (end - offset));
+	image_tvb = tvb_new_subset_length(tvb, offset, (end - offset));
 	dissector_try_string(media_type_dissector_table, mime_type, image_tvb, pinfo, tree, NULL);
 }
 

@@ -453,7 +453,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             proto_tree_add_item(objtree, hf_blf_cont_res4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             if (comp_method == BLF_COMPRESSION_NONE) {
-                sub_tvb = tvb_new_subset_length_caplen(tvb, offset, offset_orig + obj_length - offset, offset_orig + obj_length - offset);
+                sub_tvb = tvb_new_subset_length(tvb, offset, offset_orig + obj_length - offset);
             } else {
                 sub_tvb = tvb_child_uncompress(tvb, tvb, offset, offset_orig + obj_length - offset);
                 if (sub_tvb) {

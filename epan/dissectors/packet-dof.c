@@ -2650,7 +2650,7 @@ static int dissect_2008_16_security_4(tvbuff_t *tvb, packet_info *pinfo, proto_t
     }
 
     {
-        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, (flag & 0x0F) + 1, (flag & 0x0F) + 1);
+        tvbuff_t *start = tvb_new_subset_length(tvb, offset, (flag & 0x0F) + 1);
         if (return_data)
             return_data->nonce = start;
 
@@ -3185,7 +3185,7 @@ static int dissect_2009_11_type_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     case 0:
     case 2:
     {
-        tvbuff_t *packet = tvb_new_subset_length_caplen(tvb, offset, attribute_length_byte, attribute_length_byte);
+        tvbuff_t *packet = tvb_new_subset_length(tvb, offset, attribute_length_byte);
         proto_tree *attribute_tree;
 
         ti = proto_tree_add_item(tree, hf_oid_attribute_oid, tvb, offset, -1, ENC_NA);
@@ -5984,7 +5984,7 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
              * multiple DPS packets in a single Wireshark frame.
              */
             {
-                tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, packet_length, packet_length);
+                tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, packet_length);
                 tcp_dof_packet_ref *ref;
                 gint raw_offset = tvb_raw_offset(tvb) + offset;
                 gboolean ref_is_new = FALSE;
@@ -6189,7 +6189,7 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             * multiple DPS packets in a single Wireshark frame.
             */
             {
-                tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, packet_length, packet_length);
+                tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, packet_length);
                 tcp_dof_packet_ref *ref;
                 gint raw_offset = tvb_raw_offset(tvb) + offset;
                 gboolean ref_is_new = FALSE;
@@ -6678,7 +6678,7 @@ static int dissect_dpp_v2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         oid_tree = proto_tree_add_subtree(opid_tree, tvb, offset, 0, ett_2009_12_dpp_2_opid, NULL, "Source Identifier");
 
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_reported_length(tvb) - offset);
+        next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length(tvb) - offset);
         opid_len = call_dissector_only(dof_oid_handle, next_tvb, pinfo, oid_tree, NULL);
 
         learn_sender_sid(api_data, opid_len, tvb_get_ptr(next_tvb, 0, opid_len));
@@ -6863,7 +6863,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                 oid_tree = proto_tree_add_subtree(opid_tree, tvb, offset, 0, ett_2009_12_dpp_2_opid, NULL, "Source Identifier");
 
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_reported_length(tvb) - offset);
+                next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length(tvb) - offset);
                 opid_len = call_dissector_only(dof_oid_handle, next_tvb, pinfo, oid_tree, NULL);
                 proto_item_set_len(oid_tree, opid_len);
 
@@ -7223,7 +7223,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         */
         {
             guint16 app;
-            tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_reported_length(tvb) - offset);
+            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length(tvb) - offset);
 
             read_c2(tvb, offset, &app, NULL);
             if (app == 0x7FFF)
@@ -7854,7 +7854,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 /* There is still a MAC involved, and even though we don't need a new
                 * buffer we need to adjust the length of the existing buffer.
                 */
-                app = tvb_new_subset_length_caplen(tvb, offset, e_len - session->mac_len, e_len - session->mac_len);
+                app = tvb_new_subset_length(tvb, offset, e_len - session->mac_len);
                 dof_packet->decrypted_tvb = app;
                 dof_packet->decrypted_offset = 0;
             }
@@ -8717,7 +8717,7 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             offset = dof_dissect_pdu_as_field(dissect_2008_16_security_9, tvb, pinfo, sgmp_tree,
                                               offset, hf_initial_state, ett_initial_state, NULL);
 #if 0 /*TODO check this */
-            initial_state = tvb_new_subset_length_caplen(tvb, start_offset, offset - start_offset, offset - start_offset);
+            initial_state = tvb_new_subset_length(tvb, start_offset, offset - start_offset);
 #endif
         }
 
@@ -8867,7 +8867,7 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 offset = dof_dissect_pdu_as_field(dissect_2008_16_security_9, tvb, pinfo, sgmp_tree,
                                                   offset, hf_initial_state, ett_initial_state, NULL);
 #if 0 /*TODO check this */
-                initial_state = tvb_new_subset_length_caplen(tvb, start_offset, offset - start_offset, offset - start_offset);
+                initial_state = tvb_new_subset_length(tvb, start_offset, offset - start_offset);
 #endif
             }
 

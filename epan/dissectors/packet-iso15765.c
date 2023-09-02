@@ -621,7 +621,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 proto_tree_add_uint(iso15765_tree, hf_iso15765_data_length, tvb, ae, 1, data_length);
             }
 
-            next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
+            next_tvb = tvb_new_subset_length(tvb, offset, data_length);
             complete = TRUE;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Len: %d)", data_length);
@@ -720,7 +720,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             data_length = tvb_get_guint8(tvb, ae + 1);
             proto_tree_add_item(iso15765_tree, hf_iso15765_data_length, tvb, ae + 1, 1, ENC_BIG_ENDIAN);
 
-            next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
+            next_tvb = tvb_new_subset_length(tvb, offset, data_length);
             complete = TRUE;
 
             /* Show some info */
@@ -833,7 +833,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 next_tvb = new_tvb;
                 complete = TRUE;
             } else {
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
+                next_tvb = tvb_new_subset_length(tvb, offset, data_length);
             }
         }
     }

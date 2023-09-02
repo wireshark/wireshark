@@ -5189,7 +5189,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 		case EID_CONFIG:                       // 10
 		case EID_ALARM:                        // 38
 			/* Dissect SNMP encoded configuration */
-			dissector_try_uint(wassp_dissector_table, WASSP_SNMP, tvb_new_subset_length_caplen(tvb, offset + TLV_VALUE, -1, length - 4), pinfo, tlv_tree);
+			dissector_try_uint(wassp_dissector_table, WASSP_SNMP, tvb_new_subset_length(tvb, offset + TLV_VALUE, length - 4), pinfo, tlv_tree);
 			offset += length;
 			break;
 
@@ -5580,7 +5580,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 		default:
 			/* If tlv isn't in the list, then just display the raw data*/
 			proto_tree_add_item(tlv_tree, hf_wassp_tlv_value_octext, tvb, offset + TLV_VALUE, length - 4, ENC_NA);
-			call_dissector(data_handle, tvb_new_subset_length_caplen(tvb, offset + TLV_VALUE, -1, length - 4), pinfo, wassp_tree);
+			call_dissector(data_handle, tvb_new_subset_length(tvb, offset + TLV_VALUE, length - 4), pinfo, wassp_tree);
 			offset += length;
 		}
 
@@ -5737,7 +5737,7 @@ static int dissect_wassp_mu(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *
 		case WASSP_MU_Data:
 		case WASSP_MU_Eap_Last:
 			/* Dissect the WASSP MU ethernet frame */
-			call_dissector(eth_handle, tvb_new_subset_length_caplen(tvb, offset, -1, plength), pinfo, wassp_mu_tree);
+			call_dissector(eth_handle, tvb_new_subset_length(tvb, offset, plength), pinfo, wassp_mu_tree);
 			offset += plength;
 			break;
 		case WASSP_MU_Roam_Notify:
@@ -5746,7 +5746,7 @@ static int dissect_wassp_mu(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *
 			break;
 		default:
 			/* Dissect the WASSP MU payload as data by default */
-			call_dissector(data_handle, tvb_new_subset_length_caplen(tvb, offset, -1, plength), pinfo, wassp_mu_tree);
+			call_dissector(data_handle, tvb_new_subset_length(tvb, offset, plength), pinfo, wassp_mu_tree);
 			offset += plength;
 			break;
 		}
@@ -5841,12 +5841,12 @@ static void dissect_unfragmented_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_
 			goto tlv_dissect;
 		case WASSP_RU_Stats_Notify:                      // 14
 			/* Dissect SNMP encoded RU statistics */
-			dissector_try_uint(wassp_dissector_table, WASSP_SNMP, tvb_new_subset_length_caplen(tvb, offset, -1, plength), pinfo, wassp_tree);
+			dissector_try_uint(wassp_dissector_table, WASSP_SNMP, tvb_new_subset_length(tvb, offset, plength), pinfo, wassp_tree);
 			offset += plength;
 			goto data_dissect;
 		case WASSP_LBS_TAG_REPORT:                       // 55
 			lsbHeaderMagic = tvb_get_ntohs(tvb, 36);
-			call_dissector(ip_handle, tvb_new_subset_length_caplen(tvb, offset, -1, plength), pinfo, wassp_tree);
+			call_dissector(ip_handle, tvb_new_subset_length(tvb, offset, plength), pinfo, wassp_tree);
 			if (lsbHeaderMagic == LBS_HDR_MAGIC)
 				offset = decode_lbs_tag_header(wassp_tree, tvb, offset + 28);
 			else
@@ -5866,7 +5866,7 @@ tlv_dissect:
 		offset = dissect_wassp_tlv(wassp_tree, tvb, pinfo, offset, ru_msg_type);
 data_dissect:
 		/* Call data dissector on any remaining bytes */
-		call_dissector(data_handle, tvb_new_subset_length_caplen(tvb, offset, -1, -1), pinfo, wassp_tree);
+		call_dissector(data_handle, tvb_new_subset_length(tvb, offset, -1), pinfo, wassp_tree);
 	}
 }
 
@@ -6005,7 +6005,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		else
 		{
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %u)", seq_number);
-			next_tvb = tvb_new_subset_length_caplen(tvb, WASSP_HDR_LEN, -1, -1);
+			next_tvb = tvb_new_subset_length(tvb, WASSP_HDR_LEN, -1);
 		}
 	}
 

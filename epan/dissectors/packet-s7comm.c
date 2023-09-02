@@ -6583,7 +6583,7 @@ s7comm_decode_ud_data(tvbuff_t *tvb,
                     next_tvb = new_tvb;
                     offset = 0;
                 } else { /* make a new subset */
-                    next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
+                    next_tvb = tvb_new_subset_length(tvb, offset, -1);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " (S7COMM fragment%s)", str_fragadd);
                     proto_item_append_text(data_tree, " (S7COMM fragment%s)", str_fragadd);
                     offset = 0;

@@ -693,7 +693,7 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	 * BACnet NPDU
 	 */
 	npdu_length = packet_length - bvlc_length;
-	next_tvb = tvb_new_subset_length_caplen(tvb, bvlc_length, -1, npdu_length);
+	next_tvb = tvb_new_subset_length(tvb, bvlc_length, npdu_length);
 	/* Code from Guy Harris */
 	if (!dissector_try_uint(bvlc_dissector_table,
 		bvlc_function, next_tvb, pinfo, tree)) {
@@ -866,7 +866,7 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	 * BACnet NPDU
 	 */
 	npdu_length = packet_length - offset;
-	next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, npdu_length);
+	next_tvb = tvb_new_subset_length(tvb, offset, npdu_length);
 	/* Code from Guy Harris */
 	if ( ! dissector_try_uint(bvlc_ipv6_dissector_table,
 		bvlc_function, next_tvb, pinfo, tree)) {
@@ -1252,7 +1252,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	/* Let the remaining frame to be decoded elsewhere */
 	npdu_length = packet_length - offset;
-	next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, npdu_length);
+	next_tvb = tvb_new_subset_length(tvb, offset, npdu_length);
 	/* Code from Guy Harris */
 	if (!dissector_try_uint(bscvlc_dissector_table,
 		bvlc_function, next_tvb, pinfo, tree)) {

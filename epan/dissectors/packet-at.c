@@ -2620,7 +2620,7 @@ static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             /* Found some valid characters, check if rest is padding */
             if(is_padded(tvb,len,allwd_chars_len)) {
                 /* This is a padded AT Command */
-                tvb_no_padding = tvb_new_subset_length_caplen(tvb, 0, allwd_chars_len, allwd_chars_len);
+                tvb_no_padding = tvb_new_subset_length(tvb, 0, allwd_chars_len);
                 dissect_at(tvb_no_padding, pinfo, tree, data);
                 return (TRUE);
             }

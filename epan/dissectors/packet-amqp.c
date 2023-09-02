@@ -10392,7 +10392,7 @@ dissect_amqp_1_0_variable(tvbuff_t *tvb, packet_info *pinfo,
 
     gboolean is_dissected = FALSE;
     if (hf_amqp_type == hf_amqp_1_0_data) {
-        tvbuff_t *msg_tvb = tvb_new_subset_length_caplen(tvb, offset, bin_length, bin_length);
+        tvbuff_t *msg_tvb = tvb_new_subset_length(tvb, offset, bin_length);
         is_dissected = find_data_dissector(msg_tvb, pinfo, item);
     }
 

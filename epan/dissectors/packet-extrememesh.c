@@ -1495,7 +1495,7 @@ static gint dissect_extrememesh_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	proto_tree_add_item(meshTree, hf_extrememesh_mch_src, tvb, offset, 6, ENC_NA);
 	offset+=6;
 
-	nextTvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
+	nextTvb = tvb_new_subset_length(tvb, offset, -1);
 
 	while(next_proto != (gint)MESH_NEXT_PROTOCOL_INVALID)
 	{
@@ -1569,7 +1569,7 @@ static int dissect_extrememesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_tree_add_item(meshTree, hf_extrememesh_nextproto, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_length(tvb, offset, -1);
 
 	while(next_proto != (gint)MESH_NEXT_PROTOCOL_INVALID)
 	{
