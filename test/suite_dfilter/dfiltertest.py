@@ -5,6 +5,7 @@
 import subprocesstest
 from subprocesstest import count_output, grep_output
 import pytest
+import logging
 
 
 @pytest.fixture
@@ -53,6 +54,7 @@ def checkDFilterCount(dfilter_cmd, base_env):
                                          capture_output=True,
                                          universal_newlines=True,
                                          env=base_env)
+        logging.debug(proc.stderr)
         assert count_output(proc.stdout) == expected_count
     return checkDFilterCount_real
 
@@ -64,6 +66,7 @@ def checkDFilterCountWithSelectedFrame(dfilter_cmd, base_env):
                                          capture_output=True,
                                          universal_newlines=True,
                                          env=base_env)
+        logging.debug(proc.stderr)
         assert count_output(proc.stdout) == expected_count
     return checkDFilterCount_real
 
@@ -75,6 +78,7 @@ def checkDFilterCountReadFilter(dfilter_cmd, base_env):
                                          capture_output=True,
                                          universal_newlines=True,
                                          env=base_env)
+        logging.debug(proc.stderr)
         assert count_output(proc.stdout) == expected_count
     return checkDFilterCount_real
 
@@ -86,6 +90,7 @@ def checkDFilterFail(cmd_dftest, base_env):
                                 capture_output=True,
                                 universal_newlines=True,
                                 env=base_env)
+        logging.debug(proc.stderr)
         assert proc.returncode == 4
         assert error_message in proc.stderr
     return checkDFilterFail_real
@@ -98,6 +103,7 @@ def checkDFilterSucceed(cmd_dftest, base_env):
                                 capture_output=True,
                                 universal_newlines=True,
                                 env=base_env)
+        logging.debug(proc.stderr)
         assert proc.returncode == 0
         if expect_stdout:
             assert expect_stdout in proc.stdout
