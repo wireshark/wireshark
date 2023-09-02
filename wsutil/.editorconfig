@@ -83,9 +83,6 @@ indent_size = 2
 indent_style = tab
 indent_size = tab
 
-[strptime.[ch]]
-indent_size = 2
-
 [tempfile.[ch]]
 indent_size = 2
 
@@ -113,6 +110,10 @@ indent_size = tab
 
 [ws_mempbrk_sse42.[ch]]
 indent_size = 2
+
+[ws_strptime.[ch]]
+indent_style = tab
+indent_size = tab
 
 [wsgetopt.[ch]]
 indent_size = 2

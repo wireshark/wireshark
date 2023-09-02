@@ -65,12 +65,6 @@ guint64 create_timestamp(void);
 WS_DLL_PUBLIC
 struct timespec *ws_clock_get_realtime(struct timespec *ts);
 
-/*
- * Portability wrapper around strptime().
- */
-WS_DLL_PUBLIC
-char *ws_strptime(const char *s, const char *format, struct tm *tm);
-
 WS_DLL_PUBLIC
 struct tm *ws_localtime_r(const time_t *timep, struct tm *result);
 

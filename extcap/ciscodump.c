@@ -12,7 +12,7 @@
 
 #include "config.h"
 #define WS_LOG_DOMAIN "ciscodump"
- 
+
 #include <extcap/extcap-base.h>
 #include <wsutil/interface.h>
 #include <wsutil/strtoi.h>
@@ -28,6 +28,7 @@
 #include <fcntl.h>
 
 #include <wsutil/time_util.h>
+#include <wsutil/ws_strptime.h>
 
 #include <cli_main.h>
 

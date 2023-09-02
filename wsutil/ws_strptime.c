@@ -1,5 +1,3 @@
-/*	$NetBSD: strptime.c,v 1.63 2020/09/21 15:31:54 ginsbach Exp $	*/
-
 /*-
  * Copyright (c) 1997, 1998, 2005, 2008 The NetBSD Foundation, Inc.
  * All rights reserved.
@@ -28,34 +26,96 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "config.h"
+#include "ws_strptime.h"
 
-#include <sys/cdefs.h>
-#if defined(LIBC_SCCS) && !defined(lint)
-__RCSID("$NetBSD: strptime.c,v 1.63 2020/09/21 15:31:54 ginsbach Exp $");
+#include <wsutil/time_util.h>
+
+#ifdef _WIN32
+#define tzset		_tzset
+#define tzname		_tzname
+#define timezone	_timezone
+#define daylight	_daylight
 #endif
 
-#include "namespace.h"
-#include <sys/localedef.h>
-#include <sys/types.h>
-#include <ctype.h>
-#include <locale.h>
-#include <string.h>
-#include <time.h>
-#include <tzfile.h>
-#include "private.h"
-#include "setlocale_local.h"
-
-#ifdef __weak_alias
-__weak_alias(strptime,_strptime)
-__weak_alias(strptime_l, _strptime_l)
+#ifdef HAVE_STRUCT_TM_TM_ZONE
+#define TM_ZONE		tm_zone
+#else
+#undef TM_ZONE
 #endif
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+#define TM_GMTOFF	tm_gmtoff
+#else
+#undef TM_GMTOFF
+#endif
+
+/*
+ * The following macro is used to remove const cast-away warnings
+ * from gcc -Wcast-qual; it should be used with caution because it
+ * can hide valid errors; in particular most valid uses are in
+ * situations where the API requires it, not to cast away string
+ * constants. We don't use *intptr_t on purpose here and we are
+ * explicit about unsigned long so that we don't have additional
+ * dependencies.
+ */
+//#define __UNCONST(a)	((void *)(unsigned long)(const void *)(a))
+#define __UNCONST(a)	((void *)(a))
 
 static const unsigned char *conv_num(const unsigned char *, int *, unsigned, unsigned);
 static const unsigned char *find_string(const unsigned char *, int *, const char * const *,
 	const char * const *, int);
 
-#define _TIME_LOCALE(loc) \
-    ((_TimeLocale *)((loc)->part_impl[(size_t)LC_TIME]))
+#define SECSPERMIN	60
+#define MINSPERHOUR	60
+#define HOURSPERDAY	24
+#define DAYSPERWEEK	7
+#define DAYSPERNYEAR	365
+#define DAYSPERLYEAR	366
+#define SECSPERHOUR	(SECSPERMIN * MINSPERHOUR)
+#define SECSPERDAY	((int_fast32_t) SECSPERHOUR * HOURSPERDAY)
+#define MONSPERYEAR	12
+
+#define TM_SUNDAY	0
+#define TM_MONDAY	1
+#define TM_TUESDAY	2
+#define TM_WEDNESDAY	3
+#define TM_THURSDAY	4
+#define TM_FRIDAY	5
+#define TM_SATURDAY	6
+
+#define TM_JANUARY	0
+#define TM_FEBRUARY	1
+#define TM_MARCH	2
+#define TM_APRIL	3
+#define TM_MAY		4
+#define TM_JUNE		5
+#define TM_JULY		6
+#define TM_AUGUST	7
+#define TM_SEPTEMBER	8
+#define TM_OCTOBER	9
+#define TM_NOVEMBER	10
+#define TM_DECEMBER	11
+
+#define TM_YEAR_BASE	1900
+
+#define EPOCH_YEAR	1970
+#define EPOCH_WDAY	TM_THURSDAY
+
+#define isleap(y) (((y) % 4) == 0 && (((y) % 100) != 0 || ((y) % 400) == 0))
+
+/*
+** Since everything in isleap is modulo 400 (or a factor of 400), we know that
+**	isleap(y) == isleap(y % 400)
+** and so
+**	isleap(a + b) == isleap((a + b) % 400)
+** or
+**	isleap(a + b) == isleap(a % 400 + b % 400)
+** This is true even if % means modulo rather than Fortran remainder
+** (which is allowed by C89 but not C99).
+** We use this to avoid addition overflow problems.
+*/
+
+#define isleap_sum(a, b)	isleap((a) % 400 + (b) % 400)
 
 /*
  * We do not implement alternate representations. However, we always
@@ -79,13 +139,36 @@ static const unsigned char *find_string(const unsigned char *, int *, const char
 #define HAVE_YEAR(s)		(s & S_YEAR)
 #define HAVE_HOUR(s)		(s & S_HOUR)
 
+#ifdef TM_ZONE
 static char utc[] = { "UTC" };
+#endif
 /* RFC-822/RFC-2822 */
 static const char * const nast[5] = {
        "EST",    "CST",    "MST",    "PST",    "\0\0\0"
 };
 static const char * const nadt[5] = {
        "EDT",    "CDT",    "MDT",    "PDT",    "\0\0\0"
+};
+
+static const char * const cloc_am_pm[] = {"AM", "PM", NULL};
+
+static const char * const cloc_abday[] = {
+	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", NULL
+};
+
+static const char * const cloc_day[] = {
+	"Sunday", "Monday", "Tuesday", "Wednesday", "Thusday", "Friday",
+	"Saturday", NULL
+};
+
+static const char * const cloc_abmon[] = {
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+	"Oct", "Nov", "Dec", NULL
+};
+
+static const char * const cloc_mon[] = {
+	"January", "February", "March", "April", "May", "June", "July",
+	"August", "September", "October", "November", "December", NULL
 };
 
 /*
@@ -115,46 +198,8 @@ first_wday_of(int yr)
 
 #define delim(p)	((p) == '\0' || g_ascii_isspace((unsigned char)(p)))
 
-static int
-fromzone(const unsigned char **bp, struct tm *tm, int mandatory)
-{
-	timezone_t tz;
-	char buf[512], *p;
-	const unsigned char *rp;
-
-	for (p = buf, rp = *bp; !delim(*rp) && p < &buf[sizeof(buf) - 1]; rp++)
-		*p++ = *rp;
-	*p = '\0';
-
-	if (mandatory)
-		*bp = rp;
-	if (!g_ascii_isalnum((unsigned char)*buf))
-		return 0;
-	tz = tzalloc(buf);
-	if (tz == NULL)
-		return 0;
-
-	*bp = rp;
-	tm->tm_isdst = 0;	/* XXX */
-#ifdef TM_GMTOFF
-	tm->TM_GMTOFF = tzgetgmtoff(tz, tm->tm_isdst);
-#endif
-#ifdef TM_ZONE
-	// Can't use tzgetname() here because we are going to free()
-	tm->TM_ZONE = NULL; /* XXX */
-#endif
-	tzfree(tz);
-	return 1;
-}
-
 char *
-strptime(const char *buf, const char *fmt, struct tm *tm)
-{
-	return strptime_l(buf, fmt, tm, _current_locale());
-}
-
-char *
-strptime_l(const char *buf, const char *fmt, struct tm *tm, locale_t loc)
+ws_strptime(const char *buf, const char *fmt, struct tm *tm)
 {
 	unsigned char c;
 	const unsigned char *bp, *ep, *zname;
@@ -206,7 +251,7 @@ literal:
 		 * "Complex" conversion rules, implemented through recursion.
 		 */
 		case 'c':	/* Date and time, using the locale's format. */
-			new_fmt = _TIME_LOCALE(loc)->d_t_fmt;
+			new_fmt = "%a %b %e %H:%M:%S %Y";
 			state |= S_WDAY | S_MON | S_MDAY | S_YEAR;
 			goto recurse;
 
@@ -228,7 +273,7 @@ literal:
 			goto recurse;
 
 		case 'r':	/* The time in 12-hour clock representation. */
-			new_fmt = _TIME_LOCALE(loc)->t_fmt_ampm;
+			new_fmt = "%I:%M:%S %p";
 			LEGAL_ALT(0);
 			goto recurse;
 
@@ -238,14 +283,14 @@ literal:
 			goto recurse;
 
 		case 'X':	/* The time, using the locale's format. */
-			new_fmt = _TIME_LOCALE(loc)->t_fmt;
+			new_fmt = "%H:%M:%S";
 			goto recurse;
 
 		case 'x':	/* The date, using the locale's format. */
-			new_fmt = _TIME_LOCALE(loc)->d_fmt;
+			new_fmt = "%m/%d/%y";
 			state |= S_MON | S_MDAY | S_YEAR;
 		    recurse:
-			bp = (const unsigned char *)strptime((const char *)bp,
+			bp = (const unsigned char *)ws_strptime((const char *)bp,
 							    new_fmt, tm);
 			LEGAL_ALT(ALT_E);
 			continue;
@@ -255,8 +300,7 @@ literal:
 		 */
 		case 'A':	/* The day of week, using the locale's form. */
 		case 'a':
-			bp = find_string(bp, &tm->tm_wday,
-			    _TIME_LOCALE(loc)->day, _TIME_LOCALE(loc)->abday, 7);
+			bp = find_string(bp, &tm->tm_wday, cloc_day, cloc_abday, 7);
 			LEGAL_ALT(0);
 			state |= S_WDAY;
 			continue;
@@ -264,9 +308,7 @@ literal:
 		case 'B':	/* The month, using the locale's form. */
 		case 'b':
 		case 'h':
-			bp = find_string(bp, &tm->tm_mon,
-			    _TIME_LOCALE(loc)->mon, _TIME_LOCALE(loc)->abmon,
-			    12);
+			bp = find_string(bp, &tm->tm_mon, cloc_mon, cloc_abmon, 12);
 			LEGAL_ALT(0);
 			state |= S_MON;
 			continue;
@@ -333,7 +375,7 @@ literal:
 			continue;
 
 		case 'p':	/* The locale's equivalent of AM/PM. */
-			bp = find_string(bp, &i, _TIME_LOCALE(loc)->am_pm,
+			bp = find_string(bp, &i, cloc_am_pm,
 			    NULL, 2);
 			if (HAVE_HOUR(state) && tm->tm_hour > 11)
 				return NULL;
@@ -371,7 +413,7 @@ literal:
 					continue;
 				}
 
-				if (localtime_r(&sse, tm) == NULL)
+				if (ws_localtime_r(&sse, tm) == NULL)
 					bp = NULL;
 				else
 					state |= S_YDAY | S_WDAY |
@@ -548,11 +590,7 @@ namedzone:
 
 				/*
 				 * From our 3 letter hard-coded table
-				 * XXX: Can be removed, handled by tzload()
 				 */
-				if (delim(bp[0]) || delim(bp[1]) ||
-				    delim(bp[2]) || !delim(bp[3]))
-					goto loadzone;
 				ep = find_string(bp, &i, nast, NULL, 4);
 				if (ep != NULL) {
 #ifdef TM_GMTOFF
@@ -593,12 +631,6 @@ namedzone:
 					bp = ep;
 					continue;
 				}
-loadzone:
-				/*
-				 * The hard way, load the zone!
-				 */
-				if (fromzone(&bp, tm, mandatory))
-					continue;
 				goto out;
 			}
 			offs = 0;

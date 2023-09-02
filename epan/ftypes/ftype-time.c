@@ -15,6 +15,7 @@
 
 #include <epan/to_str.h>
 #include <wsutil/time_util.h>
+#include <wsutil/ws_strptime.h>
 #include <wsutil/safe-math.h>
 
 

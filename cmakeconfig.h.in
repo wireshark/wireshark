@@ -307,6 +307,9 @@
 /* Define to 1 if you have the <sys/wait.h> header file. */
 #cmakedefine HAVE_SYS_WAIT_H 1
 
+/* Define if tm_gmtoff field exists in struct tm */
+#cmakedefine HAVE_STRUCT_TM_TM_GMTOFF 1
+
 /* Define if tm_zone field exists in struct tm */
 #cmakedefine HAVE_STRUCT_TM_TM_ZONE 1
 

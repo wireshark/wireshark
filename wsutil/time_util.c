@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define _GNU_SOURCE /* For strptime(). */
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 #include "time_util.h"
@@ -19,10 +18,6 @@
 #include <sys/resource.h>
 #else
 #include <windows.h>
-#endif
-
-#ifndef HAVE_STRPTIME
-#include "strptime.h"
 #endif
 
 /* Test if the given year is a leap year */
@@ -237,16 +232,6 @@ ws_clock_get_realtime(struct timespec *ts)
 	ts->tv_sec = time(NULL);
 	ts->tv_nsec = 0;
 	return ts;
-#endif
-}
-
-char *ws_strptime(const char *restrict s, const char *restrict format,
-			struct tm *restrict tm)
-{
-#ifdef HAVE_STRPTIME
-	return strptime(s, format, tm);
-#else
-	return strptime_gnulib(s, format, tm);
 #endif
 }
 

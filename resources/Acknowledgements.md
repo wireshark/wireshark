@@ -21,3 +21,5 @@ Insecure.Com LLC ("The Nmap Project") has granted the Wireshark Foundation permi
 We use the overflow-safe math functions from the [portable snippets](https://github.com/nemequ/portable-snippets) repository.
 
 We use the [Lrexlib](https://github.com/rrthomas/lrexlib) Lua library, specifically the PCRE2 flavour, to provide a regular expression API for Lua.
+
+The code for our `strptime()` implementation is from [NetBSD](https://www.netbsd.org/).
