@@ -234,6 +234,26 @@ static inline bool level_filter_matches(log_filter_t *filter,
 }
 
 
+static inline void fill_manifest(ws_log_manifest_t *mft)
+{
+    struct timespec ts;
+    ws_clock_get_realtime(&ts);
+    ws_localtime_r(&ts.tv_sec, &mft->tstamp_secs);
+    mft->nanosecs = ts.tv_nsec;
+    mft->pid = getpid();
+}
+
+
+static inline bool msg_is_active(const char *domain, enum ws_log_level level,
+                                    ws_log_manifest_t *mft)
+{
+    bool is_active = ws_log_msg_is_active(domain, level);
+    if (is_active)
+        fill_manifest(mft);
+    return is_active;
+}
+
+
 bool ws_log_msg_is_active(const char *domain, enum ws_log_level level)
 {
     /*
@@ -573,16 +593,24 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
         else if (option == opt_fatal_domain) {
             ws_log_set_fatal_domain_filter(value);
         }
-        else if (value && option == opt_file) {
-            FILE *fp = ws_fopen(value, "w");
-            if (fp == NULL) {
+        else if (option == opt_file) {
+            if (value == NULL) {
                 print_err(vcmdarg_err, exit_failure,
-                            "Error opening file '%s' for writing: %s.\n",
-                            value, g_strerror(errno));
+                            "Option '%s' requires an argument.\n",
+                            option);
                 ret += 1;
             }
             else {
-                ws_log_add_custom_file(fp);
+                FILE *fp = ws_fopen(value, "w");
+                if (fp == NULL) {
+                    print_err(vcmdarg_err, exit_failure,
+                                "Error opening file '%s' for writing: %s.\n",
+                                value, g_strerror(errno));
+                    ret += 1;
+                }
+                else {
+                    ws_log_add_custom_file(fp);
+                }
             }
         }
         else if (option == opt_fatal) {
@@ -990,19 +1018,6 @@ static void log_write_do_work(FILE *fp, bool use_color,
 }
 
 
-static inline struct tm *get_localtime(time_t unix_time, struct tm **cookie)
-{
-    if (unix_time == (time_t)-1)
-        return NULL;
-    if (cookie && *cookie)
-        return *cookie;
-    struct tm *when = localtime(&unix_time);
-    if (cookie)
-        *cookie = when;
-    return when;
-}
-
-
 static inline FILE *console_file(enum ws_log_level level)
 {
     if (level <= LOG_LEVEL_INFO && stdout_logging_enabled)
@@ -1033,13 +1048,12 @@ static void log_write_fatal_msg(FILE *fp, intmax_t pid, const char *msg)
  */
 static void log_write_dispatch(const char *domain, enum ws_log_level level,
                             const char *file, long line, const char *func,
+                            ws_log_manifest_t *mft,
                             const char *user_format, va_list user_ap)
 {
-    struct timespec tstamp;
-    intmax_t pid;
-    struct tm *cookie = NULL;
     bool fatal_event = false;
     const char *fatal_msg = NULL;
+    va_list user_ap_copy;
 
     if (level >= fatal_log_level && level != LOG_LEVEL_ECHO) {
         fatal_event = true;
@@ -1052,9 +1066,6 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
         }
     }
 
-    ws_clock_get_realtime(&tstamp);
-    pid = getpid();
-
 #ifdef _WIN32
     if (fatal_event || ws_log_console_open != LOG_CONSOLE_OPEN_NEVER) {
         /* the user wants a console or the application will terminate immediately */
@@ -1063,32 +1074,28 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
 #endif /* _WIN32 */
 
     if (custom_log) {
-        va_list user_ap_copy;
-
         va_copy(user_ap_copy, user_ap);
         log_write_do_work(custom_log, false,
-                            get_localtime(tstamp.tv_sec, &cookie),
-                            tstamp.tv_nsec, pid,
+                            &mft->tstamp_secs, mft->nanosecs, mft->pid,
                             domain, level, file, line, func,
                             user_format, user_ap_copy);
         va_end(user_ap_copy);
         if (fatal_msg) {
-            log_write_fatal_msg(custom_log, pid, fatal_msg);
+            log_write_fatal_msg(custom_log, mft->pid, fatal_msg);
         }
     }
 
     if (registered_log_writer) {
-        registered_log_writer(domain, level, fatal_msg, tstamp, file, line, func,
+        registered_log_writer(domain, level, file, line, func, fatal_msg, mft,
                         user_format, user_ap, registered_log_writer_data);
     }
     else {
         log_write_do_work(console_file(level), console_color_enabled(level),
-                            get_localtime(tstamp.tv_sec, &cookie),
-                            tstamp.tv_nsec, pid,
+                            &mft->tstamp_secs, mft->nanosecs, mft->pid,
                             domain, level, file, line, func,
                             user_format, user_ap);
         if (fatal_msg) {
-            log_write_fatal_msg(console_file(level), pid, fatal_msg);
+            log_write_fatal_msg(console_file(level), mft->pid, fatal_msg);
         }
     }
 
@@ -1110,10 +1117,11 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
 void ws_logv(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap)
 {
-    if (!ws_log_msg_is_active(domain, level))
+    ws_log_manifest_t mft;
+    if (!msg_is_active(domain, level, &mft))
         return;
 
-    log_write_dispatch(domain, level, NULL, -1, NULL, format, ap);
+    log_write_dispatch(domain, level, NULL, -1, NULL, &mft, format, ap);
 }
 
 
@@ -1121,23 +1129,25 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
                     const char *file, long line, const char *func,
                     const char *format, va_list ap)
 {
-    if (!ws_log_msg_is_active(domain, level))
+    ws_log_manifest_t mft;
+    if (!msg_is_active(domain, level, &mft))
         return;
 
-    log_write_dispatch(domain, level, file, line, func, format, ap);
+    log_write_dispatch(domain, level, file, line, func, &mft, format, ap);
 }
 
 
 void ws_log(const char *domain, enum ws_log_level level,
                     const char *format, ...)
 {
-    if (!ws_log_msg_is_active(domain, level))
+    ws_log_manifest_t mft;
+    if (!msg_is_active(domain, level, &mft))
         return;
 
     va_list ap;
 
     va_start(ap, format);
-    log_write_dispatch(domain, level, NULL, -1, NULL, format, ap);
+    log_write_dispatch(domain, level, NULL, -1, NULL, &mft, format, ap);
     va_end(ap);
 }
 
@@ -1146,13 +1156,14 @@ void ws_log_full(const char *domain, enum ws_log_level level,
                     const char *file, long line, const char *func,
                     const char *format, ...)
 {
-    if (!ws_log_msg_is_active(domain, level))
+    ws_log_manifest_t mft;
+    if (!msg_is_active(domain, level, &mft))
         return;
 
     va_list ap;
 
     va_start(ap, format);
-    log_write_dispatch(domain, level, file, line, func, format, ap);
+    log_write_dispatch(domain, level, file, line, func, &mft, format, ap);
     va_end(ap);
 }
 
@@ -1161,10 +1172,12 @@ void ws_log_fatal_full(const char *domain, enum ws_log_level level,
                     const char *file, long line, const char *func,
                     const char *format, ...)
 {
+    ws_log_manifest_t mft;
     va_list ap;
 
+    fill_manifest(&mft);
     va_start(ap, format);
-    log_write_dispatch(domain, level, file, line, func, format, ap);
+    log_write_dispatch(domain, level, file, line, func, &mft, format, ap);
     va_end(ap);
     abort();
 }
@@ -1174,10 +1187,12 @@ void ws_log_write_always_full(const char *domain, enum ws_log_level level,
                     const char *file, long line, const char *func,
                     const char *format, ...)
 {
+    ws_log_manifest_t mft;
     va_list ap;
 
+    fill_manifest(&mft);
     va_start(ap, format);
-    log_write_dispatch(domain, level, file, line, func, format, ap);
+    log_write_dispatch(domain, level, file, line, func, &mft, format, ap);
     va_end(ap);
 }
 
@@ -1305,26 +1320,24 @@ void ws_log_buffer_full(const char *domain, enum ws_log_level level,
 
 
 void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
-                            struct timespec timestamp, intmax_t pid,
                             const char *file, long line, const char *func,
+                            ws_log_manifest_t *mft,
                             const char *user_format, va_list user_ap)
 {
     log_write_do_work(fp, false,
-                        get_localtime(timestamp.tv_sec, NULL),
-                        timestamp.tv_nsec, pid,
+                        &mft->tstamp_secs, mft->nanosecs, mft->pid,
                         domain, level, file, line, func,
                         user_format, user_ap);
 }
 
 
 void ws_log_console_writer(const char *domain, enum ws_log_level level,
-                            struct timespec timestamp, intmax_t pid,
                             const char *file, long line, const char *func,
+                            ws_log_manifest_t *mft,
                             const char *user_format, va_list user_ap)
 {
     log_write_do_work(console_file(level), console_color_enabled(level),
-                        get_localtime(timestamp.tv_sec, NULL),
-                        timestamp.tv_nsec, pid,
+                        &mft->tstamp_secs, mft->nanosecs, mft->pid,
                         domain, level, file, line, func,
                         user_format, user_ap);
 }

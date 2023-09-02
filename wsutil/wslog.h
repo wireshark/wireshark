@@ -61,11 +61,16 @@ typedef enum {
 WSUTIL_EXPORT
 ws_log_console_open_pref ws_log_console_open;
 
+typedef struct {
+    struct tm tstamp_secs;
+    long nanosecs;
+    intmax_t pid;
+} ws_log_manifest_t;
 
 /** Callback for registering a log writer. */
 typedef void (ws_log_writer_cb)(const char *domain, enum ws_log_level level,
-                            const char *fatal_msg, struct timespec timestamp,
                             const char *file, long line, const char *func,
+                            const char *fatal_msg, ws_log_manifest_t *mft,
                             const char *user_format, va_list user_ap,
                             void *user_data);
 
@@ -76,15 +81,15 @@ typedef void (ws_log_writer_free_data_cb)(void *user_data);
 
 WS_DLL_PUBLIC
 void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
-                            struct timespec timestamp, intmax_t pid,
                             const char *file, long line, const char *func,
+                            ws_log_manifest_t *mft,
                             const char *user_format, va_list user_ap);
 
 
 WS_DLL_PUBLIC
 void ws_log_console_writer(const char *domain, enum ws_log_level level,
-                            struct timespec timestamp, intmax_t pid,
                             const char *file, long line, const char *func,
+                            ws_log_manifest_t *mft,
                             const char *user_format, va_list user_ap);
 
 
