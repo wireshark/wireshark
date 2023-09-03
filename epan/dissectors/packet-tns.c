@@ -1275,7 +1275,7 @@ void proto_register_tns(void)
 			"Request", "tns.request", FT_BOOLEAN, BASE_NONE,
 			NULL, 0x0, "TRUE if TNS request", HFILL }},
 		{ &hf_tns_length, {
-			"Packet Length", "tns.length", FT_UINT16, BASE_DEC,
+			"Packet Length", "tns.length", FT_UINT32, BASE_DEC,
 			NULL, 0x0, "Length of TNS packet", HFILL }},
 		{ &hf_tns_packet_checksum, {
 			"Packet Checksum", "tns.packet_checksum", FT_UINT16, BASE_HEX,

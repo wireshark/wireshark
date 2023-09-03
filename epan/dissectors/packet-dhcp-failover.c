@@ -1226,7 +1226,7 @@ proto_register_dhcpfo(void)
 			NULL, HFILL }
 		},
 		{&hf_dhcpfo_binding_status,
-			{"Type", "dhcpfo.bindingstatus",
+			{"Status", "dhcpfo.bindingstatus",
 			FT_UINT32, BASE_DEC, VALS(binding_status_vals), 0,
 			NULL, HFILL }
 		},

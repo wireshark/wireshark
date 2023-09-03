@@ -11,14 +11,8 @@ import argparse
 import signal
 import subprocess
 
-# This utility scans the dissector code for proto_tree_add_...() calls that constrain the type
-# or length of the item added, and checks that the used item is acceptable.
-#
-# - Note that this can only work where the hf_item variable or length is passed in directly - simple
-#   macro substitution is now done in a limited way 
-
+# This utility scans the dissector code for various issues.
 # TODO:
-# - Attempt to check for allowed encoding types (most likely will be literal values |'d)?
 # - Create maps from type -> display types for hf items (see display (FIELDDISPLAY)) in docs/README.dissector
 
 
@@ -640,7 +634,7 @@ class Item:
 
     previousItem = None
 
-    def __init__(self, filename, hf, filter, label, item_type, type_modifier, macros, mask=None,
+    def __init__(self, filename, hf, filter, label, item_type, display, strings, macros, mask=None,
                  check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
         self.filename = filename
         self.hf = hf
@@ -683,7 +677,7 @@ class Item:
                 warnings_found += 1
 
         self.item_type = item_type
-        self.type_modifier = type_modifier
+        self.display = display
 
         # Optionally check that mask bits are contiguous
         if check_mask:
@@ -692,9 +686,19 @@ class Item:
                 self.check_num_digits(self.mask)
                 self.check_digits_all_zeros(self.mask)
 
+        # N.B. these checks are already done by checkApis.pl
+        if strings.find('RVALS') != -1 and display.find('BASE_RANGE_STRING') == -1:
+            print('Warning: ' + filename, hf, 'filter "' + filter + ' strings has RVALS but display lacks BASE_RANGE_STRING')
+            warnings_found += 1
+
+        # For RVALS, is BASE_RANGE_STRING also set (checked by checkApis.pl)?
+        if strings.find('VALS_EXT_PTR') != -1 and display.find('BASE_EXT_STRING') == -1:
+            print('Warning: ' + filename, hf, 'filter "' + filter + ' strings has VALS_EXT_PTR but display lacks BASE_EXT_STRING')
+            warnings_found += 1
+
 
     def __str__(self):
-        return 'Item ({0} "{1}" {2} type={3}:{4} mask={5})'.format(self.filename, self.label, self.filter, self.item_type, self.type_modifier, self.mask)
+        return 'Item ({0} "{1}" {2} type={3}:{4} {5} mask={6})'.format(self.filename, self.label, self.filter, self.item_type, self.display, self.strings, self.mask)
 
 
 
@@ -790,16 +794,16 @@ class Item:
 
     def get_field_width_in_bits(self):
         if self.item_type == 'FT_BOOLEAN':
-            if self.type_modifier == 'NULL':
+            if self.display == 'NULL':
                 return 8  # i.e. 1 byte
-            elif self.type_modifier == 'BASE_NONE':
+            elif self.display == 'BASE_NONE':
                 return 8
-            elif self.type_modifier == 'SEP_DOT':   # from proto.h, only meant for FT_BYTES
+            elif self.display == 'SEP_DOT':   # from proto.h, only meant for FT_BYTES
                 return 64
             else:
                 try:
                     # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
-                    return int((int(self.type_modifier) + 3)/4)*4
+                    return int((int(self.display) + 3)/4)*4
                 except:
                     return None
         else:
@@ -844,7 +848,7 @@ class Item:
                     ideal_mask_width = int(self.get_field_width_in_bits()/4)
                     if self.item_type == 'FT_BOOLEAN' and ideal_mask_width < 16 and len(mask)-2 != ideal_mask_width:
                         print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
-                                "but type", self.item_type, "|", self.type_modifier,  " indicates should be", int(self.get_field_width_in_bits()/4))
+                                "but type", self.item_type, "|", self.display,  " indicates should be", int(self.get_field_width_in_bits()/4))
                         warnings_found += 1
 
             else:
@@ -906,6 +910,7 @@ class Item:
         label = label.replace('(', '')
         label = label.replace(')', '')
         label = label.replace('/', '')
+        label = label.replace("'", '')
 
 
         # OK if filter is abbrev of label.
@@ -923,9 +928,8 @@ class Item:
         filter_numbers = [int(n) for n in re.findall(r'\d+', last_filter_orig)]
         if len(label_numbers) == len(filter_numbers) and label_numbers != filter_numbers:
             if reportNumericalMismatch:
-                print('Warning:', self.filename, self.hf, 'label="' + self.label + '" has different **numbers** from  filter="' + self.filter + '"')
+                print('Note:', self.filename, self.hf, 'label="' + self.label + '" has different **numbers** from  filter="' + self.filter + '"')
                 print(label_numbers, filter_numbers)
-                warnings_found += 1
             return False
 
         # If they match after trimming number from filter, they should match.
@@ -1145,7 +1149,8 @@ def find_items(filename, macros, check_mask=False, mask_exact_width=False, check
             # Store this item.
             hf = m.group(1)
             items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4),
-                             type_modifier=m.group(5),
+                             display=m.group(5),
+                             strings=m.group(6),
                              macros=macros,
                              mask=m.group(7),
                              check_mask=check_mask,
@@ -1330,7 +1335,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
                 matches += 1
 
         # Only checking if almost every field does match.
-        checking = len(items_defined) and matches<len(items_defined) and ((matches / len(items_defined)) > 0.9)
+        checking = len(items_defined) and matches<len(items_defined) and ((matches / len(items_defined)) > 0.93)
         if checking:
             print(filename, ':', matches, 'label-vs-filter matches of out of', len(items_defined), 'so reporting mismatches')
             for hf in items_defined:

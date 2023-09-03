@@ -11937,7 +11937,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_msg_length,
         { "Length", "pfcp.length",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
         },
         { &hf_pfcp_hdr_flags,
@@ -12171,7 +12171,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_precedence,
         { "Precedence", "pfcp.precedence",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_source_interface,

@@ -1850,7 +1850,7 @@ proto_register_openwire(void)
         { "Value", "openwire.connectionid.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConnectionId Value", HFILL }},
 
      { &hf_openwire_sessionid_connectionid,
-        { "Connection", "openwire.sessionid.connectionid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire SessionId ConnectionId", HFILL }},
+        { "ConnectionId", "openwire.sessionid.connectionid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire SessionId ConnectionId", HFILL }},
 
      { &hf_openwire_sessionid_value,
         { "Value", "openwire.sessionid.value", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire SessionId Value", HFILL }},

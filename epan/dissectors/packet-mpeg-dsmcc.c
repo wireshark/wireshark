@@ -2822,7 +2822,7 @@ proto_register_dsmcc(void)
         /* table 4-89 Q.922 Connection - start */
         { &hf_dsmcc_un_sess_rsrc_dlci_count, {
             "DL CI Count", "mpeg_dsmcc.un_sess.rsrc_dlci_count",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
         } },
 
         { &hf_dsmcc_un_sess_rsrc_dlci, {
