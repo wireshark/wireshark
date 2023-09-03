@@ -50,8 +50,8 @@ __weak_alias(strptime,_strptime)
 __weak_alias(strptime_l, _strptime_l)
 #endif
 
-static const u_char *conv_num(const unsigned char *, int *, uint, uint);
-static const u_char *find_string(const u_char *, int *, const char * const *,
+static const unsigned char *conv_num(const unsigned char *, int *, unsigned, unsigned);
+static const unsigned char *find_string(const unsigned char *, int *, const char * const *,
 	const char * const *, int);
 
 #define _TIME_LOCALE(loc) \
@@ -162,7 +162,7 @@ strptime_l(const char *buf, const char *fmt, struct tm *tm, locale_t loc)
 	    day_offset = -1, week_offset = 0, offs, mandatory;
 	const char *new_fmt;
 
-	bp = (const u_char *)buf;
+	bp = (const unsigned char *)buf;
 
 	while (bp != NULL && (c = *fmt++) != '\0') {
 		/* Clear `alternate' modifier prior to new conversion. */
@@ -245,7 +245,7 @@ literal:
 			new_fmt = _TIME_LOCALE(loc)->d_fmt;
 			state |= S_MON | S_MDAY | S_YEAR;
 		    recurse:
-			bp = (const u_char *)strptime((const char *)bp,
+			bp = (const unsigned char *)strptime((const char *)bp,
 							    new_fmt, tm);
 			LEGAL_ALT(ALT_E);
 			continue;
@@ -731,14 +731,14 @@ loadzone:
 }
 
 
-static const u_char *
-conv_num(const unsigned char *buf, int *dest, uint llim, uint ulim)
+static const unsigned char *
+conv_num(const unsigned char *buf, int *dest, unsigned llim, unsigned ulim)
 {
-	uint result = 0;
+	unsigned result = 0;
 	unsigned char ch;
 
 	/* The limit also determines the number of valid digits. */
-	uint rulim = ulim;
+	unsigned rulim = ulim;
 
 	ch = *buf;
 	if (ch < '0' || ch > '9')
@@ -758,8 +758,8 @@ conv_num(const unsigned char *buf, int *dest, uint llim, uint ulim)
 	return buf;
 }
 
-static const u_char *
-find_string(const u_char *bp, int *tgt, const char * const *n1,
+static const unsigned char *
+find_string(const unsigned char *bp, int *tgt, const char * const *n1,
 		const char * const *n2, int c)
 {
 	int i;
