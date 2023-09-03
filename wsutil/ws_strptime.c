@@ -113,7 +113,7 @@ first_wday_of(int yr)
 	    (isleap(yr) ? 6 : 0) + 1) % 7;
 }
 
-#define delim(p)	((p) == '\0' || isspace((unsigned char)(p)))
+#define delim(p)	((p) == '\0' || g_ascii_isspace((unsigned char)(p)))
 
 static int
 fromzone(const unsigned char **bp, struct tm *tm, int mandatory)
@@ -128,7 +128,7 @@ fromzone(const unsigned char **bp, struct tm *tm, int mandatory)
 
 	if (mandatory)
 		*bp = rp;
-	if (!isalnum((unsigned char)*buf))
+	if (!g_ascii_isalnum((unsigned char)*buf))
 		return 0;
 	tz = tzalloc(buf);
 	if (tz == NULL)
@@ -170,8 +170,8 @@ strptime_l(const char *buf, const char *fmt, struct tm *tm, locale_t loc)
 		i = 0;
 
 		/* Eat up white-space. */
-		if (isspace(c)) {
-			while (isspace(*bp))
+		if (g_ascii_isspace(c)) {
+			while (g_ascii_isspace(*bp))
 				bp++;
 			continue;
 		}
@@ -420,7 +420,7 @@ literal:
 				 */
 			do
 				bp++;
-			while (isdigit(*bp));
+			while (g_ascii_isdigit(*bp));
 			continue;
 
 		case 'V':	/* The ISO 8601:1988 week number as decimal */
@@ -477,7 +477,7 @@ literal:
 			 *       local time
 			 */
 			if (mandatory)
-				while (isspace(*bp))
+				while (g_ascii_isspace(*bp))
 					bp++;
 
 			zname = bp;
@@ -603,7 +603,7 @@ loadzone:
 			}
 			offs = 0;
 			for (i = 0; i < 4; ) {
-				if (isdigit(*bp)) {
+				if (g_ascii_isdigit(*bp)) {
 					offs = offs * 10 + (*bp++ - '0');
 					i++;
 					continue;
@@ -614,7 +614,7 @@ loadzone:
 				}
 				break;
 			}
-			if (isdigit(*bp))
+			if (g_ascii_isdigit(*bp))
 				goto out;
 			switch (i) {
 			case 2:
@@ -654,7 +654,7 @@ loadzone:
 		 */
 		case 'n':	/* Any kind of white-space. */
 		case 't':
-			while (isspace(*bp))
+			while (g_ascii_isspace(*bp))
 				bp++;
 			LEGAL_ALT(0);
 			continue;
@@ -769,7 +769,7 @@ find_string(const unsigned char *bp, int *tgt, const char * const *n1,
 	for (; n1 != NULL; n1 = n2, n2 = NULL) {
 		for (i = 0; i < c; i++, n1++) {
 			len = strlen(*n1);
-			if (strncasecmp(*n1, (const char *)bp, len) == 0) {
+			if (g_ascii_strncasecmp(*n1, (const char *)bp, len) == 0) {
 				*tgt = i;
 				return bp + len;
 			}
