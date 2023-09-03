@@ -3830,7 +3830,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                                               PTP_V2_FU_PRECISEORIGINTIMESTAMP_OFFSET,
                                                               10,
                                                               NULL,
-                                                              "%ld", (guint32)(ts_sec * NS_PER_S + ts_ns) % 0x100000000);
+                                                              "%"PRIu64, (ts_sec * NS_PER_S + ts_ns) % UINT64_C(0x100000000));
 
                 proto_item_set_hidden(ti_tstamp);
                 proto_item_set_generated(ti_tstamp);
