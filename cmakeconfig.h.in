@@ -49,6 +49,12 @@
 /* Define to 1 if you have the `timespec_get` function. */
 #cmakedefine HAVE_TIMESPEC_GET 1
 
+/* Define to 1 if you have the `localtime_r` function. */
+#cmakedefine HAVE_LOCALTIME_R 1
+
+/* Define to 1 if you have the `tzset` function. */
+#cmakedefine HAVE_TZSET 1
+
 /* Define to use the MaxMind DB library */
 #cmakedefine HAVE_MAXMINDDB 1
 

@@ -250,6 +250,28 @@ char *ws_strptime(const char *restrict s, const char *restrict format,
 #endif
 }
 
+struct tm *
+ws_localtime_r(const time_t *timep, struct tm *result)
+{
+#if defined(HAVE_LOCALTIME_R)
+#ifdef HAVE_TZSET
+	tzset();
+#endif
+	return localtime_r(timep, result);
+#elif defined(_MSC_VER)
+	errno_t err = localtime_s(result, timep);
+	if (err == 0)
+		return result;
+	return NULL;
+#else
+	struct tm *aux = localtime(timep);
+	if (aux == NULL)
+		return NULL;
+	*result = *aux;
+	return result;
+#endif
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
