@@ -1101,13 +1101,12 @@ http3_session_lookup_or_create(packet_info *pinfo)
     http3_session_info_t *http3_session;
 
     /* First, try to look up the session by initial QUIC DCID */
-    quic_cid_t initial_dcid;
+    quic_cid_t initial_dcid = {0};
     if (quic_conn_data_get_conn_client_dcid_initial(pinfo, &initial_dcid)) {
         /* Look up the session data in the conn map */
         http3_session = (http3_session_info_t *)wmem_map_lookup(HTTP3_CONN_INFO_MAP, &initial_dcid);
         if (http3_session == NULL) {
-            quic_cid_t *dcid_p = wmem_new0(wmem_file_scope(), quic_cid_t);
-            *dcid_p = initial_dcid;
+            quic_cid_t *dcid_p = wmem_memdup(wmem_file_scope(), &initial_dcid, sizeof(initial_dcid));
             http3_session = http3_session_new();
             wmem_map_insert(HTTP3_CONN_INFO_MAP, dcid_p, http3_session);
         }
