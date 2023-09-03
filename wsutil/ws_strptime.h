@@ -24,6 +24,13 @@ WS_DLL_PUBLIC
 char *
 ws_strptime(const char *buf, const char *format, struct tm *tm);
 
+/*
+ * Portability wrapper around the system's strptime().
+ */
+WS_DLL_PUBLIC
+char *
+ws_strptime_p(const char *buf, const char *format, struct tm *tm);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -637,10 +637,10 @@ static int parse_line_ios(uint8_t* packet, unsigned* offset, char* line, int sta
 
 		memset(&tm, 0x0, sizeof(struct tm));
 
-		cp = ws_strptime(d1, "%H:%M:%S %Z %b %d %Y", &tm);
+		cp = ws_strptime_p(d1, "%H:%M:%S %Z %b %d %Y", &tm);
 		if (!cp || (*cp != '\0')) {
 			/* Time zone parse failed */
-			cp = ws_strptime(d2, "%H:%M:%S %b %d %Y", &tm);
+			cp = ws_strptime_p(d2, "%H:%M:%S %b %d %Y", &tm);
 			if (!cp || (*cp != '\0')) {
 				/* Time parse failed, use now */
 				time_t t;

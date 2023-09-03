@@ -74,7 +74,6 @@
  * not supported and no automatic format detection is attempted.
  */
 
-#define _GNU_SOURCE /* For strptime() */
 #include "config.h"
 #include "text_import.h"
 
@@ -353,16 +352,6 @@ typedef struct {
 static hdr_export_pdu_t HDR_EXPORT_PDU = {0, 0};
 
 #define EXPORT_PDU_END_OF_OPTIONS_SIZE 4
-
-static char *
-text_import_strptime(const char *buf, const char *format, struct tm *restrict tm)
-{
-#ifdef HAVE_STRPTIME
-    return strptime(buf, format, tm);
-#else
-    return ws_strptime(buf, format, tm);
-#endif
-}
 
 /*----------------------------------------------------------------------
  * Parse a single hex number
@@ -1091,7 +1080,7 @@ _parse_time(const guchar* start_field, const guchar* end_field, const gchar* _fo
             *subsecs_fmt = 0;
         }
 
-        cursor = text_import_strptime(cursor, format, &timecode);
+        cursor = ws_strptime_p(cursor, format, &timecode);
 
         if (cursor == NULL) {
             return FALSE;
@@ -1108,7 +1097,7 @@ _parse_time(const guchar* start_field, const guchar* end_field, const gchar* _fo
 
             subseclen = (int) (p - cursor);
             cursor = p;
-            cursor = text_import_strptime(cursor, subsecs_fmt + 2, &timecode);
+            cursor = ws_strptime_p(cursor, subsecs_fmt + 2, &timecode);
             if (cursor == NULL) {
                 return FALSE;
             }

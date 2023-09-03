@@ -26,10 +26,11 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#define _GNU_SOURCE
 #include "config.h"
 #include "ws_strptime.h"
-
-#include <wsutil/time_util.h>
+#include <time.h>
+#include <wsutil/time_util.h> /* For ws_localtime_r() */
 
 #ifdef _WIN32
 #define tzset		_tzset
@@ -197,6 +198,16 @@ first_wday_of(int yr)
 }
 
 #define delim(p)	((p) == '\0' || g_ascii_isspace((unsigned char)(p)))
+
+char *
+ws_strptime_p(const char *buf, const char *format, struct tm *tm)
+{
+#ifdef HAVE_STRPTIME
+    return strptime(buf, format, tm);
+#else
+    return ws_strptime(buf, format, tm);
+#endif
+}
 
 char *
 ws_strptime(const char *buf, const char *fmt, struct tm *tm)
