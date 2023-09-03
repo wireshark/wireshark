@@ -109,25 +109,51 @@ strings that include spaces.
 -A  <start time>::
 +
 --
-Reads only the packets whose timestamp is on or after start time.
-The time is given in ISO 8601 format, either
-YYYY-MM-DD HH:MM:SS[.nnnnnnnnn][Z|±hh:mm] or
-YYYY-MM-DDTHH:MM:SS[.nnnnnnnnn][Z|±hh:mm] .
+Reads only the packets whose timestamp is on or after <start time>.
+The time may be given either in ISO 8601 format or in Unix epoch
+timestamp format.
+
+ISO 8601 format is either
+
+ YYYY-MM-DD HH:MM:SS[.nnnnnnnnn][Z|±hh:mm]
+
+or
+
+ YYYY-MM-DDTHH:MM:SS[.nnnnnnnnn][Z|±hh:mm]
+
 The fractional seconds are optional, as is the time zone offset from UTC
-(in which case local time is assumed). Unix epoch timestamps
-(floating point format) are also accepted.
+(in which case local time is assumed).
+
+Unix epoch format is in seconds since the Unix epoch and nanoseconds,
+with either a period or a comma separating the seconds and nanoseconds.
+The nanoseconds are optional.
+The Unix epoch is 1970-01-01 00:00:00 UTC, so this format is not local
+time.
 --
 
 -B  <stop time>::
 +
 --
-Reads only the packets whose timestamp is before stop time.
-The time is given in ISO 8601 format, either
-YYYY-MM-DD HH:MM:SS[.nnnnnnnnn][Z|±hh:mm] or
-YYYY-MM-DDTHH:MM:SS[.nnnnnnnnn][Z|±hh:mm] .
+Reads only the packets whose timestamp is before <stop time>.
+The time may be given either in ISO 8601 format or in Unix epoch
+timestamp format.
+
+ISO 8601 format is either
+
+ YYYY-MM-DD HH:MM:SS[.nnnnnnnnn][Z|±hh:mm]
+
+or
+
+ YYYY-MM-DDTHH:MM:SS[.nnnnnnnnn][Z|±hh:mm]
+
 The fractional seconds are optional, as is the time zone offset from UTC
-(in which case local time is assumed). Unix epoch timestamps
-(floating point format) are also accepted.
+(in which case local time is assumed).
+
+Unix epoch format is in seconds since the Unix epoch and nanoseconds,
+with either a period or a comma separating the seconds and nanoseconds.
+The nanoseconds are optional.
+The Unix epoch is 1970-01-01 00:00:00 UTC, so this format is not local
+time.
 --
 
 -c  <packets per file>::
