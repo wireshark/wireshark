@@ -16,6 +16,7 @@
 #include <epan/prefs.h>
 #include <epan/uat-int.h>
 #include <epan/to_str.h>
+#include <epan/dissectors/packet-ip.h>
 
 #include "pinfo_stats_tree.h"
 
@@ -158,8 +159,8 @@ static void ipv6_srcdst_stats_tree_init(stats_tree *st) {
 
 static tap_packet_status ip_srcdst_stats_tree_packet(stats_tree *st,
 						     packet_info *pinfo,
-				                     int st_node_src,
-				                     const gchar *st_str_src,
+						     int st_node_src,
+						     const gchar *st_str_src,
 						     int st_node_dst,
 						     const gchar *st_str_dst) {
 	/* update source branch */
@@ -243,6 +244,44 @@ static tap_packet_status ipv6_dsts_stats_tree_packet(stats_tree *st, packet_info
 	return dsts_stats_tree_packet(st, pinfo, st_node_ipv6_dsts, st_str_ipv6_dsts);
 }
 
+static int st_node_ipv4_src_ttls = -1;
+static int st_node_ipv6_src_ttls = -1;
+static const gchar* st_str_ipv4_src_ttls = "IPv4 Statistics/Source TTLs";
+static const gchar* st_str_ipv6_src_ttls = "IPv6 Statistics/Source Hop Limits";
+
+static void ipv4_src_ttl_stats_tree_init(stats_tree* st) {
+	st_node_ipv4_src_ttls = stats_tree_create_node(st, st_str_ipv4_src_ttls, 0, STAT_DT_INT, TRUE);
+}
+
+static void ipv6_src_ttl_stats_tree_init(stats_tree* st) {
+	st_node_ipv6_src_ttls = stats_tree_create_node(st, st_str_ipv6_src_ttls, 0, STAT_DT_INT, TRUE);
+}
+
+static tap_packet_status src_ttl_stats_tree_packet(stats_tree* st, packet_info* pinfo, int st_node, const char* st_str, uint8_t ttl) {
+	static gchar str[128];
+	int ip_src_node;
+	int ttl_node;
+
+	tick_stat_node(st, st_str, 0, FALSE);
+	ip_src_node = tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node, TRUE);
+	snprintf(str, sizeof(str) - 1, "%u", ttl);
+	ttl_node = tick_stat_node(st, str, ip_src_node, TRUE);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), ttl_node, TRUE);
+	return TAP_PACKET_REDRAW;
+}
+
+static tap_packet_status ipv4_src_ttl_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_) {
+	ws_ip4* iph = (ws_ip4*)p;
+
+	return src_ttl_stats_tree_packet(st, pinfo, st_node_ipv4_src_ttls, st_str_ipv4_src_ttls, iph->ip_ttl);
+}
+
+static tap_packet_status ipv6_src_ttl_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_) {
+	ws_ip6* iph = (ws_ip6*)p;
+
+	return src_ttl_stats_tree_packet(st, pinfo, st_node_ipv6_src_ttls, st_str_ipv6_src_ttls, iph->ip6_hop);
+}
+
 /* packet length stats_tree -- test range node */
 static int st_node_plen = -1;
 static const gchar *st_str_plen = "Packet Lengths";
@@ -286,11 +325,14 @@ void register_tap_listener_pinfo_stat_tree(void)
 	stats_tree_register_plugin("ip", "ip_srcdst", st_str_ipv4_srcdst, 0, ipv4_srcdst_stats_tree_packet, ipv4_srcdst_stats_tree_init, NULL );
 	stats_tree_register_plugin("ip", "ptype", st_str_ipv4_ptype, 0, ipv4_ptype_stats_tree_packet, ipv4_ptype_stats_tree_init, NULL );
 	stats_tree_register_plugin("ip", "dests", st_str_ipv4_dsts, 0, ipv4_dsts_stats_tree_packet, ipv4_dsts_stats_tree_init, NULL );
+	stats_tree_register_plugin("ip", "ip_ttl", st_str_ipv4_src_ttls, 0, ipv4_src_ttl_stats_tree_packet, ipv4_src_ttl_stats_tree_init, NULL);
 
 	stats_tree_register_plugin("ipv6", "ipv6_hosts", st_str_ipv6, 0, ipv6_hosts_stats_tree_packet, ipv6_hosts_stats_tree_init, NULL );
 	stats_tree_register_plugin("ipv6", "ipv6_srcdst", st_str_ipv6_srcdst, 0, ipv6_srcdst_stats_tree_packet, ipv6_srcdst_stats_tree_init, NULL );
 	stats_tree_register_plugin("ipv6", "ipv6_ptype", st_str_ipv6_ptype, 0, ipv6_ptype_stats_tree_packet, ipv6_ptype_stats_tree_init, NULL );
 	stats_tree_register_plugin("ipv6", "ipv6_dests", st_str_ipv6_dsts, 0, ipv6_dsts_stats_tree_packet, ipv6_dsts_stats_tree_init, NULL );
+	stats_tree_register_plugin("ipv6", "ipv6_hop", st_str_ipv6_src_ttls, 0, ipv6_src_ttl_stats_tree_packet, ipv6_src_ttl_stats_tree_init, NULL);
+
 
 	stats_tree_register_with_group("frame", "plen", st_str_plen, 0, plen_stats_tree_packet, plen_stats_tree_init, NULL, REGISTER_STAT_GROUP_GENERIC);
 

@@ -914,6 +914,7 @@ The menu:Statistics[IPv4] menu provides the packet counter by submenus:
 * `All Addresses`. Divides data by IP address.
 * `Destination and Ports`. Divides data by IP address, and further by IP protocol type, such as TCP, UDP, and others. It also shows port number.
 * `IP Protocol Types`. Divides data by IP protocol type.
+* `Source TTLs`. Divides data by source IP address and then by TTL. Also shows the destination IP address for each TTL value.
 * `Source and Destination addresses`. Divides data by source and destination IP address.
 
 You can see similar statistics in the menu:Statistics[Conversations] and menu:Statistics[Endpoints] menus.

@@ -1961,6 +1961,13 @@ Calculate statistics on IPv4 addresses, with source and destination addresses
 separated into separate categories.
 --
 
+*-z* ip_ttl,tree[,__filter__]::
++
+--
+Calculate statistics on the time to live (TTL) values that occur for each
+IPv4 source address.
+--
+
 *-z* ip6_dests,tree[,__filter__]::
 +
 --
@@ -1987,6 +1994,13 @@ Calculate statistics on port types that occur on IPv6 packets.
 Calculate statistics on IPv6 addresses, with source and destination addresses
 separated into separate categories.
 --
+
+*-z* ip6_hop,tree[,__filter__]::
++
+--
+Calculate statistics on the hop limits that occur for each IPv6 source address.
+--
+
 
 *-z* isup_msg,tree[,__filter__]::
 +
