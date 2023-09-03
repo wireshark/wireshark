@@ -202,6 +202,8 @@ Wireshark 4.1.1 Release Notes
        (https://www.speex.org). The speex code that was previously
        bundled has been removed.
 
+     • New `--print-timers` option added to tshark.
+
   Removed Features and Support
 
      • With the addition of the universal and consistent filtering
@@ -211,13 +213,16 @@ Wireshark 4.1.1 Release Notes
        (as they may not be legal filter names) and create confusion if
        more than one column has the same title or if a column is
        renamed. Prefer the column format instead, e.g. "_ws.col.info"
-       for "_ws.col.Info". However, for backwards compatibilty with
+       for "_ws.col.Info". However, for backwards compatibility with
        existing tools and scripts, the titles of the default columns can
        continue to be used with "tshark -e" (but not elsewhere.)
 
      • The bundled script "dtd_gen.lua" that was disabled by default has
        been removed from the installation. It can be found in the
        Wireshark Wiki under "Contrib"[6].
+
+     • The Wi-Fi NAN dissector filter name has been changed from 'nan'
+       to 'wifi_nan'.
 
   New Protocol Support
 
