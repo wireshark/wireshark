@@ -164,23 +164,6 @@ relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_va
 	return FALSE;
 }
 
-/* Returns TRUE if 's' starts with an abbreviated month name. */
-static gboolean
-parse_month_name(const char *s, int *tm_mon)
-{
-	const char *months[] = {
-		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-	};
-	for (int i = 0; i < 12; i++) {
-		if (g_ascii_strncasecmp(s, months[i], 3) == 0) {
-			*tm_mon = i;
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
 /*
  * Parses an absolute time value from a string. The string can have
  * a UTC time zone suffix. In that case it is interpreted in UTC. Otherwise
@@ -197,7 +180,7 @@ static gboolean
 absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err_msg_ptr)
 {
 	struct tm tm;
-	const char *curptr = NULL;
+	const char *bufptr, *curptr = NULL;
 	const char *endptr;
 	gboolean has_seconds = TRUE;
 	char *err_msg = NULL;
@@ -212,30 +195,32 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 
 	/* Try other legacy formats. */
 	memset(&tm, 0, sizeof(tm));
-
-	if (strlen(s) < sizeof("2000-1-1") - 1)
-		goto fail;
-
-	/* Do not use '%b' to parse the month name, it is locale-specific. */
-	if (s[3] == ' ' && parse_month_name(s, &tm.tm_mon))
-		curptr = ws_strptime(s + 4, "%d, %Y %H:%M:%S", &tm);
-
-	if (curptr == NULL) {
-		curptr = ws_strptime(s,"%Y-%m-%d %H:%M:%S", &tm);
-		if (curptr == NULL) {
-			has_seconds = FALSE;
-			curptr = ws_strptime(s,"%Y-%m-%d %H:%M", &tm);
-			if (curptr == NULL)
-				curptr = ws_strptime(s,"%Y-%m-%d %H", &tm);
-			if (curptr == NULL)
-				curptr = ws_strptime(s,"%Y-%m-%d", &tm);
-			if (curptr == NULL)
-				goto fail;
-		}
-	}
-
 	/* Let the computer figure out if it's DST. */
 	tm.tm_isdst = -1;
+
+	/* Parse the date. ws_strptime() always uses the "C" locale. s*/
+	bufptr = s;
+	curptr = ws_strptime(bufptr, "%b %d, %Y", &tm);
+	if (curptr == NULL)
+		curptr = ws_strptime(bufptr,"%Y-%m-%d", &tm);
+	if (curptr == NULL)
+		goto fail;
+
+	/* Parse the time, it is optional. */
+	/*
+	 * XXX: This is a date *and* time value. Allowing to omit the time presumably means it is midnight.
+	 * How useful is that short-hand? Not very IMO.
+	 */
+	bufptr = curptr;
+	curptr = ws_strptime(bufptr, " %H:%M:%S", &tm);
+	if (curptr == NULL) {
+		has_seconds = FALSE;
+		/* Seconds can be omitted but minutes (and hours) are required
+		 * for a valid time value. */
+		curptr = ws_strptime(bufptr," %H:%M", &tm);
+	}
+	if (curptr == NULL)
+		curptr = bufptr;
 
 	if (*curptr == '.') {
 		/* Nanoseconds */
