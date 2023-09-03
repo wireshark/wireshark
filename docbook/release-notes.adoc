@@ -119,6 +119,12 @@ The following features are new (or have been significantly updated) since versio
   ** Fixed the implementation of `all ... in` membership operator
      (https://gitlab.com/wireshark/wireshark/-/issues/19188[#19188]).
 
+  ** When parsing absolute time values the display filter engine has learned
+     to understand timezones as specified in
+     (https://man.netbsd.org/strptime.3[strptime(3)]), including some common
+     North American designations. Arbitrary timezone names are not supported
+     however. Previously only ISO8601 offsets and the "UTC" designation was understood.
+
   ** The deprecated ~≃ operator symbol has been removed. It was replaced by !== in version 4.0.
 
 * Running the test suite requires the https://pypi.org/project/pytest/[pytest]

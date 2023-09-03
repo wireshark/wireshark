@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define _GNU_SOURCE
 #include "config.h"
 #include "ftypes-int.h"
 
@@ -174,6 +175,59 @@ relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_va
  * (https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/mktime-mktime32-mktime64)
  */
 
+/*
+ * Timezone support:
+ *
+     %z    an ISO 8601, RFC-2822, or RFC-3339 time zone specification.  (A
+           NetBSD extension.)  This is one of the following:
+                 -   The offset from Coordinated Universal Time (`UTC') speci-
+                     fied as:
+                           ·   [+-]hhmm
+                           ·   [+-]hh:mm
+                           ·   [+-]hh
+                 -   `UTC' specified as:
+                           ·   UTC (`Coordinated Universal Time')
+                           ·   GMT (`Greenwich Mean Time')
+                           ·   UT (`Universal Time')
+                           ·   Z (`Zulu Time')
+                 -   A three character US time zone specified as:
+                           ·   EDT
+                           ·   EST
+                           ·   CDT
+                           ·   CST
+                           ·   MDT
+                           ·   MST
+                           ·   PDT
+                           ·   PST
+                     with the first letter standing for `Eastern' (``E''),
+                     `Central' (``C''), `Mountain' (``M'') or `Pacific'
+                     (``P''), and the second letter standing for `Daylight'
+                     (``D'' or summer) time or `Standard' (``S'') time
+                 -   a single letter military or nautical time zone specified
+                     as:
+                           ·   ``A'' through ``I''
+                           ·   ``K'' through ``Y''
+                           ·   ``J'' (non-nautical local time zone)
+
+     %Z    time zone name or no characters when time zone information is
+           unavailable.  (A NetBSD extension.)
+*/
+
+/*
+ * POSIX and C11 calendar time APIs are limited, poorly documented and have
+ * loads of bagage and surprising behavior and quirks (most stemming from
+ * the fact that the struct tm argument is sometimes both input and output).
+ * See the following reference for a reliable method of handling arbitrary timezones:
+ *    C: Converting struct tm times with timezone to time_t
+ *    http://kbyanc.blogspot.com/2007/06/c-converting-struct-tm-times-with.html
+ * Relevant excerpt:
+ *    "However, if your libc implements both tm_gmtoff and timegm(3) you are
+ *    in luck. You just need to use timegm(3) to get the time_t representing
+ *    the time in GMT and then subtract the offset stored in tm_gmtoff.
+ *    The tricky part is that calling timegm(3) will modify the struct tm,
+ *    clearing the tm_gmtoff field to zero."
+ */
+
 #define EXAMPLE "Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\""
 
 static gboolean
@@ -183,7 +237,9 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 	const char *bufptr, *curptr = NULL;
 	const char *endptr;
 	gboolean has_seconds = TRUE;
+	gboolean has_timezone = TRUE;
 	char *err_msg = NULL;
+	struct ws_timezone zoneinfo = { 0, NULL };
 
 	/* Try Unix time first. */
 	if (val_from_unix_time(fv, s))
@@ -198,26 +254,22 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 	/* Let the computer figure out if it's DST. */
 	tm.tm_isdst = -1;
 
-	/* Parse the date. ws_strptime() always uses the "C" locale. s*/
+	/* Parse the date. ws_strptime() always uses the "C" locale. */
 	bufptr = s;
-	curptr = ws_strptime(bufptr, "%b %d, %Y", &tm);
+	curptr = ws_strptime(bufptr, "%b %d, %Y", &tm, &zoneinfo);
 	if (curptr == NULL)
-		curptr = ws_strptime(bufptr,"%Y-%m-%d", &tm);
+		curptr = ws_strptime(bufptr,"%Y-%m-%d", &tm, &zoneinfo);
 	if (curptr == NULL)
 		goto fail;
 
 	/* Parse the time, it is optional. */
-	/*
-	 * XXX: This is a date *and* time value. Allowing to omit the time presumably means it is midnight.
-	 * How useful is that short-hand? Not very IMO.
-	 */
 	bufptr = curptr;
-	curptr = ws_strptime(bufptr, " %H:%M:%S", &tm);
+	curptr = ws_strptime(bufptr, " %H:%M:%S", &tm, &zoneinfo);
 	if (curptr == NULL) {
 		has_seconds = FALSE;
 		/* Seconds can be omitted but minutes (and hours) are required
 		 * for a valid time value. */
-		curptr = ws_strptime(bufptr," %H:%M", &tm);
+		curptr = ws_strptime(bufptr," %H:%M", &tm, &zoneinfo);
 	}
 	if (curptr == NULL)
 		curptr = bufptr;
@@ -247,35 +299,34 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 		fv->value.time.nsecs = 0;
 	}
 
+	/* Timezone */
+	bufptr = curptr;
+	curptr = ws_strptime(bufptr, "%n%z", &tm, &zoneinfo);
+	if (curptr == NULL) {
+		/* No timezone, assume localtime. */
+		has_timezone = FALSE;
+		curptr = bufptr;
+	}
+
 	/* Skip whitespace */
 	while (g_ascii_isspace(*curptr)) {
 		curptr++;
 	}
 
-	/* Do we have a Timezone? */
-	if (strcmp(curptr, "UTC") == 0) {
-		curptr += strlen("UTC");
-		if (*curptr == '\0') {
-			/* It's UTC */
-			fv->value.time.secs = mktime_utc(&tm);
-			goto done;
-		}
-		else {
-			err_msg = ws_strdup("Unexpected data after time value.");
-			goto fail;
-		}
-	}
-	if (*curptr == '\0') {
-		/* Local time */
-		fv->value.time.secs = mktime(&tm);
-		goto done;
-	}
-	else {
+	if (*curptr != '\0') {
 		err_msg = ws_strdup("Unexpected data after time value.");
 		goto fail;
 	}
 
-done:
+	if (has_timezone) {
+		/* Convert our calendar time (presumed in UTC, possibly with
+		 * an extra timezone offset correction datum) to epoch time. */
+		fv->value.time.secs = mktime_utc(&tm);
+	}
+	else {
+		/* Convert our calendar time (in the local timezone) to epoch time. */
+		fv->value.time.secs = mktime(&tm);
+	}
 	if (fv->value.time.secs == (time_t)-1) {
 		/*
 		 * XXX - should we supply an error message that mentions
@@ -289,6 +340,11 @@ done:
 		 */
 		err_msg = ws_strdup_printf("\"%s\" cannot be converted to a valid calendar time.", s);
 		goto fail;
+	}
+
+	if (has_timezone) {
+		/* Normalize to UTC with the offset we have saved. */
+		fv->value.time.secs -= zoneinfo.tm_gmtoff;
 	}
 
 	return TRUE;

@@ -17,12 +17,20 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/* Struct to pass the "tm_gmtoff" and "tm_zone" fields, for systems whose
+ * libc struct tm type lacks these non-standard extensions. */
+struct ws_timezone {
+	long tm_gmtoff;
+	const char *tm_zone;
+};
+
 /*
  * This is the NetBSD strptime(), modified to always use the "C" locale.
  */
 WS_DLL_PUBLIC
 char *
-ws_strptime(const char *buf, const char *format, struct tm *tm);
+ws_strptime(const char *buf, const char *format, struct tm *tm,
+						struct ws_timezone *zonep);
 
 /*
  * Portability wrapper around the system's strptime().

@@ -315,10 +315,15 @@ month-year-time format:
     "2020-07-04T12:34:56"
     "Sep 26, 2004 23:18:04.954975"
 
-The 'T' separator in ISO 8601 can be omitted. ISO 8601 supports timezone
-designators as UTC or an offset from UTC. Legacy formats can append the
-value "UTC" at the end to specify time in Coordinated Universal Time.
-Otherwise date and time values are interpreted as local time.
+The 'T' separator in ISO 8601 can be omitted. The timezone can be given
+as "Z" or an offset from UTC.
+
+When not using ISO 8601 the timezone can be given as the strings "UTC", "GMT"
+or "UT" for UTC or also given as an offset from UTC, plus some North American and Nautical/Military
+designations (https://man.netbsd.org/strptime.3[see the specification for %z in strptime(3)]).
+Note that arbitrary timezone names are not supported however.
+
+If the timezone is omitted then date and time values are interpreted as local time.
 
 === The slice operator
 
