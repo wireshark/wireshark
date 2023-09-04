@@ -85,6 +85,10 @@ class TestDfilterTime:
         dfilter = 'frame.time == "Dec 31, 2002 13:55:31.3 UTC"'
         checkDFilterCount(dfilter, 1)
 
+    def test_utc_time_2(self, checkDFilterCount):
+        dfilter = 'frame.time == "2002-12-31 13:55:31.3 UTC"'
+        checkDFilterCount(dfilter, 1)
+
     def test_bad_time_1(self, checkDFilterFail):
         # This is an error, only UTC timezone can be used
         dfilter = 'frame.time == "Dec 31, 2002 13:56:31.3 WET"'

@@ -221,16 +221,21 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 		curptr = ws_strptime(s + 4, "%d, %Y %H:%M:%S", &tm);
 
 	if (curptr == NULL) {
-		has_seconds = FALSE;
-		curptr = ws_strptime(s,"%Y-%m-%d %H:%M", &tm);
+		curptr = ws_strptime(s,"%Y-%m-%d %H:%M:%S", &tm);
+		if (curptr == NULL) {
+			has_seconds = FALSE;
+			curptr = ws_strptime(s,"%Y-%m-%d %H:%M", &tm);
+			if (curptr == NULL)
+				curptr = ws_strptime(s,"%Y-%m-%d %H", &tm);
+			if (curptr == NULL)
+				curptr = ws_strptime(s,"%Y-%m-%d", &tm);
+			if (curptr == NULL)
+				goto fail;
+		}
 	}
-	if (curptr == NULL)
-		curptr = ws_strptime(s,"%Y-%m-%d %H", &tm);
-	if (curptr == NULL)
-		curptr = ws_strptime(s,"%Y-%m-%d", &tm);
-	if (curptr == NULL)
-		goto fail;
-	tm.tm_isdst = -1;	/* let the computer figure out if it's DST */
+
+	/* Let the computer figure out if it's DST. */
+	tm.tm_isdst = -1;
 
 	if (*curptr == '.') {
 		/* Nanoseconds */
