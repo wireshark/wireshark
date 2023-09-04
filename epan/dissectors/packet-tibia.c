@@ -819,7 +819,7 @@ dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, i
     if (ptvcursor_current_offset(ptvc) < len) {
         for (;;) {
             int cmd = tvb_get_guint8(tvb, ptvcursor_current_offset(ptvc));
-            ptvcursor_add_with_subtree(ptvc, hf_tibia_loginserv_command, 1, convo->has.string_enc, ett_command);
+            ptvcursor_add_with_subtree(ptvc, hf_tibia_loginserv_command, 1, ENC_NA, ett_command);
             ptvcursor_advance(ptvc, 1);
 
             switch ((enum loginserv_cmd)cmd) {
@@ -974,7 +974,7 @@ dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, in
     if (ptvcursor_current_offset(ptvc) < len) {
         for (;;) {
             int cmd = tvb_get_guint8(tvb, ptvcursor_current_offset(ptvc));
-            ptvcursor_add_with_subtree(ptvc, hf_tibia_gameserv_command, 1, convo->has.string_enc, ett_command);
+            ptvcursor_add_with_subtree(ptvc, hf_tibia_gameserv_command, 1, ENC_NA, ett_command);
             ptvcursor_advance(ptvc, 1);
 
             switch ((enum gameserv_cmd)cmd) {
@@ -1060,7 +1060,7 @@ dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, in
                 case S_ANIMATEDTEXT: /* 0x84,Coord pos Byte color String message */
                     dissect_coord(ptvc, FALSE);
                     ptvcursor_add(ptvc, hf_tibia_animated_text_color, 1, ENC_NA);
-                    ptvcursor_add(ptvc, hf_tibia_animated_text, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
+                    ptvcursor_add(ptvc, hf_tibia_animated_text, 2, ENC_LITTLE_ENDIAN);
                     break;
                 case S_DISTANCESHOT: /* 0x85,Coord pos1 Byte stackposition Coord pos2 */
                     dissect_coord(ptvc, FALSE);
@@ -1177,7 +1177,7 @@ dissect_client_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int 
     if (ptvcursor_current_offset(ptvc) < len) {
         for (;;) {
             int cmd = tvb_get_guint8(tvb, ptvcursor_current_offset(ptvc));
-            ptvcursor_add_with_subtree(ptvc, hf_tibia_client_command, 1, convo->has.string_enc, ett_command);
+            ptvcursor_add_with_subtree(ptvc, hf_tibia_client_command, 1, ENC_NA, ett_command);
             ptvcursor_advance(ptvc, 1);
 
             switch ((enum client_cmd)cmd) {
