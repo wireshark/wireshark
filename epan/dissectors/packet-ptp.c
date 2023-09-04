@@ -1029,16 +1029,28 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_RCR_BITMASK     0x2 << 8
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_CR_BITMASK      0x4 << 8
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_OPE_BITMASK     0x8 << 8
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_RESERVED_BITMASK 0xF0 << 8
 
 /* Bitmasks for PTP_V2_SIG_TLV_L1SYNC_FLAGS2_OFFSET */
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_ITC_BITMASK     0x1
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_IRC_BITMASK     0x2
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_IC_BITMASK      0x4
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_RESERVED_BITMASK 0xF8
 
 /* Bitmasks for PTP_V2_SIG_TLV_L1SYNCEXT_FLAGS3_OFFSET */
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_TCT_BITMASK     0x1
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_POV_BITMASK     0x2
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_FOV_BITMASK     0x4
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_RESERVED_BITMASK 0xF8
+
+/* Bitmasks for reserved values for standard and extended versions of L1_SYNC frames */
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_RESERVED_ALL_BITMASK \
+        (PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_RESERVED_BITMASK \
+        | PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_RESERVED_BITMASK)
+#define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_RESERVED_ALL_BITMASK \
+        (PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_RESERVED_ALL_BITMASK << 8 \
+        | PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_RESERVED_BITMASK)
+
 
 /* Subtypes for the OUI_IEEE_C37_238 organization ID */
 #define PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV    1        /* Defined in IEEE Std C37.238-2011 */
@@ -1687,6 +1699,8 @@ static int hf_ptp_as_sig_tlv_gptp_capable_message_interval = -1;
 /* Fields for L1SYNC TLV */
 static int hf_ptp_v2_sig_tlv_flags2 = -1;
 static int hf_ptp_v2_sig_tlv_flags3 = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_reserved = -1;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_reserved = -1;
 static int hf_ptp_v2_sig_tlv_l1sync_flags2_tcr = -1;
 static int hf_ptp_v2_sig_tlv_l1sync_flags3_tcr = -1;
 static int hf_ptp_v2_sig_tlv_l1sync_flags2_rcr = -1;
@@ -4490,6 +4504,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                         &hf_ptp_v2_sig_tlv_l1sync_flags2_ic,
                                         &hf_ptp_v2_sig_tlv_l1sync_flags2_irc,
                                         &hf_ptp_v2_sig_tlv_l1sync_flags2_itc,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags2_reserved,
                                         NULL
                                 };
 
@@ -4505,6 +4520,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                         &hf_ptp_v2_sig_tlv_l1sync_flags3_fov,
                                         &hf_ptp_v2_sig_tlv_l1sync_flags3_pov,
                                         &hf_ptp_v2_sig_tlv_l1sync_flags3_tct,
+                                        &hf_ptp_v2_sig_tlv_l1sync_flags3_reserved,
                                         NULL
                                 };
 
@@ -6998,6 +7014,16 @@ proto_register_ptp(void)
         { &hf_ptp_v2_sig_tlv_l1sync_flags3_tct,
           { "timestampsCorrectedTx", "ptp.v2.sig.tlv.l1sync.flags.tct",
             FT_BOOLEAN, 24, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_TCT_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags2_reserved,
+          { "Reserved", "ptp.v2.sig.tlv.l1sync.flags.reserved",
+            FT_UINT16, BASE_HEX, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS2_RESERVED_ALL_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_l1sync_flags3_reserved,
+          { "Reserved", "ptp.v2.sig.tlv.l1sync.flags.reserved",
+            FT_UINT24, BASE_HEX, NULL, PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_RESERVED_ALL_BITMASK,
             NULL, HFILL }
         },
         { &hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_ns,
