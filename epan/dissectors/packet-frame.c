@@ -49,9 +49,10 @@ static int proto_pkt_comment = -1;
 static int proto_syscall = -1;
 static int proto_bblog = -1;
 
-static int hf_frame_arrival_time = -1;
-static int hf_frame_shift_offset = -1;
+static int hf_frame_arrival_time_local = -1;
+static int hf_frame_arrival_time_utc = -1;
 static int hf_frame_arrival_time_epoch = -1;
+static int hf_frame_shift_offset = -1;
 static int hf_frame_time_delta = -1;
 static int hf_frame_time_delta_displayed = -1;
 static int hf_frame_time_relative = -1;
@@ -223,7 +224,6 @@ static dissector_handle_t xml_handle;
 static gboolean show_file_off       = FALSE;
 static gboolean force_docsis_encap  = FALSE;
 static gboolean generate_md5_hash   = FALSE;
-static gboolean generate_epoch_time = TRUE;
 static gboolean generate_bits_field = TRUE;
 static gboolean disable_packet_size_limited_in_summary = FALSE;
 static guint    max_comment_lines   = 30;
@@ -1002,8 +1002,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->rec->rec_header.packet_header.pkt_encap);
 
 		if (pinfo->presence_flags & PINFO_HAS_TS) {
-			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
-					    0, 0, &(pinfo->abs_ts));
+			proto_tree_add_time(fh_tree, hf_frame_arrival_time_local, tvb, 0, 0, &pinfo->abs_ts);
+			proto_tree_add_time(fh_tree, hf_frame_arrival_time_utc, tvb, 0, 0, &pinfo->abs_ts);
+			proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb, 0, 0, &pinfo->abs_ts);
 			if (pinfo->abs_ts.nsecs < 0 || pinfo->abs_ts.nsecs >= 1000000000) {
 				expert_add_info_format(pinfo, ti, &ei_arrive_time_out_of_range,
 								  "Arrival Time: Fractional second %09ld is invalid,"
@@ -1013,11 +1014,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
 					    0, 0, &(pinfo->fd->shift_offset));
 			proto_item_set_generated(item);
-
-			if (generate_epoch_time) {
-				proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
-						    0, 0, &(pinfo->abs_ts));
-			}
 
 			if (proto_field_is_referenced(tree, hf_frame_time_delta)) {
 				nstime_t     del_cap_ts;
@@ -1579,15 +1575,20 @@ void
 proto_register_frame(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_frame_arrival_time,
+		{ &hf_frame_arrival_time_local,
 		  { "Arrival Time", "frame.time",
 		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		    "Absolute time when this frame was captured", HFILL }},
+		    "Absolute time when this frame was captured, in local time", HFILL }},
+
+		{ &hf_frame_arrival_time_utc,
+		  { "UTC Arrival Time", "frame.time_utc",
+		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+		    "Absolute time when this frame was captured, in Coordinated Universal Time (UTC)", HFILL }},
 
 		{ &hf_frame_arrival_time_epoch,
-		  { "Epoch Time", "frame.time_epoch",
+		  { "Epoch Arrival Time", "frame.time_epoch",
 		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UNIX, NULL, 0x0,
-		    "Epoch time (also called Unix time) when this frame was captured", HFILL }},
+		    "Absolute time when this frame was captured, in Epoch time (also known as Unix time)", HFILL }},
 
 		{ &hf_frame_shift_offset,
 		  { "Time shift for this packet", "frame.offset_shift",
@@ -2376,10 +2377,7 @@ proto_register_frame(void)
 	    "Generate an MD5 hash of each frame",
 	    "Whether or not MD5 hashes should be generated for each frame, useful for finding duplicate frames.",
 	    &generate_md5_hash);
-	prefs_register_bool_preference(frame_module, "generate_epoch_time",
-	    "Generate an epoch time entry for each frame",
-	    "Whether or not an Epoch time entry should be generated for each frame.",
-	    &generate_epoch_time);
+	prefs_register_obsolete_preference(frame_module, "generate_epoch_time");
 	prefs_register_bool_preference(frame_module, "generate_bits_field",
 	    "Show the number of bits in the frame",
 	    "Whether or not the number of bits in the frame should be shown.",

@@ -8,8 +8,9 @@
         "frame": {
           "frame.encap_type": "1",
           "frame.time": "Dec  5, 2004 19:16:24.317453000 UTC",
-          "frame.offset_shift": "0.000000000",
+          "frame.time_utc": "Dec  5, 2004 19:16:24.317453000 UTC",
           "frame.time_epoch": "1102274184.317453000",
+          "frame.offset_shift": "0.000000000",
           "frame.time_delta": "0.000000000",
           "frame.time_delta_displayed": "0.000000000",
           "frame.time_relative": "0.000000000",
@@ -161,8 +162,9 @@
         "frame": {
           "frame.encap_type": "1",
           "frame.time": "Dec  5, 2004 19:16:24.317748000 UTC",
-          "frame.offset_shift": "0.000000000",
+          "frame.time_utc": "Dec  5, 2004 19:16:24.317748000 UTC",
           "frame.time_epoch": "1102274184.317748000",
+          "frame.offset_shift": "0.000000000",
           "frame.time_delta": "0.000295000",
           "frame.time_delta_displayed": "0.000295000",
           "frame.time_relative": "0.000295000",
@@ -324,8 +326,9 @@
         "frame": {
           "frame.encap_type": "1",
           "frame.time": "Dec  5, 2004 19:16:24.387484000 UTC",
-          "frame.offset_shift": "0.000000000",
+          "frame.time_utc": "Dec  5, 2004 19:16:24.387484000 UTC",
           "frame.time_epoch": "1102274184.387484000",
+          "frame.offset_shift": "0.000000000",
           "frame.time_delta": "0.069736000",
           "frame.time_delta_displayed": "0.069736000",
           "frame.time_relative": "0.070031000",
@@ -483,8 +486,9 @@
         "frame": {
           "frame.encap_type": "1",
           "frame.time": "Dec  5, 2004 19:16:24.387798000 UTC",
-          "frame.offset_shift": "0.000000000",
+          "frame.time_utc": "Dec  5, 2004 19:16:24.387798000 UTC",
           "frame.time_epoch": "1102274184.387798000",
+          "frame.offset_shift": "0.000000000",
           "frame.time_delta": "0.000314000",
           "frame.time_delta_displayed": "0.000314000",
           "frame.time_relative": "0.070345000",
