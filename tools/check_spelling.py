@@ -196,6 +196,7 @@ class File:
             v = v.replace('&', ' ')
             v = v.replace('@', ' ')
             v = v.replace('$', ' ')
+            v = v.replace('®', '')
             v = v.replace("'", ' ')
             v = v.replace('"', ' ')
             v = v.replace('%u', '')
@@ -217,6 +218,12 @@ class File:
                 # Quote marks found in some of the docs...
                 word = word.replace('“', '')
                 word = word.replace('”', '')
+
+                # Single and collective possession
+                if word.endswith("’s"):
+                    word = word[:-2]
+                if word.endswith("s’"):
+                    word = word[:-2]
 
                 if self.numberPlusUnits(word):
                     continue

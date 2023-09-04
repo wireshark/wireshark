@@ -158,7 +158,7 @@ static const char * const cloc_abday[] = {
 };
 
 static const char * const cloc_day[] = {
-	"Sunday", "Monday", "Tuesday", "Wednesday", "Thusday", "Friday",
+	"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
 	"Saturday", NULL
 };
 

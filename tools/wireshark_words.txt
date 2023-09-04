@@ -280,6 +280,7 @@ conferenced
 configitem
 configurable
 conformant
+congctrl
 connectionless
 connid
 connp
@@ -404,6 +405,7 @@ deutschland
 devcap
 deviceid
 devmode
+dfdpck
 dfilter
 dfilters
 dfsauth
@@ -474,6 +476,7 @@ encap
 encaps
 encapsulations
 encapsulator
+encinfo
 enciphered
 encodings
 encrypt
@@ -575,6 +578,7 @@ fujitsu
 functionalities
 funkt
 fuzzed
+fuzzer
 fvalue
 g711a
 g711u
@@ -812,6 +816,7 @@ lscap
 lucent
 luminaire
 luminance
+lycamobile
 macaddr
 macaddress
 macosx
@@ -892,6 +897,7 @@ msgtype
 msisdn
 MSM7627A
 mtftp
+mtime
 mtrace
 mudurl
 mulaw
@@ -1006,6 +1012,7 @@ octal
 octet
 octets
 octetstring
+oextcap
 ofdma
 offloadability
 ofpat
@@ -1015,6 +1022,7 @@ ofpet
 ofpgmfc
 ofpmp
 ofppf
+ofprr
 ofptfpt
 ofpxmt
 om2000
@@ -1037,6 +1045,7 @@ optimisation
 optimizations
 optimizer
 optiplex
+optreq
 ordinal
 oscillatory
 oscore
@@ -1328,6 +1337,8 @@ rpmbuild
 rsocket
 rsrvd
 rtitcp
+rtpdump
+rtpevent
 rtpmidi
 rtpmux
 ruleset
@@ -1574,6 +1585,7 @@ truncates
 truncating
 tshark
 tspec
+tstamp
 tunid
 tunneled
 tunneling
@@ -1622,6 +1634,7 @@ uncategorized
 unchannelized
 unciphered
 uncoloured
+uncomment
 uncompensated
 uncompress
 uncompressed
@@ -1830,3 +1843,4 @@ zbncp
 zeroes
 zigbee
 zugtyp
+zürich
