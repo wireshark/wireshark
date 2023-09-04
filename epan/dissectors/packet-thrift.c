@@ -1914,7 +1914,9 @@ dissect_thrift_binary_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      * - either dissect_thrift_common which creates the "Data" sub-tree,
      * - or dissect_thrift_binary_struct which creates the "Struct" sub-tree.
      */
-    thrift_field_header_t field_header;
+    thrift_field_header_t field_header = {
+        .type.binary = DE_THRIFT_T_STOP, // Overwritten by dissect_thrift_field_header() but undetected by Clang.
+    };
 
     thrift_opt->previous_field_id = 0;
     while (TRUE) {
@@ -2313,7 +2315,9 @@ dissect_thrift_compact_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
      * - either dissect_thrift_common which creates the "Data" sub-tree,
      * - or dissect_thrift_compact_struct which creates the "Struct" sub-tree.
      */
-    thrift_field_header_t field_header;
+    thrift_field_header_t field_header = {
+        .type.compact = DE_THRIFT_C_STOP, // Overwritten by dissect_thrift_field_header() but undetected by Clang.
+    };
 
     thrift_opt->previous_field_id = 0;
     while (TRUE) {
@@ -2755,7 +2759,9 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     thrift_opt->previous_field_id = 0;
     msg_tvb = tvb_new_subset_remaining(tvb, data_offset);
     if (thrift_opt->mtype == ME_THRIFT_T_REPLY) {
-        thrift_field_header_t header;
+        thrift_field_header_t header = {
+            .field_id = 0, // Overwritten by dissect_thrift_field_header() but undetected by Clang.
+        };
         /* For REPLY, in order to separate successful answers from errors (exceptions),
          * Thrift generates a struct with as much fields (all optional) as there are exceptions possible + 1.
          * At most 1 field will be filled for any reply
