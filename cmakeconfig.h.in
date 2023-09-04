@@ -52,6 +52,9 @@
 /* Define to 1 if you have the `localtime_r` function. */
 #cmakedefine HAVE_LOCALTIME_R 1
 
+/* Define to 1 if you have the `timegm` function. */
+#cmakedefine HAVE_TIMEGM 1
+
 /* Define to 1 if you have the `tzset` function. */
 #cmakedefine HAVE_TZSET 1
 
