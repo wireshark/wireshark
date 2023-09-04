@@ -339,8 +339,8 @@ typedef struct anqp_info_dissector_data {
 #define WFA_SUBTYPE_P2P                        9
 #define WFA_SUBTYPE_WIFI_DISPLAY               10
 #define WFA_SUBTYPE_HS20_INDICATION            16
-#define WFA_SUBTYPE_OSEN                       18
 #define WFA_SUBTYPE_NAN_IE                     19
+#define WFA_SUBTYPE_OSEN                       20
 #define WFA_SUBTYPE_MBO_OCE                    22
 #define WFA_SUBTYPE_WIFI_60G                   23
 #define WFA_SUBTYPE_NAN_ACTION                 24
@@ -348,7 +348,7 @@ typedef struct anqp_info_dissector_data {
 #define WFA_SUBTYPE_IEEE1905_MULTI_AP          27 /* ox1B */
 #define WFA_SUBTYPE_OWE_TRANSITION_MODE        28
 #define WFA_SUBTYPE_TRANSITION_DISABLE_KDE     32
-#define WFA_SUBTYPE_QOS_MGMT                   33 /* 0x21 */
+#define WFA_SUBTYPE_QOS_MGMT                   34 /* 0x22 */
 
 /* WFA Public Action Types */
 #define WFA_SUBTYPE_ACTION_QOS_MGMT          0x1A
