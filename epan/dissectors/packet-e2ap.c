@@ -3682,7 +3682,7 @@ dissect_e2ap_RICqueryHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
   ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_control_outcome_dissector) {
+  if (functions && functions->ric_query_header_dissector) {
     functions->ric_query_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
   }
 
@@ -3701,7 +3701,7 @@ dissect_e2ap_RICqueryDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
   ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_control_outcome_dissector) {
+  if (functions && functions->ric_query_definition_dissector) {
     functions->ric_query_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
   }
 
@@ -3718,7 +3718,7 @@ dissect_e2ap_RICqueryOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
   ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_control_outcome_dissector) {
+  if (functions && functions->ric_query_outcome_dissector) {
     functions->ric_query_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
   }
 
