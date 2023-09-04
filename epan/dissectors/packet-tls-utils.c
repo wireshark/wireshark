@@ -10740,6 +10740,21 @@ dissect_ssl3_hnd_srv_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_rs, tvb,
                         offset + 1, point_len, ENC_NA);
 }
+
+/* Only used in ECC-SM2-EXPORT cipher suites */
+static void
+dissect_ssl3_hnd_srv_keyex_ecc_sm2(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                   proto_tree *tree, guint32 offset, guint32 offset_end,
+                                   guint16 version)
+{
+    proto_tree *ssl_ecc_sm2_tree;
+
+    ssl_ecc_sm2_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
+                                              hf->ett.keyex_params, NULL, "ECC-SM2-EXPORT Server Params");
+
+    /* Signature */
+    dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, pinfo, ssl_ecc_sm2_tree, offset, offset_end, version);
+}
 /* ServerKeyExchange algo-specific dissectors. }}} */
 
 /* Client Key Exchange and Server Key Exchange handshake dissections. {{{ */
@@ -10837,6 +10852,8 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
     case KEX_RSA: /* only allowed if the public key in the server certificate is longer than 512 bits*/
         dissect_ssl3_hnd_srv_keyex_rsa(hf, tvb, pinfo, tree, offset, offset_end, session->version);
         break;
+    case KEX_ECC_SM2: /* GB/T 38636 */
+        dissect_ssl3_hnd_srv_keyex_ecc_sm2(hf, tvb, pinfo, tree, offset, offset_end, session->version);
     case KEX_SRP_SHA: /* RFC 5054; srp: ServerSRPParams, Signature */
     case KEX_SRP_SHA_DSS:
     case KEX_SRP_SHA_RSA:
