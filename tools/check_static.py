@@ -297,7 +297,7 @@ else:
 
 
 if not os.path.isdir(build_folder):
-    print('Build directory not valid', build_folder, '- please set with --build')
+    print('Build directory not valid', build_folder, '- please set with --build-folder')
     exit(1)
 
 

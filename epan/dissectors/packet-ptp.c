@@ -52,7 +52,6 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <epan/exceptions.h>
 #include <epan/proto_data.h>
 #include <epan/oui.h>
 #include <epan/addr_resolv.h>
@@ -1285,8 +1284,7 @@ static const value_string ptp_v2_networkProtocol_vals[] = {
     {0xFFFF,  "Reserved"},
     {0,              NULL          }
 };
-/* Exposed in packet-ptp.h */
-value_string_ext ptp_v2_networkProtocol_vals_ext =
+static value_string_ext ptp_v2_networkProtocol_vals_ext =
     VALUE_STRING_EXT_INIT(ptp_v2_networkProtocol_vals);
 
 

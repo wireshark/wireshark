@@ -10,7 +10,6 @@
 #ifndef __PACKET_PTP_H__
 #define __PACKET_PTP_H__
 
-extern value_string_ext ptp_v2_networkProtocol_vals_ext;
 extern value_string_ext ptp_v2_clockAccuracy_vals_ext;
 extern value_string_ext ptp_v2_timeSource_vals_ext;
 extern value_string_ext ptp_v2_portState_vals_ext;
