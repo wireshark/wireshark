@@ -32,6 +32,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/iana_charsets.h>
+#include <epan/tfs.h>
 
 #include <wsutil/str_util.h>
 
@@ -1219,12 +1220,6 @@ static value_string_ext vals_well_known_te_ext = VALUE_STRING_EXT_INIT(vals_well
 #define PORT_NUMBER_INCLUDED    0x40
 #define ADDRESS_LEN             0x3f
 
-static const value_string vals_false_true[] = {
-    { 0, "False" },
-    { 1, "True" },
-    { 0, NULL }
-};
-
 enum {
     WSP_PDU_RESERVED        = 0x00,
     WSP_PDU_CONNECT         = 0x01,
@@ -1783,11 +1778,11 @@ wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *p
     ti = proto_tree_add_string(tree, hf_hdr_push_flag,
             tvb, hdr_start, offset - hdr_start, wmem_strbuf_get_str(push_flag_str));
     subtree = proto_item_add_subtree(ti, ett_header);
-    proto_tree_add_uint(subtree, hf_hdr_push_flag_auth,
+    proto_tree_add_boolean(subtree, hf_hdr_push_flag_auth,
             tvb, val_start, 1, val_id);
-    proto_tree_add_uint(subtree, hf_hdr_push_flag_trust,
+    proto_tree_add_boolean(subtree, hf_hdr_push_flag_trust,
             tvb, val_start, 1, val_id);
-    proto_tree_add_uint(subtree, hf_hdr_push_flag_last,
+    proto_tree_add_boolean(subtree, hf_hdr_push_flag_last,
             tvb, val_start, 1, val_id);
 
     wkh_2_TextualValueInv;
@@ -3260,7 +3255,7 @@ static guint32
 wkh_openwave_default(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
     wkh_0_Declarations;
-    guint8 hdr_id = tvb_get_guint8 (tvb, hdr_start) & 0x7F;
+    guint8 hdr_id = tvb_get_guint8(tvb, hdr_start) & 0x7F;
 
     ok = TRUE; /* Bypass error checking as we don't parse the values! */
 
@@ -6728,21 +6723,21 @@ proto_register_wsp(void)
         { &hf_hdr_push_flag_auth,
           { "Initiator URI is authenticated",
             "wsp.header.push_flag.authenticated",
-            FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
             "The X-Wap-Initiator-URI has been authenticated.", HFILL
           }
         },
         { &hf_hdr_push_flag_trust,
           { "Content is trusted",
             "wsp.header.push_flag.trusted",
-            FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
             "The push content is trusted.", HFILL
           }
         },
         { &hf_hdr_push_flag_last,
           { "Last push message",
             "wsp.header.push_flag.last",
-            FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
             "Indicates whether this is the last push message.", HFILL
           }
         },

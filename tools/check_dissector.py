@@ -85,7 +85,7 @@ if args.file_list:
 tools = [
     ('tools/delete_includes.py --folder .',            True,   True),
     ('tools/check_spelling.py',                        False,  True),
-    ('tools/check_tfs.py',                             False,  True),
+    ('tools/check_tfs.py --check-value-strings',       False,  True),
     ('tools/check_typed_item_calls.py --all-checks',   False,  True),
     ('tools/check_static.py',                          True,   False),
     ('tools/check_dissector_urls.py',                  False,  True),

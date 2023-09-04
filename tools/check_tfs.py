@@ -86,9 +86,12 @@ class TFS:
         self.val1 = val1
         self.val2 = val2
 
+        global warnings_found
+
         # Should not be empty
         if not len(val1) or not len(val2):
-            print(file, name, 'has an empty field', self)
+            print('Warning:', file, name, 'has an empty field', self)
+            warnings_found += 1
         #else:
             # Strange if one begins with capital but other doesn't?
             #if val1[0].isalpha() and val2[0].isalpha():
@@ -97,21 +100,24 @@ class TFS:
 
         # Leading or trailing space should not be needed.
         if val1.startswith(' ') or val1.endswith(' '):
-            print('N.B.: file=' + self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.val1 + '\"')
+            print('Note: ' + self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.val1 + '\"')
         if val2.startswith(' ') or val2.endswith(' '):
-            print('N.B.: file=' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.val2 + '\"')
+            print('Note: ' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.val2 + '\"')
 
         # Should really not be identical...
         if val1.lower() == val2.lower():
-            print(file, name, 'true and false strings are the same', self)
+            print('Warning:', file, name, 'true and false strings are the same', self)
+            warnings_found += 1
 
         # Shouldn't both be negation (with exception..)
         if (file != os.path.join('epan', 'dissectors', 'packet-smb.c') and (val1.lower().find('not ') != -1) and (val2.lower().find('not ') != -1)):
-            print(file, name, self, 'both strings contain not')
+            print('Warning:', file, name, self, 'both strings contain not')
+            warnings_found += 1
 
         # Not expecting full-stops inside strings..
         if val1.find('.') != -1 or val2.find('.') != -1:
-            print(file, name, 'Period found in string..', self)
+            print('Warning:', file, name, 'Period found in string', self)
+            warnings_found += 1
 
 
     def __str__(self):
