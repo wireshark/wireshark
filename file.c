@@ -2046,14 +2046,6 @@ cf_reftime_packets(capture_file* cf)
         if (fdata->ref_time)
             cf->provider.ref = fdata;
 
-        /* If we don't have the time stamp of the previous displayed packet,
-           it's because this is the first displayed packet.  Save the time
-           stamp of this packet as the time stamp of the previous displayed
-           packet. */
-        if (cf->provider.prev_dis == NULL) {
-            cf->provider.prev_dis = fdata;
-        }
-
         /* Get the time elapsed between the first packet and this packet. */
         fdata->frame_ref_num = (fdata != cf->provider.ref) ? cf->provider.ref->num : 0;
         nstime_delta(&rel_ts, &fdata->abs_ts, &cf->provider.ref->abs_ts);
@@ -2069,6 +2061,14 @@ cf_reftime_packets(capture_file* cf)
         /* If this frame is displayed, get the time elapsed between the
            previous displayed packet and this packet. */
         if ( fdata->passed_dfilter ) {
+            /* If we don't have the time stamp of the previous displayed packet,
+               it's because this is the first displayed packet.  Save the time
+               stamp of this packet as the time stamp of the previous displayed
+               packet. */
+            if (cf->provider.prev_dis == NULL) {
+                cf->provider.prev_dis = fdata;
+            }
+
             fdata->prev_dis_num = cf->provider.prev_dis->num;
             cf->provider.prev_dis = fdata;
         }
