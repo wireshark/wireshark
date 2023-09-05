@@ -159,7 +159,7 @@ void FunnelAction::setPacketData(GPtrArray* finfos) {
     packetData_ = finfos;
 }
 
-void FunnelAction::addToMenu(QMenu * ctx_menu, QHash<QString, QMenu *> menuTextToMenus) {
+void FunnelAction::addToMenu(QMenu * ctx_menu, QHash<QString, QMenu *> &menuTextToMenus) {
     QString submenusText = this->getPacketSubmenus();
     if (submenusText.isEmpty()) {
         ctx_menu->addAction(this);

@@ -76,7 +76,7 @@ public:
     virtual void triggerCallback();
     void setPacketCallback(funnel_packet_menu_callback packet_callback);
     void setPacketData(GPtrArray* finfos);
-    void addToMenu(QMenu * ctx_menu, QHash<QString, QMenu *> menuTextToMenus);
+    void addToMenu(QMenu * ctx_menu, QHash<QString, QMenu *> &menuTextToMenus);
     void setPacketRequiredFields(const char *required_fields_str);
     const QSet<QString> getPacketRequiredFields();
     bool retap();
