@@ -115,5 +115,3 @@ indent_size = 2
 indent_style = tab
 indent_size = tab
 
-[wsgetopt.[ch]]
-indent_size = 2
