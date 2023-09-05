@@ -10463,6 +10463,7 @@ static const value_string hs20_anqp_subtype_vals[] = {
   { HS20_ANQP_NAI_HOME_REALM_QUERY, "NAI Home Realm Query" },
   { HS20_ANQP_OPERATING_CLASS_INDICATION, "Operating Class Indication" },
   { HS20_ANQP_OSU_PROVIDERS_LIST, "OSU Providers List" },
+  { 9, "Reserved" },
   { HS20_ANQP_ICON_REQUEST, "Icon Request" },
   { HS20_ANQP_ICON_BINARY_FILE, "Icon Binary File" },
   { HS20_ANQP_OPERATOR_ICON_METADATA, "Operator Icon Metadata" },

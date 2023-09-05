@@ -127,8 +127,8 @@ static const value_string names_colors[] = {
 	{ 11, "Green" },
 	{ 12, "Yellow" },
 	{ 13, "Blue" },
-	{ 14, "Blue" },
-	{ 15, "Blue" },
+	{ 14, "Fire" },
+	{ 15, "Brights" },
 	{  0, NULL }
 };
 

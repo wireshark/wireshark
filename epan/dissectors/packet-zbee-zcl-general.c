@@ -15901,7 +15901,7 @@ static const value_string zbee_zcl_touchlink_rx_cmd_names[] = {
     { ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ENDDEV_REQUEST, "Network Join End Device Request" },
     { ZBEE_ZCL_CMD_ID_NETWORK_UPDATE_REQUEST, "Network Update Request" },
     { ZBEE_ZCL_CMD_ID_GET_GROUP_IDENTIFIERS_REQUEST, "Get Group Identifiers Request" },
-    { ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_REQUEST, "Get Group Identifiers Request" },
+    { ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_REQUEST, "Get Endpoint List Request" },
     { 0, NULL }
 };
 static const value_string zbee_zcl_touchlink_tx_cmd_names[] = {
@@ -15912,7 +15912,7 @@ static const value_string zbee_zcl_touchlink_tx_cmd_names[] = {
     { ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ENDDEV_RESPONSE, "Network Join End Device Response" },
     { ZBEE_ZCL_CMD_ID_ENDPOINT_INFORMATION, "Endpoint Information" },
     { ZBEE_ZCL_CMD_ID_GET_GROUP_IDENTIFIERS_RESPONSE, "Get Group Identifiers Response" },
-    { ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_RESPONSE, "Get Group Identifiers Response" },
+    { ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_RESPONSE, "Get Endpoint List Response" },
     { 0, NULL }
 };
 
