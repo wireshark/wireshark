@@ -1037,9 +1037,11 @@ static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_sequ
 static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup = -1;
 static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power = -1;
 static int hf_docsis_mdd_extended_upstream_transmit_power_support = -1;
+static int hf_docsis_mdd_unknown = -1;
 
 static int hf_docsis_mdd_cmts_major_docsis_version = -1;
 static int hf_docsis_mdd_cmts_minor_docsis_version = -1;
+static int hf_docsis_mdd_cmts_docsis_version_unknown = -1;
 
 static int hf_docsis_mdd_cm_periodic_maintenance_timeout_indicator = -1;
 static int hf_docsis_mdd_dls_broadcast_and_multicast_delivery_method = -1;
@@ -5825,10 +5827,14 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
         sublength = tvb_get_guint8 (tvb, subpos + 1);
         switch(subtype) {
           case CMTS_MAJOR_DOCSIS_VERSION:
-            proto_tree_add_item (tlv_tree, hf_docsis_mdd_cmts_major_docsis_version, tvb, subpos + 2, sublength, ENC_NA);
+            proto_tree_add_item (tlv_tree, hf_docsis_mdd_cmts_major_docsis_version, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
             break;
           case CMTS_MINOR_DOCSIS_VERSION:
             proto_tree_add_item (tlv_tree, hf_docsis_mdd_cmts_minor_docsis_version, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
+            break;
+          default:
+            it = proto_tree_add_item (tlv_tree, hf_docsis_mdd_cmts_docsis_version_unknown, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
+            expert_add_info_format(pinfo, it, &ei_docsis_mgmt_tlvtype_unknown, "Unknown CMTS Version TLV type: %u", subtype);
             break;
         }
         subpos += sublength + 2;
@@ -5870,6 +5876,10 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
       break;
     case FULL_DUPLEX_DESCRIPTOR:
       dissect_mdd_full_duplex_descriptor(tvb, pinfo, tlv_tree, pos, length );
+      break;
+    default:
+      it = proto_tree_add_item (tlv_tree, hf_docsis_mdd_unknown, tvb, pos, length, ENC_BIG_ENDIAN);
+      expert_add_info_format(pinfo, it, &ei_docsis_mgmt_tlvtype_unknown, "Unknown MDD TLV type: %u", type);
       break;
     }
 
@@ -9672,7 +9682,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_mdd_upstream_active_channel_list_fdx_upstream_channel,
      {"FDX Upstream Channel", "docsis_mdd.upstream_active_channel_list_fdx_upstream_channel",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+      FT_UINT8, BASE_DEC, VALS(extended_us_channel_vals), 0x0,
       "MDD Upstream Active Channel List - FDX Upstream Channel", HFILL}
     },
     {&hf_docsis_mdd_upstream_active_channel_list_fdx_subband_id,
@@ -9770,6 +9780,11 @@ proto_register_docsis_mgmt (void)
        FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off), 0x0,
        "MDD Extended Upstream Transmit Power Support", HFILL}
     },
+    {&hf_docsis_mdd_unknown,
+     { "Unknown MDD TLV", "docsis_mdd.unknown_tlv",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL}
+    },
     {&hf_docsis_mdd_cmts_major_docsis_version,
      { "CMTS Major DOCSIS Version", "docsis_mdd.cmts_major_docsis_version",
        FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9777,6 +9792,11 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_mdd_cmts_minor_docsis_version,
      { "CMTS Minor DOCSIS Version", "docsis_mdd.cmts_minor_docsis_version",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cmts_docsis_version_unknown,
+     { "Unknown CMTS DOCSIS Version Type", "docsis_mdd.cmts_docsis_version_unknown",
        FT_UINT8, BASE_DEC, NULL, 0x0,
        NULL, HFILL}
     },
