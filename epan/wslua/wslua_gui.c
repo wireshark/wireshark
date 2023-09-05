@@ -351,8 +351,8 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /*
     */
 #define WSLUA_ARG_new_dialog_TITLE 1 /* The title of the dialog. */
 #define WSLUA_ARG_new_dialog_ACTION 2 /* Action to be performed when the user presses btn:[OK]. */
-/* WSLUA_MOREARGS new_dialog Strings to be used a labels of the dialog's fields. Each string creates a new labeled field. The first field is required.
-Instead of a strings it is possible to provide tables with fields 'name' and 'value' of type string. Then the created dialog's field will labeld with the content of name and prefilled with the content of value.*/
+/* WSLUA_MOREARGS new_dialog Strings to be used as labels of the dialog's fields. Each string creates a new labeled field. The first field is required.
+Instead of a string it is possible to provide tables with fields 'name' and 'value' of type string. Then the created dialog's field will be labeled with the content of name and prefilled with the content of value.*/
 
     const gchar* title;
     int top = lua_gettop(L);
