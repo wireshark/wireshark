@@ -419,7 +419,7 @@ proto_register_netrix(void)
 		NULL, HFILL }
 	},
 	{ &hf_netrix_header_systeminfo_type,
-		{ "Ack", "netrix.systeminfo",
+		{ "System Info", "netrix.systeminfo",
 		FT_NONE, BASE_NONE,
 		NULL, 0x0,
 		NULL, HFILL }

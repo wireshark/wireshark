@@ -1390,7 +1390,7 @@ void proto_register_h248_annex_c(void) {
 		    "Logical Link Identifier negotiation", HFILL }},
 
 		{ &hf_h248_pkg_annexc_assign,
-		  { "llidnegot", "h248.annexc.assign",
+		  { "assign", "h248.annexc.assign",
 		    FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_assign_values), 0xc0,
 		    "Assignor/Assignee", HFILL }},
 		{ &hf_h248_pkg_annexc_inbandneg,

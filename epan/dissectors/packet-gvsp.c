@@ -3564,7 +3564,7 @@ void proto_register_gvsp(void)
         } },
 
         { &hf_gvsp_gendc_part_header_flags_v2_2,
-        { "Reserved", "gvsp.gendc.part.header.flags",
+        { "Flags", "gvsp.gendc.part.header.flags",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL
         } },

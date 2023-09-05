@@ -10331,7 +10331,7 @@ proto_register_btcommon(void)
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_3ds_legacy_fixed_6,
-          { "3DS Legacy Fixed",                            "btcommon.eir_ad.entry.3ds_legacy.fixed.4",
+          { "3DS Legacy Fixed",                            "btcommon.eir_ad.entry.3ds_legacy.fixed.6",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
