@@ -10435,6 +10435,26 @@ dissect_ssl3_hnd_cli_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_rc, tvb,
                         offset + 1, point_len, ENC_NA);
 }
+
+static void
+dissect_ssl3_hnd_cli_keyex_ecc_sm2(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                   proto_tree *tree, guint32 offset,
+                                   guint32 length)
+{
+    gint epms_len;
+    proto_tree *ssl_ecc_sm2_tree;
+
+    ssl_ecc_sm2_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                              hf->ett.keyex_params, NULL,
+                                              "ECC-SM2 Encrypted PreMaster Secret");
+
+    epms_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssl_ecc_sm2_tree, hf->hf.hs_client_keyex_epms_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(ssl_ecc_sm2_tree, hf->hf.hs_client_keyex_epms, tvb,
+                        offset, epms_len, ENC_NA);
+}
 /* ClientKeyExchange algo-specific dissectors. }}} */
 
 
@@ -10803,6 +10823,9 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         break;
     case KEX_ECJPAKE: /* https://tools.ietf.org/html/draft-cragie-tls-ecjpake-01 used in Thread Commissioning */
         dissect_ssl3_hnd_cli_keyex_ecjpake(hf, tvb, tree, offset, length);
+        break;
+    case KEX_ECC_SM2: /* GB/T 38636 */
+        dissect_ssl3_hnd_cli_keyex_ecc_sm2(hf, tvb, tree, offset, length);
         break;
     default:
         /* XXX: add info message for not supported KEX algo */
