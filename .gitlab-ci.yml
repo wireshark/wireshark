@@ -679,8 +679,6 @@ ABI Check:
     # are fixed.
     - DEBIAN_FRONTEND=noninteractive apt-get --yes --option DPkg::options::="--force-overwrite" install llvm-$CLANG_VERSION
     - mkdir -p ccache
-    # Signal after_script, which runs in its own shell.
-    - echo "export FUZZ_PASSED=true" > /tmp/fuzz_result.sh
     - mkdir /tmp/fuzz
     - mkdir build
     - cd build
@@ -712,9 +710,13 @@ ASan Menagerie Fuzz:
     - ninja
     - ninja install
     - cd ..
+    - FUZZ_PASSED=true
     # /var/menagerie contains captures harvested from wireshark.org's mailing list, wiki, issues, etc.
     # We have more captures than we can fuzz in $MAX_SECONDS, so we shuffle them each run.
-    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
+    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || FUZZ_PASSED=false
+    # Signal after_script, which runs in its own shell.
+    - echo "export FUZZ_PASSED=$FUZZ_PASSED" > /tmp/fuzz_result.sh
+    - $FUZZ_PASSED
 
 ASan randpkt Fuzz:
   extends: .fuzz-ubuntu
@@ -727,7 +729,10 @@ ASan randpkt Fuzz:
     - ninja
     - ninja install
     - cd ..
-    - ./tools/randpkt-test.sh -a -b $INSTALL_PREFIX/bin -d /tmp/fuzz -p $MAX_PASSES 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
+    - FUZZ_PASSED=true
+    - ./tools/randpkt-test.sh -a -b $INSTALL_PREFIX/bin -d /tmp/fuzz -p $MAX_PASSES 2> fuzz-test.err || FUZZ_PASSED=false
+    - echo "export FUZZ_PASSED=$FUZZ_PASSED" > /tmp/fuzz_result.sh
+    - $FUZZ_PASSED
   needs: [ 'ASan Menagerie Fuzz' ]
 
 Valgrind Menagerie Fuzz:
@@ -749,7 +754,10 @@ Valgrind Menagerie Fuzz:
     - ninja
     - ninja install
     - cd ..
-    - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
+    - FUZZ_PASSED=true
+    - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || FUZZ_PASSED=false
+    - echo "export FUZZ_PASSED=$FUZZ_PASSED" > /tmp/fuzz_result.sh
+    - $FUZZ_PASSED
   needs: [ 'ASan randpkt Fuzz' ]
 
 
