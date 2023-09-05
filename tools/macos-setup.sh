@@ -139,7 +139,7 @@ fi
 # the optional libraries are required by other optional libraries.
 #
 LIBSMI_VERSION=0.4.8
-GNUTLS_VERSION=3.6.15
+GNUTLS_VERSION=3.7.8
 if [ "$GNUTLS_VERSION" ]; then
     #
     # We'll be building GnuTLS, so we may need some additional libraries.
@@ -148,47 +148,48 @@ if [ "$GNUTLS_VERSION" ]; then
     #
     GNUTLS_MAJOR_VERSION="`expr $GNUTLS_VERSION : '\([0-9][0-9]*\).*'`"
     GNUTLS_MINOR_VERSION="`expr $GNUTLS_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    NETTLE_VERSION=3.6
+    NETTLE_VERSION=3.9.1
 
     #
     # And, in turn, Nettle requires GMP.
     #
-    GMP_VERSION=6.2.1
+    GMP_VERSION=6.3.0
 
     #
     # And p11-kit
-    P11KIT_VERSION=0.23.21
+    P11KIT_VERSION=0.25.0
 
     # Which requires libtasn1
-    LIBTASN1_VERSION=4.16.0
+    LIBTASN1_VERSION=4.19.0
 fi
 # Use 5.2.4, not 5.3, for now; lua_bitop.c hasn't been ported to 5.3
 # yet, and we need to check for compatibility issues (we'd want Lua
 # scripts to work with 5.1, 5.2, and 5.3, as long as they only use Lua
 # features present in all three versions)
 LUA_VERSION=5.2.4
-SNAPPY_VERSION=1.1.8
-ZSTD_VERSION=1.4.2
-LIBXML2_VERSION=2.9.9
-LZ4_VERSION=1.9.2
-SBC_VERSION=1.3
-CARES_VERSION=1.15.0
-LIBSSH_VERSION=0.9.6
+SNAPPY_VERSION=1.1.10
+ZSTD_VERSION=1.4.5
+LIBXML2_VERSION=2.11.5
+LZ4_VERSION=1.9.4
+SBC_VERSION=2.0
+CARES_VERSION=1.19.1
+LIBSSH_VERSION=0.10.5
 # mmdbresolve
 MAXMINDDB_VERSION=1.4.3
-NGHTTP2_VERSION=1.46.0
-NGHTTP3_VERSION=0.14.0
+NGHTTP2_VERSION=1.56.0
+NGHTTP3_VERSION=0.15.0
 SPANDSP_VERSION=0.0.6
-SPEEXDSP_VERSION=1.2.0
+SPEEXDSP_VERSION=1.2.1
 if [ "$SPANDSP_VERSION" ]; then
     #
     # SpanDSP depends on libtiff.
     #
     LIBTIFF_VERSION=3.8.1
 fi
-BCG729_VERSION=1.0.2
+BCG729_VERSION=1.1.1
+# libilbc 3.0.0 & later link with absiel, which is released under Apache 2.0
 ILBC_VERSION=2.0.2
-OPUS_VERSION=1.3.1
+OPUS_VERSION=1.4
 
 #
 # Is /usr/bin/python3 a working version of Python?  It may be, as it
