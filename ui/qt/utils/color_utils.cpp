@@ -13,6 +13,10 @@
 #include <QApplication>
 #include <QPalette>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QStyleHints>
+#endif
+
 // Colors we use in various parts of the UI.
 //
 // New colors should be chosen from tango_colors.h. The expert and hidden
@@ -143,7 +147,11 @@ QRgb ColorUtils::sequenceColor(int item)
 
 bool ColorUtils::themeIsDark()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    return qApp->styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+#else
     return qApp->palette().windowText().color().lightness() > qApp->palette().window().color().lightness();
+#endif
 }
 
 // Qt < 5.12.6 on macOS always uses Qt::blue for the link color, which is

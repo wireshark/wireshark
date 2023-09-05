@@ -232,6 +232,9 @@ private slots:
     void ifChangeEventsAvailable();
     void itemStatusFinished(const QString filename = "", qint64 size = 0, bool accessible = false);
     void refreshPacketData();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
+    void colorSchemeChanged();
+#endif
 };
 
 extern MainApplication *mainApp;

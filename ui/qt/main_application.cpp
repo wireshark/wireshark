@@ -102,6 +102,10 @@
 #include <QStyleHints>
 #endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
+#include <QStyleFactory>
+#endif
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -276,6 +280,16 @@ void MainApplication::refreshPacketData()
         emit columnDataChanged();
     }
 }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
+void MainApplication::colorSchemeChanged() {
+    if (ColorUtils::themeIsDark()) {
+        setStyle(QStyleFactory::create("fusion"));
+    } else {
+        setStyle(QStyleFactory::create("windowsvista"));
+    }
+}
+#endif
 
 void MainApplication::updateTaps()
 {
@@ -813,11 +827,15 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     qApp->setStyleSheet(app_style_sheet);
 
     // If our window text is lighter than the window background, assume the theme is dark.
-    QPalette gui_pal = qApp->palette();
-    prefs_set_gui_theme_is_dark(gui_pal.windowText().color().value() > gui_pal.window().color().value());
+    prefs_set_gui_theme_is_dark(ColorUtils::themeIsDark());
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     connect(this, SIGNAL(softwareUpdateQuit()), this, SLOT(quit()), Qt::QueuedConnection);
+#endif
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
+    colorSchemeChanged();
+    connect(styleHints(), &QStyleHints::colorSchemeChanged, this, &MainApplication::colorSchemeChanged);
 #endif
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
