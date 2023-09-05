@@ -382,19 +382,31 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 {
 	char *rep;
 
-	/* Use local time by default. */
-	if (field_display == 0)
+	if (field_display == BASE_NONE)
 		field_display = ABSOLUTE_TIME_LOCAL;
 
-	if (field_display == ABSOLUTE_TIME_UNIX) {
-		rep = abs_time_to_unix_str(scope, &fv->value.time);
-	}
-	else if (rtype == FTREPR_DISPLAY) {
-		rep = abs_time_to_str_ex(scope, &fv->value.time,
-				field_display, ABS_TIME_TO_STR_SHOW_ZONE);
-	}
-	else {
-		rep = abs_time_to_ftrepr_dfilter(scope, &fv->value.time, field_display == ABSOLUTE_TIME_UTC);
+	switch (rtype) {
+		case FTREPR_DISPLAY:
+			rep = abs_time_to_str_ex(scope, &fv->value.time,
+					field_display, ABS_TIME_TO_STR_SHOW_ZONE);
+			break;
+
+		case FTREPR_DFILTER:
+			if (field_display == ABSOLUTE_TIME_UNIX) {
+				rep = abs_time_to_unix_str(scope, &fv->value.time);
+			}
+			else {
+				/* Only ABSOLUTE_TIME_LOCAL and ABSOLUTE_TIME_UTC
+				 * are supported. Normalize the field_display value. */
+				if (field_display != ABSOLUTE_TIME_LOCAL)
+					field_display = ABSOLUTE_TIME_UTC;
+				rep = abs_time_to_ftrepr_dfilter(scope, &fv->value.time, field_display != ABSOLUTE_TIME_LOCAL);
+			}
+			break;
+
+		default:
+			ws_assert_not_reached();
+			break;
 	}
 
 	return rep;
