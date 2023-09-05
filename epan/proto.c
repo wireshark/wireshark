@@ -6135,6 +6135,105 @@ proto_tree_set_eui64_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint 
 	}
 }
 
+proto_item *
+proto_tree_add_mac48_detail(const mac_hf_list_t *list_specific,
+			    const mac_hf_list_t *list_generic,
+			    gint idx, tvbuff_t *tvb,
+			    proto_tree *tree, gint offset)
+{
+	const guint8   addr[6];
+	const char    *addr_name  = NULL;
+	const gchar   *oui_name   = NULL;
+	proto_item    *addr_item  = NULL;
+	proto_tree    *addr_tree  = NULL;
+	proto_item    *ret_val    = NULL;
+
+	if (tree == NULL || list_specific == NULL) {
+		return NULL;
+	}
+
+	/* Resolve what we can of the address */
+	tvb_memcpy(tvb, (void *)addr, offset, 6);
+	if (list_specific->hf_addr_resolved || (list_generic && list_generic->hf_addr_resolved)) {
+		addr_name = get_ether_name(addr);
+	}
+	if (list_specific->hf_oui_resolved || (list_generic && list_generic->hf_oui_resolved)) {
+		oui_name = get_manuf_name_if_known(addr);
+	}
+
+	/* Add the item for the specific address type */
+	ret_val = proto_tree_add_item(tree, *list_specific->hf_addr, tvb, offset, 6, ENC_NA);
+	if (idx >= 0) {
+		addr_tree = proto_item_add_subtree(ret_val, idx);
+	}
+	else {
+		addr_tree = tree;
+	}
+
+	if (list_specific->hf_addr_resolved != NULL) {
+		addr_item = proto_tree_add_string(addr_tree, *list_specific->hf_addr_resolved,
+						  tvb, offset, 6, addr_name);
+		proto_item_set_generated(addr_item);
+		proto_item_set_hidden(addr_item);
+	}
+
+	if (list_specific->hf_oui != NULL) {
+		addr_item = proto_tree_add_item(addr_tree, *list_specific->hf_oui, tvb, offset, 3, ENC_NA);
+		proto_item_set_generated(addr_item);
+		proto_item_set_hidden(addr_item);
+
+		if (oui_name != NULL && list_specific->hf_oui_resolved != NULL) {
+			addr_item = proto_tree_add_string(addr_tree, *list_specific->hf_oui_resolved, tvb, offset, 6, oui_name);
+			proto_item_set_generated(addr_item);
+			proto_item_set_hidden(addr_item);
+		}
+	}
+
+	if (list_specific->hf_lg != NULL) {
+		proto_tree_add_item(addr_tree, *list_specific->hf_lg, tvb, offset, 3, ENC_BIG_ENDIAN);
+	}
+	if (list_specific->hf_ig != NULL) {
+		proto_tree_add_item(addr_tree, *list_specific->hf_ig, tvb, offset, 3, ENC_BIG_ENDIAN);
+	}
+
+	/* Were we given a list for generic address fields? If not, stop here */
+	if (list_generic == NULL) {
+		return ret_val;
+	}
+
+	addr_item = proto_tree_add_item(addr_tree, *list_generic->hf_addr, tvb, offset, 6, ENC_NA);
+	proto_item_set_hidden(addr_item);
+
+	if (list_generic->hf_addr_resolved != NULL) {
+		addr_item = proto_tree_add_string(addr_tree, *list_generic->hf_addr_resolved,
+						  tvb, offset, 6, addr_name);
+		proto_item_set_generated(addr_item);
+		proto_item_set_hidden(addr_item);
+	}
+
+	if (list_generic->hf_oui != NULL) {
+		addr_item = proto_tree_add_item(addr_tree, *list_generic->hf_oui, tvb, offset, 3, ENC_NA);
+		proto_item_set_generated(addr_item);
+		proto_item_set_hidden(addr_item);
+
+		if (oui_name != NULL && list_generic->hf_oui_resolved != NULL) {
+			addr_item = proto_tree_add_string(addr_tree, *list_generic->hf_oui_resolved, tvb, offset, 6, oui_name);
+			proto_item_set_generated(addr_item);
+			proto_item_set_hidden(addr_item);
+		}
+	}
+
+	if (list_generic->hf_lg != NULL) {
+		addr_item = proto_tree_add_item(addr_tree, *list_generic->hf_lg, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_item_set_hidden(addr_item);
+	}
+	if (list_generic->hf_ig != NULL) {
+		addr_item = proto_tree_add_item(addr_tree, *list_generic->hf_ig, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_item_set_hidden(addr_item);
+	}
+	return ret_val;
+}
+
 /* Add a field_info struct to the proto_tree, encapsulating it in a proto_node */
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi)

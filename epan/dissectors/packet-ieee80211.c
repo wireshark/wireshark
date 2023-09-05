@@ -1749,6 +1749,16 @@ static const true_false_string ieee80211_tag_measure_report_frame_info_frame_typ
   "Beacon/Probe Response Frame"
 };
 
+static const true_false_string ig_tfs = {
+  "Group address (multicast/broadcast)",
+  "Individual address (unicast)"
+};
+
+static const true_false_string lg_tfs = {
+  "Locally administered address (this is NOT the factory default)",
+  "Globally unique address (factory default)"
+};
+
 static const true_false_string ieee80211_tag_measure_map_field_bss_flag = {
   "At least one valid MPDU was received by another BSS or IBSS during the measurement period.",
   "No valid MPDUs were received from another BSS or IBSS during the measurement period."
@@ -3783,19 +3793,52 @@ static int hf_ieee80211_assoc_id = -1;
 /* ************************************************************************* */
 static int hf_ieee80211_addr_da = -1;  /* Destination address subfield */
 static int hf_ieee80211_addr_da_resolved = -1;  /* Dst addr subfield resolved*/
+static int hf_ieee80211_addr_da_oui = -1;  /* Destination address subfield */
+static int hf_ieee80211_addr_da_oui_resolved = -1;  /* Dst addr subfield resolved*/
+static int hf_ieee80211_addr_da_ig = -1;  /* Destination address IG bit */
+static int hf_ieee80211_addr_da_lg = -1;  /* Destination address LG bit */
+
 static int hf_ieee80211_addr_sa = -1;  /* Source address subfield */
 static int hf_ieee80211_addr_sa_resolved = -1;  /* Src addr subfield resolved*/
+static int hf_ieee80211_addr_sa_oui = -1;  /* Source address subfield */
+static int hf_ieee80211_addr_sa_oui_resolved = -1;  /* Src addr subfield resolved*/
+static int hf_ieee80211_addr_sa_ig = -1;  /* Source address IG bit */
+static int hf_ieee80211_addr_sa_lg = -1;  /* Source address LG bit */
+
 static int hf_ieee80211_addr_ra = -1;  /* Receiver address subfield */
 static int hf_ieee80211_addr_ra_resolved = -1;  /* Rcv addr subfield resolved*/
+static int hf_ieee80211_addr_ra_oui = -1;  /* Receiver address subfield */
+static int hf_ieee80211_addr_ra_oui_resolved = -1;  /* Rcv addr subfield resolved*/
+static int hf_ieee80211_addr_ra_ig = -1;  /* Receiver address IG bit */
+static int hf_ieee80211_addr_ra_lg = -1;  /* Receiver address LG bit */
+
 static int hf_ieee80211_addr_ta = -1;  /* Transmitter address subfield */
 static int hf_ieee80211_addr_ta_resolved = -1;  /* Txm addr subfield resolved*/
+static int hf_ieee80211_addr_ta_oui = -1;  /* Transmitter address subfield */
+static int hf_ieee80211_addr_ta_oui_resolved = -1;  /* Txm addr subfield resolved*/
+static int hf_ieee80211_addr_ta_ig = -1;  /* Transmitter address IG bit */
+static int hf_ieee80211_addr_ta_lg = -1;  /* Transmitter address LG bit */
+
 static int hf_ieee80211_addr_bssid = -1;  /* address is bssid */
 static int hf_ieee80211_addr_bssid_resolved = -1;  /* bssid resolved*/
+static int hf_ieee80211_addr_bssid_oui = -1;  /* address is bssid */
+static int hf_ieee80211_addr_bssid_oui_resolved = -1;  /* bssid resolved*/
+static int hf_ieee80211_addr_bssid_ig = -1;  /* bssid address IG bit */
+static int hf_ieee80211_addr_bssid_lg = -1;  /* bssid address LG bit */
+
 static int hf_ieee80211_addr_staa = -1;  /* address is station address */
 static int hf_ieee80211_addr_staa_resolved = -1;  /* station address resolved*/
+static int hf_ieee80211_addr_staa_oui = -1;  /* address is station address */
+static int hf_ieee80211_addr_staa_oui_resolved = -1;  /* station address resolved*/
+static int hf_ieee80211_addr_staa_ig = -1;  /* station address IG bit */
+static int hf_ieee80211_addr_staa_lg = -1;  /* station address LG bit */
 
 static int hf_ieee80211_addr = -1;  /* Source or destination address subfield */
 static int hf_ieee80211_addr_resolved = -1;/*Src/dst address subfield resolved*/
+static int hf_ieee80211_addr_oui = -1;  /* Source or destination address subfield */
+static int hf_ieee80211_addr_oui_resolved = -1;/*Src/dst address subfield resolved*/
+static int hf_ieee80211_addr_ig = -1;  /* Src/dst address IG bit */
+static int hf_ieee80211_addr_lg = -1;  /* Src/dst address LG bit */
 
 static int hf_ieee80211_mgt = -1;
 
@@ -7981,6 +8024,7 @@ static gint ett_block_ack_request_multi_sta_aid_tid = -1;
 static gint ett_multi_sta_block_ack = -1;
 static gint ett_ath_cap_tree = -1;
 static gint ett_extreme_mesh_services_tree = -1;
+static gint ett_addr = -1;
 
 static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
@@ -8540,6 +8584,86 @@ static gint ett_tbtt_infos = -1;
 static gint ett_rnr_bss_params_tree = -1;
 static gint ett_rnr_mld_params_tree = -1;
 
+/* Generic address HF list for proto_tree_add_mac48_detail() */
+static const mac_hf_list_t mac_addr = {
+  &hf_ieee80211_addr,
+  &hf_ieee80211_addr_resolved,
+  &hf_ieee80211_addr_oui,
+  &hf_ieee80211_addr_oui_resolved,
+  &hf_ieee80211_addr_lg,
+  &hf_ieee80211_addr_ig,
+};
+
+/* Generic address HF list for proto_tree_add_mac48_detail() --
+ * no LG/IG bits */
+static const mac_hf_list_t mac_addr_hidden = {
+  &hf_ieee80211_addr,
+  &hf_ieee80211_addr_resolved,
+  &hf_ieee80211_addr_oui,
+  &hf_ieee80211_addr_oui_resolved,
+  NULL,
+  NULL,
+};
+
+/* Destination address HF list for proto_tree_add_mac48_detail() */
+static const mac_hf_list_t mac_da = {
+  &hf_ieee80211_addr_da,
+  &hf_ieee80211_addr_da_resolved,
+  &hf_ieee80211_addr_da_oui,
+  &hf_ieee80211_addr_da_oui_resolved,
+  &hf_ieee80211_addr_da_lg,
+  &hf_ieee80211_addr_da_ig,
+};
+
+/* Source address HF list for proto_tree_add_mac48_detail() */
+static const mac_hf_list_t mac_sa = {
+  &hf_ieee80211_addr_sa,
+  &hf_ieee80211_addr_sa_resolved,
+  &hf_ieee80211_addr_sa_oui,
+  &hf_ieee80211_addr_sa_oui_resolved,
+  &hf_ieee80211_addr_sa_lg,
+  &hf_ieee80211_addr_sa_ig,
+};
+
+/* Receiver address HF list for proto_tree_add_mac48_detail() */
+static const mac_hf_list_t mac_ra = {
+  &hf_ieee80211_addr_ra,
+  &hf_ieee80211_addr_ra_resolved,
+  &hf_ieee80211_addr_ra_oui,
+  &hf_ieee80211_addr_ra_oui_resolved,
+  &hf_ieee80211_addr_ra_lg,
+  &hf_ieee80211_addr_ra_ig,
+};
+
+/* Transmitter address HF list for proto_tree_add_mac48_detail() */
+static const mac_hf_list_t mac_ta = {
+  &hf_ieee80211_addr_ta,
+  &hf_ieee80211_addr_ta_resolved,
+  &hf_ieee80211_addr_ta_oui,
+  &hf_ieee80211_addr_ta_oui_resolved,
+  &hf_ieee80211_addr_ta_lg,
+  &hf_ieee80211_addr_ta_ig,
+};
+
+/* BSSID address HF list for proto_tree_add_mac48_detail() */
+static const mac_hf_list_t mac_bssid = {
+  &hf_ieee80211_addr_bssid,
+  &hf_ieee80211_addr_bssid_resolved,
+  &hf_ieee80211_addr_bssid_oui,
+  &hf_ieee80211_addr_bssid_oui_resolved,
+  &hf_ieee80211_addr_bssid_lg,
+  &hf_ieee80211_addr_bssid_ig,
+};
+
+/* Station address HF list for proto_tree_add_mac48_detail() */
+static const mac_hf_list_t mac_staa = {
+  &hf_ieee80211_addr_staa,
+  &hf_ieee80211_addr_staa_resolved,
+  &hf_ieee80211_addr_staa_oui,
+  &hf_ieee80211_addr_staa_oui_resolved,
+  &hf_ieee80211_addr_staa_lg,
+  &hf_ieee80211_addr_staa_ig,
+};
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -36535,19 +36659,7 @@ static void
 dissect_ieee80211_block_ack(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, gboolean isDMG, gboolean is_req, gboolean has_fcs)
 {
-  const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-  proto_item     *hidden_item;
-
-  proto_tree_add_item(tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-  hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_ta_resolved, tvb,
-                        offset, 6, ether_name);
-  proto_item_set_hidden(hidden_item);
-  hidden_item = proto_tree_add_item(tree, hf_ieee80211_addr, tvb, offset, 6,
-                        ENC_NA);
-  proto_item_set_hidden(hidden_item);
-  hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_resolved, tvb,
-                        offset, 6, ether_name);
-  proto_item_set_hidden(hidden_item);
+  proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, tree, offset);
   offset += 6;
 
   dissect_ieee80211_block_ack_details(tvb, pinfo, tree, offset, isDMG, is_req, has_fcs);
@@ -37224,8 +37336,6 @@ static int
 dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, guint fcs_len)
 {
-  const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-  proto_item        *hidden_item;
   proto_tree        *common_tree = NULL;
   guint8            trigger_type;
   guint8            subtype = 0;
@@ -37233,16 +37343,7 @@ dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   guint8            common_info_b54_55;
   gboolean          eht_trigger = TRUE;
 
-  proto_tree_add_item(tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-  hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_ta_resolved,
-                        tvb, offset, 6, ether_name);
-  proto_item_set_hidden(hidden_item);
-  hidden_item = proto_tree_add_item(tree, hf_ieee80211_addr, tvb, offset, 6,
-                        ENC_NA);
-  proto_item_set_hidden(hidden_item);
-  hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_resolved, tvb,
-                        offset, 6, ether_name);
-  proto_item_set_hidden(hidden_item);
+  proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, tree, offset);
 
   offset += 6;
   length += 6;
@@ -37344,20 +37445,9 @@ static int
 dissect_ieee80211_s1g_tack(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, guint16 flags)
 {
-  const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-  proto_item      *hidden_item;
   int             length = 0;
 
-  proto_tree_add_item(tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-  hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_ta_resolved,
-                        tvb, offset, 6, ether_name);
-  proto_item_set_hidden(hidden_item);
-  hidden_item = proto_tree_add_item(tree, hf_ieee80211_addr, tvb, offset, 6,
-                        ENC_NA);
-  proto_item_set_hidden(hidden_item);
-  hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_resolved, tvb,
-                        offset, 6, ether_name);
-  proto_item_set_hidden(hidden_item);
+  proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, tree, offset);
 
   offset += 6;
   length += 6;
@@ -37654,20 +37744,10 @@ static int
 dissect_ieee80211_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, gboolean has_fcs)
 {
-  const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-  proto_item      *hidden_item, *dialog;
+  proto_item      *dialog;
   guint8           dialog_token;
 
-  proto_tree_add_item(tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-  hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_ta_resolved, tvb,
-                        offset, 6, ether_name);
-  proto_item_set_hidden(hidden_item);
-  hidden_item = proto_tree_add_item(tree, hf_ieee80211_addr, tvb, offset, 6,
-                        ENC_NA);
-  proto_item_set_hidden(hidden_item);
-  hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_resolved, tvb,
-                        offset, 6, ether_name);
-  proto_item_set_hidden(hidden_item);
+  proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, tree, offset);
   offset += 6;
 
   dialog_token = tvb_get_guint8(tvb, offset);
@@ -38230,16 +38310,8 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     dissect_pv1_sid(dst_sid, pinfo, tvb, offset);
     offset += 2;
   } else {
-    proto_item *hidden = NULL;
-    const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-
     set_dst_addr_cols(pinfo, tvb, offset, "RA");
-    proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ra, tvb, offset, 6, ENC_NA);
-    hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-    proto_item_set_hidden(hidden);
-    hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ra_resolved, tvb,
-                                   offset, 6, ether_name);
-    proto_item_set_hidden(hidden);
+    proto_tree_add_mac48_detail(&mac_ra, &mac_addr, ett_addr, tvb, hdr_tree, offset);
     offset += 6;
   }
 
@@ -38255,14 +38327,8 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     dissect_pv1_sid(src_sid, pinfo, tvb, offset);
     offset += 2;
   } else {
-    proto_item *hidden = NULL;
-    const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-
     set_src_addr_cols(pinfo, tvb, offset, "TA");
-    proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-    hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb,
-                                   offset, 6, ether_name);
-    proto_item_set_hidden(hidden);
+    proto_tree_add_mac48_detail(&mac_ta, NULL, ett_addr, tvb, hdr_tree, offset);
     offset += 6;
   }
 
@@ -38282,32 +38348,16 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   }
   /* Now, add A3 and A4 if present */
   if (a3_present) {
-    proto_item *hidden = NULL;
-    const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-
     set_dst_addr_cols(pinfo, tvb, offset, "DA");
-    proto_tree_add_item(hdr_tree, hf_ieee80211_addr_da, tvb, offset, 6, ENC_NA);
-    hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-    proto_item_set_hidden(hidden);
-    hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, tvb,
-                                   offset, 6, ether_name);
-    proto_item_set_hidden(hidden);
+    proto_tree_add_mac48_detail(&mac_da, &mac_addr, ett_addr, tvb, hdr_tree, offset);
     offset += 6;
   }
 
   if (a4_present) {
-    proto_item *hidden = NULL;
-    const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-
     set_dst_addr_cols(pinfo, tvb, offset, "SA");
     set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, offset);
     copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-    proto_tree_add_item(hdr_tree, hf_ieee80211_addr_sa, tvb, offset, 6, ENC_NA);
-    hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-    proto_item_set_hidden(hidden);
-    hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, tvb,
-                                   offset, 6, ether_name);
-    proto_item_set_hidden(hidden);
+    proto_tree_add_mac48_detail(&mac_sa, &mac_addr, ett_addr, tvb, hdr_tree, offset);
     offset += 6;
   }
 
@@ -38362,7 +38412,6 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean         has_fcs;
   gint             len, reported_len, ivlen;
   gint             sta_addr_offset = 0;
-  const gchar     *station_name;
   gboolean         is_amsdu    = 0;
   gboolean         save_fragmented;
   guint32          addr_type;
@@ -38756,16 +38805,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   seq_number = 0;
 
   /* all frames have address 1 = RA */
-  if (tree) {
-    const gchar *ether_name = tvb_get_ether_name(tvb, 4);
-    proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ra, tvb, 4, 6, ENC_NA);
-    hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ra_resolved, tvb, 4, 6, ether_name);
-    proto_item_set_hidden(hidden_item);
-    hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
-    proto_item_set_hidden(hidden_item);
-    hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, 4, 6, ether_name);
-    proto_item_set_hidden(hidden_item);
-  }
+  proto_tree_add_mac48_detail(&mac_ra, &mac_addr, ett_addr, tvb, hdr_tree, 4);
 
   switch (FCF_FRAME_TYPE (fcf))
   {
@@ -38796,24 +38836,11 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       if (tree)
       {
-        const gchar *ra_da_name, *ta_sa_name, *bssid_name;
-
-        ra_da_name = tvb_get_ether_name(tvb, 4);
-        proto_tree_add_item(hdr_tree, hf_ieee80211_addr_da, tvb, 4, 6, ENC_NA);
-        hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, tvb, 4, 6, ra_da_name);
-        proto_item_set_hidden(hidden_item);
-        proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, 10, 6, ENC_NA);
-        ta_sa_name = tvb_get_ether_name(tvb, 10);
-        hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, 10, 6, ta_sa_name);
-        proto_item_set_hidden(hidden_item);
-        proto_tree_add_item(hdr_tree, hf_ieee80211_addr_sa, tvb, 10, 6, ENC_NA);
-        hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, 10, 6, ta_sa_name);
-        proto_item_set_hidden(hidden_item);
+        proto_tree_add_mac48_detail(&mac_da, NULL, ett_addr, tvb, hdr_tree, 4);
+        proto_tree_add_mac48_detail(&mac_ta, NULL, ett_addr, tvb, hdr_tree, 10);
+        proto_tree_add_mac48_detail(&mac_sa, NULL, ett_addr, tvb, hdr_tree, 10);
         check_s1g_setting(pinfo, tvb, 10);
-        proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, 16, 6, ENC_NA);
-        bssid_name = tvb_get_ether_name(tvb, 16);
-        hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, 16, 6, bssid_name);
-        proto_item_set_hidden(hidden_item);
+        proto_tree_add_mac48_detail(&mac_bssid, NULL, ett_addr, tvb, hdr_tree, 16);
 
         /* FIXME: With mgmt frames FROM_TO_DS is always 0, perhaps compare address to bssid instead? */
         if ((flags & FROM_TO_DS) == FLAG_FROM_DS) { /* Receiver address */
@@ -38822,19 +38849,12 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           sta_addr_offset = 10;
         }
         if (sta_addr_offset > 0) {
-          proto_tree_add_item(hdr_tree, hf_ieee80211_addr_staa, tvb, sta_addr_offset, 6, ENC_NA);
-          station_name = tvb_get_ether_name(tvb, sta_addr_offset);
-          hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_staa_resolved, tvb, sta_addr_offset, 6, station_name);
-          proto_item_set_hidden(hidden_item);
+          proto_tree_add_mac48_detail(&mac_staa, NULL, ett_addr, tvb, hdr_tree, sta_addr_offset);
         }
         /* add items for wlan.addr filter */
-        hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, 10, 6, ENC_NA);
+        hidden_item = proto_tree_add_mac48_detail(&mac_addr_hidden, NULL, -1, tvb, hdr_tree, 10);
         proto_item_set_hidden(hidden_item);
-        hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, 10, 6, ta_sa_name);
-        proto_item_set_hidden(hidden_item);
-        hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, 16, 6, ENC_NA);
-        proto_item_set_hidden(hidden_item);
-        hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, 16, 6, bssid_name);
+        hidden_item = proto_tree_add_mac48_detail(&mac_addr_hidden, NULL, -1, tvb, hdr_tree, 16);
         proto_item_set_hidden(hidden_item);
         proto_tree_add_item(hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2, ENC_LITTLE_ENDIAN);
@@ -38873,12 +38893,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       if (ctrl_type_subtype == CTRL_PS_POLL) {
         addr1_str = "BSSID";
-        if (tree) {
-          const gchar *ether_name = tvb_get_ether_name(tvb, 4);
-          proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, 4, 6, ENC_NA);
-          hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, 4, 6, ether_name);
-          proto_item_set_hidden(hidden_item);
-        }
+        proto_tree_add_mac48_detail(&mac_bssid, NULL, ett_addr, tvb, hdr_tree, 4);
       }
 
       /* Add address 1 */
@@ -38910,18 +38925,8 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case CTRL_CFP_ENDACK:
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
-          /* if (tree) */
-          {
-            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
-            proto_item_set_hidden(hidden_item);
-            hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-            proto_item_set_hidden(hidden_item);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6, ether_name);
-            proto_item_set_hidden(hidden_item);
-            offset += 6;
-          }
+          proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, hdr_tree, offset);
+          offset += 6;
           break;
         }
 
@@ -38933,20 +38938,11 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             set_src_addr_cols(pinfo, tvb, offset, "BSSID");
           /* if (tree) */
           {
-            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
             if (isDMG) {
-              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
-              proto_item_set_hidden(hidden_item);
+              proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, hdr_tree, offset);
             } else {
-              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, offset, 6, ENC_NA);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, offset, 6, ether_name);
-              proto_item_set_hidden(hidden_item);
+              proto_tree_add_mac48_detail(&mac_bssid, &mac_addr, ett_addr, tvb, hdr_tree, offset);
             }
-            hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-            proto_item_set_hidden(hidden_item);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6, ether_name);
-            proto_item_set_hidden(hidden_item);
             offset += 6;
           }
           break;
@@ -38971,22 +38967,10 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case CTRL_BEAMFORM_RPT_POLL:
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
-          /* if (tree) */
-          {
-            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
-            proto_item_set_hidden(hidden_item);
-            hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-            proto_item_set_hidden(hidden_item);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6, ether_name);
-            proto_item_set_hidden(hidden_item);
-            offset += 6;
-
-            proto_tree_add_item(hdr_tree, hf_ieee80211_beamform_feedback_seg_retrans_bitmap, tvb, offset, 1, ENC_NA);
-          }
-        break;
+          proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, hdr_tree, offset);
+          offset += 6;
+          proto_tree_add_item(hdr_tree, hf_ieee80211_beamform_feedback_seg_retrans_bitmap, tvb, offset, 1, ENC_NA);
+          break;
         }
 
         case CTRL_VHT_NDP_ANNC:
@@ -39006,18 +38990,8 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case CTRL_RTS:
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
-          /* if (tree) */
-          {
-            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
-            proto_item_set_hidden(hidden_item);
-            hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-            proto_item_set_hidden(hidden_item);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6, ether_name);
-            proto_item_set_hidden(hidden_item);
-            offset += 6;
-          }
+          proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, hdr_tree, offset);
+          offset += 6;
           break;
         }
 
@@ -39201,86 +39175,39 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /* Now if we have a tree we start adding stuff */
       if (tree)
       {
-        const gchar *ta_name, *sa_name = NULL, *da_name = NULL, *bssid_name = NULL, *bssid2_name = NULL;
-
         switch (addr_type)
         {
           case DATA_ADDR_T1:
           case DATA_ADDR_T2:
           case DATA_ADDR_T3:
           case DATA_ADDR_T4:
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, ta_offset, 6, ENC_NA);
-            ta_name = tvb_get_ether_name(tvb, ta_offset);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, ta_offset, 6, ta_name);
-            proto_item_set_hidden(hidden_item);
-            /* TA is always in the wlan.addr filter */
-            hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, ta_offset, 6, ENC_NA);
-            proto_item_set_hidden(hidden_item);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, ta_offset, 6, ta_name);
-            proto_item_set_hidden(hidden_item);
+            proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, hdr_tree, ta_offset);
 
             if (da_offset) {
-              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_da, tvb, da_offset, 6, ENC_NA);
-              da_name = tvb_get_ether_name(tvb, da_offset);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, tvb, da_offset, 6, da_name);
-              proto_item_set_hidden(hidden_item);
+              gboolean add_mac = (da_offset >= 16 && da_offset != sa_offset);
+              proto_tree_add_mac48_detail(&mac_da, add_mac ? &mac_addr : NULL, ett_addr, tvb, hdr_tree, da_offset);
             }
 
             if (sa_offset) {
-              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_sa, tvb, sa_offset, 6, ENC_NA);
-              sa_name = tvb_get_ether_name(tvb, sa_offset);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, sa_offset, 6, sa_name);
-              proto_item_set_hidden(hidden_item);
+              gboolean add_mac = (sa_offset >= 16);
+              proto_tree_add_mac48_detail(&mac_sa, add_mac ? &mac_addr : NULL, ett_addr, tvb, hdr_tree, sa_offset);
             }
 
             if (bssid_offset) {
-              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, bssid_offset, 6, ENC_NA);
-              bssid_name = tvb_get_ether_name(tvb, bssid_offset);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, bssid_offset, 6, bssid_name);
-              proto_item_set_hidden(hidden_item);
+              gboolean add_mac = (bssid_offset >= 16 && bssid_offset != sa_offset && bssid_offset != da_offset);
+              proto_tree_add_mac48_detail(&mac_bssid, add_mac ? &mac_addr : NULL, ett_addr, tvb, hdr_tree, bssid_offset);
             }
 
             if (addr_type == DATA_ADDR_T4 && is_amsdu) {
-              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, 24, 6, ENC_NA);
-              bssid2_name = tvb_get_ether_name(tvb, 24);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, 24, 6, bssid2_name);
-              proto_item_set_hidden(hidden_item);
+              proto_tree_add_mac48_detail(&mac_bssid, NULL, ett_addr, tvb, hdr_tree, 24);
             }
 
             if (sta_addr_offset > 0) {
-              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_staa, tvb, sta_addr_offset, 6, ENC_NA);
-              station_name = tvb_get_ether_name(tvb, sta_addr_offset);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_staa_resolved, tvb, sta_addr_offset, 6, station_name);
-              proto_item_set_hidden(hidden_item);
+              proto_tree_add_mac48_detail(&mac_staa, NULL, ett_addr, tvb, hdr_tree, sta_addr_offset);
             }
             proto_tree_add_item(hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2, ENC_LITTLE_ENDIAN);
 
-            /* add 3rd and 4th address for wlan.addr filter */
-            if (sa_offset >= 16) {
-              hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, sa_offset, 6, ENC_NA);
-              proto_item_set_hidden(hidden_item);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, sa_offset, 6, sa_name);
-              proto_item_set_hidden(hidden_item);
-            }
-            if (da_offset >= 16 && da_offset != sa_offset) {
-              hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, da_offset, 6, ENC_NA);
-              proto_item_set_hidden(hidden_item);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, da_offset, 6, da_name);
-              proto_item_set_hidden(hidden_item);
-            }
-            if (bssid_offset >= 16 && bssid_offset != sa_offset && bssid_offset != da_offset) {
-              hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, bssid_offset, 6, ENC_NA);
-              proto_item_set_hidden(hidden_item);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, bssid_offset, 6, bssid_name);
-              proto_item_set_hidden(hidden_item);
-            }
-            if (addr_type == DATA_ADDR_T4 && is_amsdu) {
-              hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, 24, 6, ENC_NA);
-              proto_item_set_hidden(hidden_item);
-              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, 24, 6, bssid2_name);
-              proto_item_set_hidden(hidden_item);
-            }
             break;
         }
 
@@ -39291,11 +39218,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       switch (frame_type_subtype) {
         case EXTENSION_DMG_BEACON: {
           set_dst_addr_cols(pinfo, tvb, 4, "BSSID");
-          if (tree) {
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, 4, 6, ENC_NA);
-            hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
-            proto_item_set_hidden(hidden_item);
-          }
+          proto_tree_add_mac48_detail(&mac_bssid, &mac_addr, ett_addr, tvb, hdr_tree, 4);
           break;
         }
         case EXTENSION_S1G_BEACON: {
@@ -39310,10 +39233,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           check_s1g_setting(pinfo, tvb, 4);
 
           set_src_addr_cols(pinfo, tvb, 4, "SA");
-          proto_tree_add_item(hdr_tree, hf_ieee80211_addr_sa, tvb, 4, 6, ENC_NA);
-          hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb,
-                                            4, 6, ENC_NA);
-          proto_item_set_hidden(hidden_item);
+          proto_tree_add_mac48_detail(&mac_sa, &mac_addr, ett_addr, tvb, hdr_tree, 4);
           break;
         }
       }
@@ -40037,7 +39957,6 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree         *subframe_tree;
           gboolean            last_subframe = FALSE;
           guint16             subframe_length;
-          const gchar *resolve_name;
 
           /*
            * IEEE Std 802.11-2012 says, in section 8.3.2.2 "A-MSDU format":
@@ -40066,16 +39985,8 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           subframe_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
           i += 1;
 
-          proto_tree_add_item(subframe_tree, hf_ieee80211_addr_da, next_tvb, msdu_offset, 6, ENC_NA);
-          resolve_name = tvb_get_ether_name(next_tvb, msdu_offset);
-          hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, next_tvb, msdu_offset, 6,
-            resolve_name);
-          proto_item_set_hidden(hidden_item);
-          proto_tree_add_item(subframe_tree, hf_ieee80211_addr_sa, next_tvb, msdu_offset+6, 6, ENC_NA);
-          resolve_name = tvb_get_ether_name(next_tvb, msdu_offset+6);
-          hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, next_tvb, msdu_offset+6, 6,
-            resolve_name);
-          proto_item_set_hidden(hidden_item);
+          proto_tree_add_mac48_detail(&mac_da, NULL, ett_addr, tvb, subframe_tree, msdu_offset);
+          proto_tree_add_mac48_detail(&mac_sa, NULL, ett_addr, tvb, subframe_tree, msdu_offset+6);
           proto_tree_add_item(subframe_tree, hf_ieee80211_amsdu_length, next_tvb, msdu_offset+12, 2, ENC_BIG_ENDIAN);
 
           msdu_offset += 14;
@@ -41792,6 +41703,26 @@ proto_register_ieee80211(void)
         BASE_NONE, NULL, 0x0,
         "Destination Hardware Address (resolved)", HFILL }},
 
+    {&hf_ieee80211_addr_da_oui,
+     {"Destination OUI", "wlan.da.oui",
+      FT_UINT24, BASE_OUI, NULL, 0,
+      "Destination Organizationally Unique Identifier", HFILL }},
+
+    {&hf_ieee80211_addr_da_oui_resolved,
+     {"Destination OUI (resolved)", "wlan.da.oui_resolved",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "Destination Organizationally Unique Identifier (resolved)", HFILL }},
+
+    { &hf_ieee80211_addr_da_lg,
+      { "LG bit", "wlan.da.lg",
+        FT_BOOLEAN, 24, TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+
+    { &hf_ieee80211_addr_da_ig,
+      { "IG bit", "wlan.da.ig",
+        FT_BOOLEAN, 24, TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
+
     {&hf_ieee80211_addr_sa,
      {"Source address", "wlan.sa",
       FT_ETHER, BASE_NONE, NULL, 0,
@@ -41801,6 +41732,26 @@ proto_register_ieee80211(void)
       {"Source address (resolved)", "wlan.sa_resolved", FT_STRING,
        BASE_NONE, NULL, 0x0,
        "Source Hardware Address (resolved)", HFILL }},
+
+    {&hf_ieee80211_addr_sa_oui,
+     {"Source OUI", "wlan.sa.oui",
+      FT_UINT24, BASE_OUI, NULL, 0,
+      "Source Organizationally Unique Identifier", HFILL }},
+
+    {&hf_ieee80211_addr_sa_oui_resolved,
+     {"Source OUI (resolved)", "wlan.sa.oui_resolved",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "Source Organizationally Unique Identifier (resolved)", HFILL }},
+
+    { &hf_ieee80211_addr_sa_lg,
+      { "LG bit", "wlan.sa.lg",
+        FT_BOOLEAN, 24, TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+
+    { &hf_ieee80211_addr_sa_ig,
+      { "IG bit", "wlan.sa.ig",
+        FT_BOOLEAN, 24, TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
 
     {&hf_ieee80211_addr,
       {"Hardware address", "wlan.addr",
@@ -41812,6 +41763,26 @@ proto_register_ieee80211(void)
         BASE_NONE, NULL, 0x0,
         "SA, DA, BSSID, RA or TA Hardware Address (resolved)", HFILL }},
 
+    {&hf_ieee80211_addr_oui,
+     {"Hardware OUI", "wlan.oui",
+      FT_UINT24, BASE_OUI, NULL, 0,
+      "Hardware Organizationally Unique Identifier", HFILL }},
+
+    {&hf_ieee80211_addr_oui_resolved,
+     {"Hardware OUI (resolved)", "wlan.oui_resolved",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "Hardware Organizationally Unique Identifier (resolved)", HFILL }},
+
+    { &hf_ieee80211_addr_lg,
+      { "LG bit", "wlan.addr.lg",
+        FT_BOOLEAN, 24, TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+
+    { &hf_ieee80211_addr_ig,
+      { "IG bit", "wlan.addr.ig",
+        FT_BOOLEAN, 24, TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
+
     {&hf_ieee80211_addr_ra,
      {"Receiver address", "wlan.ra",
       FT_ETHER, BASE_NONE, NULL, 0,
@@ -41820,6 +41791,26 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_addr_ra_resolved,
       {"Receiver address (resolved)", "wlan.ra_resolved", FT_STRING, BASE_NONE,
         NULL, 0x0, "Receiving Station Hardware Address (resolved)", HFILL }},
+
+    {&hf_ieee80211_addr_ra_oui,
+     {"Receiver OUI", "wlan.ra.oui",
+      FT_UINT24, BASE_OUI, NULL, 0,
+      "Receiver Organizationally Unique Identifier", HFILL }},
+
+    {&hf_ieee80211_addr_ra_oui_resolved,
+     {"Receiver OUI (resolved)", "wlan.ra.oui_resolved",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "Receiver Organizationally Unique Identifier (resolved)", HFILL }},
+
+    { &hf_ieee80211_addr_ra_lg,
+      { "LG bit", "wlan.ra.lg",
+        FT_BOOLEAN, 24, TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+
+    { &hf_ieee80211_addr_ra_ig,
+      { "IG bit", "wlan.ra.ig",
+        FT_BOOLEAN, 24, TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
 
     {&hf_ieee80211_addr_ta,
      {"Transmitter address", "wlan.ta",
@@ -41831,6 +41822,26 @@ proto_register_ieee80211(void)
         BASE_NONE, NULL, 0x0,
         "Transmitting Station Hardware Address (resolved)", HFILL }},
 
+    {&hf_ieee80211_addr_ta_oui,
+     {"Transmitter OUI", "wlan.ta.oui",
+      FT_UINT24, BASE_OUI, NULL, 0,
+      "Transmitter Organizationally Unique Identifier", HFILL }},
+
+    {&hf_ieee80211_addr_ta_oui_resolved,
+     {"Transmitter OUI (resolved)", "wlan.ta.oui_resolved",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "Transmitter Organizationally Unique Identifier (resolved)", HFILL }},
+
+    { &hf_ieee80211_addr_ta_lg,
+      { "LG bit", "wlan.ta.lg",
+        FT_BOOLEAN, 24, TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+
+    { &hf_ieee80211_addr_ta_ig,
+      { "IG bit", "wlan.ta.ig",
+        FT_BOOLEAN, 24, TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
+
     {&hf_ieee80211_addr_bssid,
      {"BSS Id", "wlan.bssid",
       FT_ETHER, BASE_NONE, NULL, 0,
@@ -41840,6 +41851,26 @@ proto_register_ieee80211(void)
       {"BSS Id (resolved)", "wlan.bssid_resolved", FT_STRING, BASE_NONE, NULL,
         0x0, "Basic Service Set ID (resolved)", HFILL }},
 
+    {&hf_ieee80211_addr_bssid_oui,
+     {"BSS Id OUI", "wlan.bssid.oui",
+      FT_UINT24, BASE_OUI, NULL, 0,
+      "BSS Id Organizationally Unique Identifier", HFILL }},
+
+    {&hf_ieee80211_addr_bssid_oui_resolved,
+     {"BSS Id OUI (resolved)", "wlan.bssid.oui_resolved",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "BSS Id Organizationally Unique Identifier (resolved)", HFILL }},
+
+    { &hf_ieee80211_addr_bssid_lg,
+      { "LG bit", "wlan.bssid.lg",
+        FT_BOOLEAN, 24, TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+
+    { &hf_ieee80211_addr_bssid_ig,
+      { "IG bit", "wlan.bssid.ig",
+        FT_BOOLEAN, 24, TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
+
     {&hf_ieee80211_addr_staa,
      {"STA address", "wlan.staa",
       FT_ETHER, BASE_NONE, NULL, 0,
@@ -41848,6 +41879,26 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_addr_staa_resolved,
       {"STA address (resolved)", "wlan.staa_resolved", FT_STRING, BASE_NONE, NULL,
         0x0, "Station Hardware Address (resolved)", HFILL }},
+
+    {&hf_ieee80211_addr_staa_oui,
+     {"STA OUI", "wlan.staa.oui",
+      FT_UINT24, BASE_OUI, NULL, 0,
+      "STA Organizationally Unique Identifier", HFILL }},
+
+    {&hf_ieee80211_addr_staa_oui_resolved,
+     {"STA OUI (resolved)", "wlan.staa.oui_resolved",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "STA Organizationally Unique Identifier (resolved)", HFILL }},
+
+    { &hf_ieee80211_addr_staa_lg,
+      { "LG bit", "wlan.staa.lg",
+        FT_BOOLEAN, 24, TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+
+    { &hf_ieee80211_addr_staa_ig,
+      { "IG bit", "wlan.staa.ig",
+        FT_BOOLEAN, 24, TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
 
     {&hf_ieee80211_frag_number,
      {"Fragment number", "wlan.frag",
@@ -59017,6 +59068,7 @@ proto_register_ieee80211(void)
     &ett_multi_sta_block_ack,
     &ett_ath_cap_tree,
     &ett_extreme_mesh_services_tree,
+    &ett_addr,
 
     &ett_80211_mgt,
     &ett_fixed_parameters,
