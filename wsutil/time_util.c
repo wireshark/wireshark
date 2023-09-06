@@ -30,9 +30,8 @@
 time_t
 mktime_utc(struct tm *tm)
 {
-#ifndef HAVE_TIMEGM
 	time_t retval;
-
+#ifndef HAVE_TIMEGM
 	static const int days_before[] =
 		{
 			0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
@@ -57,7 +56,30 @@ mktime_utc(struct tm *tm)
 
 	return retval;
 #else
-	return timegm(tm);
+	int save_errno;
+
+	/*
+	 * If passed a struct tm for 2013-03-01 00:00:00, both
+	 * macOS and FreeBSD timegm() return the epoch time
+	 * value for 2013-03-01 00:00:00 UTC, but also set
+	 * errno to EOVERFLOW.  This may be true of other
+	 * implementations based on the tzcode reference
+	 * impelementation of timegm().
+	 *
+	 * The macOS and FreeBSD documentation for timegm() neither
+	 * commit to leaving errno alone nor commit to setting it
+	 * to a particular value.
+	 *
+	 * The code we use if we don't have timegm() doesn't
+	 * set errno.
+	 *
+	 * We save and restore errno, so our callers don't need to
+	 * worry about errno getting overwritten.
+	 */
+	save_errno = errno;
+	retval = timegm(tm);
+	errno = save_errno;
+	return retval;
 #endif /* !HAVE_TIMEGM */
 }
 
