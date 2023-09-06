@@ -382,7 +382,7 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         proto_tree_add_item_ret_uint(flexray_frame_tree, hf_flexray_cc, tvb, 6, 1, ENC_BIG_ENDIAN, &flexray_cc);
         col_append_fstr(pinfo->cinfo, COL_INFO, " CC %2d", flexray_cc);
 
-        if (!nfi) {
+        if (nfi) {
             if (payload_truncated) {
                 expert_add_info(pinfo, flexray_frame_tree, &ei_flexray_frame_payload_truncated);
                 call_subdissector = FALSE;
