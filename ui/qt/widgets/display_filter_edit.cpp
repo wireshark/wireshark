@@ -606,6 +606,15 @@ void DisplayFilterEdit::clearFilter()
 
 void DisplayFilterEdit::applyDisplayFilter()
 {
+    if (completer()->popup()->currentIndex().isValid()) {
+        // If the popup (not the QCompleter itself) has a currently
+        // valid QModelIndex, that means that the popup's
+        // QAbstractItemView::activated() signal has not yet
+        // been handled, which means that text() has the old value,
+        // not the one from the completer.
+        return;
+    }
+
     if (syntaxState() == Invalid)
         return;
 
