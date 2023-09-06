@@ -320,7 +320,7 @@ proto_register_ndp(void)
 	static hf_register_info hf[] = {
 		{ &hf_ndp_ip_address,
 		  { "IP address",		"ndp.ipaddress",  FT_IPv4, BASE_NONE, NULL, 0x0,
-		    "IP address of the Network Management Module (NMM))", HFILL }},
+		    "IP address of the Network Management Module (NMM)", HFILL }},
 
 		{ &hf_ndp_segment_identifier,
 		  { "Segment Identifier",		"ndp.segmentident", FT_UINT24, BASE_HEX, NULL, 0x0,

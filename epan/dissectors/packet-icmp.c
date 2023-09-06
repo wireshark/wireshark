@@ -2249,7 +2249,7 @@ void proto_register_icmp(void)
 		{&hf_icmp_int_info_ifindex,
 		 {"ifIndex", "icmp.int_info.ifindex", FT_BOOLEAN, 8, NULL,
 		  INT_INFO_IFINDEX,
-		  "True: ifIndex of the interface included; False: ifIndex of the interface not included ",
+		  "True: ifIndex of the interface included; False: ifIndex of the interface not included",
 		  HFILL}},
 		{&hf_icmp_int_info_ipaddr,
 		 {"IP Address", "icmp.int_info.ipaddr", FT_BOOLEAN, 8,

@@ -1869,12 +1869,12 @@ proto_register_elf(void)
         { &hf_elf_entry,
             { "Entry",                                     "elf.entry",
             FT_UINT32, BASE_HEX, NULL, 0x00,
-            "This member gives the virtual address to which the system first transfers control, thus starting the process. If the file has no associated entry point, this member holds zero. ", HFILL }
+            "This member gives the virtual address to which the system first transfers control, thus starting the process. If the file has no associated entry point, this member holds zero.", HFILL }
         },
         { &hf_elf64_entry,
             { "Entry",                                     "elf.entry64",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "This member gives the virtual address to which the system first transfers control, thus starting the process. If the file has no associated entry point, this member holds zero. ", HFILL }
+            "This member gives the virtual address to which the system first transfers control, thus starting the process. If the file has no associated entry point, this member holds zero.", HFILL }
         },
         { &hf_elf_phoff,
             { "Program Header Table File Offset",          "elf.phoff",

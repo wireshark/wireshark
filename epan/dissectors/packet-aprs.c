@@ -1440,7 +1440,7 @@ proto_register_aprs( void )
 		{ &hf_aprs_map_feature,
 			{ "Map Feature",		"aprs.map_feature",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
-			"[Reserved - Map Feature", HFILL }
+                        "Reserved - Map Feature", HFILL }
 		},
 		{ &hf_aprs_shelter_data,
 			{ "Shelter data",		"aprs.shelter_data",

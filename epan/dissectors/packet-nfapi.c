@@ -9102,7 +9102,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_multi_carrier_type,
 			{ "Multi carrier type", "nfapi.multi.carrier.type",
 			FT_UINT16, BASE_DEC, VALS(nfapi_laa_carrier_type_vals), 0x0,
-			"Indicates multi carrier type configuration of L1 (according to L1 capabilities and L2 scheduler requirements", HFILL }
+			"Indicates multi carrier type configuration of L1 (according to L1 capabilities and L2 scheduler requirements)", HFILL }
 		},
 		{ &hf_nfapi_multi_carrier_tx,
 			{ "Multi carrier TX", "nfapi.multi.carrier.tx",
@@ -11426,7 +11426,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_si_index,
 			{ "SI Index", "nfapi.si.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"The Index of this SIB in the SIB1 SchedulingInfoList:", HFILL }
+			"The Index of this SIB in the SIB1 SchedulingInfoList", HFILL }
 		},
 		{ &hf_nfapi_number_of_si_periodicity,
 			{ "Number of SI Periodicity", "nfapi.number.of.si.periodicity",

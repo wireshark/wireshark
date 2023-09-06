@@ -1229,7 +1229,7 @@ void proto_register_idrp(void)
                 VALS(idrp_pdu_types), 0x0, NULL, HFILL}},
         {&hf_idrp_sequence,
             {"Sequence Number", "idrp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Sequence number, Sequence number of current BISPDU ", HFILL}},
+                "Sequence number, Sequence number of current BISPDU", HFILL}},
         {&hf_idrp_ack,
             {"Acknowledgment number", "idrp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
                 "Acknowledgment number, Sequence number of the PDU that the sender last received correctly and in sequence number order",

@@ -635,12 +635,11 @@ class Item:
     previousItem = None
 
     def __init__(self, filename, hf, filter, label, item_type, display, strings, macros, mask=None,
-                 check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
+                 check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False, blurb=''):
         self.filename = filename
         self.hf = hf
         self.filter = filter
         self.label = label
-
         self.mask = mask
         self.mask_exact_width = mask_exact_width
 
@@ -658,26 +657,13 @@ class Item:
 
             Item.previousItem = self
 
-
-        # Optionally check label.
-        if check_label:
-            if label.startswith(' ') or label.endswith(' '):
-                print('Warning: ' + filename, hf, 'filter "' + filter +  '" label' + label + '" begins or ends with a space')
-                warnings_found += 1
-
-            if (label.count('(') != label.count(')') or
-                label.count('[') != label.count(']') or
-                label.count('{') != label.count('}')):
-                # Ignore if includes quotes, as may be unbalanced.
-                if label.find("'") == -1:
-                    print('Warning: ' + filename, hf, 'filter "' + filter + '" label', '"' + label + '"', 'has unbalanced parens/braces/brackets')
-                    warnings_found += 1
-            if item_type != 'FT_NONE' and label.endswith(':'):
-                print('Warning: ' + filename, hf, 'filter "' + filter + '" label', '"' + label + '"', 'ends with an unnecessary colon')
-                warnings_found += 1
-
         self.item_type = item_type
         self.display = display
+
+        # Optionally check label (short and long).
+        if check_label:
+            self.check_label(label, 'label')
+            #self.check_label(blurb, 'blurb')
 
         # Optionally check that mask bits are contiguous
         if check_mask:
@@ -700,6 +686,27 @@ class Item:
     def __str__(self):
         return 'Item ({0} "{1}" {2} type={3}:{4} {5} mask={6})'.format(self.filename, self.label, self.filter, self.item_type, self.display, self.strings, self.mask)
 
+    def check_label(self, label, label_name):
+        global warnings_found
+
+        # TODO: this is masking a bug where the re for the item can't cope with macro for containing ',' for mask arg..
+        if label.count('"') == 1:
+            return
+
+        if label.startswith(' ') or label.endswith(' '):
+            print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter, label_name,  '"' + label + '" begins or ends with a space')
+            warnings_found += 1
+
+        if (label.count('(') != label.count(')') or
+            label.count('[') != label.count(']') or
+            label.count('{') != label.count('}')):
+            # Ignore if includes quotes, as may be unbalanced.
+            if label.find("'") == -1:
+                print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'has unbalanced parens/braces/brackets')
+                warnings_found += 1
+        if self.item_type != 'FT_NONE' and label.endswith(':'):
+            print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'ends with an unnecessary colon')
+            warnings_found += 1
 
 
     def set_mask_value(self, macros):
@@ -1144,15 +1151,23 @@ def find_items(filename, macros, check_mask=False, mask_exact_width=False, check
         contents = removeComments(contents)
 
         # N.B. re extends all the way to HFILL to avoid greedy matching
+        # TODO: fix a problem where re can't cope with mask that involve a macro with commas in it...
         matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_\u00f6\u00e4]*?)\s*,\s*HFILL', contents)
+        #matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*(NULL|"[a-zA-Z0-9\W\s_/\u00f6\u00e4]*?")\s*,\s*HFILL', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
+
+            blurb = m.group(8)
+            if blurb.startswith('"'):
+                blurb = blurb[1:-1]
+
             items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4),
                              display=m.group(5),
                              strings=m.group(6),
                              macros=macros,
                              mask=m.group(7),
+                             blurb=blurb,
                              check_mask=check_mask,
                              mask_exact_width=mask_exact_width,
                              check_label=check_label,
@@ -1385,6 +1400,7 @@ if args.all_checks:
     args.mask_exact_width = True
     args.consecutive = True
     args.check_bitmask_fields = True
+    #args.label = True
     args.label_vs_filter = True
     args.extra_value_string_checks
 

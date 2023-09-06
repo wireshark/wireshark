@@ -8277,7 +8277,7 @@ proto_register_iphc_crtp(void)
                 "The invalid bit of the context state packet.", HFILL }},
         { &hf_iphc_crtp_ip_id,
             { "IP-ID", "crtp.ip-id", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-                "The IPv4 Identification Field is RANDOM and thus included in a compressed Non TCP packet (RFC 2507 6a), 7.13a). Only IPv4 is supported in this dissector.", HFILL }},
+                "The IPv4 Identification Field is RANDOM and thus included in a compressed Non TCP packet (RFC 2507 6a, 7.13a). Only IPv4 is supported in this dissector.", HFILL }},
         { &hf_iphc_crtp_data,
             { "Data", "crtp.data", FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},

@@ -3158,7 +3158,7 @@ proto_register_oran(void)
           FT_BOOLEAN, 8,
           NULL, 0x80,
           "Used to indicate if this section will contain "
-          "both beamforming index and any ex(tension information (ef=1) or "
+          "both beamforming index and any extension information (ef=1) or "
           "just a beamforming index (ewf=0)",
           HFILL}
         },
