@@ -346,7 +346,6 @@ abs_time_to_ftrepr_dfilter(wmem_allocator_t *scope,
 {
 	struct tm *tm;
 	char datetime_format[128];
-	int nsecs;
 	char nsecs_buf[32];
 
 	if (use_utc) {
@@ -368,11 +367,7 @@ abs_time_to_ftrepr_dfilter(wmem_allocator_t *scope,
 	if (nstime->nsecs == 0)
 		return wmem_strdup_printf(scope, datetime_format, "");
 
-	nsecs = nstime->nsecs;
-	while (nsecs > 0 && (nsecs % 10) == 0) {
-		nsecs /= 10;
-	}
-	snprintf(nsecs_buf, sizeof(nsecs_buf), ".%d", nsecs);
+	snprintf(nsecs_buf, sizeof(nsecs_buf), ".%09d", nstime->nsecs);
 
 	return wmem_strdup_printf(scope, datetime_format, nsecs_buf);
 }
