@@ -451,6 +451,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_inet_pton6@Base 2.1.2
  ws_init_sockets@Base 3.1.0
  ws_init_version_info@Base 4.1.0
+ ws_localtime_r@Base 4.1.1
  ws_log@Base 3.5.0
  ws_log_add_custom_file@Base 3.5.0
  ws_log_buffer_full@Base 3.5.1
@@ -507,6 +508,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_strdup_underline@Base 3.7.0
  ws_strerrorname_r@Base 3.7.0
  ws_strptime@Base 3.7.0
+ ws_strptime_p@Base 4.1.1
  ws_strtoi16@Base 2.3.0
  ws_strtoi32@Base 2.3.0
  ws_strtoi64@Base 2.3.0
