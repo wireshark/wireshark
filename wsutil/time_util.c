@@ -11,6 +11,8 @@
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 #include "time_util.h"
 
+#include <errno.h>
+
 #include <wsutil/epochs.h>
 
 #ifndef _WIN32
@@ -25,13 +27,19 @@
 
 /* converts a broken down date representation, relative to UTC,
  * to a timestamp; it uses timegm() if it's available.
- * Copied from Glib source gtimer.c
+ *
+ * Returns -1 and sets errno to EINVAL on error; returns the timestamp
+ * and sets errno to 0 on success.
  */
 time_t
 mktime_utc(struct tm *tm)
 {
 	time_t retval;
 #ifndef HAVE_TIMEGM
+	/*
+	 * We don't have timegm(), so use code copied from Glib source
+	 * gtimer.c.
+	 */
 	static const int days_before[] =
 		{
 			0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
@@ -39,8 +47,10 @@ mktime_utc(struct tm *tm)
 
 	int yr;
 
-	if (tm->tm_mon < 0 || tm->tm_mon > 11)
+	if (tm->tm_mon < 0 || tm->tm_mon > 11) {
+		errno = EINVAL;
 		return (time_t) -1;
+	}
 
 	retval = (tm->tm_year - 70) * 365;
 
@@ -54,10 +64,14 @@ mktime_utc(struct tm *tm)
 
 	retval = ((((retval * 24) + tm->tm_hour) * 60) + tm->tm_min) * 60 + tm->tm_sec;
 
+	/*
+	 * Just in case somebody asked for 1969-12-31 23:59:59 UTC,
+	 * which is one second before the Unix epoch.
+	 */
+	errno = 0;
 	return retval;
 #else
-	int save_errno;
-
+	retval = timegm(tm);
 	/*
 	 * If passed a struct tm for 2013-03-01 00:00:00, both
 	 * macOS and FreeBSD timegm() return the epoch time
@@ -70,15 +84,29 @@ mktime_utc(struct tm *tm)
 	 * commit to leaving errno alone nor commit to setting it
 	 * to a particular value.
 	 *
-	 * The code we use if we don't have timegm() doesn't
-	 * set errno.
-	 *
-	 * We save and restore errno, so our callers don't need to
-	 * worry about errno getting overwritten.
+	 * Force errno to 0, and check for an error and set it to
+	 * EINVAL iff we got an error.
 	 */
-	save_errno = errno;
-	retval = timegm(tm);
-	errno = save_errno;
+	errno = 0;
+	if (retval == (time_t)-1) {
+		/*
+		 * Did somebody ask for 1969-12-31 23:59:59 UTC,
+		 * which is one second before the Unix epoch?
+		 *
+		 * If so, timegm() happened to return the correct
+		 * timestamp (whether because it calculated it or
+		 * because it failed in some fashion).
+		 *
+		 * If not, set errno to EINVAL.
+		 */
+		if (tm->tm_year != (1969 - 1900) ||
+		    tm->tm_mon != (12 - 1) ||
+		    tm->tm_mday != 31 ||
+		    tm->tm_hour != 23 ||
+		    tm->tm_min != 59 ||
+		    tm->tm_sec != 59)
+			errno = EINVAL;
+	}
 	return retval;
 #endif /* !HAVE_TIMEGM */
 }
