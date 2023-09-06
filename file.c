@@ -4698,6 +4698,9 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
     /* Set the file name because we need it to set the follow stream filter.
        XXX - is that still true?  We need it for other reasons, though,
        in any case. */
+    if (cf->filename != NULL) {
+        g_free(cf->filename);
+    }
     cf->filename = g_strdup(fname);
 
     /* Indicate whether it's a permanent or temporary file. */
@@ -4707,6 +4710,9 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
     cf->unsaved_changes = FALSE;
 
     cf->cd_t        = wtap_file_type_subtype(cf->provider.wth);
+    if (cf->linktypes != NULL) {
+        g_array_free(cf->linktypes, TRUE);
+    }
     cf->linktypes = g_array_sized_new(FALSE, FALSE, (guint) sizeof(int), 1);
 
     cf->snap      = wtap_snapshot_length(cf->provider.wth);
@@ -4779,6 +4785,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
         if (rec.rec_type == REC_TYPE_PACKET) {
             cf_add_encapsulation_type(cf, rec.rec_header.packet_header.pkt_encap);
         }
+        wtap_rec_reset(&rec);
     }
     wtap_rec_cleanup(&rec);
     ws_buffer_free(&buf);
@@ -4944,7 +4951,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
         wtap_dump_params params;
         int encap;
 
-        /* XXX: what free's params.shb_hdr? */
+        how_to_save = SAVE_WITH_WTAP;
         wtap_dump_params_init(&params, cf->provider.wth);
 
         /* Determine what file encapsulation type we should use. */
@@ -5001,6 +5008,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
                 if (fname_new != NULL)
                     ws_unlink(fname_new);
                 cf_callback_invoke(cf_cb_file_save_stopped, NULL);
+                wtap_dump_params_cleanup(&params);
                 return CF_WRITE_ABORTED;
 
             case PSP_FAILED:
@@ -5009,15 +5017,17 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
                 if (fname_new != NULL)
                     ws_unlink(fname_new);
                 wtap_dump_close(pdh, NULL, &err, &err_info);
+                wtap_dump_params_cleanup(&params);
                 goto fail;
         }
 
         if (!wtap_dump_close(pdh, &needs_reload, &err, &err_info)) {
             cfile_close_failure_alert_box(fname, err, err_info);
+            wtap_dump_params_cleanup(&params);
             goto fail;
         }
 
-        how_to_save = SAVE_WITH_WTAP;
+        wtap_dump_params_cleanup(&params);
     }
 
     if (fname_new != NULL) {
