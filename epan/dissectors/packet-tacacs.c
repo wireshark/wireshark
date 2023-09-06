@@ -349,6 +349,7 @@ static gint ett_tacplus_flags = -1;
 static gint ett_tacplus_acct_flags = -1;
 
 static expert_field ei_tacplus_packet_len_invalid = EI_INIT;
+static expert_field ei_tacplus_unencrypted = EI_INIT;
 static expert_field ei_tacplus_bogus_data = EI_INIT;
 
 typedef struct _tacplus_key_entry {
@@ -936,8 +937,11 @@ dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		    (flags&FLAGS_UNENCRYPTED) ? "Unencrypted" : "Encrypted",
 		    (flags&FLAGS_SINGLE) ? "Single connection" : "Multiple Connections" );
 		flags_tree = proto_item_add_subtree(tf, ett_tacplus_flags);
-		proto_tree_add_boolean(flags_tree, hf_tacplus_flags_payload_type,
+		tmp_pi = proto_tree_add_boolean(flags_tree, hf_tacplus_flags_payload_type,
 		    tvb, 3, 1, flags);
+		if (flags&FLAGS_UNENCRYPTED) {
+			expert_add_info(pinfo, tmp_pi, &ei_tacplus_unencrypted);
+		}
 		proto_tree_add_boolean(flags_tree, hf_tacplus_flags_connection_type,
 		    tvb, 3, 1, flags);
 		proto_tree_add_item(tacplus_tree, hf_tacplus_session_id, tvb, 4, 4,
@@ -1012,7 +1016,7 @@ proto_register_tacplus(void)
 	  { &hf_tacplus_flags_payload_type,
 	    { "Unencrypted", "tacplus.flags.unencrypted",
 	      FT_BOOLEAN, 8, TFS(&tfs_set_notset), FLAGS_UNENCRYPTED,
-	      "Is payload unencrypted?", HFILL }},
+	      "Is payload unencrypted? (deprecated)", HFILL }},
 	  { &hf_tacplus_flags_connection_type,
 	    { "Single Connection", "tacplus.flags.singleconn",
 	      FT_BOOLEAN, 8, TFS(&tfs_set_notset), FLAGS_SINGLE,
@@ -1245,6 +1249,7 @@ proto_register_tacplus(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_tacplus_packet_len_invalid, { "tacplus.packet_len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
+		{ &ei_tacplus_unencrypted, { "tacplus.flags.unencrypted.deprecated", PI_SECURITY, PI_WARN, "Unencrypted payload option MUST NOT be used in production", EXPFILL }},
 		{ &ei_tacplus_bogus_data, { "tacplus.bogus_data", PI_PROTOCOL, PI_WARN, "Bogus data", EXPFILL }},
 	};
 
