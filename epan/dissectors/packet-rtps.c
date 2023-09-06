@@ -2600,13 +2600,14 @@ static const fragment_items rtps_frag_items = {
     "RTPS fragments"
 };
 
-static guint32 check_offset_addition(guint32 offset, guint32 value, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
+static gint check_offset_addition(gint offset, guint32 value, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
-    if (offset > G_MAXUINT32 - value) {
+    gint new_offset = offset + (gint)value;
+    if (new_offset < offset) {
         proto_tree_add_expert_format(tree, pinfo, &ei_rtps_value_too_large, tvb, 0, 0, "Offset value too large: %u", value);
         THROW(ReportedBoundsError);
     }
-    return offset + value;
+    return new_offset;
 }
 
 static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, gint * offset,
