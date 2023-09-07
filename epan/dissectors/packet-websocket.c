@@ -50,7 +50,8 @@ static dissector_handle_t sip_handle;
 #define WEBSOCKET_JSON 2
 #define WEBSOCKET_SIP 3
 
-#define OPCODE_KEY 0
+/* Use key values counting down from G_MAXUINT32 to avoid clash with pkt_info proto_data key */
+#define OPCODE_KEY (G_MAXUINT32 - 0)
 
 static gint  pref_text_type             = WEBSOCKET_NONE;
 static gboolean pref_decompress         = TRUE;
