@@ -1218,15 +1218,12 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	/*
 	 * Are we adding to an already-completed reassembly?
 	 */
-	if ((fd_head->flags & FD_DEFRAGMENTED) && !allow_overlaps) {
+	if (fd_head->flags & FD_DEFRAGMENTED) {
 		/*
 		 * Yes.  Does this fragment go past the end of the results
 		 * of that reassembly?
-		 * XXX - shouldn't this be ">"?  If frag_offset + frag_data_len
-		 * == fd_head->datalen, this overlaps the end of the
-		 * reassembly, but doesn't go past it, right?
 		 */
-		if (frag_offset + frag_data_len >= fd_head->datalen) {
+		if (frag_offset + frag_data_len > fd_head->datalen) {
 			/*
 			 * Yes.  Have we been requested to continue reassembly?
 			 */
@@ -1236,7 +1233,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 				 * point old fds to malloc'ed data.
 				 */
 				fragment_reset_defragmentation(fd_head);
-			} else {
+			} else if (!allow_overlaps) {
 				/*
 				 * No.  Bail out since we have no idea what to
 				 * do with this fragment (and if we keep going
@@ -1264,18 +1261,25 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 					 * The fragment starts before the end
 					 * of the reassembled data, but
 					 * runs past the end.  That could
-					 * just be a retransmission.
+					 * just be a retransmission with extra
+					 * data, but the calling dissector
+					 * didn't set FD_PARTIAL_REASSEMBLY
+					 * so it won't be handled correctly.
+					 *
+					 * XXX: We could set FD_TOOLONGFRAGMENT
+					 * below instead.
 					 */
 					THROW_MESSAGE(ReassemblyError, "New fragment overlaps old data (retransmission?)");
 				}
 			}
 		} else {
 			/*
-			 * No.  That means it still overlaps that, so report
-			 * this as a problem, possibly a retransmission.
+			 * No.  That means it overlaps the completed reassembly.
+			 * This is probably a retransmission and normal
+			 * behavior. (If not, it's because the dissector
+			 * doesn't handle reused sequence numbers correctly,
+			 * e.g. #10503). Handle below.
 			 */
-			g_slice_free(fragment_item, fd);
-			THROW_MESSAGE(ReassemblyError, "New fragment overlaps old data (retransmission?)");
 		}
 	}
 
@@ -1314,18 +1318,15 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	 * The entire defragmented packet is in fd_head->data.
 	 * Even if we have previously defragmented this packet, we still
 	 * check it. Someone might play overlap and TTL games.
-	 *
-	 * XXX: This code generally doesn't get called (unlike the versions
-	 * in _add_seq*) because of the exceptions thrown above unless
-	 * partial_reassembly has been set, but that doesn't seem right
-	 * in the case of overlap as the flags don't get set. Shouldn't the
-	 * behavior match the version with sequence numbers?
 	 */
 	if (fd_head->flags & FD_DEFRAGMENTED) {
 		guint32 end_offset = fd->offset + fd->len;
 		fd->flags	   |= FD_OVERLAP;
 		fd_head->flags |= FD_OVERLAP;
 		/* make sure it's not too long */
+		/* XXX: We probably don't call this, unlike the _seq()
+		 * functions, because we throw an exception above.
+		 */
 		if (end_offset > fd_head->datalen || end_offset < fd->offset || end_offset < fd->len) {
 			fd->flags	   |= FD_TOOLONGFRAGMENT;
 			fd_head->flags |= FD_TOOLONGFRAGMENT;

@@ -204,6 +204,11 @@ reassembly_table_destroy(reassembly_table *table);
  * fragments, NULL otherwise. Note that the reassembled fragments list may have
  * a non-zero fragment offset, the only guarantee is that no gaps exist within
  * the list.
+ *
+ * @note Reused keys are assumed to refer to the same reassembled message
+ * (i.e., retransmission). If the same "id" is used more than once on a
+ * connection, then "data" and custom reassembly_table_functions should be
+ * used so that the keys hash differently.
  */
 WS_DLL_PUBLIC fragment_head *
 fragment_add(reassembly_table *table, tvbuff_t *tvb, const int offset,
@@ -257,6 +262,14 @@ fragment_add_out_of_order(reassembly_table *table, tvbuff_t *tvb,
  *
  * Otherwise (if reassembly is still not possible after adding this fragment),
  * return NULL.
+ *
+ * @note Completed reassemblies are removed from the in-progress table, so
+ * key can be reused to begin a new reassembled message. Conversely,
+ * dissectors SHOULD NOT call this with a retransmitted fragment of a
+ * completed reassembly. Dissectors atop a reliable protocol like TCP
+ * may assume that the lower layer dissector handles retransmission,
+ * but other dissectors (e.g., atop UDP or Ethernet) will have to handle
+ * that situation themselves.
  */
 WS_DLL_PUBLIC fragment_head *
 fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
@@ -304,6 +317,11 @@ fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const i
  *
  * If this packet completes assembly, these functions return the head of the
  * fragment data; otherwise, they return null.
+ *
+ * @note Reused keys are assumed to refer to the same reassembled message
+ * (i.e., retransmission). If the same "id" is used more than once on a
+ * connection, then "data" and custom reassembly_table_functions should be
+ * used so that the keys hash differently.
  */
 WS_DLL_PUBLIC fragment_head *
 fragment_add_seq(reassembly_table *table, tvbuff_t *tvb, const int offset,
@@ -314,6 +332,14 @@ fragment_add_seq(reassembly_table *table, tvbuff_t *tvb, const int offset,
 /*
  * Like fragment_add_seq, but maintains a table for completed reassemblies
  * just like fragment_add_check.
+ *
+ * @note Completed reassemblies are removed from the in-progress table, so
+ * key can be reused to begin a new reassembled message. Conversely,
+ * dissectors SHOULD NOT call this with a retransmitted fragment of a
+ * completed reassembly. Dissectors atop a reliable protocol like TCP
+ * may assume that the lower layer dissector handles retransmission,
+ * but other dissectors (e.g., atop UDP or Ethernet) will have to handle
+ * that situation themselves.
  */
 WS_DLL_PUBLIC fragment_head *
 fragment_add_seq_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
@@ -337,6 +363,12 @@ fragment_add_seq_802_11(reassembly_table *table, tvbuff_t *tvb,
 /*
  * Like fragment_add_seq_check, but without explicit fragment number. Fragments
  * are simply appended until no "more_frags" is false.
+ *
+ * @note Out of order fragments will not be reassembled correctly.
+ * Dissectors atop a reliable protocol like TCP may rely on the lower
+ * level dissector reordering out or order segments (if the appropraite
+ * out of order reassembly preference is enabled), but other dissectors
+ * will have to handle out of order fragments themselves, if possible.
  */
 WS_DLL_PUBLIC fragment_head *
 fragment_add_seq_next(reassembly_table *table, tvbuff_t *tvb, const int offset,

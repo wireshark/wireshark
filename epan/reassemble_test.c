@@ -1929,7 +1929,6 @@ test_fragment_add_duplicate_first(void)
 {
     fragment_head *fd_head;
     fragment_item *fd;
-    volatile gboolean ex_thrown;
 
     printf("Starting test test_fragment_add_duplicate_first\n");
 
@@ -1959,38 +1958,19 @@ test_fragment_add_duplicate_first(void)
 
     /* Add the first fragment again */
     pinfo.num = 4;
-    /* XXX: The current reassemble.c code for fragment_add() throws an
-     * exception and doesn't try to add a duplicate if and only if the
-     * assembly is already completed. This means that it doesn't get
-     * put in the linked list. This is counter to how the _seq functions
-     * work, as well as to how this code works if a duplicate comes in the
-     * middle instead of at the end. Test matches current code, but the
-     * current code should perhaps be changed. */
-    ex_thrown = FALSE;
-    TRY {
     fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
                          0, 50, TRUE);
-    }
-    CATCH(ReassemblyError) {
-        ex_thrown = TRUE;
-    }
-    ENDTRY;
-
-    ASSERT_EQ(TRUE, ex_thrown);
 
     /* Reassembly should have still succeeded */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
 
     /* check the contents of the structure */
-    /*ASSERT_EQ(4,fd_head->frame);  max frame we have */
-    ASSERT_EQ(3,fd_head->frame);  /* never add the duplicate frame */
+    ASSERT_EQ(4,fd_head->frame);  /* add the duplicate frame */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(3,fd_head->reassembled_in);
-    /* ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags); */
-    /* FD_OVERLAP doesn't get set because we hit the exception early */
-    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
     ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
     ASSERT_NE_POINTER(NULL,fd_head->next);
 
@@ -2003,14 +1983,13 @@ test_fragment_add_duplicate_first(void)
     ASSERT_EQ_POINTER(NULL,fd->tvb_data);
     ASSERT_NE_POINTER(NULL,fd->next);
 
-    /*
-    fd = fd_head->next;
+    fd = fd->next;
     ASSERT_EQ(4,fd->frame);
     ASSERT_EQ(0,fd->offset);
     ASSERT_EQ(50,fd->len);
     ASSERT_EQ(FD_OVERLAP,fd->flags);
     ASSERT_EQ_POINTER(NULL,fd->tvb_data);
-    ASSERT_NE_POINTER(NULL,fd->next); */
+    ASSERT_NE_POINTER(NULL,fd->next);
 
     fd = fd->next;
     ASSERT_EQ(2,fd->frame);
@@ -2159,7 +2138,6 @@ test_fragment_add_duplicate_last(void)
 {
     fragment_head *fd_head;
     fragment_item *fd;
-    volatile gboolean ex_thrown;
 
     printf("Starting test test_fragment_add_duplicate_last\n");
 
@@ -2189,39 +2167,19 @@ test_fragment_add_duplicate_last(void)
 
     /* Add the last fragment again */
     pinfo.num = 4;
-    /* XXX: The current reassemble.c code for fragment_add() throws an
-     * exception and doesn't try to add a duplicate if and only if the
-     * assembly is already completed. This means that it doesn't get
-     * put in the linked list. This is counter to how the _seq functions
-     * work, as well as to how this code works if a duplicate comes in the
-     * middle instead of at the end. Test matches current code, but the
-     * current code should perhaps be changed. */
-    ex_thrown = FALSE;
-    TRY {
     fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
                          110, 40, FALSE);
-    }
-    CATCH(ReassemblyError) {
-        ex_thrown = TRUE;
-    }
-    ENDTRY;
-
-    ASSERT_EQ(TRUE, ex_thrown);
 
     /* Reassembly should have still succeeded */
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_NE_POINTER(NULL,fd_head);
 
     /* check the contents of the structure */
-    /* ASSERT_EQ(4,fd_head->frame); never add the last frame again */
-    ASSERT_EQ(3,fd_head->frame);  /* max frame we have */
+    ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(3,fd_head->reassembled_in);
-    /* ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
-     * FD_OVERLAP doesn't get set since we don't add a fragment after the
-     * end but throw an exception instead. */
-    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
     ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
     ASSERT_NE_POINTER(NULL,fd_head->next);
 
@@ -2248,7 +2206,6 @@ test_fragment_add_duplicate_last(void)
     ASSERT_EQ(0,fd->flags);
     ASSERT_EQ_POINTER(NULL,fd->tvb_data);
 
-    /* Duplicate packet never gets added
     ASSERT_NE_POINTER(NULL,fd->next);
 
     fd = fd->next;
@@ -2257,7 +2214,7 @@ test_fragment_add_duplicate_last(void)
     ASSERT_EQ(40,fd->len);
     ASSERT_EQ(FD_OVERLAP,fd->flags);
     ASSERT_EQ_POINTER(NULL,fd->tvb_data);
-    ASSERT_EQ_POINTER(NULL,fd->next); */
+    ASSERT_EQ_POINTER(NULL,fd->next);
 
     /* test the actual reassembly */
     ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
