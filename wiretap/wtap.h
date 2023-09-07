@@ -321,12 +321,17 @@ extern "C" {
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_TSPREC_UNKNOWN    -2
 #define WTAP_TSPREC_PER_PACKET -1  /* as a per-file value, means per-packet */
-#define WTAP_TSPREC_SEC         WS_TSPREC_SEC
-#define WTAP_TSPREC_DSEC        WS_TSPREC_100_MSEC
-#define WTAP_TSPREC_CSEC        WS_TSPREC_10_MSEC
-#define WTAP_TSPREC_MSEC        WS_TSPREC_MSEC
-#define WTAP_TSPREC_USEC        WS_TSPREC_USEC
-#define WTAP_TSPREC_NSEC        WS_TSPREC_NSEC
+/*
+ * These values are the number of digits of precision after the integral part.
+ * Thry're the same as WS_TSPREC values; we define them here so that
+ * tools/make-enums.py sees them.
+ */
+#define WTAP_TSPREC_SEC         0
+#define WTAP_TSPREC_DSEC        1
+#define WTAP_TSPREC_CSEC        2
+#define WTAP_TSPREC_MSEC        3
+#define WTAP_TSPREC_USEC        6
+#define WTAP_TSPREC_NSEC        9
 /* if you add to the above, update wtap_tsprec_string() */
 
 /*
