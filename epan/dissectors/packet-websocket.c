@@ -425,6 +425,10 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   }
 #endif
 
+  if (have_tap_listener(websocket_follow_tap)) {
+    tap_queue_packet(websocket_follow_tap, pinfo, tvb);
+  }
+
   if (handle) {
     call_dissector_only(handle, tvb, pinfo, tree, NULL);
     return; /* handle found, assume dissector took care of it. */
@@ -697,10 +701,6 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       tvb_payload = tvb_new_subset_length(tvb, payload_offset, payload_length);
     }
     dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, fin, opcode, websocket_conv, pmc, tvb_raw_offset(tvb));
-
-    if (have_tap_listener(websocket_follow_tap)) {
-      tap_queue_packet(websocket_follow_tap, pinfo, tvb_payload);
-    }
   }
 
   return tvb_captured_length(tvb);
