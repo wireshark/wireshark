@@ -11,7 +11,8 @@
 #define __OVERLAY_SCROLL_BAR_H__
 
 #include <QScrollBar>
-#include <QProxyStyle>
+
+class QProxyStyle;
 
 class OverlayScrollBar : public QScrollBar
 {
@@ -74,6 +75,10 @@ private:
     int end_pos_;
     QList<int> positions_;
     int row_height_;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
+    void updateChildStyle();
+#endif
 };
 
 #endif // __OVERLAY_SCROLL_BAR_H__
