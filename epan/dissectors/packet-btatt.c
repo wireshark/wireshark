@@ -420,7 +420,7 @@ static int hf_btatt_glucose_measurement_sensor_status_annunciation_general_fault
 static int hf_btatt_glucose_measurement_sensor_status_annunciation_read_interrupted = -1;
 static int hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_low = -1;
 static int hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_high = -1;
-static int hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_lower = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_low = -1;
 static int hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_high = -1;
 static int hf_btatt_glucose_measurement_sensor_status_annunciation_strip_type_incorrect = -1;
 static int hf_btatt_glucose_measurement_sensor_status_annunciation_strip_insertion_error = -1;
@@ -1508,7 +1508,7 @@ static int * const hfx_btatt_glucose_measurement_sensor_status_annunciation[] = 
     &hf_btatt_glucose_measurement_sensor_status_annunciation_read_interrupted,
     &hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_low,
     &hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_high,
-    &hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_lower,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_low,
     &hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_high,
     &hf_btatt_glucose_measurement_sensor_status_annunciation_strip_type_incorrect,
     &hf_btatt_glucose_measurement_sensor_status_annunciation_strip_insertion_error,
@@ -14046,8 +14046,8 @@ proto_register_btatt(void)
             FT_BOOLEAN, 16, NULL, 0x0080,
             NULL, HFILL}
         },
-        {&hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_lower,
-            {"Sensor result lower than the device can process", "btatt.glucose_measurement.sensor_status_annunciation.result_too_lower",
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_low,
+            {"Sensor result lower than the device can process", "btatt.glucose_measurement.sensor_status_annunciation.result_too_low",
             FT_BOOLEAN, 16, NULL, 0x0040,
             NULL, HFILL}
         },
@@ -14457,7 +14457,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_blood_pressure_measurement_status,
-            {"Flags", "btatt.blood_pressure_measurement.status",
+            {"Measurement Status", "btatt.blood_pressure_measurement.status",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
@@ -16644,7 +16644,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_plx_measurement_status,
-            {"Timestamp", "btatt.plxs.spot_check_measurement.measurement_status",
+            {"Measurement Status", "btatt.plxs.spot_check_measurement.measurement_status",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
@@ -17255,7 +17255,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_training_status_flags,
-            {"Target Setting Features", "btatt.training_status",
+            {"Training Status Flags", "btatt.training_status",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
