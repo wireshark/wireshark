@@ -219,37 +219,49 @@ class TestTsharkDumpGlossaries:
 class TestTsharkZExpert:
     def test_tshark_z_expert_all(self, cmd_tshark, capture_file, test_env):
         proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert',
-            '-r', capture_file('http-ooo.pcap')), capture_output=True, env=test_env)
+            '-o', 'tcp.check_checksum:TRUE',
+            '-r', capture_file('http2-data-reassembly.pcap')), capture_output=True, env=test_env)
+        # http2-data-reassembly.pcap has Errors, Warnings, Notes, and Chats
+        # when TCP checksum are verified.
         assert grep_output(proc.stdout, 'Errors')
         assert grep_output(proc.stdout, 'Warns')
+        assert grep_output(proc.stdout, 'Notes')
         assert grep_output(proc.stdout, 'Chats')
 
     def test_tshark_z_expert_error(self, cmd_tshark, capture_file, test_env):
         proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,error',
-            '-r', capture_file('http-ooo.pcap')), capture_output=True, env=test_env)
+            '-o', 'tcp.check_checksum:TRUE',
+            '-r', capture_file('http2-data-reassembly.pcap')), capture_output=True, env=test_env)
         assert grep_output(proc.stdout, 'Errors')
         assert not grep_output(proc.stdout, 'Warns')
+        assert not grep_output(proc.stdout, 'Notes')
         assert not grep_output(proc.stdout, 'Chats')
 
     def test_tshark_z_expert_warn(self, cmd_tshark, capture_file, test_env):
         proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,warn',
-            '-r', capture_file('http-ooo.pcap')), capture_output=True, env=test_env)
+            '-o', 'tcp.check_checksum:TRUE',
+            '-r', capture_file('http2-data-reassembly.pcap')), capture_output=True, env=test_env)
         assert grep_output(proc.stdout, 'Errors')
         assert grep_output(proc.stdout, 'Warns')
+        assert not grep_output(proc.stdout, 'Notes')
         assert not grep_output(proc.stdout, 'Chats')
 
     def test_tshark_z_expert_note(self, cmd_tshark, capture_file, test_env):
         proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,note',
+            '-o', 'tcp.check_checksum:TRUE',
             '-r', capture_file('http2-data-reassembly.pcap')), capture_output=True, env=test_env)
+        assert grep_output(proc.stdout, 'Errors')
         assert grep_output(proc.stdout, 'Warns')
         assert grep_output(proc.stdout, 'Notes')
         assert not grep_output(proc.stdout, 'Chats')
 
     def test_tshark_z_expert_chat(self, cmd_tshark, capture_file, test_env):
         proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,chat',
-            '-r', capture_file('http-ooo.pcap')), capture_output=True, env=test_env)
+            '-o', 'tcp.check_checksum:TRUE',
+            '-r', capture_file('http2-data-reassembly.pcap')), capture_output=True, env=test_env)
         assert grep_output(proc.stdout, 'Errors')
         assert grep_output(proc.stdout, 'Warns')
+        assert grep_output(proc.stdout, 'Notes')
         assert grep_output(proc.stdout, 'Chats')
 
     def test_tshark_z_expert_comment(self, cmd_tshark, capture_file, test_env):
@@ -273,17 +285,25 @@ class TestTsharkZExpert:
         assert grep_output(proc.stdout, 'Filter "' + invalid_filter + '" is invalid')
 
     def test_tshark_z_expert_filter(self, cmd_tshark, capture_file, test_env):
-        proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,udp',  # udp is a filter
-            '-r', capture_file('http-ooo.pcap')), capture_output=True, env=test_env)
+        proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,udp',
+            '-o', 'tcp.check_checksum:TRUE',
+            '-r', capture_file('http2-data-reassembly.pcap')), capture_output=True, env=test_env)
+        # Filtering for UDP should produce no expert infos.
         assert not grep_output(proc.stdout, 'Errors')
         assert not grep_output(proc.stdout, 'Warns')
+        assert not grep_output(proc.stdout, 'Notes')
         assert not grep_output(proc.stdout, 'Chats')
 
     def test_tshark_z_expert_error_filter(self, cmd_tshark, capture_file, test_env):
-        proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,error,udp',  # udp is a filter
-            '-r', capture_file('http-ooo.pcap')), capture_output=True, env=test_env)
-        assert not grep_output(proc.stdout, 'Errors')
+        proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,warn,tls',  # tls is a filter
+            '-o', 'tcp.check_checksum:TRUE',
+            '-r', capture_file('http2-data-reassembly.pcap')), capture_output=True, env=test_env)
+        # Filtering for TLS should produce only Error level expert infos
+        # with checksumming turned on, because the lower level expert infos
+        # are on the packets with TCP but not TLS.
+        assert grep_output(proc.stdout, 'Errors')
         assert not grep_output(proc.stdout, 'Warns')
+        assert not grep_output(proc.stdout, 'Notes')
         assert not grep_output(proc.stdout, 'Chats')
 
 
