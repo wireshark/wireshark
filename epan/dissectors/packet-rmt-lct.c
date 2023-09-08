@@ -381,7 +381,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(lct_tree, hf_version, tvb, offset, 2, ENC_BIG_ENDIAN);
         ti = proto_tree_add_item(lct_tree, hf_psi, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-        if (data_exchange->is_atsc3) {
+        if ((data_exchange != NULL) && data_exchange->is_atsc3) {
             guint16 psi_msb = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & LCT_PSI_MSB;
             data_exchange->is_sp = !!psi_msb;
             proto_tree *lct_psi_tree = proto_item_add_subtree(ti, ett_psi);
@@ -412,7 +412,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(lct_flags_tree, hf_flags_close_object, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         proto_tree_add_uint(lct_tree, hf_hlen, tvb, offset+2, 1, hlen);
-        if (data_exchange->is_atsc3) {
+        if ((data_exchange != NULL) && data_exchange->is_atsc3) {
             if(data_exchange->codepoint < 128) {
                 proto_tree_add_item(lct_tree, hf_codepoint_atsc3, tvb, offset+3, 1, ENC_BIG_ENDIAN);
             } else {
@@ -520,7 +520,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (buffer16 & LCT_CLOSE_OBJECT_FLAG)
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Close object");
 
-    if (data_exchange->is_atsc3) {
+    if ((data_exchange != NULL) && data_exchange->is_atsc3) {
         if (data_exchange->is_sp) {
             /* According to A/331:2022-11 A.3.4 Usage of ALC and LCT */
             col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "(Source)");
