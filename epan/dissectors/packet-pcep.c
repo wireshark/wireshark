@@ -1777,7 +1777,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gi
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_sender_address, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_lsp_id, tvb, offset+4+j + 4, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_id, tvb, offset+4+j + 6, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_extended_tunnel_id, tvb, offset+4+j + 8, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_extended_tunnel_id, tvb, offset+4+j + 8, 4, ENC_NA);
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_endpoint_address, tvb, offset+4+j + 12, 4, ENC_BIG_ENDIAN);
                 break;
 
@@ -1785,7 +1785,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gi
                 proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_tunnel_sender_address, tvb, offset+4+j, 16, ENC_NA);
                 proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_lsp_id, tvb, offset+4+j + 16, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_tunnel_id, tvb, offset+4+j + 18, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_extended_tunnel_id, tvb, offset+4+j + 20, 16, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_extended_tunnel_id, tvb, offset+4+j + 20, 16, ENC_NA);
                 proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_tunnel_endpoint_address, tvb, offset+4+j + 36, 16, ENC_NA);
                 break;
 
@@ -5698,7 +5698,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_ipv4_lsp_id_extended_tunnel_id,
           { "Extended Tunnel ID", "pcep.tlv.ipv4-lsp-id.extended-tunnel-id",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_ipv4_lsp_id_tunnel_endpoint_address,
@@ -5723,7 +5723,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_ipv6_lsp_id_extended_tunnel_id,
           { "Extended Tunnel ID", "pcep.tlv.ipv6-lsp-id.extended-tunnel-id",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
+            FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_ipv6_lsp_id_tunnel_endpoint_address,
