@@ -2102,9 +2102,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /*struct srtp_info *srtp_info = NULL;*/
     /*unsigned int srtp_offset;*/
     const char   *pt = NULL;
-    /* Can tap up to 4 RTP packets within same packet */
-    static struct _rtp_info rtp_info_arr[4];
-    static int rtp_info_current = 0;
     struct _rtp_info *rtp_info;
     static int * const octet1_fields[] = {
         &hf_rtp_version,
@@ -2113,12 +2110,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         &hf_rtp_csrc_count,
         NULL
     };
-
-    rtp_info_current++;
-    if (rtp_info_current == 4) {
-        rtp_info_current = 0;
-    }
-    rtp_info = &rtp_info_arr[rtp_info_current];
 
     /* Get the fields in the first octet */
     octet1 = tvb_get_guint8( tvb, offset );
@@ -2221,6 +2212,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     /* fill in the rtp_info structure */
+    rtp_info = wmem_new0(pinfo->pool, struct _rtp_info);
     rtp_info->info_version = version;
     if (version != 2) {
         /*
