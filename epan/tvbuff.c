@@ -1894,7 +1894,8 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 				if (sscanf(ptr, "%d %3s%n",
 				    &tm.tm_mday,
 				    month_name,
-				    &num_chars) < 2) {
+				    &num_chars) < 2)
+				{
 					/* Not matched. */
 					goto fail;
 				}
@@ -2014,13 +2015,11 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 				}
 				end = ptr;
 			}
-			if (errno == 0) {
-				ns->secs = mktime_utc(&tm);
-				if (ns->secs == (time_t)-1 && errno != 0) {
-					goto fail;
-				}
-				ns->secs += utc_offset;
+			ns->secs = mktime_utc(&tm);
+			if (ns->secs == (time_t)-1 && errno != 0) {
+				goto fail;
 			}
+			ns->secs += utc_offset;
 		}
 	} else {
 		/* Empty string */
