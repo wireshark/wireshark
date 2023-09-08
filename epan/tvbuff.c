@@ -1781,6 +1781,11 @@ parse_month_name(const char *name, int *tm_mon)
 	return FALSE;
 }
 
+/*
+ * Is the character a WSP character, as per RFC 5234?  (space or tab).
+ */
+#define IS_WSP(c)	((c) == ' ' || (c) == '\t')
+
 /* support hex-encoded time values? */
 nstime_t*
 tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
@@ -1799,7 +1804,8 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 	begin = (gchar*) tvb_get_raw_string(NULL, tvb, offset, length);
 	ptr = begin;
 
-	while (*ptr == ' ') ptr++;
+	while (IS_WSP(*ptr))
+		ptr++;
 
 	if (*ptr) {
 		if ((encoding & ENC_ISO_8601_DATE_TIME) == ENC_ISO_8601_DATE_TIME) {
@@ -1896,7 +1902,7 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 					goto fail;
 				}
 				ptr += num_chars;
-				while (*ptr == ' ')
+				while (IS_WSP(*ptr))
 					ptr++;
 
 				/*
@@ -1909,8 +1915,8 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 				if (!ws_strtou32(ptr, &yearendp, &year)) {
 					goto fail;
 				}
-				if (*yearendp != ' ') {
-					/* Not followed by a space. */
+				if (!IS_WSP(*yearendp)) {
+					/* Not followed by WSP. */
 					goto fail;
 				}
 				if (yearendp - ptr < 2) {
@@ -1942,7 +1948,7 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 				}
 				tm.tm_year = year - 1900;
 				ptr = yearendp;
-				while (*ptr == ' ')
+				while (IS_WSP(*ptr))
 					ptr++;
 
 				/* Parse the time. */
@@ -1956,7 +1962,7 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 					goto fail;
 				}
 				ptr += num_chars;
-				while (*ptr == ' ')
+				while (IS_WSP(*ptr))
 					ptr++;
 
 				/*
