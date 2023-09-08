@@ -2,9 +2,13 @@
 ; logray.nsi
 ;
 
-; Set the compression options first.
+; Set the compression mechanism first.
+; As of NSIS 2.07, solid compression which makes installer about 1MB smaller
+; is no longer the default, so use the /SOLID switch.
+; This unfortunately is unknown to NSIS prior to 2.07 and creates an error.
+; So if you get an error here, please update to at least NSIS 2.07!
 SetCompressor /SOLID lzma
-SetCompressorDictSize 128 ; MB
+SetCompressorDictSize 64 ; MB
 
 !include "logray-common.nsh"
 !include 'LogicLib.nsh'
