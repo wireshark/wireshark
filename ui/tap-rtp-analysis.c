@@ -539,7 +539,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     statinfo->timestamp = rtpinfo->info_timestamp;
     statinfo->stop_seq_nr = rtpinfo->info_seq_num;
     statinfo->total_nr++;
-    statinfo->last_payload_len = rtpinfo->info_payload_len - rtpinfo->info_padding_count;
+    statinfo->last_payload_len = rtpinfo->info_payload_len;
 
     return;
 }

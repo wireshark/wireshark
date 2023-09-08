@@ -32,7 +32,6 @@ struct _rtp_info {
 	gboolean      info_marker_set;
 	guint32       info_media_types;
 	unsigned int  info_payload_type;
-	unsigned int  info_padding_count;
 	guint16       info_seq_num;
 	guint32       info_extended_seq_num;
 	guint32       info_timestamp;
@@ -41,7 +40,7 @@ struct _rtp_info {
 	guint         info_data_len;       /* length of raw rtp data as reported */
 	gboolean      info_all_data_present; /* FALSE if data is cut off */
 	guint         info_payload_offset; /* start of payload relative to info_data */
-	guint         info_payload_len;    /* length of payload (incl padding) */
+	guint         info_payload_len;    /* length of payload (not incl padding) */
 	gboolean      info_is_srtp;
 	guint32       info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
 	const guint8* info_data;           /* pointer to raw rtp data */
