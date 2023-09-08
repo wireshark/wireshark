@@ -397,8 +397,8 @@ WS_DLL_PUBLIC gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, cons
  *     they may not consume the whole section.
  *
  * @return a pointer to the nstime_t passed-in, or NULL on failure; if no
- *    valid conversion could be performed, *endoff is set to 0, and errno will be
- *    EDOM or ERANGE, and the nstime_t* passed-in will be cleared.
+ *    valid conversion could be performed, *endoff is set to 0,  and the
+ *    nstime_t* passed-in will be cleared.
  *
  * @note The conversion ignores leading spaces, and will succeed even if it does
  *    not consume the entire string. If you care about such things, always compare

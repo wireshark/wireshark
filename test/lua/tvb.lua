@@ -20,8 +20,10 @@ local OTHER = "other"
 --     number of verifyFields() * (1 + number of fields) +
 --     number of verifyResults() * (1 + 2 * number of values)
 --
+-- if one happens to know the number of fields and the number of values.
+--
 local n_frames = 1
-local taptests = { [FRAME]=n_frames, [OTHER]=413*n_frames }
+local taptests = { [FRAME]=n_frames, [OTHER]=391*n_frames }
 
 testlib.init(taptests)
 
@@ -741,46 +743,35 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyResults("add_pfield-time-local", autc_match_values)
 
 ----------------------------------------
-    testlib.testing(OTHER, "tree:add_packet_field Time string ENC_RFC_822")
+    testlib.testing(OTHER, "tree:add_packet_field Time string ENC_IMF_DATE_TIME")
 
     resetResults()
     autc_match_values = {}
 
-    local rfc822string1 =   "Fri, 01 Mar 13 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
-    local rfc822_tvb1 = ByteArray.new(rfc822string1, true):tvb("RFC 822 Time string 1")
-    local rfc822string2 = "  Fri, 01 Mar 13 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
-    local rfc822_tvb2 = ByteArray.new(rfc822string2 .. "  foobar", true):tvb("RFC 822 Time string 2")
+    local imfstring1 =   "Fri, 01 Mar 13 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
+    local imf_tvb1 = ByteArray.new(imfstring1, true):tvb("Internet Message Format Time string 1")
+    local imfstring2 = "  Fri, 01 Mar 13 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
+    local imf_tvb2 = ByteArray.new(imfstring2 .. "  foobar", true):tvb("Internet Message Format Time string 2")
+    local imfstring3 =   "Fri, 01 Mar 2013 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
+    local imf_tvb3 = ByteArray.new(imfstring3, true):tvb("Internet Message Format Time string 3")
+    local imfstring4 = "  Fri, 01 Mar 2013 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
+    local imf_tvb4 = ByteArray.new(imfstring4 .. "  foobar", true):tvb("Internet Message Format Time string 4")
 
-    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, rfc822_tvb1:range(), ENC_RFC_822) )
-    addMatch( NSTime( 1362176088, 0), string.len(rfc822string1))
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, imf_tvb1:range(), ENC_IMF_DATE_TIME) )
+    addMatch( NSTime( 1362176088, 0), string.len(imfstring1))
 
-    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, rfc822_tvb2:range(), ENC_RFC_822) )
-    addMatch( NSTime( 1362176088, 0), string.len(rfc822string2))
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, imf_tvb2:range(), ENC_IMF_DATE_TIME) )
+    addMatch( NSTime( 1362176088, 0), string.len(imfstring2))
 
-    verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, imf_tvb3:range(), ENC_IMF_DATE_TIME) )
+    addMatch( NSTime( 1362176088, 0), string.len(imfstring3))
 
-    verifyResults("add_pfield-rfc822-local", autc_match_values)
-
-----------------------------------------
-    testlib.testing(OTHER, "tree:add_packet_field Time string ENC_RFC_1123")
-
-    resetResults()
-    autc_match_values = {}
-
-    local rfc1123string1 =   "Fri, 01 Mar 2013 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
-    local rfc1123_tvb1 = ByteArray.new(rfc1123string1, true):tvb("RFC 1123 Time string 1")
-    local rfc1123string2 = "  Fri, 01 Mar 2013 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
-    local rfc1123_tvb2 = ByteArray.new(rfc1123string2 .. "  foobar", true):tvb("RFC 1123 Time string 2")
-
-    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, rfc1123_tvb1:range(), ENC_RFC_1123) )
-    addMatch( NSTime( 1362176088, 0), string.len(rfc1123string1))
-
-    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, rfc1123_tvb2:range(), ENC_RFC_1123) )
-    addMatch( NSTime( 1362176088, 0), string.len(rfc1123string2))
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, imf_tvb4:range(), ENC_IMF_DATE_TIME) )
+    addMatch( NSTime( 1362176088, 0), string.len(imfstring4))
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
 
-    verifyResults("add_pfield-rfc1123-local", autc_match_values)
+    verifyResults("add_pfield-imf-date-time-local", autc_match_values)
 
 ----------------------------------------
     testlib.testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_DATE_TIME_BASIC")

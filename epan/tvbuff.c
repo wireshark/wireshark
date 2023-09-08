@@ -29,6 +29,7 @@
 
 #include "wsutil/pint.h"
 #include "wsutil/sign_ext.h"
+#include "wsutil/strtoi.h"
 #include "wsutil/unicode-utils.h"
 #include "wsutil/nstime.h"
 #include "wsutil/time_util.h"
@@ -1743,8 +1744,6 @@ tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
 	const gchar *end    = NULL;
 	GByteArray  *retval = NULL;
 
-	errno = EDOM;
-
 	validate_single_byte_ascii_encoding(encoding);
 
 	ptr = (gchar*) tvb_get_raw_string(NULL, tvb, offset, length);
@@ -1758,7 +1757,6 @@ tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
 		if (hex_str_to_bytes_encoding(begin, bytes, &end, encoding, FALSE)) {
 			if (bytes->len > 0) {
 				if (endoff) *endoff = offset + (gint)(end - ptr);
-				errno = 0;
 				retval = bytes;
 			}
 		}
@@ -1791,15 +1789,8 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 	gchar *begin;
 	const gchar *ptr;
 	const gchar *end       = NULL;
-	struct tm    tm;
-	nstime_t*    retval    = NULL;
-	char	     sign      = '+';
-	int	     off_hr    = 0;
-	int	     off_min   = 0;
 	int	     num_chars = 0;
-	gboolean     matched   = FALSE;
-
-	errno = EDOM;
+	int	     utc_offset = 0;
 
 	validate_single_byte_ascii_encoding(encoding);
 
@@ -1813,15 +1804,19 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 	if (*ptr) {
 		if ((encoding & ENC_ISO_8601_DATE_TIME) == ENC_ISO_8601_DATE_TIME) {
 			if ((num_chars = iso8601_to_nstime(ns, ptr, ISO8601_DATETIME))) {
-				errno = 0;
 				end = ptr + num_chars;
+			} else {
+				goto fail;
 			}
 		} else if ((encoding & ENC_ISO_8601_DATE_TIME_BASIC) == ENC_ISO_8601_DATE_TIME_BASIC) {
 			if ((num_chars = iso8601_to_nstime(ns, ptr, ISO8601_DATETIME_BASIC))) {
-				errno = 0;
 				end = ptr + num_chars;
+			} else {
+				goto fail;
 			}
 		} else {
+			struct tm    tm;
+
 			memset(&tm, 0, sizeof(tm));
 			tm.tm_isdst = -1;
 			ns->secs    = 0;
@@ -1838,10 +1833,11 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 				    &tm.tm_mday,
 				    &num_chars) >= 3)
 				{
-					errno = 0;
 					end = ptr + num_chars;
 					tm.tm_mon--;
 					if (tm.tm_year > 1900) tm.tm_year -= 1900;
+				} else {
+					goto fail;
 				}
 			}
 			else if (encoding & ENC_ISO_8601_TIME) {
@@ -1867,89 +1863,172 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 						tm.tm_mday = 31;
 					}
 					end = ptr + num_chars;
-					errno = 0;
-
+				} else {
+					goto fail;
 				}
 			}
-			else if (encoding & ENC_RFC_822 || encoding & ENC_RFC_1123) {
+			else if (encoding & ENC_IMF_DATE_TIME || encoding & ENC_RFC_1123) {
 				/*
-				 * Match [dow,] day month year hh:mm[:ss] with two-digit
-				 * years (RFC 822) or four-digit years (RFC 1123). Skip
-				 * the day of week since it is locale dependent and does
-				 * not affect the resulting date anyway.
+				 * Match [dow,] day month year hh:mm[:ss] with
+				 * two-digit years (RFC 822) or four-digit
+				 * years (RFCs 1123, 2822, 5822). Skip
+				 * the day of week since it is locale
+				 * dependent and does not affect the resulting
+				 * date anyway.
 				 */
 				if (g_ascii_isalpha(ptr[0]) && g_ascii_isalpha(ptr[1]) && g_ascii_isalpha(ptr[2]) && ptr[3] == ',')
 					ptr += 4;   /* Skip day of week. */
+
+				/*
+				 * Parse the day-of-month and month
+				 * name.
+				 */
 				char month_name[4] = { 0 };
-				if (sscanf(ptr, "%d %3s %d %d:%d%n:%d%n",
+
+				if (sscanf(ptr, "%d %3s%n",
 				    &tm.tm_mday,
 				    month_name,
-				    &tm.tm_year,
+				    &num_chars) < 2) {
+					/* Not matched. */
+					goto fail;
+				}
+				if (!parse_month_name(month_name, &tm.tm_mon)) {
+					goto fail;
+				}
+				ptr += num_chars;
+				while (*ptr == ' ')
+					ptr++;
+
+				/*
+				 * Scan the year.  Treat 2-digit years
+				 * differently from 4-digit years.
+				 */
+				guint32 year;
+				const gchar *yearendp;
+
+				if (!ws_strtou32(ptr, &yearendp, &year)) {
+					goto fail;
+				}
+				if (*yearendp != ' ') {
+					/* Not followed by a space. */
+					goto fail;
+				}
+				if (yearendp - ptr < 2) {
+					/* 1-digit year.  Error. */
+					goto fail;
+				}
+				if (yearendp - ptr == 2) {
+					/*
+					 * 2-digit year.
+					 *
+					 * Match RFC 2822/RFC 5322 behavior;
+					 * add 2000 to years from 0 to
+					 * 49 and 1900 to uears from 50
+					 * to 99.
+					 */
+					if (year <= 49) {
+						year += 2000;
+					} else {
+						year += 1900;
+					}
+				} else if (yearendp - ptr == 3) {
+					/*
+					 * 3-digit year.
+					 *
+					 * Match RFC 2822/RFC 5322 behavior;
+					 * add 1900 to the year.
+					 */
+					year += 1900;
+				}
+				tm.tm_year = year - 1900;
+				ptr = yearendp;
+				while (*ptr == ' ')
+					ptr++;
+
+				/* Parse the time. */
+				if (sscanf(ptr, "%d:%d%n:%d%n",
 				    &tm.tm_hour,
 				    &tm.tm_min,
 				    &num_chars,
 				    &tm.tm_sec,
-				    &num_chars) >= 5)
+				    &num_chars) < 2)
 				{
-					if (encoding & ENC_RFC_822) {
-						/* Match strptime behavior: years 00-68
-						 * are in the 21th century. */
-						if (tm.tm_year <= 68) {
-							tm.tm_year += 100;
-							matched = TRUE;
-						} else if (tm.tm_year <= 99) {
-							matched = TRUE;
-						}
-					} else if (encoding & ENC_RFC_1123) {
-						tm.tm_year -= 1900;
-						matched = TRUE;
-					}
-					if (!parse_month_name(month_name, &tm.tm_mon))
-						matched = FALSE;
-					if (matched)
-						end = ptr + num_chars;
+					goto fail;
 				}
-				if (end) {
-					errno = 0;
-					if (*end == ' ') end++;
-					if (g_ascii_strncasecmp(end, "UT", 2) == 0)
-					{
-						end += 2;
-					}
-					else if (g_ascii_strncasecmp(end, "GMT", 3) == 0)
-					{
-						end += 3;
-					}
-					else if (sscanf(end, "%c%2d%2d%n",
+				ptr += num_chars;
+				while (*ptr == ' ')
+					ptr++;
+
+				/*
+				 * Parse the time zone.
+				 * Check for obs-zone values first.
+				 */
+				if (g_ascii_strncasecmp(ptr, "UT", 2) == 0)
+				{
+					ptr += 2;
+				}
+				else if (g_ascii_strncasecmp(ptr, "GMT", 3) == 0)
+				{
+					ptr += 3;
+				}
+				else
+				{
+					char sign;
+					int off_hr;
+					int off_min;
+
+					if (sscanf(ptr, "%c%2d%2d%n",
 					    &sign,
 					    &off_hr,
 					    &off_min,
 					    &num_chars) < 3)
 					{
-						errno = ERANGE;
+						goto fail;
 					}
-					if (sign == '-') off_hr = -off_hr;
+
+					/*
+					 * If sign is '+', there's a positive
+					 * UTC offset.
+					 *
+					 * If sign is '-', there's a negative
+					 * UTC offset.
+					 *
+					 * Otherwise, that's an invalid UTC
+					 * offset string.
+					 */
+					if (sign == '+')
+						utc_offset += (off_hr * 3600) + (off_min * 60);
+					else if (sign == '-')
+						utc_offset -= (off_hr * 3600) + (off_min * 60);
+					else {
+						/* Sign must be + or - */
+						goto fail;
+					}
+					ptr += num_chars;
 				}
+				end = ptr;
 			}
 			if (errno == 0) {
-				ns->secs = mktime_utc (&tm);
-				if (off_hr > 0)
-					ns->secs += (off_hr * 3600) + (off_min * 60);
-				else if (off_hr < 0)
-					ns->secs -= ((-off_hr) * 3600) + (off_min * 60);
+				ns->secs = mktime_utc(&tm);
+				if (ns->secs == (time_t)-1 && errno != 0) {
+					goto fail;
+				}
+				ns->secs += utc_offset;
 			}
 		}
+	} else {
+		/* Empty string */
+		goto fail;
 	}
 
-	if (errno == 0) {
-		retval = ns;
-		if (endoff)
-		    *endoff = (gint)(offset + (end - begin));
-	}
-
+	if (endoff)
+	    *endoff = (gint)(offset + (end - begin));
 	wmem_free(NULL, begin);
+	return ns;
 
-	return retval;
+fail:
+	wmem_free(NULL, begin);
+	return NULL;
 }
 
 /* Fetch an IPv4 address, in network byte order.

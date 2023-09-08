@@ -348,11 +348,15 @@ static expert_field ei_type_length_mismatch_error = EI_INIT;
 static expert_field ei_type_length_mismatch_warn = EI_INIT;
 static void register_type_length_mismatch(void);
 
-/* Handle number string decoding errors with expert info */
-static int proto_number_string_decoding_error = -1;
-static expert_field ei_number_string_decoding_failed_error = EI_INIT;
-static expert_field ei_number_string_decoding_erange_error = EI_INIT;
-static void register_number_string_decodinws_error(void);
+/* Handle byte array string decoding errors with expert info */
+static int proto_byte_array_string_decoding_error = -1;
+static expert_field ei_byte_array_string_decoding_failed_error = EI_INIT;
+static void register_byte_array_string_decodinws_error(void);
+
+/* Handle date and time string decoding errors with expert info */
+static int proto_date_time_string_decoding_error = -1;
+static expert_field ei_date_time_string_decoding_failed_error = EI_INIT;
+static void register_date_time_string_decodinws_error(void);
 
 /* Handle string errors expert info */
 static int proto_string_errors = -1;
@@ -586,7 +590,8 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	/* Register the pseudo-protocols used for exceptions. */
 	register_show_exception();
 	register_type_length_mismatch();
-	register_number_string_decodinws_error();
+	register_byte_array_string_decodinws_error();
+	register_date_time_string_decodinws_error();
 	register_string_errors();
 	ftypes_register_pseudofields();
 	col_register_protocol();
@@ -4292,7 +4297,7 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	field_info	  *new_fi;
 	GByteArray	  *bytes = retval;
 	GByteArray	  *created_bytes = NULL;
-	gint		   saved_err = 0;
+	gboolean	   failed = FALSE;
 	guint32		   n = 0;
 	header_field_info *hfinfo;
 	gboolean	   generate = (bytes || tree) ? TRUE : FALSE;
@@ -4323,11 +4328,14 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			bytes = created_bytes = g_byte_array_new();
 		}
 
-		/* bytes might be NULL after this, but can't add expert error until later */
+		/*
+		 * bytes might be NULL after this, but can't add expert
+		 * error until later; if it's NULL, just note that
+		 * it failed.
+		 */
 		bytes = tvb_get_string_bytes(tvb, start, length, encoding, bytes, endoff);
-
-		/* grab the errno now before it gets overwritten */
-		saved_err = errno;
+		if (bytes == NULL)
+			failed = TRUE;
 	}
 	else if (generate) {
 		tvb_ensure_bytes_exist(tvb, start, length);
@@ -4353,7 +4361,8 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    *endoff = start + n + length;
 	}
 
-	if (err) *err = saved_err;
+	if (err)
+		*err = failed ? EINVAL : 0;
 
 	CHECK_FOR_NULL_TREE_AND_FREE(tree,
 		{
@@ -4375,10 +4384,8 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	new_fi = new_field_info(tree, hfinfo, tvb, start, n + length);
 
 	if (encoding & ENC_STRING) {
-		if (saved_err == ERANGE)
-		    expert_add_info(NULL, tree, &ei_number_string_decoding_erange_error);
-		else if (!bytes || saved_err != 0)
-		    expert_add_info(NULL, tree, &ei_number_string_decoding_failed_error);
+		if (failed)
+		    expert_add_info(NULL, tree, &ei_byte_array_string_decoding_failed_error);
 
 		if (bytes)
 		    proto_tree_set_bytes_gbytearray(new_fi, bytes);
@@ -4430,9 +4437,8 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		 * ENC_ISO_8601_TIME, and that is treated as an absolute time
 		 * relative to "now" currently.
 		 */
-		tvb_get_string_time(tvb, start, length, encoding, &time_stamp, endoff);
-		/* grab the errno now before it gets overwritten */
-		saved_err = errno;
+		if (!tvb_get_string_time(tvb, start, length, encoding, &time_stamp, endoff))
+			saved_err = EINVAL;
 	}
 	else {
 		DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo);
@@ -4459,10 +4465,8 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_tree_set_time(new_fi, &time_stamp);
 
 	if (encoding & ENC_STRING) {
-		if (saved_err == ERANGE)
-		    expert_add_info(NULL, tree, &ei_number_string_decoding_erange_error);
-		else if (saved_err == EDOM)
-		    expert_add_info(NULL, tree, &ei_number_string_decoding_failed_error);
+		if (saved_err)
+		    expert_add_info(NULL, tree, &ei_date_time_string_decoding_failed_error);
 	}
 	else {
 		FI_SET_FLAG(new_fi,
@@ -9111,35 +9115,57 @@ register_type_length_mismatch(void)
 }
 
 static void
-register_number_string_decodinws_error(void)
+register_byte_array_string_decodinws_error(void)
 {
 	static ei_register_info ei[] = {
-		{ &ei_number_string_decoding_failed_error,
-			{ "_ws.number_string.decoding_error.failed", PI_MALFORMED, PI_ERROR,
-			  "Failed to decode number from string", EXPFILL
-			}
-		},
-		{ &ei_number_string_decoding_erange_error,
-			{ "_ws.number_string.decoding_error.erange", PI_MALFORMED, PI_ERROR,
-			  "Decoded number from string is out of valid range", EXPFILL
+		{ &ei_byte_array_string_decoding_failed_error,
+			{ "_ws.byte_array_string.decoding_error.failed", PI_MALFORMED, PI_ERROR,
+			  "Failed to decode byte array from string", EXPFILL
 			}
 		},
 	};
 
-	expert_module_t* expert_number_string_decoding_error;
+	expert_module_t* expert_byte_array_string_decoding_error;
 
-	proto_number_string_decoding_error =
-		proto_register_protocol("Number-String Decoding Error",
-					"Number-string decoding error",
-					"_ws.number_string.decoding_error");
+	proto_byte_array_string_decoding_error =
+		proto_register_protocol("Byte Array-String Decoding Error",
+					"Byte Array-string decoding error",
+					"_ws.byte_array_string.decoding_error");
 
-	expert_number_string_decoding_error =
-		expert_register_protocol(proto_number_string_decoding_error);
-	expert_register_field_array(expert_number_string_decoding_error, ei, array_length(ei));
+	expert_byte_array_string_decoding_error =
+		expert_register_protocol(proto_byte_array_string_decoding_error);
+	expert_register_field_array(expert_byte_array_string_decoding_error, ei, array_length(ei));
 
-	/* "Number-String Decoding Error" isn't really a protocol, it's an error indication;
+	/* "Byte Array-String Decoding Error" isn't really a protocol, it's an error indication;
 	   disabling them makes no sense. */
-	proto_set_cant_toggle(proto_number_string_decoding_error);
+	proto_set_cant_toggle(proto_byte_array_string_decoding_error);
+}
+
+static void
+register_date_time_string_decodinws_error(void)
+{
+	static ei_register_info ei[] = {
+		{ &ei_date_time_string_decoding_failed_error,
+			{ "_ws.date_time_string.decoding_error.failed", PI_MALFORMED, PI_ERROR,
+			  "Failed to decode date and time from string", EXPFILL
+			}
+		},
+	};
+
+	expert_module_t* expert_date_time_string_decoding_error;
+
+	proto_date_time_string_decoding_error =
+		proto_register_protocol("Date and Time-String Decoding Error",
+					"Date and Time-string decoding error",
+					"_ws.date_time_string.decoding_error");
+
+	expert_date_time_string_decoding_error =
+		expert_register_protocol(proto_date_time_string_decoding_error);
+	expert_register_field_array(expert_date_time_string_decoding_error, ei, array_length(ei));
+
+	/* "Date and Time-String Decoding Error" isn't really a protocol, it's an error indication;
+	   disabling them makes no sense. */
+	proto_set_cant_toggle(proto_date_time_string_decoding_error);
 }
 
 static void

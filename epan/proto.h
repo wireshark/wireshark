@@ -624,8 +624,9 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_ISO_8601_DATE             0x00010000
 #define ENC_ISO_8601_TIME             0x00020000
 #define ENC_ISO_8601_DATE_TIME        0x00030000
-#define ENC_RFC_822                   0x00040000
-#define ENC_RFC_1123                  0x00080000
+#define ENC_IMF_DATE_TIME             0x00040000 /* Internet Message Format - RFCs 822, 1123, 2822, 5322 */
+#define ENC_RFC_822                   0x00040000 /* backwards compatibility */
+#define ENC_RFC_1123                  0x00080000 /* DEPRECATED - all of them support 2-digit dates, so don't use this */
 #define ENC_ISO_8601_DATE_TIME_BASIC  0x00100000
 /* a convenience macro for the above - for internal use only */
 #define ENC_STR_TIME_MASK             0x001F0000
@@ -1679,7 +1680,7 @@ proto_tree_add_bytes_with_length(proto_tree *tree, int hfindex, tvbuff_t *tvb, g
  @param encoding data encoding (e.g, ENC_LITTLE_ENDIAN, or ENC_UTF_8|ENC_STR_HEX)
  @param[in,out] retval points to a GByteArray which will be set to the bytes from the Tvb.
  @param[in,out] endoff if not NULL, gets set to the character after those consumed.
- @param[in,out] err if not NULL, gets set to 0 if no failure, else the errno code (e.g., EDOM, ERANGE).
+ @param[in,out] err if not NULL, gets set to 0 if no failure, else the errno code (e.g., EINVAL).
  @return the newly created item, and retval is set to the decoded value
  */
 WS_DLL_PUBLIC proto_item *
@@ -1758,7 +1759,7 @@ proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
  @param encoding data encoding (e.g, ENC_LITTLE_ENDIAN, ENC_UTF_8|ENC_ISO_8601_DATE_TIME, etc.)
  @param[in,out] retval points to a nstime_t which will be set to the value
  @param[in,out] endoff if not NULL, gets set to the character after those consumed.
- @param[in,out] err if not NULL, gets set to 0 if no failure, else the errno code (e.g., EDOM, ERANGE).
+ @param[in,out] err if not NULL, gets set to 0 if no failure, else EINVAL.
  @return the newly created item, and retval is set to the decoded value
  */
 WS_DLL_PUBLIC proto_item *

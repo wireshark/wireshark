@@ -97,6 +97,7 @@ static ws_enum_t all_enums[] = {
     ENUM(ENC_EUC_KR),
     ENUM(ENC_GB18030),
     ENUM(ENC_HOST_ENDIAN),
+    ENUM(ENC_IMF_DATE_TIME),
     ENUM(ENC_ISO_646_BASIC),
     ENUM(ENC_ISO_646_IRV),
     ENUM(ENC_ISO_8601_DATE),
