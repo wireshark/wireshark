@@ -626,7 +626,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_ISO_8601_DATE_TIME        0x00030000
 #define ENC_IMF_DATE_TIME             0x00040000 /* Internet Message Format - RFCs 822, 1123, 2822, 5322 */
 #define ENC_RFC_822                   0x00040000 /* backwards compatibility */
-#define ENC_RFC_1123                  0x00080000 /* DEPRECATED - all of them support 2-digit dates, so don't use this */
+#define ENC_RFC_1123                  0x00040000 /* backwards source compatibility - not binary */
 #define ENC_ISO_8601_DATE_TIME_BASIC  0x00100000
 /* a convenience macro for the above - for internal use only */
 #define ENC_STR_TIME_MASK             0x001F0000

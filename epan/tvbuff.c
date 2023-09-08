@@ -1867,7 +1867,7 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 					goto fail;
 				}
 			}
-			else if (encoding & ENC_IMF_DATE_TIME || encoding & ENC_RFC_1123) {
+			else if (encoding & ENC_IMF_DATE_TIME) {
 				/*
 				 * Match [dow,] day month year hh:mm[:ss] with
 				 * two-digit years (RFC 822) or four-digit
