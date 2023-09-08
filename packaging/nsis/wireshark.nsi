@@ -2,13 +2,9 @@
 ; wireshark.nsi
 ;
 
-; Set the compression mechanism first.
-; As of NSIS 2.07, solid compression which makes installer about 1MB smaller
-; is no longer the default, so use the /SOLID switch.
-; This unfortunately is unknown to NSIS prior to 2.07 and creates an error.
-; So if you get an error here, please update to at least NSIS 2.07!
+; Set the compression options first.
 SetCompressor /SOLID lzma
-SetCompressorDictSize 64 ; MB
+SetCompressorDictSize 128 ; MB
 
 !include "wireshark-common.nsh"
 !include 'LogicLib.nsh'
