@@ -234,10 +234,29 @@ static inline bool level_filter_matches(log_filter_t *filter,
 }
 
 
+static void
+get_timestamp(struct timespec *ts)
+{
+    bool ok = false;
+
+#if defined(HAVE_CLOCK_GETTIME)
+    ok = (clock_gettime(CLOCK_REALTIME, ts) == 0);
+#elif defined(HAVE_TIMESPEC_GET)
+    ok = (timespec_get(ts, TIME_UTC) == TIME_UTC);
+#endif
+    if (ok)
+        return;
+
+    /* Fall back on time(). */
+    ts->tv_sec = time(NULL);
+    ts->tv_nsec = -1;
+}
+
+
 static inline void fill_manifest(ws_log_manifest_t *mft)
 {
     struct timespec ts;
-    ws_clock_get_realtime(&ts);
+    get_timestamp(&ts);
     ws_localtime_r(&ts.tv_sec, &mft->tstamp_secs);
     mft->nanosecs = ts.tv_nsec;
     mft->pid = getpid();

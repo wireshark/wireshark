@@ -257,11 +257,6 @@ create_timestamp(void) {
 struct timespec *
 ws_clock_get_realtime(struct timespec *ts)
 {
-	/*
-	 * This function is used in the wslog log handler context.
-	 * We must not call anything, even indirectly, that might log a message
-	 * using wslog (including GLib).
-	 */
 #if defined(HAVE_CLOCK_GETTIME)
 	if (clock_gettime(CLOCK_REALTIME, ts) == 0)
 		return ts;
