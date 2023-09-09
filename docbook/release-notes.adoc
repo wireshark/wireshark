@@ -290,6 +290,7 @@ UDP Tracker Protocol for BitTorrent (BT-Tracker)
 UWB UCI Protocol
 Video Protocol 9 (VP9)
 Windows Delivery Optimization (MS-DO)
+Z21 LAN Protocol (Z21)
 Zabbix
 Zigbee TLV
 --
