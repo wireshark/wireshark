@@ -246,10 +246,12 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 		return TRUE;
 
 	/* Try ISO 8601 format. */
-	if (iso8601_to_nstime(&fv->value.time, s, ISO8601_DATETIME) == strlen(s))
+	endptr = iso8601_to_nstime(&fv->value.time, s, ISO8601_DATETIME);
+	/* Check whether it parsed all of the string */
+	if (endptr != NULL && *endptr == '\0')
 		return TRUE;
 
-	/* Try other legacy formats. */
+	/* No - try other legacy formats. */
 	memset(&tm, 0, sizeof(tm));
 	/* Let the computer figure out if it's DST. */
 	tm.tm_isdst = -1;

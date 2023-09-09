@@ -1809,15 +1809,15 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 
 	if (*ptr) {
 		if ((encoding & ENC_ISO_8601_DATE_TIME) == ENC_ISO_8601_DATE_TIME) {
-			if ((num_chars = iso8601_to_nstime(ns, ptr, ISO8601_DATETIME))) {
-				end = ptr + num_chars;
-			} else {
+			if (!(end = iso8601_to_nstime(ns, ptr, ISO8601_DATETIME))) {
+
+
 				goto fail;
 			}
 		} else if ((encoding & ENC_ISO_8601_DATE_TIME_BASIC) == ENC_ISO_8601_DATE_TIME_BASIC) {
-			if ((num_chars = iso8601_to_nstime(ns, ptr, ISO8601_DATETIME_BASIC))) {
-				end = ptr + num_chars;
-			} else {
+			if (!(end = iso8601_to_nstime(ns, ptr, ISO8601_DATETIME_BASIC))) {
+
+
 				goto fail;
 			}
 		} else {

@@ -129,15 +129,15 @@ typedef enum {
     ISO8601_DATETIME_AUTO,  /** Autodetect the presence of separators */
 } iso8601_fmt_e;
 
-/** parse an ISO 8601 format datetime string to nstime, returns number of
-    chars parsed on success, 0 on failure.
+/** parse an ISO 8601 format datetime string to nstime, returns pointer
+    to the first character after the last character, NULL on failure
     Note that nstime is set to unset in the case of failure */
-WS_DLL_PUBLIC guint8 iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format);
+WS_DLL_PUBLIC const char * iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format);
 
 /** parse an Unix epoch timestamp format datetime string to nstime, returns
-    number of chars parsed on success, 0 on failure.
+    pointer to the first character after the last character, NULL on failure
     Note that nstime is set to unset in the case of failure */
-WS_DLL_PUBLIC guint8 unix_epoch_to_nstime(nstime_t *nstime, const char *ptr);
+WS_DLL_PUBLIC const char * unix_epoch_to_nstime(nstime_t *nstime, const char *ptr);
 
 #define NSTIME_ISO8601_BUFSIZE  sizeof("YYYY-MM-DDTHH:MM:SS.123456789Z")
 
