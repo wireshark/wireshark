@@ -236,6 +236,10 @@ void rtp_dyn_payload_free(rtp_dyn_payload_t *rtp_dyn_payload);
 void rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload);
 #endif
 
+/* Proto data key values */
+#define RTP_CONVERSATION_PROTO_DATA     0
+#define RTP_DECODE_AS_PROTO_DATA        1
+
 #define MAX_RTP_SETUP_METHOD_SIZE 11
 /** Info to save in RTP packet-info */
 /** XXX: This is wasteful of memory. The only things that really need

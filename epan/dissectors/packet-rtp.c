@@ -309,9 +309,6 @@ static gboolean desegment_rtp = TRUE;
 
 static gboolean rfc2198_deencapsulate = TRUE;
 
-/* Proto data key values */
-#define RTP_CONVERSATION_PROTO_DATA     0
-#define RTP_DECODE_AS_PROTO_DATA        1
 
 
 /*

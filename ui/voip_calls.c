@@ -672,7 +672,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
         /* if it is dynamic payload, let use the conv data to see if it is defined */
         if ( (strinfo->first_payload_type >= PT_UNDF_96) && (strinfo->first_payload_type <= PT_UNDF_127) ) {
             /* Use existing packet info if available */
-            p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
+            p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), RTP_CONVERSATION_PROTO_DATA);
             if (p_packet_data && p_packet_data->rtp_dyn_payload) {
                 const gchar *encoding_name = rtp_dyn_payload_get_name(p_packet_data->rtp_dyn_payload, strinfo->first_payload_type);
                 if (encoding_name) {
