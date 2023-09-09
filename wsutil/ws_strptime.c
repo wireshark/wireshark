@@ -31,6 +31,7 @@
 #include "ws_strptime.h"
 #include <time.h>
 #include <wsutil/time_util.h> /* For ws_localtime_r() */
+#include <wsutil/strtoi.h>
 
 #ifdef _WIN32
 #define tzset		_tzset
@@ -379,27 +380,28 @@ literal:
 			LEGAL_ALT(ALT_O);
 			continue;
 
-#ifndef TIME_MAX
-#define TIME_MAX	INT64_MAX
-#endif
 		case 's':	/* seconds since the epoch */
 			{
-				time_t sse = 0;
-				uint64_t rulim = TIME_MAX;
+				int64_t secs;
+				const char *endptr;
+				time_t sse;
 
-				if (*bp < '0' || *bp > '9') {
+				/* Extract the seconds as a 64-bit signed number. */
+				if (!ws_strtoi64(bp, &endptr, &secs)) {
+					bp = NULL;
+					continue;
+				}
+				bp = endptr;
+
+				/* For now, reject times before the Epoch. */
+				if (secs < 0) {
 					bp = NULL;
 					continue;
 				}
 
-				do {
-					sse *= 10;
-					sse += *bp++ - '0';
-					rulim /= 10;
-				} while ((sse * 10 <= TIME_MAX) &&
-					 rulim && *bp >= '0' && *bp <= '9');
-
-				if (sse < 0 || (uint64_t)sse > TIME_MAX) {
+				/* Make sure it fits. */
+				sse = (time_t)secs;
+				if (sse != secs) {
 					bp = NULL;
 					continue;
 				}
