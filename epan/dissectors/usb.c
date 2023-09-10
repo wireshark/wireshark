@@ -7956,6 +7956,7 @@ static const value_string usb_products_vals[] = {
     { 0x04a93302, "SELPHY CP1500" },
     { 0x04a93303, "Canon EOS R5 C" },
     { 0x04a9330b, "Canon EOS R6m2" },
+    { 0x04a93312, "Canon EOS R100" },
     { 0x04ad2501, "Bluetooth Device" },
     { 0x04b00102, "Coolpix 990" },
     { 0x04b00103, "Coolpix 880" },

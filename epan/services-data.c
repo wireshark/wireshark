@@ -5624,6 +5624,7 @@ static ws_services_entry_t global_tcp_services_table[] = {
     { 8043, "fs-server",        "FireScope Server" },
     { 8044, "fs-mgmt",          "FireScope Management Interface" },
     { 8051, "rocrail",          "Rocrail Client Service" },
+    { 8061, "nikatron-dev",     "Nikatron Device Protocol" },
     { 8066, "toad-bi-appsrvr",  "Toad BI Application Server" },
     { 8067, "infi-async",       "Infinidat async replication" },
     { 8070, "ucs-isc",          "Oracle Unified Communication Suite's Indexed Search Converter" },

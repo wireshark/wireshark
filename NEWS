@@ -10,6 +10,8 @@ Wireshark 4.1.1 Release Notes
 
  What’s New
 
+  Wireshark supports dark mode on Windows.
+
   A Windows installer for Arm64 has been added.
 
   Windows installer file names now have the format
@@ -112,10 +114,17 @@ Wireshark 4.1.1 Release Notes
         • Fixed the implementation of `all …​ in` membership operator
        (#19188[4]).
 
+        • When parsing absolute time values the display filter engine
+       has learned to understand timezones as specified in
+       (strptime(3)[5]), including some common North American
+       designations. Arbitrary timezone names are not supported however.
+       Previously only ISO8601 offsets and the "UTC" designation was
+       understood.
+
         • The deprecated ~≃ operator symbol has been removed. It was
        replaced by !== in version 4.0.
 
-     • Running the test suite requires the pytest[5] Python module. The
+     • Running the test suite requires the pytest[6] Python module. The
        emulation layer that allowed running tests without pytest
        installed has been removed.
 
@@ -219,7 +228,7 @@ Wireshark 4.1.1 Release Notes
 
      • The bundled script "dtd_gen.lua" that was disabled by default has
        been removed from the installation. It can be found in the
-       Wireshark Wiki under "Contrib"[6].
+       Wireshark Wiki under "Contrib"[7].
 
      • The Wi-Fi NAN dissector filter name has been changed from 'nan'
        to 'wifi_nan'.
@@ -259,7 +268,7 @@ Wireshark 4.1.1 Release Notes
        details about addresses (default off).
 
      • IPv6: The dissector now supports dissecting Application-aware
-       IPv6 Networking (APN6) option[7] in the Hop-by-Hop Options Header
+       IPv6 Networking (APN6) option[8] in the Hop-by-Hop Options Header
        (HBH) and Destination Options Header (DOH). This feature supports
        to dissect all three types of APN ID, which are 32-bit, 64-bit
        and 128-bit in length.
@@ -294,7 +303,7 @@ Wireshark 4.1.1 Release Notes
 
   New and Updated Codec support
 
-   Adaptive Multi-Rate (AMR), if compiled with opencore-amr[8]
+   Adaptive Multi-Rate (AMR), if compiled with opencore-amr[9]
 
   Major API Changes
 
@@ -317,7 +326,7 @@ Wireshark 4.1.1 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[9] on the Wireshark web site.
+   be found on the download page[10] on the Wireshark web site.
 
  File Locations
 
@@ -332,24 +341,24 @@ Wireshark 4.1.1 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[10] and on the
+  Community support is available on Wireshark’s Q&A site[11] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[11].
+  for all of Wireshark’s mailing lists can be found on the web site[12].
 
-  Bugs and feature requests can be reported on the issue tracker[12].
+  Bugs and feature requests can be reported on the issue tracker[13].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[13].
+  SharkFest[14].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[14].
+  at wiresharkfoundation.org[15].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[15].
+  A complete FAQ is available on the Wireshark web site[16].
 
  References
 
@@ -357,14 +366,15 @@ Wireshark 4.1.1 Release Notes
    2. https://gitlab.com/wireshark/wireshark/-/issues/18413
    3. https://gitlab.com/wireshark/wireshark/-/issues/18510
    4. https://gitlab.com/wireshark/wireshark/-/issues/19188
-   5. https://pypi.org/project/pytest/
-   6. https://wiki.wireshark.org/Contrib
-   7. https://www.ipv6plus.net/Phase3/apn6/
-   8. https://sourceforge.net/projects/opencore-amr/
-   9. https://www.wireshark.org/download.html
-  10. https://ask.wireshark.org/
-  11. https://www.wireshark.org/lists/
-  12. https://gitlab.com/wireshark/wireshark/-/issues
-  13. https://sharkfest.wireshark.org
-  14. https://wiresharkfoundation.org
-  15. https://www.wireshark.org/faq.html
+   5. https://man.netbsd.org/strptime.3
+   6. https://pypi.org/project/pytest/
+   7. https://wiki.wireshark.org/Contrib
+   8. https://www.ipv6plus.net/Phase3/apn6/
+   9. https://sourceforge.net/projects/opencore-amr/
+  10. https://www.wireshark.org/download.html
+  11. https://ask.wireshark.org/
+  12. https://www.wireshark.org/lists/
+  13. https://gitlab.com/wireshark/wireshark/-/issues
+  14. https://sharkfest.wireshark.org
+  15. https://wiresharkfoundation.org
+  16. https://www.wireshark.org/faq.html
