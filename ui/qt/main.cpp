@@ -266,6 +266,20 @@ gather_wireshark_runtime_info(feature_list l)
         } else {
             without_feature(l, "HiDPI");
         }
+        QString session = qEnvironmentVariable("XDG_SESSION_TYPE");
+        if (!session.isEmpty()) {
+            if (session == "wayland") {
+                with_feature(l, "Wayland");
+            } else if (session == "x11") {
+                with_feature(l, "Xorg");
+            } else {
+                with_feature(l, "XDG_SESSION_TYPE=%s", qUtf8Printable(session));
+            }
+        }
+        QString platform = qApp->platformName();
+        if (!platform.isEmpty()) {
+            with_feature(l, "QPA plugin \"%s\"", qUtf8Printable(platform));
+        }
     }
 }
 
