@@ -1498,7 +1498,9 @@ if (QT_FOUND)
 		# https://doc.qt.io/qt-5.11/supported-platforms-and-configurations.html
 		# https://doc.qt.io/qt-5.15/supported-platforms.html
 		# https://doc-snapshots.qt.io/qt6-dev/supported-platforms.html
-		if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.0.0")
+		if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.5.0")
+			set(MIN_MACOS_VERSION 11.0)
+		elseif(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.0.0")
 			set(MIN_MACOS_VERSION 10.14)
 		elseif(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.14.0")
 			set(MIN_MACOS_VERSION 10.13)
