@@ -38,9 +38,19 @@ cicamBrandId EXTENSION ::= {
 
 CicamBrandId ::= INTEGER(1..65535)
 
+
+securityLevel EXTENSION ::= {
+   SYNTAX    SecurityLevel
+   IDENTIFIED BY  id-pe-securityLevel
+}
+
+SecurityLevel ::= INTEGER (0..MAX)
+
+
 -- Object identifier assignments 
 id-pe-scramblerCapabilities OBJECT IDENTIFIER ::= { id-pkix id-pe(1) 25 }
 id-pe-ciplusInfo OBJECT IDENTIFIER ::= { id-pkix id-pe(1) 26 }
 id-pe-cicamBrandId OBJECT IDENTIFIER ::= { id-pkix id-pe(1) 27 }
+id-pe-securityLevel OBJECT IDENTIFIER ::= { id-pkix id-pe(1) 50 }
 
 END

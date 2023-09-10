@@ -49,7 +49,7 @@ static int hf_x509ce_IPAddress_ipv6 = -1;
 void
 x509ce_enable_ciplus(void)
 {
-  dissector_handle_t dh25, dh26, dh27;
+  dissector_handle_t dh25, dh26, dh27, dh50;
 
   dh25 = create_dissector_handle(dissect_ScramblerCapabilities_PDU, proto_x509ce);
   dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.25", dh25);
@@ -57,6 +57,8 @@ x509ce_enable_ciplus(void)
   dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.26", dh26);
   dh27 = create_dissector_handle(dissect_CicamBrandId_PDU, proto_x509ce);
   dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.27", dh27);
+  dh50 = create_dissector_handle(dissect_SecurityLevel_PDU, proto_x509ce);
+  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.50", dh50);
 }
 
 void
@@ -65,6 +67,7 @@ x509ce_disable_ciplus(void)
   dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.25");
   dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.26");
   dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.27");
+  dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.50");
 }
 
 

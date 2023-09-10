@@ -84,6 +84,7 @@ static int hf_x509ce_NFTypes_PDU = -1;            /* NFTypes */
 static int hf_x509ce_ScramblerCapabilities_PDU = -1;  /* ScramblerCapabilities */
 static int hf_x509ce_CiplusInfo_PDU = -1;         /* CiplusInfo */
 static int hf_x509ce_CicamBrandId_PDU = -1;       /* CicamBrandId */
+static int hf_x509ce_SecurityLevel_PDU = -1;      /* SecurityLevel */
 static int hf_x509ce_keyIdentifier = -1;          /* KeyIdentifier */
 static int hf_x509ce_authorityCertIssuer = -1;    /* GeneralNames */
 static int hf_x509ce_authorityCertSerialNumber = -1;  /* CertificateSerialNumber */
@@ -1717,6 +1718,16 @@ dissect_x509ce_CicamBrandId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   return offset;
 }
 
+
+
+int
+dissect_x509ce_SecurityLevel(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static int dissect_AuthorityKeyIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -2020,6 +2031,13 @@ static int dissect_CicamBrandId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   offset = dissect_x509ce_CicamBrandId(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509ce_CicamBrandId_PDU);
   return offset;
 }
+static int dissect_SecurityLevel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_x509ce_SecurityLevel(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509ce_SecurityLevel_PDU);
+  return offset;
+}
 
 
 /* CI+ (www.ci-plus.com) defines some X.509 certificate extensions
@@ -2029,7 +2047,7 @@ static int dissect_CicamBrandId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 void
 x509ce_enable_ciplus(void)
 {
-  dissector_handle_t dh25, dh26, dh27;
+  dissector_handle_t dh25, dh26, dh27, dh50;
 
   dh25 = create_dissector_handle(dissect_ScramblerCapabilities_PDU, proto_x509ce);
   dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.25", dh25);
@@ -2037,6 +2055,8 @@ x509ce_enable_ciplus(void)
   dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.26", dh26);
   dh27 = create_dissector_handle(dissect_CicamBrandId_PDU, proto_x509ce);
   dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.27", dh27);
+  dh50 = create_dissector_handle(dissect_SecurityLevel_PDU, proto_x509ce);
+  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.50", dh50);
 }
 
 void
@@ -2045,6 +2065,7 @@ x509ce_disable_ciplus(void)
   dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.25");
   dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.26");
   dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.27");
+  dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.50");
 }
 
 
@@ -2259,6 +2280,10 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_CicamBrandId_PDU,
       { "CicamBrandId", "x509ce.CicamBrandId",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509ce_SecurityLevel_PDU,
+      { "SecurityLevel", "x509ce.SecurityLevel",
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_keyIdentifier,
       { "keyIdentifier", "x509ce.keyIdentifier",

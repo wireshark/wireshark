@@ -88,11 +88,13 @@ SubjectKeyIdentifier
 ScramblerCapabilities
 CiplusInfo
 CicamBrandId
+SecurityLevel
 
 #.PDU
 ScramblerCapabilities
 CiplusInfo
 CicamBrandId
+SecurityLevel
 
 
 #.REGISTER
