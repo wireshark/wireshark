@@ -36,6 +36,7 @@
  * (http://code.google.com/p/protobuf-c/) if we ever need to use more
  * complex messages.
  */
+#define SP_EXEC_FAILED  'X'     /* errno value for the exec failing */
 #define SP_FILE         'F'     /* the name of the recently opened file */
 #define SP_ERROR_MSG    'E'     /* error message */
 #define SP_BAD_FILTER   'B'     /* error message for bad capture filter */
@@ -63,14 +64,13 @@ sync_pipe_write_string_msg(int pipe_fd, char indicator, const char *msg);
 extern void
 sync_pipe_write_uint_msg(int pipe_fd, char indicator, unsigned int num);
 
+/* Write a message, with an integer body, to the recipient pipe in the
+   standard format (1-byte message indicator, 3-byte message length
+   (excluding length and indicator field), and the integer, as a string. */
+extern void
+sync_pipe_write_int_msg(int pipe_fd, char indicator, int num);
+
 /** the child encountered an error, notify the parent */
-/* Write a message, with two message strings as the body, to the
-   recipient pipe.  The header is an SP_ERROR_MSG header, with the
-   length being the length of two string submessages; the submessages
-   are the body of the message, with each submessage being a message
-   with an indicator of SP_ERROR_MSG, the first message having
-   first message string and the second message having the second message
-   string. */
 extern void
 sync_pipe_write_errmsgs_to_parent(int pipe_fd, const char *error_msg,
                                   const char *secondary_error_msg);

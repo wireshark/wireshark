@@ -97,6 +97,19 @@ sync_pipe_write_uint_msg(int pipe_fd, char indicator, unsigned int num)
     sync_pipe_write_string_msg(pipe_fd, indicator, count_str);
 }
 
+/* Write a message, with an integer body, to the recipient pipe in the
+   standard format (1-byte message indicator, 3-byte message length
+   (excluding length and indicator field), and the unsigned integer,
+   as a string. */
+void
+sync_pipe_write_int_msg(int pipe_fd, char indicator, int num)
+{
+    char count_str[SP_DECISIZE+1+1];
+
+    snprintf(count_str, sizeof(count_str), "%d", num);
+    sync_pipe_write_string_msg(pipe_fd, indicator, count_str);
+}
+
 /* Write a message, with a primary and secondary error message as the body,
    to the recipient pipe.  The header is an SP_ERROR_MSG header, with the
    length being the length of two string submessages; the submessages

@@ -620,7 +620,7 @@ capture_input_error(capture_session *cap_session _U_, char *error_msg,
     ws_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 
     safe_error_msg = simple_dialog_format_message(error_msg);
-    if (*secondary_error_msg != '\0') {
+    if (secondary_error_msg != NULL && *secondary_error_msg != '\0') {
         /* We have both primary and secondary messages. */
         safe_secondary_error_msg = simple_dialog_format_message(secondary_error_msg);
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s%s%s\n\n%s",

@@ -2871,7 +2871,10 @@ static void
 capture_input_error(capture_session *cap_session _U_, char *error_msg, char *secondary_error_msg)
 {
     cmdarg_err("%s", error_msg);
-    cmdarg_err_cont("%s", secondary_error_msg);
+    if (secondary_error_msg != NULL && *secondary_error_msg != '\0') {
+        /* We have both primary and secondary messages. */
+        cmdarg_err_cont("%s", secondary_error_msg);
+    }
 }
 
 
@@ -3159,7 +3162,7 @@ capture_input_drops(capture_session *cap_session _U_, guint32 dropped, const cha
 static void
 capture_input_closed(capture_session *cap_session _U_, gchar *msg)
 {
-    if (msg != NULL)
+    if (msg != NULL && *msg != '\0')
         fprintf(stderr, "tshark: %s\n", msg);
 
     report_counts();

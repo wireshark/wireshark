@@ -305,7 +305,6 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     unsigned j;
     interface_options *interface_opts;
 #else
-    char errmsg[1024+1];
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
     int data_pipe[2];                       /* pipe used to send data from child to parent */
 #endif
@@ -535,9 +534,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
         ws_close(sync_pipe[PIPE_READ]);
         ws_close(sync_pipe[PIPE_WRITE]);
         execv(argv[0], argv);
-        snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
-                   argv[0], g_strerror(errno));
-        sync_pipe_write_errmsgs_to_parent(2, errmsg, "");
+        sync_pipe_write_int_msg(2, SP_EXEC_FAILED, errno);
 
         /* Exit with "_exit()", so that we don't close the connection
            to the X server (and cause stuff buffered up by our parent but
@@ -970,6 +967,7 @@ sync_pipe_run_command_actual(char* const argv[], char **data, char **primary_msg
     char buffer[PIPE_BUF_SIZE+1] = {0};
     ssize_t nread;
     char indicator;
+    int32_t exec_errno = 0;
     int  primary_msg_len;
     char *primary_msg_text;
     int  secondary_msg_len;
@@ -1033,6 +1031,39 @@ sync_pipe_run_command_actual(char* const argv[], char **data, char **primary_msg
 
     /* we got a valid message block from the child, process it */
     switch(indicator) {
+
+    case SP_EXEC_FAILED:
+        /*
+         * Exec of dumpcap failed.  Get the errno for the failure.
+         */
+        if (!ws_strtoi32(buffer, NULL, &exec_errno)) {
+            ws_warning("Invalid errno: %s", buffer);
+        }
+
+        /*
+         * Pick up the child status.
+         */
+        ret = sync_pipe_close_command(&data_pipe_read_fd, sync_pipe_read_io,
+                                      &fork_child, &msg);
+        if (ret == -1) {
+            /*
+             * Child process failed unexpectedly, or wait failed; msg is the
+             * error message.
+             */
+            *primary_msg = msg;
+            *secondary_msg = NULL;
+        } else {
+            /*
+             * Child process failed, but returned the expected exit status.
+             * Return the messages it gave us, and indicate failure.
+             */
+            *primary_msg = ws_strdup_printf("Couldn't run dumpcap in child process: %s",
+                                            g_strerror(exec_errno));
+            *secondary_msg = NULL;
+            ret = -1;
+        }
+        *data = NULL;
+        break;
 
     case SP_ERROR_MSG:
         /*
@@ -1336,6 +1367,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **m
     char buffer[PIPE_BUF_SIZE+1] = {0};
     ssize_t nread;
     char indicator;
+    int32_t exec_errno = 0;
     int  primary_msg_len;
     char *primary_msg_text;
     int  secondary_msg_len;
@@ -1415,6 +1447,24 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **m
 
     /* we got a valid message block from the child, process it */
     switch(indicator) {
+
+    case SP_EXEC_FAILED:
+        /*
+         * Exec of dumpcap failed.  Get the errno for the failure.
+         */
+        if (!ws_strtoi32(buffer, NULL, &exec_errno)) {
+            ws_warning("Invalid errno: %s", buffer);
+        }
+        *msg = ws_strdup_printf("Couldn't run dumpcap in child process: %s",
+                                g_strerror(exec_errno));
+
+        /*
+         * Pick up the child status.
+         */
+        ret = sync_pipe_close_command(data_read_fd, message_read_io,
+                                      fork_child, msg);
+        ret = -1;
+        break;
 
     case SP_ERROR_MSG:
         /*
@@ -1663,6 +1713,7 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
     char buffer[SP_MAX_MSG_LEN+1] = {0};
     ssize_t nread;
     char indicator;
+    int32_t exec_errno = 0;
     int  primary_len;
     char *primary_msg;
     int  secondary_len;
@@ -1755,6 +1806,19 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
         cap_session->count += npackets;
         cap_session->new_packets(cap_session, npackets);
         break;
+    case SP_EXEC_FAILED:
+        /*
+         * Exec of dumpcap failed.  Get the errno for the failure.
+         */
+        if (!ws_strtoi32(buffer, NULL, &exec_errno)) {
+            ws_warning("Invalid errno: %s", buffer);
+        }
+        primary_msg = ws_strdup_printf("Couldn't run dumpcap in child process: %s",
+                                       g_strerror(exec_errno));
+        cap_session->error(cap_session, primary_msg, NULL);
+        /* the capture child will close the sync_pipe, nothing to do for now */
+        /* (an error message doesn't mean we have to stop capturing) */
+        break;
     case SP_ERROR_MSG:
         /* convert primary message */
         pipe_convert_header((unsigned char*)buffer, 4, &indicator, &primary_len);
@@ -1793,7 +1857,11 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
         break;
         }
     default:
-        ws_assert_not_reached();
+        if (g_ascii_isprint(indicator))
+            ws_warning("Unknown indicator '%c'", indicator);
+        else
+            ws_warning("Unknown indicator '\\x%02x", indicator);
+        break;
     }
 
     return true;
