@@ -469,8 +469,11 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
 
 
 class TestWiresharkCapture:
-    def test_wireshark_capture_10_packets_to_file(self, wireshark_k, check_capture_10_packets, make_screenshot_on_error, test_env):
+    def test_wireshark_capture_10_packets_to_file(self, request, wireshark_k, check_capture_10_packets, make_screenshot_on_error, test_env):
         '''Capture 10 packets from the network to a file using Wireshark'''
+        disabled = request.config.getoption('--disable-gui', default=False)
+        if disabled:
+            pytest.skip('GUI tests are disabled via --disable-gui')
         with make_screenshot_on_error():
             check_capture_10_packets(self, cmd=wireshark_k, env=test_env)
 
@@ -479,18 +482,27 @@ class TestWiresharkCapture:
     #     '''Capture 10 packets from the network to stdout using Wireshark'''
     #     check_capture_10_packets(self, cmd=wireshark_k, to_stdout=True)
 
-    def test_wireshark_capture_from_fifo(self, wireshark_k, check_capture_fifo, make_screenshot_on_error, test_env):
+    def test_wireshark_capture_from_fifo(self, request, wireshark_k, check_capture_fifo, make_screenshot_on_error, test_env):
         '''Capture from a fifo using Wireshark'''
+        disabled = request.config.getoption('--disable-gui', default=False)
+        if disabled:
+            pytest.skip('GUI tests are disabled via --disable-gui')
         with make_screenshot_on_error():
             check_capture_fifo(self, cmd=wireshark_k, env=test_env)
 
-    def test_wireshark_capture_from_stdin(self, wireshark_k, check_capture_stdin, make_screenshot_on_error, test_env):
+    def test_wireshark_capture_from_stdin(self, request, wireshark_k, check_capture_stdin, make_screenshot_on_error, test_env):
         '''Capture from stdin using Wireshark'''
+        disabled = request.config.getoption('--disable-gui', default=False)
+        if disabled:
+            pytest.skip('GUI tests are disabled via --disable-gui')
         with make_screenshot_on_error():
             check_capture_stdin(self, cmd=wireshark_k, env=test_env)
 
-    def test_wireshark_capture_snapshot_len(self, wireshark_k, check_capture_snapshot_len, make_screenshot_on_error, test_env):
+    def test_wireshark_capture_snapshot_len(self, request, wireshark_k, check_capture_snapshot_len, make_screenshot_on_error, test_env):
         '''Capture truncated packets using Wireshark'''
+        disabled = request.config.getoption('--disable-gui', default=False)
+        if disabled:
+            pytest.skip('GUI tests are disabled via --disable-gui')
         with make_screenshot_on_error():
             check_capture_snapshot_len(self, cmd=wireshark_k, env=test_env)
 

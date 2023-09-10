@@ -713,7 +713,7 @@ Windows Build:
     - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
-    - C:\Windows\py.exe -m pytest
+    - C:\Windows\py.exe -m pytest --disable-gui
 
 Windows Qt5 Build:
   extends: .build-windows

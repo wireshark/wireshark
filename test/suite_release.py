@@ -21,6 +21,9 @@ def wireshark_features(request, cmd_wireshark, make_env):
     enabled = request.config.getoption('--enable-release', default=False)
     if not enabled:
         pytest.skip('Release tests are not enabled via --enable-release')
+    disabled = request.config.getoption('--disable-gui', default=False)
+    if disabled:
+        pytest.skip('GUI tests are disabled via --disable-gui')
 
     try:
         wireshark_v = subprocess.check_output(
