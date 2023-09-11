@@ -85,6 +85,7 @@ static int hf_s1ap_encryptionAlgorithms_Reserved = -1;
 static int hf_s1ap_integrityProtectionAlgorithms_EIA1 = -1;
 static int hf_s1ap_integrityProtectionAlgorithms_EIA2 = -1;
 static int hf_s1ap_integrityProtectionAlgorithms_EIA3 = -1;
+static int hf_s1ap_integrityProtectionAlgorithms_EIA7 = -1;
 static int hf_s1ap_integrityProtectionAlgorithms_Reserved = -1;
 static int hf_s1ap_SerialNumber_gs = -1;
 static int hf_s1ap_SerialNumber_msg_code = -1;
@@ -593,9 +594,13 @@ void proto_register_s1ap(void) {
       { "128-EIA3", "s1ap.integrityProtectionAlgorithms.EIA3",
         FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
         NULL, HFILL }},
+    { &hf_s1ap_integrityProtectionAlgorithms_EIA7,
+      { "EIA7", "s1ap.integrityProtectionAlgorithms.EIA7",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0200,
+        NULL, HFILL }},
     { &hf_s1ap_integrityProtectionAlgorithms_Reserved,
       { "Reserved", "s1ap.integrityProtectionAlgorithms.Reserved",
-        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        FT_UINT16, BASE_HEX, NULL, 0x1dff,
         NULL, HFILL }},
     { &hf_s1ap_SerialNumber_gs,
       { "Geographical Scope", "s1ap.SerialNumber.gs",
