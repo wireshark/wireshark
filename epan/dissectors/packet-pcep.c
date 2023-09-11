@@ -200,9 +200,9 @@ void proto_reg_handoff_pcep(void);
 #define  MASK_OBJ_TYPE                  0xF0
 
 /*Mask for the flags of HEADER of Objects*/
-#define  PCEP_HDR_OBJ_RESERVED          0x0C
-#define  PCEP_HDR_OBJ_P                 0x02
-#define  PCEP_HDR_OBJ_I                 0x01
+#define  PCEP_HDR_OBJ_RESERVED          0xC
+#define  PCEP_HDR_OBJ_P                 0x2
+#define  PCEP_HDR_OBJ_I                 0x1
 
 /*Mask for the flags of OPEN Object*/
 #define  PCEP_OPEN_RES                  0x1F
@@ -303,12 +303,12 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_OBJ_SRP_FLAGS_R            0x00000001
 
 /* Mask for the flags of Stateful PCE Capability TLV */
-#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_U  0x0001
-#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_S  0x0002
-#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_I  0x0004
-#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_T  0x0008
-#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_D  0x0010
-#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_F  0x0020
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_U  0x00000001
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_S  0x00000002
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_I  0x00000004
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_T  0x00000008
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_D  0x00000010
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_F  0x00000020
 
 /* Mask for the flags of ASSOCIATION Object */
 #define PCEP_OBJ_ASSOCIATION_FLAGS_R 0x0001
