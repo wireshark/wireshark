@@ -1230,59 +1230,14 @@ set_time_seconds(const frame_data *fd, const nstime_t *ts, gchar *buf)
 
   ws_assert(fd->has_ts);
 
-  switch (timestamp_get_precision()) {
-  case TS_PREC_FIXED_SEC:
-    tsprecision = WTAP_TSPREC_SEC;
-    break;
-  case TS_PREC_FIXED_DSEC:
-    tsprecision = WTAP_TSPREC_DSEC;
-    break;
-  case TS_PREC_FIXED_CSEC:
-    tsprecision = WTAP_TSPREC_CSEC;
-    break;
-  case TS_PREC_FIXED_MSEC:
-    tsprecision = WTAP_TSPREC_MSEC;
-    break;
-  case TS_PREC_FIXED_USEC:
-    tsprecision = WTAP_TSPREC_USEC;
-    break;
-  case TS_PREC_FIXED_NSEC:
-    tsprecision = WTAP_TSPREC_NSEC;
-    break;
-  case TS_PREC_AUTO:
+  tsprecision = timestamp_get_precision();
+  if (tsprecision == TS_PREC_AUTO)
     tsprecision = fd->tsprec;
-    break;
-  default:
+  else if (tsprecision < 0)
     ws_assert_not_reached();
-  }
-  switch (tsprecision) {
-  case WTAP_TSPREC_SEC:
-    display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 1000000000, WS_TSPREC_SEC);
-    break;
-  case WTAP_TSPREC_DSEC:
-    display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 100000000, WS_TSPREC_100_MSEC);
-    break;
-  case WTAP_TSPREC_CSEC:
-    display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 10000000, WS_TSPREC_10_MSEC);
-    break;
-  case WTAP_TSPREC_MSEC:
-    display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 1000000, WS_TSPREC_MSEC);
-    break;
-  case WTAP_TSPREC_USEC:
-    display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 1000, WS_TSPREC_USEC);
-    break;
-  case WTAP_TSPREC_NSEC:
-    display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs, WS_TSPREC_NSEC);
-    break;
-  default:
-    ws_assert_not_reached();
-  }
+  if (tsprecision > 9)
+    tsprecision = 9;
+  display_signed_time(buf, COL_MAX_LEN, ts, tsprecision);
 }
 
 static void
@@ -1988,35 +1943,15 @@ col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, const char *
   for (col = cinfo->col_first[el]; col <= cinfo->col_last[el]; col++) {
     col_item = &cinfo->columns[col];
     if (col_item->fmt_matx[el]) {
-      switch (timestamp_get_precision()) {
-      case TS_PREC_FIXED_SEC:
-        display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 1000000000, WS_TSPREC_SEC);
-        break;
-      case TS_PREC_FIXED_DSEC:
-        display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 100000000, WS_TSPREC_100_MSEC);
-        break;
-      case TS_PREC_FIXED_CSEC:
-        display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 10000000, WS_TSPREC_10_MSEC);
-        break;
-      case TS_PREC_FIXED_MSEC:
-        display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 1000000, WS_TSPREC_MSEC);
-        break;
-      case TS_PREC_FIXED_USEC:
-        display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 1000, WS_TSPREC_USEC);
-        break;
-      case TS_PREC_FIXED_NSEC:
-      case TS_PREC_AUTO:    /* default to maximum */
-        display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs, WS_TSPREC_NSEC);
-        break;
-      default:
+      int tsprecision = timestamp_get_precision();
+
+      if (tsprecision == TS_PREC_AUTO)
+        tsprecision = 9; /* default to maximum */
+      else if (tsprecision < 0)
         ws_assert_not_reached();
-      }
+      if (tsprecision > 9)
+        tsprecision = 9;
+      display_signed_time(col_item->col_buf, COL_MAX_LEN, ts, tsprecision);
       col_item->col_data = col_item->col_buf;
       cinfo->col_expr.col_expr[col] = fieldname;
       (void) g_strlcpy(cinfo->col_expr.col_expr_val[col],col_item->col_buf,COL_MAX_LEN);

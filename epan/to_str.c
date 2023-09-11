@@ -442,8 +442,7 @@ rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 
     buf = (gchar *)wmem_alloc(scope, NSTIME_SECS_LEN);
 
-    display_signed_time(buf, NSTIME_SECS_LEN, (gint64) rel_time->secs,
-                        rel_time->nsecs, WS_TSPREC_NSEC);
+    display_signed_time(buf, NSTIME_SECS_LEN, rel_time, WS_TSPREC_NSEC);
     return buf;
 }
 
