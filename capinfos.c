@@ -70,6 +70,7 @@
 
 #include <wsutil/report_message.h>
 #include <wsutil/str_util.h>
+#include <wsutil/to_str.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
@@ -335,7 +336,6 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
      * So we go with 39.
      */
     static gchar time_string_buf[39];
-    struct tm *ti_tm;
 
     if (cf_info->times_known && cf_info->packet_count > 0) {
         if (time_as_secs) {
@@ -395,95 +395,7 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
             }
             return time_string_buf;
         } else {
-            ti_tm = localtime(&timer->secs);
-            if (ti_tm == NULL) {
-                snprintf(time_string_buf, sizeof time_string_buf, "Not representable");
-                return time_string_buf;
-            }
-            switch (tsprecision) {
-
-                case WTAP_TSPREC_SEC:
-                    snprintf(time_string_buf, sizeof time_string_buf,
-                            "%04d-%02d-%02d %02d:%02d:%02d",
-                            ti_tm->tm_year + 1900,
-                            ti_tm->tm_mon + 1,
-                            ti_tm->tm_mday,
-                            ti_tm->tm_hour,
-                            ti_tm->tm_min,
-                            ti_tm->tm_sec);
-                    break;
-
-                case WTAP_TSPREC_DSEC:
-                    snprintf(time_string_buf, sizeof time_string_buf,
-                            "%04d-%02d-%02d %02d:%02d:%02d%s%01d",
-                            ti_tm->tm_year + 1900,
-                            ti_tm->tm_mon + 1,
-                            ti_tm->tm_mday,
-                            ti_tm->tm_hour,
-                            ti_tm->tm_min,
-                            ti_tm->tm_sec,
-                            decimal_point,
-                            timer->nsecs / 100000000);
-                    break;
-
-                case WTAP_TSPREC_CSEC:
-                    snprintf(time_string_buf, sizeof time_string_buf,
-                            "%04d-%02d-%02d %02d:%02d:%02d%s%02d",
-                            ti_tm->tm_year + 1900,
-                            ti_tm->tm_mon + 1,
-                            ti_tm->tm_mday,
-                            ti_tm->tm_hour,
-                            ti_tm->tm_min,
-                            ti_tm->tm_sec,
-                            decimal_point,
-                            timer->nsecs / 10000000);
-                    break;
-
-                case WTAP_TSPREC_MSEC:
-                    snprintf(time_string_buf, sizeof time_string_buf,
-                            "%04d-%02d-%02d %02d:%02d:%02d%s%03d",
-                            ti_tm->tm_year + 1900,
-                            ti_tm->tm_mon + 1,
-                            ti_tm->tm_mday,
-                            ti_tm->tm_hour,
-                            ti_tm->tm_min,
-                            ti_tm->tm_sec,
-                            decimal_point,
-                            timer->nsecs / 1000000);
-                    break;
-
-                case WTAP_TSPREC_USEC:
-                    snprintf(time_string_buf, sizeof time_string_buf,
-                            "%04d-%02d-%02d %02d:%02d:%02d%s%06d",
-                            ti_tm->tm_year + 1900,
-                            ti_tm->tm_mon + 1,
-                            ti_tm->tm_mday,
-                            ti_tm->tm_hour,
-                            ti_tm->tm_min,
-                            ti_tm->tm_sec,
-                            decimal_point,
-                            timer->nsecs / 1000);
-                    break;
-
-                case WTAP_TSPREC_NSEC:
-                    snprintf(time_string_buf, sizeof time_string_buf,
-                            "%04d-%02d-%02d %02d:%02d:%02d%s%09d",
-                            ti_tm->tm_year + 1900,
-                            ti_tm->tm_mon + 1,
-                            ti_tm->tm_mday,
-                            ti_tm->tm_hour,
-                            ti_tm->tm_min,
-                            ti_tm->tm_sec,
-                            decimal_point,
-                            timer->nsecs);
-                    break;
-
-                default:
-                    snprintf(time_string_buf, sizeof time_string_buf,
-                            "Unknown precision %d",
-                            tsprecision);
-                    break;
-            }
+            format_nstime_as_iso8601(time_string_buf, sizeof time_string_buf, timer, decimal_point, TRUE, tsprecision);
             return time_string_buf;
         }
     }

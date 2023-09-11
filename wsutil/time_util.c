@@ -302,6 +302,28 @@ ws_localtime_r(const time_t *timep, struct tm *result)
 #endif
 }
 
+struct tm *
+ws_gmtime_r(const time_t *timep, struct tm *result)
+{
+#if defined(HAVE_GMTIME_R)
+#ifdef HAVE_TZSET
+	tzset();
+#endif
+	return gmtime_r(timep, result);
+#elif defined(_MSC_VER)
+	errno_t err = gmtime_s(result, timep);
+	if (err == 0)
+		return result;
+	return NULL;
+#else
+	struct tm *aux = gmtime(timep);
+	if (aux == NULL)
+		return NULL;
+	*result = *aux;
+	return result;
+#endif
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

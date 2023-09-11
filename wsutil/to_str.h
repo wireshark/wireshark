@@ -303,6 +303,8 @@ WS_DLL_PUBLIC void display_epoch_time(gchar *, size_t, const nstime_t *, int);
 
 WS_DLL_PUBLIC void display_signed_time(gchar *, size_t, const nstime_t *, int);
 
+WS_DLL_PUBLIC void format_nstime_as_iso8601(gchar *, size_t, const nstime_t *, char *, gboolean, int);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

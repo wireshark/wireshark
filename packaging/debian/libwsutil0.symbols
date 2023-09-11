@@ -89,6 +89,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  find_codec@Base 3.1.0
  find_last_pathname_separator@Base 1.12.0~rc1
  format_char@Base 4.1.0
+ format_nstime_as_iso8601@Base 4.1.1
  format_size_wmem@Base 3.5.0
  format_text@Base 4.1.0
  format_text_chr@Base 4.1.0
@@ -439,6 +440,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_getopt@Base 3.5.1
  ws_getopt_long@Base 3.5.1
  ws_getopt_long_only@Base 3.5.1
+ ws_gmtime_r@Base 4.1.1
  ws_hexstrtou16@Base 2.3.0
  ws_hexstrtou32@Base 2.3.0
  ws_hexstrtou64@Base 2.3.0

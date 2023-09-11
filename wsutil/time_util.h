@@ -68,6 +68,9 @@ struct timespec *ws_clock_get_realtime(struct timespec *ts);
 WS_DLL_PUBLIC
 struct tm *ws_localtime_r(const time_t *timep, struct tm *result);
 
+WS_DLL_PUBLIC
+struct tm *ws_gmtime_r(const time_t *timep, struct tm *result);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

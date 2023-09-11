@@ -20,6 +20,7 @@
 #include <wsutil/inet_addr.h>
 #include <wsutil/pint.h>
 #include <wsutil/ws_return.h>
+#include <wsutil/time_util.h>
 
 /*
  * If a user _does_ pass in a too-small buffer, this is probably
@@ -790,6 +791,158 @@ display_signed_time(gchar *buf, size_t buflen, const nstime_t *ns, int precision
 	if (buflen == 0)
 		buf--;
 	*buf = '\0';
+}
+
+void
+format_nstime_as_iso8601(gchar *buf, size_t buflen, const nstime_t *ns,
+    char *decimal_point, gboolean local, int precision)
+{
+	struct tm tm, *tmp;
+	gchar *ptr;
+	size_t buf_remaining;
+	int num_chars;
+
+	if (local)
+		tmp = ws_localtime_r(&ns->secs, &tm);
+	else
+		tmp = ws_gmtime_r(&ns->secs, &tm);
+	if (tmp == NULL) {
+		snprintf(buf, buflen, "Not representable");
+		return;
+	}
+	ptr = buf;
+	buf_remaining = buflen;
+	num_chars = snprintf(ptr, buf_remaining,
+	    "%04d-%02d-%02d %02d:%02d:%02d",
+	    tmp->tm_year + 1900,
+	    tmp->tm_mon + 1,
+	    tmp->tm_mday,
+	    tmp->tm_hour,
+	    tmp->tm_min,
+	    tmp->tm_sec);
+	if (num_chars < 0) {
+		/*
+		 * Not much else we can do.
+		 */
+		snprintf(buf, buflen, "snprintf() failed");
+		return;
+	}
+	if ((unsigned int)num_chars >= buf_remaining) {
+		/*
+		 * Either that got an error (num_chars < 0) or it
+		 * filled up or would have overflowed the buffer
+		 * (num_chars >= buf_remaining).
+		 * Nothing more we can do.
+		 */
+		return;
+	}
+	ptr += num_chars;
+	buf_remaining -= num_chars;
+
+	switch (precision) {
+
+	case 0:
+		/*
+		 * Seconds precision, so no nanosecond.
+		 */
+		break;
+
+	case 1:
+		/*
+		 * Scale down to units of 1/10 second.
+		 * We do this in a case statement so as
+		 * to do divisions by a constant.
+		 */
+		snprintf(ptr, buf_remaining,
+		    "%s%01d",
+		    decimal_point,
+		    (guint32)ns->nsecs / 100000000);
+		break;
+
+	case 2:
+		/*
+		 * Scale down to units of 1/100 second.
+		 */
+		snprintf(ptr, buf_remaining,
+		    "%s%02d",
+		    decimal_point,
+		    (guint32)ns->nsecs / 10000000);
+		break;
+
+	case 3:
+		/*
+		 * Scale down to units of 1/1000 second.
+		 */
+		snprintf(ptr, buf_remaining,
+		    "%s%03d",
+		    decimal_point,
+		    (guint32)ns->nsecs / 1000000);
+		break;
+
+	case 4:
+		/*
+		 * Scale down to units of 1/10000 second.
+		 */
+		snprintf(ptr, buf_remaining,
+		    "%s%04d",
+		    decimal_point,
+		    (guint32)ns->nsecs / 100000);
+		break;
+
+	case 5:
+		/*
+		 * Scale down to units of 1/100000 second.
+		 */
+		snprintf(ptr, buf_remaining,
+		    "%s%05d",
+		    decimal_point,
+		    (guint32)ns->nsecs / 10000);
+		break;
+
+	case 6:
+		/*
+		 * Scale down to units of 1/1000000 second.
+		 */
+		snprintf(ptr, buf_remaining,
+		    "%s%06d",
+		    decimal_point,
+		    (guint32)ns->nsecs / 1000);
+		break;
+
+	case 7:
+		/*
+		 * Scale down to units of 1/10000000 second.
+		 */
+		snprintf(ptr, buf_remaining,
+		    "%s%07d",
+		    decimal_point,
+		    (guint32)ns->nsecs / 100);
+		break;
+
+	case 8:
+		/*
+		 * Scale down to units of 1/100000000 second.
+		 */
+		snprintf(ptr, buf_remaining,
+		    "%s%08d",
+		    decimal_point,
+		    (guint32)ns->nsecs / 10);
+		break;
+
+	case 9:
+		/*
+		 * We're already in units of 1/1000000000 second.
+		 */
+		snprintf(ptr, buf_remaining,
+		    "%s%09d",
+		    decimal_point,
+		    (guint32)ns->nsecs);
+		break;
+
+	default:
+		ws_assert_not_reached();
+		break;
+	}
 }
 
 /*
