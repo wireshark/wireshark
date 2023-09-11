@@ -891,6 +891,7 @@ TimeSyncAssistanceInfo/uUTimeSyncErrorBudget DISPLAY=BASE_DEC|BASE_UNIT_STRING S
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1,
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2,
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3,
+      &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia7,
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_reserved,
       NULL
     };

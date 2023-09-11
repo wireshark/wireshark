@@ -120,6 +120,7 @@ static int hf_ngap_EUTRAencryptionAlgorithms_reserved = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1 = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2 = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3 = -1;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia7 = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_reserved = -1;
 static int hf_ngap_MeasurementsToActivate_M1 = -1;
 static int hf_ngap_MeasurementsToActivate_M2 = -1;
@@ -1292,9 +1293,13 @@ void proto_register_ngap(void) {
       { "128-EIA3", "ngap.EUTRAintegrityProtectionAlgorithms.eia3",
         FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
         NULL, HFILL }},
+    { &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia7,
+      { "EIA7", "ngap.EUTRAintegrityProtectionAlgorithms.eia7",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0200,
+        NULL, HFILL }},
     { &hf_ngap_EUTRAintegrityProtectionAlgorithms_reserved,
       { "Reserved", "ngap.EUTRAintegrityProtectionAlgorithms.reserved",
-        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        FT_UINT16, BASE_HEX, NULL, 0x1dff,
         NULL, HFILL }},
     { &hf_ngap_MeasurementsToActivate_M1,
       { "M1", "ngap.MeasurementsToActivate.M1",
