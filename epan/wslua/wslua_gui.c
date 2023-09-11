@@ -167,7 +167,7 @@ static void lua_custom_packet_menu_callback(gpointer data, GPtrArray *finfo_arra
 
     // Push the packet data as arguments to the Lua callback:
     int items_found = 0;
-    for (guint i = finfo_array->len - 1; i > 0 ; i --) {
+    for (guint i = 0; i < finfo_array->len; i ++) {
         field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
         push_FieldInfo(L, fi);
         items_found++;
