@@ -514,6 +514,7 @@ MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
       &hf_x2ap_integrityProtectionAlgorithms_EIA1,
       &hf_x2ap_integrityProtectionAlgorithms_EIA2,
       &hf_x2ap_integrityProtectionAlgorithms_EIA3,
+      &hf_x2ap_integrityProtectionAlgorithms_EIA7,
       &hf_x2ap_integrityProtectionAlgorithms_Reserved,
       NULL
     };

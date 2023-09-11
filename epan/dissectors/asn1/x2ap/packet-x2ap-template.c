@@ -89,6 +89,7 @@ static int hf_x2ap_encryptionAlgorithms_Reserved = -1;
 static int hf_x2ap_integrityProtectionAlgorithms_EIA1 = -1;
 static int hf_x2ap_integrityProtectionAlgorithms_EIA2 = -1;
 static int hf_x2ap_integrityProtectionAlgorithms_EIA3 = -1;
+static int hf_x2ap_integrityProtectionAlgorithms_EIA7 = -1;
 static int hf_x2ap_integrityProtectionAlgorithms_Reserved = -1;
 static int hf_x2ap_measurementsToActivate_M1 = -1;
 static int hf_x2ap_measurementsToActivate_M2 = -1;
@@ -504,9 +505,13 @@ void proto_register_x2ap(void) {
       { "128-EIA3", "x2ap.integrityProtectionAlgorithms.EIA3",
         FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
         NULL, HFILL }},
+    { &hf_x2ap_integrityProtectionAlgorithms_EIA7,
+      { "EIA7", "x2ap.integrityProtectionAlgorithms.EIA7",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0200,
+        NULL, HFILL }},
     { &hf_x2ap_integrityProtectionAlgorithms_Reserved,
       { "Reserved", "x2ap.integrityProtectionAlgorithms.Reserved",
-        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        FT_UINT16, BASE_HEX, NULL, 0x1dff,
         NULL, HFILL }},
     { &hf_x2ap_measurementsToActivate_M1,
       { "M1", "x2ap.measurementsToActivate.M1",
