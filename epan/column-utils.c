@@ -1643,59 +1643,14 @@ set_epoch_time(const frame_data *fd, gchar *buf)
     buf[0] = '\0';
     return FALSE;
   }
-  switch (timestamp_get_precision()) {
-  case TS_PREC_FIXED_SEC:
-    tsprecision = WTAP_TSPREC_SEC;
-    break;
-  case TS_PREC_FIXED_DSEC:
-    tsprecision = WTAP_TSPREC_DSEC;
-    break;
-  case TS_PREC_FIXED_CSEC:
-    tsprecision = WTAP_TSPREC_CSEC;
-    break;
-  case TS_PREC_FIXED_MSEC:
-    tsprecision = WTAP_TSPREC_MSEC;
-    break;
-  case TS_PREC_FIXED_USEC:
-    tsprecision = WTAP_TSPREC_USEC;
-    break;
-  case TS_PREC_FIXED_NSEC:
-    tsprecision = WTAP_TSPREC_NSEC;
-    break;
-  case TS_PREC_AUTO:
+  tsprecision = timestamp_get_precision();
+  if (tsprecision == TS_PREC_AUTO)
     tsprecision = fd->tsprec;
-    break;
-  default:
+  else if (tsprecision < 0)
     ws_assert_not_reached();
-  }
-  switch (tsprecision) {
-  case WTAP_TSPREC_SEC:
-    display_epoch_time(buf, COL_MAX_LEN,
-      fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000000, WS_TSPREC_SEC);
-    break;
-  case WTAP_TSPREC_DSEC:
-    display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs / 100000000, WS_TSPREC_100_MSEC);
-    break;
-  case WTAP_TSPREC_CSEC:
-    display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs / 10000000, WS_TSPREC_10_MSEC);
-    break;
-  case WTAP_TSPREC_MSEC:
-    display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000, WS_TSPREC_MSEC);
-    break;
-  case WTAP_TSPREC_USEC:
-    display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs / 1000, WS_TSPREC_USEC);
-    break;
-  case WTAP_TSPREC_NSEC:
-    display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs, WS_TSPREC_NSEC);
-    break;
-  default:
-    ws_assert_not_reached();
-  }
+  if (tsprecision > 9)
+    tsprecision = 9;
+  display_epoch_time(buf, COL_MAX_LEN, &fd->abs_ts, tsprecision);
   return TRUE;
 }
 

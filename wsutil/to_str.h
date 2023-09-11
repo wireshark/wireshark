@@ -299,7 +299,7 @@ WS_DLL_PUBLIC gchar *ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 
 
 WS_DLL_PUBLIC gchar *eui64_to_str(wmem_allocator_t *scope, const guint64 ad);
 
-WS_DLL_PUBLIC void display_epoch_time(gchar *, size_t, const time_t, gint32, const ws_tsprec_e);
+WS_DLL_PUBLIC void display_epoch_time(gchar *, size_t, const nstime_t *, int);
 
 WS_DLL_PUBLIC void display_signed_time(gchar *, size_t, const nstime_t *, int);
 
