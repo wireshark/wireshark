@@ -305,6 +305,7 @@ gchar *g_ethers_path    = NULL;     /* global ethers file     */
 gchar *g_pethers_path   = NULL;     /* personal ethers file   */
 gchar *g_wka_path       = NULL;     /* global well-known-addresses file */
 gchar *g_manuf_path     = NULL;     /* global manuf file      */
+gchar *g_pmanuf_path    = NULL;     /* personal manuf file      */
 gchar *g_ipxnets_path   = NULL;     /* global ipxnets file    */
 gchar *g_pipxnets_path  = NULL;     /* personal ipxnets file  */
 gchar *g_services_path  = NULL;     /* global services file   */
@@ -1802,16 +1803,35 @@ initialize_ethers(void)
         }
     }
 
-    /* Compute the pathname of the manuf file */
+    /* Compute the pathname of the global manuf file */
     if (g_manuf_path == NULL)
         g_manuf_path = get_datafile_path(ENAME_MANUF);
-
     /* Read it and initialize the hash table */
-    set_ethent(g_manuf_path);
-    while ((eth = get_ethent(&mask, TRUE))) {
-        add_manuf_name(eth->addr, mask, eth->name, eth->longname);
+    if (file_exists(g_manuf_path)) {
+        set_ethent(g_manuf_path);
+        while ((eth = get_ethent(&mask, TRUE))) {
+            add_manuf_name(eth->addr, mask, eth->name, eth->longname);
+        }
+        end_ethent();
     }
-    end_ethent();
+
+    /* Compute the pathname of the personal manuf file */
+    if (g_pmanuf_path == NULL) {
+        /* Check profile directory before personal configuration */
+        g_pmanuf_path = get_persconffile_path(ENAME_MANUF, TRUE);
+        if (!file_exists(g_pmanuf_path)) {
+            g_free(g_pmanuf_path);
+            g_pmanuf_path = get_persconffile_path(ENAME_MANUF, FALSE);
+        }
+    }
+    /* Read it and initialize the hash table */
+    if (file_exists(g_pmanuf_path)) {
+        set_ethent(g_pmanuf_path);
+        while ((eth = get_ethent(&mask, TRUE))) {
+            add_manuf_name(eth->addr, mask, eth->name, eth->longname);
+        }
+        end_ethent();
+    }
 
     /* Compute the pathname of the wka file */
     if (g_wka_path == NULL)
@@ -1838,6 +1858,8 @@ ethers_cleanup(void)
     g_pethers_path = NULL;
     g_free(g_manuf_path);
     g_manuf_path = NULL;
+    g_free(g_pmanuf_path);
+    g_pmanuf_path = NULL;
     g_free(g_wka_path);
     g_wka_path = NULL;
 }

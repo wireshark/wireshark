@@ -159,6 +159,9 @@ The following features are new (or have been significantly updated) since versio
   have been removed and replaced with static binary data. You can dump the
   respective internal data using `tshark -G manuf|enterprises|services`.
 
+* The "manuf" file is now also read from the personal configuration folder,
+  and is profile-based.
+
 * The Lua console dialogs under the menu:Tools[] menu were refactored and redesigned.
   It now consists of a single dialog window for input and output.
 
