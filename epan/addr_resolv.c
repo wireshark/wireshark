@@ -3497,25 +3497,46 @@ get_manuf_name_if_known(const guint8 *addr)
     manuf_key = manuf_key | oct;
 
     manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, GUINT_TO_POINTER(manuf_key));
-    if ((manuf_value == NULL) || (manuf_value->status == HASHETHER_STATUS_UNRESOLVED)) {
-        return NULL;
+    if (manuf_value != NULL && manuf_value->status != HASHETHER_STATUS_UNRESOLVED) {
+        return manuf_value->resolved_longname;
     }
 
-    return manuf_value->resolved_longname;
+    /* Try the global manuf tables. */
+    const char *short_name, *long_name;
+    short_name = ws_manuf_lookup_str(addr, &long_name);
+    if (short_name != NULL) {
+        /* Found it */
+        return long_name;
+    }
+
+    return NULL;
 
 } /* get_manuf_name_if_known */
 
 const gchar *
-uint_get_manuf_name_if_known(const guint manuf_key)
+uint_get_manuf_name_if_known(const guint32 manuf_key)
 {
     hashmanuf_t *manuf_value;
+    guint8 addr[6] = { 0 };
 
     manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, GUINT_TO_POINTER(manuf_key));
-    if ((manuf_value == NULL) || (manuf_value->status == HASHETHER_STATUS_UNRESOLVED)) {
-        return NULL;
+    if (manuf_value != NULL && manuf_value->status != HASHETHER_STATUS_UNRESOLVED) {
+        return manuf_value->resolved_longname;
     }
 
-    return manuf_value->resolved_longname;
+    addr[0] = (manuf_key >> 16) & 0xFF;
+    addr[1] = (manuf_key >> 8) & 0xFF;
+    addr[2] = manuf_key & 0xFF;
+
+    /* Try the global manuf tables. */
+    const char *short_name, *long_name;
+    short_name = ws_manuf_lookup_str(addr, &long_name);
+    if (short_name != NULL) {
+        /* Found it */
+        return long_name;
+    }
+
+    return NULL;
 }
 
 const gchar *

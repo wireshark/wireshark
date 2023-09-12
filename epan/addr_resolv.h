@@ -237,7 +237,7 @@ WS_DLL_PUBLIC const gchar *get_manuf_name_if_known(const guint8 *addr);
  * Given an integer containing a 24-bit OID, uint_get_manuf_name_if_known()
  * returns the vendor name, or NULL if not known.
  */
-extern const gchar *uint_get_manuf_name_if_known(const guint oid);
+extern const gchar *uint_get_manuf_name_if_known(const guint32 oid);
 
 /*
  * Given a tvbuff and an offset in that tvbuff for a 3-octet OID,
