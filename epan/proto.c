@@ -4340,20 +4340,24 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	else if (generate) {
 		tvb_ensure_bytes_exist(tvb, start, length);
 
-		if (!bytes) {
-			/* caller doesn't care about return value, but we need it to
-			   call tvb_get_string_bytes() and set the tree later */
-			bytes = created_bytes = g_byte_array_new();
-		}
-
 		if (hfinfo->type == FT_UINT_BYTES) {
 			n = length; /* n is now the "header" length */
 			length = get_uint_value(tree, tvb, start, n, encoding);
 			/* length is now the value's length; only store the value in the array */
 			tvb_ensure_bytes_exist(tvb, start + n, length);
+			if (!bytes) {
+				/* caller doesn't care about return value, but
+				 * we may need it to set the tree later */
+				bytes = created_bytes = g_byte_array_new();
+			}
 			g_byte_array_append(bytes, tvb_get_ptr(tvb, start + n, length), length);
 		}
 		else if (length > 0) {
+			if (!bytes) {
+				/* caller doesn't care about return value, but
+				 * we may need it to set the tree later */
+				bytes = created_bytes = g_byte_array_new();
+			}
 			g_byte_array_append(bytes, tvb_get_ptr(tvb, start, length), length);
 		}
 
@@ -4398,6 +4402,12 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	else {
 		/* n will be zero except when it's a FT_UINT_BYTES */
 		proto_tree_set_bytes_tvb(new_fi, tvb, start + n, length);
+
+		/* XXX: If we have a non-NULL tree but NULL retval, we don't
+		 * use the byte array created above in this case.
+		 */
+		if (created_bytes)
+		    g_byte_array_free(created_bytes, TRUE);
 
 		FI_SET_FLAG(new_fi,
 			(encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
