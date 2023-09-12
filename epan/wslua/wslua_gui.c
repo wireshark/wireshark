@@ -692,7 +692,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /*
             end
     end)
 
-    -- print "closing" to stdout when the user closes the text windw
+    -- print "closing" to stdout when the user closes the text window
     win:set_atclose(function() print("closing") end)
     ----
 
