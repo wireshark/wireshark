@@ -337,7 +337,7 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	}
 
 	// Integer
-	if (type > 0xe0 || type < 0x7f || type == 0xd3) {
+	if (type >= 0xe0 || type <= 0x7f || (type >= 0xcc && type <= 0xd3)) {
 		dissect_msgpack_integer(tvb, pinfo, tree, type, data, offset, value);
 		return;
 	}
