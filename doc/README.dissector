@@ -2466,7 +2466,7 @@ See item 2.2.1.5 for more information about use of the 'data' pointer.
 This routine will create a new conversation based upon two address/port
 pairs. If you want to associate with the conversation a pointer to a
 private data structure you must use the conversation_add_proto_data
-function. The ptype variable is used to differentiate between
+function. The ctype variable is used to differentiate between
 conversations over different protocols, i.e. TCP and UDP. The options
 variable is used to define a conversation that will accept any destination
 address and/or port. Set options = 0 if the destination port and address
@@ -2475,17 +2475,17 @@ information on usage of the options parameter.
 
 The conversation_new prototype:
     conversation_t *conversation_new(guint32 setup_frame, address *addr1,
-        address *addr2, port_type ptype, guint32 port1, guint32 port2,
+        address *addr2, conversation_type ctype, guint32 port1, guint32 port2,
         guint options);
 
 Where:
-    guint32 setup_frame = The lowest numbered frame for this conversation
-    address* addr1      = first data packet address
-    address* addr2      = second data packet address
-    endpoint_type etype = endpoint type, defined in conversation.h
-    guint32 port1       = first data packet port
-    guint32 port2       = second data packet port
-    guint options       = conversation options, NO_ADDR2 and/or NO_PORT2
+    guint32 setup_frame     = The lowest numbered frame for this conversation
+    address* addr1          = first data packet address
+    address* addr2          = second data packet address
+    conversation_type ctype = conversation type, defined in conversation.h
+    guint32 port1           = first data packet port
+    guint32 port2           = second data packet port
+    guint options           = conversation options, NO_ADDR2 and/or NO_PORT2
 
 setup_frame indicates the first frame for this conversation, and is used to
 distinguish multiple conversations with the same addr1/port1 and addr2/port2
@@ -2515,7 +2515,7 @@ integers, or unsigned 64-bit integers. Unlike conversation_new, element
 lists are matched strictly; wildcards aren't (yet) supported.
 
 The conversation_new_full prototype:
-    conversation_t *conversation_new(const guint32 setup_frame,
+    conversation_t *conversation_new_full(const guint32 setup_frame,
         conversation_element_t *elements);
 
 Where:
@@ -2533,17 +2533,17 @@ the routine will return a NULL value.
 The find_conversation prototype:
 
     conversation_t *find_conversation(guint32 frame_num, address *addr_a,
-        address *addr_b, port_type ptype, guint32 port_a, guint32 port_b,
+        address *addr_b, conversation_type ctype, guint32 port_a, guint32 port_b,
         guint options);
 
 Where:
-    guint32 frame_num = a frame number to match
-    address* addr_a = first address
-    address* addr_b = second address
-    port_type ptype = port type
-    guint32 port_a = first data packet port
-    guint32 port_b = second data packet port
-    guint options = conversation options, NO_ADDR_B and/or NO_PORT_B
+    guint32 frame_num       = a frame number to match
+    address* addr_a         = first address
+    address* addr_b         = second address
+    conversation_type ctype = conversation type
+    guint32 port_a          = first data packet port
+    guint32 port_b          = second data packet port
+    guint options           = conversation options, NO_ADDR_B and/or NO_PORT_B
 
 frame_num is a frame number to match. The conversation returned is where
     (frame_num >= conversation->setup_frame
@@ -2598,16 +2598,17 @@ find_conversation())
 
 The find_conversation_pinfo prototype:
 
-    extern conversation_t *find_conversation_pinfo(packet_info *pinfo, const guint options);
+    extern conversation_t *find_conversation_pinfo(packet_info *pinfo,
+        const guint options);
 
 Where:
-    packet_info *pinfo = the packet_info structure
+    packet_info *pinfo  = the packet_info structure
     const guint options = conversation options, NO_ADDR_B and/or NO_PORT_B
 
 The frame number and the addresses necessary for find_conversation() are
 taken from the addresses and ports in the pinfo structure,
-pinfo->conv_endpoint if pinfo->use_endpoint is set, or
-pinfo->conv_elements if it is set.
+pinfo->conv_addr_port_endpoints if pinfo->use_conv_addr_port_endpoints is set,
+or pinfo->conv_elements if it is set.
 
 2.2.1.7 The find_or_create_conversation function.
 
@@ -2778,7 +2779,8 @@ my_entry_t *data_ptr;
 /* look up the conversation */
 
 conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-        pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+        conversation_pt_to_conversation_type(pinfo->ptype),
+        pinfo->srcport, pinfo->destport, 0);
 
 /* if conversation found get the data pointer that you stored */
 if (conversation)
@@ -2793,7 +2795,8 @@ else {
 
     /* create the conversation with your data pointer  */
 
-    conversation = conversation_new(pinfo->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
+    conversation = conversation_new(pinfo->num,  &pinfo->src, &pinfo->dst,
+        conversation_pt_to_conversation_type(pinfo->ptype),
         pinfo->srcport, pinfo->destport, 0);
     conversation_add_proto_data(conversation, my_proto, (void *)data_ptr);
 }
@@ -2817,15 +2820,16 @@ that starts at the specific frame number.
 /* in the dissector routine */
 
     conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-        pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+        conversation_pt_to_conversation_type(pinfo->ptype),
+        pinfo->srcport, pinfo->destport, 0);
     if (conversation == NULL || (conversation->setup_frame != pinfo->num)) {
         /* It's not part of any conversation or the returned
          * conversation->setup_frame doesn't match the current frame
          * create a new one.
          */
-        conversation = conversation_new(pinfo->num, &pinfo->src,
-            &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport,
-            NULL, 0);
+        conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
+            conversation_pt_to_conversation_type(pinfo->ptype),
+            pinfo->srcport, pinfo->destport, 0);
     }
 
 
@@ -2929,7 +2933,7 @@ static void sub_dissector(tvbuff_t *tvb, packet_info *pinfo,
     socketpair
 */
     conversation = find_conversation(pinfo->num,
-                &pinfo->src, &pinfo->dst, protocol,
+                &pinfo->src, &pinfo->dst, conversation_type,
                 src_port, dst_port,  0);
 
 /* If there is no such conversation, or if there is one but for
@@ -3032,7 +3036,7 @@ static dissector_handle_t sub_dissector_handle;
     if ( (conversation == NULL) ||
          (conversation->dissector_handle != sub_dissector_handle) ) {
         conversation = conversation_new(pinfo->num,
-        &server_src_addr, 0, protocol,
+        &server_src_addr, 0, conversation_type,
         server_src_port, 0, new_conv_info, NO_ADDR2 | NO_PORT2);
 
 /* set the dissector for the new conversation */
