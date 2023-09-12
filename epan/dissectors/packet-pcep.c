@@ -60,7 +60,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include "packet-tcp.h"
@@ -5108,7 +5107,7 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
         { &hf_pcep_subobj_sr_nt,
-          { "NAI Type", "pcep.subobj.sr.st",
+          { "NAI Type", "pcep.subobj.sr.nt",
             FT_UINT8, BASE_DEC, VALS(pcep_sr_nt_vals), 0xF0,
             NULL, HFILL }
         },
