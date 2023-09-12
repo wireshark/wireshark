@@ -381,6 +381,20 @@ static int hf_smb2_ioctl_enumerate_snapshots_num_snapshots = -1;
 static int hf_smb2_ioctl_enumerate_snapshots_num_snapshots_returned = -1;
 static int hf_smb2_ioctl_enumerate_snapshots_snapshot_array_size = -1;
 static int hf_smb2_ioctl_enumerate_snapshots_snapshot = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_volume_serial = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_num_sectors = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_total_clusters = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_free_clusters = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_total_reserved = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_bytes_per_sector = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_bytes_per_cluster = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_bytes_per_file_record_segment = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_clusters_per_file_record_segment = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_mft_valid_data_length = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_mft_start_lcn = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_mft2_start_lcn = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_mft_zone_start = -1;
+static int hf_smb2_ioctl_get_ntfs_volume_data_mft_zone_end = -1;
 static int hf_smb2_compression_format = -1;
 static int hf_smb2_checksum_algorithm = -1;
 static int hf_smb2_integrity_reserved = -1;
@@ -7746,6 +7760,57 @@ dissect_smb2_FSCTL_GET_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	dissect_smb2_FSCTL_REPARSE_POINT(tvb, pinfo, parent_tree, offset);
 }
 
+static void
+dissect_smb2_FSCTL_GET_NTFS_VOLUME_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
+{
+	/* There is no in data */
+	if (data_in) {
+		return;
+	}
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_volume_serial, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_num_sectors, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_total_clusters, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_free_clusters, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_total_reserved, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_bytes_per_sector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_bytes_per_cluster, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_bytes_per_file_record_segment, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_clusters_per_file_record_segment, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_mft_valid_data_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_mft_start_lcn, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_mft2_start_lcn, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_mft_zone_start, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_mft_zone_end, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+}
+
 void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, guint32 ioctl_function, gboolean data_in, void *private_data _U_)
 {
@@ -7841,6 +7906,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x0009C280: /* FSCTL_SET_INTEGRITY_INFORMATION request or response */
 		dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x00090064: /* FSCTL_GET_NTFS_VOLUME_DATA */
+		dissect_smb2_FSCTL_GET_NTFS_VOLUME_DATA(tvb, pinfo, tree, 0, data_in);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_captured_length(tvb), ENC_NA);
@@ -12670,6 +12738,104 @@ proto_register_smb2(void)
 		{ &hf_smb2_ioctl_enumerate_snapshots_snapshot,
 			{ "Snapshot", "smb2.ioctl.enumerate_snapshots.snapshot", FT_STRINGZ, BASE_NONE,
 			NULL, 0, "Time stamp of previous version", HFILL }
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_volume_serial, {
+			"VolumeSerialNumber",
+			"smb2.ioctl.get_ntfs_volume_data.volume_serial_number",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Volume Serial Number", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_num_sectors, {
+			"NumberSectors",
+			"smb2.ioctl.get_ntfs_volume_data.num_sectors",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Number Sectors", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_total_clusters, {
+			"TotalClusters",
+			"smb2.ioctl.get_ntfs_volume_data.total_clusters",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Total Clusters", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_free_clusters, {
+			"FreeClusters",
+			"smb2.ioctl.get_ntfs_volume_data.free_clusters",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Free Clusters", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_total_reserved, {
+			"TotalReserved",
+			"smb2.ioctl.get_ntfs_volume_data.total_reserved",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Total Reserved", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_bytes_per_sector, {
+			"BytesPerSector",
+			"smb2.ioctl.get_ntfs_volume_data.bytes_per_sector",
+			FT_UINT32, BASE_DEC,
+			NULL, 0, "Bytes Per Sector", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_bytes_per_cluster, {
+			"BytesPerCluster",
+			"smb2.ioctl.get_ntfs_volume_data.bytes_per_cluster",
+			FT_UINT32, BASE_DEC,
+			NULL, 0, "Bytes Per Cluster", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_bytes_per_file_record_segment, {
+			"BytesPerFileRecordSegment",
+			"smb2.ioctl.get_ntfs_volume_data.bytes_per_file_record_segment",
+			FT_UINT32, BASE_DEC,
+			NULL, 0, "Bytes Per File Record Segment", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_clusters_per_file_record_segment, {
+			"ClustersPerFileRecordSegment",
+			"smb2.ioctl.get_ntfs_volume_data.clusters_per_file_record_segment",
+			FT_UINT32, BASE_DEC,
+			NULL, 0, "Clusters Per File Record Segment", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_mft_valid_data_length, {
+			"MftValidDataLength",
+			"smb2.ioctl.get_ntfs_volume_data.mft_valid_data_length",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Mft Valid Data Length", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_mft_start_lcn, {
+			"MftStartLcn",
+			"smb2.ioctl.get_ntfs_volume_data.mft_start_lcn",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Mft Start Lcn", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_mft2_start_lcn, {
+			"Mft2StartLcn",
+			"smb2.ioctl.get_ntfs_volume_data.mft2_start_lcn",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Mft2 Start Lcn", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_mft_zone_start, {
+			"MftZoneStart",
+			"smb2.ioctl.get_ntfs_volume_data.mft_zone_start",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Mft Zone Start", HFILL },
+		},
+
+		{ &hf_smb2_ioctl_get_ntfs_volume_data_mft_zone_end, {
+			"MftZoneEnd",
+			"smb2.ioctl.get_ntfs_volume_data.mft_zone_end",
+			FT_UINT64, BASE_DEC,
+			NULL, 0, "Mft Zone End", HFILL },
 		},
 
 		{ &hf_smb2_tree_connect_flags,
