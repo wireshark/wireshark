@@ -653,12 +653,17 @@ eui64_to_str(wmem_allocator_t *scope, const guint64 ad) {
 #define CHARS_NANOSECONDS	9	/* 000000001 */
 
 /*
- * Format the fractonal part of a time, with the specified precision)
+ * Format the fractional part of a time, with the specified precision.
+ * Returns the number of bytes formatted.
  */
-void
+int
 format_fractional_part_nsecs(gchar *buf, size_t buflen, guint32 nsecs, const char *decimal_point, int precision)
 {
+	gchar *ptr;
+	size_t remaining;
+	int num_bytes;
 	gsize decimal_point_len;
+	guint32 frac_part;
 	gint8 num_buf[CHARS_NANOSECONDS];
 	gint8 *num_end = &num_buf[CHARS_NANOSECONDS];
 	gint8 *num_ptr;
@@ -671,8 +676,32 @@ format_fractional_part_nsecs(gchar *buf, size_t buflen, guint32 nsecs, const cha
 		 * No room in the buffer for anything, including
 		 * a terminating '\0'.
 		 */
-		return;
+		return 0;
 	}
+
+	/*
+	 * If the fractional part is >= 1, don't show it as a
+	 * fractional part.
+	 */
+	if (nsecs >= 1000000000U) {
+		num_bytes = snprintf(buf, buflen, "%s(%u nanoseconds)",
+		    decimal_point, nsecs);
+		if ((unsigned int)num_bytes >= buflen) {
+			/*
+			 * That filled up or would have overflowed
+			 * the buffer.  Nothing more to do; return
+			 * the remaining space in the buffer, minus
+			 * one byte for the terminating '\0',* as
+			 * that's the number of bytes we copied.
+			 */
+			return (int)(buflen - 1);
+		}
+		return num_bytes;
+	}
+
+	ptr = buf;
+	remaining = buflen;
+	num_bytes = 0;
 
 	/*
 	 * Copy the decimal point.
@@ -681,12 +710,16 @@ format_fractional_part_nsecs(gchar *buf, size_t buflen, guint32 nsecs, const cha
 	if (decimal_point_len >= buflen) {
 		/*
 		 * The decimal point didn't fit in the buffer
-		 * and was truncated.  Nothing more to do.
+		 * and was truncated.  Nothing more to do;
+		 * return the remaining space in the buffer,
+		 * minus one byte for the terminating '\0',
+		 * as that's the number of bytes we copied.
 		 */
-		return;
+		return (int)(buflen - 1);
 	}
-	buf += decimal_point_len;
-	buflen -= decimal_point_len;
+	ptr += decimal_point_len;
+	remaining -= decimal_point_len;
+	num_bytes += decimal_point_len;
 
 	/*
 	 * Fill in num_buf with the nanoseconds value, padded with
@@ -709,72 +742,63 @@ format_fractional_part_nsecs(gchar *buf, size_t buflen, guint32 nsecs, const cha
 		/*
 		 * Scale down to units of 1/10 second.
 		 */
-		num_ptr = uint_to_str_back_len(num_end,
-		    nsecs / 100000000, precision);
+		frac_part = nsecs / 100000000U;
 		break;
 
 	case 2:
 		/*
 		 * Scale down to units of 1/100 second.
 		 */
-		num_ptr = uint_to_str_back_len(num_end,
-		    nsecs / 10000000, precision);
+		frac_part = nsecs / 10000000U;
 		break;
 
 	case 3:
 		/*
 		 * Scale down to units of 1/1000 second.
 		 */
-		num_ptr = uint_to_str_back_len(num_end,
-		    nsecs / 1000000, precision);
+		frac_part = nsecs / 1000000U;
 		break;
 
 	case 4:
 		/*
 		 * Scale down to units of 1/10000 second.
 		 */
-		num_ptr = uint_to_str_back_len(num_end,
-		    nsecs / 100000, precision);
+		frac_part = nsecs / 100000U;
 		break;
 
 	case 5:
 		/*
 		 * Scale down to units of 1/100000 second.
 		 */
-		num_ptr = uint_to_str_back_len(num_end,
-		    nsecs / 10000, precision);
+		frac_part = nsecs / 10000U;
 		break;
 
 	case 6:
 		/*
 		 * Scale down to units of 1/1000000 second.
 		 */
-		num_ptr = uint_to_str_back_len(num_end,
-		    nsecs / 1000, precision);
+		frac_part = nsecs / 1000U;
 		break;
 
 	case 7:
 		/*
 		 * Scale down to units of 1/10000000 second.
 		 */
-		num_ptr = uint_to_str_back_len(num_end,
-		    nsecs / 100, precision);
+		frac_part = nsecs / 100U;
 		break;
 
 	case 8:
 		/*
 		 * Scale down to units of 1/100000000 second.
 		 */
-		num_ptr = uint_to_str_back_len(num_end,
-		    nsecs / 10, precision);
+		frac_part = nsecs / 10U;
 		break;
 
 	case 9:
 		/*
 		 * We're already in units of 1/1000000000 second.
 		 */
-		num_ptr = uint_to_str_back_len(num_end, nsecs,
-		    precision);
+		frac_part = nsecs;
 		break;
 
 	default:
@@ -782,31 +806,37 @@ format_fractional_part_nsecs(gchar *buf, size_t buflen, guint32 nsecs, const cha
 		break;
 	}
 
+	num_ptr = uint_to_str_back_len(num_end, frac_part, precision);
+
 	/*
 	 * The length of the string that we want to copy to the buffer
 	 * is the minimum of:
 	 *
 	 *    the length of the digit string;
-	 *    the size of the buffer, minus 1 for the terminating
-	 *      '\0'.
+	 *    the remaining space in the buffer, minus 1 for the
+	 *      terminating '\0'.
 	 */
-	num_len = MIN((size_t)(num_end - num_ptr), buflen - 1);
+	num_len = MIN((size_t)(num_end - num_ptr), remaining - 1);
 	if (num_len == 0) {
 		/*
 		 * Not enough room to copy anything.
+		 * Return the number of bytes we've generated.
 		 */
-		return;
+		return num_bytes;
 	}
 
 	/*
 	 * Copy over the fractional part.
 	 */
-	memcpy(buf, num_ptr, num_len);
+	memcpy(ptr, num_ptr, num_len);
+	ptr += num_len;
+	num_bytes += num_len;
 
 	/*
 	 * '\0'-terminate it.
 	 */
-	*(buf + num_len) = '\0';
+	*ptr = '\0';
+	return num_bytes;
 }
 
 void
@@ -892,8 +922,8 @@ format_nstime_as_iso8601(gchar *buf, size_t buflen, const nstime_t *ns,
 {
 	struct tm tm, *tmp;
 	gchar *ptr;
-	size_t buf_remaining;
-	int num_chars;
+	size_t remaining;
+	int num_bytes;
 
 	if (local)
 		tmp = ws_localtime_r(&ns->secs, &tm);
@@ -904,8 +934,8 @@ format_nstime_as_iso8601(gchar *buf, size_t buflen, const nstime_t *ns,
 		return;
 	}
 	ptr = buf;
-	buf_remaining = buflen;
-	num_chars = snprintf(ptr, buf_remaining,
+	remaining = buflen;
+	num_bytes = snprintf(ptr, remaining,
 	    "%04d-%02d-%02d %02d:%02d:%02d",
 	    tmp->tm_year + 1900,
 	    tmp->tm_mon + 1,
@@ -913,36 +943,32 @@ format_nstime_as_iso8601(gchar *buf, size_t buflen, const nstime_t *ns,
 	    tmp->tm_hour,
 	    tmp->tm_min,
 	    tmp->tm_sec);
-	if (num_chars < 0) {
+	if (num_bytes < 0) {
 		/*
+		 * That got an error.
 		 * Not much else we can do.
 		 */
 		snprintf(buf, buflen, "snprintf() failed");
 		return;
 	}
-	if ((unsigned int)num_chars >= buf_remaining) {
+	if ((unsigned int)num_bytes >= remaining) {
 		/*
-		 * Either that got an error (num_chars < 0) or it
-		 * filled up or would have overflowed the buffer
-		 * (num_chars >= buf_remaining).
+		 * That filled up or would have overflowed the buffer.
 		 * Nothing more we can do.
 		 */
 		return;
 	}
-	ptr += num_chars;
-	buf_remaining -= num_chars;
+	ptr += num_bytes;
+	remaining -= num_bytes;
 
-	if (precision == 0) {
+	if (precision != 0) {
 		/*
-		 * Seconds precision, so no nanosecond.
+		 * Append the fractional part.
+		 * Get the nsecs as a 32-bit unsigned value, as it should
+		 * never be negative, so we treat it as unsigned.
 		 */
-		return;
+		format_fractional_part_nsecs(ptr, remaining, (guint32)ns->nsecs, decimal_point, precision);
 	}
-
-	/*
-	 * Append the fractional part.
-	 */
-	format_fractional_part_nsecs(ptr, buf_remaining, (guint32)ns->nsecs, decimal_point, precision);
 }
 
 /*
