@@ -185,6 +185,7 @@ typedef enum {
     WTAP_BLOCK_FT_SPECIFIC_REPORT,
     WTAP_BLOCK_FT_SPECIFIC_EVENT,
     WTAP_BLOCK_SYSDIG_EVENT,
+    WTAP_BLOCK_SYSDIG_META_EVENT,
     WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT,
     WTAP_BLOCK_CUSTOM,
     MAX_WTAP_BLOCK_TYPE_VALUE
@@ -252,6 +253,15 @@ typedef struct wtapng_dsb_mandatory_s {
     guint32                secrets_len;             /** Length of the secrets data in bytes */
     guint8                *secrets_data;            /** Buffer of secrets (not NUL-terminated) */
 } wtapng_dsb_mandatory_t;
+
+/**
+ * Holds the required data from a WTAP_BLOCK_SYSDIG_META_EVENT.
+ */
+typedef struct wtapng_sysdig_mev_mandatory_s {
+    uint32_t               mev_type;            /** pcapng block type of the event, e.g. BLOCK_TYPE_SYSDIG_MI */
+    uint32_t               mev_data_len;        /** Length of the mev data in bytes */
+    uint8_t               *mev_data;            /** Buffer of mev data (not NUL-terminated) */
+} wtapng_sysdig_mev_mandatory_t;
 
 /**
  * Holds the required data from a WTAP_BLOCK_PACKET.

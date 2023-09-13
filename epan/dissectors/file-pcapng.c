@@ -19,6 +19,7 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
+#include <wiretap/pcapng_module.h>
 #include <wiretap/secrets-types.h>
 
 #include "file-pcapng.h"
@@ -212,40 +213,42 @@ static int * const hfx_pcapng_option_data_packet_darwin_flags[] = {
 
 static gboolean pref_dissect_next_layer = FALSE;
 
-#define BLOCK_INTERFACE_DESCRIPTION  0x00000001
-#define BLOCK_PACKET                 0x00000002
-#define BLOCK_SIMPLE_PACKET          0x00000003
-#define BLOCK_NAME_RESOLUTION        0x00000004
-#define BLOCK_INTERFACE_STATISTICS   0x00000005
-#define BLOCK_ENHANCED_PACKET        0x00000006
-#define BLOCK_IRIG_TIMESTAMP         0x00000007
-#define BLOCK_ARINC_429              0x00000008
-#define BLOCK_SYSTEMD_JOURNAL_EXPORT 0x00000009
-#define BLOCK_DSB                    0x0000000a
-#define BLOCK_CB_COPY                0x00000BAD
-#define BLOCK_CB_NO_COPY             0x40000BAD
-#define BLOCK_SECTION_HEADER         0x0A0D0D0A
-
 static const value_string block_type_vals[] = {
-    { 0x00000001,  "Interface Description Block" },
-    { 0x00000002,  "Packet Block" },
-    { 0x00000003,  "Simple Packet Block" },
-    { 0x00000004,  "Name Resolution Block" },
-    { 0x00000005,  "Interface Statistics Block" },
-    { 0x00000006,  "Enhanced Packet Block" },
-    { 0x00000007,  "IRIG Timestamp Block" },
-    { 0x00000008,  "Arinc 429 in AFDX Encapsulation Information Block" },
-    { 0x00000009,  "systemd Journal Export Block" },
-    { 0x0000000A,  "Decryption Secrets Block" },
-    { 0x00000204,  "Sysdig Event Block" },
-    { 0x00000208,  "Sysdig Event Block with flags" },
-    { 0x00000216,  "Sysdig Event Block v2" },
-    { 0x00000217,  "Sysdig Event Block with flags v2" },
-    { 0x00000221,  "Sysdig Event Block v2 large payload" },
-    { 0x00000222,  "Sysdig Event Block with flags v2 large payload" },
-    { 0x00000BAD,  "Custom Block which can be copied"},
-    { 0x40000BAD,  "Custom Block which should not be copied"},
-    { 0x0A0D0D0A,  "Section Header Block" },
+    { BLOCK_TYPE_IDB,                       "Interface Description Block" },
+    { BLOCK_TYPE_PB,                        "Packet Block" },
+    { BLOCK_TYPE_SPB,                       "Simple Packet Block" },
+    { BLOCK_TYPE_NRB,                       "Name Resolution Block" },
+    { BLOCK_TYPE_ISB,                       "Interface Statistics Block" },
+    { BLOCK_TYPE_EPB,                       "Enhanced Packet Block" },
+    { BLOCK_TYPE_IRIG_TS,                   "IRIG Timestamp Block" },
+    { BLOCK_TYPE_ARINC_429,                 "Arinc 429 in AFDX Encapsulation Information Block" },
+    { BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT,    "systemd Journal Export Block" },
+    { BLOCK_TYPE_DSB,                       "Decryption Secrets Block" },
+    { BLOCK_TYPE_SYSDIG_MI,                 "Sysdig Machine Info Block" },
+    { BLOCK_TYPE_SYSDIG_PL_V1,              "Sysdig Process List Block" },
+    { BLOCK_TYPE_SYSDIG_FDL_V1,             "Sysdig File Descriptor List Block" },
+    { BLOCK_TYPE_SYSDIG_EVENT,              "Sysdig Event Block" },
+    { BLOCK_TYPE_SYSDIG_IL_V1,              "Sysdig Interface List Block" },
+    { BLOCK_TYPE_SYSDIG_UL_V1,              "Sysdig User List Block" },
+    { BLOCK_TYPE_SYSDIG_PL_V2,              "Sysdig Process List Block version 2" },
+    { BLOCK_TYPE_SYSDIG_EVF,                "Sysdig Event Block with flags" },
+    { BLOCK_TYPE_SYSDIG_PL_V3,              "Sysdig Process List Block version 3" },
+    { BLOCK_TYPE_SYSDIG_PL_V4,              "Sysdig Process List Block version 4" },
+    { BLOCK_TYPE_SYSDIG_PL_V5,              "Sysdig Process List Block version 5" },
+    { BLOCK_TYPE_SYSDIG_PL_V6,              "Sysdig Process List Block version 6" },
+    { BLOCK_TYPE_SYSDIG_PL_V7,              "Sysdig Process List Block version 7" },
+    { BLOCK_TYPE_SYSDIG_PL_V8,              "Sysdig Process List Block version 8" },
+    { BLOCK_TYPE_SYSDIG_PL_V9,              "Sysdig Process List Block version 9" },
+    { BLOCK_TYPE_SYSDIG_EVENT_V2,           "Sysdig Event Block v2" },
+    { BLOCK_TYPE_SYSDIG_EVF_V2,             "Sysdig Event Block with flags v2" },
+    { BLOCK_TYPE_SYSDIG_FDL_V2,             "Sysdig File Descriptor List Block" },
+    { BLOCK_TYPE_SYSDIG_IL_V2,              "Sysdig Interface List Block version 2" },
+    { BLOCK_TYPE_SYSDIG_UL_V2,              "Sysdig User List Block version 2" },
+    { BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE,     "Sysdig Event Block v2 large payload" },
+    { BLOCK_TYPE_SYSDIG_EVF_V2_LARGE,       "Sysdig Event Block with flags v2 large payload" },
+    { BLOCK_TYPE_CB_COPY,                   "Custom Block which can be copied"},
+    { BLOCK_TYPE_CB_NO_COPY,                "Custom Block which should not be copied"},
+    { BLOCK_TYPE_SHB,                       "Section Header Block" },
     { 0, NULL }
 };
 
@@ -605,27 +608,27 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
         /* TODO: could have done this once outside of loop? */
         switch (block_type) {
-        case BLOCK_SECTION_HEADER:
+        case BLOCK_TYPE_SHB:
             hfj_pcapng_option_code = hf_pcapng_option_code_section_header;
             vals = option_code_section_header_vals;
             break;
-        case BLOCK_INTERFACE_DESCRIPTION:
+        case BLOCK_TYPE_IDB:
             hfj_pcapng_option_code = hf_pcapng_option_code_interface_description;
             vals = option_code_interface_description_vals;
             break;
-        case BLOCK_ENHANCED_PACKET:
+        case BLOCK_TYPE_EPB:
             hfj_pcapng_option_code = hf_pcapng_option_code_enhanced_packet;
             vals = option_code_enhanced_packet_vals;
             break;
-        case BLOCK_PACKET:
+        case BLOCK_TYPE_PB:
             hfj_pcapng_option_code = hf_pcapng_option_code_packet;
             vals = option_code_packet_vals;
             break;
-        case BLOCK_NAME_RESOLUTION:
+        case BLOCK_TYPE_NRB:
             hfj_pcapng_option_code = hf_pcapng_option_code_name_resolution;
             vals = option_code_name_resolution_vals;
             break;
-        case BLOCK_INTERFACE_STATISTICS:
+        case BLOCK_TYPE_ISB:
             hfj_pcapng_option_code = hf_pcapng_option_code_interface_statistics;
             vals = option_code_interface_statistics_vals;
             break;
@@ -662,7 +665,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
             dissect_custom_options(option_tree, pinfo, tvb, offset, option_code, option_length, encoding);
             offset += option_length;
         } else switch (block_type) {
-        case BLOCK_SECTION_HEADER:
+        case BLOCK_TYPE_SHB:
             switch (option_code) {
             case 2:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
@@ -684,7 +687,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += option_length;
             }
             break;
-        case BLOCK_INTERFACE_DESCRIPTION: {
+        case BLOCK_TYPE_IDB: {
             struct interface_description  *interface_description = (struct interface_description *) user_data;
 
             switch (option_code) {
@@ -978,7 +981,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
             }
             }
             break;
-        case BLOCK_PACKET:
+        case BLOCK_TYPE_PB:
             switch (option_code) {
             case 2:
                 if (option_length != 4) {
@@ -1016,7 +1019,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
             }
 
             break;
-        case BLOCK_NAME_RESOLUTION:
+        case BLOCK_TYPE_NRB:
             switch (option_code) {
             case 2:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
@@ -1060,7 +1063,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
             }
 
             break;
-        case BLOCK_INTERFACE_STATISTICS:
+        case BLOCK_TYPE_ISB:
             switch (option_code) {
             case 2:
                 if (option_length != 8) {
@@ -1150,7 +1153,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
             }
 
             break;
-        case BLOCK_ENHANCED_PACKET:
+        case BLOCK_TYPE_EPB:
             switch (option_code) {
             case 2:
                 if (option_length != 4) {
@@ -1431,7 +1434,7 @@ dissect_shb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_pcapng_section_header_section_length, tvb, offset, 8, argp->info->encoding);
     offset += 8;
 
-    dissect_options(tree, pinfo, BLOCK_SECTION_HEADER, tvb, offset, argp->info->encoding, NULL);
+    dissect_options(tree, pinfo, BLOCK_TYPE_SHB, tvb, offset, argp->info->encoding, NULL);
 
     return TRUE;
 }
@@ -1460,7 +1463,7 @@ dissect_idb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     interface_description.snap_len = tvb_get_guint32(tvb, offset, argp->info->encoding);
     offset += 4;
 
-    dissect_options(tree, pinfo, BLOCK_INTERFACE_DESCRIPTION, tvb, offset, argp->info->encoding, &interface_description);
+    dissect_options(tree, pinfo, BLOCK_TYPE_IDB, tvb, offset, argp->info->encoding, &interface_description);
 
     wmem_array_append_one(argp->info->interfaces, interface_description);
 }
@@ -1520,7 +1523,7 @@ dissect_pb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
     }
 
-    dissect_options(tree, pinfo, BLOCK_PACKET, tvb, offset, argp->info->encoding, NULL);
+    dissect_options(tree, pinfo, BLOCK_TYPE_PB, tvb, offset, argp->info->encoding, NULL);
 }
 
 static void
@@ -1692,7 +1695,7 @@ dissect_nrb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     }
     proto_item_set_end(records_item, tvb, offset);
 
-    dissect_options(tree, pinfo, BLOCK_NAME_RESOLUTION, tvb, offset, argp->info->encoding, NULL);
+    dissect_options(tree, pinfo, BLOCK_TYPE_NRB, tvb, offset, argp->info->encoding, NULL);
 }
 
 static void
@@ -1712,7 +1715,7 @@ dissect_isb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     pcapng_add_timestamp(tree, pinfo, tvb, offset, argp->info->encoding, interface_description);
     offset += 8;
 
-    dissect_options(tree, pinfo, BLOCK_INTERFACE_STATISTICS, tvb, offset, argp->info->encoding, NULL);
+    dissect_options(tree, pinfo, BLOCK_TYPE_ISB, tvb, offset, argp->info->encoding, NULL);
 }
 
 static void
@@ -1767,7 +1770,7 @@ dissect_epb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
     }
 
-    dissect_options(tree, pinfo, BLOCK_ENHANCED_PACKET, tvb, offset, argp->info->encoding, NULL);
+    dissect_options(tree, pinfo, BLOCK_TYPE_EPB, tvb, offset, argp->info->encoding, NULL);
 }
 
 static void
@@ -1790,7 +1793,7 @@ dissect_dsb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         offset += padlen;
     }
 
-    dissect_options(tree, pinfo, BLOCK_DSB, tvb, offset, argp->info->encoding, NULL);
+    dissect_options(tree, pinfo, BLOCK_TYPE_DSB, tvb, offset, argp->info->encoding, NULL);
 }
 
 static void
@@ -1866,7 +1869,7 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
     arg.block_tree = block_tree;
     arg.info = info;
 
-    if (block_type == BLOCK_SECTION_HEADER) {
+    if (block_type == BLOCK_TYPE_SHB) {
         /* Section Header Block - this needs special byte-order handling */
         volatile gboolean byte_order_magic_bad = FALSE;
 
@@ -1941,33 +1944,33 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
      */
     TRY {
             switch (block_type) {
-            case BLOCK_INTERFACE_DESCRIPTION:
+            case BLOCK_TYPE_IDB:
                 dissect_idb_data(block_data_tree, pinfo, next_tvb, &arg);
                 break;
-            case BLOCK_PACKET:
+            case BLOCK_TYPE_PB:
                 dissect_pb_data(block_data_tree, pinfo, next_tvb, &arg);
                 break;
-            case BLOCK_SIMPLE_PACKET:
+            case BLOCK_TYPE_SPB:
                 dissect_spb_data(block_data_tree, pinfo, next_tvb, &arg);
                 break;
-            case BLOCK_NAME_RESOLUTION:
+            case BLOCK_TYPE_NRB:
                 dissect_nrb_data(block_data_tree, pinfo, next_tvb, &arg);
                 break;
-            case BLOCK_INTERFACE_STATISTICS:
+            case BLOCK_TYPE_ISB:
                 dissect_isb_data(block_data_tree, pinfo, next_tvb, &arg);
                 break;
-            case BLOCK_ENHANCED_PACKET:
+            case BLOCK_TYPE_EPB:
                 dissect_epb_data(block_data_tree, pinfo, next_tvb, &arg);
                 break;
-            case BLOCK_DSB:
+            case BLOCK_TYPE_DSB:
                 dissect_dsb_data(block_data_tree, pinfo, next_tvb, &arg);
                 break;
-            case BLOCK_CB_COPY:
-            case BLOCK_CB_NO_COPY:
+            case BLOCK_TYPE_CB_COPY:
+            case BLOCK_TYPE_CB_NO_COPY:
                 dissect_cb_data(block_data_tree, pinfo, next_tvb, &arg);
                 break;
-            case BLOCK_IRIG_TIMESTAMP:
-            case BLOCK_ARINC_429:
+            case BLOCK_TYPE_IRIG_TS:
+            case BLOCK_TYPE_ARINC_429:
                 break;
 
             default:

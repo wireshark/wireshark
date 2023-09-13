@@ -44,6 +44,7 @@ struct wtap {
     guint                       next_interface_data;    /**< Next interface data that wtap_get_next_interface_description() will show */
     GArray                      *nrbs;                  /**< holds the Name Res Blocks, or NULL */
     GArray                      *dsbs;                  /**< An array of DSBs (of type wtap_block_t), or NULL if not supported. */
+    GArray                      *sysdig_meta_events;    /**< An array of Sysdig meta eventss (of type wtap_block_t), or NULL if not supported. */
 
     char                        *pathname;              /**< File pathname; might just be "-" */
 
@@ -73,6 +74,7 @@ struct wtap {
     wtap_new_ipv4_callback_t    add_new_ipv4;
     wtap_new_ipv6_callback_t    add_new_ipv6;
     wtap_new_secrets_callback_t add_new_secrets;
+    wtap_new_sysdig_meta_event_callback_t add_new_sysdig_meta_event;
     GPtrArray                   *fast_seek;
 };
 
@@ -123,8 +125,10 @@ struct wtap_dumper {
      */
     const GArray            *nrbs_growing;          /**< A reference to an array of NRBs (of type wtap_block_t) */
     const GArray            *dsbs_growing;          /**< A reference to an array of DSBs (of type wtap_block_t) */
+    const GArray            *sysdig_mev_growing;    /**< A reference to an array of Sysdig meta events (of type wtap_block_t) */
     guint                   nrbs_growing_written;   /**< Number of already processed NRBs in nrbs_growing. */
     guint                   dsbs_growing_written;   /**< Number of already processed DSBs in dsbs_growing. */
+    guint                   sysdig_mev_growing_written; /**< Number of already processed meta events in sysdig_mev_growing. */
 };
 
 WS_DLL_PUBLIC gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
@@ -357,6 +361,12 @@ wtapng_process_nrb(wtap *wth, wtap_block_t nrb);
  */
 void
 wtapng_process_dsb(wtap *wth, wtap_block_t dsb);
+
+/**
+ * Invokes the callback with the given Sysdig meta event block.
+ */
+void
+wtapng_process_sysdig_mev(wtap *wth, wtap_block_t mev);
 
 void
 wtap_register_compatibility_file_subtype_name(const char *old_name,
