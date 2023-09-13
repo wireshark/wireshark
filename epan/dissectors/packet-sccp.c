@@ -2293,36 +2293,29 @@ dissect_sccp_segmenting_reassembling_param(tvbuff_t *tvb, packet_info *pinfo, pr
 static void
 dissect_sccp_receive_sequence_number_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 rsn;
-
   if (length != 1) {
     proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
                                  "Wrong length indicated. Expected 1, got %u", length);
     return;
   }
 
-  rsn = tvb_get_guint8(tvb, 0) >> 1;
-  proto_tree_add_uint(tree, hf_sccp_rsn, tvb, 0, length, rsn);
+  proto_tree_add_item(tree, hf_sccp_rsn, tvb, 0, length, ENC_NA);
 }
 
 static void
 dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
-  guint8      rsn, ssn;
   proto_tree *param_tree;
-
-  ssn = tvb_get_guint8(tvb, 0) >> 1;
-  rsn = tvb_get_guint8(tvb, SEQUENCING_SEGMENTING_SSN_LENGTH) >> 1;
 
   param_tree = proto_tree_add_subtree(tree, tvb, 0, length, ett_sccp_sequencing_segmenting, NULL,
                                    val_to_str(PARAMETER_SEQUENCING_SEGMENTING,
                                               sccp_parameter_values, "Unknown: %d"));
 
-  proto_tree_add_uint(param_tree, hf_sccp_sequencing_segmenting_ssn, tvb, 0,
-                      SEQUENCING_SEGMENTING_SSN_LENGTH, ssn);
-  proto_tree_add_uint(param_tree, hf_sccp_sequencing_segmenting_rsn, tvb,
+  proto_tree_add_item(param_tree, hf_sccp_sequencing_segmenting_ssn, tvb, 0,
+                      SEQUENCING_SEGMENTING_SSN_LENGTH, ENC_NA);
+  proto_tree_add_item(param_tree, hf_sccp_sequencing_segmenting_rsn, tvb,
                       SEQUENCING_SEGMENTING_SSN_LENGTH,
-                      SEQUENCING_SEGMENTING_RSN_LENGTH, rsn);
+                      SEQUENCING_SEGMENTING_RSN_LENGTH, ENC_NA);
   proto_tree_add_item(param_tree, hf_sccp_sequencing_segmenting_more, tvb,
                       SEQUENCING_SEGMENTING_SSN_LENGTH,
                       SEQUENCING_SEGMENTING_RSN_LENGTH, ENC_NA);
