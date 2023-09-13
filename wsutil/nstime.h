@@ -158,7 +158,11 @@ typedef enum {
     WS_TSPREC_100_MSEC = 1,
     WS_TSPREC_10_MSEC  = 2,
     WS_TSPREC_MSEC     = 3,
+    WS_TSPREC_100_USEC = 4,
+    WS_TSPREC_10_USEC  = 5,
     WS_TSPREC_USEC     = 6,
+    WS_TSPREC_100_NSEC = 7,
+    WS_TSPREC_10_NSEC  = 8,
     WS_TSPREC_NSEC     = 9
 } ws_tsprec_e;
 

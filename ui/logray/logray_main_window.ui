@@ -300,10 +300,14 @@
      <addaction name="separator"/>
      <addaction name="actionViewTimeDisplayFormatPrecisionAutomatic"/>
      <addaction name="actionViewTimeDisplayFormatPrecisionSeconds"/>
-     <addaction name="actionViewTimeDisplayFormatPrecisionDeciseconds"/>
-     <addaction name="actionViewTimeDisplayFormatPrecisionCentiseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecision100Milliseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecision10Milliseconds"/>
      <addaction name="actionViewTimeDisplayFormatPrecisionMilliseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecision100Microseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecision10Microseconds"/>
      <addaction name="actionViewTimeDisplayFormatPrecisionMicroseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecision100Nanoseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecision10Nanoseconds"/>
      <addaction name="actionViewTimeDisplayFormatPrecisionNanoseconds"/>
      <addaction name="separator"/>
      <addaction name="actionViewTimeDisplaySecondsWithHoursAndMinutes"/>
@@ -1757,7 +1761,7 @@
     <string>Seconds</string>
    </property>
   </action>
-  <action name="actionViewTimeDisplayFormatPrecisionDeciseconds">
+  <action name="actionViewTimeDisplayFormatPrecision100Milliseconds">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1765,7 +1769,7 @@
     <string>Tenths of a second</string>
    </property>
   </action>
-  <action name="actionViewTimeDisplayFormatPrecisionCentiseconds">
+  <action name="actionViewTimeDisplayFormatPrecision10Milliseconds">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1781,12 +1785,44 @@
     <string>Milliseconds</string>
    </property>
   </action>
+  <action name="actionViewTimeDisplayFormatPrecision100Microseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tenths of a millisecond</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecision10Microseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hundredths of a millisecond</string>
+   </property>
+  </action>
   <action name="actionViewTimeDisplayFormatPrecisionMicroseconds">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
     <string>Microseconds</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecision100Nanoseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tenths of a microsecond</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecision10Nanoseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hundredths of a microsecond</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatPrecisionNanoseconds">

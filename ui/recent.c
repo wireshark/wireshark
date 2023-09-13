@@ -102,13 +102,25 @@ static const value_string ts_type_values[] = {
     { 0, NULL }
 };
 
+/*
+ * NOTE: all values other than TS_PREC_AUTO are the number of digits
+ * of precision.
+ *
+ * We continue to use the old names for values where they may have
+ * been written to the recent file by previous releases.  For other
+ * values, we just write it out numerically.
+ */
 static const value_string ts_precision_values[] = {
     { TS_PREC_AUTO,            "AUTO" },
     { TS_PREC_FIXED_SEC,       "SEC"  },
-    { TS_PREC_FIXED_DSEC,      "DSEC" },
-    { TS_PREC_FIXED_CSEC,      "CSEC" },
+    { TS_PREC_FIXED_100_MSEC,  "DSEC" },
+    { TS_PREC_FIXED_10_MSEC,   "CSEC" },
     { TS_PREC_FIXED_MSEC,      "MSEC" },
+    { TS_PREC_FIXED_100_USEC,  "4"    },
+    { TS_PREC_FIXED_10_USEC,   "5"    },
     { TS_PREC_FIXED_USEC,      "USEC" },
+    { TS_PREC_FIXED_100_NSEC,  "7"    },
+    { TS_PREC_FIXED_10_NSEC,   "8"    },
     { TS_PREC_FIXED_NSEC,      "NSEC" },
     { 0, NULL }
 };

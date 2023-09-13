@@ -2178,10 +2178,14 @@ void LograyMainWindow::initTimePrecisionFormatMenu()
 
     tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionAutomatic] = TS_PREC_AUTO;
     tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionSeconds] = TS_PREC_FIXED_SEC;
-    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionDeciseconds] = TS_PREC_FIXED_DSEC;
-    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionCentiseconds] = TS_PREC_FIXED_CSEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecision100Milliseconds] = TS_PREC_FIXED_100_MSEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecision10Milliseconds] = TS_PREC_FIXED_10_MSEC;
     tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionMilliseconds] = TS_PREC_FIXED_MSEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecision100Microseconds] = TS_PREC_FIXED_100_USEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecision10Microseconds] = TS_PREC_FIXED_10_USEC;
     tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionMicroseconds] = TS_PREC_FIXED_USEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecision100Nanoseconds] = TS_PREC_FIXED_100_NSEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecision10Nanoseconds] = TS_PREC_FIXED_10_NSEC;
     tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionNanoseconds] = TS_PREC_FIXED_NSEC;
 
     foreach(QAction* tpa, tp_actions.keys()) {
