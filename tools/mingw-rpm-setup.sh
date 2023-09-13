@@ -62,7 +62,8 @@ BASIC_LIST="mingw64-gcc \
 	ccache \
 	git \
 	patch \
-	cmake"
+	cmake
+	cmake-rpm-macros"
 
 ACTUAL_LIST=$BASIC_LIST
 
