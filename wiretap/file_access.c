@@ -2938,9 +2938,9 @@ wtap_register_backwards_compatibility_lua_name(const char *name, int ft)
 		wtap_register_backwards_compatibility_lua_name("TSPREC_SEC",
 		    WTAP_TSPREC_SEC);
 		wtap_register_backwards_compatibility_lua_name("TSPREC_DSEC",
-		    WTAP_TSPREC_DSEC);
+		    WTAP_TSPREC_100_MSEC);
 		wtap_register_backwards_compatibility_lua_name("TSPREC_CSEC",
-		    WTAP_TSPREC_CSEC);
+		    WTAP_TSPREC_10_MSEC);
 		wtap_register_backwards_compatibility_lua_name("TSPREC_MSEC",
 		    WTAP_TSPREC_MSEC);
 		wtap_register_backwards_compatibility_lua_name("TSPREC_USEC",

@@ -264,7 +264,7 @@ wtap_open_return_val cosine_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = cosine_read;
 	wth->subtype_seek_read = cosine_seek_read;
-	wth->file_tsprec = WTAP_TSPREC_CSEC;
+	wth->file_tsprec = WTAP_TSPREC_10_MSEC;
 
 	/*
 	 * Add an IDB; we don't know how many interfaces were

@@ -290,7 +290,7 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = pppdump_read;
 	wth->subtype_seek_read = pppdump_seek_read;
 	wth->subtype_close = pppdump_close;
-	wth->file_tsprec = WTAP_TSPREC_DSEC;
+	wth->file_tsprec = WTAP_TSPREC_100_MSEC;
 
 	state->seek_state = g_new(pppdump_t,1);
 

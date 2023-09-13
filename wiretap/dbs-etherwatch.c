@@ -180,7 +180,7 @@ wtap_open_return_val dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info)
     wth->snapshot_length = 0;   /* not known */
     wth->subtype_read = dbs_etherwatch_read;
     wth->subtype_seek_read = dbs_etherwatch_seek_read;
-    wth->file_tsprec = WTAP_TSPREC_CSEC;
+    wth->file_tsprec = WTAP_TSPREC_10_MSEC;
 
     /*
      * Add an IDB; we don't know how many interfaces were

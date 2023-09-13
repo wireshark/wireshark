@@ -327,10 +327,16 @@ extern "C" {
  * tools/make-enums.py sees them.
  */
 #define WTAP_TSPREC_SEC         0
-#define WTAP_TSPREC_DSEC        1
-#define WTAP_TSPREC_CSEC        2
+#define WTAP_TSPREC_100_MSEC    1
+#define WTAP_TSPREC_DSEC        1 /* Backwards compatibility */
+#define WTAP_TSPREC_10_MSEC     2
+#define WTAP_TSPREC_CSEC        2 /* Backwards compatibility */
 #define WTAP_TSPREC_MSEC        3
+#define WTAP_TSPREC_100_USEC    4
+#define WTAP_TSPREC_10_USEC     5
 #define WTAP_TSPREC_USEC        6
+#define WTAP_TSPREC_100_NSEC    7
+#define WTAP_TSPREC_10_NSEC     8
 #define WTAP_TSPREC_NSEC        9
 /* if you add to the above, update wtap_tsprec_string() */
 

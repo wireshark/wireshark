@@ -193,7 +193,7 @@ wtap_open_return_val toshiba_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = toshiba_read;
 	wth->subtype_seek_read = toshiba_seek_read;
-	wth->file_tsprec = WTAP_TSPREC_CSEC;
+	wth->file_tsprec = WTAP_TSPREC_10_MSEC;
 
 	return WTAP_OPEN_MINE;
 }

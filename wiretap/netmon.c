@@ -508,6 +508,9 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * they stuff a FILETIME, which is the number of 100-nanosecond
 	 * intervals since 1601-01-01 00:00:00 "UTC", there, instead
 	 * of stuffing a SYSTEMTIME, which is time-zone-dependent, there?).
+	 *
+	 * Eventually they went with per-packet FILETIMEs in a later
+	 * version.
 	 */
 	netmon->start_nsecs = pletoh16(&hdr.ts_msec)*1000000;
 
@@ -964,12 +967,14 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	case 2:
 		/*
-		 * Version 1.x of the file format supports
-		 * 100-nanosecond precision; we don't
-		 * currently support that, so say
-		 * "nanosecond precision" for now.
+		 * Versions 2.0 through 2.2 support microsecond
+		 * precision; version 2.3 supports 100-nanosecond
+		 * precision (2.3 was the last version).
 		 */
-		wth->file_tsprec = WTAP_TSPREC_NSEC;
+		if (netmon->version_minor >= 3)
+			wth->file_tsprec = WTAP_TSPREC_100_NSEC;
+		else
+			wth->file_tsprec = WTAP_TSPREC_USEC;
 		break;
 	}
 	return WTAP_OPEN_MINE;
@@ -1197,28 +1202,20 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 	 * For version 2.1 and later, there's additional information
 	 * after the frame data.
 	 */
-	if ((netmon->version_major == 2 && netmon->version_minor >= 1) ||
-	    netmon->version_major > 2) {
-		if (netmon->version_major > 2) {
-			/*
-			 * Assume 2.3 format, for now.
-			 */
+	if (netmon->version_major == 2 && netmon->version_minor >= 1) {
+		switch (netmon->version_minor) {
+
+		case 1:
+			trlr_size = (int)sizeof (struct netmonrec_2_1_trlr);
+			break;
+
+		case 2:
+			trlr_size = (int)sizeof (struct netmonrec_2_2_trlr);
+			break;
+
+		default:
 			trlr_size = (int)sizeof (struct netmonrec_2_3_trlr);
-		} else {
-			switch (netmon->version_minor) {
-
-			case 1:
-				trlr_size = (int)sizeof (struct netmonrec_2_1_trlr);
-				break;
-
-			case 2:
-				trlr_size = (int)sizeof (struct netmonrec_2_2_trlr);
-				break;
-
-			default:
-				trlr_size = (int)sizeof (struct netmonrec_2_3_trlr);
-				break;
-			}
+			break;
 		}
 
 		if (!wtap_read_bytes(fh, &trlr, trlr_size, err, err_info))
@@ -1350,7 +1347,12 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 		}
 
 		rec->rec_header.packet_header.pkt_encap = pkt_encap;
-		if (netmon->version_major > 2 || netmon->version_minor > 2) {
+		if (netmon->version_minor >= 3) {
+			/*
+			 * This is a 2.3 or later file.  That format
+			 * contains a UTC per-packet time stamp; use
+			 * that instead of the start time and offset.
+			 */
 			guint64 d;
 
 			d = pletoh64(trlr.trlr_2_3.utc_timestamp);

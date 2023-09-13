@@ -167,7 +167,7 @@ wtap_open_return_val netscreen_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = netscreen_read;
 	wth->subtype_seek_read = netscreen_seek_read;
-	wth->file_tsprec = WTAP_TSPREC_DSEC;
+	wth->file_tsprec = WTAP_TSPREC_100_MSEC;
 
 	return WTAP_OPEN_MINE;
 }

@@ -1608,9 +1608,9 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     else if (time_units_per_second >= 1000)
         if_descr_mand->tsprecision = WTAP_TSPREC_MSEC;
     else if (time_units_per_second >= 100)
-        if_descr_mand->tsprecision = WTAP_TSPREC_CSEC;
+        if_descr_mand->tsprecision = WTAP_TSPREC_10_MSEC;
     else if (time_units_per_second >= 10)
-        if_descr_mand->tsprecision = WTAP_TSPREC_DSEC;
+        if_descr_mand->tsprecision = WTAP_TSPREC_100_MSEC;
     else
         if_descr_mand->tsprecision = WTAP_TSPREC_SEC;
 
