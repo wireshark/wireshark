@@ -1820,46 +1820,34 @@ text_import_pre_open(wtap_dump_params * const params, int file_type_subtype, con
         } else {
             wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF, text2pcap", strlen("Fake IF, text2pcap"));
         }
-        switch (params->tsprec) {
+        if (params->tsprec >= 0 && params->tsprec <= WS_TSPREC_MAX) {
+            /*
+             * This is a valid time precision.
+             */
 
-        case WTAP_TSPREC_SEC:
-                int_data_mand->time_units_per_second = 1;
-                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 0);
-                break;
+            /*
+             * Compute 10^{params->tsprec}.
+             */
+            int_data_mand->time_units_per_second = 1;
+            for (int i = 0; i < params->tsprec; i++)
+                int_data_mand->time_units_per_second *= 10;
 
-        case WTAP_TSPREC_DSEC:
-                int_data_mand->time_units_per_second = 10;
-                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 1);
-                break;
-
-        case WTAP_TSPREC_CSEC:
-                int_data_mand->time_units_per_second = 100;
-                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 2);
-                break;
-
-        case WTAP_TSPREC_MSEC:
-                int_data_mand->time_units_per_second = 1000;
-                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 3);
-                break;
-
-        case WTAP_TSPREC_USEC:
-                int_data_mand->time_units_per_second = 1000000;
-                /* This is the default, so no need to add an option */
-                break;
-
-        case WTAP_TSPREC_NSEC:
-                int_data_mand->time_units_per_second = 1000000000;
-                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
-                break;
-
-        case WTAP_TSPREC_PER_PACKET:
-        case WTAP_TSPREC_UNKNOWN:
-        default:
+            if (params->tsprec != WTAP_TSPREC_USEC) {
                 /*
-                 * Don't do this.
+                 * Microsecond precision is the default, so we only
+                 * add an option if the precision isn't microsecond
+                 * precision.
                  */
-                ws_assert_not_reached();
-                break;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, params->tsprec);
+            }
+        } else {
+            /*
+             * Either WTAP_TSPREC_PER_PACKET, WTAP_TSPREC_UNKNOWN,
+             * or not a valid precision.
+             *
+             * Don't do this.
+             */
+            ws_assert_not_reached();
         }
 
         params->idb_inf = g_new(wtapng_iface_descriptions_t,1);

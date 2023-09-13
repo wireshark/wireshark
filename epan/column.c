@@ -434,6 +434,97 @@ get_column_format_matches(gboolean *fmt_list, const gint format) {
   }
 }
 
+/*
+ * These tables are indexed by the number of digits of precision for
+ * time stamps; all TS_PREC_FIXED_ types have values equal to the
+ * number of digits of precision, and NUM_WS_TSPREC_VALS is the
+ * total number of such values as there's a one-to-one correspondence
+ * between WS_TSPREC_ values and TS_PREC_FIXED_ values.
+ */
+
+/*
+ * Strings for YYYY-MM-DD HH:MM:SS.SSSS dates and times.
+ * (Yes, we know, this has a Y10K problem.)
+ */
+static const char *ts_ymd[NUM_WS_TSPREC_VALS] = {
+    "0000-00-00 00:00:00",
+    "0000-00-00 00:00:00.0",
+    "0000-00-00 00:00:00.00",
+    "0000-00-00 00:00:00.000",
+    "0000-00-00 00:00:00.0000",
+    "0000-00-00 00:00:00.00000",
+    "0000-00-00 00:00:00.000000",
+    "0000-00-00 00:00:00.0000000",
+    "0000-00-00 00:00:00.00000000",
+    "0000-00-00 00:00:00.000000000",
+};
+
+/*
+ * Strings for YYYY/DOY HH:MM:SS.SSSS dates and times.
+ * (Yes, we know, this also has a Y10K problem.)
+ */
+static const char *ts_ydoy[NUM_WS_TSPREC_VALS] = {
+    "0000/000 00:00:00",
+    "0000/000 00:00:00.0",
+    "0000/000 00:00:00.00",
+    "0000/000 00:00:00.000",
+    "0000/000 00:00:00.0000",
+    "0000/000 00:00:00.00000",
+    "0000/000 00:00:00.000000",
+    "0000/000 00:00:00.0000000",
+    "0000/000 00:00:00.00000000",
+    "0000/000 00:00:00.000000000",
+};
+
+/*
+ * Strings for HH:MM:SS.SSSS absolute times without dates.
+ */
+static const char *ts_abstime[NUM_WS_TSPREC_VALS] = {
+    "00:00:00",
+    "00:00:00.0",
+    "00:00:00.00",
+    "00:00:00.000",
+    "00:00:00.0000",
+    "00:00:00.00000",
+    "00:00:00.000000",
+    "00:00:00.0000000",
+    "00:00:00.00000000",
+    "00:00:00.000000000",
+};
+
+/*
+ * Strings for SSSS.S relative and delta times.
+ * (Yes, this has s 10,000-seconds problem.)
+ */
+static const char *ts_rel_delta_time[NUM_WS_TSPREC_VALS] = {
+    "0000",
+    "0000.0",
+    "0000.00",
+    "0000.000",
+    "0000.0000",
+    "0000.00000",
+    "0000.000000",
+    "0000.0000000",
+    "0000.00000000",
+    "0000.000000000",
+};
+
+/*
+ * Strings for UN*X/POSIX Epoch times.
+ */
+static const char *ts_epoch_time[NUM_WS_TSPREC_VALS] = {
+    "0000000000000000000",
+    "0000000000000000000.0",
+    "0000000000000000000.00",
+    "0000000000000000000.000",
+    "0000000000000000000.0000",
+    "0000000000000000000.00000",
+    "0000000000000000000.000000",
+    "0000000000000000000.0000000",
+    "0000000000000000000.00000000",
+    "0000000000000000000.000000000",
+};
+
 /* Returns a string representing the longest possible value for
    a timestamp column type. */
 static const char *
@@ -443,136 +534,72 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
     switch(type) {
     case(TS_ABSOLUTE_WITH_YMD):
     case(TS_UTC_WITH_YMD):
-        switch(precision) {
-            case(TS_PREC_FIXED_SEC):
-                return "0000-00-00 00:00:00";
-                break;
-            case(TS_PREC_FIXED_DSEC):
-                return "0000-00-00 00:00:00.0";
-                break;
-            case(TS_PREC_FIXED_CSEC):
-                return "0000-00-00 00:00:00.00";
-                break;
-            case(TS_PREC_FIXED_MSEC):
-                return "0000-00-00 00:00:00.000";
-                break;
-            case(TS_PREC_FIXED_USEC):
-                return "0000-00-00 00:00:00.000000";
-                break;
-            case(TS_PREC_FIXED_NSEC):
-            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
-                return "0000-00-00 00:00:00.000000000";
-                break;
-            default:
-                ws_assert_not_reached();
-        }
-            break;
+        if(precision == TS_PREC_AUTO) {
+            /*
+             * Return the string for the maximum precision, so that
+             * our caller leaves room for that string.
+             */
+            return ts_ymd[WS_TSPREC_MAX];
+        } else if(precision >= 0 && precision < NUM_WS_TSPREC_VALS)
+            return ts_ymd[precision];
+        else
+            ws_assert_not_reached();
+        break;
     case(TS_ABSOLUTE_WITH_YDOY):
     case(TS_UTC_WITH_YDOY):
-        switch(precision) {
-            case(TS_PREC_FIXED_SEC):
-                return "0000/000 00:00:00";
-                break;
-            case(TS_PREC_FIXED_DSEC):
-                return "0000/000 00:00:00.0";
-                break;
-            case(TS_PREC_FIXED_CSEC):
-                return "0000/000 00:00:00.00";
-                break;
-            case(TS_PREC_FIXED_MSEC):
-                return "0000/000 00:00:00.000";
-                break;
-            case(TS_PREC_FIXED_USEC):
-                return "0000/000 00:00:00.000000";
-                break;
-            case(TS_PREC_FIXED_NSEC):
-            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
-                return "0000/000 00:00:00.000000000";
-                break;
-            default:
-                ws_assert_not_reached();
-        }
-            break;
+        if(precision == TS_PREC_AUTO) {
+            /*
+             * Return the string for the maximum precision, so that
+             * our caller leaves room for that string.
+             */
+            return ts_ydoy[WS_TSPREC_MAX];
+        } else if(precision >= 0 && precision < NUM_WS_TSPREC_VALS)
+            return ts_ydoy[precision];
+        else
+            ws_assert_not_reached();
+        break;
     case(TS_ABSOLUTE):
     case(TS_UTC):
-        switch(precision) {
-            case(TS_PREC_FIXED_SEC):
-                return "00:00:00";
-                break;
-            case(TS_PREC_FIXED_DSEC):
-                return "00:00:00.0";
-                break;
-            case(TS_PREC_FIXED_CSEC):
-                return "00:00:00.00";
-                break;
-            case(TS_PREC_FIXED_MSEC):
-                return "00:00:00.000";
-                break;
-            case(TS_PREC_FIXED_USEC):
-                return "00:00:00.000000";
-                break;
-            case(TS_PREC_FIXED_NSEC):
-            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
-                return "00:00:00.000000000";
-                break;
-            default:
-                ws_assert_not_reached();
-        }
+        if(precision == TS_PREC_AUTO) {
+            /*
+             * Return the string for the maximum precision, so that
+             * our caller leaves room for that string.
+             */
+            return ts_abstime[WS_TSPREC_MAX];
+        } else if(precision >= 0 && precision < NUM_WS_TSPREC_VALS)
+            return ts_abstime[precision];
+        else
+            ws_assert_not_reached();
         break;
     case(TS_RELATIVE):  /* fallthrough */
     case(TS_DELTA):
     case(TS_DELTA_DIS):
-        switch(precision) {
-            case(TS_PREC_FIXED_SEC):
-                return "0000";
-                break;
-            case(TS_PREC_FIXED_DSEC):
-                return "0000.0";
-                break;
-            case(TS_PREC_FIXED_CSEC):
-                return "0000.00";
-                break;
-            case(TS_PREC_FIXED_MSEC):
-                return "0000.000";
-                break;
-            case(TS_PREC_FIXED_USEC):
-                return "0000.000000";
-                break;
-            case(TS_PREC_FIXED_NSEC):
-            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
-                return "0000.000000000";
-                break;
-            default:
-                ws_assert_not_reached();
-        }
+        if(precision == TS_PREC_AUTO) {
+            /*
+             * Return the string for the maximum precision, so that
+             * our caller leaves room for that string.
+             */
+            return ts_rel_delta_time[WS_TSPREC_MAX];
+        } else if(precision >= 0 && precision < NUM_WS_TSPREC_VALS)
+            return ts_rel_delta_time[precision];
+        else
+            ws_assert_not_reached();
         break;
     case(TS_EPOCH):
         /* This is enough to represent 2^63 (signed 64-bit integer) + fractions */
-        switch(precision) {
-            case(TS_PREC_FIXED_SEC):
-                return "0000000000000000000";
-                break;
-            case(TS_PREC_FIXED_DSEC):
-                return "0000000000000000000.0";
-                break;
-            case(TS_PREC_FIXED_CSEC):
-                return "0000000000000000000.00";
-                break;
-            case(TS_PREC_FIXED_MSEC):
-                return "0000000000000000000.000";
-                break;
-            case(TS_PREC_FIXED_USEC):
-                return "0000000000000000000.000000";
-                break;
-            case(TS_PREC_FIXED_NSEC):
-            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
-                return "0000000000000000000.000000000";
-                break;
-            default:
-                ws_assert_not_reached();
-        }
+        if(precision == TS_PREC_AUTO) {
+            /*
+             * Return the string for the maximum precision, so that
+             * our caller leaves room for that string.
+             */
+            return ts_epoch_time[WS_TSPREC_MAX];
+        } else if(precision >= 0 && precision < NUM_WS_TSPREC_VALS)
+            return ts_epoch_time[precision];
+        else
+            ws_assert_not_reached();
         break;
     case(TS_NOT_SET):
+        /* This should not happen. */
         return "0000.000000";
         break;
     default:

@@ -972,8 +972,15 @@ get_frame_timestamp_precision(const frame_data *fd)
     tsprecision = fd->tsprec;
   else if (tsprecision < 0)
     ws_assert_not_reached();
-  if (tsprecision > 9)
-    tsprecision = 9;
+
+  /*
+   * Time stamp precision values higher than the maximum
+   * precision we support can't be handled.  Just display
+   * those times with the maximum precision we support.
+   */
+  if (tsprecision > WS_TSPREC_MAX)
+    tsprecision = WS_TSPREC_MAX;
+
   return tsprecision;
 }
 
@@ -984,11 +991,18 @@ get_default_timestamp_precision(void)
 
   tsprecision = timestamp_get_precision();
   if (tsprecision == TS_PREC_AUTO)
-    tsprecision = 9;
+    tsprecision = WS_TSPREC_MAX; /* default to the maximum precision we support */
   else if (tsprecision < 0)
     ws_assert_not_reached();
-  if (tsprecision > 9)
-    tsprecision = 9;
+
+  /*
+   * Time stamp precision values higher than the maximum
+   * precision we support can't be handled.  Just display
+   * those times with the maximum precision we support.
+   */
+  if (tsprecision > WS_TSPREC_MAX)
+    tsprecision = WS_TSPREC_MAX;
+
   return tsprecision;
 }
 

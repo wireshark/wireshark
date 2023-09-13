@@ -241,46 +241,31 @@ wtap_generate_idb(int encap, int tsprec, int snaplen)
 	if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb);
 	if_descr_mand->wtap_encap = encap;
 	if_descr_mand->tsprecision = tsprec;
-	switch (tsprec) {
-
-	case WTAP_TSPREC_SEC:
-		if_descr_mand->time_units_per_second = 1;
-		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 0);
-		break;
-
-	case WTAP_TSPREC_DSEC:
-		if_descr_mand->time_units_per_second = 10;
-		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 1);
-		break;
-
-	case WTAP_TSPREC_CSEC:
-		if_descr_mand->time_units_per_second = 100;
-		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 2);
-		break;
-
-	case WTAP_TSPREC_MSEC:
-		if_descr_mand->time_units_per_second = 1000;
-		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 3);
-		break;
-
-	case WTAP_TSPREC_USEC:
-		if_descr_mand->time_units_per_second = 1000000;
-		/* This is the default, so no need to add an option */
-		break;
-
-	case WTAP_TSPREC_NSEC:
-		if_descr_mand->time_units_per_second = 1000000000;
-		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 9);
-		break;
-
-	case WTAP_TSPREC_PER_PACKET:
-	case WTAP_TSPREC_UNKNOWN:
-	default:
+	if (tsprec < 0 || tsprec > WS_TSPREC_MAX) {
 		/*
-		 * No timestamp precision.
+		 * Either WTAP_TSPREC_PER_PACKET, WTAP_TSPREC_UNKNOWN,
+		 * or not a valid WTAP_TSPREC_ value.
+		 *
+		 * Unknown timestamp precision; use the default of
+		 * microsecond resolution.
 		 */
-		if_descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
-		break;
+		tsprec = 6;	/* microsecond resolution */
+	}
+
+	/*
+	 * Compute 10^{params->tsprec}.
+	 */
+	if_descr_mand->time_units_per_second = 1;
+	for (int i = 0; i < tsprec; i++)
+		if_descr_mand->time_units_per_second *= 10;
+
+	if (tsprec != WTAP_TSPREC_USEC) {
+		/*
+		 * Microsecond precision is the default, so we only
+		 * add an option if the precision isn't microsecond
+		 * precision.
+		 */
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, tsprec);
 	}
 	if (snaplen == 0) {
 		/*
@@ -1330,37 +1315,34 @@ wtap_name_to_encap(const char *name)
 	return -1;	/* no such encapsulation type */
 }
 
+/*
+ * For precision values that correspond to a specific precision.
+ */
+static const char *precnames[NUM_WS_TSPREC_VALS] = {
+	"seconds",
+	"100 millisconds (deciseconds)",
+	"10 milliseconds (centiseconds)",
+	"milliseconds",
+	"100 microseconds",
+	"10 microseconds",
+	"microseconds",
+	"100 nanoseconds",
+	"10 nanoseconds",
+	"nanoseconds",
+};
+
 const char*
 wtap_tsprec_string(int tsprec)
 {
 	const char* s;
-	switch (tsprec) {
-		case WTAP_TSPREC_PER_PACKET:
-			s = "per-packet";
-			break;
-		case WTAP_TSPREC_SEC:
-			s = "seconds";
-			break;
-		case WTAP_TSPREC_DSEC:
-			s = "deciseconds";
-			break;
-		case WTAP_TSPREC_CSEC:
-			s = "centiseconds";
-			break;
-		case WTAP_TSPREC_MSEC:
-			s = "milliseconds";
-			break;
-		case WTAP_TSPREC_USEC:
-			s = "microseconds";
-			break;
-		case WTAP_TSPREC_NSEC:
-			s = "nanoseconds";
-			break;
-		case WTAP_TSPREC_UNKNOWN:
-		default:
-			s = "UNKNOWN";
-			break;
-	}
+	if (tsprec == WTAP_TSPREC_PER_PACKET)
+		s = "per-packet";
+	else if (tsprec >= 0 && tsprec < NUM_WS_TSPREC_VALS)
+		s = precnames[tsprec];
+	else if (tsprec == WTAP_TSPREC_UNKNOWN)
+		s = "UNKNOWN";
+	else
+		s = "INVALID";
 	return s;
 }
 

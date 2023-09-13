@@ -162,6 +162,19 @@ typedef enum {
     WS_TSPREC_NSEC     = 9
 } ws_tsprec_e;
 
+/*
+ * Maximum time stamp precision supported.
+ * Note that going beyond nanosecond precision would require expanding
+ * the fractional part of an nstime_t to 64 bits, and changing code
+ * that currently only handles second to nanosecond precision.
+ */
+#define WS_TSPREC_MAX 9
+
+/*
+ * Total number of valid precision values.
+ */
+#define NUM_WS_TSPREC_VALS (WS_TSPREC_MAX + 1)
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
