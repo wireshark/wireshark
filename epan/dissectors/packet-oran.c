@@ -87,6 +87,8 @@ static int hf_oran_extension = -1;
 static int hf_oran_exttype = -1;
 static int hf_oran_extlen = -1;
 
+static int hf_oran_bfw_bundle = -1;
+static int hf_oran_bfw_bundle_id = -1;
 static int hf_oran_bfw = -1;
 static int hf_oran_bfw_i = -1;
 static int hf_oran_bfw_q = -1;
@@ -236,6 +238,7 @@ static gint ett_oran_u_section = -1;
 static gint ett_oran_u_prb = -1;
 static gint ett_oran_iq = -1;
 static gint ett_oran_c_section_extension = -1;
+static gint ett_oran_bfw_bundle = -1;
 static gint ett_oran_bfw = -1;
 static gint ett_oran_offset_start_prb_num_prb = -1;
 static gint ett_oran_prb_cisamples = -1;
@@ -1067,12 +1070,18 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
     }
 
     /* Create Bundle root */
-    proto_item *bundle_ti = proto_tree_add_string_format(tree, hf_oran_bfw,
+    proto_item *bundle_ti = proto_tree_add_string_format(tree, hf_oran_bfw_bundle,
                                                          tvb, offset, 0, "",
                                                          "%s: (PRBs %3u-%3u)",
                                                          bundle_name,
                                                          first_prb, last_prb);
-    proto_tree *bundle_tree = proto_item_add_subtree(bundle_ti, ett_oran_bfw);
+    proto_tree *bundle_tree = proto_item_add_subtree(bundle_ti, ett_oran_bfw_bundle);
+
+    /* Generated bundle id */
+    proto_item *bundleid_ti = proto_tree_add_uint(bundle_tree, hf_oran_bfw_bundle_id, tvb, 0, 0,
+                                                  bundle_number);
+    proto_item_set_generated(bundleid_ti);
+    proto_item_set_hidden(bundleid_ti);
 
     /* bfwCompParam */
     gboolean compression_method_supported = FALSE;
@@ -3218,6 +3227,20 @@ proto_register_oran(void)
         },
 
         /* Section 5.4.7.1.3 */
+        {&hf_oran_bfw_bundle,
+         {"Bundle", "oran_fh_cus.bfw.bundle",
+         FT_STRING, BASE_NONE,
+         NULL, 0x0,
+         "Bundle of BFWs",
+         HFILL}
+        },
+        {&hf_oran_bfw_bundle_id,
+         {"Bundle Id", "oran_fh_cus.bfw.bundleId",
+         FT_UINT32, BASE_DEC,
+         NULL, 0x0,
+         NULL,
+         HFILL}
+        },
         {&hf_oran_bfw_i,
          {"bfwI", "oran_fh_cus.bfwI",
          FT_FLOAT, BASE_NONE,
@@ -4200,6 +4223,7 @@ proto_register_oran(void)
         &ett_oran_section,
         &ett_oran_iq,
         &ett_oran_c_section_extension,
+        &ett_oran_bfw_bundle,
         &ett_oran_bfw,
         &ett_oran_offset_start_prb_num_prb,
         &ett_oran_prb_cisamples,
