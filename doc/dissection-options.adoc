@@ -183,7 +183,7 @@ and time, as UTC, is the actual time and date the packet was captured
 as YYYY/DOY, and time, as UTC, is the actual time and date the packet
 was captured
 
-*.[N]* Set the precision: N is the number of decimals (0, 1, 2, 3, 6 or 9).
+*.[N]* Set the precision: N is the number of decimals (0 through 9).
 If using "." without N, automatically determine precision from trace.
 
 The default format is relative with precision based on capture format.

@@ -29,6 +29,7 @@
 #endif
 
 #include <wsutil/clopts_common.h>
+#include <wsutil/strtoi.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_assert.h>
@@ -44,7 +45,7 @@ gboolean
 dissect_opts_handle_opt(int opt, char *optarg_str_p)
 {
     char badopt;
-    char *p, *dotp;
+    char *dotp;
     ts_precision tsp;
 
     switch(opt) {
@@ -83,44 +84,25 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
         tsp = TS_PREC_NOT_SET;
         dotp = strchr(optarg_str_p, '.');
         if (dotp != NULL) {
-            /* Set dotp to NULL on errors. */
-            p = dotp;
-            switch(*++p) {
-                case '\0':
-                    tsp = TS_PREC_AUTO;
-                    break;
-                case '0':
-                    tsp = TS_PREC_FIXED_SEC;
-                    break;
-                case '1':
-                    tsp = TS_PREC_FIXED_DSEC;
-                    break;
-                case '2':
-                    tsp = TS_PREC_FIXED_CSEC;
-                    break;
-                case '3':
-                    tsp = TS_PREC_FIXED_MSEC;
-                    break;
-                case '6':
-                    tsp = TS_PREC_FIXED_USEC;
-                    break;
-                case '9':
-                    tsp = TS_PREC_FIXED_NSEC;
-                    break;
-                default:
-                    dotp = NULL;
-                    break;
-            }
-            /* If we saw a '.', reject if do not have only '.' or a single digit '.N'. */
-            if (dotp && *p != '\0' && *++p != '\0')
-                dotp = NULL;
-            if (dotp) {
-                /* Mask the '.' while checking format. */
-                *dotp = '\0';
+            if (strcmp(dotp + 1, "") == 0) {
+                /* Nothing specified; use appropriate precision for the file. */
+                tsp = TS_PREC_AUTO;
             } else {
-                cmdarg_err("Invalid .N time stamp precision \"%s\"; N must be 0, 1, 2, 3, 6, 9 or absent", optarg_str_p);
-                return FALSE;
+                /*
+                 * Precision must be a number giving the number of
+                 * digits of precision.
+                 */
+                guint32 val;
+
+                if (!ws_strtou32(dotp + 1, NULL, &val) || val > WS_TSPREC_MAX) {
+                    cmdarg_err("Invalid .N time stamp precision \"%s\"; N must be a value between 0 and %u or absent",
+                               dotp + 1, WS_TSPREC_MAX);
+                    return FALSE;
+                }
+                tsp = val;
             }
+            /* Mask the '.' while checking format. */
+            *dotp = '\0';
         }
         if (strcmp(optarg_str_p, "r") == 0)
             global_dissect_options.time_format = TS_RELATIVE;
@@ -144,8 +126,6 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
             global_dissect_options.time_format = TS_UTC_WITH_YDOY;
         else if (optarg_str_p != dotp) {
             /* If (optarg_str_p == dotp), user only set precision. */
-            if (dotp)
-                *dotp = '.';
             cmdarg_err("Invalid time stamp type \"%s\"; it must be one of:", optarg_str_p);
             cmdarg_err_cont("\t\"a\"    for absolute\n"
                             "\t\"ad\"   for absolute with YYYY-MM-DD date\n"
@@ -157,6 +137,8 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
                             "\t\"u\"    for absolute UTC\n"
                             "\t\"ud\"   for absolute UTC with YYYY-MM-DD date\n"
                             "\t\"udoy\" for absolute UTC with YYYY/DOY date");
+            if (dotp)
+                *dotp = '.';
             return FALSE;
         }
         if (dotp) {
