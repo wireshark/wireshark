@@ -26,10 +26,26 @@
 #define BLOCK_TYPE_ARINC_429              0x00000008 /* ARINC 429 in AFDX Encapsulation Information Block */
 #define BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT 0x00000009 /* systemd journal entry */
 #define BLOCK_TYPE_DSB                    0x0000000A /* Decryption Secrets Block */
+#define BLOCK_TYPE_SYSDIG_MI              0x00000201 /* Sysdig Machine Info Block */
+#define BLOCK_TYPE_SYSDIG_PL_V1           0x00000202 /* Sysdig Process List Block */
+#define BLOCK_TYPE_SYSDIG_FDL_V1          0x00000203 /* Sysdig File Descriptor List Block */
 #define BLOCK_TYPE_SYSDIG_EVENT           0x00000204 /* Sysdig Event Block */
+#define BLOCK_TYPE_SYSDIG_IL_V1           0x00000205 /* Sysdig Interface List Block */
+#define BLOCK_TYPE_SYSDIG_UL_V1           0x00000206 /* Sysdig User List Block */
+#define BLOCK_TYPE_SYSDIG_PL_V2           0x00000207 /* Sysdig Process List Block version 2 */
 #define BLOCK_TYPE_SYSDIG_EVF             0x00000208 /* Sysdig Event Block with flags */
+#define BLOCK_TYPE_SYSDIG_PL_V3           0x00000209 /* Sysdig Process List Block version 3 */
+#define BLOCK_TYPE_SYSDIG_PL_V4           0x00000210 /* Sysdig Process List Block version 4 */
+#define BLOCK_TYPE_SYSDIG_PL_V5           0x00000211 /* Sysdig Process List Block version 5 */
+#define BLOCK_TYPE_SYSDIG_PL_V6           0x00000212 /* Sysdig Process List Block version 6 */
+#define BLOCK_TYPE_SYSDIG_PL_V7           0x00000213 /* Sysdig Process List Block version 7 */
+#define BLOCK_TYPE_SYSDIG_PL_V8           0x00000214 /* Sysdig Process List Block version 8 */
+#define BLOCK_TYPE_SYSDIG_PL_V9           0x00000215 /* Sysdig Process List Block version 9 */
 #define BLOCK_TYPE_SYSDIG_EVENT_V2        0x00000216 /* Sysdig Event Block version 2 */
 #define BLOCK_TYPE_SYSDIG_EVF_V2          0x00000217 /* Sysdig Event Block with flags version 2 */
+#define BLOCK_TYPE_SYSDIG_FDL_V2          0x00000218 /* Sysdig File Descriptor List Block */
+#define BLOCK_TYPE_SYSDIG_IL_V2           0x00000219 /* Sysdig Interface List Block version 2 */
+#define BLOCK_TYPE_SYSDIG_UL_V2           0x00000220 /* Sysdig User List Block version 2 */
 #define BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE  0x00000221 /* Sysdig Event Block version 2 with large payload */
 #define BLOCK_TYPE_SYSDIG_EVF_V2_LARGE    0x00000222 /* Sysdig Event Block with flags version 2 with large payload */
 #define BLOCK_TYPE_CB_COPY                0x00000BAD /* Custom Block which can be copied */

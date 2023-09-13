@@ -221,6 +221,26 @@ wtap_file_discard_decryption_secrets(wtap *wth)
 }
 
 void
+wtap_file_add_sysdig_meta_event(wtap *wth, const wtap_block_t mev)
+{
+	if (!wth->sysdig_meta_events) {
+		wth->sysdig_meta_events = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+	}
+	g_array_append_val(wth->sysdig_meta_events, mev);
+}
+
+gboolean
+wtap_file_discard_sysdig_meta_events(wtap *wth)
+{
+	if (!wth->sysdig_meta_events || wth->sysdig_meta_events->len == 0)
+		return false;
+
+	wtap_block_array_free(wth->sysdig_meta_events);
+	wth->sysdig_meta_events = NULL;
+	return true;
+}
+
+void
 wtap_add_idb(wtap *wth, wtap_block_t idb)
 {
 	g_array_append_val(wth->interface_data, idb);
@@ -497,6 +517,7 @@ wtap_dump_params_init(wtap_dump_params *params, wtap *wth)
 	 * as they become available. */
 	params->nrbs_growing = wth->nrbs;
 	params->dsbs_growing = wth->dsbs;
+	params->sysdig_mev_growing = wth->sysdig_meta_events;
 	params->dont_copy_idbs = FALSE;
 }
 
@@ -535,6 +556,12 @@ wtap_dump_params_discard_decryption_secrets(wtap_dump_params *params)
 {
 	params->dsbs_initial = NULL;
 	params->dsbs_growing = NULL;
+}
+
+void
+wtap_dump_params_discard_sysdig_meta_events(wtap_dump_params *params)
+{
+	params->sysdig_mev_growing = NULL;
 }
 
 void
@@ -1514,6 +1541,7 @@ wtap_close(wtap *wth)
 	wtap_block_array_free(wth->nrbs);
 	wtap_block_array_free(wth->interface_data);
 	wtap_block_array_free(wth->dsbs);
+	wtap_block_array_free(wth->sysdig_meta_events);
 
 	g_free(wth);
 }
@@ -1621,6 +1649,15 @@ wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
 
 	if (wth->add_new_secrets)
 		wth->add_new_secrets(dsb_mand->secrets_type, dsb_mand->secrets_data, dsb_mand->secrets_len);
+}
+
+void
+wtapng_process_sysdig_meta_event(wtap *wth, wtap_block_t mev)
+{
+	const wtapng_sysdig_mev_mandatory_t *mev_mand = (wtapng_sysdig_mev_mandatory_t*)wtap_block_get_mandatory_data(mev);
+
+	if (wth->add_new_sysdig_meta_event)
+		wth->add_new_sysdig_meta_event(mev_mand->mev_type, mev_mand->mev_data, mev_mand->mev_data_len);
 }
 
 /* Perform per-packet initialization */
