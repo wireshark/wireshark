@@ -979,7 +979,6 @@ main(int argc, char *argv[])
     const gchar         *volatile tls_session_keys_file = NULL;
     exp_pdu_t            exp_pdu_tap_data;
     const gchar*         elastic_mapping_filter = NULL;
-    const char           *endptr;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1824,7 +1823,7 @@ main(int argc, char *argv[])
             case LONGOPT_SELECTED_FRAME:
                 /* Hidden option to mark a frame as "selected". Used for testing and debugging.
                  * Only active in two-pass mode. */
-                if (!ws_strtou32(ws_optarg, &endptr, &selected_frame_number) || *endptr != '\0') {
+                if (!ws_strtou32(ws_optarg, NULL, &selected_frame_number)) {
                     fprintf(stderr, "tshark: \"%s\" is not a valid frame number\n", ws_optarg);
                     exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
