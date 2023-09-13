@@ -42,6 +42,12 @@ static int hf_x509ce_IPAddress_ipv6 = -1;
 #include "packet-x509ce-ett.c"
 #include "packet-x509ce-fn.c"
 
+static const val64_string ciplus_security_level[] = {
+    { 0, "Standard Security Level" },
+    { 1, "ECP Security Level" },
+    { 0, NULL }
+};
+
 /* CI+ (www.ci-plus.com) defines some X.509 certificate extensions
    that use OIDs which are not officially assigned
    dissection of these extensions can be enabled temporarily using the

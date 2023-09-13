@@ -159,6 +159,9 @@ EntrustVersionInfo        B "1.2.840.113533.7.65.0" "id-ce-entrustVersionInfo"
 
 #.TYPE_RENAME
 
+#.TYPE_ATTR
+SecurityLevel DISPLAY = BASE_DEC STRINGS = VALS64(ciplus_security_level)
+
 #.FIELD_RENAME
 CRLReferral/issuer  crlr_issuer
 CertificatePairExactAssertion/issuedToThisCAAssertion   cpea_issuedToThisCAAssertion
