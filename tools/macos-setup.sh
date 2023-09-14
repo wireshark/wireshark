@@ -2198,14 +2198,16 @@ uninstall_speexdsp() {
 install_bcg729() {
     if [ "$BCG729_VERSION" -a ! -f bcg729-$BCG729_VERSION-done ] ; then
         echo "Downloading, building, and installing bcg729:"
-        [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl -L -O https://download.savannah.gnu.org/releases/linphone/plugins/sources/bcg729-$BCG729_VERSION.tar.gz || exit 1
+        [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl -L -O https://gitlab.linphone.org/BC/public/bcg729/-/archive/$BCG729_VERSION/bcg729-$BCG729_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat bcg729-$BCG729_VERSION.tar.gz | tar xf - || exit 1
         cd bcg729-$BCG729_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        mkdir build_dir
+        cd build_dir
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake  ../ || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
-        cd ..
+        cd ../..
         touch bcg729-$BCG729_VERSION-done
     fi
 }
@@ -2214,8 +2216,21 @@ uninstall_bcg729() {
     if [ ! -z "$installed_bcg729_version" ] ; then
         echo "Uninstalling bcg729:"
         cd bcg729-$installed_bcg729_version
-        $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
+        #
+        # bcg729 uses cmake on macOS and doesn't support "make uninstall";
+        # just remove what we know it installs.
+        #
+        # $DO_MAKE_UNINSTALL || exit 1
+        $DO_RM -rf /usr/local/share/Bcg729 \
+                   /usr/local/lib/libbcg729* \
+                   /usr/local/include/bcg729 \
+                   /usr/local/lib/pkgconfig/libbcg729* || exit 1
+        #
+        # bcg729 uses cmake on macOS and doesn't support "make distclean";
+        # just remove the enire build directory.
+        #
+        # make distclean || exit 1
+        rm -rf build_dir || exit 1
         cd ..
         rm bcg729-$installed_bcg729_version-done
 
