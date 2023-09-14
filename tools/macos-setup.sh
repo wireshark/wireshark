@@ -1610,6 +1610,10 @@ install_snappy() {
         $no_build && echo "Skipping installation" && return
         gzcat snappy-$SNAPPY_VERSION.tar.gz | tar xf - || exit 1
         cd snappy-$SNAPPY_VERSION
+	if [ "$SNAPPY_VERSION" = "1.1.10" ] ; then
+	    # This patch corresponds to https://github.com/google/snappy/commit/27f34a580be4a3becf5f8c0cba13433f53c21337
+	    patch -p0 <${topdir}/macosx-support-lib-patches/snappy-signed.patch || exit 1
+	fi
         mkdir build_dir
         cd build_dir
         #
@@ -1619,7 +1623,7 @@ install_snappy() {
         # will carry that dependency with it, so linking with it should
         # Just Work.
         #
-        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake -DBUILD_SHARED_LIBS=YES ../ || exit 1
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake -DBUILD_SHARED_LIBS=YES -DSNAPPY_BUILD_BENCHMARKS=NO -DSNAPPY_BUILD_TESTS=NO ../ || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ../..
