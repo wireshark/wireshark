@@ -18,6 +18,7 @@
 #include "packet-iso10681.h"
 #include "packet-iso15765.h"
 #include "packet-ber.h"
+#include "packet-x509af.h"
 #include <wsutil/utf8_entities.h>
 
 void proto_register_uds(void);
@@ -967,6 +968,8 @@ static int hf_uds_ars_auth_ret_param = -1;
 static int hf_uds_ars_length_of_session_key_info = -1;
 static int hf_uds_ars_session_key_info = -1;
 
+static int hf_uds_signedCertificate = -1;
+
 static int hf_uds_rdbpi_transmission_mode = -1;
 static int hf_uds_rdbpi_periodic_data_identifier = -1;
 
@@ -1056,6 +1059,7 @@ static gint ett_uds_dsc_parameter_record = -1;
 static gint ett_uds_rsdbi_scaling_byte = -1;
 static gint ett_uds_rsdbi_formula_constant = -1;
 static gint ett_uds_cc_communication_type = -1;
+static gint ett_uds_ars_certificate = -1;
 static gint ett_uds_ars_algo_indicator = -1;
 static gint ett_uds_dddi_entry = -1;
 static gint ett_uds_sdt_admin_param = -1;
@@ -1075,6 +1079,25 @@ static heur_dissector_list_t heur_subdissector_list;
 static heur_dtbl_entry_t *heur_dtbl_entry;
 
 /*** Configuration ***/
+enum certificate_decoding_strategies {
+    cert_parsing_off = -1,
+    ber_cert_single_false = 0,
+    ber_cert_single_true  = 1,
+    ber_cert_multi_false  = 2,
+    ber_cert_multi_true   = 3,
+};
+
+static const enum_val_t certificate_decoding_vals[] = {
+    {"0", "BER Certificate w/o implicit tag", ber_cert_single_false},
+    {"1", "BER Certificate w implicit tag", ber_cert_single_true},
+    {"2", "BER Certificates w/o implicit tag", ber_cert_multi_false},
+    {"3", "BER Certificates w implicit tag", ber_cert_multi_true},
+    {"off", "Do not parse", cert_parsing_off},
+    {NULL, NULL, -1}
+};
+
+static gint uds_certificate_decoding_config = (gint)cert_parsing_off;
+
 static gboolean uds_dissect_small_sids_with_obd_ii = TRUE;
 
 typedef struct _address_string {
@@ -2156,6 +2179,40 @@ dissect_uds_memory_addr_size(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_
 }
 
 static int
+dissect_uds_certificates_into_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint32 offset, guint length) {
+    asn1_ctx_t  asn1_ctx;
+
+    if (!tree || !tvb || !ti || length == 0 || uds_certificate_decoding_config == cert_parsing_off) {
+        return 0;
+    }
+
+    tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, length);
+
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    proto_tree *cert_tree = proto_item_add_subtree(ti, ett_uds_ars_certificate);
+
+    switch (uds_certificate_decoding_config) {
+    case ber_cert_single_false:
+        return dissect_x509af_Certificate(FALSE, sub_tvb, 0, &asn1_ctx, cert_tree, hf_uds_signedCertificate);
+        break;
+
+    case ber_cert_single_true:
+        return dissect_x509af_Certificate(TRUE, sub_tvb, 0, &asn1_ctx, cert_tree, hf_uds_signedCertificate);
+        break;
+
+    case ber_cert_multi_false:
+        return dissect_x509af_Certificates(FALSE, sub_tvb, 0, &asn1_ctx, cert_tree, hf_uds_signedCertificate);
+        break;
+
+    case ber_cert_multi_true:
+        return dissect_x509af_Certificates(TRUE, sub_tvb, 0, &asn1_ctx, cert_tree, hf_uds_signedCertificate);
+        break;
+    }
+
+    return 0;
+}
+
+static int
 dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 source_address, guint32 target_address, guint8 number_of_addresses_valid)
 {
     proto_tree *uds_tree;
@@ -2485,7 +2542,8 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                     proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_server, tvb, offset, 2, ENC_NA, &length_field);
                     offset += 2;
 
-                    proto_tree_add_item(uds_tree, hf_uds_ars_cert_server, tvb, offset, length_field, ENC_NA);
+                    ti = proto_tree_add_item(uds_tree, hf_uds_ars_cert_server, tvb, offset, length_field, ENC_NA);
+                    dissect_uds_certificates_into_tree(tvb, pinfo, uds_tree, ti, offset, length_field);
                     offset += length_field;
 
                     proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_server, tvb, offset, 2, ENC_NA, &length_field);
@@ -2602,7 +2660,8 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                     proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_client, tvb, offset, 2, ENC_NA, &length_cert_client);
                     offset += 2;
 
-                    proto_tree_add_item(uds_tree, hf_uds_ars_cert_client, tvb, offset, length_cert_client, ENC_NA);
+                    ti = proto_tree_add_item(uds_tree, hf_uds_ars_cert_client, tvb, offset, length_cert_client, ENC_NA);
+                    dissect_uds_certificates_into_tree(tvb, pinfo, uds_tree, ti, offset, length_cert_client);
                     offset += length_cert_client;
 
                     guint length_challenge_client;
@@ -3448,6 +3507,9 @@ proto_register_uds(void) {
         { &hf_uds_ars_session_key_info, {
             "Session Key Info", "uds.ars.session_key_info", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_uds_signedCertificate, {
+            "signedCertificate", "uds.signedCertificate_element", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+
         { &hf_uds_rdbpi_transmission_mode, {
             "Transmission Mode", "uds.rdbpi.transmission_mode", FT_UINT8, BASE_HEX, VALS(uds_rdbpi_transmission_mode), 0x0, NULL, HFILL } },
         { &hf_uds_rdbpi_periodic_data_identifier, {
@@ -3603,6 +3665,7 @@ proto_register_uds(void) {
         &ett_uds_rsdbi_scaling_byte,
         &ett_uds_rsdbi_formula_constant,
         &ett_uds_cc_communication_type,
+        &ett_uds_ars_certificate,
         &ett_uds_ars_algo_indicator,
         &ett_uds_dddi_entry,
         &ett_uds_sdt_admin_param,
@@ -3738,6 +3801,11 @@ proto_register_uds(void) {
         "Dissect Service Identifiers smaller 0x10 with OBD II Dissector?",
         "Dissect Service Identifiers smaller 0x10 with OBD II Dissector?",
         &uds_dissect_small_sids_with_obd_ii);
+
+    prefs_register_enum_preference(uds_module, "cert_decode_strategy",
+        "Certificate Decoding Strategy",
+        "Decide how the certificate bytes are decoded",
+        &uds_certificate_decoding_config, certificate_decoding_vals, FALSE);
 
     heur_subdissector_list = register_heur_dissector_list("uds", proto_uds);
 }
