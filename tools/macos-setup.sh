@@ -2285,7 +2285,7 @@ uninstall_ilbc() {
 install_opus() {
     if [ "$OPUS_VERSION" -a ! -f opus-$OPUS_VERSION-done ] ; then
         echo "Downloading, building, and installing opus:"
-        [ -f opus-$OPUS_VERSION.tar.gz ] || curl -L -O https://archive.mozilla.org/pub/opus/opus-$OPUS_VERSION.tar.gz || exit 1
+        [ -f opus-$OPUS_VERSION.tar.gz ] || curl -L -O https://downloads.xiph.org/releases/opus/opus-$OPUS_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat opus-$OPUS_VERSION.tar.gz | tar xf - || exit 1
         cd opus-$OPUS_VERSION
