@@ -312,7 +312,7 @@ print_elapsed_json(const char *cf_name, const char *dfilter)
         json_dumper_value_string(&dumper, dfilter);
     }
     json_dumper_set_member_name(&dumper, "time_unit");
-    json_dumper_value_string(&dumper, "millisecond");
+    json_dumper_value_string(&dumper, "microseconds");
     DUMP("elapsed", tshark_elapsed.elapsed_first_pass +
                         tshark_elapsed.elapsed_second_pass);
     DUMP("dfilter_expand", tshark_elapsed.dfilter_expand);
