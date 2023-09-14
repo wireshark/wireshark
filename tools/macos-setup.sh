@@ -1962,7 +1962,6 @@ install_libssh() {
         $no_build && echo "Skipping installation" && return
         xzcat libssh-$LIBSSH_VERSION.tar.xz | tar xf - || exit 1
         cd libssh-$LIBSSH_VERSION
-        patch -p0 <${topdir}/macosx-support-lib-patches/libssh-void-arglists.patch || exit 1
         mkdir build
         cd build
         MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake -DWITH_GCRYPT=1 ../ || exit 1
