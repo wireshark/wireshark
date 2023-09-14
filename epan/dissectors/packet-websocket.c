@@ -208,7 +208,7 @@ tvb_unmasked(tvbuff_t *tvb, packet_info *pinfo, const guint offset, guint payloa
     data_unmask[i] = data_mask[i] ^ masking_key[i%4];
   }
 
-  return tvb_new_real_data(data_unmask, unmasked_length, payload_length);
+  return tvb_new_child_real_data(tvb, data_unmask, unmasked_length, payload_length);
 }
 
 #ifdef HAVE_ZLIB
@@ -312,7 +312,7 @@ websocket_uncompress(tvbuff_t *tvb, packet_info *pinfo, z_streamp z_strm, tvbuff
     if (decompr_len > 0) {
       pkt_info->decompr_payload = decompr_payload;
       pkt_info->decompr_len = decompr_len;
-      *uncompressed_tvb = tvb_new_real_data(decompr_payload, decompr_len, decompr_len);
+      *uncompressed_tvb = tvb_new_child_real_data(tvb, decompr_payload, decompr_len, decompr_len);
     }
     p_add_proto_data(wmem_file_scope(), pinfo, proto_websocket, key, pkt_info);
     return TRUE;
@@ -412,7 +412,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       if (pkt_info) {
         uncompress_ok = TRUE;
         if (pkt_info->decompr_len > 0) {
-          uncompressed = tvb_new_real_data(pkt_info->decompr_payload, pkt_info->decompr_len, pkt_info->decompr_len);
+          uncompressed = tvb_new_child_real_data(tvb, pkt_info->decompr_payload, pkt_info->decompr_len, pkt_info->decompr_len);
         }
       }
     }
@@ -702,7 +702,6 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     if (mask) {
       proto_tree_add_item(ws_tree, hf_ws_masked_payload, tvb, payload_offset, payload_length, ENC_NA);
       tvb_payload = tvb_unmasked(tvb, pinfo, payload_offset, payload_length, masking_key);
-      tvb_set_child_real_data_tvbuff(tvb, tvb_payload);
       add_new_data_source(pinfo, tvb_payload, "Unmasked data");
     } else {
       tvb_payload = tvb_new_subset_length(tvb, payload_offset, payload_length);
