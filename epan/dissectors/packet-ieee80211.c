@@ -16548,12 +16548,10 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
       invalid = TRUE;
     }
     if (invalid) {
-      proto_tree_add_expert_format(item, pinfo,
-                                   &ei_ieee80211_eht_invalid_action,
-                                   tvb, offset, 1,
-                                   "Invalid TID_TO_LINK_MAPPING_REQUEST. "
-                                   "There should be one or two Tid-To-Link IEs "
-                                   "but none found");
+      expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,
+                             "Invalid TID_TO_LINK_MAPPING_REQUEST. "
+                             "There should be one or two Tid-To-Link IEs "
+                             "but none found");
       break;
     }
 
@@ -16588,12 +16586,10 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         invalid = TRUE;
       }
       if (invalid) {
-        proto_tree_add_expert_format(item, pinfo,
-                                     &ei_ieee80211_eht_invalid_action,
-                                     tvb, offset, 1,
-                                     "Invalid TID_TO_LINK_MAPPING_RESPONSE. "
-                                     "There should be one or two Tid-To-Link IEs "
-                                     "but none found");
+        expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,
+                               "Invalid TID_TO_LINK_MAPPING_RESPONSE. "
+                               "There should be one or two Tid-To-Link IEs "
+                               "but none found");
         break;
       }
 
@@ -16654,12 +16650,10 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
       invalid = TRUE;
     }
     if (invalid) {
-      proto_tree_add_expert_format(item, pinfo,
-                                   &ei_ieee80211_eht_invalid_action,
-                                   tvb, offset, 1,
-                                   "Invalid LINK_RECOMMENDATION. "
-                                   "There should be AID_BITMAP element"
-                                   "but none found");
+      expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,
+                             "Invalid LINK_RECOMMENDATION. "
+                             "There should be AID_BITMAP element"
+                             "but none found");
       break;
     }
 
@@ -16678,12 +16672,10 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
       invalid = TRUE;
     }
     if (invalid) {
-      proto_tree_add_expert_format(item, pinfo,
-                                   &ei_ieee80211_eht_invalid_action,
-                                   tvb, offset, 1,
-                                   "Invalid LINK_RECOMMENDATION. "
-                                   "There should be MULTI_LINK_TRAFFIC element"
-                                   "but none found");
+      expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,
+                             "Invalid LINK_RECOMMENDATION. "
+                             "There should be MULTI_LINK_TRAFFIC element"
+                             "but none found");
       break;
     }
     break;
@@ -16702,12 +16694,10 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
       invalid = TRUE;
     }
     if (invalid) {
-      proto_tree_add_expert_format(item, pinfo,
-                                   &ei_ieee80211_eht_invalid_action,
-                                   tvb, offset, 1,
-                                   "Invalid Multi-Link Operation Update Request. "
-                                   "There should be Reconf Multi-Link element"
-                                   "but none found");
+      expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,
+                             "Invalid Multi-Link Operation Update Request. "
+                             "There should be Reconf Multi-Link element"
+                             "but none found");
       break;
     }
     break;
@@ -16716,10 +16706,9 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_status_code(tree, tvb, pinfo, offset);
     break;
   default:
-    proto_tree_add_expert_format(item, pinfo, &ei_ieee80211_eht_invalid_action,
-                                 tvb, offset, 1,
-                                 "Reserved Protected EHT Action %u",
-                                 protected_eht_action);
+    expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,
+                           "Reserved Protected EHT Action %u",
+                           protected_eht_action);
 
     break;
   }
@@ -17887,15 +17876,13 @@ add_ff_eht_mimo_control_etc(proto_tree *tree _U_, tvbuff_t *tvb _U_,
    * 802.11be D3.0
    */
   if (nc_index > 7) {
-    proto_tree_add_expert_format(mci, pinfo, &ei_ieee80211_eht_invalid_nc_nr,
-                                 tvb, offset, 1, "Nc indices (%d) > 7 are "
-                                 "reserved", nc_index);
+    expert_add_info_format(pinfo, mci, &ei_ieee80211_eht_invalid_nc_nr,
+                           "Nc indices (%d) > 7 are reserved", nc_index);
     return offset;
   }
   if (nr_index == 0 || nr_index > 7) {
-    proto_tree_add_expert_format(mci, pinfo, &ei_ieee80211_eht_invalid_nc_nr,
-                                 tvb, offset, 1, "Nr indices (%d) 0 and > 7 "
-                                 "are resered", nr_index);
+    expert_add_info_format(pinfo, mci, &ei_ieee80211_eht_invalid_nc_nr,
+                           "Nr indices (%d) 0 and > 7 are resered", nr_index);
     return offset;
   }
   offset += 5;
@@ -17948,9 +17935,8 @@ add_ff_action_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_eht_mimo_control_etc(tree, tvb, pinfo, offset);
     break;
   default:
-    proto_tree_add_expert_format(item, pinfo, &ei_ieee80211_eht_invalid_action,
-                                 tvb, offset, 1, "Reserved EHT Action %u",
-                                 eht_action);
+    expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,
+                           "Reserved EHT Action %u", eht_action);
   }
 
   return offset - start;
