@@ -59,7 +59,7 @@ http_init_hash(httpstat_t *sp)
 {
 	int i;
 
-	sp->hash_responses = g_hash_table_new(g_direct_hash, g_direct_equal);
+	sp->hash_responses = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
 	for (i=0; vals_http_status_code[i].strptr; i++)
 	{
@@ -70,8 +70,9 @@ http_init_hash(httpstat_t *sp)
 		sc->sp = sp;
 		g_hash_table_insert(sc->sp->hash_responses, GUINT_TO_POINTER(vals_http_status_code[i].value), sc);
 	}
-	sp->hash_requests = g_hash_table_new(g_str_hash, g_str_equal);
+	sp->hash_requests = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
 }
+
 static void
 http_draw_hash_requests(gchar *key _U_, http_request_methode_t *data, gchar *format)
 {
@@ -122,6 +123,17 @@ httpstat_reset(void *psp)
 	g_hash_table_foreach(sp->hash_responses, (GHFunc)http_reset_hash_responses, NULL);
 	g_hash_table_foreach(sp->hash_requests, (GHFunc)http_reset_hash_requests, NULL);
 
+}
+
+static void
+httpstat_finish(void *psp)
+{
+	httpstat_t *sp = (httpstat_t *)psp;
+
+	g_free(sp->filter);
+	g_hash_table_destroy(sp->hash_responses);
+	g_hash_table_destroy(sp->hash_requests);
+	g_free(sp);
 }
 
 static tap_packet_status
@@ -242,7 +254,7 @@ httpstat_init(const char *opt_arg, void *userdata _U_)
 			httpstat_reset,
 			httpstat_packet,
 			httpstat_draw,
-			NULL);
+			httpstat_finish);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);
