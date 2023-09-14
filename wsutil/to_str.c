@@ -705,6 +705,9 @@ format_fractional_part_nsecs(gchar *buf, size_t buflen, guint32 nsecs, const cha
 
 	/*
 	 * Copy the decimal point.
+	 * (We assume here that the locale's decimal point does
+	 * not contain so many characters that its size doesn't
+	 * fit in an int. :-))
 	 */
 	decimal_point_len = g_strlcpy(buf, decimal_point, buflen);
 	if (decimal_point_len >= buflen) {
@@ -719,7 +722,7 @@ format_fractional_part_nsecs(gchar *buf, size_t buflen, guint32 nsecs, const cha
 	}
 	ptr += decimal_point_len;
 	remaining -= decimal_point_len;
-	num_bytes += decimal_point_len;
+	num_bytes += (int)decimal_point_len;
 
 	/*
 	 * Fill in num_buf with the nanoseconds value, padded with
@@ -827,10 +830,12 @@ format_fractional_part_nsecs(gchar *buf, size_t buflen, guint32 nsecs, const cha
 
 	/*
 	 * Copy over the fractional part.
+	 * (We assume here that the fractional part does not contain
+	 * so many characters that its size doesn't fit in an int. :-))
 	 */
 	memcpy(ptr, num_ptr, num_len);
 	ptr += num_len;
-	num_bytes += num_len;
+	num_bytes += (int)num_len;
 
 	/*
 	 * '\0'-terminate it.
