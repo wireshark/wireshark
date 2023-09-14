@@ -652,7 +652,14 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 
 	if (segment_size >= tvb_captured_length(tvb)) {
 		/* did not capture the entire packet */
+		/* XXX: expert info instead? Distinguish between segment_size
+		 * >= reported_length (i.e., bogus reported data_length) and
+		 * too short capture? */
 		proto_tree_add_string(ltp_data_tree, hf_ltp_partial_packet, tvb, 0, 0, "<increase capture size?>");
+		/* data_len is subtracted from the return value to set the
+		 * header length, so report the number of data bytes available.
+		 */
+		*data_len = tvb_captured_length_remaining(tvb, frame_offset);
 		return tvb_captured_length(tvb);
 	}
 
