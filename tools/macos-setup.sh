@@ -1531,7 +1531,7 @@ install_gnutls() {
             bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
         fi
         cd gnutls-$GNUTLS_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-included-unistring --disable-guile || exit 1
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -I /usr/local/include" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -I/usr/local/include/" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -L/usr/local/lib" ./configure --with-included-unistring --disable-guile || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
