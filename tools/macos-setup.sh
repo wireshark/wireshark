@@ -1719,9 +1719,12 @@ uninstall_zstd() {
 install_libxml2() {
     if [ "$LIBXML2_VERSION" -a ! -f libxml2-$LIBXML2_VERSION-done ] ; then
         echo "Downloading, building, and installing libxml2:"
-        [ -f libxml2-$LIBXML2_VERSION.tar.gz ] || curl -L -O ftp://xmlsoft.org/libxml2/libxml2-$LIBXML2_VERSION.tar.gz || exit 1
+        LIBXML2_MAJOR_VERSION="`expr $LIBXML2_VERSION : '\([0-9][0-9]*\).*'`"
+        LIBXML2_MINOR_VERSION="`expr $LIBXML2_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        LIBXML2_MAJOR_MINOR_VERSION=$LIBXML2_MAJOR_VERSION.$LIBXML2_MINOR_VERSION
+        [ -f libxml2-$LIBXML2_VERSION.tar.gz ] || curl -L -O https://download.gnome.org/sources/libxml2/$LIBXML2_MAJOR_MINOR_VERSION/libxml2-$LIBXML2_VERSION.tar.xz || exit 1
         $no_build && echo "Skipping installation" && return
-        gzcat libxml2-$LIBXML2_VERSION.tar.gz | tar xf - || exit 1
+        xzcat libxml2-$LIBXML2_VERSION.tar.xz | tar xf - || exit 1
         cd libxml2-$LIBXML2_VERSION
         #
         # At least on macOS 12.0.1 with Xcode 13.1, when we build
@@ -1751,7 +1754,7 @@ uninstall_libxml2() {
             # Get rid of the previously downloaded and unpacked version.
             #
             rm -rf libxml2-$installed_libxml2_version
-            rm -rf libxml2-$installed_libxml2_version.tar.gz
+            rm -rf libxml2-$installed_libxml2_version.tar.xz
         fi
 
         installed_libxml2_version=""
