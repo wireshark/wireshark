@@ -14,6 +14,7 @@
 #include <string.h>
 #include <time.h>
 #include <locale.h>
+#include <limits.h>
 
 #include "column-utils.h"
 #include "timestamp.h"
@@ -1142,7 +1143,7 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
   }
   if (ts->nsecs >= 0) {
     nsecs = ts->nsecs;
-  } else if (G_LIKELY(ts->nsecs != -2147483648)) {
+  } else if (G_LIKELY(ts->nsecs != INT_MIN)) {
     /*
      * This isn't the smallest negative number that fits in 32
      * bits, so we can compute its negative and store it in a
