@@ -1190,7 +1190,7 @@ process_cap_file(const char *filename, gboolean need_separator)
             bytes += rec.rec_header.packet_header.len;
             packet++;
             /* packet comments */
-            if (wtap_block_count_option(rec.block, OPT_COMMENT) > 0) {
+            if (pkt_comments && wtap_block_count_option(rec.block, OPT_COMMENT) > 0) {
               char *cmt_buff;
               for (i = 0; wtap_block_get_nth_string_option_value(rec.block, OPT_COMMENT, i, &cmt_buff) == WTAP_OPTTYPE_SUCCESS; i++) {
                 pc = g_new0(pkt_cmt, 1);
