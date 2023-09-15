@@ -1453,6 +1453,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     rtp_private_conv_info *finfo = NULL;
     rtp_multisegment_pdu *msp;
     guint32 seqno;
+    guint16 save_can_desegment;
 
     /* Retrieve RTPs idea of a converation */
     p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
@@ -1469,6 +1470,10 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     seqno = p_conv_data->extended_seqno;
 
+    /* Preserve the current desegmentation ability in case this is
+     * RTP encapsulated in TCP (RFC 4571).
+     */
+    save_can_desegment = pinfo->can_desegment;
     pinfo->can_desegment = 2;
     pinfo->desegment_offset = 0;
     pinfo->desegment_len = 0;
@@ -1634,7 +1639,8 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    pinfo->can_desegment = 0;
+    /* Restore desegmentation ability */
+    pinfo->can_desegment = save_can_desegment;
     pinfo->desegment_offset = 0;
     pinfo->desegment_len = 0;
 }
