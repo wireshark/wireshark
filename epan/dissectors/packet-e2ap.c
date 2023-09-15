@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-e2ap.c                                                              */
-/* asn2wrs.py -L -p e2ap -c ./e2ap.cnf -s ./packet-e2ap-template -D . -O ../.. E2AP-CommonDataTypes.asn E2AP-Constants.asn E2AP-Containers.asn E2AP-IEs.asn E2AP-PDU-Contents.asn E2AP-PDU-Descriptions.asn e2sm-v3.01.asn e2sm-rc-v3.00.asn e2sm-kpm-v3.00.asn e2sm-ni-v1.00.asn */
+/* asn2wrs.py -L -p e2ap -c ./e2ap.cnf -s ./packet-e2ap-template -D . -O ../.. E2AP-CommonDataTypes.asn E2AP-Constants.asn E2AP-Containers.asn E2AP-IEs.asn E2AP-PDU-Contents.asn E2AP-PDU-Descriptions.asn e2sm-v3.01.asn e2sm-rc-v1.03.asn e2sm-kpm-v3.00.asn e2sm-ni-v1.00.asn */
 
 /* packet-e2ap.c
  * Routines for E2APApplication Protocol (e2ap) packet dissection
@@ -13,11 +13,10 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: ORAN-WG3.E2AP-v02.01, ORAN-WG3.E2SM-KPM-v02.02, ORAN-WG3.E2SM-RC.01.02
+ * References: ORAN-WG3.E2AP-v03.00, ORAN-WG3.E2SM-KPM-v03.00, ORAN-WG3.E2SM-RC.03.00
  */
 
 #include "config.h"
-#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
@@ -27,9 +26,8 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
-#include <epan/exceptions.h>
-#include <epan/show_exception.h>
 #include <epan/to_str.h>
+#include <epan/oids.h>
 
 #include "packet-e2ap.h"
 #include "packet-per.h"
@@ -82,9 +80,6 @@ static dissector_handle_t e2ap_handle;
 #define maxnoofPolicyAction            65535
 #define maxnoofInsertIndicationActions 63
 #define maxnoofMulCtrlActions          63
-#define maxGroupDefinitionIdentifierParameters 255
-#define maxnoofAssociatedEntityFilters 255
-#define maxnoofFormatTypes             63
 #define maxnoofCells                   16384
 #define maxnoofMeasurementInfo         65535
 #define maxnoofLabelInfo               2147483647
@@ -357,9 +352,6 @@ static int hf_e2ap_E2SM_RC_CallProcessID_PDU = -1;  /* E2SM_RC_CallProcessID */
 static int hf_e2ap_E2SM_RC_ControlHeader_PDU = -1;  /* E2SM_RC_ControlHeader */
 static int hf_e2ap_E2SM_RC_ControlMessage_PDU = -1;  /* E2SM_RC_ControlMessage */
 static int hf_e2ap_E2SM_RC_ControlOutcome_PDU = -1;  /* E2SM_RC_ControlOutcome */
-static int hf_e2ap_E2SM_RC_QueryHeader_PDU = -1;  /* E2SM_RC_QueryHeader */
-static int hf_e2ap_E2SM_RC_QueryDefinition_PDU = -1;  /* E2SM_RC_QueryDefinition */
-static int hf_e2ap_E2SM_RC_QueryOutcome_PDU = -1;  /* E2SM_RC_QueryOutcome */
 static int hf_e2ap_E2SM_RC_RANFunctionDefinition_PDU = -1;  /* E2SM_RC_RANFunctionDefinition */
 static int hf_e2ap_E2SM_KPM_EventTriggerDefinition_PDU = -1;  /* E2SM_KPM_EventTriggerDefinition */
 static int hf_e2ap_E2SM_KPM_ActionDefinition_PDU = -1;  /* E2SM_KPM_ActionDefinition */
@@ -523,7 +515,7 @@ static int hf_e2ap_global_ng_eNB_ID_01 = -1;      /* GlobalNgENB_ID */
 static int hf_e2ap_interfaceProcedureID = -1;     /* INTEGER */
 static int hf_e2ap_messageType = -1;              /* T_messageType */
 static int hf_e2ap_ranFunction_ShortName = -1;    /* T_ranFunction_ShortName */
-static int hf_e2ap_ranFunction_E2SM_OID = -1;     /* PrintableString_SIZE_1_1000_ */
+static int hf_e2ap_ranFunction_E2SM_OID = -1;     /* T_ranFunction_E2SM_OID */
 static int hf_e2ap_ranFunction_Description = -1;  /* PrintableString_SIZE_1_150_ */
 static int hf_e2ap_ranFunction_Instance = -1;     /* INTEGER */
 static int hf_e2ap_rrcType = -1;                  /* T_rrcType */
@@ -662,22 +654,16 @@ static int hf_e2ap_ranParameter_TestCondition = -1;  /* RANParameter_TestingCond
 static int hf_e2ap_ranParameter_Value = -1;       /* RANParameter_Value */
 static int hf_e2ap_RANParameter_Testing_LIST_item = -1;  /* RANParameter_Testing_Item */
 static int hf_e2ap_RANParameter_Testing_STRUCTURE_item = -1;  /* RANParameter_Testing_Item */
-static int hf_e2ap_ueGroupDefinitionIdentifier_LIST = -1;  /* SEQUENCE_SIZE_1_maxGroupDefinitionIdentifierParameters_OF_UEGroupDefinitionIdentifier_Item */
-static int hf_e2ap_ueGroupDefinitionIdentifier_LIST_item = -1;  /* UEGroupDefinitionIdentifier_Item */
 static int hf_e2ap_ric_PolicyAction_ID = -1;      /* RIC_ControlAction_ID */
 static int hf_e2ap_ranParameters_List = -1;       /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_RIC_PolicyAction_RANParameter_Item */
 static int hf_e2ap_ranParameters_List_item = -1;  /* RIC_PolicyAction_RANParameter_Item */
 static int hf_e2ap_ric_PolicyDecision = -1;       /* T_ric_PolicyDecision */
-static int hf_e2ap_associatedUEInfo_List = -1;    /* SEQUENCE_SIZE_1_maxnoofUEInfo_OF_Associated_UE_Info_Item */
-static int hf_e2ap_associatedUEInfo_List_item = -1;  /* Associated_UE_Info_Item */
-static int hf_e2ap_ueFilterID = -1;               /* UE_Filter_ID */
-static int hf_e2ap_ueType_01 = -1;                /* T_ueType_01 */
 static int hf_e2ap_ric_eventTrigger_formats = -1;  /* T_ric_eventTrigger_formats */
 static int hf_e2ap_eventTrigger_Format1 = -1;     /* E2SM_RC_EventTrigger_Format1 */
 static int hf_e2ap_eventTrigger_Format2 = -1;     /* E2SM_RC_EventTrigger_Format2 */
 static int hf_e2ap_eventTrigger_Format3 = -1;     /* E2SM_RC_EventTrigger_Format3 */
 static int hf_e2ap_eventTrigger_Format4 = -1;     /* E2SM_RC_EventTrigger_Format4 */
-static int hf_e2ap_eventTrigger_Format5 = -1;     /* NULL */
+static int hf_e2ap_eventTrigger_Format5 = -1;     /* E2SM_RC_EventTrigger_Format5 */
 static int hf_e2ap_message_List = -1;             /* SEQUENCE_SIZE_1_maxnoofMessages_OF_E2SM_RC_EventTrigger_Format1_Item */
 static int hf_e2ap_message_List_item = -1;        /* E2SM_RC_EventTrigger_Format1_Item */
 static int hf_e2ap_globalAssociatedUEInfo = -1;   /* EventTrigger_UE_Info */
@@ -705,17 +691,12 @@ static int hf_e2ap_triggerType = -1;              /* TriggerType_Choice */
 static int hf_e2ap_triggerType_Choice_RRCstate = -1;  /* TriggerType_Choice_RRCstate */
 static int hf_e2ap_triggerType_Choice_UEID = -1;  /* TriggerType_Choice_UEID */
 static int hf_e2ap_triggerType_Choice_L2state = -1;  /* TriggerType_Choice_L2state */
-static int hf_e2ap_triggerType_Choice_UEcontext = -1;  /* TriggerType_Choice_UEcontext */
-static int hf_e2ap_triggerType_Choice_L2MACschChg = -1;  /* TriggerType_Choice_L2MACschChg */
 static int hf_e2ap_rrcState_List = -1;            /* SEQUENCE_SIZE_1_maxnoofRRCstate_OF_TriggerType_Choice_RRCstate_Item */
 static int hf_e2ap_rrcState_List_item = -1;       /* TriggerType_Choice_RRCstate_Item */
 static int hf_e2ap_stateChangedTo = -1;           /* RRC_State */
 static int hf_e2ap_ueIDchange_ID = -1;            /* INTEGER_1_512_ */
 static int hf_e2ap_associatedL2variables = -1;    /* RANParameter_Testing */
-static int hf_e2ap_associatedUECtxtVariables = -1;  /* RANParameter_Testing */
-static int hf_e2ap_l2MACschChgType = -1;          /* L2MACschChgType_Choice */
-static int hf_e2ap_triggerType_Choice_MIMOandBFconfig = -1;  /* TriggerType_Choice_MIMOandBFconfig */
-static int hf_e2ap_mIMOtransModeState = -1;       /* T_mIMOtransModeState */
+static int hf_e2ap_onDemand = -1;                 /* T_onDemand */
 static int hf_e2ap_ric_Style_Type = -1;           /* RIC_Style_Type */
 static int hf_e2ap_ric_actionDefinition_formats = -1;  /* T_ric_actionDefinition_formats */
 static int hf_e2ap_actionDefinition_Format1 = -1;  /* E2SM_RC_ActionDefinition_Format1 */
@@ -747,7 +728,7 @@ static int hf_e2ap_ric_indicationMessage_formats = -1;  /* T_ric_indicationMessa
 static int hf_e2ap_indicationMessage_Format1 = -1;  /* E2SM_RC_IndicationMessage_Format1 */
 static int hf_e2ap_indicationMessage_Format2 = -1;  /* E2SM_RC_IndicationMessage_Format2 */
 static int hf_e2ap_indicationMessage_Format3 = -1;  /* E2SM_RC_IndicationMessage_Format3 */
-static int hf_e2ap_indicationMessage_Format4 = -1;  /* NULL */
+static int hf_e2ap_indicationMessage_Format4 = -1;  /* E2SM_RC_IndicationMessage_Format4 */
 static int hf_e2ap_indicationMessage_Format5 = -1;  /* E2SM_RC_IndicationMessage_Format5 */
 static int hf_e2ap_indicationMessage_Format6 = -1;  /* E2SM_RC_IndicationMessage_Format6 */
 static int hf_e2ap_ranP_Reported_List = -1;       /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format1_Item */
@@ -762,6 +743,11 @@ static int hf_e2ap_cellGlobal_ID = -1;            /* CGI */
 static int hf_e2ap_cellContextInfo = -1;          /* OCTET_STRING */
 static int hf_e2ap_cellDeleted = -1;              /* BOOLEAN */
 static int hf_e2ap_neighborRelation_Table = -1;   /* NeighborRelation_Info */
+static int hf_e2ap_ueInfo_List_01 = -1;           /* SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE */
+static int hf_e2ap_ueInfo_List_item_01 = -1;      /* E2SM_RC_IndicationMessage_Format4_ItemUE */
+static int hf_e2ap_cellInfo_List_02 = -1;         /* SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell */
+static int hf_e2ap_cellInfo_List_item_02 = -1;    /* E2SM_RC_IndicationMessage_Format4_ItemCell */
+static int hf_e2ap_ueContextInfo = -1;            /* OCTET_STRING */
 static int hf_e2ap_ranP_Requested_List = -1;      /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format5_Item */
 static int hf_e2ap_ranP_Requested_List_item = -1;  /* E2SM_RC_IndicationMessage_Format5_Item */
 static int hf_e2ap_ric_InsertStyle_List_01 = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_IndicationMessage_Format6_Style_Item */
@@ -777,16 +763,12 @@ static int hf_e2ap_ric_callProcess_ID = -1;       /* RAN_CallProcess_ID */
 static int hf_e2ap_ric_controlHeader_formats = -1;  /* T_ric_controlHeader_formats */
 static int hf_e2ap_controlHeader_Format1 = -1;    /* E2SM_RC_ControlHeader_Format1 */
 static int hf_e2ap_controlHeader_Format2 = -1;    /* E2SM_RC_ControlHeader_Format2 */
-static int hf_e2ap_controlHeader_Format3 = -1;    /* E2SM_RC_ControlHeader_Format3 */
 static int hf_e2ap_ric_ControlAction_ID = -1;     /* RIC_ControlAction_ID */
 static int hf_e2ap_ric_ControlDecision = -1;      /* T_ric_ControlDecision */
 static int hf_e2ap_ric_ControlDecision_01 = -1;   /* T_ric_ControlDecision_01 */
-static int hf_e2ap_ue_Group_ID = -1;              /* UE_Group_ID */
-static int hf_e2ap_ue_Group_Definition = -1;      /* UE_Group_Definition */
 static int hf_e2ap_ric_controlMessage_formats = -1;  /* T_ric_controlMessage_formats */
 static int hf_e2ap_controlMessage_Format1 = -1;   /* E2SM_RC_ControlMessage_Format1 */
 static int hf_e2ap_controlMessage_Format2 = -1;   /* E2SM_RC_ControlMessage_Format2 */
-static int hf_e2ap_controlMessage_Format3 = -1;   /* E2SM_RC_ControlMessage_Format3 */
 static int hf_e2ap_ranP_List_01 = -1;             /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_ControlMessage_Format1_Item */
 static int hf_e2ap_ranP_List_item_01 = -1;        /* E2SM_RC_ControlMessage_Format1_Item */
 static int hf_e2ap_ric_ControlStyle_List = -1;    /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlMessage_Format2_Style_Item */
@@ -795,14 +777,6 @@ static int hf_e2ap_indicated_Control_Style_Type = -1;  /* RIC_Style_Type */
 static int hf_e2ap_ric_ControlAction_List = -1;   /* SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlMessage_Format2_ControlAction_Item */
 static int hf_e2ap_ric_ControlAction_List_item = -1;  /* E2SM_RC_ControlMessage_Format2_ControlAction_Item */
 static int hf_e2ap_ranP_List_02 = -1;             /* E2SM_RC_ControlMessage_Format1 */
-static int hf_e2ap_listOfEntityFilters = -1;      /* SEQUENCE_SIZE_0_maxnoofAssociatedEntityFilters_OF_E2SM_RC_EntityFilter */
-static int hf_e2ap_listOfEntityFilters_item = -1;  /* E2SM_RC_EntityFilter */
-static int hf_e2ap_entityAgnosticControlRanP_List = -1;  /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_EntityAgnostic_ranP_ControlParameters */
-static int hf_e2ap_entityAgnosticControlRanP_List_item = -1;  /* EntityAgnostic_ranP_ControlParameters */
-static int hf_e2ap_entityFilter_ID = -1;          /* EntityFilter_ID */
-static int hf_e2ap_entityFilter_Definition = -1;  /* RANParameter_Testing */
-static int hf_e2ap_entitySpecificControlRanP_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_EntitySpecific_ranP_ControlParameters */
-static int hf_e2ap_entitySpecificControlRanP_List_item = -1;  /* EntitySpecific_ranP_ControlParameters */
 static int hf_e2ap_ric_controlOutcome_formats = -1;  /* T_ric_controlOutcome_formats */
 static int hf_e2ap_controlOutcome_Format1 = -1;   /* E2SM_RC_ControlOutcome_Format1 */
 static int hf_e2ap_controlOutcome_Format2 = -1;   /* E2SM_RC_ControlOutcome_Format2 */
@@ -817,31 +791,12 @@ static int hf_e2ap_ranP_List_04 = -1;             /* SEQUENCE_SIZE_1_maxnoofAsso
 static int hf_e2ap_ranP_List_item_03 = -1;        /* E2SM_RC_ControlOutcome_Format2_RANP_Item */
 static int hf_e2ap_ranP_List_05 = -1;             /* SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format3_Item */
 static int hf_e2ap_ranP_List_item_04 = -1;        /* E2SM_RC_ControlOutcome_Format3_Item */
-static int hf_e2ap_ric_queryHeader_formats = -1;  /* T_ric_queryHeader_formats */
-static int hf_e2ap_queryHeader_Format1 = -1;      /* E2SM_RC_QueryHeader_Format1 */
-static int hf_e2ap_associatedUEInfo_01 = -1;      /* Associated_UE_Info */
-static int hf_e2ap_ric_queryDefinition_formats = -1;  /* T_ric_queryDefinition_formats */
-static int hf_e2ap_queryRequest_Format1 = -1;     /* E2SM_RC_QueryDefinition_Format1 */
-static int hf_e2ap_ranP_List_06 = -1;             /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryDefinition_Format1_Item */
-static int hf_e2ap_ranP_List_item_05 = -1;        /* E2SM_RC_QueryDefinition_Format1_Item */
-static int hf_e2ap_ric_queryOutcome_formats = -1;  /* T_ric_queryOutcome_formats */
-static int hf_e2ap_queryOutcome_Format1 = -1;     /* E2SM_RC_QueryOutcome_Format1 */
-static int hf_e2ap_queryOutcome_Format2 = -1;     /* E2SM_RC_QueryOutcome_Format2 */
-static int hf_e2ap_cellInfo_List_02 = -1;         /* SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_QueryOutcome_Format1_ItemCell */
-static int hf_e2ap_cellInfo_List_item_02 = -1;    /* E2SM_RC_QueryOutcome_Format1_ItemCell */
-static int hf_e2ap_ranP_List_07 = -1;             /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format1_ItemParameters */
-static int hf_e2ap_ranP_List_item_06 = -1;        /* E2SM_RC_QueryOutcome_Format1_ItemParameters */
-static int hf_e2ap_ueInfo_List_01 = -1;           /* SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_QueryOutcome_Format2_ItemUE */
-static int hf_e2ap_ueInfo_List_item_01 = -1;      /* E2SM_RC_QueryOutcome_Format2_ItemUE */
-static int hf_e2ap_ranP_List_08 = -1;             /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format2_ItemParameters */
-static int hf_e2ap_ranP_List_item_07 = -1;        /* E2SM_RC_QueryOutcome_Format2_ItemParameters */
 static int hf_e2ap_ranFunction_Name = -1;         /* RANfunction_Name */
 static int hf_e2ap_ranFunctionDefinition_EventTrigger = -1;  /* RANFunctionDefinition_EventTrigger */
 static int hf_e2ap_ranFunctionDefinition_Report = -1;  /* RANFunctionDefinition_Report */
 static int hf_e2ap_ranFunctionDefinition_Insert = -1;  /* RANFunctionDefinition_Insert */
 static int hf_e2ap_ranFunctionDefinition_Control = -1;  /* RANFunctionDefinition_Control */
 static int hf_e2ap_ranFunctionDefinition_Policy = -1;  /* RANFunctionDefinition_Policy */
-static int hf_e2ap_ranFunctionDefinition_Query = -1;  /* RANFunctionDefinition_Query */
 static int hf_e2ap_ric_EventTriggerStyle_List = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_EventTrigger_Style_Item */
 static int hf_e2ap_ric_EventTriggerStyle_List_item = -1;  /* RANFunctionDefinition_EventTrigger_Style_Item */
 static int hf_e2ap_ran_L2Parameters_List = -1;    /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_L2Parameters_RANParameter_Item */
@@ -897,9 +852,6 @@ static int hf_e2ap_ran_ControlOutcomeParameters_List_item = -1;  /* ControlOutco
 static int hf_e2ap_ric_ControlAction_Name = -1;   /* RIC_ControlAction_Name */
 static int hf_e2ap_ran_ControlActionParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_ControlAction_RANParameter_Item */
 static int hf_e2ap_ran_ControlActionParameters_List_item = -1;  /* ControlAction_RANParameter_Item */
-static int hf_e2ap_ueGroup_ControlAction_Supported = -1;  /* T_ueGroup_ControlAction_Supported */
-static int hf_e2ap_listOfAdditionalSupportedFormats_UEGroupControl = -1;  /* ListOfAdditionalSupportedFormats_UEGroupControl */
-static int hf_e2ap_ListOfAdditionalSupportedFormats_UEGroupControl_item = -1;  /* AdditionalSupportedFormat_UEGroupControl */
 static int hf_e2ap_ric_PolicyStyle_List = -1;     /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Policy_Item */
 static int hf_e2ap_ric_PolicyStyle_List_item = -1;  /* RANFunctionDefinition_Policy_Item */
 static int hf_e2ap_ric_PolicyStyle_Type = -1;     /* RIC_Style_Type */
@@ -911,15 +863,6 @@ static int hf_e2ap_ran_PolicyActionParameters_List = -1;  /* SEQUENCE_SIZE_1_max
 static int hf_e2ap_ran_PolicyActionParameters_List_item = -1;  /* PolicyAction_RANParameter_Item */
 static int hf_e2ap_ran_PolicyConditionParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyCondition_RANParameter_Item */
 static int hf_e2ap_ran_PolicyConditionParameters_List_item = -1;  /* PolicyCondition_RANParameter_Item */
-static int hf_e2ap_ric_QueryStyle_List = -1;      /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Query_Item */
-static int hf_e2ap_ric_QueryStyle_List_item = -1;  /* RANFunctionDefinition_Query_Item */
-static int hf_e2ap_ric_QueryStyle_Type = -1;      /* RIC_Style_Type */
-static int hf_e2ap_ric_QueryStyle_Name = -1;      /* RIC_Style_Name */
-static int hf_e2ap_ric_QueryHeaderFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_QueryDefinitionFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_QueryOutcomeFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ran_QueryParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Query_RANParameter_Item */
-static int hf_e2ap_ran_QueryParameters_List_item = -1;  /* Query_RANParameter_Item */
 static int hf_e2ap_measName = -1;                 /* MeasurementTypeName */
 static int hf_e2ap_measID = -1;                   /* MeasurementTypeID */
 static int hf_e2ap_noLabel = -1;                  /* T_noLabel */
@@ -1124,13 +1067,15 @@ static int hf_e2ap_unmapped_ran_function_id = -1;
 static int hf_e2ap_ran_function_name_not_recognised = -1;
 static int hf_e2ap_ran_function_setup_frame = -1;
 
-
+static int hf_e2ap_dissector_version= -1;
+static int hf_e2ap_frame_version = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_e2ap = -1;
 
 static expert_field ei_e2ap_ran_function_names_no_match = EI_INIT;
 static expert_field ei_e2ap_ran_function_id_not_mapped = EI_INIT;
+static expert_field ei_e2ap_ran_function_dissector_mismatch = EI_INIT;
 
 static gint ett_e2ap_ProtocolIE_Container = -1;
 static gint ett_e2ap_ProtocolIE_Field = -1;
@@ -1367,16 +1312,9 @@ static gint ett_e2ap_RANParameter_Testing_Item_Choice_ElementTrue = -1;
 static gint ett_e2ap_RANParameter_Testing_Item_Choice_ElementFalse = -1;
 static gint ett_e2ap_RANParameter_Testing_LIST = -1;
 static gint ett_e2ap_RANParameter_Testing_STRUCTURE = -1;
-static gint ett_e2ap_UE_Group_Definition = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxGroupDefinitionIdentifierParameters_OF_UEGroupDefinitionIdentifier_Item = -1;
-static gint ett_e2ap_UEGroupDefinitionIdentifier_Item = -1;
 static gint ett_e2ap_RIC_PolicyAction = -1;
 static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_RIC_PolicyAction_RANParameter_Item = -1;
 static gint ett_e2ap_RIC_PolicyAction_RANParameter_Item = -1;
-static gint ett_e2ap_Associated_UE_Info = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEInfo_OF_Associated_UE_Info_Item = -1;
-static gint ett_e2ap_Associated_UE_Info_Item = -1;
-static gint ett_e2ap_T_ueType_01 = -1;
 static gint ett_e2ap_E2SM_RC_EventTrigger = -1;
 static gint ett_e2ap_T_ric_eventTrigger_formats = -1;
 static gint ett_e2ap_E2SM_RC_EventTrigger_Format1 = -1;
@@ -1398,10 +1336,7 @@ static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRRCstate_OF_TriggerType_Choice_RRCst
 static gint ett_e2ap_TriggerType_Choice_RRCstate_Item = -1;
 static gint ett_e2ap_TriggerType_Choice_UEID = -1;
 static gint ett_e2ap_TriggerType_Choice_L2state = -1;
-static gint ett_e2ap_TriggerType_Choice_UEcontext = -1;
-static gint ett_e2ap_TriggerType_Choice_L2MACschChg = -1;
-static gint ett_e2ap_L2MACschChgType_Choice = -1;
-static gint ett_e2ap_TriggerType_Choice_MIMOandBFconfig = -1;
+static gint ett_e2ap_E2SM_RC_EventTrigger_Format5 = -1;
 static gint ett_e2ap_E2SM_RC_ActionDefinition = -1;
 static gint ett_e2ap_T_ric_actionDefinition_formats = -1;
 static gint ett_e2ap_E2SM_RC_ActionDefinition_Format1 = -1;
@@ -1438,6 +1373,11 @@ static gint ett_e2ap_E2SM_RC_IndicationMessage_Format2_RANParameter_Item = -1;
 static gint ett_e2ap_E2SM_RC_IndicationMessage_Format3 = -1;
 static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format3_Item = -1;
 static gint ett_e2ap_E2SM_RC_IndicationMessage_Format3_Item = -1;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format4 = -1;
+static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE = -1;
+static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell = -1;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemUE = -1;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemCell = -1;
 static gint ett_e2ap_E2SM_RC_IndicationMessage_Format5 = -1;
 static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format5_Item = -1;
 static gint ett_e2ap_E2SM_RC_IndicationMessage_Format5_Item = -1;
@@ -1455,7 +1395,6 @@ static gint ett_e2ap_E2SM_RC_ControlHeader = -1;
 static gint ett_e2ap_T_ric_controlHeader_formats = -1;
 static gint ett_e2ap_E2SM_RC_ControlHeader_Format1 = -1;
 static gint ett_e2ap_E2SM_RC_ControlHeader_Format2 = -1;
-static gint ett_e2ap_E2SM_RC_ControlHeader_Format3 = -1;
 static gint ett_e2ap_E2SM_RC_ControlMessage = -1;
 static gint ett_e2ap_T_ric_controlMessage_formats = -1;
 static gint ett_e2ap_E2SM_RC_ControlMessage_Format1 = -1;
@@ -1466,13 +1405,6 @@ static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlMessage_
 static gint ett_e2ap_E2SM_RC_ControlMessage_Format2_Style_Item = -1;
 static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlMessage_Format2_ControlAction_Item = -1;
 static gint ett_e2ap_E2SM_RC_ControlMessage_Format2_ControlAction_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlMessage_Format3 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedEntityFilters_OF_E2SM_RC_EntityFilter = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_EntityAgnostic_ranP_ControlParameters = -1;
-static gint ett_e2ap_E2SM_RC_EntityFilter = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_EntitySpecific_ranP_ControlParameters = -1;
-static gint ett_e2ap_EntityAgnostic_ranP_ControlParameters = -1;
-static gint ett_e2ap_EntitySpecific_ranP_ControlParameters = -1;
 static gint ett_e2ap_E2SM_RC_ControlOutcome = -1;
 static gint ett_e2ap_T_ric_controlOutcome_formats = -1;
 static gint ett_e2ap_E2SM_RC_ControlOutcome_Format1 = -1;
@@ -1488,26 +1420,6 @@ static gint ett_e2ap_E2SM_RC_ControlOutcome_Format2_RANP_Item = -1;
 static gint ett_e2ap_E2SM_RC_ControlOutcome_Format3 = -1;
 static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format3_Item = -1;
 static gint ett_e2ap_E2SM_RC_ControlOutcome_Format3_Item = -1;
-static gint ett_e2ap_E2SM_RC_QueryHeader = -1;
-static gint ett_e2ap_T_ric_queryHeader_formats = -1;
-static gint ett_e2ap_E2SM_RC_QueryHeader_Format1 = -1;
-static gint ett_e2ap_E2SM_RC_QueryDefinition = -1;
-static gint ett_e2ap_T_ric_queryDefinition_formats = -1;
-static gint ett_e2ap_E2SM_RC_QueryDefinition_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryDefinition_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_QueryDefinition_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_QueryOutcome = -1;
-static gint ett_e2ap_T_ric_queryOutcome_formats = -1;
-static gint ett_e2ap_E2SM_RC_QueryOutcome_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_QueryOutcome_Format1_ItemCell = -1;
-static gint ett_e2ap_E2SM_RC_QueryOutcome_Format1_ItemCell = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format1_ItemParameters = -1;
-static gint ett_e2ap_E2SM_RC_QueryOutcome_Format1_ItemParameters = -1;
-static gint ett_e2ap_E2SM_RC_QueryOutcome_Format2 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_QueryOutcome_Format2_ItemUE = -1;
-static gint ett_e2ap_E2SM_RC_QueryOutcome_Format2_ItemUE = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format2_ItemParameters = -1;
-static gint ett_e2ap_E2SM_RC_QueryOutcome_Format2_ItemParameters = -1;
 static gint ett_e2ap_E2SM_RC_RANFunctionDefinition = -1;
 static gint ett_e2ap_RANFunctionDefinition_EventTrigger = -1;
 static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_EventTrigger_Style_Item = -1;
@@ -1545,8 +1457,6 @@ static gint ett_e2ap_ControlOutcome_RANParameter_Item = -1;
 static gint ett_e2ap_RANFunctionDefinition_Control_Action_Item = -1;
 static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_ControlAction_RANParameter_Item = -1;
 static gint ett_e2ap_ControlAction_RANParameter_Item = -1;
-static gint ett_e2ap_ListOfAdditionalSupportedFormats_UEGroupControl = -1;
-static gint ett_e2ap_AdditionalSupportedFormat_UEGroupControl = -1;
 static gint ett_e2ap_RANFunctionDefinition_Policy = -1;
 static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Policy_Item = -1;
 static gint ett_e2ap_RANFunctionDefinition_Policy_Item = -1;
@@ -1556,11 +1466,6 @@ static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyAct
 static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyCondition_RANParameter_Item = -1;
 static gint ett_e2ap_PolicyAction_RANParameter_Item = -1;
 static gint ett_e2ap_PolicyCondition_RANParameter_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Query = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Query_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Query_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Query_RANParameter_Item = -1;
-static gint ett_e2ap_Query_RANParameter_Item = -1;
 static gint ett_e2ap_BinRangeValue = -1;
 static gint ett_e2ap_MeasurementType = -1;
 static gint ett_e2ap_MeasurementLabel = -1;
@@ -1680,6 +1585,9 @@ static gint ett_e2ap_RIC_ReportStyle_List = -1;
 
 
 /* Forward declarations */
+static int dissect_e2ap_RANfunction_Name(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 static int dissect_E2SM_KPM_EventTriggerDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_KPM_ActionDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_KPM_IndicationHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -1695,9 +1603,9 @@ static int dissect_E2SM_RC_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_E2SM_RC_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_E2SM_RC_QueryOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_E2SM_RC_QueryDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_E2SM_RC_QueryHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+//static int dissect_E2SM_RC_QueryOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+//static int dissect_E2SM_RC_QueryDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+//static int dissect_E2SM_RC_QueryHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static int dissect_E2SM_NI_EventTriggerDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_NI_ActionDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -1708,8 +1616,6 @@ static int dissect_E2SM_NI_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_E2SM_NI_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_NI_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_NI_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-
 
 enum {
   INITIATING_MESSAGE,
@@ -1725,7 +1631,7 @@ typedef struct _e2ap_ctx_t {
 } e2ap_ctx_t;
 
 
-
+/* Temporary private info to remember while dissecting frame */
 struct e2ap_private_data {
   guint32 procedure_code;
   guint32 protocol_ie_id;
@@ -1740,6 +1646,7 @@ struct e2ap_private_data {
   dissector_handle_t component_configuration_dissector;
 };
 
+/* Lookup temporary private info */
 static struct e2ap_private_data*
 e2ap_get_private_data(packet_info *pinfo)
 {
@@ -1756,102 +1663,24 @@ e2ap_get_private_data(packet_info *pinfo)
 /* TODO: unfortunately, it seems that different versions of these protocols are not backward-compatible, so     */
 /* it would be good to show where (going by OID) the dissector isn't at the same version as the message..       */
 /* An alternative would be to have multiple versions of each protocol and have them register in tables...       */
-typedef int (*pdu_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-
-/* Function pointers for a RANFunction */
-typedef struct {
-    pdu_dissector_t ran_function_definition_dissector;
-
-    pdu_dissector_t ric_control_header_dissector;
-    pdu_dissector_t ric_control_message_dissector;
-    pdu_dissector_t ric_control_outcome_dissector;
-    /* new for v3 */
-    pdu_dissector_t ric_query_outcome_dissector;
-    pdu_dissector_t ric_query_definition_dissector;
-    pdu_dissector_t ric_query_header_dissector;
-
-    pdu_dissector_t ran_action_definition_dissector;
-    pdu_dissector_t ran_indication_message_dissector;
-    pdu_dissector_t ran_indication_header_dissector;
-    pdu_dissector_t ran_callprocessid_dissector;
-    pdu_dissector_t ran_event_trigger_dissector;
-} ran_function_pointers_t;
-
-typedef enum {
-    MIN_RANFUNCTIONS,
-    KPM_RANFUNCTIONS=0,
-    RIC_RANFUNCTIONS,
-    NI_RANFUNCTIONS,
-    MAX_RANFUNCTIONS
-} ran_function_t;
-
-typedef struct {
-    const char* name;
-    ran_function_pointers_t functions;
-} ran_function_name_mapping_t;
 
 /* Static table mapping from string -> ran_function */
-static const ran_function_name_mapping_t g_ran_functioname_table[MAX_RANFUNCTIONS] =
+static const char* g_ran_function_name_table[MAX_RANFUNCTIONS] =
 {
-  { "ORAN-E2SM-KPM", {  dissect_E2SM_KPM_RANfunction_Description_PDU,
-
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-
-                        dissect_E2SM_KPM_ActionDefinition_PDU,
-                        dissect_E2SM_KPM_IndicationMessage_PDU,
-                        dissect_E2SM_KPM_IndicationHeader_PDU,
-                        NULL, /* no dissect_E2SM_KPM_CallProcessID_PDU */
-                        dissect_E2SM_KPM_EventTriggerDefinition_PDU
-                     }
-  },
-  { "ORAN-E2SM-RC",  {  dissect_E2SM_RC_RANFunctionDefinition_PDU,
-
-                        dissect_E2SM_RC_ControlHeader_PDU,
-                        dissect_E2SM_RC_ControlMessage_PDU,
-                        dissect_E2SM_RC_ControlOutcome_PDU,
-                        /* new for v3 */
-                        dissect_E2SM_RC_QueryOutcome_PDU,
-                        dissect_E2SM_RC_QueryDefinition_PDU,
-                        dissect_E2SM_RC_QueryHeader_PDU,
-
-                        dissect_E2SM_RC_ActionDefinition_PDU,
-                        dissect_E2SM_RC_IndicationMessage_PDU,
-                        dissect_E2SM_RC_IndicationHeader_PDU,
-                        dissect_E2SM_RC_CallProcessID_PDU,
-                        dissect_E2SM_RC_EventTrigger_PDU
-                     }
-  },
-  { "ORAN-E2SM-NI",  {  dissect_E2SM_NI_RANfunction_Description_PDU,
-
-                        dissect_E2SM_NI_ControlHeader_PDU,
-                        dissect_E2SM_NI_ControlMessage_PDU,
-                        dissect_E2SM_NI_ControlOutcome_PDU,
-                        NULL,
-                        NULL,
-                        NULL,
-
-                        dissect_E2SM_NI_ActionDefinition_PDU,
-                        dissect_E2SM_NI_IndicationMessage_PDU,
-                        dissect_E2SM_NI_IndicationHeader_PDU,
-                        dissect_E2SM_NI_CallProcessID_PDU,
-                        dissect_E2SM_NI_EventTriggerDefinition_PDU
-                     }
-    }
+    "ORAN-E2SM-KPM",
+    "ORAN-E2SM-RC",
+    "ORAN-E2SM-NI"
 };
 
 
 
-/* Per-conversation mapping: ranFunctionId -> ran_function */
+/* Per-conversation mapping: ranFunctionId -> ran_function+dissector */
 typedef struct {
     guint32                  setup_frame;
     guint32                  ran_function_id;
     ran_function_t           ran_function;
-    ran_function_pointers_t *ran_function_pointers;
+    char                     oid[MAX_OID_LEN];       // i.e., OID from setupRequest
+    ran_function_dissector_t *dissector;
 } ran_function_id_mapping_t;
 
 typedef struct  {
@@ -1865,27 +1694,49 @@ static const char *ran_function_to_str(ran_function_t ran_function)
     switch (ran_function) {
         case KPM_RANFUNCTIONS:
             return "KPM";
-        case RIC_RANFUNCTIONS:
-            return "RIC";
+        case RC_RANFUNCTIONS:
+            return "RC";
         case NI_RANFUNCTIONS:
             return "NI";
-
         default:
             return "Unknown";
     }
 }
 
+/* Table of RAN Function tables, indexed by gnbId (bytes) */
 typedef struct {
 #define MAX_GNBS 6
     guint32 num_gnbs;
     struct {
-        guint32 len;
-        guint8  value[MAX_GNB_ID_BYTES];
+        guint8  id_value[MAX_GNB_ID_BYTES];
+        guint32 id_len;
         ran_functionid_table_t *ran_function_table;
     } gnb[MAX_GNBS];
 } gnb_ran_functions_t;
 
-static gnb_ran_functions_t s_gnb_ran_functions;
+static gnb_ran_functions_t s_gnb_ran_functions_table;
+
+
+/* Table of available dissectors for each RAN function */
+typedef struct {
+    guint32                  num_available_dissectors;
+#define MAX_DISSECTORS_PER_RAN_FUNCTION 3
+    ran_function_dissector_t* ran_function_dissectors[MAX_DISSECTORS_PER_RAN_FUNCTION];
+} ran_function_available_dissectors_t;
+
+/* Available dissectors should be set here */
+static ran_function_available_dissectors_t g_ran_functions_available_dissectors[MAX_RANFUNCTIONS];
+
+/* TODO: will be called from outside this file by separate dissectors */
+void register_e2ap_ran_function_dissector(ran_function_t ran_function, ran_function_dissector_t *dissector)
+{
+    if ((ran_function >= MIN_RANFUNCTIONS) && (ran_function <= MAX_RANFUNCTIONS)) {
+        ran_function_available_dissectors_t *available_dissectors = &g_ran_functions_available_dissectors[ran_function];
+        if (available_dissectors->num_available_dissectors < MAX_DISSECTORS_PER_RAN_FUNCTION) {
+            available_dissectors->ran_function_dissectors[available_dissectors->num_available_dissectors++] = dissector;
+        }
+    }
+}
 
 
 /* Get RANfunctionID table from conversation data - create new if necessary */
@@ -1916,8 +1767,11 @@ static ran_functionid_table_t* get_ran_functionid_table(packet_info *pinfo)
 
 
 /* Store new RANfunctionID -> Service Model mapping in table */
-static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_t *table, struct e2ap_private_data *e2ap_data, const char *name)
+void e2ap_store_ran_function_mapping(packet_info *pinfo, const char *name)
 {
+    struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
+    ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+
     if (!name) {
       return;
     }
@@ -1930,13 +1784,18 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
     guint32 ran_function_id = e2ap_data->ran_function_id;
 
     ran_function_t           ran_function = MAX_RANFUNCTIONS;  /* i.e. invalid */
-    ran_function_pointers_t *ran_function_pointers = NULL;
+    ran_function_dissector_t *ran_function_dissector = NULL;
 
-    /* Check known RAN functions */
+    /* Check known RAN function names */
     for (int n=MIN_RANFUNCTIONS; n < MAX_RANFUNCTIONS; n++) {
-        if (strcmp(name,   g_ran_functioname_table[n].name) == 0) {
+        if (strcmp(name, g_ran_function_name_table[n]) == 0) {
             ran_function = n;
-            ran_function_pointers = (ran_function_pointers_t*)&(g_ran_functioname_table[n].functions);
+
+            /* Don't know OID yet, so for now, just choose first/only one */
+            /* TODO: is latest one likely to be more compatible? First fields (at least) come from E2SM.. */
+            if (g_ran_functions_available_dissectors[table->entries[n].ran_function].num_available_dissectors) {
+                ran_function_dissector = g_ran_functions_available_dissectors[table->entries[n].ran_function].ran_function_dissectors[0];
+            }
             break;
         }
     }
@@ -1946,7 +1805,7 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
         return;
     }
 
-    /* If ID already mapped, ignore */
+    /* If ID already mapped, can stop here */
     for (guint n=0; n < table->num_entries; n++) {
         if (table->entries[n].ran_function_id == ran_function_id) {
             return;
@@ -1958,7 +1817,7 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
     table->entries[idx].setup_frame = pinfo->num;
     table->entries[idx].ran_function_id = ran_function_id;
     table->entries[idx].ran_function = ran_function;
-    table->entries[idx].ran_function_pointers = ran_function_pointers;
+    table->entries[idx].dissector = ran_function_dissector;
 
     /* When add first entry, also want to set up table from gnbId -> table */
     if (idx == 0) {
@@ -1966,10 +1825,10 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
         guint8 *id_value = &e2ap_data->gnb_id_bytes[0];
 
         gboolean found = FALSE;
-        for (guint n=0; n<s_gnb_ran_functions.num_gnbs; n++) {
-            if ((s_gnb_ran_functions.gnb[n].len = id_len) &&
-                (memcmp(s_gnb_ran_functions.gnb[n].value, id_value, id_len) == 0)) {
-                // Already have an entry for this gnb.
+        for (guint n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
+            if ((s_gnb_ran_functions_table.gnb[n].id_len = id_len) &&
+                (memcmp(s_gnb_ran_functions_table.gnb[n].id_value, id_value, id_len) == 0)) {
+                /* Already have an entry for this gnb. */
                 found = TRUE;
                 break;
             }
@@ -1977,49 +1836,172 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
 
         if (!found) {
             /* Add entry (if room for 1 more) */
-            guint32 new_idx = s_gnb_ran_functions.num_gnbs;
+            guint32 new_idx = s_gnb_ran_functions_table.num_gnbs;
             if (new_idx < MAX_GNBS-1) {
-                s_gnb_ran_functions.gnb[new_idx].len = id_len;
-                memcpy(s_gnb_ran_functions.gnb[new_idx].value, id_value, id_len);
-                s_gnb_ran_functions.gnb[new_idx].ran_function_table = table;
+                s_gnb_ran_functions_table.gnb[new_idx].id_len = id_len;
+                memcpy(s_gnb_ran_functions_table.gnb[new_idx].id_value, id_value, id_len);
+                s_gnb_ran_functions_table.gnb[new_idx].ran_function_table = table;
 
-                s_gnb_ran_functions.num_gnbs++;
+                s_gnb_ran_functions_table.num_gnbs++;
             }
         }
     }
 }
 
 /* Look for Service Model function pointers, based on current RANFunctionID in pinfo */
-static ran_function_pointers_t* lookup_ranfunction_pointers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+static ran_function_dissector_t* lookup_ranfunction_dissector(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
     /* Get ranFunctionID from this frame */
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
     guint ran_function_id = e2ap_data->ran_function_id;
 
-    /* Look in table function pointers for this ranFunctionID */
+    /* Get ranFunction table corresponding to this frame's conversation */
     ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
     if (!table) {
         /* There is no ran function table associated with this frame's conversation info */
         return NULL;
     }
+
+    /* Find the entry in this table corresponding to ran_function_id */
     for (guint n=0; n < table->num_entries; n++) {
         if (ran_function_id == table->entries[n].ran_function_id) {
-            /* Point back at the setup frame where this ranfunction was mapped */
-            proto_item *ti = proto_tree_add_uint(tree, hf_e2ap_ran_function_setup_frame,
-                                                 tvb, 0, 0, table->entries[n].setup_frame);
-            /* Also show that mapping */
-            proto_item_append_text(ti, " (%u -> %s)", table->entries[n].ran_function_id, ran_function_to_str(table->entries[n].ran_function));
-            proto_item_set_generated(ti);
+            if (tree) {
+                /* Point back at the setup frame where this ranfunction was mapped */
+                proto_item *ti = proto_tree_add_uint(tree, hf_e2ap_ran_function_setup_frame,
+                                                     tvb, 0, 0, table->entries[n].setup_frame);
+                /* Show that mapping */
+                proto_item_append_text(ti, " (%u -> %s)", table->entries[n].ran_function_id, ran_function_to_str(table->entries[n].ran_function));
+                proto_item_set_generated(ti);
 
-            return table->entries[n].ran_function_pointers;
+                /* Also take the chance to compare signalled and available dissector */
+                char *frame_version = oid_resolved_from_string(pinfo->pool, table->entries[n].oid);
+                ti = proto_tree_add_string(tree, hf_e2ap_frame_version, tvb, 0, 0, frame_version);
+                proto_item_set_generated(ti);
+
+                char *dissector_version = oid_resolved_from_string(pinfo->pool, table->entries[n].dissector->oid);
+                ti = proto_tree_add_string(tree, hf_e2ap_dissector_version, tvb, 0, 0, dissector_version);
+                proto_item_set_generated(ti);
+
+                if (strcmp(frame_version, dissector_version) != 0) {
+                    /* Expert info for version mismatch! */
+                    expert_add_info_format(pinfo, ti, &ei_e2ap_ran_function_dissector_mismatch,
+                                           "Dissector version mismatch - frame is %s but dissector is %s",
+                                           frame_version, dissector_version);
+                }
+            }
+
+            /* Return the dissector */
+            return table->entries[n].dissector;
         }
     }
 
-    /* No match found.. */
-    proto_item *ti = proto_tree_add_item(tree, hf_e2ap_unmapped_ran_function_id, tvb, 0, 0, ENC_NA);
-    expert_add_info_format(pinfo, ti, &ei_e2ap_ran_function_id_not_mapped,
-                           "Service Model not mapped for FunctionID %u", ran_function_id);
+    if (tree) {
+        /* No match found.. */
+        proto_item *ti = proto_tree_add_item(tree, hf_e2ap_unmapped_ran_function_id, tvb, 0, 0, ENC_NA);
+        expert_add_info_format(pinfo, ti, &ei_e2ap_ran_function_id_not_mapped,
+                               "Service Model not mapped for FunctionID %u", ran_function_id);
+    }
+
     return NULL;
+}
+
+static char* lookup_ranfunction_oid(packet_info *pinfo)
+{
+    /* Get ranFunctionID from this frame */
+    struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
+    guint ran_function_id = e2ap_data->ran_function_id;
+
+    /* Get ranFunction table corresponding to this frame's conversation */
+    ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+    if (!table) {
+        /* There is no ran function table associated with this frame's conversation info */
+        return NULL;
+    }
+
+    /* Find the entry in this table corresponding to ran_function_id */
+    for (guint n=0; n < table->num_entries; n++) {
+        if (ran_function_id == table->entries[n].ran_function_id) {
+            return (char*)(table->entries[n].oid);
+        }
+    }
+
+    /* Not found */
+    return "";
+}
+
+
+/* We now know the OID - can we set a dissector that is an exact match from what has been signalled? */
+static void update_dissector_using_oid(packet_info *pinfo, ran_function_t ran_function)
+{
+    char *frame_oid = lookup_ranfunction_oid(pinfo);
+
+    gboolean found = FALSE;
+
+    /* Look at available dissectors for this RAN function */
+    ran_function_available_dissectors_t *available = &g_ran_functions_available_dissectors[ran_function];
+    if (!available->num_available_dissectors) {
+        /* Oops - none available at all! */
+        return;
+    }
+
+    // Get mapping in use
+    struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
+    guint ran_function_id = e2ap_data->ran_function_id;
+    ran_function_id_mapping_t *mapping = NULL;
+    ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+    /* Find the entry in this table corresponding to ran_function_id */
+    for (guint n=0; n < table->num_entries; n++) {
+        if (ran_function_id == table->entries[n].ran_function_id) {
+            mapping = &(table->entries[n]);
+        }
+    }
+
+    if (!mapping) {
+        return;
+    }
+
+    /* Set dissector pointer in ran_function_id_mapping_t */
+    for (guint32 n=0; n < available->num_available_dissectors; n++) {
+        /* If exact match, set it */
+        if (strcmp(frame_oid, available->ran_function_dissectors[n]->oid) == 0) {
+            mapping->dissector = available->ran_function_dissectors[n];
+            found = TRUE;
+            break;
+        }
+    }
+
+    /* If not exact match, just set to first one available (TODO: closest above better?) */
+    if (!found) {
+        mapping->dissector = available->ran_function_dissectors[0];
+    }
+}
+
+
+/* Update RANfunctionID -> Service Model mapping in table (now that we know OID) */
+void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, const char *oid)
+{
+    /* Copy OID into table entry (so may be used to choose and be compared with chosen available dissector */
+    struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
+    ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+    ran_function_t ran_function = MAX_RANFUNCTIONS;
+    for (guint n=0; n < table->num_entries; n++) {
+        if (e2ap_data->ran_function_id == table->entries[n].ran_function_id) {
+            ran_function = table->entries[n].ran_function;
+            g_strlcpy(table->entries[n].oid, oid, MAX_OID_LEN);
+        }
+    }
+
+    /* Look up version from oid and show as generated field */
+    char *version = oid_resolved_from_string(pinfo->pool, oid);
+    proto_item *ti = proto_tree_add_string(tree, hf_e2ap_frame_version, tvb, 0, 0, version);
+    proto_item_set_generated(ti);
+
+    // Can now pick most appropriate dissector for this RAN Function name, based upon this OID and the available dissectors.
+    if (ran_function < MAX_RANFUNCTIONS) {
+        if (pinfo->fd->visited) {
+            update_dissector_using_oid(pinfo, ran_function);
+        }
+    }
 }
 
 /* This will get used for E2nodeConfigurationUpdate, where we have a gnb-id but haven't seen E2setupRequest */
@@ -2049,13 +2031,13 @@ static void update_conversation_from_gnb_id(asn1_ctx_t *actx)
         guint id_len = e2ap_data->gnb_id_len;
         guint8 *id_value = &e2ap_data->gnb_id_bytes[0];
 
-        for (guint n=0; n<s_gnb_ran_functions.num_gnbs; n++) {
-            if ((s_gnb_ran_functions.gnb[n].len = id_len) &&
-                (memcmp(s_gnb_ran_functions.gnb[n].value, id_value, id_len) == 0)) {
+        for (guint n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
+            if ((s_gnb_ran_functions_table.gnb[n].id_len = id_len) &&
+                (memcmp(s_gnb_ran_functions_table.gnb[n].id_value, id_value, id_len) == 0)) {
 
                 /* Have an entry for this gnb.  Set direct pointer to existing data (used by original conversation). */
                 /* N.B. This means that no further updates for the gNB are expected on different conversations.. */
-                p_conv_data = s_gnb_ran_functions.gnb[n].ran_function_table;
+                p_conv_data = s_gnb_ran_functions_table.gnb[n].ran_function_table;
                 conversation_add_proto_data(p_conv, proto_e2ap, p_conv_data);
 
                 /* TODO: may want to try to add a generated field to pass back to E2setupRequest where RAN function mappings were first seen? */
@@ -3318,20 +3300,31 @@ dissect_e2ap_GlobalRIC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_e2ap_RANfunctionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
+
+  /* We know that the next thing is a RANFunction-Name, but it's wrapped up in a sequence,
+     so can't silently/hiddenly call ranFunctionName here... */
+
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
+
   /* Looking for shortName string near beginning of tvb */
   gboolean found = FALSE;
-  for (int n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS; n++) {
+  /* For each RAN function name.. */
+  for (int n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS && !found; n++) {
     guint32 tvb_len = tvb_captured_length(parameter_tvb);
-    guint name_len = (gint)strlen(g_ran_functioname_table[n].name);
+    guint name_len = (gint)strlen(g_ran_function_name_table[n]);
+    /* For each of several byte positions.. */
     for (int m=0; (m<30) && ((m+name_len+1))<tvb_len; m++) {
-      if (tvb_strneql(parameter_tvb, m, g_ran_functioname_table[n].name, name_len) == 0) {
-        /* Call the set's dissector */
-        g_ran_functioname_table[n].functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
-        found = TRUE;
-        break;
+      /* Have we found a match on the name? */
+      if (tvb_strneql(parameter_tvb, m, g_ran_function_name_table[n], name_len) == 0) {
+        /* TODO: we don't yet know the OID (hopefully won't make a difference for this message though...),
+           so for now just call with the first/only available dissector for this RAN Function name */
+        if (g_ran_functions_available_dissectors[n].num_available_dissectors) {
+          g_ran_functions_available_dissectors[n].ran_function_dissectors[0]->functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+          found = TRUE;
+          break;
+        }
       }
     }
   }
@@ -3340,7 +3333,6 @@ dissect_e2ap_RANfunctionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
     expert_add_info_format(actx->pinfo, ti, &ei_e2ap_ran_function_names_no_match,
                            "ShortName does not match any known Service Model");
   }
-
 
 
   return offset;
@@ -3392,9 +3384,11 @@ dissect_e2ap_RICactionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_action_definition_dissector) {
-    functions->ran_action_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_action_definition_dissector) {
+      dissector->functions.ran_action_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3446,9 +3440,11 @@ dissect_e2ap_RICcallProcessID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_callprocessid_dissector) {
-    functions->ran_callprocessid_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_callprocessid_dissector) {
+      dissector->functions.ran_callprocessid_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3481,9 +3477,11 @@ dissect_e2ap_RICcontrolHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_control_header_dissector) {
-    functions->ric_control_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_control_header_dissector) {
+      dissector->functions.ric_control_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3498,9 +3496,11 @@ dissect_e2ap_RICcontrolMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_control_message_dissector) {
-    functions->ric_control_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_control_message_dissector) {
+      dissector->functions.ric_control_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3515,9 +3515,11 @@ dissect_e2ap_RICcontrolOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_control_outcome_dissector) {
-    functions->ric_control_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_control_outcome_dissector) {
+        dissector->functions.ric_control_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3532,9 +3534,11 @@ dissect_e2ap_RICeventTriggerDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_c
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_event_trigger_dissector) {
-    functions->ran_event_trigger_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_event_trigger_dissector) {
+      dissector->functions.ran_event_trigger_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3549,9 +3553,11 @@ dissect_e2ap_RICindicationHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_indication_header_dissector) {
-    functions->ran_indication_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_indication_header_dissector) {
+      dissector->functions.ran_indication_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3566,9 +3572,11 @@ dissect_e2ap_RICindicationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_indication_message_dissector) {
-    functions->ran_indication_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_indication_message_dissector) {
+      dissector->functions.ran_indication_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3681,9 +3689,11 @@ dissect_e2ap_RICqueryHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_query_header_dissector) {
-    functions->ric_query_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_query_header_dissector) {
+      dissector->functions.ric_query_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3700,9 +3710,11 @@ dissect_e2ap_RICqueryDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_query_definition_dissector) {
-    functions->ric_query_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_query_definition_dissector) {
+      dissector->functions.ric_query_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -3717,9 +3729,11 @@ dissect_e2ap_RICqueryOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_query_outcome_dissector) {
-    functions->ric_query_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_query_outcome_dissector) {
+      dissector->functions.ric_query_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -5997,10 +6011,12 @@ dissect_e2ap_T_ranFunction_ShortName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                           1, 150, TRUE,
                                           &value_tvb);
 
-  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
-  ran_functionid_table_t *table = get_ran_functionid_table(actx->pinfo);
-  store_ran_function_mapping(actx->pinfo, table, e2ap_data,
-                             tvb_get_string_enc(wmem_packet_scope(), value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
+  if (!actx->pinfo->fd->visited) {
+    /* N.B. too early to work out exact dissector, as don't have OID yet */
+    e2ap_store_ran_function_mapping(actx->pinfo,
+                                    tvb_get_string_enc(wmem_packet_scope(), value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
+  }
+
 
 
   return offset;
@@ -6009,10 +6025,17 @@ dissect_e2ap_T_ranFunction_ShortName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static int
-dissect_e2ap_PrintableString_SIZE_1_1000_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
+dissect_e2ap_T_ranFunction_E2SM_OID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb;
+    offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
                                           1, 1000, TRUE,
-                                          NULL);
+                                          &parameter_tvb);
+
+  e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
+                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
+                                   tvb_captured_length(parameter_tvb), ENC_ASCII));
+
+
 
   return offset;
 }
@@ -6031,7 +6054,7 @@ dissect_e2ap_PrintableString_SIZE_1_150_(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t RANfunction_Name_sequence[] = {
   { &hf_e2ap_ranFunction_ShortName, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_ranFunction_ShortName },
-  { &hf_e2ap_ranFunction_E2SM_OID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_PrintableString_SIZE_1_1000_ },
+  { &hf_e2ap_ranFunction_E2SM_OID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_ranFunction_E2SM_OID },
   { &hf_e2ap_ranFunction_Description, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_PrintableString_SIZE_1_150_ },
   { &hf_e2ap_ranFunction_Instance, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_INTEGER },
   { NULL, 0, 0, NULL }
@@ -6985,8 +7008,8 @@ dissect_e2ap_EventTrigger_Cell_Info_Item_Choice_Individual(tvbuff_t *tvb _U_, in
 
 static int
 dissect_e2ap_RANParameter_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 4294967295U, NULL, TRUE);
+  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
+                                                            1U, G_GUINT64_CONSTANT(4294967296), NULL, TRUE);
 
   return offset;
 }
@@ -7166,7 +7189,6 @@ static const value_string e2ap_T_ranP_Choice_presence_vals[] = {
   {   1, "configured" },
   {   2, "rollover" },
   {   3, "non-zero" },
-  {   4, "value-change" },
   { 0, NULL }
 };
 
@@ -7174,7 +7196,7 @@ static const value_string e2ap_T_ranP_Choice_presence_vals[] = {
 static int
 dissect_e2ap_T_ranP_Choice_presence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 1, NULL);
+                                     4, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7799,55 +7821,11 @@ dissect_e2ap_RANParameter_ValueType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const per_sequence_t UEGroupDefinitionIdentifier_Item_sequence[] = {
-  { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
-  { &hf_e2ap_ranParameter_valueType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ValueType },
-  { &hf_e2ap_logicalOR      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_LogicalOR },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_UEGroupDefinitionIdentifier_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_UEGroupDefinitionIdentifier_Item, UEGroupDefinitionIdentifier_Item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_maxGroupDefinitionIdentifierParameters_OF_UEGroupDefinitionIdentifier_Item_sequence_of[1] = {
-  { &hf_e2ap_ueGroupDefinitionIdentifier_LIST_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_UEGroupDefinitionIdentifier_Item },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_1_maxGroupDefinitionIdentifierParameters_OF_UEGroupDefinitionIdentifier_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_1_maxGroupDefinitionIdentifierParameters_OF_UEGroupDefinitionIdentifier_Item, SEQUENCE_SIZE_1_maxGroupDefinitionIdentifierParameters_OF_UEGroupDefinitionIdentifier_Item_sequence_of,
-                                                  1, maxGroupDefinitionIdentifierParameters, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t UE_Group_Definition_sequence[] = {
-  { &hf_e2ap_ueGroupDefinitionIdentifier_LIST, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_1_maxGroupDefinitionIdentifierParameters_OF_UEGroupDefinitionIdentifier_Item },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_UE_Group_Definition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_UE_Group_Definition, UE_Group_Definition_sequence);
-
-  return offset;
-}
-
-
 
 static int
 dissect_e2ap_RAN_CallProcess_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 4294967295U, NULL, TRUE);
+                                                            1U, 232U, NULL, TRUE);
 
   return offset;
 }
@@ -7947,26 +7925,6 @@ dissect_e2ap_RIC_InsertIndication_Name(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-
-static int
-dissect_e2ap_UE_Group_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 65535U, NULL, TRUE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_e2ap_EntityFilter_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 255U, NULL, TRUE);
-
-  return offset;
-}
-
-
 static const per_sequence_t RIC_PolicyAction_RANParameter_Item_sequence[] = {
   { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
   { &hf_e2ap_ranParameter_valueType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ValueType },
@@ -8023,82 +7981,6 @@ static int
 dissect_e2ap_RIC_PolicyAction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_RIC_PolicyAction, RIC_PolicyAction_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_e2ap_UE_Filter_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 65535U, NULL, TRUE);
-
-  return offset;
-}
-
-
-static const value_string e2ap_T_ueType_01_vals[] = {
-  {   0, "ueType-Choice-Individual" },
-  {   1, "ueType-Choice-Group" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_ueType_01_choice[] = {
-  {   0, &hf_e2ap_ueType_Choice_Individual, ASN1_EXTENSION_ROOT    , dissect_e2ap_EventTrigger_UE_Info_Item_Choice_Individual },
-  {   1, &hf_e2ap_ueType_Choice_Group, ASN1_EXTENSION_ROOT    , dissect_e2ap_EventTrigger_UE_Info_Item_Choice_Group },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_e2ap_T_ueType_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_e2ap_T_ueType_01, T_ueType_01_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t Associated_UE_Info_Item_sequence[] = {
-  { &hf_e2ap_ueFilterID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_UE_Filter_ID },
-  { &hf_e2ap_ueType_01      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_ueType_01 },
-  { &hf_e2ap_logicalOR      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_LogicalOR },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_Associated_UE_Info_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_Associated_UE_Info_Item, Associated_UE_Info_Item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_maxnoofUEInfo_OF_Associated_UE_Info_Item_sequence_of[1] = {
-  { &hf_e2ap_associatedUEInfo_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_Associated_UE_Info_Item },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_1_maxnoofUEInfo_OF_Associated_UE_Info_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEInfo_OF_Associated_UE_Info_Item, SEQUENCE_SIZE_1_maxnoofUEInfo_OF_Associated_UE_Info_Item_sequence_of,
-                                                  1, maxnoofUEInfo, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t Associated_UE_Info_sequence[] = {
-  { &hf_e2ap_associatedUEInfo_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_1_maxnoofUEInfo_OF_Associated_UE_Info_Item },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_Associated_UE_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_Associated_UE_Info, Associated_UE_Info_sequence);
 
   return offset;
 }
@@ -8363,90 +8245,10 @@ dissect_e2ap_TriggerType_Choice_L2state(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const per_sequence_t TriggerType_Choice_UEcontext_sequence[] = {
-  { &hf_e2ap_associatedUECtxtVariables, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_Testing },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_TriggerType_Choice_UEcontext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_TriggerType_Choice_UEcontext, TriggerType_Choice_UEcontext_sequence);
-
-  return offset;
-}
-
-
-static const value_string e2ap_T_mIMOtransModeState_vals[] = {
-  {   0, "enabled" },
-  {   1, "disabled" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_e2ap_T_mIMOtransModeState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t TriggerType_Choice_MIMOandBFconfig_sequence[] = {
-  { &hf_e2ap_mIMOtransModeState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_mIMOtransModeState },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_TriggerType_Choice_MIMOandBFconfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_TriggerType_Choice_MIMOandBFconfig, TriggerType_Choice_MIMOandBFconfig_sequence);
-
-  return offset;
-}
-
-
-static const value_string e2ap_L2MACschChgType_Choice_vals[] = {
-  {   0, "triggerType-Choice-MIMOandBFconfig" },
-  { 0, NULL }
-};
-
-static const per_choice_t L2MACschChgType_Choice_choice[] = {
-  {   0, &hf_e2ap_triggerType_Choice_MIMOandBFconfig, ASN1_EXTENSION_ROOT    , dissect_e2ap_TriggerType_Choice_MIMOandBFconfig },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_e2ap_L2MACschChgType_Choice(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_e2ap_L2MACschChgType_Choice, L2MACschChgType_Choice_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t TriggerType_Choice_L2MACschChg_sequence[] = {
-  { &hf_e2ap_l2MACschChgType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_L2MACschChgType_Choice },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_TriggerType_Choice_L2MACschChg(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_TriggerType_Choice_L2MACschChg, TriggerType_Choice_L2MACschChg_sequence);
-
-  return offset;
-}
-
-
 static const value_string e2ap_TriggerType_Choice_vals[] = {
   {   0, "triggerType-Choice-RRCstate" },
   {   1, "triggerType-Choice-UEID" },
   {   2, "triggerType-Choice-L2state" },
-  {   3, "triggerType-Choice-UEcontext" },
-  {   4, "triggerType-Choice-L2MACschChg" },
   { 0, NULL }
 };
 
@@ -8454,8 +8256,6 @@ static const per_choice_t TriggerType_Choice_choice[] = {
   {   0, &hf_e2ap_triggerType_Choice_RRCstate, ASN1_EXTENSION_ROOT    , dissect_e2ap_TriggerType_Choice_RRCstate },
   {   1, &hf_e2ap_triggerType_Choice_UEID, ASN1_EXTENSION_ROOT    , dissect_e2ap_TriggerType_Choice_UEID },
   {   2, &hf_e2ap_triggerType_Choice_L2state, ASN1_EXTENSION_ROOT    , dissect_e2ap_TriggerType_Choice_L2state },
-  {   3, &hf_e2ap_triggerType_Choice_UEcontext, ASN1_NOT_EXTENSION_ROOT, dissect_e2ap_TriggerType_Choice_UEcontext },
-  {   4, &hf_e2ap_triggerType_Choice_L2MACschChg, ASN1_NOT_EXTENSION_ROOT, dissect_e2ap_TriggerType_Choice_L2MACschChg },
   { 0, NULL, 0, NULL }
 };
 
@@ -8514,10 +8314,32 @@ dissect_e2ap_E2SM_RC_EventTrigger_Format4(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const value_string e2ap_T_onDemand_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
 
 static int
-dissect_e2ap_NULL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
+dissect_e2ap_T_onDemand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t E2SM_RC_EventTrigger_Format5_sequence[] = {
+  { &hf_e2ap_onDemand       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_onDemand },
+  { &hf_e2ap_associatedUEInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_EventTrigger_UE_Info },
+  { &hf_e2ap_associatedCellInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_EventTrigger_Cell_Info },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e2ap_E2SM_RC_EventTrigger_Format5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e2ap_E2SM_RC_EventTrigger_Format5, E2SM_RC_EventTrigger_Format5_sequence);
 
   return offset;
 }
@@ -8537,7 +8359,7 @@ static const per_choice_t T_ric_eventTrigger_formats_choice[] = {
   {   1, &hf_e2ap_eventTrigger_Format2, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_EventTrigger_Format2 },
   {   2, &hf_e2ap_eventTrigger_Format3, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_EventTrigger_Format3 },
   {   3, &hf_e2ap_eventTrigger_Format4, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_EventTrigger_Format4 },
-  {   4, &hf_e2ap_eventTrigger_Format5, ASN1_EXTENSION_ROOT    , dissect_e2ap_NULL },
+  {   4, &hf_e2ap_eventTrigger_Format5, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_EventTrigger_Format5 },
   { 0, NULL, 0, NULL }
 };
 
@@ -9082,6 +8904,81 @@ dissect_e2ap_E2SM_RC_IndicationMessage_Format3(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
+static const per_sequence_t E2SM_RC_IndicationMessage_Format4_ItemUE_sequence[] = {
+  { &hf_e2ap_ueID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_UEID },
+  { &hf_e2ap_ueContextInfo  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_OCTET_STRING },
+  { &hf_e2ap_cellGlobal_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_CGI },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e2ap_E2SM_RC_IndicationMessage_Format4_ItemUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemUE, E2SM_RC_IndicationMessage_Format4_ItemUE_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE_sequence_of[1] = {
+  { &hf_e2ap_ueInfo_List_item_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_E2SM_RC_IndicationMessage_Format4_ItemUE },
+};
+
+static int
+dissect_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE, SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE_sequence_of,
+                                                  0, maxnoofUEID, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t E2SM_RC_IndicationMessage_Format4_ItemCell_sequence[] = {
+  { &hf_e2ap_cellGlobal_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_CGI },
+  { &hf_e2ap_cellContextInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_OCTET_STRING },
+  { &hf_e2ap_neighborRelation_Table, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_NeighborRelation_Info },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e2ap_E2SM_RC_IndicationMessage_Format4_ItemCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemCell, E2SM_RC_IndicationMessage_Format4_ItemCell_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell_sequence_of[1] = {
+  { &hf_e2ap_cellInfo_List_item_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_E2SM_RC_IndicationMessage_Format4_ItemCell },
+};
+
+static int
+dissect_e2ap_SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e2ap_SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell, SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell_sequence_of,
+                                                  0, maxnoofCellID, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t E2SM_RC_IndicationMessage_Format4_sequence[] = {
+  { &hf_e2ap_ueInfo_List_01 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE },
+  { &hf_e2ap_cellInfo_List_02, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e2ap_E2SM_RC_IndicationMessage_Format4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e2ap_E2SM_RC_IndicationMessage_Format4, E2SM_RC_IndicationMessage_Format4_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t E2SM_RC_IndicationMessage_Format5_Item_sequence[] = {
   { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
   { &hf_e2ap_ranParameter_valueType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ValueType },
@@ -9240,7 +9137,7 @@ static const per_choice_t T_ric_indicationMessage_formats_choice[] = {
   {   0, &hf_e2ap_indicationMessage_Format1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_IndicationMessage_Format1 },
   {   1, &hf_e2ap_indicationMessage_Format2, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_IndicationMessage_Format2 },
   {   2, &hf_e2ap_indicationMessage_Format3, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_IndicationMessage_Format3 },
-  {   3, &hf_e2ap_indicationMessage_Format4, ASN1_EXTENSION_ROOT    , dissect_e2ap_NULL },
+  {   3, &hf_e2ap_indicationMessage_Format4, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_IndicationMessage_Format4 },
   {   4, &hf_e2ap_indicationMessage_Format5, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_IndicationMessage_Format5 },
   {   5, &hf_e2ap_indicationMessage_Format6, ASN1_NOT_EXTENSION_ROOT, dissect_e2ap_E2SM_RC_IndicationMessage_Format6 },
   { 0, NULL, 0, NULL }
@@ -9382,34 +9279,15 @@ dissect_e2ap_E2SM_RC_ControlHeader_Format2(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const per_sequence_t E2SM_RC_ControlHeader_Format3_sequence[] = {
-  { &hf_e2ap_ue_Group_ID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_UE_Group_ID },
-  { &hf_e2ap_ue_Group_Definition, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_UE_Group_Definition },
-  { &hf_e2ap_ric_Style_Type , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_Style_Type },
-  { &hf_e2ap_ric_ControlAction_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_ControlAction_ID },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_ControlHeader_Format3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_ControlHeader_Format3, E2SM_RC_ControlHeader_Format3_sequence);
-
-  return offset;
-}
-
-
 static const value_string e2ap_T_ric_controlHeader_formats_vals[] = {
   {   0, "controlHeader-Format1" },
   {   1, "controlHeader-Format2" },
-  {   2, "controlHeader-Format3" },
   { 0, NULL }
 };
 
 static const per_choice_t T_ric_controlHeader_formats_choice[] = {
   {   0, &hf_e2ap_controlHeader_Format1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_ControlHeader_Format1 },
   {   1, &hf_e2ap_controlHeader_Format2, ASN1_NOT_EXTENSION_ROOT, dissect_e2ap_E2SM_RC_ControlHeader_Format2 },
-  {   2, &hf_e2ap_controlHeader_Format3, ASN1_NOT_EXTENSION_ROOT, dissect_e2ap_E2SM_RC_ControlHeader_Format3 },
   { 0, NULL, 0, NULL }
 };
 
@@ -9552,120 +9430,15 @@ dissect_e2ap_E2SM_RC_ControlMessage_Format2(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
-static const per_sequence_t EntitySpecific_ranP_ControlParameters_sequence[] = {
-  { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
-  { &hf_e2ap_ranParameter_valueType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ValueType },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_EntitySpecific_ranP_ControlParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_EntitySpecific_ranP_ControlParameters, EntitySpecific_ranP_ControlParameters_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_EntitySpecific_ranP_ControlParameters_sequence_of[1] = {
-  { &hf_e2ap_entitySpecificControlRanP_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_EntitySpecific_ranP_ControlParameters },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_EntitySpecific_ranP_ControlParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_EntitySpecific_ranP_ControlParameters, SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_EntitySpecific_ranP_ControlParameters_sequence_of,
-                                                  1, maxnoofAssociatedRANParameters, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_EntityFilter_sequence[] = {
-  { &hf_e2ap_entityFilter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_EntityFilter_ID },
-  { &hf_e2ap_entityFilter_Definition, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_Testing },
-  { &hf_e2ap_entitySpecificControlRanP_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_EntitySpecific_ranP_ControlParameters },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_EntityFilter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_EntityFilter, E2SM_RC_EntityFilter_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_0_maxnoofAssociatedEntityFilters_OF_E2SM_RC_EntityFilter_sequence_of[1] = {
-  { &hf_e2ap_listOfEntityFilters_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_E2SM_RC_EntityFilter },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedEntityFilters_OF_E2SM_RC_EntityFilter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedEntityFilters_OF_E2SM_RC_EntityFilter, SEQUENCE_SIZE_0_maxnoofAssociatedEntityFilters_OF_E2SM_RC_EntityFilter_sequence_of,
-                                                  0, maxnoofAssociatedEntityFilters, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t EntityAgnostic_ranP_ControlParameters_sequence[] = {
-  { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
-  { &hf_e2ap_ranParameter_valueType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ValueType },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_EntityAgnostic_ranP_ControlParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_EntityAgnostic_ranP_ControlParameters, EntityAgnostic_ranP_ControlParameters_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_EntityAgnostic_ranP_ControlParameters_sequence_of[1] = {
-  { &hf_e2ap_entityAgnosticControlRanP_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_EntityAgnostic_ranP_ControlParameters },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_EntityAgnostic_ranP_ControlParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_EntityAgnostic_ranP_ControlParameters, SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_EntityAgnostic_ranP_ControlParameters_sequence_of,
-                                                  0, maxnoofAssociatedRANParameters, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_ControlMessage_Format3_sequence[] = {
-  { &hf_e2ap_listOfEntityFilters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedEntityFilters_OF_E2SM_RC_EntityFilter },
-  { &hf_e2ap_entityAgnosticControlRanP_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_EntityAgnostic_ranP_ControlParameters },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_ControlMessage_Format3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_ControlMessage_Format3, E2SM_RC_ControlMessage_Format3_sequence);
-
-  return offset;
-}
-
-
 static const value_string e2ap_T_ric_controlMessage_formats_vals[] = {
   {   0, "controlMessage-Format1" },
   {   1, "controlMessage-Format2" },
-  {   2, "controlMessage-Format3" },
   { 0, NULL }
 };
 
 static const per_choice_t T_ric_controlMessage_formats_choice[] = {
   {   0, &hf_e2ap_controlMessage_Format1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_ControlMessage_Format1 },
   {   1, &hf_e2ap_controlMessage_Format2, ASN1_NOT_EXTENSION_ROOT, dissect_e2ap_E2SM_RC_ControlMessage_Format2 },
-  {   2, &hf_e2ap_controlMessage_Format3, ASN1_NOT_EXTENSION_ROOT, dissect_e2ap_E2SM_RC_ControlMessage_Format3 },
   { 0, NULL, 0, NULL }
 };
 
@@ -9913,315 +9686,6 @@ static int
 dissect_e2ap_E2SM_RC_ControlOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_E2SM_RC_ControlOutcome, E2SM_RC_ControlOutcome_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryHeader_Format1_sequence[] = {
-  { &hf_e2ap_ric_Style_Type , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_Style_Type },
-  { &hf_e2ap_associatedE2NodeInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_RANParameter_Testing },
-  { &hf_e2ap_associatedUEInfo_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_Associated_UE_Info },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryHeader_Format1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryHeader_Format1, E2SM_RC_QueryHeader_Format1_sequence);
-
-  return offset;
-}
-
-
-static const value_string e2ap_T_ric_queryHeader_formats_vals[] = {
-  {   0, "queryHeader-Format1" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_ric_queryHeader_formats_choice[] = {
-  {   0, &hf_e2ap_queryHeader_Format1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_QueryHeader_Format1 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_e2ap_T_ric_queryHeader_formats(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_e2ap_T_ric_queryHeader_formats, T_ric_queryHeader_formats_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryHeader_sequence[] = {
-  { &hf_e2ap_ric_queryHeader_formats, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_ric_queryHeader_formats },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryHeader, E2SM_RC_QueryHeader_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryDefinition_Format1_Item_sequence[] = {
-  { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
-  { &hf_e2ap_ranParameter_Definition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_RANParameter_Definition },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryDefinition_Format1_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryDefinition_Format1_Item, E2SM_RC_QueryDefinition_Format1_Item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryDefinition_Format1_Item_sequence_of[1] = {
-  { &hf_e2ap_ranP_List_item_05, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_E2SM_RC_QueryDefinition_Format1_Item },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryDefinition_Format1_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryDefinition_Format1_Item, SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryDefinition_Format1_Item_sequence_of,
-                                                  1, maxnoofAssociatedRANParameters, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryDefinition_Format1_sequence[] = {
-  { &hf_e2ap_ranP_List_06   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryDefinition_Format1_Item },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryDefinition_Format1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryDefinition_Format1, E2SM_RC_QueryDefinition_Format1_sequence);
-
-  return offset;
-}
-
-
-static const value_string e2ap_T_ric_queryDefinition_formats_vals[] = {
-  {   0, "queryRequest-Format1" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_ric_queryDefinition_formats_choice[] = {
-  {   0, &hf_e2ap_queryRequest_Format1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_QueryDefinition_Format1 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_e2ap_T_ric_queryDefinition_formats(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_e2ap_T_ric_queryDefinition_formats, T_ric_queryDefinition_formats_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryDefinition_sequence[] = {
-  { &hf_e2ap_ric_queryDefinition_formats, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_ric_queryDefinition_formats },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryDefinition, E2SM_RC_QueryDefinition_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryOutcome_Format1_ItemParameters_sequence[] = {
-  { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
-  { &hf_e2ap_ranParameter_valueType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_RANParameter_ValueType },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryOutcome_Format1_ItemParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryOutcome_Format1_ItemParameters, E2SM_RC_QueryOutcome_Format1_ItemParameters_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format1_ItemParameters_sequence_of[1] = {
-  { &hf_e2ap_ranP_List_item_06, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_E2SM_RC_QueryOutcome_Format1_ItemParameters },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format1_ItemParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format1_ItemParameters, SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format1_ItemParameters_sequence_of,
-                                                  0, maxnoofAssociatedRANParameters, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryOutcome_Format1_ItemCell_sequence[] = {
-  { &hf_e2ap_cellGlobal_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_CGI },
-  { &hf_e2ap_ranP_List_07   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format1_ItemParameters },
-  { &hf_e2ap_neighborRelation_Table, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_NeighborRelation_Info },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryOutcome_Format1_ItemCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryOutcome_Format1_ItemCell, E2SM_RC_QueryOutcome_Format1_ItemCell_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_QueryOutcome_Format1_ItemCell_sequence_of[1] = {
-  { &hf_e2ap_cellInfo_List_item_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_E2SM_RC_QueryOutcome_Format1_ItemCell },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_QueryOutcome_Format1_ItemCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_QueryOutcome_Format1_ItemCell, SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_QueryOutcome_Format1_ItemCell_sequence_of,
-                                                  1, maxnoofCellID, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryOutcome_Format1_sequence[] = {
-  { &hf_e2ap_cellInfo_List_02, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_QueryOutcome_Format1_ItemCell },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryOutcome_Format1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryOutcome_Format1, E2SM_RC_QueryOutcome_Format1_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryOutcome_Format2_ItemParameters_sequence[] = {
-  { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
-  { &hf_e2ap_ranParameter_valueType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_RANParameter_ValueType },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryOutcome_Format2_ItemParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryOutcome_Format2_ItemParameters, E2SM_RC_QueryOutcome_Format2_ItemParameters_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format2_ItemParameters_sequence_of[1] = {
-  { &hf_e2ap_ranP_List_item_07, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_E2SM_RC_QueryOutcome_Format2_ItemParameters },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format2_ItemParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format2_ItemParameters, SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format2_ItemParameters_sequence_of,
-                                                  0, maxnoofAssociatedRANParameters, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryOutcome_Format2_ItemUE_sequence[] = {
-  { &hf_e2ap_ueID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_UEID },
-  { &hf_e2ap_ranP_List_08   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format2_ItemParameters },
-  { &hf_e2ap_ueFilterID     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_UE_Filter_ID },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryOutcome_Format2_ItemUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryOutcome_Format2_ItemUE, E2SM_RC_QueryOutcome_Format2_ItemUE_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_QueryOutcome_Format2_ItemUE_sequence_of[1] = {
-  { &hf_e2ap_ueInfo_List_item_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_E2SM_RC_QueryOutcome_Format2_ItemUE },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_QueryOutcome_Format2_ItemUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_QueryOutcome_Format2_ItemUE, SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_QueryOutcome_Format2_ItemUE_sequence_of,
-                                                  0, maxnoofUEID, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryOutcome_Format2_sequence[] = {
-  { &hf_e2ap_ueInfo_List_01 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_QueryOutcome_Format2_ItemUE },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryOutcome_Format2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryOutcome_Format2, E2SM_RC_QueryOutcome_Format2_sequence);
-
-  return offset;
-}
-
-
-static const value_string e2ap_T_ric_queryOutcome_formats_vals[] = {
-  {   0, "queryOutcome-Format1" },
-  {   1, "queryOutcome-Format2" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_ric_queryOutcome_formats_choice[] = {
-  {   0, &hf_e2ap_queryOutcome_Format1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_QueryOutcome_Format1 },
-  {   1, &hf_e2ap_queryOutcome_Format2, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2SM_RC_QueryOutcome_Format2 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_e2ap_T_ric_queryOutcome_formats(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_e2ap_T_ric_queryOutcome_formats, T_ric_queryOutcome_formats_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t E2SM_RC_QueryOutcome_sequence[] = {
-  { &hf_e2ap_ric_queryOutcome_formats, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_ric_queryOutcome_formats },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_E2SM_RC_QueryOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_E2SM_RC_QueryOutcome, E2SM_RC_QueryOutcome_sequence);
 
   return offset;
 }
@@ -10642,40 +10106,10 @@ dissect_e2ap_RANFunctionDefinition_Insert(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const per_sequence_t AdditionalSupportedFormat_UEGroupControl_sequence[] = {
-  { &hf_e2ap_ric_ControlHeaderFormat_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_Format_Type },
-  { &hf_e2ap_ric_ControlMessageFormat_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_Format_Type },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_AdditionalSupportedFormat_UEGroupControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_AdditionalSupportedFormat_UEGroupControl, AdditionalSupportedFormat_UEGroupControl_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ListOfAdditionalSupportedFormats_UEGroupControl_sequence_of[1] = {
-  { &hf_e2ap_ListOfAdditionalSupportedFormats_UEGroupControl_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_AdditionalSupportedFormat_UEGroupControl },
-};
-
-static int
-dissect_e2ap_ListOfAdditionalSupportedFormats_UEGroupControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_ListOfAdditionalSupportedFormats_UEGroupControl, ListOfAdditionalSupportedFormats_UEGroupControl_sequence_of,
-                                                  0, maxnoofFormatTypes, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t ControlAction_RANParameter_Item_sequence[] = {
   { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
   { &hf_e2ap_ranParameter_name, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_Name },
   { &hf_e2ap_ranParameter_Definition, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_e2ap_RANParameter_Definition },
-  { &hf_e2ap_listOfAdditionalSupportedFormats_UEGroupControl, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_e2ap_ListOfAdditionalSupportedFormats_UEGroupControl },
   { NULL, 0, 0, NULL }
 };
 
@@ -10702,27 +10136,10 @@ dissect_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_ControlAction_RAN
 }
 
 
-static const value_string e2ap_T_ueGroup_ControlAction_Supported_vals[] = {
-  {   0, "true" },
-  {   1, "false" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_e2ap_T_ueGroup_ControlAction_Supported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
 static const per_sequence_t RANFunctionDefinition_Control_Action_Item_sequence[] = {
   { &hf_e2ap_ric_ControlAction_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_ControlAction_ID },
   { &hf_e2ap_ric_ControlAction_Name, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_ControlAction_Name },
   { &hf_e2ap_ran_ControlActionParameters_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_ControlAction_RANParameter_Item },
-  { &hf_e2ap_ueGroup_ControlAction_Supported, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_e2ap_T_ueGroup_ControlAction_Supported },
   { NULL, 0, 0, NULL }
 };
 
@@ -10965,83 +10382,6 @@ dissect_e2ap_RANFunctionDefinition_Policy(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const per_sequence_t Query_RANParameter_Item_sequence[] = {
-  { &hf_e2ap_ranParameter_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_ID },
-  { &hf_e2ap_ranParameter_name, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANParameter_Name },
-  { &hf_e2ap_ranParameter_Definition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_RANParameter_Definition },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_Query_RANParameter_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_Query_RANParameter_Item, Query_RANParameter_Item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Query_RANParameter_Item_sequence_of[1] = {
-  { &hf_e2ap_ran_QueryParameters_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_Query_RANParameter_Item },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Query_RANParameter_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Query_RANParameter_Item, SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Query_RANParameter_Item_sequence_of,
-                                                  1, maxnoofAssociatedRANParameters, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t RANFunctionDefinition_Query_Item_sequence[] = {
-  { &hf_e2ap_ric_QueryStyle_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_Style_Type },
-  { &hf_e2ap_ric_QueryStyle_Name, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_Style_Name },
-  { &hf_e2ap_ric_QueryHeaderFormat_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_Format_Type },
-  { &hf_e2ap_ric_QueryDefinitionFormat_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_Format_Type },
-  { &hf_e2ap_ric_QueryOutcomeFormat_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RIC_Format_Type },
-  { &hf_e2ap_ran_QueryParameters_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Query_RANParameter_Item },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_RANFunctionDefinition_Query_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_RANFunctionDefinition_Query_Item, RANFunctionDefinition_Query_Item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Query_Item_sequence_of[1] = {
-  { &hf_e2ap_ric_QueryStyle_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_RANFunctionDefinition_Query_Item },
-};
-
-static int
-dissect_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Query_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Query_Item, SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Query_Item_sequence_of,
-                                                  1, maxnoofRICStyles, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t RANFunctionDefinition_Query_sequence[] = {
-  { &hf_e2ap_ric_QueryStyle_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Query_Item },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_RANFunctionDefinition_Query(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_RANFunctionDefinition_Query, RANFunctionDefinition_Query_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t E2SM_RC_RANFunctionDefinition_sequence[] = {
   { &hf_e2ap_ranFunction_Name, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANfunction_Name },
   { &hf_e2ap_ranFunctionDefinition_EventTrigger, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_RANFunctionDefinition_EventTrigger },
@@ -11049,7 +10389,6 @@ static const per_sequence_t E2SM_RC_RANFunctionDefinition_sequence[] = {
   { &hf_e2ap_ranFunctionDefinition_Insert, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_RANFunctionDefinition_Insert },
   { &hf_e2ap_ranFunctionDefinition_Control, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_RANFunctionDefinition_Control },
   { &hf_e2ap_ranFunctionDefinition_Policy, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_RANFunctionDefinition_Policy },
-  { &hf_e2ap_ranFunctionDefinition_Query, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_e2ap_RANFunctionDefinition_Query },
   { NULL, 0, 0, NULL }
 };
 
@@ -11729,6 +11068,15 @@ static int
 dissect_e2ap_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 4294967295U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e2ap_NULL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
@@ -14869,30 +14217,6 @@ static int dissect_E2SM_RC_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pi
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_E2SM_RC_QueryHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_e2ap_E2SM_RC_QueryHeader(tvb, offset, &asn1_ctx, tree, hf_e2ap_E2SM_RC_QueryHeader_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_E2SM_RC_QueryDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_e2ap_E2SM_RC_QueryDefinition(tvb, offset, &asn1_ctx, tree, hf_e2ap_E2SM_RC_QueryDefinition_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_E2SM_RC_QueryOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_e2ap_E2SM_RC_QueryOutcome(tvb, offset, &asn1_ctx, tree, hf_e2ap_E2SM_RC_QueryOutcome_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_E2SM_RC_RANFunctionDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -15089,7 +14413,7 @@ dissect_e2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 static void e2ap_init_protocol(void)
 {
-  s_gnb_ran_functions.num_gnbs = 0;
+  s_gnb_ran_functions_table.num_gnbs = 0;
 }
 
 
@@ -15235,6 +14559,90 @@ proto_reg_handoff_e2ap(void)
   dissector_add_uint("e2ap.proc.imsg", id_RICquery, create_dissector_handle(dissect_RICQueryRequest_PDU, proto_e2ap));
   dissector_add_uint("e2ap.proc.sout", id_RICquery, create_dissector_handle(dissect_RICQueryResponse_PDU, proto_e2ap));
 
+
+  /********************************/
+  /* Known OIDs for RAN providers */
+
+  /* KPM */
+  oid_add_from_string("KPM v1",         "1.3.6.1.4.1.53148.1.1.2.2");
+  oid_add_from_string("KPM v2",         "1.3.6.1.4.1.53148.1.2.2.2");
+  oid_add_from_string("KPM v3",         "1.2.6.1.4.1.53148.1.3.2.2");
+
+  /* RC */
+  // TODO: appears to be the same???  Asking for clarification from ORAN..
+  oid_add_from_string("RC  v1",         "1.3.6.1.4.1.53148.1.1.2.3");
+  //oid_add_from_string("RC  v3",         "1.3.6.1.4.1.53148.1.1.2.3");
+  //oid_add_from_string("RC  v4",         "1.3.6.1.4.1.53148.1.1.2.3");
+
+  /* NI */
+  oid_add_from_string("NI  v1",         "1.3.6.1.4.1.53148.1.1.2.1");
+
+  /********************************/
+  /* Register 'built-in' dissectors */
+
+  static ran_function_dissector_t kpm_v3 =
+  { "ORAN-E2SM-KPM", "1.2.6.1.4.1.53148.1.3.2.2", 3, 0,
+    {  dissect_E2SM_KPM_RANfunction_Description_PDU,
+
+       NULL,
+       NULL,
+       NULL,
+       NULL,
+       NULL,
+       NULL,
+
+       dissect_E2SM_KPM_ActionDefinition_PDU,
+       dissect_E2SM_KPM_IndicationMessage_PDU,
+       dissect_E2SM_KPM_IndicationHeader_PDU,
+       NULL, /* no dissect_E2SM_KPM_CallProcessID_PDU */
+       dissect_E2SM_KPM_EventTriggerDefinition_PDU
+     }
+  };
+
+  static ran_function_dissector_t rc_v1 =
+  { "ORAN-E2SM-RC",  "1.3.6.1.4.1.53148.1.1.2.3", 1, 3,
+    {  dissect_E2SM_RC_RANFunctionDefinition_PDU,
+
+       dissect_E2SM_RC_ControlHeader_PDU,
+       dissect_E2SM_RC_ControlMessage_PDU,
+       dissect_E2SM_RC_ControlOutcome_PDU,
+       /* new for v3 */
+       NULL, //dissect_E2SM_RC_QueryOutcome_PDU,
+       NULL, //dissect_E2SM_RC_QueryDefinition_PDU,
+       NULL, //dissect_E2SM_RC_QueryHeader_PDU,
+
+       dissect_E2SM_RC_ActionDefinition_PDU,
+       dissect_E2SM_RC_IndicationMessage_PDU,
+       dissect_E2SM_RC_IndicationHeader_PDU,
+       dissect_E2SM_RC_CallProcessID_PDU,
+       dissect_E2SM_RC_EventTrigger_PDU
+    }
+  };
+
+  static ran_function_dissector_t ni_v1 =
+  { "ORAN-E2SM-NI",  "1.3.6.1.4.1.53148.1.1.2.1", 1, 0,
+    {  dissect_E2SM_NI_RANfunction_Description_PDU,
+
+       dissect_E2SM_NI_ControlHeader_PDU,
+       dissect_E2SM_NI_ControlMessage_PDU,
+       dissect_E2SM_NI_ControlOutcome_PDU,
+       NULL,
+       NULL,
+       NULL,
+
+       dissect_E2SM_NI_ActionDefinition_PDU,
+       dissect_E2SM_NI_IndicationMessage_PDU,
+       dissect_E2SM_NI_IndicationHeader_PDU,
+       dissect_E2SM_NI_CallProcessID_PDU,
+       dissect_E2SM_NI_EventTriggerDefinition_PDU
+    }
+  };
+
+  /* Register available dissectors.  TODO: break these out into separate
+   * ASN.1 protocols that register themselves */
+  register_e2ap_ran_function_dissector(KPM_RANFUNCTIONS, &kpm_v3);
+  register_e2ap_ran_function_dissector(RC_RANFUNCTIONS,  &rc_v1);
+  register_e2ap_ran_function_dissector(NI_RANFUNCTIONS,  &ni_v1);
 }
 
 
@@ -15787,18 +15195,6 @@ void proto_register_e2ap(void) {
         NULL, HFILL }},
     { &hf_e2ap_E2SM_RC_ControlOutcome_PDU,
       { "E2SM-RC-ControlOutcome", "e2ap.E2SM_RC_ControlOutcome_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_E2SM_RC_QueryHeader_PDU,
-      { "E2SM-RC-QueryHeader", "e2ap.E2SM_RC_QueryHeader_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_E2SM_RC_QueryDefinition_PDU,
-      { "E2SM-RC-QueryDefinition", "e2ap.E2SM_RC_QueryDefinition_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_E2SM_RC_QueryOutcome_PDU,
-      { "E2SM-RC-QueryOutcome", "e2ap.E2SM_RC_QueryOutcome_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e2ap_E2SM_RC_RANFunctionDefinition_PDU,
@@ -16456,7 +15852,7 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_ranFunction_E2SM_OID,
       { "ranFunction-E2SM-OID", "e2ap.ranFunction_E2SM_OID",
         FT_STRING, BASE_NONE, NULL, 0,
-        "PrintableString_SIZE_1_1000_", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_ranFunction_Description,
       { "ranFunction-Description", "e2ap.ranFunction_Description",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -16863,7 +16259,7 @@ void proto_register_e2ap(void) {
         NULL, HFILL }},
     { &hf_e2ap_ranParameter_ID,
       { "ranParameter-ID", "e2ap.ranParameter_ID",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e2ap_ranParameter_name,
       { "ranParameter-name", "e2ap.ranParameter_name",
@@ -17009,14 +16405,6 @@ void proto_register_e2ap(void) {
       { "RANParameter-Testing-Item", "e2ap.RANParameter_Testing_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e2ap_ueGroupDefinitionIdentifier_LIST,
-      { "ueGroupDefinitionIdentifier-LIST", "e2ap.ueGroupDefinitionIdentifier_LIST",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_maxGroupDefinitionIdentifierParameters_OF_UEGroupDefinitionIdentifier_Item", HFILL }},
-    { &hf_e2ap_ueGroupDefinitionIdentifier_LIST_item,
-      { "UEGroupDefinitionIdentifier-Item", "e2ap.UEGroupDefinitionIdentifier_Item_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_e2ap_ric_PolicyAction_ID,
       { "ric-PolicyAction-ID", "e2ap.ric_PolicyAction_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -17033,22 +16421,6 @@ void proto_register_e2ap(void) {
       { "ric-PolicyDecision", "e2ap.ric_PolicyDecision",
         FT_UINT32, BASE_DEC, VALS(e2ap_T_ric_PolicyDecision_vals), 0,
         NULL, HFILL }},
-    { &hf_e2ap_associatedUEInfo_List,
-      { "associatedUEInfo-List", "e2ap.associatedUEInfo_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_maxnoofUEInfo_OF_Associated_UE_Info_Item", HFILL }},
-    { &hf_e2ap_associatedUEInfo_List_item,
-      { "Associated-UE-Info-Item", "e2ap.Associated_UE_Info_Item_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ueFilterID,
-      { "ueFilterID", "e2ap.ueFilterID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "UE_Filter_ID", HFILL }},
-    { &hf_e2ap_ueType_01,
-      { "ueType", "e2ap.ueType",
-        FT_UINT32, BASE_DEC, VALS(e2ap_T_ueType_01_vals), 0,
-        "T_ueType_01", HFILL }},
     { &hf_e2ap_ric_eventTrigger_formats,
       { "ric-eventTrigger-formats", "e2ap.ric_eventTrigger_formats",
         FT_UINT32, BASE_DEC, VALS(e2ap_T_ric_eventTrigger_formats_vals), 0,
@@ -17072,7 +16444,7 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_eventTrigger_Format5,
       { "eventTrigger-Format5", "e2ap.eventTrigger_Format5_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "E2SM_RC_EventTrigger_Format5", HFILL }},
     { &hf_e2ap_message_List,
       { "message-List", "e2ap.message_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -17181,14 +16553,6 @@ void proto_register_e2ap(void) {
       { "triggerType-Choice-L2state", "e2ap.triggerType_Choice_L2state_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e2ap_triggerType_Choice_UEcontext,
-      { "triggerType-Choice-UEcontext", "e2ap.triggerType_Choice_UEcontext_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_triggerType_Choice_L2MACschChg,
-      { "triggerType-Choice-L2MACschChg", "e2ap.triggerType_Choice_L2MACschChg_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_e2ap_rrcState_List,
       { "rrcState-List", "e2ap.rrcState_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -17209,21 +16573,9 @@ void proto_register_e2ap(void) {
       { "associatedL2variables", "e2ap.associatedL2variables",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RANParameter_Testing", HFILL }},
-    { &hf_e2ap_associatedUECtxtVariables,
-      { "associatedUECtxtVariables", "e2ap.associatedUECtxtVariables",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "RANParameter_Testing", HFILL }},
-    { &hf_e2ap_l2MACschChgType,
-      { "l2MACschChgType", "e2ap.l2MACschChgType",
-        FT_UINT32, BASE_DEC, VALS(e2ap_L2MACschChgType_Choice_vals), 0,
-        "L2MACschChgType_Choice", HFILL }},
-    { &hf_e2ap_triggerType_Choice_MIMOandBFconfig,
-      { "triggerType-Choice-MIMOandBFconfig", "e2ap.triggerType_Choice_MIMOandBFconfig_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_mIMOtransModeState,
-      { "mIMOtransModeState", "e2ap.mIMOtransModeState",
-        FT_UINT32, BASE_DEC, VALS(e2ap_T_mIMOtransModeState_vals), 0,
+    { &hf_e2ap_onDemand,
+      { "onDemand", "e2ap.onDemand",
+        FT_UINT32, BASE_DEC, VALS(e2ap_T_onDemand_vals), 0,
         NULL, HFILL }},
     { &hf_e2ap_ric_Style_Type,
       { "ric-Style-Type", "e2ap.ric_Style_Type",
@@ -17352,7 +16704,7 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_indicationMessage_Format4,
       { "indicationMessage-Format4", "e2ap.indicationMessage_Format4_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "E2SM_RC_IndicationMessage_Format4", HFILL }},
     { &hf_e2ap_indicationMessage_Format5,
       { "indicationMessage-Format5", "e2ap.indicationMessage_Format5_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17409,6 +16761,26 @@ void proto_register_e2ap(void) {
       { "neighborRelation-Table", "e2ap.neighborRelation_Table_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "NeighborRelation_Info", HFILL }},
+    { &hf_e2ap_ueInfo_List_01,
+      { "ueInfo-List", "e2ap.ueInfo_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE", HFILL }},
+    { &hf_e2ap_ueInfo_List_item_01,
+      { "E2SM-RC-IndicationMessage-Format4-ItemUE", "e2ap.E2SM_RC_IndicationMessage_Format4_ItemUE_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e2ap_cellInfo_List_02,
+      { "cellInfo-List", "e2ap.cellInfo_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell", HFILL }},
+    { &hf_e2ap_cellInfo_List_item_02,
+      { "E2SM-RC-IndicationMessage-Format4-ItemCell", "e2ap.E2SM_RC_IndicationMessage_Format4_ItemCell_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e2ap_ueContextInfo,
+      { "ueContextInfo", "e2ap.ueContextInfo",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
     { &hf_e2ap_ranP_Requested_List,
       { "ranP-Requested-List", "e2ap.ranP_Requested_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -17469,10 +16841,6 @@ void proto_register_e2ap(void) {
       { "controlHeader-Format2", "e2ap.controlHeader_Format2_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "E2SM_RC_ControlHeader_Format2", HFILL }},
-    { &hf_e2ap_controlHeader_Format3,
-      { "controlHeader-Format3", "e2ap.controlHeader_Format3_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "E2SM_RC_ControlHeader_Format3", HFILL }},
     { &hf_e2ap_ric_ControlAction_ID,
       { "ric-ControlAction-ID", "e2ap.ric_ControlAction_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -17485,14 +16853,6 @@ void proto_register_e2ap(void) {
       { "ric-ControlDecision", "e2ap.ric_ControlDecision",
         FT_UINT32, BASE_DEC, VALS(e2ap_T_ric_ControlDecision_01_vals), 0,
         "T_ric_ControlDecision_01", HFILL }},
-    { &hf_e2ap_ue_Group_ID,
-      { "ue-Group-ID", "e2ap.ue_Group_ID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ue_Group_Definition,
-      { "ue-Group-Definition", "e2ap.ue_Group_Definition_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_e2ap_ric_controlMessage_formats,
       { "ric-controlMessage-formats", "e2ap.ric_controlMessage_formats",
         FT_UINT32, BASE_DEC, VALS(e2ap_T_ric_controlMessage_formats_vals), 0,
@@ -17505,10 +16865,6 @@ void proto_register_e2ap(void) {
       { "controlMessage-Format2", "e2ap.controlMessage_Format2_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "E2SM_RC_ControlMessage_Format2", HFILL }},
-    { &hf_e2ap_controlMessage_Format3,
-      { "controlMessage-Format3", "e2ap.controlMessage_Format3_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "E2SM_RC_ControlMessage_Format3", HFILL }},
     { &hf_e2ap_ranP_List_01,
       { "ranP-List", "e2ap.ranP_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -17541,38 +16897,6 @@ void proto_register_e2ap(void) {
       { "ranP-List", "e2ap.ranP_List_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "E2SM_RC_ControlMessage_Format1", HFILL }},
-    { &hf_e2ap_listOfEntityFilters,
-      { "listOfEntityFilters", "e2ap.listOfEntityFilters",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_0_maxnoofAssociatedEntityFilters_OF_E2SM_RC_EntityFilter", HFILL }},
-    { &hf_e2ap_listOfEntityFilters_item,
-      { "E2SM-RC-EntityFilter", "e2ap.E2SM_RC_EntityFilter_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_entityAgnosticControlRanP_List,
-      { "entityAgnosticControlRanP-List", "e2ap.entityAgnosticControlRanP_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_EntityAgnostic_ranP_ControlParameters", HFILL }},
-    { &hf_e2ap_entityAgnosticControlRanP_List_item,
-      { "EntityAgnostic-ranP-ControlParameters", "e2ap.EntityAgnostic_ranP_ControlParameters_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_entityFilter_ID,
-      { "entityFilter-ID", "e2ap.entityFilter_ID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_entityFilter_Definition,
-      { "entityFilter-Definition", "e2ap.entityFilter_Definition",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "RANParameter_Testing", HFILL }},
-    { &hf_e2ap_entitySpecificControlRanP_List,
-      { "entitySpecificControlRanP-List", "e2ap.entitySpecificControlRanP_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_EntitySpecific_ranP_ControlParameters", HFILL }},
-    { &hf_e2ap_entitySpecificControlRanP_List_item,
-      { "EntitySpecific-ranP-ControlParameters", "e2ap.EntitySpecific_ranP_ControlParameters_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_e2ap_ric_controlOutcome_formats,
       { "ric-controlOutcome-formats", "e2ap.ric_controlOutcome_formats",
         FT_UINT32, BASE_DEC, VALS(e2ap_T_ric_controlOutcome_formats_vals), 0,
@@ -17629,78 +16953,6 @@ void proto_register_e2ap(void) {
       { "E2SM-RC-ControlOutcome-Format3-Item", "e2ap.E2SM_RC_ControlOutcome_Format3_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e2ap_ric_queryHeader_formats,
-      { "ric-queryHeader-formats", "e2ap.ric_queryHeader_formats",
-        FT_UINT32, BASE_DEC, VALS(e2ap_T_ric_queryHeader_formats_vals), 0,
-        NULL, HFILL }},
-    { &hf_e2ap_queryHeader_Format1,
-      { "queryHeader-Format1", "e2ap.queryHeader_Format1_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "E2SM_RC_QueryHeader_Format1", HFILL }},
-    { &hf_e2ap_associatedUEInfo_01,
-      { "associatedUEInfo", "e2ap.associatedUEInfo_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Associated_UE_Info", HFILL }},
-    { &hf_e2ap_ric_queryDefinition_formats,
-      { "ric-queryDefinition-formats", "e2ap.ric_queryDefinition_formats",
-        FT_UINT32, BASE_DEC, VALS(e2ap_T_ric_queryDefinition_formats_vals), 0,
-        NULL, HFILL }},
-    { &hf_e2ap_queryRequest_Format1,
-      { "queryRequest-Format1", "e2ap.queryRequest_Format1_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "E2SM_RC_QueryDefinition_Format1", HFILL }},
-    { &hf_e2ap_ranP_List_06,
-      { "ranP-List", "e2ap.ranP_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryDefinition_Format1_Item", HFILL }},
-    { &hf_e2ap_ranP_List_item_05,
-      { "E2SM-RC-QueryDefinition-Format1-Item", "e2ap.E2SM_RC_QueryDefinition_Format1_Item_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ric_queryOutcome_formats,
-      { "ric-queryOutcome-formats", "e2ap.ric_queryOutcome_formats",
-        FT_UINT32, BASE_DEC, VALS(e2ap_T_ric_queryOutcome_formats_vals), 0,
-        NULL, HFILL }},
-    { &hf_e2ap_queryOutcome_Format1,
-      { "queryOutcome-Format1", "e2ap.queryOutcome_Format1_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "E2SM_RC_QueryOutcome_Format1", HFILL }},
-    { &hf_e2ap_queryOutcome_Format2,
-      { "queryOutcome-Format2", "e2ap.queryOutcome_Format2_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "E2SM_RC_QueryOutcome_Format2", HFILL }},
-    { &hf_e2ap_cellInfo_List_02,
-      { "cellInfo-List", "e2ap.cellInfo_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_QueryOutcome_Format1_ItemCell", HFILL }},
-    { &hf_e2ap_cellInfo_List_item_02,
-      { "E2SM-RC-QueryOutcome-Format1-ItemCell", "e2ap.E2SM_RC_QueryOutcome_Format1_ItemCell_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ranP_List_07,
-      { "ranP-List", "e2ap.ranP_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format1_ItemParameters", HFILL }},
-    { &hf_e2ap_ranP_List_item_06,
-      { "E2SM-RC-QueryOutcome-Format1-ItemParameters", "e2ap.E2SM_RC_QueryOutcome_Format1_ItemParameters_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ueInfo_List_01,
-      { "ueInfo-List", "e2ap.ueInfo_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_QueryOutcome_Format2_ItemUE", HFILL }},
-    { &hf_e2ap_ueInfo_List_item_01,
-      { "E2SM-RC-QueryOutcome-Format2-ItemUE", "e2ap.E2SM_RC_QueryOutcome_Format2_ItemUE_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ranP_List_08,
-      { "ranP-List", "e2ap.ranP_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format2_ItemParameters", HFILL }},
-    { &hf_e2ap_ranP_List_item_07,
-      { "E2SM-RC-QueryOutcome-Format2-ItemParameters", "e2ap.E2SM_RC_QueryOutcome_Format2_ItemParameters_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_e2ap_ranFunction_Name,
       { "ranFunction-Name", "e2ap.ranFunction_Name_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17723,10 +16975,6 @@ void proto_register_e2ap(void) {
         NULL, HFILL }},
     { &hf_e2ap_ranFunctionDefinition_Policy,
       { "ranFunctionDefinition-Policy", "e2ap.ranFunctionDefinition_Policy_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ranFunctionDefinition_Query,
-      { "ranFunctionDefinition-Query", "e2ap.ranFunctionDefinition_Query_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e2ap_ric_EventTriggerStyle_List,
@@ -17949,18 +17197,6 @@ void proto_register_e2ap(void) {
       { "ControlAction-RANParameter-Item", "e2ap.ControlAction_RANParameter_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e2ap_ueGroup_ControlAction_Supported,
-      { "ueGroup-ControlAction-Supported", "e2ap.ueGroup_ControlAction_Supported",
-        FT_UINT32, BASE_DEC, VALS(e2ap_T_ueGroup_ControlAction_Supported_vals), 0,
-        NULL, HFILL }},
-    { &hf_e2ap_listOfAdditionalSupportedFormats_UEGroupControl,
-      { "listOfAdditionalSupportedFormats-UEGroupControl", "e2ap.listOfAdditionalSupportedFormats_UEGroupControl",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ListOfAdditionalSupportedFormats_UEGroupControl_item,
-      { "AdditionalSupportedFormat-UEGroupControl", "e2ap.AdditionalSupportedFormat_UEGroupControl_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_e2ap_ric_PolicyStyle_List,
       { "ric-PolicyStyle-List", "e2ap.ric_PolicyStyle_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -18003,42 +17239,6 @@ void proto_register_e2ap(void) {
         "SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyCondition_RANParameter_Item", HFILL }},
     { &hf_e2ap_ran_PolicyConditionParameters_List_item,
       { "PolicyCondition-RANParameter-Item", "e2ap.PolicyCondition_RANParameter_Item_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ric_QueryStyle_List,
-      { "ric-QueryStyle-List", "e2ap.ric_QueryStyle_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Query_Item", HFILL }},
-    { &hf_e2ap_ric_QueryStyle_List_item,
-      { "RANFunctionDefinition-Query-Item", "e2ap.RANFunctionDefinition_Query_Item_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e2ap_ric_QueryStyle_Type,
-      { "ric-QueryStyle-Type", "e2ap.ric_QueryStyle_Type",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "RIC_Style_Type", HFILL }},
-    { &hf_e2ap_ric_QueryStyle_Name,
-      { "ric-QueryStyle-Name", "e2ap.ric_QueryStyle_Name",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "RIC_Style_Name", HFILL }},
-    { &hf_e2ap_ric_QueryHeaderFormat_Type,
-      { "ric-QueryHeaderFormat-Type", "e2ap.ric_QueryHeaderFormat_Type",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "RIC_Format_Type", HFILL }},
-    { &hf_e2ap_ric_QueryDefinitionFormat_Type,
-      { "ric-QueryDefinitionFormat-Type", "e2ap.ric_QueryDefinitionFormat_Type",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "RIC_Format_Type", HFILL }},
-    { &hf_e2ap_ric_QueryOutcomeFormat_Type,
-      { "ric-QueryOutcomeFormat-Type", "e2ap.ric_QueryOutcomeFormat_Type",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "RIC_Format_Type", HFILL }},
-    { &hf_e2ap_ran_QueryParameters_List,
-      { "ran-QueryParameters-List", "e2ap.ran_QueryParameters_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Query_RANParameter_Item", HFILL }},
-    { &hf_e2ap_ran_QueryParameters_List_item,
-      { "Query-RANParameter-Item", "e2ap.Query_RANParameter_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e2ap_measName,
@@ -18848,7 +18048,16 @@ void proto_register_e2ap(void) {
       { &hf_e2ap_ran_function_setup_frame,
           { "RANfunction setup frame", "e2ap.setup-frame",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }}
+            NULL, HFILL }},
+
+      { &hf_e2ap_dissector_version,
+          { "Version (dissector)", "e2ap.version.dissector",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+      { &hf_e2ap_frame_version,
+          { "Version (frame)", "e2ap.version.frame",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -19089,16 +18298,9 @@ void proto_register_e2ap(void) {
     &ett_e2ap_RANParameter_Testing_Item_Choice_ElementFalse,
     &ett_e2ap_RANParameter_Testing_LIST,
     &ett_e2ap_RANParameter_Testing_STRUCTURE,
-    &ett_e2ap_UE_Group_Definition,
-    &ett_e2ap_SEQUENCE_SIZE_1_maxGroupDefinitionIdentifierParameters_OF_UEGroupDefinitionIdentifier_Item,
-    &ett_e2ap_UEGroupDefinitionIdentifier_Item,
     &ett_e2ap_RIC_PolicyAction,
     &ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_RIC_PolicyAction_RANParameter_Item,
     &ett_e2ap_RIC_PolicyAction_RANParameter_Item,
-    &ett_e2ap_Associated_UE_Info,
-    &ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEInfo_OF_Associated_UE_Info_Item,
-    &ett_e2ap_Associated_UE_Info_Item,
-    &ett_e2ap_T_ueType_01,
     &ett_e2ap_E2SM_RC_EventTrigger,
     &ett_e2ap_T_ric_eventTrigger_formats,
     &ett_e2ap_E2SM_RC_EventTrigger_Format1,
@@ -19120,10 +18322,7 @@ void proto_register_e2ap(void) {
     &ett_e2ap_TriggerType_Choice_RRCstate_Item,
     &ett_e2ap_TriggerType_Choice_UEID,
     &ett_e2ap_TriggerType_Choice_L2state,
-    &ett_e2ap_TriggerType_Choice_UEcontext,
-    &ett_e2ap_TriggerType_Choice_L2MACschChg,
-    &ett_e2ap_L2MACschChgType_Choice,
-    &ett_e2ap_TriggerType_Choice_MIMOandBFconfig,
+    &ett_e2ap_E2SM_RC_EventTrigger_Format5,
     &ett_e2ap_E2SM_RC_ActionDefinition,
     &ett_e2ap_T_ric_actionDefinition_formats,
     &ett_e2ap_E2SM_RC_ActionDefinition_Format1,
@@ -19160,6 +18359,11 @@ void proto_register_e2ap(void) {
     &ett_e2ap_E2SM_RC_IndicationMessage_Format3,
     &ett_e2ap_SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format3_Item,
     &ett_e2ap_E2SM_RC_IndicationMessage_Format3_Item,
+    &ett_e2ap_E2SM_RC_IndicationMessage_Format4,
+    &ett_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE,
+    &ett_e2ap_SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell,
+    &ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemUE,
+    &ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemCell,
     &ett_e2ap_E2SM_RC_IndicationMessage_Format5,
     &ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format5_Item,
     &ett_e2ap_E2SM_RC_IndicationMessage_Format5_Item,
@@ -19177,7 +18381,6 @@ void proto_register_e2ap(void) {
     &ett_e2ap_T_ric_controlHeader_formats,
     &ett_e2ap_E2SM_RC_ControlHeader_Format1,
     &ett_e2ap_E2SM_RC_ControlHeader_Format2,
-    &ett_e2ap_E2SM_RC_ControlHeader_Format3,
     &ett_e2ap_E2SM_RC_ControlMessage,
     &ett_e2ap_T_ric_controlMessage_formats,
     &ett_e2ap_E2SM_RC_ControlMessage_Format1,
@@ -19188,13 +18391,6 @@ void proto_register_e2ap(void) {
     &ett_e2ap_E2SM_RC_ControlMessage_Format2_Style_Item,
     &ett_e2ap_SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlMessage_Format2_ControlAction_Item,
     &ett_e2ap_E2SM_RC_ControlMessage_Format2_ControlAction_Item,
-    &ett_e2ap_E2SM_RC_ControlMessage_Format3,
-    &ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedEntityFilters_OF_E2SM_RC_EntityFilter,
-    &ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_EntityAgnostic_ranP_ControlParameters,
-    &ett_e2ap_E2SM_RC_EntityFilter,
-    &ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_EntitySpecific_ranP_ControlParameters,
-    &ett_e2ap_EntityAgnostic_ranP_ControlParameters,
-    &ett_e2ap_EntitySpecific_ranP_ControlParameters,
     &ett_e2ap_E2SM_RC_ControlOutcome,
     &ett_e2ap_T_ric_controlOutcome_formats,
     &ett_e2ap_E2SM_RC_ControlOutcome_Format1,
@@ -19210,26 +18406,6 @@ void proto_register_e2ap(void) {
     &ett_e2ap_E2SM_RC_ControlOutcome_Format3,
     &ett_e2ap_SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format3_Item,
     &ett_e2ap_E2SM_RC_ControlOutcome_Format3_Item,
-    &ett_e2ap_E2SM_RC_QueryHeader,
-    &ett_e2ap_T_ric_queryHeader_formats,
-    &ett_e2ap_E2SM_RC_QueryHeader_Format1,
-    &ett_e2ap_E2SM_RC_QueryDefinition,
-    &ett_e2ap_T_ric_queryDefinition_formats,
-    &ett_e2ap_E2SM_RC_QueryDefinition_Format1,
-    &ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryDefinition_Format1_Item,
-    &ett_e2ap_E2SM_RC_QueryDefinition_Format1_Item,
-    &ett_e2ap_E2SM_RC_QueryOutcome,
-    &ett_e2ap_T_ric_queryOutcome_formats,
-    &ett_e2ap_E2SM_RC_QueryOutcome_Format1,
-    &ett_e2ap_SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_QueryOutcome_Format1_ItemCell,
-    &ett_e2ap_E2SM_RC_QueryOutcome_Format1_ItemCell,
-    &ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format1_ItemParameters,
-    &ett_e2ap_E2SM_RC_QueryOutcome_Format1_ItemParameters,
-    &ett_e2ap_E2SM_RC_QueryOutcome_Format2,
-    &ett_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_QueryOutcome_Format2_ItemUE,
-    &ett_e2ap_E2SM_RC_QueryOutcome_Format2_ItemUE,
-    &ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_QueryOutcome_Format2_ItemParameters,
-    &ett_e2ap_E2SM_RC_QueryOutcome_Format2_ItemParameters,
     &ett_e2ap_E2SM_RC_RANFunctionDefinition,
     &ett_e2ap_RANFunctionDefinition_EventTrigger,
     &ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_EventTrigger_Style_Item,
@@ -19267,8 +18443,6 @@ void proto_register_e2ap(void) {
     &ett_e2ap_RANFunctionDefinition_Control_Action_Item,
     &ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_ControlAction_RANParameter_Item,
     &ett_e2ap_ControlAction_RANParameter_Item,
-    &ett_e2ap_ListOfAdditionalSupportedFormats_UEGroupControl,
-    &ett_e2ap_AdditionalSupportedFormat_UEGroupControl,
     &ett_e2ap_RANFunctionDefinition_Policy,
     &ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Policy_Item,
     &ett_e2ap_RANFunctionDefinition_Policy_Item,
@@ -19278,11 +18452,6 @@ void proto_register_e2ap(void) {
     &ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyCondition_RANParameter_Item,
     &ett_e2ap_PolicyAction_RANParameter_Item,
     &ett_e2ap_PolicyCondition_RANParameter_Item,
-    &ett_e2ap_RANFunctionDefinition_Query,
-    &ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Query_Item,
-    &ett_e2ap_RANFunctionDefinition_Query_Item,
-    &ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Query_RANParameter_Item,
-    &ett_e2ap_Query_RANParameter_Item,
     &ett_e2ap_BinRangeValue,
     &ett_e2ap_MeasurementType,
     &ett_e2ap_MeasurementLabel,
@@ -19404,6 +18573,8 @@ void proto_register_e2ap(void) {
   static ei_register_info ei[] = {
      { &ei_e2ap_ran_function_names_no_match, { "e2ap.ran-function-names-no-match", PI_PROTOCOL, PI_WARN, "RAN Function name doesn't match known service models", EXPFILL }},
      { &ei_e2ap_ran_function_id_not_mapped,   { "e2ap.ran-function-id-not-known", PI_PROTOCOL, PI_WARN, "Service Model not known for RANFunctionID", EXPFILL }},
+     { &ei_e2ap_ran_function_dissector_mismatch,   { "e2ap.ran-function-dissector-version-mismatch", PI_PROTOCOL, PI_WARN, "Available dissector does not match signalled", EXPFILL }},
+
   };
 
   expert_module_t* expert_e2ap;

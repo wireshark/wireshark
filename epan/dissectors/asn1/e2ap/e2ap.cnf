@@ -23,7 +23,6 @@ E2SM-KPM-ActionDefinition
 E2SM-KPM-IndicationHeader
 E2SM-KPM-IndicationMessage
 E2SM-KPM-RANfunction-Description
-#E2SM-KPM-CallProcessID   (no such function)
 
 E2SM-RC-EventTrigger
 E2SM-RC-ActionDefinition
@@ -35,9 +34,9 @@ E2SM-RC-ControlHeader
 E2SM-RC-ControlMessage
 E2SM-RC-ControlOutcome
 # New for v3
-E2SM-RC-QueryOutcome
-E2SM-RC-QueryDefinition
-E2SM-RC-QueryHeader
+# E2SM-RC-QueryOutcome
+# E2SM-RC-QueryDefinition
+# E2SM-RC-QueryHeader
 
 
 E2SM-NI-EventTriggerDefinition
@@ -246,18 +245,29 @@ SuccessfulOutcome/value successfulOutcome_value
 
 #.FN_BODY RANfunctionDefinition  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
+
+  /* We know that the next thing is a RANFunction-Name, but it's wrapped up in a sequence,
+     so can't silently/hiddenly call ranFunctionName here... */
+
   %(DEFAULT_BODY)s
+
   /* Looking for shortName string near beginning of tvb */
   gboolean found = FALSE;
-  for (int n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS; n++) {
+  /* For each RAN function name.. */
+  for (int n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS && !found; n++) {
     guint32 tvb_len = tvb_captured_length(parameter_tvb);
-    guint name_len = (gint)strlen(g_ran_functioname_table[n].name);
+    guint name_len = (gint)strlen(g_ran_function_name_table[n]);
+    /* For each of several byte positions.. */
     for (int m=0; (m<30) && ((m+name_len+1))<tvb_len; m++) {
-      if (tvb_strneql(parameter_tvb, m, g_ran_functioname_table[n].name, name_len) == 0) {
-        /* Call the set's dissector */
-        g_ran_functioname_table[n].functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
-        found = TRUE;
-        break;
+      /* Have we found a match on the name? */
+      if (tvb_strneql(parameter_tvb, m, g_ran_function_name_table[n], name_len) == 0) {
+        /* TODO: we don't yet know the OID (hopefully won't make a difference for this message though...),
+           so for now just call with the first/only available dissector for this RAN Function name */
+        if (g_ran_functions_available_dissectors[n].num_available_dissectors) {
+          g_ran_functions_available_dissectors[n].ran_function_dissectors[0]->functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+          found = TRUE;
+          break;
+        }
       }
     }
   }
@@ -267,53 +277,82 @@ SuccessfulOutcome/value successfulOutcome_value
                            "ShortName does not match any known Service Model");
   }
 
+#.FN_BODY RANfunction-Name/ranFunction-ShortName VAL_PTR=&value_tvb
+  tvbuff_t *value_tvb;
+%(DEFAULT_BODY)s
+  if (!actx->pinfo->fd->visited) {
+    /* N.B. too early to work out exact dissector, as don't have OID yet */
+    e2ap_store_ran_function_mapping(actx->pinfo,
+                                    tvb_get_string_enc(wmem_packet_scope(), value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
+  }
+
+
+#.FN_BODY RANfunction-Name/ranFunction-E2SM-OID  VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
+                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
+                                   tvb_captured_length(parameter_tvb), ENC_ASCII));
+
 
 #.FN_BODY RICcontrolHeader VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_control_header_dissector) {
-    functions->ric_control_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_control_header_dissector) {
+      dissector->functions.ric_control_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 #.FN_BODY RICcontrolMessage VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_control_message_dissector) {
-    functions->ric_control_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_control_message_dissector) {
+      dissector->functions.ric_control_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 #.FN_BODY RICcontrolOutcome VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_control_outcome_dissector) {
-    functions->ric_control_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_control_outcome_dissector) {
+        dissector->functions.ric_control_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 #.FN_BODY RICqueryOutcome VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_query_outcome_dissector) {
-    functions->ric_query_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_query_outcome_dissector) {
+      dissector->functions.ric_query_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 #.FN_BODY RICqueryDefinition VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_query_definition_dissector) {
-    functions->ric_query_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_query_definition_dissector) {
+      dissector->functions.ric_query_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 #.FN_BODY RICqueryHeader VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ric_query_header_dissector) {
-    functions->ric_query_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ric_query_header_dissector) {
+      dissector->functions.ric_query_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 
@@ -321,41 +360,51 @@ SuccessfulOutcome/value successfulOutcome_value
 #.FN_BODY RICeventTriggerDefinition VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_event_trigger_dissector) {
-    functions->ran_event_trigger_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_event_trigger_dissector) {
+      dissector->functions.ran_event_trigger_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 #.FN_BODY RICactionDefinition VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_action_definition_dissector) {
-    functions->ran_action_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_action_definition_dissector) {
+      dissector->functions.ran_action_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 #.FN_BODY RICindicationHeader VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_indication_header_dissector) {
-    functions->ran_indication_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_indication_header_dissector) {
+      dissector->functions.ran_indication_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 #.FN_BODY RICindicationMessage VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_indication_message_dissector) {
-    functions->ran_indication_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_indication_message_dissector) {
+      dissector->functions.ran_indication_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 
 #.FN_BODY RICcallProcessID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
-  if (functions && functions->ran_callprocessid_dissector) {
-    functions->ran_callprocessid_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  if (dissector) {
+    if (dissector->functions.ran_callprocessid_dissector) {
+      dissector->functions.ran_callprocessid_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+    }
   }
 # ################################################################################
 
@@ -662,14 +711,6 @@ RICQueryResponse                         N e2ap.proc.sout id-RICquery
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   e2ap_data->ran_function_id = value;
 
-
-#.FN_BODY RANfunction-Name/ranFunction-ShortName VAL_PTR=&value_tvb
-  tvbuff_t *value_tvb;
-%(DEFAULT_BODY)s
-  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
-  ran_functionid_table_t *table = get_ran_functionid_table(actx->pinfo);
-  store_ran_function_mapping(actx->pinfo, table, e2ap_data,
-                             tvb_get_string_enc(wmem_packet_scope(), value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
 
 #.FN_BODY GlobalgNB-ID/gnb-id
   int start_offset = offset;

@@ -1,0 +1,388 @@
+-- ASN1START
+-- **************************************************************
+-- E2SM
+-- Information Element Definitions
+-- N.B. this is an edited version, only supplying what is needed for KPM-v2
+-- **************************************************************
+
+E2SM-COMMON-IEs {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1 (1) e2sm(2) e2sm-COMMON-IEs (0)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- --------------------------------------------------
+-- Constants
+-- --------------------------------------------------
+
+maxE1APid				INTEGER ::= 65535
+maxF1APid				INTEGER ::= 4
+
+-- IEs derived from 3GPP 36.423 (X2AP)
+maxEARFCN				INTEGER ::= 65535
+
+-- IEs derived from 3GPP 38.473 (F1AP)
+maxNRARFCN				INTEGER ::= 3279165
+maxnoofNrCellBands		INTEGER ::= 32
+
+
+-- --------------------------------------------------
+-- E2SM Commmon IEs
+-- --------------------------------------------------
+
+CGI ::= CHOICE {
+        nR-CGI					NR-CGI,
+        eUTRA-CGI				EUTRA-CGI,
+        ...
+}
+
+
+RANfunction-Name ::= SEQUENCE{
+        ranFunction-ShortName		PrintableString(SIZE(1..150,...)),
+        ranFunction-E2SM-OID		PrintableString(SIZE(1..1000,...)),
+        ranFunction-Description		PrintableString(SIZE(1..150,...)),
+        ranFunction-Instance		INTEGER									OPTIONAL,
+        ...
+}
+
+RIC-Format-Type ::= INTEGER
+
+RIC-Style-Type ::= INTEGER
+
+RIC-Style-Name ::= PrintableString(SIZE(1..150,...))
+
+UEID ::= CHOICE{
+        gNB-UEID			UEID-GNB,
+        gNB-DU-UEID			UEID-GNB-DU,
+        gNB-CU-UP-UEID		UEID-GNB-CU-UP,
+        ng-eNB-UEID			UEID-NG-ENB,
+        ng-eNB-DU-UEID		UEID-NG-ENB-DU,
+        en-gNB-UEID			UEID-EN-GNB,
+        eNB-UEID			UEID-ENB,
+        ...
+}
+
+UEID-GNB ::= SEQUENCE{
+        amf-UE-NGAP-ID				AMF-UE-NGAP-ID,
+        guami						GUAMI,
+        gNB-CU-UE-F1AP-ID-List		UEID-GNB-CU-F1AP-ID-List		OPTIONAL,
+-- C-ifCUDUseparated: This IE shall be present in messages from E2 Node to NearRT-RIC for a CU-DU separated gNB, whereas from NearRT-RIC to E2 Node messages, this IE may not be included. More than 1 F1AP ID shall be reported by E2 Node only when NR-DC is established.
+        gNB-CU-CP-UE-E1AP-ID-List	UEID-GNB-CU-CP-E1AP-ID-List		OPTIONAL,
+-- C-ifCPUPseparated: This IE shall be present in messages from E2 Node to NearRT-RIC for a CP-UP separated gNB, whereas from NearRT-RIC to E2 Node messages, this IE may not be included.
+        ran-UEID					RANUEID							OPTIONAL,
+        m-NG-RAN-UE-XnAP-ID			NG-RANnodeUEXnAPID				OPTIONAL,
+-- C-ifDCSetup: This IE shall be present in messages from E2 Node to NearRT-RIC if DC is established, whereas from NearRT-RIC to E2 Node messages, this IE may not be included. To be reported by both MN and SN.
+        globalGNB-ID				GlobalGNB-ID					OPTIONAL,
+-- This IE shall not be used. This IE is replaced with globalNG-RANNode-ID.
+        ...,
+        globalNG-RANNode-ID			GlobalNGRANNodeID				OPTIONAL
+-- C-ifDCSetup: This IE shall be present in messages from E2 Node to NearRT-RIC if DC is established, whereas from NearRT-RIC to E2 Node messages, this IE may not be included. To be reported only by SN.
+}
+
+UEID-GNB-CU-CP-E1AP-ID-List ::= SEQUENCE (SIZE(1..maxE1APid)) OF UEID-GNB-CU-CP-E1AP-ID-Item
+
+UEID-GNB-CU-CP-E1AP-ID-Item ::= SEQUENCE{
+        gNB-CU-CP-UE-E1AP-ID	GNB-CU-CP-UE-E1AP-ID,
+        ...
+}
+
+UEID-GNB-CU-F1AP-ID-List ::= SEQUENCE (SIZE(1..maxF1APid)) OF UEID-GNB-CU-CP-F1AP-ID-Item
+
+UEID-GNB-CU-CP-F1AP-ID-Item ::= SEQUENCE{
+        gNB-CU-UE-F1AP-ID		GNB-CU-UE-F1AP-ID,
+        ...
+}
+
+UEID-GNB-DU ::= SEQUENCE{
+        gNB-CU-UE-F1AP-ID		GNB-CU-UE-F1AP-ID,
+        ran-UEID				RANUEID							OPTIONAL,
+        ...
+}
+
+UEID-GNB-CU-UP ::= SEQUENCE{
+        gNB-CU-CP-UE-E1AP-ID	GNB-CU-CP-UE-E1AP-ID,
+        ran-UEID				RANUEID							OPTIONAL,
+        ...
+}
+
+UEID-NG-ENB ::= SEQUENCE{
+        amf-UE-NGAP-ID			AMF-UE-NGAP-ID,
+        guami					GUAMI,
+        ng-eNB-CU-UE-W1AP-ID	NGENB-CU-UE-W1AP-ID				OPTIONAL,
+-- C-ifCUDUseperated: This IE shall be present in messages from E2 Node to NearRT-RIC for a CU-DU seperated ng-eNB, whereas from NearRT-RIC to E2 Node messages, this IE may not be included.
+        m-NG-RAN-UE-XnAP-ID		NG-RANnodeUEXnAPID				OPTIONAL,
+-- C-ifDCSetup: This IE shall be present in messages from E2 Node to NearRT-RIC if DC is established, whereas from NearRT-RIC to E2 Node messages, this IE may not be included. To be reported by both MN and SN.
+        globalNgENB-ID			GlobalNgENB-ID					OPTIONAL,
+-- This IE shall not be used. This IE is replaced with globalNG-RANNode-ID.
+        ...,
+        globalNG-RANNode-ID			GlobalNGRANNodeID			OPTIONAL
+-- C-ifDCSetup: This IE shall be present in messages from E2 Node to NearRT-RIC if DC is established, whereas from NearRT-RIC to E2 Node messages, this IE may not be included. To be reported only by SN.
+}
+
+
+UEID-NG-ENB-DU ::= SEQUENCE{
+        ng-eNB-CU-UE-W1AP-ID	NGENB-CU-UE-W1AP-ID,
+        ...
+}
+
+UEID-EN-GNB ::= SEQUENCE{
+        m-eNB-UE-X2AP-ID			ENB-UE-X2AP-ID,
+        m-eNB-UE-X2AP-ID-Extension	ENB-UE-X2AP-ID-Extension	OPTIONAL,
+        globalENB-ID				GlobalENB-ID,
+        gNB-CU-UE-F1AP-ID			GNB-CU-UE-F1AP-ID			OPTIONAL,
+-- C-ifCUDUseperated: This IE shall be present in messages from E2 Node to NearRT-RIC for a CU-DU seperated en-gNB, whereas from NearRT-RIC to E2 Node messages, this IE may not be included.
+        gNB-CU-CP-UE-E1AP-ID-List	UEID-GNB-CU-CP-E1AP-ID-List	OPTIONAL,
+-- C-ifCPUPseparated: This IE shall be present in messages from E2 Node to NearRT-RIC for a CP-UP separated en-gNB, whereas from NearRT-RIC to E2 Node messages, this IE may not be included.
+        ran-UEID					RANUEID						OPTIONAL,
+        ...
+}
+
+UEID-ENB ::= SEQUENCE{
+        mME-UE-S1AP-ID				MME-UE-S1AP-ID,
+        gUMMEI						GUMMEI,
+        m-eNB-UE-X2AP-ID			ENB-UE-X2AP-ID				OPTIONAL,
+-- This IE shall be present in messages from E2 Node to NearRT-RIC if DC is established, whereas from NearRT-RIC to E2 Node messages, this IE may not be included. To be reported by MeNB and SeNB.
+        m-eNB-UE-X2AP-ID-Extension	ENB-UE-X2AP-ID-Extension	OPTIONAL,
+        globalENB-ID				GlobalENB-ID				OPTIONAL,
+-- This IE shall be present in messages from E2 Node to NearRT-RIC if DC is established, whereas from NearRT-RIC to E2 Node messages, this IE may not be included. To be reported only by SeNB.
+        ...
+}
+
+-- **************************************************************
+-- 3GPP derived IEs
+-- **************************************************************
+-- NOTE:
+-- - Extension fields removed and replaced with "..."
+-- - IE names modified across all extracts to use "PLMNIdentity"
+
+-- **************************************************************
+-- IEs derived from 3GPP 36.413 (S1AP)
+-- **************************************************************
+-- **************************************************************
+
+-- copied from v16.5.0
+ENB-ID ::= CHOICE {
+        macro-eNB-ID	BIT STRING (SIZE (20)),
+	home-eNB-ID		BIT STRING (SIZE (28)),
+	... ,
+	short-Macro-eNB-ID		BIT STRING (SIZE(18)),
+	long-Macro-eNB-ID		BIT STRING (SIZE(21))
+}
+
+-- copied from v16.5.0
+GlobalENB-ID ::= SEQUENCE {
+        pLMNIdentity			PLMNIdentity,
+	eNB-ID					ENB-ID,
+	...
+}
+
+
+-- copied from v16.5.0
+GUMMEI			::= SEQUENCE {
+        pLMN-Identity		PLMNIdentity,
+        mME-Group-ID		MME-Group-ID,
+        mME-Code			MME-Code,
+        ...
+}
+
+-- copied from v16.5.0
+MME-Group-ID	::= OCTET STRING (SIZE (2))
+
+-- copied from v16.5.0
+MME-Code		::= OCTET STRING (SIZE (1))
+
+-- copied from v16.5.0
+MME-UE-S1AP-ID	::= INTEGER (0..4294967295)
+
+-- copied from v16.5.0
+QCI				::= INTEGER (0..255)
+
+
+
+
+
+-- **************************************************************
+-- IEs derived from 3GPP 36.423 (X2AP)
+-- **************************************************************
+-- Extension fields removed.
+-- Note: to avoid duplicate names with NGAP, XnAP, etc.:
+-- GNB-ID renamed ENGNB-ID,
+-- GlobalGNB-ID renamed GlobalenGNB-ID,
+-- UE-X2AP-ID renamed ENB-UE-X2AP-ID
+-- UE-X2AP-ID-Extension renamed ENB-UE-X2AP-ID-Extension
+-- **************************************************************
+
+
+-- copied from v16.5.0
+ENB-UE-X2AP-ID ::= INTEGER (0..4095)
+
+-- copied from v16.5.0
+ENB-UE-X2AP-ID-Extension ::= INTEGER (0..4095, ...)
+
+
+
+
+-- **************************************************************
+-- IEs derived from 3GPP 37.473 (W1AP)
+-- **************************************************************
+
+-- copied from v16.3.0
+NGENB-CU-UE-W1AP-ID	::= INTEGER (0..4294967295)
+
+
+
+
+
+-- **************************************************************
+-- IEs derived from 3GPP 38.413 (NGAP)
+-- Extension fields removed and replaced with ...
+-- **************************************************************
+
+-- copied from v16.2.0
+AMFPointer ::= BIT STRING (SIZE(6))
+
+-- copied from v16.2.0
+AMFRegionID ::= BIT STRING (SIZE(8))
+
+-- copied from v16.2.0
+AMFSetID ::= BIT STRING (SIZE(10))
+
+-- copied from v16.2.0
+AMF-UE-NGAP-ID ::= INTEGER (0..1099511627775)
+
+-- copied from v16.2.0
+EUTRACellIdentity ::= BIT STRING (SIZE(28))
+
+-- copied from v16.2.0
+EUTRA-CGI ::= SEQUENCE {
+        pLMNIdentity			PLMNIdentity,
+        eUTRACellIdentity		EUTRACellIdentity,
+        ...
+}
+
+-- copied from v16.2.0
+FiveQI ::= INTEGER (0..255, ...)
+
+-- copied from v16.2.0
+GlobalGNB-ID ::= SEQUENCE {
+        pLMNIdentity		PLMNIdentity,
+        gNB-ID				GNB-ID,
+        ...
+}
+
+-- copied from v16.2.0
+GlobalNgENB-ID ::= SEQUENCE {
+        pLMNIdentity		PLMNIdentity,
+        ngENB-ID			NgENB-ID,
+        ...
+}
+
+
+-- copied from v16.2.0
+GNB-ID ::= CHOICE {
+        gNB-ID		BIT STRING (SIZE(22..32)),
+        ...
+}
+
+-- copied from v16.2.0
+GUAMI ::= SEQUENCE {
+        pLMNIdentity		PLMNIdentity,
+        aMFRegionID			AMFRegionID,
+        aMFSetID			AMFSetID,
+        aMFPointer			AMFPointer,
+        ...
+}
+
+-- copied from v16.2.0
+NgENB-ID ::= CHOICE {
+        macroNgENB-ID			BIT STRING (SIZE(20)),
+        shortMacroNgENB-ID		BIT STRING (SIZE(18)),
+        longMacroNgENB-ID		BIT STRING (SIZE(21)),
+        ...
+}
+
+-- copied from v16.2.0
+NRCellIdentity ::= BIT STRING (SIZE(36))
+
+-- copied from v16.2.0
+NR-CGI ::= SEQUENCE {
+        pLMNIdentity		PLMNIdentity,
+        nRCellIdentity		NRCellIdentity,
+        ...
+}
+
+-- copied from v16.2.0
+PLMNIdentity ::= OCTET STRING (SIZE(3))
+
+-- copied from v16.2.0
+QosFlowIdentifier ::= INTEGER (0..63, ...)
+
+-- copied from v16.2.0
+SD ::= OCTET STRING (SIZE(3))
+
+-- copied from v16.2.0
+S-NSSAI ::= SEQUENCE {
+        sST					SST,
+        sD					SD													OPTIONAL,
+        ...
+}
+
+-- copied from v16.2.0
+SST ::= OCTET STRING (SIZE(1))
+
+
+
+
+
+-- **************************************************************
+-- IEs derived from 3GPP 38.423 (XnAP)
+-- **************************************************************
+
+-- copied from v16.2.0
+NG-RANnodeUEXnAPID ::= INTEGER (0.. 4294967295)
+
+GlobalNGRANNodeID ::= CHOICE {
+        gNB						GlobalGNB-ID,
+        ng-eNB					GlobalNgENB-ID,
+        ...
+}
+
+
+
+
+-- **************************************************************
+-- IEs derived from 3GPP 37.483 (E1AP)
+-- **************************************************************
+
+-- copied from v17.1.0
+GNB-CU-CP-UE-E1AP-ID		::= INTEGER (0..4294967295)
+
+-- copied from v17.1.0
+-- GNB-CU-UP-ID				::= INTEGER (0..68719476735)
+
+
+
+
+
+
+-- **************************************************************
+-- IEs derived from 3GPP 38.473 (F1AP)
+-- **************************************************************
+
+
+
+-- copied from v16.5.0
+GNB-CU-UE-F1AP-ID	::= INTEGER (0..4294967295)
+
+
+
+-- copied from v16.5.0
+RANUEID 			::= OCTET STRING (SIZE (8))
+
+
+
+
+
+END
+-- ASN1STOP

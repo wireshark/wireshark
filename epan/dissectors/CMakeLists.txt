@@ -121,6 +121,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-isdn-sup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-its.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kerberos.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-kpm-v2.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lcsap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ldap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lnpdqp.c

@@ -8,11 +8,10 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: ORAN-WG3.E2AP-v02.01, ORAN-WG3.E2SM-KPM-v02.02, ORAN-WG3.E2SM-RC.01.02
+ * References: ORAN-WG3.E2AP-v03.00, ORAN-WG3.E2SM-KPM-v03.00, ORAN-WG3.E2SM-RC.03.00
  */
 
 #include "config.h"
-#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
@@ -22,9 +21,8 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
-#include <epan/exceptions.h>
-#include <epan/show_exception.h>
 #include <epan/to_str.h>
+#include <epan/oids.h>
 
 #include "packet-e2ap.h"
 #include "packet-per.h"
@@ -50,18 +48,23 @@ static int hf_e2ap_unmapped_ran_function_id = -1;
 static int hf_e2ap_ran_function_name_not_recognised = -1;
 static int hf_e2ap_ran_function_setup_frame = -1;
 
-
+static int hf_e2ap_dissector_version= -1;
+static int hf_e2ap_frame_version = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_e2ap = -1;
 
 static expert_field ei_e2ap_ran_function_names_no_match = EI_INIT;
 static expert_field ei_e2ap_ran_function_id_not_mapped = EI_INIT;
+static expert_field ei_e2ap_ran_function_dissector_mismatch = EI_INIT;
 
 #include "packet-e2ap-ett.c"
 
 
 /* Forward declarations */
+static int dissect_e2ap_RANfunction_Name(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 static int dissect_E2SM_KPM_EventTriggerDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_KPM_ActionDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_KPM_IndicationHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -77,9 +80,9 @@ static int dissect_E2SM_RC_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_E2SM_RC_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_E2SM_RC_QueryOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_E2SM_RC_QueryDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_E2SM_RC_QueryHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+//static int dissect_E2SM_RC_QueryOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+//static int dissect_E2SM_RC_QueryDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+//static int dissect_E2SM_RC_QueryHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static int dissect_E2SM_NI_EventTriggerDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_NI_ActionDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -90,8 +93,6 @@ static int dissect_E2SM_NI_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_E2SM_NI_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_NI_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_NI_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-
 
 enum {
   INITIATING_MESSAGE,
@@ -107,7 +108,7 @@ typedef struct _e2ap_ctx_t {
 } e2ap_ctx_t;
 
 
-
+/* Temporary private info to remember while dissecting frame */
 struct e2ap_private_data {
   guint32 procedure_code;
   guint32 protocol_ie_id;
@@ -122,6 +123,7 @@ struct e2ap_private_data {
   dissector_handle_t component_configuration_dissector;
 };
 
+/* Lookup temporary private info */
 static struct e2ap_private_data*
 e2ap_get_private_data(packet_info *pinfo)
 {
@@ -138,102 +140,24 @@ e2ap_get_private_data(packet_info *pinfo)
 /* TODO: unfortunately, it seems that different versions of these protocols are not backward-compatible, so     */
 /* it would be good to show where (going by OID) the dissector isn't at the same version as the message..       */
 /* An alternative would be to have multiple versions of each protocol and have them register in tables...       */
-typedef int (*pdu_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-
-/* Function pointers for a RANFunction */
-typedef struct {
-    pdu_dissector_t ran_function_definition_dissector;
-
-    pdu_dissector_t ric_control_header_dissector;
-    pdu_dissector_t ric_control_message_dissector;
-    pdu_dissector_t ric_control_outcome_dissector;
-    /* new for v3 */
-    pdu_dissector_t ric_query_outcome_dissector;
-    pdu_dissector_t ric_query_definition_dissector;
-    pdu_dissector_t ric_query_header_dissector;
-
-    pdu_dissector_t ran_action_definition_dissector;
-    pdu_dissector_t ran_indication_message_dissector;
-    pdu_dissector_t ran_indication_header_dissector;
-    pdu_dissector_t ran_callprocessid_dissector;
-    pdu_dissector_t ran_event_trigger_dissector;
-} ran_function_pointers_t;
-
-typedef enum {
-    MIN_RANFUNCTIONS,
-    KPM_RANFUNCTIONS=0,
-    RIC_RANFUNCTIONS,
-    NI_RANFUNCTIONS,
-    MAX_RANFUNCTIONS
-} ran_function_t;
-
-typedef struct {
-    const char* name;
-    ran_function_pointers_t functions;
-} ran_function_name_mapping_t;
 
 /* Static table mapping from string -> ran_function */
-static const ran_function_name_mapping_t g_ran_functioname_table[MAX_RANFUNCTIONS] =
+static const char* g_ran_function_name_table[MAX_RANFUNCTIONS] =
 {
-  { "ORAN-E2SM-KPM", {  dissect_E2SM_KPM_RANfunction_Description_PDU,
-
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-
-                        dissect_E2SM_KPM_ActionDefinition_PDU,
-                        dissect_E2SM_KPM_IndicationMessage_PDU,
-                        dissect_E2SM_KPM_IndicationHeader_PDU,
-                        NULL, /* no dissect_E2SM_KPM_CallProcessID_PDU */
-                        dissect_E2SM_KPM_EventTriggerDefinition_PDU
-                     }
-  },
-  { "ORAN-E2SM-RC",  {  dissect_E2SM_RC_RANFunctionDefinition_PDU,
-
-                        dissect_E2SM_RC_ControlHeader_PDU,
-                        dissect_E2SM_RC_ControlMessage_PDU,
-                        dissect_E2SM_RC_ControlOutcome_PDU,
-                        /* new for v3 */
-                        dissect_E2SM_RC_QueryOutcome_PDU,
-                        dissect_E2SM_RC_QueryDefinition_PDU,
-                        dissect_E2SM_RC_QueryHeader_PDU,
-
-                        dissect_E2SM_RC_ActionDefinition_PDU,
-                        dissect_E2SM_RC_IndicationMessage_PDU,
-                        dissect_E2SM_RC_IndicationHeader_PDU,
-                        dissect_E2SM_RC_CallProcessID_PDU,
-                        dissect_E2SM_RC_EventTrigger_PDU
-                     }
-  },
-  { "ORAN-E2SM-NI",  {  dissect_E2SM_NI_RANfunction_Description_PDU,
-
-                        dissect_E2SM_NI_ControlHeader_PDU,
-                        dissect_E2SM_NI_ControlMessage_PDU,
-                        dissect_E2SM_NI_ControlOutcome_PDU,
-                        NULL,
-                        NULL,
-                        NULL,
-
-                        dissect_E2SM_NI_ActionDefinition_PDU,
-                        dissect_E2SM_NI_IndicationMessage_PDU,
-                        dissect_E2SM_NI_IndicationHeader_PDU,
-                        dissect_E2SM_NI_CallProcessID_PDU,
-                        dissect_E2SM_NI_EventTriggerDefinition_PDU
-                     }
-    }
+    "ORAN-E2SM-KPM",
+    "ORAN-E2SM-RC",
+    "ORAN-E2SM-NI"
 };
 
 
 
-/* Per-conversation mapping: ranFunctionId -> ran_function */
+/* Per-conversation mapping: ranFunctionId -> ran_function+dissector */
 typedef struct {
     guint32                  setup_frame;
     guint32                  ran_function_id;
     ran_function_t           ran_function;
-    ran_function_pointers_t *ran_function_pointers;
+    char                     oid[MAX_OID_LEN];       // i.e., OID from setupRequest
+    ran_function_dissector_t *dissector;
 } ran_function_id_mapping_t;
 
 typedef struct  {
@@ -247,27 +171,49 @@ static const char *ran_function_to_str(ran_function_t ran_function)
     switch (ran_function) {
         case KPM_RANFUNCTIONS:
             return "KPM";
-        case RIC_RANFUNCTIONS:
-            return "RIC";
+        case RC_RANFUNCTIONS:
+            return "RC";
         case NI_RANFUNCTIONS:
             return "NI";
-
         default:
             return "Unknown";
     }
 }
 
+/* Table of RAN Function tables, indexed by gnbId (bytes) */
 typedef struct {
 #define MAX_GNBS 6
     guint32 num_gnbs;
     struct {
-        guint32 len;
-        guint8  value[MAX_GNB_ID_BYTES];
+        guint8  id_value[MAX_GNB_ID_BYTES];
+        guint32 id_len;
         ran_functionid_table_t *ran_function_table;
     } gnb[MAX_GNBS];
 } gnb_ran_functions_t;
 
-static gnb_ran_functions_t s_gnb_ran_functions;
+static gnb_ran_functions_t s_gnb_ran_functions_table;
+
+
+/* Table of available dissectors for each RAN function */
+typedef struct {
+    guint32                  num_available_dissectors;
+#define MAX_DISSECTORS_PER_RAN_FUNCTION 3
+    ran_function_dissector_t* ran_function_dissectors[MAX_DISSECTORS_PER_RAN_FUNCTION];
+} ran_function_available_dissectors_t;
+
+/* Available dissectors should be set here */
+static ran_function_available_dissectors_t g_ran_functions_available_dissectors[MAX_RANFUNCTIONS];
+
+/* TODO: will be called from outside this file by separate dissectors */
+void register_e2ap_ran_function_dissector(ran_function_t ran_function, ran_function_dissector_t *dissector)
+{
+    if ((ran_function >= MIN_RANFUNCTIONS) && (ran_function <= MAX_RANFUNCTIONS)) {
+        ran_function_available_dissectors_t *available_dissectors = &g_ran_functions_available_dissectors[ran_function];
+        if (available_dissectors->num_available_dissectors < MAX_DISSECTORS_PER_RAN_FUNCTION) {
+            available_dissectors->ran_function_dissectors[available_dissectors->num_available_dissectors++] = dissector;
+        }
+    }
+}
 
 
 /* Get RANfunctionID table from conversation data - create new if necessary */
@@ -298,8 +244,11 @@ static ran_functionid_table_t* get_ran_functionid_table(packet_info *pinfo)
 
 
 /* Store new RANfunctionID -> Service Model mapping in table */
-static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_t *table, struct e2ap_private_data *e2ap_data, const char *name)
+void e2ap_store_ran_function_mapping(packet_info *pinfo, const char *name)
 {
+    struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
+    ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+
     if (!name) {
       return;
     }
@@ -312,13 +261,18 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
     guint32 ran_function_id = e2ap_data->ran_function_id;
 
     ran_function_t           ran_function = MAX_RANFUNCTIONS;  /* i.e. invalid */
-    ran_function_pointers_t *ran_function_pointers = NULL;
+    ran_function_dissector_t *ran_function_dissector = NULL;
 
-    /* Check known RAN functions */
+    /* Check known RAN function names */
     for (int n=MIN_RANFUNCTIONS; n < MAX_RANFUNCTIONS; n++) {
-        if (strcmp(name,   g_ran_functioname_table[n].name) == 0) {
+        if (strcmp(name, g_ran_function_name_table[n]) == 0) {
             ran_function = n;
-            ran_function_pointers = (ran_function_pointers_t*)&(g_ran_functioname_table[n].functions);
+
+            /* Don't know OID yet, so for now, just choose first/only one */
+            /* TODO: is latest one likely to be more compatible? First fields (at least) come from E2SM.. */
+            if (g_ran_functions_available_dissectors[table->entries[n].ran_function].num_available_dissectors) {
+                ran_function_dissector = g_ran_functions_available_dissectors[table->entries[n].ran_function].ran_function_dissectors[0];
+            }
             break;
         }
     }
@@ -328,7 +282,7 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
         return;
     }
 
-    /* If ID already mapped, ignore */
+    /* If ID already mapped, can stop here */
     for (guint n=0; n < table->num_entries; n++) {
         if (table->entries[n].ran_function_id == ran_function_id) {
             return;
@@ -340,7 +294,7 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
     table->entries[idx].setup_frame = pinfo->num;
     table->entries[idx].ran_function_id = ran_function_id;
     table->entries[idx].ran_function = ran_function;
-    table->entries[idx].ran_function_pointers = ran_function_pointers;
+    table->entries[idx].dissector = ran_function_dissector;
 
     /* When add first entry, also want to set up table from gnbId -> table */
     if (idx == 0) {
@@ -348,10 +302,10 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
         guint8 *id_value = &e2ap_data->gnb_id_bytes[0];
 
         gboolean found = FALSE;
-        for (guint n=0; n<s_gnb_ran_functions.num_gnbs; n++) {
-            if ((s_gnb_ran_functions.gnb[n].len = id_len) &&
-                (memcmp(s_gnb_ran_functions.gnb[n].value, id_value, id_len) == 0)) {
-                // Already have an entry for this gnb.
+        for (guint n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
+            if ((s_gnb_ran_functions_table.gnb[n].id_len = id_len) &&
+                (memcmp(s_gnb_ran_functions_table.gnb[n].id_value, id_value, id_len) == 0)) {
+                /* Already have an entry for this gnb. */
                 found = TRUE;
                 break;
             }
@@ -359,49 +313,172 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
 
         if (!found) {
             /* Add entry (if room for 1 more) */
-            guint32 new_idx = s_gnb_ran_functions.num_gnbs;
+            guint32 new_idx = s_gnb_ran_functions_table.num_gnbs;
             if (new_idx < MAX_GNBS-1) {
-                s_gnb_ran_functions.gnb[new_idx].len = id_len;
-                memcpy(s_gnb_ran_functions.gnb[new_idx].value, id_value, id_len);
-                s_gnb_ran_functions.gnb[new_idx].ran_function_table = table;
+                s_gnb_ran_functions_table.gnb[new_idx].id_len = id_len;
+                memcpy(s_gnb_ran_functions_table.gnb[new_idx].id_value, id_value, id_len);
+                s_gnb_ran_functions_table.gnb[new_idx].ran_function_table = table;
 
-                s_gnb_ran_functions.num_gnbs++;
+                s_gnb_ran_functions_table.num_gnbs++;
             }
         }
     }
 }
 
 /* Look for Service Model function pointers, based on current RANFunctionID in pinfo */
-static ran_function_pointers_t* lookup_ranfunction_pointers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+static ran_function_dissector_t* lookup_ranfunction_dissector(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
     /* Get ranFunctionID from this frame */
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
     guint ran_function_id = e2ap_data->ran_function_id;
 
-    /* Look in table function pointers for this ranFunctionID */
+    /* Get ranFunction table corresponding to this frame's conversation */
     ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
     if (!table) {
         /* There is no ran function table associated with this frame's conversation info */
         return NULL;
     }
+
+    /* Find the entry in this table corresponding to ran_function_id */
     for (guint n=0; n < table->num_entries; n++) {
         if (ran_function_id == table->entries[n].ran_function_id) {
-            /* Point back at the setup frame where this ranfunction was mapped */
-            proto_item *ti = proto_tree_add_uint(tree, hf_e2ap_ran_function_setup_frame,
-                                                 tvb, 0, 0, table->entries[n].setup_frame);
-            /* Also show that mapping */
-            proto_item_append_text(ti, " (%u -> %s)", table->entries[n].ran_function_id, ran_function_to_str(table->entries[n].ran_function));
-            proto_item_set_generated(ti);
+            if (tree) {
+                /* Point back at the setup frame where this ranfunction was mapped */
+                proto_item *ti = proto_tree_add_uint(tree, hf_e2ap_ran_function_setup_frame,
+                                                     tvb, 0, 0, table->entries[n].setup_frame);
+                /* Show that mapping */
+                proto_item_append_text(ti, " (%u -> %s)", table->entries[n].ran_function_id, ran_function_to_str(table->entries[n].ran_function));
+                proto_item_set_generated(ti);
 
-            return table->entries[n].ran_function_pointers;
+                /* Also take the chance to compare signalled and available dissector */
+                char *frame_version = oid_resolved_from_string(pinfo->pool, table->entries[n].oid);
+                ti = proto_tree_add_string(tree, hf_e2ap_frame_version, tvb, 0, 0, frame_version);
+                proto_item_set_generated(ti);
+
+                char *dissector_version = oid_resolved_from_string(pinfo->pool, table->entries[n].dissector->oid);
+                ti = proto_tree_add_string(tree, hf_e2ap_dissector_version, tvb, 0, 0, dissector_version);
+                proto_item_set_generated(ti);
+
+                if (strcmp(frame_version, dissector_version) != 0) {
+                    /* Expert info for version mismatch! */
+                    expert_add_info_format(pinfo, ti, &ei_e2ap_ran_function_dissector_mismatch,
+                                           "Dissector version mismatch - frame is %s but dissector is %s",
+                                           frame_version, dissector_version);
+                }
+            }
+
+            /* Return the dissector */
+            return table->entries[n].dissector;
         }
     }
 
-    /* No match found.. */
-    proto_item *ti = proto_tree_add_item(tree, hf_e2ap_unmapped_ran_function_id, tvb, 0, 0, ENC_NA);
-    expert_add_info_format(pinfo, ti, &ei_e2ap_ran_function_id_not_mapped,
-                           "Service Model not mapped for FunctionID %u", ran_function_id);
+    if (tree) {
+        /* No match found.. */
+        proto_item *ti = proto_tree_add_item(tree, hf_e2ap_unmapped_ran_function_id, tvb, 0, 0, ENC_NA);
+        expert_add_info_format(pinfo, ti, &ei_e2ap_ran_function_id_not_mapped,
+                               "Service Model not mapped for FunctionID %u", ran_function_id);
+    }
+
     return NULL;
+}
+
+static char* lookup_ranfunction_oid(packet_info *pinfo)
+{
+    /* Get ranFunctionID from this frame */
+    struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
+    guint ran_function_id = e2ap_data->ran_function_id;
+
+    /* Get ranFunction table corresponding to this frame's conversation */
+    ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+    if (!table) {
+        /* There is no ran function table associated with this frame's conversation info */
+        return NULL;
+    }
+
+    /* Find the entry in this table corresponding to ran_function_id */
+    for (guint n=0; n < table->num_entries; n++) {
+        if (ran_function_id == table->entries[n].ran_function_id) {
+            return (char*)(table->entries[n].oid);
+        }
+    }
+
+    /* Not found */
+    return "";
+}
+
+
+/* We now know the OID - can we set a dissector that is an exact match from what has been signalled? */
+static void update_dissector_using_oid(packet_info *pinfo, ran_function_t ran_function)
+{
+    char *frame_oid = lookup_ranfunction_oid(pinfo);
+
+    gboolean found = FALSE;
+
+    /* Look at available dissectors for this RAN function */
+    ran_function_available_dissectors_t *available = &g_ran_functions_available_dissectors[ran_function];
+    if (!available->num_available_dissectors) {
+        /* Oops - none available at all! */
+        return;
+    }
+
+    // Get mapping in use
+    struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
+    guint ran_function_id = e2ap_data->ran_function_id;
+    ran_function_id_mapping_t *mapping = NULL;
+    ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+    /* Find the entry in this table corresponding to ran_function_id */
+    for (guint n=0; n < table->num_entries; n++) {
+        if (ran_function_id == table->entries[n].ran_function_id) {
+            mapping = &(table->entries[n]);
+        }
+    }
+
+    if (!mapping) {
+        return;
+    }
+
+    /* Set dissector pointer in ran_function_id_mapping_t */
+    for (guint32 n=0; n < available->num_available_dissectors; n++) {
+        /* If exact match, set it */
+        if (strcmp(frame_oid, available->ran_function_dissectors[n]->oid) == 0) {
+            mapping->dissector = available->ran_function_dissectors[n];
+            found = TRUE;
+            break;
+        }
+    }
+
+    /* If not exact match, just set to first one available (TODO: closest above better?) */
+    if (!found) {
+        mapping->dissector = available->ran_function_dissectors[0];
+    }
+}
+
+
+/* Update RANfunctionID -> Service Model mapping in table (now that we know OID) */
+void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, const char *oid)
+{
+    /* Copy OID into table entry (so may be used to choose and be compared with chosen available dissector */
+    struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
+    ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+    ran_function_t ran_function = MAX_RANFUNCTIONS;
+    for (guint n=0; n < table->num_entries; n++) {
+        if (e2ap_data->ran_function_id == table->entries[n].ran_function_id) {
+            ran_function = table->entries[n].ran_function;
+            g_strlcpy(table->entries[n].oid, oid, MAX_OID_LEN);
+        }
+    }
+
+    /* Look up version from oid and show as generated field */
+    char *version = oid_resolved_from_string(pinfo->pool, oid);
+    proto_item *ti = proto_tree_add_string(tree, hf_e2ap_frame_version, tvb, 0, 0, version);
+    proto_item_set_generated(ti);
+
+    // Can now pick most appropriate dissector for this RAN Function name, based upon this OID and the available dissectors.
+    if (ran_function < MAX_RANFUNCTIONS) {
+        if (pinfo->fd->visited) {
+            update_dissector_using_oid(pinfo, ran_function);
+        }
+    }
 }
 
 /* This will get used for E2nodeConfigurationUpdate, where we have a gnb-id but haven't seen E2setupRequest */
@@ -431,13 +508,13 @@ static void update_conversation_from_gnb_id(asn1_ctx_t *actx)
         guint id_len = e2ap_data->gnb_id_len;
         guint8 *id_value = &e2ap_data->gnb_id_bytes[0];
 
-        for (guint n=0; n<s_gnb_ran_functions.num_gnbs; n++) {
-            if ((s_gnb_ran_functions.gnb[n].len = id_len) &&
-                (memcmp(s_gnb_ran_functions.gnb[n].value, id_value, id_len) == 0)) {
+        for (guint n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
+            if ((s_gnb_ran_functions_table.gnb[n].id_len = id_len) &&
+                (memcmp(s_gnb_ran_functions_table.gnb[n].id_value, id_value, id_len) == 0)) {
 
                 /* Have an entry for this gnb.  Set direct pointer to existing data (used by original conversation). */
                 /* N.B. This means that no further updates for the gNB are expected on different conversations.. */
-                p_conv_data = s_gnb_ran_functions.gnb[n].ran_function_table;
+                p_conv_data = s_gnb_ran_functions_table.gnb[n].ran_function_table;
                 conversation_add_proto_data(p_conv, proto_e2ap, p_conv_data);
 
                 /* TODO: may want to try to add a generated field to pass back to E2setupRequest where RAN function mappings were first seen? */
@@ -548,7 +625,7 @@ dissect_e2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 static void e2ap_init_protocol(void)
 {
-  s_gnb_ran_functions.num_gnbs = 0;
+  s_gnb_ran_functions_table.num_gnbs = 0;
 }
 
 
@@ -562,6 +639,90 @@ proto_reg_handoff_e2ap(void)
   dissector_add_uint("sctp.ppi", E2_DU_PROTOCOL_ID, e2ap_handle);
 
 #include "packet-e2ap-dis-tab.c"
+
+  /********************************/
+  /* Known OIDs for RAN providers */
+
+  /* KPM */
+  oid_add_from_string("KPM v1",         "1.3.6.1.4.1.53148.1.1.2.2");
+  oid_add_from_string("KPM v2",         "1.3.6.1.4.1.53148.1.2.2.2");
+  oid_add_from_string("KPM v3",         "1.2.6.1.4.1.53148.1.3.2.2");
+
+  /* RC */
+  // TODO: appears to be the same???  Asking for clarification from ORAN..
+  oid_add_from_string("RC  v1",         "1.3.6.1.4.1.53148.1.1.2.3");
+  //oid_add_from_string("RC  v3",         "1.3.6.1.4.1.53148.1.1.2.3");
+  //oid_add_from_string("RC  v4",         "1.3.6.1.4.1.53148.1.1.2.3");
+
+  /* NI */
+  oid_add_from_string("NI  v1",         "1.3.6.1.4.1.53148.1.1.2.1");
+
+  /********************************/
+  /* Register 'built-in' dissectors */
+
+  static ran_function_dissector_t kpm_v3 =
+  { "ORAN-E2SM-KPM", "1.2.6.1.4.1.53148.1.3.2.2", 3, 0,
+    {  dissect_E2SM_KPM_RANfunction_Description_PDU,
+
+       NULL,
+       NULL,
+       NULL,
+       NULL,
+       NULL,
+       NULL,
+
+       dissect_E2SM_KPM_ActionDefinition_PDU,
+       dissect_E2SM_KPM_IndicationMessage_PDU,
+       dissect_E2SM_KPM_IndicationHeader_PDU,
+       NULL, /* no dissect_E2SM_KPM_CallProcessID_PDU */
+       dissect_E2SM_KPM_EventTriggerDefinition_PDU
+     }
+  };
+
+  static ran_function_dissector_t rc_v1 =
+  { "ORAN-E2SM-RC",  "1.3.6.1.4.1.53148.1.1.2.3", 1, 3,
+    {  dissect_E2SM_RC_RANFunctionDefinition_PDU,
+
+       dissect_E2SM_RC_ControlHeader_PDU,
+       dissect_E2SM_RC_ControlMessage_PDU,
+       dissect_E2SM_RC_ControlOutcome_PDU,
+       /* new for v3 */
+       NULL, //dissect_E2SM_RC_QueryOutcome_PDU,
+       NULL, //dissect_E2SM_RC_QueryDefinition_PDU,
+       NULL, //dissect_E2SM_RC_QueryHeader_PDU,
+
+       dissect_E2SM_RC_ActionDefinition_PDU,
+       dissect_E2SM_RC_IndicationMessage_PDU,
+       dissect_E2SM_RC_IndicationHeader_PDU,
+       dissect_E2SM_RC_CallProcessID_PDU,
+       dissect_E2SM_RC_EventTrigger_PDU
+    }
+  };
+
+  static ran_function_dissector_t ni_v1 =
+  { "ORAN-E2SM-NI",  "1.3.6.1.4.1.53148.1.1.2.1", 1, 0,
+    {  dissect_E2SM_NI_RANfunction_Description_PDU,
+
+       dissect_E2SM_NI_ControlHeader_PDU,
+       dissect_E2SM_NI_ControlMessage_PDU,
+       dissect_E2SM_NI_ControlOutcome_PDU,
+       NULL,
+       NULL,
+       NULL,
+
+       dissect_E2SM_NI_ActionDefinition_PDU,
+       dissect_E2SM_NI_IndicationMessage_PDU,
+       dissect_E2SM_NI_IndicationHeader_PDU,
+       dissect_E2SM_NI_CallProcessID_PDU,
+       dissect_E2SM_NI_EventTriggerDefinition_PDU
+    }
+  };
+
+  /* Register available dissectors.  TODO: break these out into separate
+   * ASN.1 protocols that register themselves */
+  register_e2ap_ran_function_dissector(KPM_RANFUNCTIONS, &kpm_v3);
+  register_e2ap_ran_function_dissector(RC_RANFUNCTIONS,  &rc_v1);
+  register_e2ap_ran_function_dissector(NI_RANFUNCTIONS,  &ni_v1);
 }
 
 
@@ -584,7 +745,16 @@ void proto_register_e2ap(void) {
       { &hf_e2ap_ran_function_setup_frame,
           { "RANfunction setup frame", "e2ap.setup-frame",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }}
+            NULL, HFILL }},
+
+      { &hf_e2ap_dissector_version,
+          { "Version (dissector)", "e2ap.version.dissector",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+      { &hf_e2ap_frame_version,
+          { "Version (frame)", "e2ap.version.frame",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -596,6 +766,8 @@ void proto_register_e2ap(void) {
   static ei_register_info ei[] = {
      { &ei_e2ap_ran_function_names_no_match, { "e2ap.ran-function-names-no-match", PI_PROTOCOL, PI_WARN, "RAN Function name doesn't match known service models", EXPFILL }},
      { &ei_e2ap_ran_function_id_not_mapped,   { "e2ap.ran-function-id-not-known", PI_PROTOCOL, PI_WARN, "Service Model not known for RANFunctionID", EXPFILL }},
+     { &ei_e2ap_ran_function_dissector_mismatch,   { "e2ap.ran-function-dissector-version-mismatch", PI_PROTOCOL, PI_WARN, "Available dissector does not match signalled", EXPFILL }},
+
   };
 
   expert_module_t* expert_e2ap;

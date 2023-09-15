@@ -7,28 +7,20 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-set( PROTOCOL_NAME e2ap )
+set( PROTOCOL_NAME kpm-v2 )
 
 set( PROTO_OPT )
 
 set( EXPORT_FILES
-        ${PROTOCOL_NAME}-exp.cnf
+	${PROTOCOL_NAME}-exp.cnf
 )
 
 set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-    E2AP-CommonDataTypes.asn
-    E2AP-Constants.asn
-    E2AP-Containers.asn
-    E2AP-IEs.asn
-    E2AP-PDU-Contents.asn
-    E2AP-PDU-Descriptions.asn
+    e2sm-kpm-v2.02.asn
     e2sm-v3.01.asn
-    e2sm-rc-v1.03.asn
-    e2sm-kpm-v3.00.asn
-    e2sm-ni-v1.00.asn
 )
 
 set( EXTRA_DIST

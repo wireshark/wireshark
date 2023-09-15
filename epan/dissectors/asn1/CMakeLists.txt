@@ -63,6 +63,7 @@ set(ASN1_SRC_DIRS
 	isdn-sup
 	its
 	kerberos
+	kpm-v2
 	lcsap
 	ldap
 	lnpdqp
