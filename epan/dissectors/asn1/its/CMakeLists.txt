@@ -15,11 +15,12 @@ set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	ITS-Container.asn
+	ETSI-ITS-CDD.asn
+#	ITS-Container.asn
 	ITS-ContainerV1.asn
 	ISO_TS_14816.asn
-	ISO_TS_24534-3.asn
-	ISO_TS_17419.asn
+#	ISO_TS_24534-3.asn
+#	ISO_TS_17419.asn
 	ISO_TS_14906_Application.asn
 	ISO_TS_19091.asn
 	GDD.asn
@@ -28,11 +29,19 @@ set( ASN_FILE_LIST
 	CAMv1.asn
 	CAM.asn
 	DENMv1.asn
-	DENM.asn
+#	DENM.asn
+	DENM-PDU-Descriptions.asn
 	TIS_TPG_Transactions_Descriptions.asn
 	EVCSN-PDU-Descriptions.asn
 	EV-RSR-PDU-Descriptions.asn
+	CPM-OriginatingStationContainers.asn
 	CPM-PDU-Descriptions.asn
+	CPM-PerceivedObjectContainer.asn
+	CPM-PerceptionRegionContainer.asn
+	CPM-SensorInformationContainer.asn
+	VAM-PDU-Descriptions.asn
+#	VAM-Temp-Imports.asn
+	IMZM-PDU-Descriptions.asn
 )
 
 set( EXTRA_DIST

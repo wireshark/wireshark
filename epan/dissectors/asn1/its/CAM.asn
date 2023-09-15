@@ -9,17 +9,17 @@ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (302637)
     BEGIN
 
     IMPORTS
-
-    ItsPduHeader, CauseCode, ReferencePosition, AccelerationControl, Curvature,
-    CurvatureCalculationMode, Heading, LanePosition, EmergencyPriority, EmbarkationStatus, Speed,
-    DriveDirection, LongitudinalAcceleration, LateralAcceleration, VerticalAcceleration, StationType,
+    
+    ItsPduHeader, ReferencePosition, AccelerationControl, CauseCode, Curvature,CurvatureCalculationMode,DriveDirection,
+    Heading, LanePosition, EmergencyPriority, EmbarkationStatus, Speed,
+    LongitudinalAcceleration, LateralAcceleration, VerticalAcceleration, StationType,
     ExteriorLights, DangerousGoodsBasic, SpecialTransportType, LightBarSirenInUse, VehicleRole,
     VehicleLength, VehicleWidth, PathHistory, RoadworksSubCauseCode, ClosedLanes, TrafficRule,
     SpeedLimit, SteeringWheelAngle, PerformanceClass, YawRate, ProtectedCommunicationZone, PtActivation,
-    Latitude, Longitude, ProtectedCommunicationZonesRSU, CenDsrcTollingZone FROM ITS-Container {
-    itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2)
-    };
-
+    Latitude, Longitude, ProtectedCommunicationZonesRSU, CenDsrcTollingZone
+    -- Wireshark modification 
+    FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1)}
+    ;
     -- The root data frame for cooperative awareness messages
     CAM ::= SEQUENCE {
      header ItsPduHeader,

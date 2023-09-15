@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-its.h                                                               */
-/* asn2wrs.py -L -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ITS-Container.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_24534-3.asn ISO_TS_17419.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-PDU-Descriptions.asn */
+/* asn2wrs.py -L -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ETSI-ITS-CDD.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM-PDU-Descriptions.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-OriginatingStationContainers.asn CPM-PDU-Descriptions.asn CPM-PerceivedObjectContainer.asn CPM-PerceptionRegionContainer.asn CPM-SensorInformationContainer.asn VAM-PDU-Descriptions.asn IMZM-PDU-Descriptions.asn */
 
 /* packet-its-template.h
  *
@@ -19,19 +19,13 @@
 #define __PACKET_ITS_H__
 
 
-/* --- Module ITS-Container --- --- ---                                       */
+/* --- Module ETSI-ITS-CDD --- --- ---                                        */
 
 
 /* --- Module ITS-ContainerV1 --- --- ---                                     */
 
 
 /* --- Module AVIAEINumberingAndDataStructures --- --- ---                    */
-
-
-/* --- Module ElectronicRegistrationIdentificationVehicleDataModule --- --- --- */
-
-
-/* --- Module CITSapplMgmtIDs --- --- ---                                     */
 
 
 /* --- Module EfcDsrcApplication --- --- ---                                  */
@@ -79,7 +73,7 @@
 /* --- Module DENMv1-PDU-Descriptions --- --- ---                             */
 
 
-/* --- Module DENM-PDU-Descriptions --- --- ---                               */
+/* --- Module DENM-PDU-Description --- --- ---                                */
 
 
 /* --- Module TIS-TPG-Transactions-Descriptions --- --- ---                   */
@@ -91,14 +85,64 @@
 /* --- Module EV-RechargingSpotReservation-PDU-Descriptions --- --- ---       */
 
 
+/* --- Module CPM-OriginatingStationContainers --- --- ---                    */
+
+
 /* --- Module CPM-PDU-Descriptions --- --- ---                                */
 
 
+/* --- Module CPM-PerceivedObjectContainer --- --- ---                        */
 
-/* --- Module ITS-Container --- --- ---                                       */
+
+/* --- Module CPM-PerceptionRegionContainer --- --- ---                       */
 
 
-/* enumerated values for T_messageID */
+/* --- Module CPM-SensorInformationContainer --- --- ---                      */
+
+
+/* --- Module VAM-PDU-Descriptions --- --- ---                                */
+
+
+/* --- Module IMZM-PDU-Descriptions --- --- ---                               */
+
+
+
+/* --- Module ETSI-ITS-CDD --- --- ---                                        */
+
+
+typedef enum _CauseCodeType_enum {
+  reserved     =   0,
+  trafficCondition =   1,
+  accident     =   2,
+  roadworks    =   3,
+  impassability =   5,
+  adverseWeatherCondition_Adhesion =   6,
+  aquaplaning  =   7,
+  hazardousLocation_SurfaceCondition =   9,
+  hazardousLocation_ObstacleOnTheRoad =  10,
+  hazardousLocation_AnimalOnTheRoad =  11,
+  humanPresenceOnTheRoad =  12,
+  wrongWayDriving =  14,
+  rescueAndRecoveryWorkInProgress =  15,
+  adverseWeatherCondition_ExtremeWeatherCondition =  17,
+  adverseWeatherCondition_Visibility =  18,
+  adverseWeatherCondition_Precipitation =  19,
+  violence     =  20,
+  slowVehicle  =  26,
+  dangerousEndOfQueue =  27,
+  vehicleBreakdown =  91,
+  postCrash    =  92,
+  humanProblem =  93,
+  stationaryVehicle =  94,
+  emergencyVehicleApproaching =  95,
+  hazardousLocation_DangerousCurve =  96,
+  collisionRisk =  97,
+  signalViolation =  98,
+  dangerousSituation =  99,
+  railwayLevelCrossing = 100
+} CauseCodeType_enum;
+
+/* enumerated values for MessageId */
 #define ITS_DENM       1
 #define ITS_CAM        2
 #define ITS_POI        3
@@ -113,47 +157,18 @@
 #define ITS_SAEM      12
 #define ITS_RTCMEM    13
 #define ITS_CPM       14
-
-typedef enum _CauseCodeType_enum {
-  reserved     =   0,
-  trafficCondition =   1,
-  accident     =   2,
-  roadworks    =   3,
-  impassability =   5,
-  adverseWeatherCondition_Adhesion =   6,
-  aquaplannning =   7,
-  hazardousLocation_SurfaceCondition =   9,
-  hazardousLocation_ObstacleOnTheRoad =  10,
-  hazardousLocation_AnimalOnTheRoad =  11,
-  humanPresenceOnTheRoad =  12,
-  wrongWayDriving =  14,
-  rescueAndRecoveryWorkInProgress =  15,
-  adverseWeatherCondition_ExtremeWeatherCondition =  17,
-  adverseWeatherCondition_Visibility =  18,
-  adverseWeatherCondition_Precipitation =  19,
-  slowVehicle  =  26,
-  dangerousEndOfQueue =  27,
-  vehicleBreakdown =  91,
-  postCrash    =  92,
-  humanProblem =  93,
-  stationaryVehicle =  94,
-  emergencyVehicleApproaching =  95,
-  hazardousLocation_DangerousCurve =  96,
-  collisionRisk =  97,
-  signalViolation =  98,
-  dangerousSituation =  99
-} CauseCodeType_enum;
+#define ITS_IMZM      15
+#define ITS_VAM       16
+#define ITS_DSM       17
+#define ITS_PCIM      18
+#define ITS_PCVM      19
+#define ITS_MCM       20
+#define ITS_PAM       21
 
 /* --- Module ITS-ContainerV1 --- --- ---                                     */
 
 
 /* --- Module AVIAEINumberingAndDataStructures --- --- ---                    */
-
-
-/* --- Module ElectronicRegistrationIdentificationVehicleDataModule --- --- --- */
-
-
-/* --- Module CITSapplMgmtIDs --- --- ---                                     */
 
 
 /* --- Module EfcDsrcApplication --- --- ---                                  */
@@ -214,7 +229,7 @@ typedef enum _RegionId_enum {
 
 #define defaultValidity                600
 
-/* --- Module DENM-PDU-Descriptions --- --- ---                               */
+/* --- Module DENM-PDU-Description --- --- ---                                */
 
 #define defaultValidity                600
 
@@ -227,13 +242,32 @@ typedef enum _RegionId_enum {
 /* --- Module EV-RechargingSpotReservation-PDU-Descriptions --- --- ---       */
 
 
+/* --- Module CPM-OriginatingStationContainers --- --- ---                    */
+
+
 /* --- Module CPM-PDU-Descriptions --- --- ---                                */
+
+
+/* --- Module CPM-PerceivedObjectContainer --- --- ---                        */
+
+
+/* --- Module CPM-PerceptionRegionContainer --- --- ---                       */
+
+
+/* --- Module CPM-SensorInformationContainer --- --- ---                      */
+
+
+/* --- Module VAM-PDU-Descriptions --- --- ---                                */
+
+
+/* --- Module IMZM-PDU-Descriptions --- --- ---                               */
 
 
 typedef struct its_header {
     guint32 version;
     guint32 msgId;
     guint32 stationId;
+    guint32 CpmContainerId;
 } its_header_t;
 
 enum regext_type_enum {
