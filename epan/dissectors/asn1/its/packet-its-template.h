@@ -21,6 +21,7 @@ typedef struct its_header {
     guint32 version;
     guint32 msgId;
     guint32 stationId;
+    guint32 CpmContainerId;
 } its_header_t;
 
 enum regext_type_enum {

@@ -1,0 +1,98 @@
+-- Draft V0.0.4_2.2.1 - VAM TS 103 300-1 ASN.1 module
+-- Based on the official version available at @url https:
+-- Modified to import from the CDD module V2.1.1
+
+VAM-PDU-Descriptions {itu-t(0) identified-organization(4) etsi(0) itsDomain(5)
+    wg1(1) 103300 vam(1) major-version-3(3) minor-version-1(1)}
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+    IMPORTS
+    AccelerationChangeIndication, BasicContainer, CartesianAngle, ClusterBreakupInfo,
+    ClusterJoinInfo, ClusterLeaveInfo, Curvature, CurvatureCalculationMode, 
+    DeltaTimeQuarterSecond, GenerationDeltaTime, HeadingChangeIndication, ItsPduHeader, LanePosition, 
+    LateralAcceleration, LongitudinalAcceleration, PathHistory, PathPredicted, 
+    SequenceOfSafeDistanceIndication, SequenceOfTrajectoryInterceptionIndication, 
+    SequenceOfTrajectoryInterceptionIndication, Speed, StabilityChangeIndication, StationId, 
+    TrajectoryInterceptionIndication, VerticalAcceleration, VruClusterInformation, VruDeviceUsage, 
+    VruEnvironment, VruExteriorLights, GeneralizedLanePosition, VruProfileAndSubprofile, VruMovementControl,  
+    VruSizeClass, YawRate, Wgs84Angle
+    FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1) }
+    -- WITH SUCCESSORS
+    ;
+
+
+    VAM ::= SEQUENCE {
+        header ItsPduHeaderVam,
+        vam    VruAwareness
+    }
+
+   ItsPduHeaderVam ::= ItsPduHeader(WITH COMPONENTS {..., protocolVersion(3), messageId(vam)})
+
+
+    VruAwareness ::= SEQUENCE {
+        generationDeltaTime  GenerationDeltaTime,
+        vamParameters        VamParameters 
+    }
+
+    VamParameters ::= SEQUENCE {
+        basicContainer                 BasicContainer,
+        vruHighFrequencyContainer      VruHighFrequencyContainer, 
+        vruLowFrequencyContainer       VruLowFrequencyContainer OPTIONAL,
+        vruClusterInformationContainer VruClusterInformationContainer OPTIONAL,
+        vruClusterOperationContainer   VruClusterOperationContainer OPTIONAL,
+        vruMotionPredictionContainer   VruMotionPredictionContainer OPTIONAL,
+        ...
+    }
+ 
+    VruHighFrequencyContainer ::= SEQUENCE {
+        heading                  Wgs84Angle,  
+        speed                    Speed, 
+        longitudinalAcceleration LongitudinalAcceleration, 
+        curvature                Curvature OPTIONAL, 
+        curvatureCalculationMode CurvatureCalculationMode OPTIONAL, 
+        yawRate                  YawRate OPTIONAL, 
+        lateralAcceleration      LateralAcceleration OPTIONAL, 
+        verticalAcceleration     VerticalAcceleration OPTIONAL, 
+        vruLanePosition          GeneralizedLanePosition OPTIONAL, 
+        environment              VruEnvironment OPTIONAL,
+        movementControl          VruMovementControl OPTIONAL,
+        orientation              Wgs84Angle OPTIONAL, 
+        rollAngle                CartesianAngle OPTIONAL,  
+        deviceUsage              VruDeviceUsage OPTIONAL,
+        ...
+    }
+
+    VruLowFrequencyContainer ::= SEQUENCE {
+        profileAndSubprofile     VruProfileAndSubprofile,
+        sizeClass                VruSizeClass OPTIONAL,        
+		exteriorLights           VruExteriorLights OPTIONAL,
+       ...
+    }
+
+    VruClusterInformationContainer::= SEQUENCE{ 
+        vruClusterInformation    VruClusterInformation (WITH COMPONENTS{..., clusterId, clusterBoundingBoxShape PRESENT}), 
+        ...
+    }
+
+
+    VruClusterOperationContainer ::= SEQUENCE {
+        clusterJoinInfo         ClusterJoinInfo OPTIONAL,
+        clusterLeaveInfo        ClusterLeaveInfo OPTIONAL,
+        clusterBreakupInfo      ClusterBreakupInfo OPTIONAL,
+        clusterIdChangeTimeInfo DeltaTimeQuarterSecond OPTIONAL,
+        ...
+    }
+
+    VruMotionPredictionContainer ::= SEQUENCE {
+        pathHistory                      PathHistory OPTIONAL,
+        pathPrediction                   PathPredicted OPTIONAL,  
+        safeDistance                     SequenceOfSafeDistanceIndication OPTIONAL,
+        trajectoryInterceptionIndication SequenceOfTrajectoryInterceptionIndication OPTIONAL,
+        accelerationChangeIndication     AccelerationChangeIndication OPTIONAL,
+        headingChangeIndication          HeadingChangeIndication OPTIONAL,
+        stabilityChangeIndication        StabilityChangeIndication OPTIONAL,
+        ...
+    }
+
+END

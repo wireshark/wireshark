@@ -1,0 +1,2133 @@
+--! @options: no-fields-header
+
+ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+------------------------------------------
+-- Specification of CDD Data Elements: 
+------------------------------------------
+
+AccelerationChange::= ENUMERATED { 
+    accelerate (0), 
+    decelerate (1) 
+}
+
+AccelerationConfidence ::= INTEGER {
+    outOfRange                 (101), 
+    unavailable                (102)
+} (0..102)
+
+AccelerationControl ::= BIT STRING {
+    brakePedalEngaged       (0),
+    gasPedalEngaged         (1),
+    emergencyBrakeEngaged   (2),
+    collisionWarningEngaged (3),
+    accEngaged              (4),
+    cruiseControlEngaged    (5),
+    speedLimiterEngaged     (6)
+} (SIZE(7))
+
+AccelerationMagnitudeValue ::= INTEGER {
+    positiveOutOfRange (160),
+    unavailable        (161)  
+} (0.. 161)
+
+
+AccelerationValue ::= INTEGER {
+    negativeOutOfRange (-160),
+    positiveOutOfRange (160),
+    unavailable        (161)  
+} (-160 .. 161)
+
+
+AccessTechnologyClass ::= ENUMERATED {
+   any         (0), 
+   itsg5Class  (1), 
+   ltev2xClass (2), 
+   nrv2xClass  (3),
+   ...
+}
+
+AccidentSubCauseCode ::= INTEGER {
+    unavailable                         (0),
+    multiVehicleAccident                (1),
+    heavyAccident                       (2),
+    accidentInvolvingLorry              (3),
+    accidentInvolvingBus                (4),
+    accidentInvolvingHazardousMaterials (5),
+    accidentOnOppositeLane              (6),
+    unsecuredAccident                   (7),
+    assistanceRequested                 (8)
+} (0..255)
+
+AdverseWeatherCondition-AdhesionSubCauseCode ::= INTEGER {
+    unavailable      (0),
+    heavyFrostOnRoad (1),
+    fuelOnRoad       (2),
+    mudOnRoad        (3),
+    snowOnRoad       (4),
+    iceOnRoad        (5),
+    blackIceOnRoad   (6),
+    oilOnRoad        (7),
+    looseChippings   (8),
+    instantBlackIce  (9),
+    roadsSalted      (10)
+} (0..255)
+
+AdverseWeatherCondition-ExtremeWeatherConditionSubCauseCode ::= INTEGER {
+    unavailable  (0),
+    strongWinds  (1),
+    damagingHail (2),
+    hurricane    (3),
+    thunderstorm (4),
+    tornado      (5),
+    blizzard     (6)
+} (0..255)
+
+AdverseWeatherCondition-PrecipitationSubCauseCode ::= INTEGER {
+    unavailable   (0),
+    heavyRain     (1),
+    heavySnowfall (2),
+    softHail      (3)
+} (0..255)
+
+AdverseWeatherCondition-VisibilitySubCauseCode ::= INTEGER {
+    unavailable     (0),
+    fog             (1),
+    smoke           (2),
+    heavySnowfall   (3),
+    heavyRain       (4),
+    heavyHail       (5),
+    lowSunGlare     (6),
+    sandstorms      (7),
+    swarmsOfInsects (8)
+} (0..255)
+
+AirHumidity ::= INTEGER {
+	oneHundredPercent   (1000),
+	unavailable         (1001)
+} (1..1001)
+
+
+AltitudeConfidence ::= ENUMERATED {
+    alt-000-01  (0),
+    alt-000-02  (1),
+    alt-000-05  (2),
+    alt-000-10  (3),
+    alt-000-20  (4),
+    alt-000-50  (5),
+    alt-001-00  (6),
+    alt-002-00  (7),
+    alt-005-00  (8),
+    alt-010-00  (9),
+    alt-020-00  (10),
+    alt-050-00  (11),
+    alt-100-00  (12),
+    alt-200-00  (13),
+    outOfRange  (14),
+    unavailable (15)
+}
+
+AltitudeValue ::= INTEGER {
+    negativeOutOfRange (-100000),
+    postiveOutOfRange  (800000),
+    unavailable        (800001)
+} (-100000..800001)
+
+AngleConfidence ::= INTEGER {
+    outOfRange  (126),
+    unavailable (127)   
+} (1..127)
+
+AngularSpeedConfidence ::= ENUMERATED {
+    degSec-01   (0), 
+    degSec-02   (1),  
+    degSec-05   (2), 
+    degSec-10   (3), 
+    degSec-20   (4),  
+    degSec-50   (5), 
+    outOfRange  (6),   
+    unavailable (7)   
+}
+
+AngularAccelerationConfidence ::= ENUMERATED {
+    degSecSquared-01 (0), 
+    degSecSquared-02 (1), 
+    degSecSquared-05 (2),  
+    degSecSquared-10 (3), 
+    degSecSquared-20 (4),  
+    degSecSquared-50 (5),  
+    outOfRange       (6),     
+    unavailable      (7)   
+}
+
+AxlesCount ::= INTEGER{
+    outOfRange   (1001),
+    unavailable  (1002)
+} (2..1002) 
+
+BarometricPressure ::= INTEGER{
+	outOfRangelower        (2999),
+	outOfRangeUpper        (12001),
+	unavailable            (12002)
+} (2999..12002)
+
+BogiesCount ::= INTEGER{
+	outOfRange   (100),
+	unavailable  (101)
+} (2..101)
+
+
+CardinalNumber1B ::= INTEGER(0..255)
+
+CardinalNumber3b ::= INTEGER(1..8)
+
+CartesianAngleValue ::= INTEGER {
+    valueNotUsed (3600),
+    unavailable  (3601)
+} (0..3601)
+
+CartesianAngularAccelerationComponentValue ::= INTEGER {
+    negativeOutOfRange (-255),
+    positiveOutOfRange (255),
+    unavailable        (256)
+} (-255..256)
+
+CartesianAngularVelocityComponentValue ::= INTEGER {
+    negativeOutofRange (-255),
+    positiveOutOfRange (255),
+    unavailable	       (256)
+} (-255..256)
+
+
+CauseCodeType ::= INTEGER {
+    reserved (0),
+    trafficCondition                                (1),
+    accident                                        (2),
+    roadworks                                       (3),
+    impassability                                   (5),
+    adverseWeatherCondition-Adhesion                (6),
+    aquaplaning                                     (7),
+    hazardousLocation-SurfaceCondition              (9),
+    hazardousLocation-ObstacleOnTheRoad             (10),
+    hazardousLocation-AnimalOnTheRoad               (11),
+    humanPresenceOnTheRoad                          (12),
+    wrongWayDriving                                 (14),
+    rescueAndRecoveryWorkInProgress                 (15),
+    adverseWeatherCondition-ExtremeWeatherCondition (17),
+    adverseWeatherCondition-Visibility              (18),
+    adverseWeatherCondition-Precipitation           (19),
+    violence                                        (20),
+    slowVehicle                                     (26),
+    dangerousEndOfQueue                             (27),
+    vehicleBreakdown                                (91),
+    postCrash                                       (92),
+    humanProblem                                    (93),
+    stationaryVehicle                               (94),
+    emergencyVehicleApproaching                     (95),
+    hazardousLocation-DangerousCurve                (96),
+    collisionRisk                                   (97),
+    signalViolation                                 (98),
+    dangerousSituation                              (99),
+    railwayLevelCrossing                            (100) 
+} (0..255)
+
+CartesianCoordinateSmall::= INTEGER {
+    negativeOutOfRange (-3094),
+    positiveOutOfRange (1001)
+} (-3094..1001) 
+
+CartesianCoordinate::= INTEGER{
+    negativeOutOfRange (-32768),
+    positiveOutOfRange (32767)
+} (-32768..32767)
+
+CartesianCoordinateLarge::= INTEGER{ 
+    negativeOutOfRange (-131072),
+    positiveOutOfRange (131071)
+} (-131072..131071)
+
+--CenDsrcTollingZoneID::= ProtectedZoneId
+
+ClusterBreakupReason ::= ENUMERATED {
+    notProvided                        (0),
+    clusteringPurposeCompleted         (1),
+    leaderMovedOutOfClusterBoundingBox (2),    
+    joiningAnotherCluster              (3),
+    enteringLowRiskAreaBasedOnMaps     (4),
+    receptionOfCpmContainingCluster    (5),
+    max(15)                                                                 
+}
+
+ClusterLeaveReason ::= ENUMERATED {
+    notProvided                   (0), 
+    clusterLeaderLost             (1),    
+    clusterDisbandedByLeader      (2),    
+    outOfClusterBoundingBox       (3),    
+    outOfClusterSpeedRange        (4),
+    joiningAnotherCluster         (5),
+    cancelledJoin                 (6),
+    failedJoin                    (7),
+    safetyCondition               (8),
+    max(15)            
+}
+
+CollisionRiskSubCauseCode ::= INTEGER {
+    unavailable               (0), 
+    longitudinalCollisionRisk (1), 
+    crossingCollisionRisk     (2), 
+    lateralCollisionRisk      (3), 
+    vulnerableRoadUser        (4)
+}(0..255)
+
+ConfidenceLevel ::= INTEGER {
+    unavailable (101)  
+} (1..101)
+
+CoordinateConfidence ::= INTEGER {
+    outOfRange            (4095),
+    unavailable           (4096) 
+} (1..4096)
+
+
+CorrelationCellValue ::= INTEGER {
+    full-negative-correlation    (-100),     
+    no-correlation               (0),       
+    full-positive-correlation    (100),
+    unavailable (101)  
+} (-100..101)
+
+CurvatureCalculationMode ::= ENUMERATED {
+    yawRateUsed    (0), 
+    yawRateNotUsed (1), 
+    unavailable    (2), 
+    ...
+}
+
+CurvatureConfidence ::= ENUMERATED {
+    onePerMeter-0-00002 (0),
+    onePerMeter-0-0001  (1),
+    onePerMeter-0-0005  (2),
+    onePerMeter-0-002   (3),
+    onePerMeter-0-01    (4),
+    onePerMeter-0-1     (5),
+    outOfRange          (6),
+    unavailable         (7)
+}
+
+CurvatureValue ::= INTEGER {
+    outOfRangeNegative (-1023),
+    straight           (0),
+    outOfRangePositive (1022), 
+    unavailable        (1023)
+} (-1023..1023)
+
+DangerousEndOfQueueSubCauseCode ::= INTEGER {
+    unavailable      (0), 
+    suddenEndOfQueue (1), 
+    queueOverHill    (2), 
+    queueAroundBend  (3), 
+    queueInTunnel    (4)
+} (0..255)
+
+DangerousGoodsBasic::= ENUMERATED {
+    explosives1                                          (0),
+    explosives2                                          (1),
+    explosives3                                          (2),
+    explosives4                                          (3),
+    explosives5                                          (4),
+    explosives6                                          (5),
+    flammableGases                                       (6),
+    nonFlammableGases                                    (7),
+    toxicGases                                           (8),
+    flammableLiquids                                     (9),
+    flammableSolids                                      (10),
+    substancesLiableToSpontaneousCombustion              (11),
+    substancesEmittingFlammableGasesUponContactWithWater (12),
+    oxidizingSubstances                                  (13),
+    organicPeroxides                                     (14),
+    toxicSubstances                                      (15),
+    infectiousSubstances                                 (16),
+    radioactiveMaterial                                  (17),
+    corrosiveSubstances                                  (18),
+    miscellaneousDangerousSubstances                     (19)
+}
+
+DangerousSituationSubCauseCode ::= INTEGER {
+    unavailable                     (0), 
+    emergencyElectronicBrakeEngaged (1), 
+    preCrashSystemEngaged           (2), 
+    espEngaged                      (3), 
+    absEngaged                      (4), 
+    ebEngaged                       (5), 
+    brakeWarningEngaged             (6), 
+    collisionRiskWarningEngaged     (7)
+} (0..255)
+
+DeltaAltitude ::= INTEGER {
+    negativeOutOfRange (-12700),
+    positiveOutOfRange (12799),
+    unavailable        (12800)
+} (-12700..12800)
+
+DeltaLatitude ::= INTEGER {
+    unavailable (131072)
+} (-131071..131072)
+
+DeltaLongitude ::= INTEGER {
+    unavailable (131072)
+} (-131071..131072)
+
+DeltaTimeMilliSecondPositive ::= INTEGER (1..10000)
+
+DeltaTimeMilliSecondSigned ::= INTEGER (-2048..2047)
+
+DeltaTimeQuarterSecond::= INTEGER {
+    unavailable (255)  
+} (1..255) 
+
+DeltaTimeTenthOfSecond::= INTEGER {
+    unavailable (127)  
+} (0..127) 
+
+DeltaTimeSecond ::= INTEGER  (0..86400)
+
+-- Exists in IVI {iso (1) standard (0) ivi (19321) version2 (2)
+--Direction::= INTEGER{
+--    sameDirection     (0),
+--    oppositeDirection (1),
+--    bothDirections    (2),
+--    unavailable       (3)
+-- } (0..3)
+
+DriveDirection ::= ENUMERATED {
+    forward     (0), 
+    backward    (1), 
+    unavailable (2)
+}
+
+DrivingLaneStatus ::= BIT STRING (SIZE (1..13))
+
+EmbarkationStatus ::= BOOLEAN
+
+EmergencyPriority ::= BIT STRING {
+    requestForRightOfWay                  (0), 
+    requestForFreeCrossingAtATrafficLight (1)
+} (SIZE(2))
+
+EmergencyVehicleApproachingSubCauseCode ::= INTEGER {
+    unavailable                   (0), 
+    emergencyVehicleApproaching   (1), 
+    prioritizedVehicleApproaching (2)
+} (0..255)
+
+EnergyStorageType ::= BIT STRING {
+    hydrogenStorage       (0), 
+    electricEnergyStorage (1), 
+    liquidPropaneGas      (2), 
+    compressedNaturalGas  (3), 
+    diesel                (4), 
+    gasoline              (5), 
+    ammonia               (6)
+}(SIZE(7))
+
+EuVehicleCategoryL ::= ENUMERATED { l1, l2, l3, l4, l5, l6, l7 }
+
+EuVehicleCategoryM ::= ENUMERATED {m1, m2, m3}
+
+EuVehicleCategoryN ::= ENUMERATED {n1, n2, n3}
+
+EuVehicleCategoryO ::= ENUMERATED {o1, o2, o3, o4}
+
+ExteriorLights ::= BIT STRING {
+    lowBeamHeadlightsOn      (0),
+    highBeamHeadlightsOn     (1),
+    leftTurnSignalOn         (2),
+    rightTurnSignalOn        (3),
+    daytimeRunningLightsOn   (4),
+    reverseLightOn           (5),
+    fogLightOn               (6),
+    parkingLightsOn          (7)
+} (SIZE(8))
+
+GenerationDeltaTime ::= INTEGER { oneMilliSec(1) } (0..65535)
+
+HardShoulderStatus ::= ENUMERATED {
+    availableForStopping (0), 
+    closed               (1), 
+    availableForDriving  (2)
+}
+
+HazardousLocation-AnimalOnTheRoadSubCauseCode ::= INTEGER {
+    unavailable   (0), 
+    wildAnimals   (1), 
+    herdOfAnimals (2), 
+    smallAnimals  (3), 
+    largeAnimals  (4)
+} (0..255)
+
+HazardousLocation-DangerousCurveSubCauseCode ::= INTEGER {
+    unavailable                                       (0), 
+    dangerousLeftTurnCurve                            (1), 
+    dangerousRightTurnCurve                           (2), 
+    multipleCurvesStartingWithUnknownTurningDirection (3), 
+    multipleCurvesStartingWithLeftTurn                (4), 
+    multipleCurvesStartingWithRightTurn               (5)
+} (0..255)
+
+HazardousLocation-ObstacleOnTheRoadSubCauseCode ::= INTEGER {
+    unavailable     (0), 
+    shedLoad        (1), 
+    partsOfVehicles (2), 
+    partsOfTyres    (3), 
+    bigObjects      (4), 
+    fallenTrees     (5), 
+    hubCaps         (6), 
+    waitingVehicles (7)
+} (0..255)
+
+HazardousLocation-SurfaceConditionSubCauseCode ::= INTEGER {
+    unavailable      (0), 
+    rockfalls        (1), 
+    earthquakeDamage (2), 
+    sewerCollapse    (3), 
+    subsidence       (4), 
+    snowDrifts       (5), 
+    stormDamage      (6), 
+    burstPipe        (7), 
+    volcanoEruption  (8), 
+    fallingIce       (9), 
+    fire             (10)
+} (0..255)
+
+HeadingConfidence ::= INTEGER {
+    outOfRange  (126), 
+    unavailable (127)  
+} (1..127)
+
+HeadingValue ::= INTEGER { 
+    wgs84North  (0),
+    wgs84East   (900),
+    wgs84South  (1800),
+    wgs84West   (2700),
+    doNotUse    (3600),
+    unavailable (3601)
+} (0..3601)
+
+HeightLonCarr ::= INTEGER {
+    outOfRange(99),
+    unavailable(100)
+} (1..100)
+
+HumanPresenceOnTheRoadSubCauseCode ::= INTEGER {
+    unavailable           (0), 
+    childrenOnRoadway     (1), 
+    cyclistOnRoadway      (2), 
+    motorcyclistOnRoadway (3)
+} (0..255)
+
+HumanProblemSubCauseCode ::= INTEGER {
+    unavailable     (0), 
+    glycemiaProblem (1), 
+    heartProblem    (2)
+} (0..255)
+
+Identifier1B ::= INTEGER (0..255)
+
+Identifier2B ::= INTEGER (0..65535)
+
+InformationQuality ::= INTEGER (0..7)
+
+InterferenceManagementZoneType ::= ENUMERATED {
+    permanentCenDsrcTolling (0),
+    temporaryCenDsrcTolling (1),
+    unavailable             (2), 
+    urbanRail               (3),      
+    satelliteStation        (4),
+    fixedLinks              (5), 
+    ...
+}
+
+Iso3833VehicleType ::= INTEGER {
+    passengerCar                 (0),
+    saloon                       (1),	
+    convertibleSaloon            (2),	
+    pullmanSaloon                (3),	
+    stationWagon                 (4),	
+    truckStationWagon            (5),	
+    coupe                        (6),
+    convertible                  (7),	
+    multipurposePassengerCar     (8),	
+    forwardControlPassengerCar   (9),	
+    specialPassengerCar	         (10),
+    bus	                         (11),
+    minibus                      (12),	
+    urbanBus                     (13),	
+    interurbanCoach              (14),	
+    longDistanceCoach            (15),	
+    articulatedBus               (16),	
+    trolleyBus                   (17),
+    specialBus                   (18),	
+    commercialVehicle            (19),	
+    specialCommercialVehicle     (20),
+    specialVehicle               (21),	
+    trailingTowingVehicle        (22),	
+    semiTrailerTowingVehicle     (23),	
+    trailer                      (24),	
+    busTrailer                   (25),
+    generalPurposeTrailer        (26),
+    caravan                      (27),	
+    specialTrailer               (28),	
+    semiTrailer	                 (29),	
+    busSemiTrailer               (30),	
+    generalPurposeSemiTrailer    (31),
+    specialSemiTrailer           (32),	
+    roadTrain                    (33),	
+    passengerRoadTrain           (34),	
+    articulatedRoadTrain         (35),	
+    doubleRoadTrain	             (36),
+    compositeRoadTrain           (37),	
+    specialRoadTrain             (38),	
+    moped                        (39),	
+    motorCycle                   (40)	
+	} (0..255)
+
+LanePosition ::= INTEGER {
+    offTheRoad           (-1), 
+    innerHardShoulder    (0), 
+    outerHardShoulder    (14) 
+} (-1..14)
+
+LaneType::= INTEGER{
+	traffic              (0),
+	through	             (1),
+	reversible           (2),
+	acceleration         (3),
+	deceleration         (4),
+	leftHandTurning      (5),
+	rightHandTurning     (6),
+	dedicatedVehicle     (7),
+	bus                  (8),
+	taxi                 (9),
+	hov                  (10),
+	hot                  (11),
+	pedestrian           (12),
+	cycleLane            (13),
+	median               (14),   
+	striping             (15),
+	trackedVehicle       (16),
+	parking	             (17),
+	emergency            (18),
+	verge                (19),
+	minimumRiskManoeuvre (20),
+	unknown              (31)
+}(0..31)
+
+--LaneWidth::= INTEGER (0..1023)
+
+Latitude ::= INTEGER {
+    unavailable(900000001)
+} (-900000000..900000001)
+
+LateralAccelerationValue ::= INTEGER {
+    negativeOutOfRange (-160),
+    positiveOutOfRange (160),
+    unavailable        (161)  
+} (-160 .. 161)
+
+LightBarSirenInUse ::= BIT STRING {
+    lightBarActivated (0),
+    sirenActivated    (1)
+} (SIZE(2))
+
+Longitude ::= INTEGER {
+    valueNotUsed (-1800000000),
+    unavailable  (1800000001)
+} (-1800000000..1800000001)
+
+LongitudinalAccelerationValue::= INTEGER {
+    negativeOutOfRange (-160),
+    positiveOutOfRange (160),
+    unavailable        (161)  
+} (-160 .. 161)
+
+LongitudinalLanePositionValue ::= INTEGER {
+    outOfRange(32766),
+    unavailable(32767)
+}(0..32767)
+
+LongitudinalLanePositionConfidence ::= INTEGER {
+    outOfRange  (1022),
+    unavailable (1023)  
+} (0..1023)
+
+MatrixIncludedComponents::= BIT STRING{
+    xPosition                    (0),
+    yPosition                    (1),
+    zPosition                    (2),
+    xVelocityOrVelocityMagnitude (3),
+    yVelocityOrVelocityDirection (4),
+    zSpeed                       (5),
+    xAccelOrAccelMagnitude       (6),
+    yAccelOrAccelDirection       (7),
+    zAcceleration                (8),
+    zAngle                       (9),  
+    yAngle                      (10), 
+    xAngle                      (11), 
+    zAngularVelocity              (12)
+} (SIZE(13,...))
+
+MessageId::= INTEGER { 
+    denm              (1),  
+    cam               (2), 
+    poi               (3), 
+    spatem            (4), 
+    mapem             (5), 
+    ivim              (6), 
+    ev-rsr            (7), 
+    tistpgtransaction (8), 
+    srem              (9), 
+    ssem              (10), 
+    evcsn             (11), 
+    saem              (12), 
+    rtcmem            (13), 
+    cpm               (14),
+    imzm              (15),
+    vam               (16),
+    dsm               (17), 
+    pcim              (18),
+    pcvm              (19),
+    mcm               (20),
+    pam               (21)
+} (0..255)
+
+NumberOfOccupants ::= INTEGER {
+    outOfRange  (126),
+    unavailable (127)
+} (0 .. 127)
+
+ObjectPerceptionQuality ::= INTEGER {
+    noConfidence        (0), 
+    fullConfidence      (15) 
+} (0..15)
+
+ObjectDimensionValue ::= INTEGER { 
+    outOfRange              (255),
+    unavailable             (256)
+}(1..256)
+
+ObjectDimensionConfidence ::= INTEGER { 
+    outOfRange              (31),
+    unavailable             (32)
+} (1..32)
+
+ObjectFace ::= ENUMERATED {
+    front          (0), 
+    sideLeftFront  (1), 
+    sideLeftBack   (2), 
+    sideRightFront (3), 
+    sideRightBack  (4),
+    back           (5)   
+}
+
+OpeningDaysHours ::= UTF8String 
+
+--OrdinalNumber1B ::= INTEGER(0..255) 
+
+
+OrdinalNumber3b ::= INTEGER(1..8) 
+
+OtherSubClass ::= INTEGER {
+    unknown         (0),
+    singleObject    (1),
+    multipleObjects (2),
+    bulkMaterial    (3)
+} (0..255)
+
+PathDeltaTime ::= INTEGER (1..65535, ...) 
+
+PerformanceClass ::= INTEGER {
+    unavailable       (0), 
+    performanceClassA (1), 
+    performanceClassB (2)
+} (0..7)
+
+PhoneNumber ::= NumericString (SIZE(1..16))
+
+PosCentMass ::= INTEGER {
+    tenCentimetres (1), 
+    outOfRange     (62),
+    unavailable    (63)
+} (1..63)
+
+PositioningSolutionType ::= ENUMERATED {
+    noPositioningSolution (0), 
+    sGNSS                 (1), 
+    dGNSS                 (2), 
+    sGNSSplusDR           (3), 
+    dGNSSplusDR           (4), 
+    dR                    (5), 
+    ...
+}
+
+PositionOfOccupants ::= BIT STRING {
+    row1LeftOccupied  (0),
+    row1RightOccupied (1),
+    row1MidOccupied   (2),
+    row1NotDetectable (3),
+    row1NotPresent    (4),
+    row2LeftOccupied  (5),
+    row2RightOccupied (6),
+    row2MidOccupied   (7),
+    row2NotDetectable (8),
+    row2NotPresent    (9),
+    row3LeftOccupied  (10),
+    row3RightOccupied (11),
+    row3MidOccupied   (12),
+    row3NotDetectable (13),
+    row3NotPresent    (14),
+    row4LeftOccupied  (15),
+    row4RightOccupied (16),
+    row4MidOccupied   (17),
+    row4NotDetectable (18),
+    row4NotPresent    (19)
+} (SIZE(20))
+
+PosFrontAx ::= INTEGER {
+    outOfRange (19), 
+    unavailable(20)
+} (1..20)
+
+PosLonCarr ::= INTEGER {
+    outOfRange  (126),
+    unavailable (127)
+} (1..127)
+
+PosPillar ::= INTEGER {
+    outOfRange  (29),
+    unavailable (30)
+} (1..30)
+
+PostCrashSubCauseCode ::= INTEGER {
+    unavailable                                              (0), 
+    accidentWithoutECallTriggered                            (1), 
+    accidentWithECallManuallyTriggered                       (2), 
+    accidentWithECallAutomaticallyTriggered                  (3), 
+    accidentWithECallTriggeredWithoutAccessToCellularNetwork (4)
+} (0..255)
+
+PrecipitationIntensity ::= INTEGER {
+	outOfRange								(2000), 
+	unavailable								(2001) 
+} (1..2001)
+
+ProtectedZoneId ::= INTEGER (0.. 134217727)
+
+ProtectedZoneRadius ::= INTEGER (1..255,...)
+
+ProtectedZoneType::= ENUMERATED {
+    permanentCenDsrcTolling (0), 
+    ..., 
+    temporaryCenDsrcTolling (1) 
+}
+
+PtActivationData ::= OCTET STRING (SIZE(1..20))
+
+PtActivationType ::= INTEGER {
+    undefinedCodingType (0), 
+    r09-16CodingType    (1), 
+    vdv-50149CodingType (2)
+} (0..255)
+
+RailwayLevelCrossingSubCauseCode ::= INTEGER {
+    unavailable                 (0), 
+    doNotCrossAbnormalSituation (1), 
+    closed                      (2), 
+    unguarded                   (3), 
+    nominal                     (4)
+} (0..255)
+
+--RelevanceDistance ::= ENUMERATED {
+--    lessThan50m(0), 
+--    lessThan100m(1), 
+--    lessThan200m(2), 
+--    lessThan500m(3), 
+--    lessThan1000m(4), 
+--    lessThan5km(5), 
+--    lessThan10km(6), 
+--    over10km(7)
+--}
+
+--RelevanceTrafficDirection ::= ENUMERATED {
+--   allTrafficDirections(0), 
+--    upstreamTraffic(1), 
+--    downstreamTraffic(2), 
+--    oppositeTraffic(3)
+--}
+
+RequestResponseIndication ::= ENUMERATED {
+    request  (0), 
+    response (1)
+}
+
+RescueAndRecoveryWorkInProgressSubCauseCode ::= INTEGER {
+   unavailable              (0), 
+   emergencyVehicles        (1), 
+   rescueHelicopterLanding  (2), 
+   policeActivityOngoing    (3), 
+   medicalEmergencyOngoing  (4), 
+   childAbductionInProgress (5)
+} (0..255)
+
+
+RoadType ::= ENUMERATED {
+    urban-NoStructuralSeparationToOppositeLanes      (0),
+    urban-WithStructuralSeparationToOppositeLanes    (1),
+    nonUrban-NoStructuralSeparationToOppositeLanes   (2),
+    nonUrban-WithStructuralSeparationToOppositeLanes (3)
+}
+
+RoadworksSubCauseCode ::= INTEGER {
+    unavailable                  (0), 
+    majorRoadworks               (1),
+    roadMarkingWork              (2), 
+    slowMovingRoadMaintenance    (3), 
+    shortTermStationaryRoadworks (4), 
+   streetCleaning                (5), 
+   winterService                 (6)
+} (0..255)
+
+SafeDistanceIndicator::= BOOLEAN
+
+SemiAxisLength ::= INTEGER{
+    doNotUse    (0),
+    outOfRange  (4094), 
+    unavailable (4095)
+} (0..4095)
+
+SensorType ::= INTEGER {
+    undefined         (0),
+    radar             (1),
+    lidar             (2),
+    monovideo         (3),
+    stereovision      (4),
+    nightvision       (5),
+    ultrasonic        (6),
+    pmd               (7),
+    inductionLoop     (8),
+    sphericalCamera   (9),
+    uwb               (10),
+    acoustic          (11),
+    localAggregation  (12),
+    itsAggregation    (13)
+} (0..31)
+
+SequenceNumber ::=  INTEGER (0..65535)
+
+SignalViolationSubCauseCode ::= INTEGER {
+    unavailable                (0), 
+    stopSignViolation          (1), 
+    trafficLightViolation      (2), 
+    turningRegulationViolation (3)
+} (0..255)
+
+SlowVehicleSubCauseCode ::= INTEGER {
+    unavailable                     (0), 
+    maintenanceVehicle              (1), 
+    vehiclesSlowingToLookAtAccident (2), 
+    abnormalLoad                    (3), 
+    abnormalWideLoad                (4), 
+    convoy                          (5), 
+    snowplough                      (6), 
+    deicing                         (7), 
+    saltingVehicles                 (8)
+} (0..255)
+
+SpecialTransportType ::= BIT STRING {
+    heavyLoad    (0),
+    excessWidth  (1), 
+    excessLength (2), 
+    excessHeight (3)
+} (SIZE(4))
+
+SpeedConfidence ::= INTEGER {
+    outOfRange  (126), 
+    unavailable (127)
+} (1..127)
+
+SpeedLimit ::= INTEGER (1..255)
+
+SpeedValue ::= INTEGER {
+    standstill  (0), 
+    outOfRange  (16382), 
+    unavailable (16383)
+} (0..16383)
+
+VelocityComponentValue ::= INTEGER {
+    negativeOutOfRange (-16383),
+    positiveOutOfRange  (16382),
+    unavailable        (16383)
+} (-16383..16383)
+
+
+StabilityLossProbability ::= INTEGER {
+    stable                  (0), 
+    totalLossOfStability   (50), 
+    unavailable            (63) 
+} (0..63) 
+
+StandardLength12b::= INTEGER (0..4095)
+
+StandardLength3b ::= ENUMERATED {
+    lessThan50m   (0), 
+    lessThan100m  (1), 
+    lessThan200m  (2), 
+    lessThan500m  (3), 
+    lessThan1000m (4), 
+    lessThan5km   (5), 
+    lessThan10km  (6), 
+    over10km      (7)
+}
+
+StandardLength9b::= INTEGER (0..511)
+
+StandardLength1B::= INTEGER (0..255)
+
+StandardLength2B::= INTEGER (0..65535)
+
+StationarySince ::= ENUMERATED {
+    lessThan1Minute         (0), 
+    lessThan2Minutes        (1), 
+    lessThan15Minutes       (2), 
+    equalOrGreater15Minutes (3)
+}
+
+StationaryVehicleSubCauseCode ::= INTEGER {
+    unavailable            (0), 
+    humanProblem           (1), 
+    vehicleBreakdown       (2), 
+    postCrash              (3), 
+    publicTransportStop    (4), 
+    carryingDangerousGoods (5), 
+    vehicleOnFire          (6)
+} (0..255)
+
+StationId ::= INTEGER(0..4294967295)
+
+StationID ::= INTEGER(0..4294967295)
+
+StationType ::= INTEGER {
+    unknown         (0), 
+    pedestrian      (1), 
+    cyclist         (2), 
+    moped           (3), 
+    motorcycle      (4), 
+    passengerCar    (5), 
+    bus             (6), 
+    lightTruck      (7), 
+    heavyTruck      (8), 
+    trailer         (9), 
+    specialVehicle  (10), 
+    tram            (11), 
+    lightVruVehicle (12), 
+    animal          (13), 
+    roadSideUnit    (15)
+} (0..255)
+
+SteeringWheelAngleConfidence ::= INTEGER {
+    outOfRange                      (126), 
+    unavailable                     (127)
+} (1..127)
+
+SteeringWheelAngleValue ::= INTEGER { 
+    negativeOutOfRange (-511),
+    positiveOutOfRange (511),
+    unavailable        (512)
+} (-511..512)
+
+SubCauseCodeType ::= INTEGER (0..255)
+
+Temperature ::= INTEGER {
+    equalOrSmallerThanMinus60Deg (-60), 
+    equalOrGreaterThan67Deg(67)} (-60..67)
+
+TimestampIts ::= INTEGER (0..4398046511103)
+
+TrafficConditionSubCauseCode ::= INTEGER {
+    unavailable                  (0),
+    increasedVolumeOfTraffic     (1),
+    trafficJamSlowlyIncreasing   (2),
+    trafficJamIncreasing         (3),
+    trafficJamStronglyIncreasing (4),
+    trafficStationary            (5),
+    trafficJamSlightlyDecreasing (6),
+    trafficJamDecreasing         (7),
+    trafficJamStronglyDecreasing (8)
+} (0..255)
+
+TrafficDirection ::= ENUMERATED {
+    allTrafficDirections (0), 
+    upstreamTraffic      (1), 
+    downstreamTraffic    (2), 
+    oppositeTraffic      (3)
+}
+
+TrafficParticipantType ::= INTEGER {
+    unknown         (0), 
+    pedestrian      (1), 
+    cyclist         (2), 
+    moped           (3), 
+    motorcycle      (4), 
+    passengerCar    (5), 
+    bus             (6), 
+    lightTruck      (7), 
+    heavyTruck      (8), 
+    trailer         (9), 
+    specialVehicle  (10), 
+    tram            (11), 
+    lightVruVehicle (12), 
+    animal          (13),
+    agricultural    (14), 
+    roadSideUnit    (15)
+} (0..255)
+
+TrafficRule ::= ENUMERATED {
+    noPassing          (0), 
+    noPassingForTrucks (1), 
+    passToRight        (2), 
+    passToLeft         (3), 
+ ...}
+
+TrailerPresenceInformation ::= ENUMERATED {
+    noTrailerPresent                (0), 
+    trailerPresentWithKnownLength   (1), 
+    trailerPresentWithUnknownLength (2), 
+    trailerPresenceIsUnknown        (3), 
+    unavailable                     (4)
+}
+
+TrajectoryInterceptionProbability ::= INTEGER { 
+    unavailable (63) 
+} (0..63) 
+
+TrajectoryInterceptionConfidence ::= INTEGER { 
+    lessthan50percent     (0), 
+    between50and70Percent (1),
+    between70and90Percent (2), 
+    above90Percent        (3) 
+} (0..3)
+
+--TransmissionInterval::= INTEGER (1..10000)
+
+TurningDirection::= ENUMERATED {
+    left, 
+    right 
+}
+
+TurningRadius ::= INTEGER {
+    outOfRange  (254),
+    unavailable (255)
+} (1..255)
+
+--ValidityDuration::= INTEGER {
+--   timeOfDetection(0),
+--   oneSecondAfterDetection(1)
+--} (0..86400)
+
+VDS ::= IA5String (SIZE(6))
+
+VehicleBreakdownSubCauseCode ::= INTEGER {
+    unavailable          (0), 
+    lackOfFuel           (1), 
+    lackOfBatteryPower   (2), 
+    engineProblem        (3), 
+    transmissionProblem  (4), 
+    engineCoolingProblem (5), 
+    brakingSystemProblem (6), 
+    steeringProblem      (7), 
+    tyrePuncture         (8), 
+    tyrePressureProblem  (9), 
+    vehicleOnFire        (10)
+} (0..255)
+
+VehicleHeight ::= INTEGER {
+    outOfRange  (126),  
+    unavailable (127)
+}(1..128)
+
+VehicleLengthConfidenceIndication ::= ENUMERATED {
+    noTrailerPresent                (0), 
+    trailerPresentWithKnownLength   (1), 
+    trailerPresentWithUnknownLength (2), 
+    trailerPresenceIsUnknown        (3), 
+    unavailable                     (4)
+}
+
+VehicleLengthValue ::= INTEGER {
+    outOfRange(1022), 
+    unavailable(1023)
+}  (1..1023)
+
+VehicleMass ::= INTEGER {
+    outOfRange (1023), 
+    unavailable(1024)
+} (1..1024) 
+
+VehicleRole ::= ENUMERATED {
+    default         (0), 
+    publicTransport (1), 
+    specialTransport(2), 
+    dangerousGoods  (3), 
+    roadWork        (4), 
+    rescue          (5), 
+    emergency       (6), 
+    safetyCar       (7), 
+    agriculture     (8), 
+    commercial      (9), 
+    military        (10), 
+    roadOperator    (11), 
+    taxi            (12), 
+    reserved1       (13), 
+    reserved2       (14), 
+    reserved3       (15)
+}
+
+VehicleWidth ::= INTEGER {
+    outOfRange  (61),  
+    unavailable (62)
+} (1..62)
+
+VerticalAccelerationValue ::= INTEGER {
+    negativeOutOfRange (-160),
+    positiveOutOfRange (160),
+    unavailable        (161)  
+} (-160 .. 161)
+
+VruClusterProfiles ::= BIT STRING {
+    pedestrian   (0),
+    bicyclist    (1),
+    motorcyclist (2),
+    animal       (3)
+} (SIZE(4))
+
+VruDeviceUsage ::= ENUMERATED {
+    unavailable      (0), 
+    other            (1), 
+    idle             (2), 
+    listeningToAudio (3), 
+    typing           (4), 
+    calling          (5), 
+    playingGames     (6), 
+    reading          (7), 
+    viewing          (8), 
+    max              (255)
+}
+
+VruEnvironment ::= ENUMERATED {
+    unavailable             (0), 
+    intersectionCrossing    (1), 
+    zebraCrossing           (2), 
+    sidewalk                (3), 
+    onVehicleRoad           (4), 
+    protectedGeographicArea (5), 
+    max                     (255)
+}
+
+VruMovementControl ::= ENUMERATED {
+    unavailable                (0), 
+    braking                    (1), 
+    hardBraking                (2), 
+    stopPedaling               (3), 
+    brakingAndStopPedaling     (4), 
+    hardBrakingAndStopPedaling (5), 
+    noReaction                 (6), 
+    max                        (255)
+}
+
+VruSubProfilePedestrian ::= ENUMERATED {
+    unavailable         (0), 
+    ordinary-pedestrian (1),
+    road-worker         (2), 
+    first-responder     (3),
+    max                 (15)
+}
+
+VruSubProfileBicyclist ::= ENUMERATED {
+    unavailable          (0), 
+    bicyclist            (1), 
+    wheelchair-user      (2), 
+    horse-and-rider      (3), 
+    rollerskater         (4), 
+    e-scooter            (5), 
+    personal-transporter (6),
+    pedelec              (7), 
+    speed-pedelec        (8),
+    max                  (15)
+}
+
+VruSubProfileMotorcyclist ::= ENUMERATED { 
+    unavailable                  (0), 
+    moped                        (1), 
+    motorcycle                   (2), 
+    motorcycle-and-sidecar-right (3), 
+    motorcycle-and-sidecar-left  (4), 
+    max                          (15)
+}
+
+VruSubProfileAnimal ::= ENUMERATED {
+    unavailable    (0), 
+    wild-animal    (1), 
+    farm-animal    (2), 
+    service-animal (3),   
+    max            (15)
+}
+
+VruSizeClass ::= ENUMERATED { 
+    unavailable (0), 
+    low         (1), 
+    medium      (2), 
+    high        (3), 
+    max         (15)
+}
+
+VruSpecificExteriorLights ::= BIT STRING {
+    unavailable    (0),
+    backFlashLight (1),
+    helmetLight    (2),
+    armLight       (3),
+    legLight       (4),
+    wheelLight     (5)
+} (SIZE(8))
+
+WheelBaseVehicle ::= INTEGER {
+    outOfRange  (126),
+    unavailable (127)
+} (1..127)
+
+Wgs84AngleConfidence ::= INTEGER {
+    outOfRange  (126), 
+    unavailable (127)  
+} (1..127)
+
+
+Wgs84AngleValue ::= INTEGER { 
+    wgs84North  (0),
+    wgs84East   (900),
+    wgs84South  (1800),
+    wgs84West   (2700),
+    doNotUse    (3600),
+    unavailable (3601)
+} (0..3601)
+
+WMInumber ::= IA5String (SIZE(1..3))
+
+WrongWayDrivingSubCauseCode ::= INTEGER {
+    unavailable    (0), 
+    wrongLane      (1), 
+    wrongDirection (2)
+} (0..255)
+
+YawRateConfidence ::= ENUMERATED {
+    degSec-000-01 (0),
+    degSec-000-05 (1),
+    degSec-000-10 (2),
+    degSec-001-00 (3), 
+    degSec-005-00 (4),
+    degSec-010-00 (5),
+    degSec-100-00 (6),
+    outOfRange    (7),
+    unavailable   (8)
+}
+
+YawRateValue ::= INTEGER {
+    negativeOutOfRange (-32766), 
+    positiveOutOfRange (32766), 
+    unavailable        (32767)
+} (-32766..32767)
+
+----------------------------------------
+-- Specification of CDD Data Frames:
+----------------------------------------
+
+Acceleration3dWithConfidence::= CHOICE {
+    polarAcceleration                    AccelerationPolarWithZ,
+    cartesianAcceleration                AccelerationCartesian 
+}
+
+AccelerationPolarWithZ::= SEQUENCE{
+    accelerationMagnitude                             AccelerationMagnitude,
+    accelerationDirection                             CartesianAngle,
+    zAcceleration                                     AccelerationComponent OPTIONAL
+}
+
+AccelerationCartesian::= SEQUENCE{
+    xAcceleration      AccelerationComponent,
+    yAcceleration      AccelerationComponent,
+    zAcceleration      AccelerationComponent OPTIONAL
+}            
+
+AccelerationComponent ::= SEQUENCE {
+    value         AccelerationValue,
+    confidence    AccelerationConfidence
+}
+
+AccelerationChangeIndication ::= SEQUENCE {
+    accelOrDecel       AccelerationChange,
+    actionDeltaTime    DeltaTimeTenthOfSecond,
+    ...
+}
+
+AccelerationMagnitude::= SEQUENCE {
+    accelerationMagnitudeValue   AccelerationMagnitudeValue,
+    accelerationConfidence       AccelerationConfidence
+}
+
+ActionId ::= SEQUENCE {
+    originatingStationId    StationId,
+    sequenceNumber          SequenceNumber
+}
+
+ActionID ::= SEQUENCE {
+    originatingStationId    StationID,
+    sequenceNumber          SequenceNumber
+}
+
+ActionIdList::= SEQUENCE (SIZE(1..8, ...)) OF ActionId
+
+Altitude ::= SEQUENCE {
+    altitudeValue         AltitudeValue,
+    altitudeConfidence    AltitudeConfidence
+}
+
+BasicContainer ::= SEQUENCE {
+	stationType          TrafficParticipantType,
+	referencePosition    ReferencePositionWithConfidence,
+	...
+}
+
+CartesianAngle ::= SEQUENCE {
+    value         CartesianAngleValue,
+    confidence    AngleConfidence
+}
+
+CartesianAngularVelocityComponent ::= SEQUENCE {
+    value         CartesianAngularVelocityComponentValue,
+    confidence    AngularSpeedConfidence
+}
+
+CartesianAngularAccelerationComponent ::= SEQUENCE {
+    value         CartesianAngularAccelerationComponentValue,
+    confidence    AngularAccelerationConfidence
+}
+
+CartesianCoordinateWithConfidence ::= SEQUENCE {
+    value         CartesianCoordinateLarge,
+    confidence    CoordinateConfidence
+}
+
+CartesianPosition3d::=SEQUENCE{
+    xCoordinate    CartesianCoordinate,
+    yCoordinate    CartesianCoordinate,
+    zCoordinate    CartesianCoordinate OPTIONAL
+}
+
+CartesianPosition3dWithConfidence::= SEQUENCE{    
+    xCoordinate    CartesianCoordinateWithConfidence, 
+    yCoordinate    CartesianCoordinateWithConfidence, 
+    zCoordinate    CartesianCoordinateWithConfidence OPTIONAL
+}
+
+CauseCode ::= SEQUENCE {
+    causeCode       CauseCodeType,
+    subCauseCode    SubCauseCodeType,
+    ...
+}
+
+CauseCodeChoice::= CHOICE {
+    reserved0                                          SubCauseCodeType,
+    trafficCondition1                                  TrafficConditionSubCauseCode,
+    accident2                                          AccidentSubCauseCode,
+    roadworks3                                         RoadworksSubCauseCode,
+    reserved4                                          SubCauseCodeType,
+    impassability5                                     SubCauseCodeType,
+    adverseWeatherCondition-Adhesion6                  AdverseWeatherCondition-AdhesionSubCauseCode,
+    aquaplaning7                                       SubCauseCodeType,
+    reserved8                                          SubCauseCodeType,
+    hazardousLocation-SurfaceCondition9                HazardousLocation-SurfaceConditionSubCauseCode,
+    hazardousLocation-ObstacleOnTheRoad10              HazardousLocation-ObstacleOnTheRoadSubCauseCode,
+    hazardousLocation-AnimalOnTheRoad11                HazardousLocation-AnimalOnTheRoadSubCauseCode,
+    humanPresenceOnTheRoad12                           HumanPresenceOnTheRoadSubCauseCode,
+    reserved13                                         SubCauseCodeType,
+    wrongWayDriving14                                  WrongWayDrivingSubCauseCode,
+    rescueAndRecoveryWorkInProgress15                  RescueAndRecoveryWorkInProgressSubCauseCode,
+    reserved16                                         SubCauseCodeType,
+    adverseWeatherCondition-ExtremeWeatherCondition17  AdverseWeatherCondition-ExtremeWeatherConditionSubCauseCode,
+    adverseWeatherCondition-Visibility18               AdverseWeatherCondition-VisibilitySubCauseCode,
+    adverseWeatherCondition-Precipitation19            AdverseWeatherCondition-PrecipitationSubCauseCode,
+    violence20                                         SubCauseCodeType,
+    reserved21                                         SubCauseCodeType,
+    reserved22                                         SubCauseCodeType,
+    reserved23                                         SubCauseCodeType,
+    reserved24                                         SubCauseCodeType,
+    reserved25                                         SubCauseCodeType,
+    slowVehicle26                                      SlowVehicleSubCauseCode,
+    dangerousEndOfQueue27                              DangerousEndOfQueueSubCauseCode,
+    reserved28                                         SubCauseCodeType,
+    reserved29                                         SubCauseCodeType,
+    reserved30                                         SubCauseCodeType,
+    reserved31                                         SubCauseCodeType,
+    reserved32                                         SubCauseCodeType,
+    reserved33                                         SubCauseCodeType,
+    reserved34                                         SubCauseCodeType,
+    reserved35                                         SubCauseCodeType,
+    reserved36                                         SubCauseCodeType,
+    reserved37                                         SubCauseCodeType,
+    reserved38                                         SubCauseCodeType,
+    reserved39                                         SubCauseCodeType,
+    reserved40                                         SubCauseCodeType,
+    reserved41                                         SubCauseCodeType,
+    reserved42                                         SubCauseCodeType,
+    reserved43                                         SubCauseCodeType,
+    reserved44                                         SubCauseCodeType,
+    reserved45                                         SubCauseCodeType,
+    reserved46                                         SubCauseCodeType,
+    reserved47                                         SubCauseCodeType,
+    reserved48                                         SubCauseCodeType,
+    reserved49                                         SubCauseCodeType,
+    reserved50                                         SubCauseCodeType,
+    reserved51                                         SubCauseCodeType,
+    reserved52                                         SubCauseCodeType,
+    reserved53                                         SubCauseCodeType,
+    reserved54                                         SubCauseCodeType,
+    reserved55                                         SubCauseCodeType,
+    reserved56                                         SubCauseCodeType,
+    reserved57                                         SubCauseCodeType,
+    reserved58                                         SubCauseCodeType,   
+    reserved59                                         SubCauseCodeType, 
+    reserved60                                         SubCauseCodeType,
+    reserved61                                         SubCauseCodeType,
+    reserved62                                         SubCauseCodeType,
+    reserved63                                         SubCauseCodeType,
+    reserved64                                         SubCauseCodeType,
+    reserved65                                         SubCauseCodeType,
+    reserved66                                         SubCauseCodeType,    
+    reserved67                                         SubCauseCodeType,
+    reserved68                                         SubCauseCodeType,
+    reserved69                                         SubCauseCodeType,
+    reserved70                                         SubCauseCodeType,
+    reserved71                                         SubCauseCodeType,
+    reserved72                                         SubCauseCodeType,
+    reserved73                                         SubCauseCodeType,
+    reserved74                                         SubCauseCodeType,
+    reserved75                                         SubCauseCodeType,
+    reserved76                                         SubCauseCodeType,
+    reserved77                                         SubCauseCodeType,
+    reserved78                                         SubCauseCodeType,
+    reserved79                                         SubCauseCodeType,
+    reserved80                                         SubCauseCodeType,
+    reserved81                                         SubCauseCodeType,
+    reserved82                                         SubCauseCodeType,
+    reserved83                                         SubCauseCodeType,
+    reserved84                                         SubCauseCodeType,
+    reserved85                                         SubCauseCodeType,
+    reserved86                                         SubCauseCodeType,
+    reserved87                                         SubCauseCodeType,
+    reserved88                                         SubCauseCodeType,
+    reserved89                                         SubCauseCodeType,
+    reserved90                                         SubCauseCodeType,
+    vehicleBreakdown91                                 VehicleBreakdownSubCauseCode,
+    postCrash92                                        PostCrashSubCauseCode,
+    humanProblem93                                     HumanProblemSubCauseCode,
+    stationaryVehicle94                                StationaryVehicleSubCauseCode,
+    emergencyVehicleApproaching95                      EmergencyVehicleApproachingSubCauseCode,
+    hazardousLocation-DangerousCurve96                 HazardousLocation-DangerousCurveSubCauseCode,
+    collisionRisk97                                    CollisionRiskSubCauseCode,
+    signalViolation98                                  SignalViolationSubCauseCode,
+    dangerousSituation99                               DangerousSituationSubCauseCode,
+    railwayLevelCrossing100                            RailwayLevelCrossingSubCauseCode,
+    reserved101                                        SubCauseCodeType,
+    reserved102                                        SubCauseCodeType,
+    reserved103                                        SubCauseCodeType,
+    reserved104                                        SubCauseCodeType,
+    reserved105                                        SubCauseCodeType,
+    reserved106                                        SubCauseCodeType,
+    reserved107                                        SubCauseCodeType,
+    reserved108                                        SubCauseCodeType,
+    reserved109                                        SubCauseCodeType,
+    reserved110                                        SubCauseCodeType,
+    reserved111                                        SubCauseCodeType,
+    reserved112                                        SubCauseCodeType,
+    reserved113                                        SubCauseCodeType,
+    reserved114                                        SubCauseCodeType,
+    reserved115                                        SubCauseCodeType,
+    reserved116                                        SubCauseCodeType,
+    reserved117                                        SubCauseCodeType,
+    reserved118                                        SubCauseCodeType,
+    reserved119                                        SubCauseCodeType,
+    reserved120                                        SubCauseCodeType,
+    reserved121                                        SubCauseCodeType,
+    reserved122                                        SubCauseCodeType,
+    reserved123                                        SubCauseCodeType,
+    reserved124                                        SubCauseCodeType,
+    reserved125                                        SubCauseCodeType,
+    reserved126                                        SubCauseCodeType,
+    reserved127                                        SubCauseCodeType,
+    reserved128                                        SubCauseCodeType
+  }
+
+CauseCodeV2 ::= SEQUENCE {
+    ccAndScc    CauseCodeChoice,
+    ...
+}
+
+CenDsrcTollingZone ::= SEQUENCE {
+    protectedZoneLatitude     Latitude,
+    protectedZoneLongitude    Longitude,
+    cenDsrcTollingZoneId      ProtectedZoneId OPTIONAL,
+    ...
+}
+
+CircularShape ::= SEQUENCE {
+    shapeReferencePoint    CartesianPosition3d OPTIONAL,
+    radius                 StandardLength12b,
+    height                 StandardLength12b OPTIONAL
+}
+
+ClosedLanes ::= SEQUENCE {
+    innerhardShoulderStatus    HardShoulderStatus OPTIONAL,
+    outerhardShoulderStatus    HardShoulderStatus OPTIONAL,
+    drivingLaneStatus          DrivingLaneStatus OPTIONAL,
+    ...
+}
+
+ClusterBreakupInfo ::= SEQUENCE {
+    clusterBreakupReason    ClusterBreakupReason,
+    breakupTime             DeltaTimeQuarterSecond,
+    ...
+}
+
+ClusterJoinInfo ::= SEQUENCE {
+    clusterId    Identifier1B,
+    joinTime     DeltaTimeQuarterSecond,
+    ...
+}
+
+ClusterLeaveInfo ::= SEQUENCE {
+    clusterId             Identifier1B,
+    clusterLeaveReason    ClusterLeaveReason,
+    ...
+}
+
+CorrelationColumn ::= SEQUENCE SIZE (1..13,...) OF CorrelationCellValue  
+
+Curvature ::= SEQUENCE {
+    curvatureValue         CurvatureValue,
+    curvatureConfidence    CurvatureConfidence
+}
+
+DangerousGoodsExtended ::= SEQUENCE {
+    dangerousGoodsType      DangerousGoodsBasic,
+    unNumber                INTEGER (0..9999),
+    elevatedTemperature     BOOLEAN,
+    tunnelsRestricted       BOOLEAN,
+    limitedQuantity         BOOLEAN,
+    emergencyActionCode     IA5String (SIZE (1..24)) OPTIONAL,
+    phoneNumber             PhoneNumber OPTIONAL,
+    companyName             UTF8String (SIZE (1..24)) OPTIONAL,
+    ...
+}
+
+DeltaReferencePosition ::= SEQUENCE {
+    deltaLatitude     DeltaLatitude,
+    deltaLongitude    DeltaLongitude,
+    deltaAltitude     DeltaAltitude
+}
+
+DigitalMap ::= SEQUENCE (SIZE(1..256)) OF ReferencePosition 
+
+EllipticalShape  ::= SEQUENCE {
+    shapeReferencePoint    CartesianPosition3d OPTIONAL,
+    semiMajorAxisLength    StandardLength12b,
+    semiMinorAxisLength    StandardLength12b,
+    orientation            Wgs84AngleValue OPTIONAL,
+    height                 StandardLength12b OPTIONAL
+}
+
+EulerAnglesWithConfidence ::= SEQUENCE {
+    zAngle CartesianAngle,
+    yAngle CartesianAngle OPTIONAL,
+    xAngle CartesianAngle OPTIONAL
+}
+
+EuVehicleCategoryCode ::= CHOICE {
+	euVehicleCategoryL    EuVehicleCategoryL,  
+	euVehicleCategoryM    EuVehicleCategoryM,  
+	euVehicleCategoryN    EuVehicleCategoryN,   
+	euVehicleCategoryO    EuVehicleCategoryO,   
+	euVehicleCategoryT    NULL,
+	euVehicleCategoryG    NULL    
+	}
+
+EventHistory::= SEQUENCE (SIZE(1..23)) OF EventPoint
+
+EventPoint ::= SEQUENCE {
+    eventPosition         DeltaReferencePosition,
+    eventDeltaTime        PathDeltaTime OPTIONAL,
+    informationQuality    InformationQuality
+}
+
+EventZone::= EventHistory
+   ((WITH COMPONENT (WITH COMPONENTS {..., eventDeltaTime PRESENT})) |
+    (WITH COMPONENT (WITH COMPONENTS {..., eventDeltaTime ABSENT})))
+
+GeneralizedLanePosition::= CHOICE {
+    trafficLanePosition       LanePosition,
+    nonTrafficLanePosition    LanePositionAndType,
+    trafficIslandPosition     TrafficIslandPosition,
+    mapPosition               MapPosition,
+    ...
+}	
+
+Heading ::= SEQUENCE {
+    headingValue         HeadingValue,
+    headingConfidence    HeadingConfidence
+}
+
+
+HeadingChangeIndication ::= SEQUENCE {
+    direction          TurningDirection,
+    actionDeltaTime    DeltaTimeTenthOfSecond,
+    ...
+}
+
+InterferenceManagementChannel ::= SEQUENCE {
+    centreFrequency    INTEGER (1 .. 99999),
+    channelWidth       INTEGER (0 .. 9999),
+    exponent           INTEGER (0 .. 15) 
+}
+
+InterferenceManagementZone ::= SEQUENCE {
+	zoneDefinition    InterferenceManagementZoneDefinition,
+	managementInfo    InterferenceManagementInfo
+}
+
+InterferenceManagementZoneDefinition::= SEQUENCE{     
+    interferenceManagementZoneLatitude     Latitude, 
+    interferenceManagementZoneLongitude    Longitude, 
+    interferenceManagementZoneId           ProtectedZoneId OPTIONAL,
+    interferenceManagementZoneShape        Shape (WITH COMPONENTS{..., radial ABSENT, radialShapes ABSENT}) OPTIONAL,
+    ...
+}
+
+InterferenceManagementInfo::= SEQUENCE (SIZE(1..16,...)) OF InterferenceManagementInfoPerChannel
+
+
+InterferenceManagementInfoPerChannel ::= SEQUENCE {
+    interferenceManagementChannel           InterferenceManagementChannel,
+    interferenceManagementZoneType          InterferenceManagementZoneType,
+    interferenceManagementMitigationType    MitigationForTechnologies OPTIONAL,
+    expiryTime                              TimestampIts OPTIONAL, 
+    ...
+}
+
+InterferenceManagementZones ::= SEQUENCE (SIZE(1..16), ...) OF InterferenceManagementZone
+
+IntersectionReferenceId ::= SEQUENCE {
+    region    Identifier2B OPTIONAL,
+    id        Identifier2B
+}
+
+ItineraryPath ::= SEQUENCE SIZE(1..40) OF ReferencePosition
+
+ProtocolVersion ::= INTEGER(0..255)
+
+ItsPduHeader ::= SEQUENCE {
+--    protocolVersion    OrdinalNumber1B,
+    protocolVersion    ProtocolVersion,
+    messageId          MessageId,
+    stationId          StationId
+}
+
+LanePositionAndType::= SEQUENCE {
+    transversalPosition    LanePosition,
+    laneType               LaneType,
+    ...
+}
+
+LateralAcceleration ::= SEQUENCE {
+    lateralAccelerationValue         LateralAccelerationValue,
+    lateralAccelerationConfidence    AccelerationConfidence
+}
+
+LongitudinalAcceleration ::= SEQUENCE {
+    longitudinalAccelerationValue         LongitudinalAccelerationValue,
+    longitudinalAccelerationConfidence    AccelerationConfidence
+}
+
+LongitudinalLanePosition ::= SEQUENCE {
+    longitudinalLanePositionValue         LongitudinalLanePositionValue,
+    longitudinalLanePositionConfidence    LongitudinalLanePositionConfidence
+}
+
+LowerTriangularPositiveSemidefiniteMatrices::= SEQUENCE SIZE (1..4) OF LowerTriangularPositiveSemidefiniteMatrix
+
+LowerTriangularPositiveSemidefiniteMatrix ::= SEQUENCE{
+    componentsIncludedIntheMatrix   MatrixIncludedComponents,
+    matrix                          LowerTriangularPositiveSemidefiniteMatrixColumns
+}
+
+LowerTriangularPositiveSemidefiniteMatrixColumns ::= SEQUENCE SIZE (1..13) OF CorrelationColumn
+
+MapPosition ::= SEQUENCE {
+    mapReference                MapReference OPTIONAL,
+    laneId                      Identifier1B OPTIONAL,
+    connectionId                Identifier1B OPTIONAL, 
+    longitudinalLanePosition    LongitudinalLanePosition OPTIONAL,
+    ...
+}
+   ((WITH COMPONENTS {..., laneId PRESENT, connectionId ABSENT }) |
+    (WITH COMPONENTS {..., laneId ABSENT, connectionId PRESENT }))
+
+MapReference::= CHOICE {
+	roadsegment     RoadSegmentReferenceId,
+	intersection    IntersectionReferenceId
+	}
+
+MessageRateHz::= SEQUENCE {
+    mantissa    INTEGER (1..100),
+    exponent    INTEGER (-5..2)
+    }
+
+MessageSegmentationInfo ::= SEQUENCE {
+    totalMsgNo  CardinalNumber3b,
+    thisMsgNo   OrdinalNumber3b
+    }
+
+MitigationForTechnologies ::= SEQUENCE (SIZE(1..8)) OF MitigationPerTechnologyClass 
+
+MitigationPerTechnologyClass ::= SEQUENCE {
+   accessTechnologyClass    AccessTechnologyClass, 
+   lowDutyCycle             INTEGER (0 .. 10000) OPTIONAL, 
+   powerReduction           INTEGER (0 .. 30) OPTIONAL,
+   dmcToffLimit             INTEGER (0 .. 1200) OPTIONAL,   
+   dmcTonLimit              INTEGER (0 .. 20) OPTIONAL,   
+   ...
+}
+
+ObjectClass ::= CHOICE {
+    vehicleSubClass      TrafficParticipantType (unknown|passengerCar..tram|agricultural),
+    vruSubClass          VruProfileAndSubprofile,
+    groupSubClass        VruClusterInformation (WITH COMPONENTS{..., clusterBoundingBoxShape ABSENT}),
+    otherSubClass        OtherSubClass,
+    ...
+}
+
+ObjectClassDescription ::= SEQUENCE (SIZE(1..8)) OF ObjectClassWithConfidence
+
+ObjectClassWithConfidence ::= SEQUENCE {
+    objectClass    ObjectClass,
+    confidence     ConfidenceLevel
+}
+
+ObjectDimension ::= SEQUENCE {
+    value         ObjectDimensionValue,
+    confidence    ObjectDimensionConfidence
+}
+
+Path::= SEQUENCE (SIZE(0..40)) OF PathPoint
+
+PathHistory::= SEQUENCE (SIZE(40)) OF PathPoint
+
+PathPredicted::= SEQUENCE (SIZE(0..15,...)) OF PathPointPredicted
+
+PathPoint ::= SEQUENCE {
+    pathPosition     DeltaReferencePosition,
+    pathDeltaTime    PathDeltaTime OPTIONAL
+}
+
+PathPointPredicted::= SEQUENCE {
+  deltaLatitude                 DeltaLatitude,      
+  deltaLongitude                DeltaLongitude, 
+  horizontalPositionConfidence  PosConfidenceEllipse OPTIONAL,   
+  deltaAltitude                 DeltaAltitude DEFAULT unavailable, 
+  altitudeConfidence            AltitudeConfidence DEFAULT unavailable,
+  pathDeltaTime                 DeltaTimeTenthOfSecond,
+  ... 
+}
+
+PerceivedObject ::= SEQUENCE {
+    objectId                                          Identifier2B OPTIONAL,
+    measurementDeltaTime                              DeltaTimeMilliSecondSigned,
+    position                                          CartesianPosition3dWithConfidence, 
+    velocity                                          Velocity3dWithConfidence OPTIONAL,
+    acceleration                                      Acceleration3dWithConfidence OPTIONAL,
+    angles                                            EulerAnglesWithConfidence OPTIONAL,
+    zAngularVelocity                                  CartesianAngularVelocityComponent OPTIONAL,
+    lowerTriangularCorrelationMatrices                LowerTriangularPositiveSemidefiniteMatrices OPTIONAL,
+    objectDimensionZ                                  ObjectDimension OPTIONAL,
+    objectDimensionY                                  ObjectDimension OPTIONAL,
+    objectDimensionX                                  ObjectDimension OPTIONAL,
+    objectAge                                         DeltaTimeMilliSecondSigned (0..2047) OPTIONAL,
+    objectPerceptionQuality                           ObjectPerceptionQuality OPTIONAL,
+    sensorIdList                                      SequenceOfIdentifier1B OPTIONAL,
+    classification                                    ObjectClassDescription OPTIONAL,
+    mapPosition                                       MapPosition OPTIONAL,
+    ...
+}
+
+PolygonalShape ::= SEQUENCE {
+   shapeReferencePoint    CartesianPosition3d OPTIONAL,
+   polygon                SequenceOfCartesianPosition3d (SIZE(3..16,...)),
+   height                 StandardLength12b OPTIONAL
+}
+
+PosConfidenceEllipse ::= SEQUENCE {
+    semiMajorConfidence     SemiAxisLength,
+    semiMinorConfidence     SemiAxisLength,
+    semiMajorOrientation    HeadingValue
+}
+
+PositionConfidenceEllipse ::= SEQUENCE {
+    semiMajorAxisLength         SemiAxisLength,
+    semiMinorAxisLength         SemiAxisLength,
+    semiMajorAxisOrientation    Wgs84AngleValue
+}
+
+PositionOfPillars ::= SEQUENCE (SIZE(1..3, ...)) OF PosPillar
+
+ProtectedCommunicationZone ::= SEQUENCE {
+    protectedZoneType         ProtectedZoneType,
+    expiryTime                TimestampIts OPTIONAL,
+    protectedZoneLatitude     Latitude,
+    protectedZoneLongitude    Longitude,
+    protectedZoneRadius       ProtectedZoneRadius OPTIONAL,
+    protectedZoneId           ProtectedZoneId OPTIONAL,
+    ...
+}
+
+ProtectedCommunicationZonesRSU ::= SEQUENCE (SIZE(1..16)) OF ProtectedCommunicationZone 
+
+PtActivation ::= SEQUENCE {
+    ptActivationType    PtActivationType,
+    ptActivationData    PtActivationData
+}
+
+RadialShape ::= SEQUENCE { 
+    shapeReferencePoint                      CartesianPosition3d OPTIONAL,
+    range                                    StandardLength12b,
+    stationaryHorizontalOpeningAngleStart    Wgs84AngleValue, 
+    stationaryHorizontalOpeningAngleEnd      Wgs84AngleValue, 
+    verticalOpeningAngleStart                CartesianAngleValue OPTIONAL,
+    verticalOpeningAngleEnd                  CartesianAngleValue OPTIONAL
+}
+
+
+RadialShapes ::= SEQUENCE {
+    refPointId          Identifier1B,
+    xCoordinate         CartesianCoordinateSmall, 
+    yCoordinate         CartesianCoordinateSmall,
+    zCoordinate         CartesianCoordinateSmall OPTIONAL,
+    radialShapesList    RadialShapesList
+}
+
+RadialShapesList ::= SEQUENCE SIZE(1..16,...) OF RadialShapeDetails
+
+RadialShapeDetails ::= SEQUENCE {
+    range                          StandardLength12b,
+    horizontalOpeningAngleStart    CartesianAngleValue,
+    horizontalOpeningAngleEnd      CartesianAngleValue,
+    verticalOpeningAngleStart      CartesianAngleValue OPTIONAL,
+    verticalOpeningAngleEnd        CartesianAngleValue OPTIONAL
+}
+
+RectangularShape ::= SEQUENCE { 
+    centerPoint    CartesianPosition3d OPTIONAL,
+    semiLength     StandardLength12b,
+    semiBreadth    StandardLength12b,
+    orientation    Wgs84AngleValue OPTIONAL,
+    height         StandardLength12b OPTIONAL
+}
+
+ReferencePosition ::= SEQUENCE {
+    latitude                     Latitude,
+    longitude                    Longitude,
+    positionConfidenceEllipse    PosConfidenceEllipse,
+    altitude                     Altitude
+}
+
+ReferencePositionWithConfidence ::= SEQUENCE {
+    latitude                     Latitude,
+    longitude                    Longitude,
+    positionConfidenceEllipse    PositionConfidenceEllipse,
+    altitude                     Altitude
+}
+
+RestrictedTypes ::= SEQUENCE (SIZE(1..3, ...)) OF StationType
+
+RoadSegmentReferenceId ::= SEQUENCE {
+    region    Identifier2B OPTIONAL,
+    id        Identifier2B
+}
+
+SafeDistanceIndication ::= SEQUENCE {
+    subjectStation           StationId OPTIONAL,
+    safeDistanceIndicator    SafeDistanceIndicator,
+    timeToCollision          DeltaTimeTenthOfSecond OPTIONAL,
+    ...
+}
+
+SequenceOfCartesianPosition3d ::= SEQUENCE (SIZE(1..16, ...)) OF CartesianPosition3d
+
+SequenceOfIdentifier1B ::= SEQUENCE SIZE(1..128, ...) OF Identifier1B
+
+SequenceOfSafeDistanceIndication ::= SEQUENCE(SIZE(1..8,...)) OF SafeDistanceIndication
+
+SequenceOfTrajectoryInterceptionIndication ::=  SEQUENCE (SIZE(1..8,...)) OF TrajectoryInterceptionIndication
+
+Shape::= CHOICE {
+   rectangular       RectangularShape,
+   circular          CircularShape, 
+   polygonal         PolygonalShape,
+   elliptical        EllipticalShape,
+   radial            RadialShape,
+   radialShapes      RadialShapes,
+   ...
+}
+
+Speed ::= SEQUENCE {
+    speedValue         SpeedValue,
+    speedConfidence    SpeedConfidence
+}
+
+StabilityChangeIndication ::= SEQUENCE {
+    lossProbability     StabilityLossProbability,
+    actionDeltaTime     DeltaTimeTenthOfSecond,
+    ...
+}
+
+SteeringWheelAngle ::= SEQUENCE {
+    steeringWheelAngleValue         SteeringWheelAngleValue,
+    steeringWheelAngleConfidence    SteeringWheelAngleConfidence
+}
+
+Traces ::= SEQUENCE SIZE(1..7) OF Path
+
+TrafficIslandPosition ::= SEQUENCE {
+    oneSide      LanePositionAndType,
+    otherSide    LanePositionAndType,
+    ...
+}
+
+TrailerData ::= SEQUENCE { 
+    refPointId          Identifier1B,
+    hitchPointOffset    StandardLength1B, 
+    frontOverhang       StandardLength1B OPTIONAL, 
+    rearOverhang        StandardLength1B OPTIONAL, 
+    trailerWidth        VehicleWidth OPTIONAL,
+    hitchAngle          CartesianAngle,
+    ...
+}
+
+TrajectoryInterceptionIndication  ::= SEQUENCE {
+   subjectStation                     StationId OPTIONAL, 
+   trajectoryInterceptionProbability  TrajectoryInterceptionProbability,
+   trajectoryInterceptionConfidence   TrajectoryInterceptionConfidence OPTIONAL,
+        ... 
+}
+
+VarLengthNumber::=CHOICE{
+	content	    [0] INTEGER(0..127), -- one octet length
+	extension	[1]	Ext1
+	}
+Ext1::=CHOICE{
+	content	    [0]	INTEGER(128..16511), -- two octets length
+	extension	[1]	Ext2
+}
+Ext2::=CHOICE{
+	content	    [0]	INTEGER(16512..2113663), -- three octets length
+	extension	[1]	Ext3
+	}
+Ext3::= INTEGER(2113664..270549119,...) -- four and more octets length
+
+VerticalAcceleration ::= SEQUENCE {
+    verticalAccelerationValue         VerticalAccelerationValue,
+    verticalAccelerationConfidence    AccelerationConfidence
+}
+
+VehicleIdentification ::= SEQUENCE {
+    wMInumber    WMInumber OPTIONAL,
+    vDS          VDS OPTIONAL,
+    ...
+}
+
+VehicleLength ::= SEQUENCE {
+    vehicleLengthValue                   VehicleLengthValue,
+    vehicleLengthConfidenceIndication    VehicleLengthConfidenceIndication
+}
+
+VehicleLengthV2 ::= SEQUENCE {
+    vehicleLengthValue            VehicleLengthValue,
+    trailerPresenceInformation    TrailerPresenceInformation
+}
+
+Velocity3dWithConfidence::= CHOICE{
+    polarVelocity          VelocityPolarWithZ, 
+    cartesianVelocity      VelocityCartesian
+}
+
+VelocityCartesian::= SEQUENCE {
+    xVelocity   VelocityComponent,
+    yVelocity   VelocityComponent,
+    zVelocity   VelocityComponent OPTIONAL
+}
+
+VelocityComponent ::= SEQUENCE {
+    value         VelocityComponentValue,
+    confidence    SpeedConfidence
+}
+
+VelocityPolarWithZ::= SEQUENCE {
+    velocityMagnitude    Speed, 
+    velocityDirection    CartesianAngle,
+    zVelocity            VelocityComponent OPTIONAL
+}
+
+VruClusterInformation ::= SEQUENCE { 
+   clusterId                  Identifier1B OPTIONAL,
+   clusterBoundingBoxShape    Shape (WITH COMPONENTS{..., elliptical ABSENT, radial ABSENT, radialShapes ABSENT}) OPTIONAL,
+   clusterCardinalitySize     CardinalNumber1B,
+   clusterProfiles            VruClusterProfiles OPTIONAL,
+   ...
+}
+
+VruExteriorLights ::= SEQUENCE {
+   vehicular      ExteriorLights, 
+   vruSpecific    VruSpecificExteriorLights,
+   ...
+}
+
+VruProfileAndSubprofile ::= CHOICE {
+   pedestrian                     VruSubProfilePedestrian,
+   bicyclistAndLightVruVehicle    VruSubProfileBicyclist,
+   motorcyclist                   VruSubProfileMotorcyclist,
+   animal                         VruSubProfileAnimal,
+   ...
+}
+
+Wgs84Angle ::= SEQUENCE {
+    value         Wgs84AngleValue,
+    confidence    Wgs84AngleConfidence
+}
+
+
+YawRate::= SEQUENCE {
+    yawRateValue         YawRateValue,
+    yawRateConfidence    YawRateConfidence
+}
+
+------------------------------------------
+END
+

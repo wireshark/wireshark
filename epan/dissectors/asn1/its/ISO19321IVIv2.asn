@@ -15,17 +15,19 @@ DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 IMPORTS
 
-ActionID, Altitude, DangerousGoodsBasic , DeltaLatitude, DeltaLongitude, DeltaReferencePosition, Heading, HeadingValue, Latitude, LanePosition, Longitude, ReferencePosition, RoadType, SpecialTransportType, Speed, SpeedValue, StationType, TimestampIts, VehicleRole
-FROM ITS-Container {  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2) }
+ActionID, Altitude, DangerousGoodsBasic , DeltaLatitude, DeltaLongitude, DeltaReferencePosition, Heading, HeadingValue, Latitude, LanePosition, Longitude,
+ReferencePosition, RoadType, SpecialTransportType, Speed, SpeedValue, StationType, TimestampIts, VehicleRole, VarLengthNumber, EuVehicleCategoryCode, Iso3833VehicleType
+FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1)}
 
 AxleWeightLimits, DieselEmissionValues, ExhaustEmissionValues, EngineCharacteristics, EnvironmentalCharacteristics, PassengerCapacity , Provider, SoundLevel, VehicleDimensions,  VehicleWeightLimits 
 FROM EfcDsrcApplication {iso(1) standard(0) 14906 application(0) version6(6)}
 
-EuVehicleCategoryCode, Iso3833VehicleType
-FROM ElectronicRegistrationIdentificationVehicleDataModule {iso(1) standard(0) iso24534 (24534) vehicleData (1) version1 (1)}
+--EuVehicleCategoryCode,
+--Iso3833VehicleType
+--FROM ElectronicRegistrationIdentificationVehicleDataModule {iso(1) standard(0) iso24534 (24534) vehicleData (1) version1 (1)}
 
-VarLengthNumber
-FROM CITSapplMgmtIDs {iso(1) standard(0) cits-applMgmt (17419) dataDictionary (1) version1 (1)} 
+--VarLengthNumber use ETSI-ITS-CDD instead
+--FROM CITSapplMgmtIDs {iso(1) standard(0) cits-applMgmt (17419) dataDictionary (1) version1 (1)} 
 
 RoadSegmentReferenceID, IntersectionReferenceID, LaneID 
 FROM DSRC {iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version2 (2)}

@@ -1,21 +1,24 @@
 --
 -- https://www.etsi.org/deliver/etsi_en/302600_302699/30263703/01.03.00_20/en_30263703v010300a.pdf
-DENM-PDU-Descriptions {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en
+DENMv1-PDU-Descriptions {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en
 (302637) denm (1) version (2)
 }
     DEFINITIONS AUTOMATIC TAGS ::=
     BEGIN
     IMPORTS
-    ItsPduHeader, CauseCode, Speed, InformationQuality, ReferencePosition, ClosedLanes,
+        -- Wireshark modification
+    CauseCode,
+    ItsPduHeader, Speed, InformationQuality, ReferencePosition, ClosedLanes,
     DangerousGoodsExtended, Heading, LanePosition, LightBarSirenInUse, RoadType, HeightLonCarr,
     PosLonCarr, PosCentMass, PositioningSolutionType, RequestResponseIndication, StationType,
     SpeedLimit, StationarySince, TimestampIts, WheelBaseVehicle, TurningRadius, PosFrontAx,
     PositionOfOccupants, Temperature, VehicleMass, VehicleIdentification, EnergyStorageType, ActionID,
     ItineraryPath, NumberOfOccupants, PositionOfPillars, RelevanceTrafficDirection, RestrictedTypes,
     Traces, TransmissionInterval, ValidityDuration, RelevanceDistance, EventHistory, TrafficRule,
-    DeltaReferencePosition FROM ITS-Container {
-    itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2)
-    };
+    DeltaReferencePosition
+    FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1)}
+    ;
+
     DENM ::= SEQUENCE {
      header ItsPduHeader,
      denm DecentralizedEnvironmentalNotificationMessage

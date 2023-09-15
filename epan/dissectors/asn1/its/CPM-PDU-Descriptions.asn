@@ -11,525 +11,98 @@
 --
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-CPM-PDU-Descriptions {
-itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) tr (103562) cpm (1) version (1)
-}
+CPM-PDU-Descriptions { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103324) cpm (1) major-version-1 (1) minor-version-1(1)}
 
 DEFINITIONS AUTOMATIC TAGS ::=
+
 BEGIN
 
 IMPORTS
 
-ItsPduHeader, Heading, ReferencePosition, Speed, DriveDirection, LongitudinalAcceleration,
-LateralAcceleration, VerticalAcceleration, StationType, VehicleLength, VehicleWidth, YawRate,
-SpeedConfidence
-FROM ITS-Container {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2) }
+ItsPduHeader, MessageRateHz, MessageSegmentationInfo, OrdinalNumber1B,  ReferencePosition, StationType, TimestampIts
+FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) major-version-3 (3) minor-version-1 (1)}
+--WITH SUCCESSORS
 
-IntersectionReferenceID, LaneID, NodeOffsetPointXY, Offset-B10, Offset-B11, Offset-B12, Offset-B13, 
-Offset-B14, Offset-B16, RoadSegmentReferenceID, VehicleHeight
-FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version2 (2) }
+OriginatingRsuContainer, OriginatingVehicleContainer
+FROM CPM-OriginatingStationContainers {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103324) originatingStationContainers (2) major-version-1 (1) minor-version-1(1)}
+--WITH SUCCESSORS
 
-GenerationDeltaTime
-FROM CAM-PDU-Descriptions {itu-t(0) identified-organization(4) etsi(0) itsDomain(5) wg1(1) en(302637) cam(2) version(2) } 
+SensorInformationContainer
+FROM CPM-SensorInformationContainer {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103324) sensorInformationContainer (3) major-version-1 (1) minor-version-1(1)}
+--WITH SUCCESSORS
+
+PerceptionRegionContainer
+FROM CPM-PerceptionRegionContainer {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103324) perceptionRegionContainer (5) major-version-1 (1) minor-version-1(1)}
+--WITH SUCCESSORS
+
+PerceivedObjectContainer
+FROM CPM-PerceivedObjectContainer {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103324) perceivedObjectContainer (4) major-version-1 (1) minor-version-1(1)}
+--WITH SUCCESSORS
+
 ;
 
--- The root data frame for collective perception message
-CPM ::= SEQUENCE {
-    header ItsPduHeader,
-    cpm CollectivePerceptionMessage
-}
-
 CollectivePerceptionMessage ::= SEQUENCE {
-    generationDeltaTime GenerationDeltaTime,
-    cpmParameters CpmParameters
+    header     ItsPduHeader (WITH COMPONENTS {... , protocolVersion (2), messageId(cpm)}),
+    payload    CpmPayload
 }
 
-CpmParameters ::= SEQUENCE {
-    managementContainer CpmManagementContainer,
-    stationDataContainer StationDataContainer OPTIONAL,
-    sensorInformationContainer SensorInformationContainer OPTIONAL,
-    perceivedObjectContainer PerceivedObjectContainer OPTIONAL,
-    freeSpaceAddendumContainer FreeSpaceAddendumContainer OPTIONAL,
-    numberOfPerceivedObjects NumberOfPerceivedObjects,
+CpmPayload ::= SEQUENCE {
+    managementContainer   ManagementContainer,
+    cpmContainers         ConstraintWrappedCpmContainers,
     ...
 }
 
-CpmManagementContainer ::= SEQUENCE {
-    stationType StationType,
-    perceivedObjectContainerSegmentInfo PerceivedObjectContainerSegmentInfo OPTIONAL,
-    referencePosition ReferencePosition,
+ManagementContainer ::= SEQUENCE {
+    referenceTime      TimestampIts,
+    referencePosition  ReferencePosition,
+    segmentationInfo   MessageSegmentationInfo OPTIONAL,
+    messageRateRange   MessageRateRange OPTIONAL,
     ...
 }
 
-StationDataContainer ::= CHOICE {
-    originatingVehicleContainer OriginatingVehicleContainer,
-    originatingRSUContainer OriginatingRSUContainer,
+
+CPM-CONTAINER-ID-AND-TYPE ::= CLASS {
+    &id     CpmContainerId UNIQUE,
+    &Type
+} WITH SYNTAX {&Type IDENTIFIED BY &id}
+
+CpmContainerId ::= INTEGER (1..16)
+
+originatingVehicleContainer CpmContainerId ::= 1
+originatingRsuContainer CpmContainerId ::= 2
+sensorInformationContainer CpmContainerId ::= 3
+perceptionRegionContainer CpmContainerId ::= 4
+perceivedObjectContainer CpmContainerId ::= 5
+
+
+CpmContainers CPM-CONTAINER-ID-AND-TYPE ::= {
+    {OriginatingVehicleContainer IDENTIFIED BY originatingVehicleContainer} |
+    {OriginatingRsuContainer IDENTIFIED BY originatingRsuContainer} |
+    {SensorInformationContainer IDENTIFIED BY sensorInformationContainer} |
+    {PerceptionRegionContainer IDENTIFIED BY perceptionRegionContainer} |
+    {PerceivedObjectContainer IDENTIFIED BY perceivedObjectContainer},
     ...
 }
 
-OriginatingVehicleContainer ::= SEQUENCE {
-    heading Heading,
-    speed Speed,
-    vehicleOrientationAngle WGS84Angle OPTIONAL,
-    driveDirection DriveDirection DEFAULT forward,
-    longitudinalAcceleration LongitudinalAcceleration OPTIONAL,
-    lateralAcceleration LateralAcceleration OPTIONAL,
-    verticalAcceleration VerticalAcceleration OPTIONAL,
-    yawRate YawRate OPTIONAL,
-    pitchAngle CartesianAngle OPTIONAL,
-    rollAngle CartesianAngle OPTIONAL,
-    vehicleLength VehicleLength OPTIONAL,
-    vehicleWidth VehicleWidth OPTIONAL,
-    vehicleHeight VehicleHeight OPTIONAL,
-    trailerDataContainer TrailerDataContainer OPTIONAL,
-    ...
+WrappedCpmContainer ::= SEQUENCE {
+   containerId     CPM-CONTAINER-ID-AND-TYPE.&id( {CpmContainers} ),
+   containerData   CPM-CONTAINER-ID-AND-TYPE.&Type( {CpmContainers}{@containerId} )
 }
 
-OriginatingRSUContainer ::= CHOICE {
-    intersectionReferenceId IntersectionReferenceID,
-    roadSegmentReferenceId RoadSegmentReferenceID,
-    ...
+
+WrappedCpmContainers::= SEQUENCE SIZE(1..8,...) OF WrappedCpmContainer 
+
+ConstraintWrappedCpmContainers ::= WrappedCpmContainers
+--    ((WITH COMPONENT (WITH COMPONENTS {..., containerId (ALL EXCEPT 1)})) |
+--    (WITH COMPONENT (WITH COMPONENTS {..., containerId (ALL EXCEPT 2)})))
+-- ALL did not work...
+    ((WITH COMPONENT (WITH COMPONENTS {..., containerId })) |
+    (WITH COMPONENT (WITH COMPONENTS {..., containerId })))
+
+MessageRateRange::= SEQUENCE{
+   messageRateMin   MessageRateHz,
+   messageRateMax   MessageRateHz
 }
-
-SensorInformationContainer ::= SEQUENCE SIZE(1..128, ...) OF SensorInformation
-
-SensorInformation ::= SEQUENCE {
-    sensorID Identifier,
-    type SensorType,
-    detectionArea DetectionArea,
-    freeSpaceConfidence FreeSpaceConfidence OPTIONAL,
-    ...
-}
-
-PerceivedObjectContainer ::= SEQUENCE SIZE(1..128, ...) OF PerceivedObject
-
-PerceivedObject ::= SEQUENCE {
-    objectID Identifier,
-    sensorIDList SensorIdList OPTIONAL,
-    timeOfMeasurement TimeOfMeasurement,
-    objectAge ObjectAge OPTIONAL,
-    objectConfidence ObjectConfidence DEFAULT 0,
-    xDistance ObjectDistanceWithConfidence,
-    yDistance ObjectDistanceWithConfidence,
-    zDistance ObjectDistanceWithConfidence OPTIONAL,
-    xSpeed SpeedExtended,
-    ySpeed SpeedExtended,
-    zSpeed SpeedExtended OPTIONAL,
-    xAcceleration LongitudinalAcceleration OPTIONAL,
-    yAcceleration LateralAcceleration OPTIONAL,
-    zAcceleration VerticalAcceleration OPTIONAL,
-    yawAngle CartesianAngle OPTIONAL,
-    planarObjectDimension1 ObjectDimension OPTIONAL,
-    planarObjectDimension2 ObjectDimension OPTIONAL,
-    verticalObjectDimension ObjectDimension OPTIONAL,
-    objectRefPoint ObjectRefPoint DEFAULT 0,
-    dynamicStatus DynamicStatus OPTIONAL,
-    classification ObjectClassDescription OPTIONAL,
-    matchedPosition MatchedPosition OPTIONAL,
-    ...
-}
-
-DetectionArea ::= CHOICE {
-    vehicleSensor VehicleSensor,
-    stationarySensorRadial AreaRadial,
-    stationarySensorPolygon AreaPolygon,
-    stationarySensorCircular AreaCircular,
-    stationarySensorEllipse AreaEllipse,
-    stationarySensorRectangle AreaRectangle,
-    ...
-}
-
-VehicleSensor ::= SEQUENCE {
-    refPointId RefPointId DEFAULT 0,
-    xSensorOffset XSensorOffset,
-    ySensorOffset YSensorOffset,
-    zSensorOffset ZSensorOffset OPTIONAL,
-    vehicleSensorPropertyList VehicleSensorPropertyList,
-    ...
-}
-
-VehicleSensorPropertyList ::= SEQUENCE SIZE(1..10) OF VehicleSensorProperties
-
-VehicleSensorProperties ::= SEQUENCE {
-    range Range,
-    horizontalOpeningAngleStart CartesianAngleValue,
-    horizontalOpeningAngleEnd CartesianAngleValue,
-    verticalOpeningAngleStart CartesianAngleValue OPTIONAL,
-    verticalOpeningAngleEnd CartesianAngleValue OPTIONAL,
-    ...
-}
-
-AreaCircular ::= SEQUENCE {
-    nodeCenterPoint OffsetPoint OPTIONAL,
-    radius Radius
-}
-
-AreaEllipse ::= SEQUENCE {
-    nodeCenterPoint OffsetPoint OPTIONAL,
-    semiMinorRangeLength SemiRangeLength,
-    semiMajorRangeLength SemiRangeLength,
-    semiMajorRangeOrientation WGS84AngleValue,
-    semiHeight SemiRangeLength OPTIONAL
-}
-
-AreaRectangle ::= SEQUENCE {
-    nodeCenterPoint OffsetPoint OPTIONAL,
-    semiMajorRangeLength SemiRangeLength,
-    semiMinorRangeLength SemiRangeLength,
-    semiMajorRangeOrientation WGS84AngleValue,
-    semiHeight SemiRangeLength OPTIONAL
-}
-
-AreaPolygon ::= SEQUENCE {
-    polyPointList PolyPointList
-}
-
-PolyPointList ::= SEQUENCE (SIZE(3..16, ...)) OF OffsetPoint
-
-AreaRadial ::= SEQUENCE {
-    range Range,
-    stationaryHorizontalOpeningAngleStart WGS84AngleValue,
-    stationaryHorizontalOpeningAngleEnd WGS84AngleValue,
-    verticalOpeningAngleStart CartesianAngleValue OPTIONAL,
-    verticalOpeningAngleEnd CartesianAngleValue OPTIONAL,
-    sensorPositionOffset OffsetPoint OPTIONAL,
-    sensorHeight SensorHeight OPTIONAL,
-    ...
-}
-
-FreeSpaceAddendumContainer ::= SEQUENCE SIZE(1..128, ...) OF FreeSpaceAddendum
-
-FreeSpaceAddendum ::= SEQUENCE {
-    freeSpaceConfidence FreeSpaceConfidence,
-    freeSpaceArea FreeSpaceArea,
-    sensorIDList SensorIdList OPTIONAL,
-    shadowingApplies ShadowingApplies DEFAULT TRUE,
-    ...
-}
-
-FreeSpaceArea ::= CHOICE {
-    freeSpacePolygon AreaPolygon,
-    freeSpaceCircular AreaCircular,
-    freeSpaceEllipse AreaEllipse,
-    freeSpaceRectangle AreaRectangle,
-    ...
-}
-
-ObjectDistanceWithConfidence ::= SEQUENCE {
-    value DistanceValue,
-    confidence DistanceConfidence
-}
-
-ObjectDimension ::= SEQUENCE {
-    value ObjectDimensionValue,
-    confidence ObjectDimensionConfidence
-}
-
-CartesianAngle ::= SEQUENCE {
-    value CartesianAngleValue,
-    confidence AngleConfidence
-}
-
-WGS84Angle ::= SEQUENCE {
-    value WGS84AngleValue,
-    confidence AngleConfidence
-}
-
-SpeedExtended ::= SEQUENCE {
-    value SpeedValueExtended,
-    confidence SpeedConfidence
-}
-
-SensorIdList ::= SEQUENCE SIZE(1..128, ...) OF Identifier
-
-TrailerDataContainer ::= SEQUENCE SIZE(1..2) OF TrailerData
-
-TrailerData ::= SEQUENCE {
-    refPointId RefPointId,
-    hitchPointOffset HitchPointOffset,
-    frontOverhang FrontOverhang,
-    rearOverhang RearOverhang,
-    trailerWidth VehicleWidth OPTIONAL,
-    hitchAngle CartesianAngle OPTIONAL,
-    ...
-}
-
-LongitudinalLanePosition ::= SEQUENCE {
-    longitudinalLanePositionValue LongitudinalLanePositionValue,
-    longitudinalLanePositionConfidence LongitudinalLanePositionConfidence
-}
-
-MatchedPosition ::= SEQUENCE {
-    laneID LaneID OPTIONAL,
-    longitudinalLanePosition LongitudinalLanePosition OPTIONAL,
-    ...
-}
-
-PerceivedObjectContainerSegmentInfo ::= SEQUENCE {
-    totalMsgSegments SegmentCount,
-    thisSegmentNum SegmentCount
-}
-
-ObjectClassDescription ::= SEQUENCE (SIZE(1..8)) OF ObjectClass
-
-ObjectClass ::= SEQUENCE {
-    confidence ClassConfidence,
-    class CHOICE {
-        vehicle VehicleSubclass,
-        person PersonSubclass,
-        animal AnimalSubclass,
-        other OtherSubclass
-    }
-}
-
-VehicleSubclass ::= SEQUENCE {
-    type VehicleSubclassType DEFAULT 0,
-    confidence ClassConfidence DEFAULT 0
-}
-
-PersonSubclass ::= SEQUENCE {
-    type PersonSubclassType DEFAULT 0,
-    confidence ClassConfidence DEFAULT 0
-}
-
-AnimalSubclass ::= SEQUENCE {
-    type AnimalSubclassType DEFAULT 0,
-    confidence ClassConfidence DEFAULT 0
-}
-
-OtherSubclass ::= SEQUENCE {
-    type OtherSublassType DEFAULT 0,
-    confidence ClassConfidence DEFAULT 0
-
-}
-
-OffsetPoint ::= SEQUENCE {
-    nodeOffsetPointxy NodeOffsetPointXY (WITH COMPONENTS {..., node-LatLon ABSENT, regional ABSENT}),
-    nodeOffsetPointZ NodeOffsetPointZ OPTIONAL
-}
-
-NodeOffsetPointZ ::= CHOICE {
-    node-Z1 Offset-B10, -- node is within 5.11m of last node
-    node-Z2 Offset-B11, -- node is within 10.23m of last node
-    node-Z3 Offset-B12, -- node is within 20.47m of last node
-    node-Z4 Offset-B13, -- node is within 40.96m of last node
-    node-Z5 Offset-B14, -- node is within 81.91m of last node
-    node-Z6 Offset-B16 -- node is within 327.67m of last node
-}
-
-AnimalSubclassType ::= INTEGER {unknown(0)} (0..255)
-
-ClassConfidence ::= INTEGER {
-    unknown(0), 
-    onePercent(1), 
-    oneHundredPercent(100),
-    unavailable(101)
-} (0..101)
-
-WGS84AngleValue ::= INTEGER {
-    wgs84North(0), 
-    wgs84East(900), 
-    wgs84South(1800),
-    wgs84West(2700), 
-    unavailable(3601)
-} (0..3601)
-
-CartesianAngleValue ::= INTEGER {
-    zeroPointOneDegree(1), 
-    oneDegree(10), 
-    unavailable(3601)
-} (0..3601)
-
-AngleConfidence ::= INTEGER {
-    zeroPointOneDegree (1), 
-    oneDegree (10), 
-    outOfRange(126),
-    unavailable(127)
-} (1..127)
-
-SemiRangeLength ::= INTEGER {
-    zeroPointOneMeter(1), 
-    oneMeter(10)
-} (0..10000)
-
-DistanceValue ::= INTEGER {
-    zeroPointZeroOneMeter(1), 
-    oneMeter(100)
-} (-132768..132767)
-
-DistanceConfidence ::= INTEGER {
-    zeroPointZeroOneMeter(1), 
-    oneMeter(100), 
-    outOfRange(101),
-    unavailable(102)
-} (0..102)
-
-DynamicStatus ::= INTEGER {
-    dynamic(0), 
-    hasBeenDynamic(1), 
-    static(2)
-} (0..2)
-
-HitchPointOffset ::= INTEGER {
-    zeroPointOneMeter(1), 
-    oneMeter(10)
-} (0..100)
-
-FrontOverhang ::= INTEGER {
-    zeroPointOneMeter(1), 
-    oneMeter(10)
-} (0..50)
-
-FreeSpaceConfidence ::= INTEGER {
-    unknown(0), 
-    onePercent(1), 
-    oneHundredPercent(100),
-    unavailable(101)
-} (0..101)
-
-LongitudinalLanePositionValue ::= INTEGER {
-    zeroPointOneMeter(1)
-} (0..32767)
-
-LongitudinalLanePositionConfidence ::= INTEGER {
-    zeroPointZeroOneMeter(1), 
-    oneMeter(100),
-    outOfRange(101), 
-    unavailable(102)
-} (0..102)
-
-ObjectAge ::= INTEGER {
-    oneMiliSec(1)
-} (0..1500)
-
-ObjectConfidence ::= INTEGER {
-    unknown(0), 
-    onePercent(1), 
-    oneHundredPercent(100),
-    unavailable(101)
-} (0..101)
-
-ObjectDimensionValue ::= INTEGER {
-    zeroPointOneMeter(1), 
-    oneMeter(10)
-} (0..1023)
-
-ObjectDimensionConfidence ::= INTEGER {
-    zeroPointZeroOneMeter(1), 
-    oneMeter(100), 
-    outOfRange(101),
-    unavailable(102)
-} (0..102)
-
-ObjectRefPoint ::= INTEGER {
-    mid(0), 
-    bottomLeft(1), 
-    midLeft(2), 
-    topLeft(3),
-    bottomMid(4), 
-    topMid(5), 
-    bottomRight(6), 
-    midRight(7), 
-    topRight(8)
-} (0..8)
-
-OtherSublassType ::= INTEGER {
-    unknown(0), 
-    roadSideUnit(1)
-} (0..255)
-
-PersonSubclassType ::= INTEGER {
-    unknown(0), 
-    pedestrian(1), 
-    personInWheelchair(2),
-    cyclist(3), 
-    personWithStroller(4), 
-    personOnSkates(5), 
-    personGroup(6)
-} (0..255)
-
-Radius ::= INTEGER {
-    zeroPointOneMeter(1), 
-    oneMeter(10)
-} (0..10000)
-
-Range ::= INTEGER {
-    zeroPointOneMeter(1), 
-    oneMeter(10)
-} (0..10000)
-
-RearOverhang ::= INTEGER {
-    zeroPointOneMeter(1), 
-    oneMeter(10)
-} (0..150)
-
-RefPointId ::= INTEGER (0..255)
-
-SensorHeight ::= INTEGER {
-    zeroPointZeroOneMeter(1)
-} (-5000..5000)
-
-ShadowingApplies ::= BOOLEAN
-
-Identifier ::= INTEGER (0..255)
-
-NumberOfPerceivedObjects ::= INTEGER (0..255)
-
-SensorType ::= INTEGER {
-    undefined(0), 
-    radar(1), 
-    lidar(2), 
-    monovideo(3),
-    stereovision(4), 
-    nightvision(5), 
-    ultrasonic(6), 
-    pmd(7), 
-    fusion(8), 
-    inductionloop(9),
-    sphericalCamera(10), 
-    itssaggregation(11)
-} (0..15)
-
-SegmentCount ::= INTEGER(1..127)
-
-SpeedValueExtended ::= INTEGER {
-    standstill(0), 
-    oneCentimeterPerSec(1),
-    unavailable(16383)
-} (-16383..16383)
-
-TimeOfMeasurement ::= INTEGER {
-    oneMilliSecond(1)
-} (-1500..1500)
-
-VehicleSubclassType ::= INTEGER {
-    unknown(0), 
-    moped(1), 
-    motorcycle(2), 
-    passengerCar(3),
-    bus(4), 
-    lightTruck(5), 
-    heavyTruck(6), 
-    trailer(7), 
-    specialVehicles(8), 
-    tram(9),
-    emergencyVehicle(10), 
-    agricultural(11)
-} (0..255)
-
-XSensorOffset ::= INTEGER {
-    negativeZeroPointZeroOneMeter(-1), 
-    negativeOneMeter(-100)
-} (-5000..0)
-
-YSensorOffset ::= INTEGER {
-    zeroPointZeroOneMeter(1), 
-    oneMeter(100)
-} (-1000..1000)
-
-ZSensorOffset ::= INTEGER {
-    zeroPointZeroOneMeter(1), 
-    oneMeter(100)
-} (0..1000)
 
 END
+

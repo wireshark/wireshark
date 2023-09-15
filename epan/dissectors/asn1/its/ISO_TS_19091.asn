@@ -26,8 +26,8 @@ DEFINITIONS AUTOMATIC TAGS::= BEGIN
 
 IMPORTS
 
-Longitude, Latitude, StationID
-FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2) }
+Longitude, Latitude, StationID, VehicleHeight, Iso3833VehicleType
+FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1)}
 
 Reg-AdvisorySpeed, Reg-ComputedLane, Reg-ConnectionManeuverAssist, Reg-GenericLane,
 Reg-IntersectionGeometry, Reg-IntersectionState, Reg-LaneAttributes, Reg-MapData,
@@ -38,8 +38,9 @@ Reg-SignalStatusMessage, Reg-SPAT
 FROM REGION  {iso (1) standard (0) signalizedIntersection (19091) profilec(2) region (1) version2 (2)}
 
 
-Iso3833VehicleType
-FROM ElectronicRegistrationIdentificationVehicleDataModule { iso(1) standard(0) iso24534 (24534) vehicleData (1) version1 (1) };
+--Iso3833VehicleType
+--FROM ElectronicRegistrationIdentificationVehicleDataModule { iso(1) standard(0) iso24534 (24534) vehicleData (1) version1 (1) }
+;
 
 -- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 -- Messages
@@ -1239,7 +1240,7 @@ TransmissionState ::= ENUMERATED {
   unavailable  (7)
 }
 
-VehicleHeight ::= INTEGER (0..127)
+--VehicleHeight ::= INTEGER (0..127)
 
 VehicleType ::= ENUMERATED {
   none                 (0),
@@ -1283,14 +1284,14 @@ DEFINITIONS AUTOMATIC TAGS::= BEGIN
 
 IMPORTS
 
-DeltaTime, FuelType, IntersectionID, LaneConnectionID, LaneID, NodeOffsetPointXY, NodeSetXY, PrioritizationResponseStatus, SignalGroupID, VehicleHeight
+DeltaTime, FuelType, IntersectionID, LaneConnectionID, LaneID, NodeOffsetPointXY, NodeSetXY, PrioritizationResponseStatus, SignalGroupID
 FROM DSRC {
   iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version2 (2)
 }
 
 
-Altitude, DeltaAltitude, StationID, VehicleMass
-FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2) };
+Altitude, DeltaAltitude, StationID, VehicleMass, VehicleHeight
+FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1)};
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -- AddGrpC data dictionary extensions to SAEJ2735

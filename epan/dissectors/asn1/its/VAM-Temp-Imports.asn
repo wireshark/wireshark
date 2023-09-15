@@ -1,0 +1,122 @@
+-- Note: This module defines types that are intended to be updated within 
+-- or added to the Common Data Dictionary. Defining the types in this
+-- module allows them to be used by the VAM before the CDD has been
+-- updated. Once the CDD has been updated, this module will also be 
+-- updated to import the new types directly from the CDD, and the
+-- version number of this module will be incremented.
+
+VAM-Temp-Imports {itu-t(0) identified-organization(4) etsi(0) itsDomain(5)
+    wg1(1) ts(103300) part-3(3) temp-imports(255) version(1)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+
+ReferencePosition, SpeedConfidence, StationID, VehicleWidth
+FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1)}
+
+NodeOffsetPointXY, Offset-B10, Offset-B11, Offset-B12, Offset-B13, 
+Offset-B14, Offset-B16
+FROM DSRC 
+  {iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) 
+   version (2)}
+
+;
+
+-- identical to BasicContainer as used in CAM 
+--BasicContainer ::= SEQUENCE {
+--    stationType       StationType, - - from VAM-Temp-Imports
+--    referencePosition ReferencePosition, - - from ITS-Container
+--    ...
+--}
+
+--ItsPduHeader ::= SEQUENCE {
+--    protocolVersion INTEGER (0..255),
+--    messageID INTEGER{ denm(1), cam(2), poi(3), spatem(4), mapem(5), ivim(6), ev-rsr(7), tistpgtransaction(8), srem(9), ssem(10), evcsn(11), saem(12), rtcmem(13), vam(14) } (0..255),  - - Mantis #7209, #7005
+--    stationID StationID
+--}
+
+
+
+
+--AreaCircular ::= SEQUENCE {
+--    nodeCenterPoint      OffsetPoint OPTIONAL,
+--    radius               Radius
+--}
+
+--AreaPolygon ::= SEQUENCE {
+--    polyPointList   PolyPointList
+--}
+
+--AreaRectangle ::= SEQUENCE {
+--    nodeCenterPoint             OffsetPoint OPTIONAL,
+--    semiMajorRangeLength        SemiRangeLength,
+--    semiMinorRangeLength        SemiRangeLength,
+--    semiMajorRangeOrientation   WGS84AngleValue,
+--    semiHeight                  SemiRangeLength OPTIONAL
+--}
+
+--OffsetPoint ::= SEQUENCE{
+--    nodeOffsetPointXY   NodeOffsetPointXY (WITH COMPONENTS {..., node-LatLon ABSENT, regional ABSENT}),
+--   nodeOffsetPointZ    NodeOffsetPointZ OPTIONAL
+--}
+
+
+--NodeOffsetPointZ ::= CHOICE {
+--    node-Z1 Offset-B10, - - node is within 5.11m of last node
+--    node-Z2 Offset-B11, - - node is within 10.23m of last node
+--    node-Z3 Offset-B12, - - node is within 20.47m of last node
+--    node-Z4 Offset-B13, - - node is within 40.96m of last node
+--    node-Z5 Offset-B14, - - node is within 81.91m of last node
+--    node-Z6 Offset-B16  - - node is within 327.67m of last node
+--}
+
+
+--Radius ::= INTEGER {
+--    zeroPointOneMeter   (1),
+--    oneMeter            (10)
+--}  (0..10000)
+
+
+-- PolyPointList ::= SEQUENCE (SIZE(3..16, ...)) OF OffsetPoint
+
+--SemiRangeLength ::= INTEGER {
+--    zeroPointOneMeter   (1),
+--    oneMeter            (10)
+--} (0..10000)
+
+--WGS84Angle ::= SEQUENCE {
+--    value       WGS84AngleValue,
+--    confidence  AngleConfidence
+--}
+
+--WGS84AngleValue ::= INTEGER {
+--    wgs84North          (0),
+--    wgs84East           (900),
+--    wgs84South          (1800),
+--    wgs84West           (2700),
+--    unavailable         (3601)
+--} (0..3601)
+
+--AngleConfidence ::= INTEGER {
+--    zeroPointOneDegree  (1),    - - if the heading accuracy is equal to or less than 0,1 degree
+--    oneDegree           (10),
+--    outOfRange          (126),  - - if the heading accuracy is out of range, i.e. greater than
+                                -- 12,5 degrees. A corresponding reported angle value shall be
+                                -- considered invalid and cannot be trusted.
+--    unavailable         (127)   - - if the heading accuracy information is not available
+--} (1..127)
+
+
+
+--StationType ::= INTEGER {
+--    unknown(0), pedestrian(1), cyclist(2), moped(3), motorcycle(4),
+--    passengerCar(5), bus(6), lightTruck(7), heavyTruck(8), trailer(9), 
+--    specialVehicles(10), tram(11), lightVruVehicle(12), animals(13), 
+--    roadSideUnit(15)
+--}
+--(0..255)
+
+END

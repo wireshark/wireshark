@@ -1,0 +1,26 @@
+CPM-SensorInformationContainer {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103324) sensorInformationContainer (3) major-version-1 (1) minor-version-1(1)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+
+Shape, ConfidenceLevel, Identifier1B, SensorType
+FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) major-version-3 (3) minor-version-1 (1) }
+;
+
+SensorInformationContainer ::= SEQUENCE SIZE(1..128, ...) OF SensorInformation
+
+
+SensorInformation ::= SEQUENCE {
+    sensorId          		    Identifier1B,
+    sensorType        		    SensorType,
+    perceptionRegionShape		Shape OPTIONAL,
+    perceptionRegionConfidence  ConfidenceLevel OPTIONAL,
+    shadowingApplies            BOOLEAN,
+   ...
+}
+
+
+END

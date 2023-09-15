@@ -22,7 +22,10 @@ MAPEM
 SPATEM
 EV-RSR
 RTCMEM
-CPM
+VAM
+ItsPduHeaderVam
+IMZM
+
 EvcsnPdu
 DriverLanguage
 ChargingPower
@@ -31,14 +34,29 @@ CurrentVehicleConfiguration
 TpgLocation
 CS5
 DSRCmsgID
+VehicleLengthV2
+TrailerPresenceInformation
+CartesianAngularAccelerationComponent
+CartesianAngularAccelerationComponentValue
+AngularAccelerationConfidence
+StandardLength2B
+StandardLength9b
+PrecipitationIntensity
+ObjectFace
+BogiesCount
+BarometricPressure
+AxlesCount
+AirHumidity
+
 #.NO_EMIT
 Code-Units WITHOUT_VALS
+
 
 #.MODULE
 CAMv1-PDU-Descriptions					camv1
 CAM-PDU-Descriptions					cam
 DENMv1-PDU-Descriptions					denmv1
-DENM-PDU-Descriptions					denm
+DENM-PDU-Description					denm
 EVCSN-PDU-Descriptions					evcsn
 EV-RechargingSpotReservation-PDU-Descriptions		evrsr
 IVIM-PDU-Descriptions					ivim
@@ -48,22 +66,30 @@ MAPEM-PDU-Descriptions					mapem
 SREM-PDU-Descriptions					srem
 SSEM-PDU-Descriptions					ssem
 AVIAEINumberingAndDataStructures			anads
-ITS-Container						its
+ITS-Container						itsv2
 ITS-ContainerV1						itsv1
-ElectronicRegistrationIdentificationVehicleDataModule	erivdm
-CITSapplMgmtIDs						csmid
+#ElectronicRegistrationIdentificationVehicleDataModule	erivdm
+#CITSapplMgmtIDs						csmid
 EfcDsrcApplication					dsrc_app
 IVI							ivi
 GDD							gdd
 DSRC						dsrc
-RTCMEM-PDU-Descriptions   rtcmem
-CPM-PDU-Descriptions        cpm
+RTCMEM-PDU-Descriptions                         rtcmem
+ETSI-ITS-CDD                                    its
+CPM-OriginatingStationContainers                cpm
+CPM-PDU-Descriptions                            cpm
+CPM-PerceivedObjectContainer                    cpm
+CPM-PerceptionRegionContainer                   cpm
+CPM-SensorInformationContainer                  cpm
+VAM-PDU-Descriptions                            vam
+IMZM-PDU-Descriptions                           imzm
+#VAM-Temp-Imports                                vam
 #.END
 
 #.PDU
 CoopAwareness
 CoopAwarenessV1
-DecentralizedEnvironmentalNotificationMessage
+DenmPayload
 DecentralizedEnvironmentalNotificationMessageV1
 EVChargingSpotNotificationPOIMessage
 EV-RSR-MessageBody
@@ -76,6 +102,8 @@ SignalStatusMessage
 RTCMcorrections
 CollectivePerceptionMessage
 ItsPduHeader
+VruAwareness
+InterferenceManagementZoneMessage
 # AddGrpC regional extension
 ConnectionManeuverAssist-addGrpC
 ConnectionTrajectory-addGrpC
@@ -88,6 +116,12 @@ SignalStatusPackage-addGrpC
 LaneAttributes-addGrpC
 MovementEvent-addGrpC
 RequestorDescription-addGrpC
+#CpmContainers
+OriginatingVehicleContainer
+OriginatingRsuContainer
+SensorInformationContainer
+PerceptionRegionContainer
+PerceivedObjectContainer
 
 #.TYPE_RENAME
 
@@ -130,9 +164,18 @@ SignalRequestPackage/regional     T_SignalRequestPackageRegional
 SignalRequest/regional            T_SignalRequestRegional
 SignalStatusPackage/regional      T_SignalStatusPackageRegional
 SignalStatus/regional             T_SignalStatusRegional
+PerceptionRegion/numberOfPerceivedObjects T_PerceptionRegionNumberOfPerceivedObjects
+PerceptionRegion/shadowingApplies T_PerceptionRegionShadowingApplies
+
+
 #.END
 
 #.FIELD_RENAME
+PerceptionRegion/perceptionRegionShape perceptionRegionPerceptionRegionShape
+PerceptionRegion/shadowingApplies perceptionRegionShadowingApplies
+PerceptionRegion/numberOfPerceivedObjects perceptionRegionNumberOfPerceivedObjects
+PerceptionRegion/perceptionRegionConfidence perceptionRegionPerceptionRegionConfidence
+
 TisTpgDRM/location                drmLocation
 TisTpgTRM/location                trmLocation
 TisTpgTCM/location                tcmLocation
@@ -329,10 +372,8 @@ ObjectConfidence           DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_general_confi
 DistanceValue              DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_distance_value_fmt)
 DistanceConfidence         DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_distance_confidence_fmt)
 SpeedValueExtended         DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_speed_value_ext_fmt)
-CartesianAngleValue        DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_cartesian_angle_value_fmt)
-AngleConfidence            DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_angle_confidence_fmt)
 ObjectDimensionValue       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_object_dimension_value_fmt)
-ObjectDimensionConfidence  DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_object_dimension_confidence_fmt)
+#ObjectDimensionConfidence  DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_object_dimension_confidence_fmt)
 
 #.END
 
@@ -347,7 +388,7 @@ Position3D/elevation              ABBREV=position3D.elevation
 #.END
 
 #.MAKE_DEFINES
-ItsPduHeader/messageID
+MessageId
 #.END
 
 #.MAKE_ENUM
@@ -366,7 +407,7 @@ CauseCodeType
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAMv1");
 #.END
 
-#.FN_HDR DecentralizedEnvironmentalNotificationMessage
+#.FN_HDR DenmPayload
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENM");
@@ -449,6 +490,17 @@ CauseCodeType
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CPM");
 #.END
 
+#.FN_HDR InterferenceManagementZoneMessage
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "IMZM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "IMZM");
+#.END
+
+#.FN_HDR VruAwareness
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "VAM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "VAM");
+#.END
 
 #.FN_HDR ConnectionManeuverAssist-addGrpC
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
@@ -704,9 +756,10 @@ CauseCodeType
 
 #.FN_PARS RegionId VAL_PTR = &((its_private_data_t*)actx->private_data)->region_id
 
-#.FN_PARS ItsPduHeader/protocolVersion VAL_PTR = &((its_header_t*)actx->private_data)->version
-#.FN_PARS ItsPduHeader/messageID VAL_PTR = &((its_header_t*)actx->private_data)->msgId
-#.FN_PARS StationID VAL_PTR = actx->private_data?&((its_header_t*)actx->private_data)->stationId:NULL
+#.FN_PARS ProtocolVersion VAL_PTR = &((its_header_t*)actx->private_data)->version
+#.FN_PARS MessageId VAL_PTR = &((its_header_t*)actx->private_data)->msgId
+#.FN_PARS StationId VAL_PTR = actx->private_data?&((its_header_t*)actx->private_data)->stationId:NULL
+#.FN_PARS CpmContainerId VAL_PTR = &((its_header_t*)actx->private_data)->CpmContainerId
 
 #.FN_BODY ItsPduHeader
   guint8 version = tvb_get_guint8(tvb, 0);
@@ -743,6 +796,8 @@ addGrpC      RegionId
 #.END
 
 #.FN_PARS RegionalExtension/regExtValue FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_regextval_pdu
+
+#.FN_PARS WrappedCpmContainer/containerData FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_cpmcontainers_pdu
 
 
 #.FN_BODY TypeOfReceptacle VAL_PTR=&parameter_tvb LEN_PTR=&len
@@ -817,49 +872,19 @@ AccelerationConfidence
 CurvatureValue
 YawRateValue
 SteeringWheelAngleValue
+ValidityDuration
+ObjectDimensionValue
 SteeringWheelAngleConfidence
 TimestampIts
-ValidityDuration
 GenerationDeltaTime
-TimeOfMeasurement
-ClassConfidence
-FreeSpaceConfidence
-ObjectConfidence
-DistanceValue
-DistanceConfidence
-SpeedValueExtended
-CartesianAngleValue
-AngleConfidence
-ObjectDimensionValue
-ObjectDimensionConfidence
+
 #.END
 
 #.NO_EMIT WITHOUT_VALS
 # Just keep the vals. hf are made manually and used in cause/subcause decoding
-PostCrashSubCauseCode
-VehicleBreakdownSubCauseCode
-DangerousSituationSubCauseCode
-DangerousEndOfQueueSubCauseCode
-RescueAndRecoveryWorkInProgressSubCauseCode
-SignalViolationSubCauseCode
-CollisionRiskSubCauseCode
-HazardousLocation-AnimalOnTheRoadSubCauseCode
-HazardousLocation-ObstacleOnTheRoadSubCauseCode
-HazardousLocation-SurfaceConditionSubCauseCode
-HazardousLocation-DangerousCurveSubCauseCode
-EmergencyVehicleApproachingSubCauseCode
-HumanProblemSubCauseCode
-StationaryVehicleSubCauseCode
-SlowVehicleSubCauseCode
-AdverseWeatherCondition-PrecipitationSubCauseCode
-AdverseWeatherCondition-VisibilitySubCauseCode
-AdverseWeatherCondition-AdhesionSubCauseCode
-AdverseWeatherCondition-ExtremeWeatherConditionSubCauseCode
-WrongWayDrivingSubCauseCode
-HumanPresenceOnTheRoadSubCauseCode
-AccidentSubCauseCode
-TrafficConditionSubCauseCode
+
 #.END
+
 
 #.FN_PARS CauseCodeType VAL_PTR = &((its_private_data_t*)actx->private_data)->cause_code
 
