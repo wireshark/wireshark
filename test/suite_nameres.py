@@ -18,25 +18,30 @@ tf_str = { True: 'TRUE', False: 'FALSE' }
 custom_profile_name = 'Custom Profile'
 
 @fixtures.fixture
-def nameres_env(test_env, program_path, conf_path):
+def nameres_setup(program_path, conf_path):
     bundle_path = os.path.join(program_path, 'Wireshark.app', 'Contents', 'MacOS')
     if os.path.isdir(bundle_path):
-        global_path = bundle_path
+        # Don't modify our application bundle.
+        global_path = None
     else:
         global_path = program_path
     custom_profile_path = os.path.join(conf_path, 'profiles', custom_profile_name)
     os.makedirs(custom_profile_path)
     this_dir = os.path.dirname(__file__)
     hosts_path_pfx = os.path.join(this_dir, 'hosts.')
-    shutil.copyfile(hosts_path_pfx + 'global', os.path.join(global_path, 'hosts'))
+
+    if global_path is not None:
+        shutil.copyfile(hosts_path_pfx + 'global', os.path.join(global_path, 'hosts'))
     shutil.copyfile(hosts_path_pfx + 'personal', os.path.join(conf_path, 'hosts'))
     shutil.copyfile(hosts_path_pfx + 'custom', os.path.join(custom_profile_path, 'hosts'))
-    return test_env
+    return global_path is not None
 
 
 @fixtures.fixture
-def check_name_resolution(cmd_tshark, capture_file, nameres_env):
+def check_name_resolution(cmd_tshark, capture_file, nameres_setup, test_env):
     def check_name_resolution_real(self, o_net_name, o_external_name_res, o_hosts_file, custom_profile, grep_str, fail_on_match=False):
+        if grep_str.startswith('global') and not nameres_setup:
+            fixtures.skip('Global name resolution tests would require modifying the application bundle')
         tshark_cmd = (cmd_tshark,
             '-r', capture_file('dns+icmp.pcapng.gz'),
             '-o', 'nameres.network_name: ' + tf_str[o_net_name],
@@ -45,7 +50,7 @@ def check_name_resolution(cmd_tshark, capture_file, nameres_env):
             )
         if custom_profile:
             tshark_cmd += ('-C', custom_profile_name)
-        self.assertRun(tshark_cmd, env=nameres_env)
+        self.assertRun(tshark_cmd, env=test_env)
         if fail_on_match:
             self.assertFalse(self.grepOutput(grep_str))
         else:
