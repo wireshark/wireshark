@@ -82,7 +82,7 @@ compile_pcre2(const char *patt, ssize_t size, char **errmsg, unsigned flags)
 ws_regex_t *
 ws_regex_compile_ex(const char *patt, ssize_t size, char **errmsg, unsigned flags)
 {
-    ws_return_val_if_null(patt, NULL);
+    ws_return_val_if(!patt, NULL);
 
     pcre2_code *code = compile_pcre2(patt, size, errmsg, flags);
     if (code == NULL)
@@ -153,8 +153,8 @@ ws_regex_matches_length(const ws_regex_t *re,
     bool matched;
     pcre2_match_data *match_data;
 
-    ws_return_val_if_null(re, FALSE);
-    ws_return_val_if_null(subj, FALSE);
+    ws_return_val_if(!re, FALSE);
+    ws_return_val_if(!subj, FALSE);
 
     /* We don't use the matched substring but pcre2_match requires
      * at least one pair of offsets. */
@@ -173,8 +173,8 @@ ws_regex_matches_pos(const ws_regex_t *re,
     bool matched;
     pcre2_match_data *match_data;
 
-    ws_return_val_if_null(re, FALSE);
-    ws_return_val_if_null(subj, FALSE);
+    ws_return_val_if(!re, FALSE);
+    ws_return_val_if(!subj, FALSE);
 
     match_data = pcre2_match_data_create(1, NULL);
     matched = match_pcre2(re->code, subj, subj_length, match_data);

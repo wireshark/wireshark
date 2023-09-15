@@ -24,42 +24,23 @@
  * execution for debugging purposes, if one of these checks fail.
  */
 
-#define ws_warn_badarg(...) \
-    ws_log_full(LOG_DOMAIN_EINVAL, LOG_LEVEL_INFO, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define ws_warn_badarg(str) \
+    ws_log_full(LOG_DOMAIN_EINVAL, LOG_LEVEL_INFO, \
+                    __FILE__, __LINE__, __func__, \
+                    "bad argument: %s", str)
 
-#define ws_warn_zero_len(var) ws_warn_badarg("Zero length argument '%s' is invalid", var)
-
-#define ws_warn_null_ptr(var) ws_warn_badarg("Null pointer argument '%s' is invalid", var)
-
-
-#define ws_return_str_if_zero(scope, len) \
+#define ws_return_str_if(expr, scope) \
         do { \
-            if (!(len)) { \
-                ws_warn_zero_len(#len); \
-                return wmem_strdup(scope, "(zero length)"); \
+            if (expr) { \
+                ws_warn_badarg(#expr); \
+                return wmem_strdup(scope, "(invalid argument)"); \
             } \
         } while (0)
 
-#define ws_return_str_if_null(scope, ptr) \
+#define ws_return_val_if(expr, val) \
         do { \
-            if (!(ptr)) { \
-                ws_warn_null_ptr(#ptr); \
-                return wmem_strdup(scope, "(null pointer)"); \
-            } \
-        } while (0)
-
-#define ws_return_val_if_zero(len, val) \
-        do { \
-            if (!(len)) { \
-                ws_warn_zero_len(#len); \
-                return (val); \
-            } \
-        } while (0)
-
-#define ws_return_val_if_null(ptr, val) \
-        do { \
-            if (!(ptr)) { \
-                ws_warn_null_ptr(#ptr); \
+            if (expr) { \
+                ws_warn_badarg(#expr); \
                 return (val); \
             } \
         } while (0)
