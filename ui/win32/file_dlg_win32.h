@@ -49,7 +49,7 @@ void revert_thread_per_monitor_v2_awareness(HANDLE context);
  * @param type File type
  * @param display_filter a display filter
  */
-gboolean win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned int *type, GString *display_filter);
+bool win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned int *type, GString *display_filter);
 
 /** Open the "Save As" dialog box.
  *
@@ -58,15 +58,15 @@ gboolean win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, 
  * @param file_name File name. May be empty.
  * @param file_type Wiretap file type.
  * @param compression_type Compression type to use, or uncompressed.
- * @param must_support_comments TRUE if the file format list should
+ * @param must_support_comments true if the file format list should
  * include only file formats that support comments
  *
- * @return TRUE if packets were discarded when saving, FALSE otherwise
+ * @return true if packets were discarded when saving, false otherwise
  */
-gboolean win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf,
+bool win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf,
                             GString *file_name, int *file_type,
                             wtap_compression_type *compression_type,
-                            gboolean must_support_comments);
+                            bool must_support_comments);
 
 /** Open the "Export Specified Packets" dialog box.
  *
@@ -77,9 +77,9 @@ gboolean win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf,
  * @param compression_type Compression type to use, or uncompressed.
  * @param range Range of packets to export.
  *
- * @return TRUE if packets were discarded when saving, FALSE otherwise
+ * @return true if packets were discarded when saving, false otherwise
  */
-gboolean win32_export_specified_packets_file(HWND h_wnd,
+bool win32_export_specified_packets_file(HWND h_wnd,
                                          const wchar_t *title,
                                          capture_file *cf,
                                          GString *file_name,
@@ -95,7 +95,7 @@ gboolean win32_export_specified_packets_file(HWND h_wnd,
  * @param display_filter a display filter
  * @param merge_type type of merge
  */
-gboolean win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString *display_filter, int *merge_type);
+bool win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString *display_filter, int *merge_type);
 
 /** Open the "Export" dialog box.
  *
@@ -104,7 +104,7 @@ gboolean win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name,
  * @param export_type The export type.
  * @param range a possible range
  */
-void win32_export_file (HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type, const gchar *range);
+void win32_export_file (HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type, const char *range);
 
 /* Open dialog defines */
 /* #define EWFD_FILTER_BTN    1000 */

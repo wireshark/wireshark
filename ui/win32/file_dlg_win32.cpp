@@ -92,22 +92,22 @@ typedef DPI_AWARENESS_CONTEXT (WINAPI *SetThreadDpiAwarenessContextProc)(DPI_AWA
 
 static GetThreadDpiAwarenessContextProc GetThreadDpiAwarenessContextP;
 static SetThreadDpiAwarenessContextProc SetThreadDpiAwarenessContextP;
-static gboolean got_proc_addresses = FALSE;
+static bool got_proc_addresses = false;
 
 DIAG_OFF(cast-function-type)
-static gboolean get_proc_addresses(void) {
-    if (got_proc_addresses) return TRUE;
+static bool get_proc_addresses(void) {
+    if (got_proc_addresses) return true;
 
     HMODULE u32_module = LoadLibrary(_T("User32.dll"));
     if (!u32_module) {
-        got_proc_addresses = FALSE;
-        return FALSE;
+        got_proc_addresses = false;
+        return false;
     }
-    gboolean got_all = TRUE;
+    bool got_all = true;
     GetThreadDpiAwarenessContextP = (GetThreadDpiAwarenessContextProc) GetProcAddress(u32_module, "GetThreadDpiAwarenessContext");
-    if (!GetThreadDpiAwarenessContextP) got_all = FALSE;
+    if (!GetThreadDpiAwarenessContextP) got_all = false;
     SetThreadDpiAwarenessContextP = (SetThreadDpiAwarenessContextProc) GetProcAddress(u32_module, "SetThreadDpiAwarenessContext");
-    if (!SetThreadDpiAwarenessContextP) got_all = FALSE;
+    if (!SetThreadDpiAwarenessContextP) got_all = false;
 
     got_proc_addresses = got_all;
     return got_all;
@@ -140,7 +140,7 @@ void revert_thread_per_monitor_v2_awareness(HANDLE context _U_) { }
 #endif // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
 
 static int             g_filetype;
-static gboolean        g_compressed;
+static bool            g_compressed;
 static packet_range_t *g_range;
 static capture_file   *g_cf;
 static merge_action_e  g_merge_action;
@@ -166,7 +166,7 @@ static unsigned int g_format_type = WTAP_TYPE_AUTO;
  * and later.
  */
 
-gboolean
+bool
 win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned int *type, GString *display_filter) {
     OPENFILENAME *ofn;
     TCHAR file_name16[MAX_PATH] = _T("");
@@ -174,7 +174,7 @@ win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned 
     BOOL gofn_ok;
 
     if (!file_name || !display_filter)
-        return FALSE;
+        return false;
 
     if (file_name->len > 0) {
         StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
@@ -230,12 +230,12 @@ win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned 
     return gofn_ok;
 }
 
-gboolean
+bool
 win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *file_name, int *file_type,
                    wtap_compression_type *compression_type,
-                   gboolean must_support_all_comments)
+                   bool must_support_all_comments)
 {
-    guint32 required_comment_types;
+    uint32_t required_comment_types;
     GArray *savable_file_types;
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
@@ -243,7 +243,7 @@ win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *
     BOOL gsfn_ok;
 
     if (!file_name || !file_type || !compression_type)
-        return FALSE;
+        return false;
 
     if (file_name->len > 0) {
         StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
@@ -260,8 +260,8 @@ win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *
                                                               required_comment_types,
                                                               FT_SORT_BY_DESCRIPTION);
     if (savable_file_types == NULL)
-        return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
-    g_compressed = FALSE;
+        return false;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
+    g_compressed = false;
 
     ofn = new OPENFILENAME();
 
@@ -303,18 +303,18 @@ win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *
              * it. For now we force a do-over.
              */
             g_string_truncate(file_name, 0);
-            gsfn_ok = TRUE;
+            gsfn_ok = true;
         }
     }
 
     g_sf_hwnd = NULL;
-    g_array_free(savable_file_types, TRUE);
+    g_array_free(savable_file_types, true);
     g_free( (void *) ofn->lpstrFilter);
     delete ofn;
     return gsfn_ok;
 }
 
-gboolean
+bool
 win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
                                     capture_file *cf,
                                     GString *file_name,
@@ -328,7 +328,7 @@ win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
     BOOL gsfn_ok;
 
     if (!file_name || !file_type || !compression_type || !range)
-        return FALSE;
+        return false;
 
     if (file_name->len > 0) {
         StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
@@ -338,11 +338,11 @@ win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
                                                               cf->linktypes, 0,
                                                               FT_SORT_BY_DESCRIPTION);
     if (savable_file_types == NULL)
-        return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
+        return false;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
 
     g_range = range;
     g_cf = cf;
-    g_compressed = FALSE;
+    g_compressed = false;
 
     ofn = new OPENFILENAME();
 
@@ -384,21 +384,21 @@ win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
              * it. For now we force a do-over.
              */
             g_string_truncate(file_name, 0);
-            gsfn_ok = TRUE;
+            gsfn_ok = true;
         }
     }
 
     g_sf_hwnd = NULL;
     g_range = NULL;
     g_cf = NULL;
-    g_array_free(savable_file_types, TRUE);
+    g_array_free(savable_file_types, true);
     g_free( (void *) ofn->lpstrFilter);
     delete ofn;
     return gsfn_ok;
 }
 
 
-gboolean
+bool
 win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString *display_filter, int *merge_type) {
     OPENFILENAME *ofn;
     TCHAR         file_name16[MAX_PATH] = _T("");
@@ -406,7 +406,7 @@ win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString 
     BOOL          gofn_ok;
 
     if (!file_name || !display_filter || !merge_type)
-        return FALSE;
+        return false;
 
     if (file_name->len > 0) {
         StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
@@ -476,7 +476,7 @@ win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString 
 }
 
 void
-win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type, const gchar *range_) {
+win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type, const char *range_) {
     OPENFILENAME     *ofn;
     TCHAR             file_name[MAX_PATH] = _T("");
     char             *dirname;
@@ -517,14 +517,14 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
         packet_range_convert_selection_str(&print_args.range, range_);
 
     print_args.format              = PR_FMT_TEXT;
-    print_args.to_file             = TRUE;
+    print_args.to_file             = true;
     print_args.cmd                 = NULL;
-    print_args.print_summary       = TRUE;
-    print_args.print_col_headings  = TRUE;
+    print_args.print_summary       = true;
+    print_args.print_col_headings  = true;
     print_args.print_dissections   = print_dissections_as_displayed;
-    print_args.print_hex           = FALSE;
+    print_args.print_hex           = false;
     print_args.hexdump_options     = HEXDUMP_SOURCE_MULTI;
-    print_args.print_formfeed      = FALSE;
+    print_args.print_formfeed      = false;
     print_args.stream              = NULL;
 
     HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
@@ -535,22 +535,22 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
         print_args.file = utf_16to8(file_name);
         switch (ofn->nFilterIndex) {
             case export_type_text:      /* Text */
-                print_args.stream = print_stream_text_new(TRUE, print_args.file);
+                print_args.stream = print_stream_text_new(true, print_args.file);
                 if (print_args.stream == NULL) {
-                    open_failure_alert_box(print_args.file, errno, TRUE);
+                    open_failure_alert_box(print_args.file, errno, true);
                     delete ofn;
                     return;
                 }
-                status = cf_print_packets(cf, &print_args, TRUE);
+                status = cf_print_packets(cf, &print_args, true);
                 break;
             case export_type_ps:        /* PostScript (r) */
-                print_args.stream = print_stream_ps_new(TRUE, print_args.file);
+                print_args.stream = print_stream_ps_new(true, print_args.file);
                 if (print_args.stream == NULL) {
-                    open_failure_alert_box(print_args.file, errno, TRUE);
+                    open_failure_alert_box(print_args.file, errno, true);
                     delete ofn;
                     return;
                 }
-                status = cf_print_packets(cf, &print_args, TRUE);
+                status = cf_print_packets(cf, &print_args, true);
                 break;
             case export_type_csv:       /* CSV */
                 status = cf_write_csv_packets(cf, &print_args);
@@ -576,7 +576,7 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
             case CF_PRINT_OK:
                 break;
             case CF_PRINT_OPEN_ERROR:
-                open_failure_alert_box(print_args.file, errno, TRUE);
+                open_failure_alert_box(print_args.file, errno, true);
                 break;
             case CF_PRINT_WRITE_ERROR:
                 write_failure_alert_box(print_args.file, errno);
@@ -608,18 +608,18 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_SUMMARY_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-        args->print_summary = TRUE;
+        args->print_summary = true;
         cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_COL_HEADINGS_CB);
-        EnableWindow(cur_ctrl, TRUE);
+        EnableWindow(cur_ctrl, true);
         if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-            args->print_col_headings = TRUE;
+            args->print_col_headings = true;
         else
-            args->print_col_headings = FALSE;
+            args->print_col_headings = false;
     } else {
-        args->print_summary = FALSE;
-        args->print_col_headings = FALSE;
+        args->print_summary = false;
+        args->print_col_headings = false;
         cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_COL_HEADINGS_CB);
-        EnableWindow(cur_ctrl, FALSE);
+        EnableWindow(cur_ctrl, false);
     }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_CB);
@@ -638,33 +638,33 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
             default:
                 ws_assert_not_reached();
         }
-        EnableWindow(cur_ctrl, TRUE);
+        EnableWindow(cur_ctrl, true);
     } else {
         args->print_dissections = print_dissections_none;
         cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
-        EnableWindow(cur_ctrl, FALSE);
+        EnableWindow(cur_ctrl, false);
     }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-        args->print_hex = TRUE;
+        args->print_hex = true;
         cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DATA_SOURCES_CB);
-        EnableWindow(cur_ctrl, TRUE);
+        EnableWindow(cur_ctrl, true);
         if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
             args->hexdump_options = HEXDUMP_SOURCE_MULTI;
         else
             args->hexdump_options = HEXDUMP_SOURCE_PRIMARY;
     } else {
-        args->print_hex = FALSE;
+        args->print_hex = false;
         cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DATA_SOURCES_CB);
-        EnableWindow(cur_ctrl, FALSE);
+        EnableWindow(cur_ctrl, false);
     }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        args->print_formfeed = TRUE;
+        args->print_formfeed = true;
     else
-        args->print_formfeed = FALSE;
+        args->print_formfeed = false;
 }
 
 static void
@@ -720,27 +720,27 @@ format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
 
 /* If preview_file is NULL, disable the elements.  If not, enable and
  * show the preview info. */
-static gboolean
-preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
+static bool
+preview_set_file_info(HWND of_hwnd, char *preview_file) {
     HWND        cur_ctrl;
     int         i;
     wtap       *wth;
     int         err;
-    gchar      *err_info;
+    char       *err_info;
     ws_file_preview_stats stats;
     ws_file_preview_stats_status status;
     TCHAR       string_buff[PREVIEW_STR_MAX];
     TCHAR       first_buff[PREVIEW_STR_MAX];
-    gint64      filesize;
-    gchar      *size_str;
+    int64_t     filesize;
+    char       *size_str;
     time_t      ti_time;
     struct tm  *ti_tm;
-    guint       elapsed_time;
+    unsigned    elapsed_time;
 
     for (i = EWFD_PTX_FORMAT; i <= EWFD_PTX_START_ELAPSED; i++) {
         cur_ctrl = GetDlgItem(of_hwnd, i);
         if (cur_ctrl) {
-            EnableWindow(cur_ctrl, FALSE);
+            EnableWindow(cur_ctrl, false);
         }
     }
 
@@ -752,31 +752,31 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     }
 
     if (preview_file == NULL || strlen(preview_file) < 1) {
-        return FALSE;
+        return false;
     }
 
     /* Format: directory */
     cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
     if (test_for_directory(preview_file) == EISDIR) {
         SetWindowText(cur_ctrl, _T("directory"));
-        return FALSE;
+        return false;
     }
 
-    wth = wtap_open_offline(preview_file, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
+    wth = wtap_open_offline(preview_file, WTAP_TYPE_AUTO, &err, &err_info, true);
     if (cur_ctrl && wth == NULL) {
         if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             SetWindowText(cur_ctrl, _T("unknown file format"));
         } else {
             SetWindowText(cur_ctrl, _T("error opening file"));
         }
-        return FALSE;
+        return false;
     }
 
     /* Success! */
     for (i = EWFD_PT_FORMAT; i <= EWFD_PTX_START_ELAPSED; i++) {
         cur_ctrl = GetDlgItem(of_hwnd, i);
         if (cur_ctrl) {
-            EnableWindow(cur_ctrl, TRUE);
+            EnableWindow(cur_ctrl, true);
         }
     }
 
@@ -800,7 +800,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
         cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
         SetWindowText(cur_ctrl, string_buff);
         wtap_close(wth);
-        return TRUE;
+        return true;
     }
 
     /* Packet count */
@@ -868,14 +868,14 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
 
     wtap_close(wth);
 
-    return TRUE;
+    return true;
 
 }
 
 static char *
 filter_tb_get(HWND hwnd) {
     TCHAR     *strval = NULL;
-    gint       len;
+    int        len;
     char *ret;
 
     /* If filter_text is non-NULL, use it.  Otherwise, grab the text from
@@ -931,7 +931,7 @@ filter_tb_syntax_check(HWND hwnd, const TCHAR *filter_text) {
     }
 }
 
-static gint alpha_sort(gconstpointer a, gconstpointer b)
+static int alpha_sort(gconstpointer a, gconstpointer b)
 {
     return g_ascii_strcasecmp(*(const char **)a, *(const char **)b);
 }
@@ -941,7 +941,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
     TCHAR     sel_name[MAX_PATH];
-    gint      i;
+    int       i;
 
     switch(msg) {
         case WM_INITDIALOG:
@@ -966,13 +966,13 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                an easy way to get the exact number.) */
             GPtrArray *routine_names = g_ptr_array_sized_new(60);
             for ( /* keep using i */ ; open_routines[i].name != NULL; i += 1) {
-                g_ptr_array_add(routine_names, (gpointer)open_routines[i].name);
+                g_ptr_array_add(routine_names, (void *)open_routines[i].name);
             }
             g_ptr_array_sort(routine_names, alpha_sort);
-            for (guint i = 0; i < routine_names->len; i += 1) {
+            for (unsigned i = 0; i < routine_names->len; i += 1) {
                 SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) utf_8to16((const char *)g_ptr_array_index(routine_names, i)));
             }
-            g_ptr_array_free(routine_names, TRUE);
+            g_ptr_array_free(routine_names, true);
             SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
 
             preview_set_file_info(of_hwnd, NULL);
@@ -1049,10 +1049,10 @@ append_file_extension_type(GArray *sa, int et)
 {
     GString* pattern_str = g_string_new("");
     GString* description_str = g_string_new("");
-    gchar sep;
+    char sep;
     GSList *extensions_list, *extension;
     const TCHAR *str16;
-    guint16 zero = 0;
+    uint16_t zero = 0;
 
     /* Construct the list of patterns. */
     extensions_list = wtap_get_file_extension_type_extensions(et);
@@ -1071,14 +1071,14 @@ append_file_extension_type(GArray *sa, int et)
                     wtap_get_file_extension_type_name(et),
                     pattern_str->str);
     str16 = utf_8to16(description_str->str);
-    sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
+    sa = g_array_append_vals(sa, str16, (unsigned) strlen(description_str->str));
     sa = g_array_append_val(sa, zero);
-    g_string_free(description_str, TRUE);
+    g_string_free(description_str, true);
 
     str16 = utf_8to16(pattern_str->str);
-    sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
+    sa = g_array_append_vals(sa, str16, (unsigned) strlen(pattern_str->str));
     sa = g_array_append_val(sa, zero);
-    g_string_free(pattern_str, TRUE);
+    g_string_free(pattern_str, true);
 }
 
 static TCHAR *
@@ -1086,9 +1086,9 @@ build_file_open_type_list(void) {
     const TCHAR *str16;
     int et;
     GArray* sa;
-    static const guint16 zero = 0;
+    static const uint16_t zero = 0;
     GString* pattern_str;
-    gchar sep;
+    char sep;
     GSList *extensions_list, *extension;
 
     /*
@@ -1108,14 +1108,14 @@ build_file_open_type_list(void) {
      * Array of hexadectets used as a sequence of null-terminated
      * UTF-16 strings.
      */
-    sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
+    sa = g_array_new(false /*zero_terminated*/, false /*clear_*/,2 /*element_size*/);
 
     /* Add the "All Files" entry. */
     str16 = utf_8to16("All Files");
-    sa = g_array_append_vals(sa, str16, (guint) strlen("All Files"));
+    sa = g_array_append_vals(sa, str16, (unsigned) strlen("All Files"));
     sa = g_array_append_val(sa, zero);
     str16 = utf_8to16(ALL_FILES_WILDCARD);
-    sa = g_array_append_vals(sa, str16, (guint) strlen(ALL_FILES_WILDCARD));
+    sa = g_array_append_vals(sa, str16, (unsigned) strlen(ALL_FILES_WILDCARD));
     sa = g_array_append_val(sa, zero);
 
     /*
@@ -1123,7 +1123,7 @@ build_file_open_type_list(void) {
      * extensions we know about.
      */
     str16 = utf_8to16("All Capture Files");
-    sa = g_array_append_vals(sa, str16, (guint) strlen("All Capture Files"));
+    sa = g_array_append_vals(sa, str16, (unsigned) strlen("All Capture Files"));
     sa = g_array_append_val(sa, zero);
 
     /*
@@ -1141,7 +1141,7 @@ build_file_open_type_list(void) {
     }
     wtap_free_extensions_list(extensions_list);
     str16 = utf_8to16(pattern_str->str);
-    sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
+    sa = g_array_append_vals(sa, str16, (unsigned) strlen(pattern_str->str));
     sa = g_array_append_val(sa, zero);
 
     /* Include all the file type extensions Wireshark supports. */
@@ -1152,7 +1152,7 @@ build_file_open_type_list(void) {
     /* terminate the array */
     sa = g_array_append_val(sa, zero);
 
-    return (TCHAR *) g_array_free(sa, FALSE /*free_segment*/);
+    return (TCHAR *) g_array_free(sa, false /*free_segment*/);
 }
 
 /* Generate a list of the file types we can save this file as.
@@ -1162,9 +1162,9 @@ build_file_open_type_list(void) {
    "encap" is the encapsulation for its packets (which could be
    "unknown" or "per-packet").
 
-   "filtered" is TRUE if we're to save only the packets that passed
+   "filtered" is true if we're to save only the packets that passed
    the display filter (in which case we have to save it using Wiretap)
-   and FALSE if we're to save the entire file (in which case, if we're
+   and false if we're to save the entire file (in which case, if we're
    saving it in the type it has already, we can just copy it).
 
    The same applies for sel_curr, sel_all, sel_m_only, sel_m_range and sel_man_range
@@ -1174,12 +1174,12 @@ append_file_type(GArray *sa, int ft)
 {
     GString* pattern_str = g_string_new("");
     GString* description_str = g_string_new("");
-    gchar sep;
+    char sep;
     GSList *extensions_list, *extension;
     const TCHAR *str16;
-    guint16 zero = 0;
+    uint16_t zero = 0;
 
-    extensions_list = wtap_get_file_extensions_list(ft, TRUE);
+    extensions_list = wtap_get_file_extensions_list(ft, true);
     if (extensions_list == NULL) {
         /* This file type doesn't have any particular extension
            conventionally used for it, so we'll just use a
@@ -1204,22 +1204,22 @@ append_file_type(GArray *sa, int ft)
     g_string_printf(description_str, "%s (%s)", wtap_file_type_subtype_description(ft),
                     pattern_str->str);
     str16 = utf_8to16(description_str->str);
-    sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
+    sa = g_array_append_vals(sa, str16, (unsigned) strlen(description_str->str));
     sa = g_array_append_val(sa, zero);
-    g_string_free(description_str, TRUE);
+    g_string_free(description_str, true);
 
     str16 = utf_8to16(pattern_str->str);
-    sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
+    sa = g_array_append_vals(sa, str16, (unsigned) strlen(pattern_str->str));
     sa = g_array_append_val(sa, zero);
-    g_string_free(pattern_str, TRUE);
+    g_string_free(pattern_str, true);
 }
 
 static TCHAR *
 build_file_save_type_list(GArray *savable_file_types) {
-    guint i;
+    unsigned i;
     int   ft;
-    GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
-    guint16 zero = 0;
+    GArray* sa = g_array_new(false /*zero_terminated*/, false /*clear_*/,2 /*element_size*/);
+    uint16_t zero = 0;
 
     /* Get only the file types as which we can save this file. */
     for (i = 0; i < savable_file_types->len; i++) {
@@ -1230,7 +1230,7 @@ build_file_save_type_list(GArray *savable_file_types) {
     /* terminate the array */
     sa = g_array_append_val(sa, zero);
 
-    return (TCHAR *) g_array_free(sa, FALSE /*free_segment*/);
+    return (TCHAR *) g_array_free(sa, false /*free_segment*/);
 }
 
 static UINT_PTR CALLBACK
@@ -1272,16 +1272,16 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param _U_, LPARAM l_para
                     /* Fetch our compression value */
                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
                     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        g_compressed = TRUE;
+                        g_compressed = true;
                     else
-                        g_compressed = FALSE;
+                        g_compressed = false;
 
                     /* Check if we're trying to overwrite the currently open file */
                     parent = GetParent(sf_hwnd);
                     file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
                     if (files_identical(cf->filename, file_name8)) {
                         /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-                        gchar *str = ws_strdup_printf(
+                        char *str = ws_strdup_printf(
                             "Capture File \"%s\" identical to loaded file.\n\n"
                             "Please choose a different filename.",
                             file_name8);
@@ -1345,16 +1345,16 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                     /* Fetch our compression value */
                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
                     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        g_compressed = TRUE;
+                        g_compressed = true;
                     else
-                        g_compressed = FALSE;
+                        g_compressed = false;
 
                     /* Check if we're trying to overwrite the currently open file */
                     parent = GetParent(sf_hwnd);
                     file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
                     if (files_identical(cf->filename, file_name8)) {
                         /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-                        gchar *str = ws_strdup_printf(
+                        char *str = ws_strdup_printf(
                             "Capture File \"%s\" identical to loaded file.\n\n"
                             "Please choose a different filename.",
                             file_name8);
@@ -1380,15 +1380,15 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
 static void
 range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     HWND     cur_ctrl;
-    gboolean filtered_active = FALSE;
+    bool filtered_active = false;
     TCHAR    static_val[STATIC_LABEL_CHARS];
-    guint32  ignored_cnt = 0, displayed_ignored_cnt = 0;
-    guint32  displayed_cnt;
-    gboolean range_valid = TRUE;
+    uint32_t ignored_cnt = 0, displayed_ignored_cnt = 0;
+    uint32_t displayed_cnt;
+    bool range_valid = true;
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        filtered_active = TRUE;
+        filtered_active = true;
 
     /* RANGE_SELECT_ALL */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_CAP);
@@ -1501,7 +1501,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
             SetWindowText(cur_ctrl, static_val);
             break;
         case CVT_SYNTAX_ERROR:
-            if (range->process == range_process_user_range) range_valid = FALSE;
+            if (range->process == range_process_user_range) range_valid = false;
             cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
             SendMessage(cur_ctrl, EM_SETBKGNDCOLOR, 0, RGB(0xff, 0xcc, 0xcc));
             cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
@@ -1510,7 +1510,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
             SetWindowText(cur_ctrl, _T("-"));
             break;
         case CVT_NUMBER_TOO_BIG:
-            if (range->process == range_process_user_range) range_valid = FALSE;
+            if (range->process == range_process_user_range) range_valid = false;
             cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
             SendMessage(cur_ctrl, EM_SETBKGNDCOLOR, 0, RGB(0xff, 0xcc, 0xcc));
             cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
@@ -1575,7 +1575,7 @@ range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range) {
         cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
     else
         cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_CAPTURED_BTN);
-    SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
+    SendMessage(cur_ctrl, BM_SETCHECK, true, 0);
 
     /* Retain the filter text, and fill it in. */
     if(range->user_range != NULL) {
@@ -1609,7 +1609,7 @@ range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range) {
         default:
             ws_assert_not_reached();
     }
-    SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
+    SendMessage(cur_ctrl, BM_SETCHECK, true, 0);
 }
 
 static void
@@ -1624,9 +1624,9 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
         case (BN_CLICKED << 16) | EWFD_DISPLAYED_BTN:
             cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_CAPTURED_BTN);
             if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                range->process_filtered = FALSE;
+                range->process_filtered = false;
             else
-                range->process_filtered = TRUE;
+                range->process_filtered = true;
             range_update_dynamics(dlg_hwnd, range);
             break;
         case (BN_CLICKED << 16) | EWFD_ALL_PKTS_BTN:
@@ -1672,9 +1672,9 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
             break;
         case (BN_CLICKED << 16) | EWFD_REMOVE_IGN_CB:
             if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-                range->remove_ignored = TRUE;
+                range->remove_ignored = true;
             } else {
-                range->remove_ignored = FALSE;
+                range->remove_ignored = false;
             }
             range_update_dynamics(dlg_hwnd, range);
             break;
@@ -1697,7 +1697,7 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
             /* Chrono by default */
             cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_CHRONO_BTN);
-            SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
+            SendMessage(cur_ctrl, BM_SETCHECK, true, 0);
             g_merge_action = merge_append;
 
             preview_set_file_info(mf_hwnd, NULL);
@@ -1756,13 +1756,13 @@ static UINT_PTR CALLBACK
 export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
-    gboolean       pkt_fmt_enable;
+    bool           pkt_fmt_enable;
     int            i, filter_index;
 
     switch(msg) {
         case WM_INITDIALOG: {
             /* default to displayed packets */
-            print_args.range.process_filtered = TRUE;
+            print_args.range.process_filtered = true;
             range_handle_wm_initdialog(ef_hwnd, &print_args.range);
             format_handle_wm_initdialog(ef_hwnd, &print_args);
 
@@ -1790,9 +1790,9 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     else
                         print_args.format = PR_FMT_PS;
                     if (filter_index == 3 || filter_index == 4 || filter_index == 5 || filter_index == 6)
-                        pkt_fmt_enable = FALSE;
+                        pkt_fmt_enable = false;
                     else
-                        pkt_fmt_enable = TRUE;
+                        pkt_fmt_enable = true;
                     for (i = EWFD_PKT_FORMAT_GB; i <= EWFD_PKT_NEW_PAGE_CB; i++) {
                         cur_ctrl = GetDlgItem(ef_hwnd, i);
                         EnableWindow(cur_ctrl, pkt_fmt_enable);

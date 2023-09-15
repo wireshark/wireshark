@@ -26,22 +26,22 @@
  * correctly in the command-line string passed to CreateProcess()
  * if that string is constructed by gluing those strings together.
  */
-gchar *
-protect_arg (const gchar *argv)
+char *
+protect_arg (const char *argv)
 {
-    gchar *new_arg;
-    const gchar *p = argv;
-    gchar *q;
-    gint len = 0;
-    gboolean need_dblquotes = FALSE;
+    char *new_arg;
+    const char *p = argv;
+    char *q;
+    int len = 0;
+    bool need_dblquotes = false;
 
     while (*p) {
         if (*p == ' ' || *p == '\t')
-            need_dblquotes = TRUE;
+            need_dblquotes = true;
         else if (*p == '"')
             len++;
         else if (*p == '\\') {
-            const gchar *pp = p;
+            const char *pp = p;
 
             while (*pp && *pp == '\\')
                 pp++;
@@ -62,7 +62,7 @@ protect_arg (const gchar *argv)
         if (*p == '"')
             *q++ = '\\';
         else if (*p == '\\') {
-            const gchar *pp = p;
+            const char *pp = p;
 
             while (*pp && *pp == '\\')
                 pp++;
@@ -272,7 +272,7 @@ BOOL win32_create_process(const char *application_name, const char *command_line
         SetHandleInformation(inherit_handles[i], HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
     }
     BOOL cp_res = CreateProcess(wappname, wcommandline, process_attributes, thread_attributes,
-        (n_inherit_handles > 0) ? TRUE : FALSE, wcreationflags, environment, wcurrentdirectory,
+        (n_inherit_handles > 0) ? true : false, wcreationflags, environment, wcurrentdirectory,
         &startup_infoex.StartupInfo, process_information);
     /* While this function makes the created process inherit only the explicitly
      * listed handles, there can be other functions (in 3rd party libraries)

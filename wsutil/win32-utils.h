@@ -39,7 +39,7 @@ extern "C" {
  * @return The string quoted to be used by CreateProcess
  */
 WS_DLL_PUBLIC
-gchar * protect_arg (const gchar *argv);
+char * protect_arg (const char *argv);
 
 /** Generate a string for a Windows error.
  *

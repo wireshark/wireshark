@@ -24,9 +24,9 @@
 #include <windows.h>
 #include <tchar.h>
 
-static gboolean has_console;  /* TRUE if app has console */
-static gboolean console_wait; /* "Press any key..." */
-static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
+static bool has_console;  /* true if app has console */
+static bool console_wait; /* "Press any key..." */
+static bool stdin_capture = false; /* Don't grab stdin & stdout if true */
 
 /*
  * Check whether a given standard handle needs to be redirected.
@@ -43,7 +43,7 @@ static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
  * that's a pipe or socket; it appears mintty reads from it and outputs
  * what it reads to the console.
  */
-static gboolean
+static bool
 needs_redirection(int std_handle)
 {
     HANDLE fd;
@@ -65,14 +65,14 @@ needs_redirection(int std_handle)
          * with a double-click in Windows Explorer,
          * sow we'll say it needs redirection.
          */
-        return TRUE;
+        return true;
     }
     if (fd == INVALID_HANDLE_VALUE) {
         /*
          * OK, I'm not when this would happen; return
          * "no redirection" for now.
          */
-        return FALSE;
+        return false;
     }
     handle_type = GetFileType(fd);
     if (handle_type == FILE_TYPE_UNKNOWN) {
@@ -83,14 +83,14 @@ needs_redirection(int std_handle)
              * running something in a mode that needs a
              * console.
              */
-            return TRUE;
+            return true;
         }
     }
 
     /*
      * Assume no redirection is needed for all other cases.
      */
-    return FALSE;
+    return false;
 }
 
 /*
@@ -100,9 +100,9 @@ needs_redirection(int std_handle)
 void
 create_console(void)
 {
-    gboolean must_redirect_stdin;
-    gboolean must_redirect_stdout;
-    gboolean must_redirect_stderr;
+    bool must_redirect_stdin;
+    bool must_redirect_stdout;
+    bool must_redirect_stderr;
 
     if (stdin_capture) {
         /* We've been handed "-i -". Don't mess with stdio. */
@@ -160,7 +160,7 @@ do a FreeConsole() first. */
         FreeConsole();
         if (AllocConsole()) {
             /* That succeeded. */
-            console_wait = TRUE;
+            console_wait = true;
             SetConsoleTitle(_T("Wireshark Debug Console"));
         } else {
             /* On Windows XP, this still fails; FreeConsole() apparently
@@ -188,15 +188,15 @@ do a FreeConsole() first. */
     atexit(destroy_console);
 
     /* Well, we have a console now. */
-    has_console = TRUE;
+    has_console = true;
 }
 
 void
 restore_pipes(void)
 {
-    gboolean must_redirect_stdin;
-    gboolean must_redirect_stdout;
-    gboolean must_redirect_stderr;
+    bool must_redirect_stdin;
+    bool must_redirect_stdout;
+    bool must_redirect_stderr;
 
     HANDLE fd;
 
@@ -255,7 +255,7 @@ restore_pipes(void)
     atexit(destroy_console);
 
     /* Well, we have a console now. */
-    has_console = TRUE;
+    has_console = true;
 }
 
 void
@@ -269,24 +269,24 @@ destroy_console(void)
 }
 
 void
-set_console_wait(gboolean set_console_wait)
+set_console_wait(bool set_console_wait)
 {
     console_wait = set_console_wait;
 }
 
-gboolean
+bool
 get_console_wait(void)
 {
     return console_wait;
 }
 
 void
-set_stdin_capture(gboolean set_stdin_capture)
+set_stdin_capture(bool set_stdin_capture)
 {
     stdin_capture = set_stdin_capture;
 }
 
-gboolean
+bool
 get_stdin_capture(void)
 {
     return stdin_capture;

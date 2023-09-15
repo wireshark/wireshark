@@ -46,24 +46,24 @@ void destroy_console(void);
  * @param console_wait set/no set console wait
  */
 WS_DLL_PUBLIC
-void set_console_wait(gboolean console_wait);
+void set_console_wait(bool console_wait);
 /** get console wait
  * @return set/no set console wait
  */
 WS_DLL_PUBLIC
-gboolean get_console_wait(void);
+bool get_console_wait(void);
 
 /** Set stdin capture.
  * @param console_wait set/no stdin_capture
  */
 WS_DLL_PUBLIC
-void set_stdin_capture(gboolean set_stdin_capture);
+void set_stdin_capture(bool set_stdin_capture);
 
 /** get stdin caputre
  * @return set/no set stdin_capture
  */
 WS_DLL_PUBLIC
-gboolean get_stdin_capture(void);
+bool get_stdin_capture(void);
 #endif/* _WIN32 */
 
 #ifdef __cplusplus
