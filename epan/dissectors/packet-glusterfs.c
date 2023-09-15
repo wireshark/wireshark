@@ -955,7 +955,7 @@ static const value_string glusterfs_error_codes[] = {
 
 	/* Solaris */
 	{801, "Facility is not active"},	/* GF_ERROR_CODE_NOTACTIVE */
-	{802, "locked lock was unmapped"},	/* GF_ERROR_CODE_LOCKUNMAPPED */
+	{802, "Locked lock was unmapped"},	/* GF_ERROR_CODE_LOCKUNMAPPED */
 
 	/* BSD system */
 	{901, "Too many processes"},	/* GF_ERROR_CODE_PROCLIM */

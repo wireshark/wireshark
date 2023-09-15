@@ -844,7 +844,7 @@ static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 21, "Interface Switching Capability Descriptor" },
     { 22, "Bandwidth Constraints" },
     { 23, "Unconstrained TE LSP Count (sub-)TLV" },
-    { 24, "remote AS number" },
+    { 24, "Remote AS number" },
     { 25, "IPv4 remote ASBR Identifier" },
     { 26, "IPv6 remote ASBR Identifier" },
     { 27, "Interface Adjustment Capability Descriptor (IACD)" },

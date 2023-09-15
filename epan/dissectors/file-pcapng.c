@@ -481,7 +481,7 @@ static const value_string timestamp_resolution_base_vals[] = {
 };
 
 static const value_string interface_filter_type_vals[] = {
-    { 0, "libpcap string" },
+    { 0, "Libpcap string" },
     { 1, "BPF program" },
     { 0, NULL }
 };

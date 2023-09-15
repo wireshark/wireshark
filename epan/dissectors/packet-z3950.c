@@ -648,7 +648,7 @@ static const value_string z3950_bib1_diagconditions[] = {
     { 1067, "Encapsulation: Encapsulated sequence of PDUs not supported" },
     { 1068, "Encapsulation: Base operation (and encapsulated PDUs) not executed based on pre-screening analysis" },
     { 1069, "No syntaxes available for this request" },
-    { 1070, "user not authorized to receive record(s) in requested syntax" },
+    { 1070, "User not authorized to receive record(s) in requested syntax" },
     { 1071, "preferredRecordSyntax not supplied" },
     { 1072, "Query term includes characters that do not translate into the target character set" },
     { 1073, "Database records do not contain data associated with access point" },

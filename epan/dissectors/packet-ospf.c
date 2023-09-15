@@ -353,7 +353,7 @@ static const value_string ls_type_vals[] = {
 static const value_string ls_opaque_type_vals[] = {
     {OSPF_LSA_MPLS_TE,      "Traffic Engineering LSA"                   },
     {OSPF_LSA_SYCAMORE,     "Sycamore Optical Topology Descriptions"    },
-    {OSPF_LSA_GRACE,        "grace-LSA"                                 },
+    {OSPF_LSA_GRACE,        "Grace-LSA"                                 },
     {OSPF_LSA_OPAQUE_RI,    "Router Information (RI)"                   },
     {OSPF_LSA_L1VPN,        "L1VPN LSA"                                 },
     {OSPF_LSA_IAS_TE_V2,    "Inter-AS-TE-v2 LSA"                        },

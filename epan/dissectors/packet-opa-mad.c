@@ -591,7 +591,7 @@ static const value_string LinkDownReason[] = {
     { 36, "Neighbor Unknown (not locally initiated)" },
     { 39, "FM initiated bounce" },
     { 40, "Link outside speed policy" },
-    { 41, "link downgrade outside" },
+    { 41, "Link downgrade outside" },
     { 49, "Disconnected" },
     { 50, "Local media not installed" },
     { 51, "Not installed" },

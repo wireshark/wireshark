@@ -393,7 +393,7 @@ static const value_string icmp_ext_class_str[] = {
  */
 static const value_string interface_role_str[] = {
 	{0, "IP interface upon which datagram arrived"},
-	{1, "sub-IP component of an IP interface upon which datagram arrived"},
+	{1, "Sub-IP component of an IP interface upon which datagram arrived"},
 	{2, "IP interface through which datagram would be forwarded"},
 	{3, "IP next-hop to which datagram would be forwarded"},
 	{0, NULL}

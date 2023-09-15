@@ -176,9 +176,9 @@ static const value_string greb_attribute_types[] = {
 #define GREB_ATTRB_BYPASS_INTERVAL 10
     {GREB_ATTRB_BYPASS_INTERVAL, "Bypass interval"},
 #define GREB_ATTRB_ONLY_FIRST_TUNNEL 11
-    {GREB_ATTRB_ONLY_FIRST_TUNNEL, "only first tunnel (DSL)"},
+    {GREB_ATTRB_ONLY_FIRST_TUNNEL, "Only first tunnel (DSL)"},
 #define GREB_ATTRB_OVERFLOW_TO_SECOND 12
-    {GREB_ATTRB_OVERFLOW_TO_SECOND, "overflow to second tunnel (LTE)"},
+    {GREB_ATTRB_OVERFLOW_TO_SECOND, "Overflow to second tunnel (LTE)"},
 #define GREB_ATTRB_IPV6_PREFIX 13
     {GREB_ATTRB_IPV6_PREFIX, "IPv6 prefix assigned by HAAP"},
 #define GREB_ATTRB_ACTIVE_HELLO_INTERVAL 14

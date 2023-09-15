@@ -11,7 +11,7 @@
 
 /*
  * Based on "Banana Protocol Specifications"
- * http://twistedmatrix.com/projects/core/documentation/specifications/banana.html
+ * https://twisted.org/documents/16.1.1/core/specifications/banana.html
  */
 
 #include "config.h"

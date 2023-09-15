@@ -606,7 +606,7 @@ static const value_string terminal_types_vals[] = {
     {0x070B, "DVD Audio"},
     {0x070C, "TV Tuner Audio"},
     {0x070D, "Satellite Receiver Audio"},
-    {0x070E, "cable Tuner Audio"},
+    {0x070E, "Cable Tuner Audio"},
     {0x070F, "DSS Audio"},
     {0x0710, "Radio Receiver"},
     {0x0711, "Radio Transmitter"},

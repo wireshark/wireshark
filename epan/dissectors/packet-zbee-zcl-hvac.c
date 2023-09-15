@@ -182,7 +182,7 @@ static const value_string zbee_zcl_pump_config_control_operation_mode_names[] = 
 static const value_string zbee_zcl_pump_config_control_control_mode_names[] = {
     {0, "Constant Speed"},
     {1, "Constant Pressure"},
-    {2, "proportional Pressure"},
+    {2, "Proportional Pressure"},
     {3, "Constant Flow"},
     {4, "Reserved"},
     {5, "Constant Temperature"},

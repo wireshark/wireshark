@@ -1304,7 +1304,7 @@ static const value_string rsvp_routing_error_vals[] = {
     {   5, "No route available toward destination"},
     {   6, "Unacceptable label value"},
     {   7, "RRO indicated routing loops"},
-    {   8, "non-RSVP-capable router stands in the path"},
+    {   8, "Non-RSVP-capable router stands in the path"},
     {   9, "MPLS label allocation failure"},
     {  10, "Unsupported L3PID"},
     {  11, "Label Set"},

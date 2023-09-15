@@ -3960,7 +3960,7 @@ static const value_string  wbxml_uaprof_tags_cp2[] = {
 	{0x18, "prf:JavaScriptVersion"},
 	{0x19, "prf:PreferenceForFrames"},
 	{0x1A, "prf:TablesCapable"},
-	{0x1B, "Prf:XhtmlVersion"},
+	{0x1B, "prf:XhtmlVersion"},
 	{0x1C, "prf:XhtmlModules"},
 
 	{ 0x00, NULL }

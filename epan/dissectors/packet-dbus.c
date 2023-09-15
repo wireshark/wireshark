@@ -92,7 +92,7 @@ static const value_string field_code_vals[] = {
 	{ DBUS_HEADER_FIELD_ERROR_NAME, "Error name" },
 	{ DBUS_HEADER_FIELD_REPLY_SERIAL, "Reply serial" },
 	{ DBUS_HEADER_FIELD_DESTINATION, "Destination" },
-	{ DBUS_HEADER_FIELD_SENDER, "Sender" },
+	{ DBUS_HEADER_FIELD_SENDER, "sender" },
 	{ DBUS_HEADER_FIELD_SIGNATURE, "Signature" },
 	{ DBUS_HEADER_FIELD_UNIX_FDS, "Unix FDs" },
 	{ 0, NULL }

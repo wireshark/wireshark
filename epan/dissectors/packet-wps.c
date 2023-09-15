@@ -589,7 +589,7 @@ static const value_string eapwps_tlv_configuration_error_vals[] = {
   {  6, "Network auth failure" },
   {  7, "Network association failure" },
   {  8, "No DHCP response" },
-  {  9, "failed DHCP config" },
+  {  9, "Failed DHCP config" },
   { 10, "IP address conflict" },
   { 11, "Couldn't connect to Registrar" },
   { 12, "Multiple PBC sessions detected" },

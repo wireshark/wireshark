@@ -597,8 +597,27 @@ class ValueString:
             last_val =  list(self.parsed_vals)[-1]
             if not first_val in matching_label_entries or not last_val in matching_label_entries:
                 return
-
             print('Warning:', self.file, ': value_string', self.name, 'Labels match value except for 1!', matching_label_entries, num_items, self)
+
+        # Do all labels start with lower-or-upper char?
+        startLower,startUpper = 0,0
+        for val in self.parsed_vals:
+            first_letter = self.parsed_vals[val][1]
+            if first_letter.isalpha():
+                if first_letter.isupper():
+                    startUpper += 1
+                else:
+                    startLower += 1
+        if startLower > 0 and startUpper > 0:
+            if startLower+startUpper > 10 and (startLower <=3 or startUpper <=3):
+                standouts = []
+                if startLower < startUpper:
+                    standouts += [self.parsed_vals[val] for val in self.parsed_vals if self.parsed_vals[val][1].islower()]
+                if startLower > startUpper:
+                    standouts += [self.parsed_vals[val] for val in self.parsed_vals if self.parsed_vals[val][1].isupper()]
+
+                print('Note:', self.file, ': value_string', self.name, 'mix of upper', startUpper, 'and lower', startLower, standouts)
+
 
     def __str__(self):
         return  self.name + '= { ' + self.raw_vals + ' }'
