@@ -1139,7 +1139,7 @@ static const value_string evpn_nlri_esi_type[] = {
 #define BGP_MAJOR_ERROR_HT_EXPIRED    4
 #define BGP_MAJOR_ERROR_STATE_MACHINE 5
 #define BGP_MAJOR_ERROR_CEASE         6
-#define BGP_MAJOR_ERROR_CAP_MSG       7
+#define BGP_MAJOR_ERROR_ROUTE_REFRESH 7
 
 static const value_string bgpnotify_major[] = {
     { BGP_MAJOR_ERROR_MSG_HDR,       "Message Header Error" },
@@ -1148,7 +1148,7 @@ static const value_string bgpnotify_major[] = {
     { BGP_MAJOR_ERROR_HT_EXPIRED,    "Hold Timer Expired" },
     { BGP_MAJOR_ERROR_STATE_MACHINE, "Finite State Machine Error" },
     { BGP_MAJOR_ERROR_CEASE,         "Cease" },
-    { BGP_MAJOR_ERROR_CAP_MSG,       "CAPABILITY Message Error" },
+    { BGP_MAJOR_ERROR_ROUTE_REFRESH, "ROUTE-REFRESH Message Error" },    /* RFC 7313 - Enhanced Route Refresh Capability for BGP-4 */
     { 0, NULL }
 };
 
@@ -1219,11 +1219,9 @@ static const value_string bgpnotify_minor_cease[] = {
     { 0,                                 NULL }
 };
 
-static const value_string bgpnotify_minor_cap_msg[] = {
-    { 1, "Invalid Action Value" },
-    { 2, "Invalid Capability Length" },
-    { 3, "Malformed Capability Value" },
-    { 4, "Unsupported Capability Code" },
+/* RFC7313 - Enhanced Route Refresh Capability for BGP-4 */
+static const value_string bgpnotify_minor_rr_msg[] = {
+    { 1, "Invalid Message Length" },
     { 0, NULL }
 };
 
@@ -2087,7 +2085,7 @@ static int hf_bgp_notify_minor_update_msg = -1;
 static int hf_bgp_notify_minor_ht_expired = -1;
 static int hf_bgp_notify_minor_state_machine = -1;
 static int hf_bgp_notify_minor_cease = -1;
-static int hf_bgp_notify_minor_cap_msg = -1;
+static int hf_bgp_notify_minor_rr_msg = -1;
 static int hf_bgp_notify_minor_unknown = -1;
 static int hf_bgp_notify_data = -1;
 static int hf_bgp_notify_error_open_bad_peer_as = -1;
@@ -11018,8 +11016,8 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
         case BGP_MAJOR_ERROR_CEASE:
             proto_tree_add_item(tree, hf_bgp_notify_minor_cease, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
-        case BGP_MAJOR_ERROR_CAP_MSG:
-            proto_tree_add_item(tree, hf_bgp_notify_minor_cap_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        case BGP_MAJOR_ERROR_ROUTE_REFRESH:
+            proto_tree_add_item(tree, hf_bgp_notify_minor_rr_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
         default:
             ti = proto_tree_add_item(tree, hf_bgp_notify_minor_unknown, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -11459,9 +11457,9 @@ proto_register_bgp(void)
       { &hf_bgp_notify_minor_cease,
         { "Minor error Code (Cease)", "bgp.notify.minor_error_cease", FT_UINT8, BASE_DEC,
           VALS(bgpnotify_minor_cease), 0x0, NULL, HFILL }},
-      { &hf_bgp_notify_minor_cap_msg,
-        { "Minor error Code (Capability Message)", "bgp.notify.minor_error_capability", FT_UINT8, BASE_DEC,
-          VALS(bgpnotify_minor_cap_msg), 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_minor_rr_msg,
+        { "Minor error Code (Route-Refresh message)", "bgp.notify.minor_error_route_refresh", FT_UINT8, BASE_DEC,
+          VALS(bgpnotify_minor_rr_msg), 0x0, NULL, HFILL }},
       { &hf_bgp_notify_minor_unknown,
         { "Minor error Code (Unknown)", "bgp.notify.minor_error_unknown", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
