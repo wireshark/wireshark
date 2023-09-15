@@ -2599,6 +2599,13 @@ detect_trailing_stray_characters(guint encoding, const char *string, gint length
 	}
 }
 
+static void
+free_fvalue_cb(void *data)
+{
+	fvalue_t *fv = (fvalue_t*)data;
+	fvalue_free(fv);
+}
+
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 static proto_item *
@@ -2615,6 +2622,13 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	const char *stringval = NULL;
 	nstime_t    time_stamp;
 	gboolean    length_error;
+
+	/* Ensure that the newly created fvalue_t is freed if we throw an
+	 * exception before adding it to the tree. (gcc creates clobbering
+	 * when it optimizes the equivalent TRY..EXCEPT implementation.)
+	 * XXX: Move the new_field_info() call inside here?
+	 */
+	CLEANUP_PUSH(free_fvalue_cb, new_fi->value);
 
 	switch (new_fi->hfinfo->type) {
 		case FT_NONE:
@@ -3062,8 +3076,12 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 	/* Don't add new node to proto_tree until now so that any exceptions
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
-	/* XXX. wouldn't be better to add this item to tree, with some special flag (FI_EXCEPTION?)
-	 *      to know which item caused exception? */
+	/* XXX. wouldn't be better to add this item to tree, with some special
+	 * flag (FI_EXCEPTION?) to know which item caused exception? For
+	 * strings and bytes, we would have to set new_fi->value to something
+	 * non-NULL, or otherwise ensure that proto_item_fill_display_label
+	 * could handle NULL values. */
+	CLEANUP_POP
 	pi = proto_tree_add_node(tree, new_fi);
 
 	switch (new_fi->hfinfo->type) {
