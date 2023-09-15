@@ -46,7 +46,7 @@ Check the Developer's guide for instructions.
 Wireshark can be cross-compiled for Windows using Linux.
 Check the Developer's guide for instructions.
 
-Packet list sorting has been updated.
+Packet list sorting has been improved.
 
 menu:Tools[Browser (SSL Keylog)] can launch your web browser with the
 SSLKEYLOGFILE environment variable set to the appropriate value.
@@ -125,7 +125,7 @@ The following features are new (or have been significantly updated) since versio
 
   ** When parsing absolute time values the display filter engine has learned
      to understand timezones as specified in
-     (https://man.netbsd.org/strptime.3[strptime(3)]), including some common
+     https://man.netbsd.org/strptime.3[strptime(3)], including some common
      North American designations. Arbitrary timezone names are not supported
      however. Previously only ISO8601 offsets and the "UTC" designation was understood.
 
@@ -303,11 +303,11 @@ Zigbee TLV
 * IPv6: The dissector has a new preference to show some semantic details
   about addresses (default off).
 
-* IPv6: The dissector now supports dissecting
+* IPv6: The dissector now supports dissecting the
   https://www.ipv6plus.net/Phase3/apn6/[
   Application-aware IPv6 Networking (APN6) option]
-  in the Hop-by-Hop Options Header (HBH) and Destination Options Header (DOH).
-  This feature supports to dissect all three types of APN ID,
+  in the Hop-by-Hop Options Header (HBH) and Destination Options Header (DOH),
+  including all three types of APN ID,
   which are 32-bit, 64-bit and 128-bit in length.
 
 * XML: The dissector now supports display character according to the "encoding"
@@ -346,7 +346,7 @@ Too many other protocol updates have been made to list them all here.
 
 === New and Updated Codec support
 
-Adaptive Multi-Rate (AMR), if compiled with https://sourceforge.net/projects/opencore-amr/[opencore-amr]
+Adaptive Multi-Rate (AMR), if compiled with https://sourceforge.net/projects/opencore-amr/[opencore-amr].
 
 //_Non-empty section placeholder._
 
