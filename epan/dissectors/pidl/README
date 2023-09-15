@@ -104,7 +104,3 @@ pidl complains that inline arrays aren't supported for these:
 pidl generates possibly-incorrect code for these - this needs checking:
 
 	rfr/rfr.idl
-
-pidl rejects these with errors:
-
-	wkssvc.cnf
