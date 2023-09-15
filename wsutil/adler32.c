@@ -17,10 +17,10 @@
 #define BASE 65521 /* largest prime smaller than 65536 */
 
 /*--- update_adler32 --------------------------------------------------------*/
-guint32 update_adler32(guint32 adler, const guint8 *buf, size_t len)
+uint32_t update_adler32(uint32_t adler, const uint8_t *buf, size_t len)
 {
-  guint32 s1 = adler & 0xffff;
-  guint32 s2 = (adler >> 16) & 0xffff;
+  uint32_t s1 = adler & 0xffff;
+  uint32_t s2 = (adler >> 16) & 0xffff;
   size_t n;
 
   for (n = 0; n < len; n++) {
@@ -31,15 +31,15 @@ guint32 update_adler32(guint32 adler, const guint8 *buf, size_t len)
 }
 
 /*--- adler32 ---------------------------------------------------------------*/
-guint32 adler32_bytes(const guint8 *buf, size_t len)
+uint32_t adler32_bytes(const uint8_t *buf, size_t len)
 {
   return update_adler32(1, buf, len);
 }
 
 /*--- adler32_str -----------------------------------------------------------*/
-guint32 adler32_str(const char *buf)
+uint32_t adler32_str(const char *buf)
 {
-  return update_adler32(1, (const guint8*)buf, strlen(buf));
+  return update_adler32(1, (const uint8_t*)buf, strlen(buf));
 }
 
 /*---------------------------------------------------------------------------*/

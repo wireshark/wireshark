@@ -16,9 +16,9 @@
 #include <gcrypt.h>
 
 typedef struct {
-    guint8 L[EAX_SIZEOF_KEY];
-    guint8 D[EAX_SIZEOF_KEY];
-    guint8 Q[EAX_SIZEOF_KEY];
+    uint8_t L[EAX_SIZEOF_KEY];
+    uint8_t D[EAX_SIZEOF_KEY];
+    uint8_t Q[EAX_SIZEOF_KEY];
 } eax_s;
 
 static eax_s instance;
@@ -26,10 +26,10 @@ static eax_s instance;
 /* these are defined as macros so they'll be easy to redo in assembly if desired */
 #define BLK_CPY(dst, src) { memcpy(dst, src, EAX_SIZEOF_KEY); }
 #define BLK_XOR(dst, src) { int z; for (z=0; z < EAX_SIZEOF_KEY; z++) dst[z] ^= src[z]; }
-static void Dbl(guint8 *out, const guint8 *in);
-static void CTR(const guint8 *ws, guint8 *pK, guint8 *pN, guint16 SizeN);
-static void CMAC(guint8 *pK, guint8 *ws, const guint8 *pN, guint16 SizeN);
-static void dCMAC(guint8 *pK, guint8 *ws, const guint8 *pN, guint16 SizeN, const guint8 *pC, guint16 SizeC);
+static void Dbl(uint8_t *out, const uint8_t *in);
+static void CTR(const uint8_t *ws, uint8_t *pK, uint8_t *pN, uint16_t SizeN);
+static void CMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN);
+static void dCMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, const uint8_t *pC, uint16_t SizeC);
 void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_KEY]);
 
 /*!
@@ -43,20 +43,20 @@ void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_
  @param[in]     SizeC   byte length of ciphertext (pC) buffer
  @param[in]     pMac    four-byte Message Authentication Code
  @param[in]     Mode    EAX_MODE_CLEARTEXT_AUTH or EAX_MODE_CIPHERTEXT_AUTH
- @return                TRUE if message has been authenticated; FALSE if not
+ @return                true if message has been authenticated; false if not
                         authenticated, invalid Mode or error
  */
-gboolean Eax_Decrypt(guint8 *pN, guint8 *pK, guint8 *pC,
-                     guint32 SizeN, guint32 SizeK, guint32 SizeC, MAC_T *pMac,
-                     guint8 Mode)
+bool Eax_Decrypt(uint8_t *pN, uint8_t *pK, uint8_t *pC,
+                     uint32_t SizeN, uint32_t SizeK, uint32_t SizeC, MAC_T *pMac,
+                     uint8_t Mode)
 {
-    guint8 wsn[EAX_SIZEOF_KEY];
-    guint8 wsc[EAX_SIZEOF_KEY];
+    uint8_t wsn[EAX_SIZEOF_KEY];
+    uint8_t wsc[EAX_SIZEOF_KEY];
     int i;
 
     /* key size must match this implementation */
     if (SizeK != EAX_SIZEOF_KEY)
-        return FALSE;
+        return false;
 
     /* the key is new */
     for (i = 0; i < EAX_SIZEOF_KEY; i++)
@@ -78,7 +78,7 @@ gboolean Eax_Decrypt(guint8 *pN, guint8 *pK, guint8 *pC,
      */
     if (Mode == EAX_MODE_CLEARTEXT_AUTH)
     {
-        return (memcmp(pMac, &wsn[EAX_SIZEOF_KEY-sizeof(*pMac)], sizeof(*pMac)) ? FALSE : TRUE);
+        return (memcmp(pMac, &wsn[EAX_SIZEOF_KEY-sizeof(*pMac)], sizeof(*pMac)) ? false : true);
 
     }
 
@@ -89,7 +89,7 @@ gboolean Eax_Decrypt(guint8 *pN, guint8 *pK, guint8 *pC,
     else if (Mode == EAX_MODE_CIPHERTEXT_AUTH)
     {
         if (SizeC == 0)
-            return (memcmp(pMac, &wsn[EAX_SIZEOF_KEY-sizeof(*pMac)], sizeof(*pMac)) ? FALSE : TRUE);
+            return (memcmp(pMac, &wsn[EAX_SIZEOF_KEY-sizeof(*pMac)], sizeof(*pMac)) ? false : true);
         {
             /* first copy the nonce into our working space */
             BLK_CPY(wsc, instance.Q);
@@ -99,17 +99,17 @@ gboolean Eax_Decrypt(guint8 *pN, guint8 *pK, guint8 *pC,
         if (memcmp(pMac, &wsc[EAX_SIZEOF_KEY-sizeof(*pMac)], sizeof(*pMac)) == 0)
         {
             CTR(wsn, pK, pC, SizeC);
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 /* set up D or Q from L */
-static void Dbl(guint8 *out, const guint8 *in)
+static void Dbl(uint8_t *out, const uint8_t *in)
 {
     int i;
-    guint8 carry = 0;
+    uint8_t carry = 0;
 
     /* this might be a lot more efficient in assembly language */
     for (i=0; i < EAX_SIZEOF_KEY; i++)
@@ -121,24 +121,24 @@ static void Dbl(guint8 *out, const guint8 *in)
         out[0] ^= 0x87;
 }
 
-static void CMAC(guint8 *pK, guint8 *ws, const guint8 *pN, guint16 SizeN)
+static void CMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN)
 {
     dCMAC(pK, ws, pN, SizeN, NULL, 0);
 }
 
-static void dCMAC(guint8 *pK, guint8 *ws, const guint8 *pN, guint16 SizeN, const guint8 *pC, guint16 SizeC)
+static void dCMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, const uint8_t *pC, uint16_t SizeC)
 {
     gcry_cipher_hd_t cipher_hd;
-    guint8 *work;
-    guint8  *ptr;
-    guint16 SizeT = SizeN + SizeC;
-    guint16 worksize = SizeT;
+    uint8_t *work;
+    uint8_t *ptr;
+    uint16_t SizeT = SizeN + SizeC;
+    uint16_t worksize = SizeT;
 
     /* worksize must be an integral multiple of 16 */
     if (SizeT & 0xf)  {
         worksize += 0x10 - (worksize & 0xf);
     }
-    work = (guint8 *)g_malloc(worksize);
+    work = (uint8_t *)g_malloc(worksize);
     if (work == NULL) {
         return;
     }
@@ -187,10 +187,10 @@ static void dCMAC(guint8 *pK, guint8 *ws, const guint8 *pN, guint16 SizeN, const
     return;
 }
 
-static void CTR(const guint8 *ws, guint8 *pK, guint8 *pN, guint16 SizeN)
+static void CTR(const uint8_t *ws, uint8_t *pK, uint8_t *pN, uint16_t SizeN)
 {
     gcry_cipher_hd_t cipher_hd;
-    guint8 ctr[EAX_SIZEOF_KEY];
+    uint8_t ctr[EAX_SIZEOF_KEY];
 
     BLK_CPY(ctr, ws);
     ctr[12] &= 0x7f;

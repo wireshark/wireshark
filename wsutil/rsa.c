@@ -33,7 +33,7 @@ rsa_privkey_to_sexp(gnutls_x509_privkey_t priv_key, char **err)
     size_t         tmp_size;
     gcry_error_t   gret;
     gcry_sexp_t    rsa_priv_key = NULL;
-    gint           i;
+    int            i;
     gcry_mpi_t     rsa_params[RSA_PARS];
     *err = NULL;
 
@@ -95,8 +95,8 @@ rsa_load_pem_key(FILE *fp, char **err)
     gnutls_x509_privkey_t priv_key;
     gnutls_datum_t        key;
     ws_statb64            statbuf;
-    gint                  ret;
-    guint                 bytes;
+    int                   ret;
+    unsigned              bytes;
     *err = NULL;
 
     if (ws_fstat64(ws_fileno(fp), &statbuf) == -1) {
@@ -122,7 +122,7 @@ rsa_load_pem_key(FILE *fp, char **err)
     /* load all file contents into a datum buffer*/
     key.data = (unsigned char *)g_malloc((size_t)statbuf.st_size);
     key.size = (int)statbuf.st_size;
-    bytes = (guint) fread(key.data, 1, key.size, fp);
+    bytes = (unsigned) fread(key.data, 1, key.size, fp);
     if (bytes < key.size) {
         if (bytes == 0 && ferror(fp)) {
             *err = ws_strdup_printf("can't read from file %d bytes, got error %s",
@@ -173,7 +173,7 @@ BAGTYPE(gnutls_pkcs12_bag_type_t x) {
 }
 
 gnutls_x509_privkey_t
-rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
+rsa_load_pkcs12(FILE *fp, const char *cert_passwd, char **err)
 {
     int                       i, j, ret;
     int                       rest;
@@ -348,7 +348,7 @@ done:
 }
 
 void
-rsa_private_key_free(gpointer key)
+rsa_private_key_free(void * key)
 {
     gcry_sexp_release((gcry_sexp_t) key);
 }
@@ -356,7 +356,7 @@ rsa_private_key_free(gpointer key)
 #else /* ! defined(HAVE_LIBGNUTLS) */
 
 void
-rsa_private_key_free(gpointer key _U_)
+rsa_private_key_free(void * key _U_)
 {
 }
 

@@ -48,9 +48,9 @@ gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *buffer, size_t l
 	return result;
 }
 
-void crypt_des_ecb(guint8 *output, const guint8 *buffer, const guint8 *key56)
+void crypt_des_ecb(uint8_t *output, const uint8_t *buffer, const uint8_t *key56)
 {
-	guint8 key64[8];
+	uint8_t key64[8];
 	gcry_cipher_hd_t handle;
 
 	memset(output, 0x00, 8);
@@ -76,9 +76,9 @@ void crypt_des_ecb(guint8 *output, const guint8 *buffer, const guint8 *key56)
 	gcry_cipher_close(handle);
 }
 
-size_t rsa_decrypt_inplace(const guint len, guchar* data, gcry_sexp_t pk, gboolean pkcs1_padding, char **err)
+size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t pk, bool pkcs1_padding, char **err)
 {
-	gint        rc = 0;
+	int         rc = 0;
 	size_t      decr_len = 0, i = 0;
 	gcry_sexp_t s_data = NULL, s_plain = NULL;
 	gcry_mpi_t  encr_mpi = NULL, text = NULL;
@@ -145,7 +145,7 @@ size_t rsa_decrypt_inplace(const guint len, guchar* data, gcry_sexp_t pk, gboole
 		rc = 0;
 		for (i = 1; i < decr_len; i++) {
 			if (data[i] == 0) {
-				rc = (gint) i+1;
+				rc = (int) i+1;
 				break;
 			}
 		}
@@ -163,14 +163,14 @@ out:
 }
 
 gcry_error_t
-hkdf_expand(int hashalgo, const guint8 *prk, guint prk_len, const guint8 *info, guint info_len,
-            guint8 *out, guint out_len)
+hkdf_expand(int hashalgo, const uint8_t *prk, unsigned prk_len, const uint8_t *info, unsigned info_len,
+            uint8_t *out, unsigned out_len)
 {
 	// Current maximum hash output size: 48 bytes for SHA-384.
-	guchar	        lastoutput[48];
+	unsigned char	        lastoutput[48];
 	gcry_md_hd_t    h;
 	gcry_error_t    err;
-	const guint     hash_len = gcry_md_get_algo_dlen(hashalgo);
+	const unsigned  hash_len = gcry_md_get_algo_dlen(hashalgo);
 
 	/* Some sanity checks */
 	if (!(out_len > 0 && out_len <= 255 * hash_len) ||
@@ -183,14 +183,14 @@ hkdf_expand(int hashalgo, const guint8 *prk, guint prk_len, const guint8 *info, 
 		return err;
 	}
 
-	for (guint offset = 0; offset < out_len; offset += hash_len) {
+	for (unsigned offset = 0; offset < out_len; offset += hash_len) {
 		gcry_md_reset(h);
 		gcry_md_setkey(h, prk, prk_len);                    /* Set PRK */
 		if (offset > 0) {
 			gcry_md_write(h, lastoutput, hash_len);     /* T(1..N) */
 		}
 		gcry_md_write(h, info, info_len);                   /* info */
-		gcry_md_putc(h, (guint8) (offset / hash_len + 1));  /* constant 0x01..N */
+		gcry_md_putc(h, (uint8_t) (offset / hash_len + 1));  /* constant 0x01..N */
 
 		memcpy(lastoutput, gcry_md_read(h, hashalgo), hash_len);
 		memcpy(out + offset, lastoutput, MIN(hash_len, out_len - offset));

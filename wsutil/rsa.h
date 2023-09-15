@@ -38,7 +38,7 @@ WS_DLL_PUBLIC gnutls_x509_privkey_t rsa_load_pem_key(FILE* fp, char **err);
 WS_DLL_PUBLIC gnutls_x509_privkey_t rsa_load_pkcs12(FILE* fp, const char *cert_passwd, char** err);
 #endif
 
-WS_DLL_PUBLIC void rsa_private_key_free(gpointer key);
+WS_DLL_PUBLIC void rsa_private_key_free(void * key);
 
 
 #endif /* __RSA_H__ */

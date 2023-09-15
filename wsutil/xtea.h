@@ -19,9 +19,9 @@
  */
 #include "wireshark.h"
 
-WS_DLL_PUBLIC void decrypt_xtea_ecb(guint8 plaintext[8], const guint8 ciphertext[8], const guint32 key[4], guint num_rounds);
+WS_DLL_PUBLIC void decrypt_xtea_ecb(uint8_t plaintext[8], const uint8_t ciphertext[8], const uint32_t key[4], unsigned num_rounds);
 
-WS_DLL_PUBLIC void decrypt_xtea_le_ecb(guint8 plaintext[8], const guint8 ciphertext[8], const guint32 key[4], guint num_rounds);
+WS_DLL_PUBLIC void decrypt_xtea_le_ecb(uint8_t plaintext[8], const uint8_t ciphertext[8], const uint32_t key[4], unsigned num_rounds);
 
 #endif /* __XTEA_H__ */
 

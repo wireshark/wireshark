@@ -16,31 +16,31 @@
 
 /************************************************************************/
 /* Note: copied from net80211/ieee80211_airpdcap_tkip.c			*/
-#define S_SWAP(a,b) { guint8 t = S[a]; S[a] = S[b]; S[b] = t; }
+#define S_SWAP(a,b) { uint8_t t = S[a]; S[a] = S[b]; S[b] = t; }
 
 /* Note: copied from FreeBSD source code, RELENG 6,			*/
 /*		sys/net80211/ieee80211_crypto_wep.c, 391		*/
 int Dot11DecryptWepDecrypt(
-	const guchar *seed,
+	const unsigned char *seed,
 	const size_t seed_len,
-	guchar *cypher_text,
+	unsigned char *cypher_text,
 	const size_t data_len)
 {
-	guint32 i, j, k, crc;
-	guint8 S[256];
-	guint8 icv[4];
+	uint32_t i, j, k, crc;
+	uint8_t S[256];
+	uint8_t icv[4];
 	size_t buflen;
 
 	/* Generate key stream (RC4 Pseudo-Random Number Generator) */
 	for (i = 0; i < 256; i++)
-		S[i] = (guint8)i;
+		S[i] = (uint8_t)i;
 	for (j = i = 0; i < 256; i++) {
 		j = (j + S[i] + seed[i % seed_len]) & 0xff;
 		S_SWAP(i, j);
 	}
 
 	/* Apply RC4 to data and compute CRC32 over decrypted data */
-	crc = ~(guint32)0;
+	crc = ~(uint32_t)0;
 	buflen = data_len;
 
 	for (i = j = k = 0; k < buflen; k++) {
@@ -55,10 +55,10 @@ int Dot11DecryptWepDecrypt(
 	crc = ~crc;
 
 	/* Encrypt little-endian CRC32 and verify that it matches with the received ICV */
-	icv[0] = (guint8)crc;
-	icv[1] = (guint8)(crc >> 8);
-	icv[2] = (guint8)(crc >> 16);
-	icv[3] = (guint8)(crc >> 24);
+	icv[0] = (uint8_t)crc;
+	icv[1] = (uint8_t)(crc >> 8);
+	icv[2] = (uint8_t)(crc >> 16);
+	icv[3] = (uint8_t)(crc >> 24);
 	for (k = 0; k < 4; k++) {
 		i = (i + 1) & 0xff;
 		j = (j + S[i]) & 0xff;

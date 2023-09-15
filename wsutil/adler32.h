@@ -18,9 +18,9 @@
 extern "C"{
 #endif
 
-WS_DLL_PUBLIC guint32 update_adler32(guint32 adler, const guint8 *buf, size_t len);
-WS_DLL_PUBLIC guint32 adler32_bytes(const guint8 *buf, size_t len);
-WS_DLL_PUBLIC guint32 adler32_str(const char *buf);
+WS_DLL_PUBLIC uint32_t update_adler32(uint32_t adler, const uint8_t *buf, size_t len);
+WS_DLL_PUBLIC uint32_t adler32_bytes(const uint8_t *buf, size_t len);
+WS_DLL_PUBLIC uint32_t adler32_str(const char *buf);
 
 #ifdef __cplusplus
 }

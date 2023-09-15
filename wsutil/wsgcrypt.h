@@ -36,10 +36,10 @@ WS_DLL_PUBLIC gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *bu
 
 /* Convenience function to encrypt 8 bytes in BUFFER with DES using the 56 bits KEY expanded to
    64 bits as key, encrypted data is returned in OUTPUT which must be at least 8 bytes large */
-WS_DLL_PUBLIC void crypt_des_ecb(guint8 *output, const guint8 *buffer, const guint8 *key56);
+WS_DLL_PUBLIC void crypt_des_ecb(uint8_t *output, const uint8_t *buffer, const uint8_t *key56);
 
 /* Convenience function for RSA decryption. Returns decrypted length on success, 0 on failure */
-WS_DLL_PUBLIC size_t rsa_decrypt_inplace(const guint len, guchar* data, gcry_sexp_t pk, gboolean pkcs1_padding, char **err);
+WS_DLL_PUBLIC size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t pk, bool pkcs1_padding, char **err);
 
 /**
  * RFC 5869 HMAC-based Extract-and-Expand Key Derivation Function (HKDF):
@@ -55,8 +55,8 @@ WS_DLL_PUBLIC size_t rsa_decrypt_inplace(const guint len, guchar* data, gcry_sex
  * @return 0 on success and an error code otherwise.
  */
 WS_DLL_PUBLIC gcry_error_t
-hkdf_expand(int hashalgo, const guint8 *prk, guint prk_len, const guint8 *info, guint info_len,
-            guint8 *out, guint out_len);
+hkdf_expand(int hashalgo, const uint8_t *prk, unsigned prk_len, const uint8_t *info, unsigned info_len,
+            uint8_t *out, unsigned out_len);
 
 /*
  * Calculate HKDF-Extract(salt, IKM) -> PRK according to RFC 5869.
@@ -64,7 +64,7 @@ hkdf_expand(int hashalgo, const guint8 *prk, guint prk_len, const guint8 *info, 
  * algorithm 'hashalgo' (e.g. 32 bytes for SHA-256).
  */
 static inline gcry_error_t
-hkdf_extract(int hashalgo, const guint8 *salt, size_t salt_len, const guint8 *ikm, size_t ikm_len, guint8 *prk)
+hkdf_extract(int hashalgo, const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len, uint8_t *prk)
 {
     /* PRK = HMAC-Hash(salt, IKM) where salt is key, and IKM is input. */
     return ws_hmac_buffer(hashalgo, prk, ikm, ikm_len, salt, salt_len);
