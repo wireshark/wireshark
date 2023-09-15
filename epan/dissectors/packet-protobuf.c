@@ -387,7 +387,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
  */
 static guint
 dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, packet_info *pinfo,
-    proto_item *ti_field, int wire_type, int field_type, const gchar* prepend_text, const PbwFieldDescriptor* field_desc,
+    proto_item *ti_field, int field_type, const gchar* prepend_text, const PbwFieldDescriptor* field_desc,
     json_dumper *dumper)
 {
     guint64 sub_value;
@@ -475,9 +475,10 @@ dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, p
 
         for (offset = start; offset < max_offset; offset += value_size) {
             protobuf_dissect_field_value(subtree, tvb, offset, value_size, pinfo, ti_field, field_type,
-                (wire_type == PROTOBUF_WIRETYPE_FIXED32 ? tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN)
+                (value_size == 4 ? tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN)
                     : tvb_get_guint64(tvb, offset, ENC_LITTLE_ENDIAN)),
                 prepend_text, field_desc, FALSE, dumper);
+
             prepend_text = ",";
         }
 
@@ -906,7 +907,6 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     ti_field_number = proto_tree_add_item_ret_uint64(field_tree, hf_protobuf_field_number, tvb, *offset, tag_length, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &field_number);
     ti_wire = proto_tree_add_item_ret_uint(field_tree, hf_protobuf_wire_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &wire_type);
     (*offset) += tag_length;
-
     /* try to find field_info first */
     if (message_desc) {
         /* find field descriptor according to field number from message descriptor */
@@ -1021,7 +1021,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
         }
         if (is_repeated && is_packed) {
             dissect_packed_repeated_field_values(tvb, *offset, value_length, pinfo, ti_field,
-                wire_type, field_type, "", field_desc, dumper);
+                field_type, "", field_desc, dumper);
         } else {
             protobuf_dissect_field_value(value_tree, tvb, *offset, value_length, pinfo, ti_field, field_type, value_uint64, "", field_desc,
                                          is_top_level, dumper);
