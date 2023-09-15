@@ -285,8 +285,8 @@
 		{ XCEPT_GROUP_WIRESHARK, XCEPT_CODE_ANY } }; \
 	except_try_push(catch_spec, 1, &exc); \
 	                                               \
-    	if(except_state & EXCEPT_CAUGHT)               \
-            except_state |= EXCEPT_RETHROWN;           \
+	if(except_state & EXCEPT_CAUGHT)               \
+	    except_state |= EXCEPT_RETHROWN;           \
 	except_state &= ~EXCEPT_CAUGHT;                \
 	                                               \
 	if (except_state == 0 && exc == 0)             \
@@ -402,9 +402,9 @@
 #define GET_MESSAGE			except_message(exc)
 
 #define RETHROW                                     \
-    {                                               \
-        /* check we're in a catch block */          \
-        ws_assert(except_state == EXCEPT_CAUGHT);    \
+{                                                   \
+	/* check we're in a catch block */          \
+	ws_assert(except_state == EXCEPT_CAUGHT);    \
 	/* we can't use except_rethrow here, as that pops a catch block \
 	 * off the stack, and we don't want to do that, because we want to \
 	 * excecute the FINALLY {} block first.     \
@@ -417,8 +417,8 @@
 	 * about with except_state in here would indicate that THROW is \
 	 * doing the wrong thing.                   \
 	 */					    \
-        longjmp(except_ch.except_jmp,1);            \
-    }
+	longjmp(except_ch.except_jmp,1);            \
+}
 
 #define EXCEPT_CODE			except_code(exc)
 
@@ -497,3 +497,16 @@
 
 
 #endif /* __EXCEPTIONS_H__ */
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

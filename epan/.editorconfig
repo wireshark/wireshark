@@ -44,6 +44,10 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
+[exceptions.h]
+indent_style = tab
+indent_size = tab
+
 [expert.[ch]]
 indent_style = tab
 indent_size = tab
