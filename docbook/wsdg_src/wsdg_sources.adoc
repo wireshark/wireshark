@@ -234,11 +234,12 @@ CMake can compile Wireshark for several different build types:
 
 |`RelWithDebInfo`
 |`-O2 -g`
-|Default, mix of optimization and debug capabilities
+|Default, build with default optimizations and generate debug symbols.
+Does not enable extra debugging code or debug level logs
 
 |`Debug`
-|`-O0 -g`
-|For debugging, no optimization
+|`-O0 -g -DWS_DEBUG -DWS_DEBUG_UTF_8`
+|For debugging, no optimization. Enables extra debugging code
 
 |`Release`
 |`-O3 -DNDEBUG`
@@ -251,7 +252,13 @@ CMake can compile Wireshark for several different build types:
 
 The default is `RelWithDebInfo`, which provides a good compromise of
 some optimization (`-O2`) along with including debug symbols (`-g`)
-and enabling full <<ChSrcLogging,logging capabilities>>.
+for release builds. For normal development coding you probably want to be
+using `Debug` build type or set -DENABLE_DEBUG=On, to enable full
+<<ChSrcLogging,logging capabilities>> and all assertions.
+
+CMake will automatically add the -DNDEBUG option to certain build
+types but this macro is not used very much in Wireshark code, if at all.
+
 To change the build type, set the CMake variable `CMAKE_BUILD_TYPE`, e.g.:
 
 [source,sh]
@@ -317,6 +324,17 @@ Optimization can make debugging a bit more difficult, e.g. by changing the
 execution order of statements. To disable optimization, set the
 <<ChSrcBuildType,build type>> to `Debug`.
 
+Full debug logs can be invaluable to investigate any issues with the code.
+By default debug level logs are only enabled with `Debug` build type. You
+can enable full debug logs and extra debugging code by configuring the
+ENABLE_DEBUG CMake option. This in turn will define the macro symbol
+`WS_DEBUG` and enable the full range of debugging code in Wireshark.
+
+There is an additional CMake knob called ENABLE_DEBUG_UTF_8 that can be used to
+control specifically the extra validation Wireshark performs internally
+for invalid UTF-8 encodings in internal strings, which should never happen
+and can be somewhat expensive to check during normal usage.
+
 Conversely, the `Release` or `MinSizeRel` build types can be used to optimize
 further for speed or size, but do not include debug symbols for use with
 debuggers, and completely disable <<ChSrcLoggingLevels,lower level logging>>
@@ -357,10 +375,10 @@ The following logging levels are defined from highest to lowest:
 
 By default logging output is generated for logging level "message" and above. If the logging level is lowered or raised
 all log output generated at or above this level is sent to the log output.
-Note that if the <<ChSrcBuildType,build type>> is set to `Release` or
-`MinSizeRel`, then by default all log output for the logging levels "debug" and
-"noisy" will be optimized away by the compiler and cannot be sent to the log
-output, regardless of the logging setings. To enable debugging for all build
+Note that if the <<ChSrcBuildType,build type>> is not set to `Debug`
+then by default all log output for the logging levels "debug" and
+"noisy" will be optimized away by the compiler and cannot be emitted to the log
+output, regardless of the logging setings. To enable debug logging for all build
 types, set the CMake variable `-DENABLE_DEBUG=ON`.
 
 There is also a special "echo" logging level used exclusively for temporary debugging print outs (usually
