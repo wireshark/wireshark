@@ -39,9 +39,20 @@ typedef void (*tap_finish_cb)(void *tapdata);
  * Flags to indicate what a tap listener's packet routine requires.
  */
 #define TL_REQUIRES_NOTHING         0x00000000	    /**< nothing */
-#define TL_REQUIRES_PROTO_TREE      0x00000001	    /**< full protocol tree */
+#define TL_REQUIRES_PROTO_TREE      0x00000001	    /**< non-NULL protocol tree */
 #define TL_REQUIRES_COLUMNS         0x00000002	    /**< columns */
 #define TL_REQUIRES_ERROR_PACKETS   0x00000004	    /**< include packet even if pinfo->flags.in_error_pkt is set */
+
+/** TL_REQUIRES_PROTO_TREE does not generate the full protocol tree;
+ * any fields not referenced (e.g., in a filter) will still be "faked."
+ * Note that if the tap does have a filter, it doesn't need
+ * TL_REQUIRES_PROTO_TREE because filtering implies needing a tree.
+ * It is for ensuring anything normally skipped with a NULL tree won't be,
+ * which may include constructing data to pass to the tap. To make all
+ * fields visible (which impacts performance), epan_set_always_visible()
+ * can be used at the same time as registering the tap.
+ * XXX - There should probably be a flag to set the tree visible.
+ */
 
 /** Flags to indicate what the tap listener does */
 #define TL_IS_DISSECTOR_HELPER      0x00000008	    /**< tap helps a dissector do work
