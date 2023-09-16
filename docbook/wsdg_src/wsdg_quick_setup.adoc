@@ -28,32 +28,45 @@ To build the manual pages, Developer's Guide and User's Guide, Asciidoctor, Xslt
 Perl is required to generate some code and run some code analysis checks.
 
 Some features of Wireshark require additional libraries to be installed.
+The processes for doing so on various UN*X families is shown here.
+
 There are shell scripts in the `tools` directory to install the packages
 and libraries required to build Wireshark. Usage is available with the
 `--help` option. `root` permission is required to run the scripts.
-The available scripts and their options:
+The available scripts and their options for a given family of UN*Xes are
+shown in the section for that family.
 
-Alpine Linux `(tools/alpine-setup.sh)`
+[discrete]
+==== Alpine Linux
+
+The setup script is tools/alpine-setup.sh; its options are:
 
 * `--install-optional` install optional software as well
 * `--install-all` install everything
 * `[other]` other options are passed as-is to apk
 
-Arch Linux and pacman-based systems `(tools/arch-setup.sh)`
+[discrete]
+==== Arch Linux and pacman-based systems
+
+The setup script is tools/arch-setup.sh; its options are:
 
 * `--install-optional` install optional software as well
 * `--install-test-deps` install packages required to run all tests
 * `--install-all` install everything
 * `[other]` other options are passed as-is to pacman
 
-BSD systems such as FreeBSD, NetBSD, OpenBSD, and DragonFly BSD
-`(tools/bsd-setup.sh)`
+[discrete]
+==== BSD systems such as FreeBSD, NetBSD, OpenBSD, and DragonFly BSD
+
+The setup script is tools/bsd-setup.sh; its options are:
 
 * `--install-optional` install optional software as well
 * `[other]` other options are passed as-is to pkg manager
 
-Debian, and Linux distributions based on Debian, such as Ubuntu
-`(tools/debian-setup.sh)`
+[discrete]
+====Debian, and Linux distributions based on Debian, such as Ubuntu
+
+The setup script is tools/debian-setup.sh; its options are:
 
 * `--install-optional` install optional software as well
 * `--install-deb-deps` install packages required to build the .deb file
@@ -63,9 +76,10 @@ Debian, and Linux distributions based on Debian, such as Ubuntu
 * `--install-all` install everything
 * `[other]` other options are passed as-is to apt
 
-RPM-based Linux distributions such as Red Hat, Centos, Fedora, and
-openSUSE +
-`(tools/rpm-setup.sh)`
+[discrete]
+==== RPM-based Linux distributions such as Red Hat, Centos, Fedora, and openSUSE +
+
+The setup script is tools/rpm-setup.sh; its options are:
 
 * `--install-optional` install optional software as well
 * `--install-rpm-deps` install packages required to build the .rpm file
@@ -74,13 +88,17 @@ openSUSE +
 * `--install-all` install everything
 * `[other]` other options are passed as-is to the packet manager
 
-For macOS, you must first install Xcode. After installing Xcode, the
-script `tools/macos-setup.sh` will install the rest of the tools and
-libraries required to build Wireshark, except for Qt 6, as well as the
-additional tools required to build the documentation and the libraries
-required for all Wireshark features. If you're using Homebrew, the
-script `tools/macos-setup-brew.sh` will install the same tools and
-libraries from Homebrew.
+[discrete]
+==== macOS
+
+You must first install Xcode.
+
+After installing Xcode, the setup script tools/macos-setup.sh will
+install the rest of the tools and libraries required to build Wireshark,
+except for Qt 6, as well as the additional tools required to build the
+documentation and the libraries required for all Wireshark features.  If
+you're using Homebrew, the script `tools/macos-setup-brew.sh` will
+install the same tools and libraries from Homebrew.
 
 If you will be building Wireshark with Qt 6, which is the default for
 Wireshark 4.0 and later, you will also have to install Qt; the
@@ -104,12 +122,6 @@ as they aren’t required.
 Qt 6 needs the "Qt 5 Compatibility Module" to be installed as well. Additionally, the module
 "Qt Multimedia" may be installed, to support advanced controls for playing back streams in the
 RTP Player dialog.
-
-If an install package is not available or you have a
-reason not to use it (maybe because it’s simply too old), you
-can install that tool from source code. The following sections
-will provide you with the webpage addresses where you can get
-these sources.
 
 [#ChSetupUNIXBuild]
 
