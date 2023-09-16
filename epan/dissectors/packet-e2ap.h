@@ -60,14 +60,14 @@ typedef enum {
 typedef struct {
     const char* name;
     char        oid[MAX_OID_LEN];                /* i.e., this dissector */
-    uint8_t     major_version;
+    uint8_t     major_version;                   /* these are currently not used.. */
     uint8_t     minor_version;
     ran_function_pointers_t functions;
 } ran_function_dissector_t;
 
 void register_e2ap_ran_function_dissector(ran_function_t ran_function, ran_function_dissector_t *dissector);
 
-void e2ap_store_ran_function_mapping(packet_info *pinfo, const char *name);
+void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, const char *name);
 void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, const char *oid);
 
 

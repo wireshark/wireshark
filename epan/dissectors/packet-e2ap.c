@@ -1081,6 +1081,7 @@ static gint ett_e2ap = -1;
 static expert_field ei_e2ap_ran_function_names_no_match = EI_INIT;
 static expert_field ei_e2ap_ran_function_id_not_mapped = EI_INIT;
 static expert_field ei_e2ap_ran_function_dissector_mismatch = EI_INIT;
+static expert_field ei_e2ap_ran_function_max_dissectors_registered = EI_INIT;
 
 static gint ett_e2ap_ProtocolIE_Container = -1;
 static gint ett_e2ap_ProtocolIE_Field = -1;
@@ -1732,7 +1733,7 @@ typedef struct {
 /* Available dissectors should be set here */
 static ran_function_available_dissectors_t g_ran_functions_available_dissectors[MAX_RANFUNCTIONS];
 
-/* TODO: will be called from outside this file by separate dissectors */
+/* Will be called from outside this file by separate dissectors */
 void register_e2ap_ran_function_dissector(ran_function_t ran_function, ran_function_dissector_t *dissector)
 {
     if ((ran_function >= MIN_RANFUNCTIONS) && (ran_function <= MAX_RANFUNCTIONS)) {
@@ -1772,7 +1773,7 @@ static ran_functionid_table_t* get_ran_functionid_table(packet_info *pinfo)
 
 
 /* Store new RANfunctionID -> Service Model mapping in table */
-void e2ap_store_ran_function_mapping(packet_info *pinfo, const char *name)
+void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, const char *name)
 {
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
     ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
@@ -1782,7 +1783,10 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, const char *name)
     }
     /* Stop if already reached table limit */
     if (table->num_entries == MAX_RANFUNCTION_ENTRIES) {
-        /* TODO: expert info warning? */
+        proto_tree_add_expert_format(tree, pinfo, &ei_e2ap_ran_function_max_dissectors_registered,
+                                     tvb, 0, 0,
+                                     "Dissector wants to register for %s, but max (%u) already reached",
+                                     name, MAX_RANFUNCTION_ENTRIES);
         return;
     }
 
@@ -1853,7 +1857,7 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, const char *name)
     }
 }
 
-/* Look for Service Model function pointers, based on current RANFunctionID in pinfo */
+/* Look for Service Model function pointers, based on current RANFunctionID from frame */
 static ran_function_dissector_t* lookup_ranfunction_dissector(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
     /* Get ranFunctionID from this frame */
@@ -1910,6 +1914,7 @@ static ran_function_dissector_t* lookup_ranfunction_dissector(packet_info *pinfo
     return NULL;
 }
 
+/* Return the oid associated with this frame's conversation */
 static char* lookup_ranfunction_oid(packet_info *pinfo)
 {
     /* Get ranFunctionID from this frame */
@@ -1931,7 +1936,7 @@ static char* lookup_ranfunction_oid(packet_info *pinfo)
     }
 
     /* Not found */
-    return "";
+    return NULL;
 }
 
 
@@ -1939,6 +1944,10 @@ static char* lookup_ranfunction_oid(packet_info *pinfo)
 static void update_dissector_using_oid(packet_info *pinfo, ran_function_t ran_function)
 {
     char *frame_oid = lookup_ranfunction_oid(pinfo);
+    if (frame_oid == NULL) {
+        /* TODO: error? */
+        return;
+    }
 
     gboolean found = FALSE;
 
@@ -2001,7 +2010,7 @@ void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbu
     proto_item *ti = proto_tree_add_string(tree, hf_e2ap_frame_version, tvb, 0, 0, version);
     proto_item_set_generated(ti);
 
-    // Can now pick most appropriate dissector for this RAN Function name, based upon this OID and the available dissectors.
+    /* Can now pick most appropriate dissector for this RAN Function name, based upon this OID and the available dissectors */
     if (ran_function < MAX_RANFUNCTIONS) {
         if (pinfo->fd->visited) {
             update_dissector_using_oid(pinfo, ran_function);
@@ -6015,7 +6024,7 @@ dissect_e2ap_T_ranFunction_ShortName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   if (!actx->pinfo->fd->visited) {
     /* N.B. too early to work out exact dissector, as don't have OID yet */
-    e2ap_store_ran_function_mapping(actx->pinfo,
+    e2ap_store_ran_function_mapping(actx->pinfo, tree, value_tvb,
                                     tvb_get_string_enc(wmem_packet_scope(), value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
   }
 
@@ -14659,7 +14668,7 @@ proto_reg_handoff_e2ap(void)
   };
 
   /* Register available dissectors.  TODO: break these out into separate
-   * ASN.1 protocols that register themselves */
+   * ASN.1 protocols that register themselves, or leave one of each here? */
   register_e2ap_ran_function_dissector(KPM_RANFUNCTIONS, &kpm_v3);
   register_e2ap_ran_function_dissector(RC_RANFUNCTIONS,  &rc_v1);
   register_e2ap_ran_function_dissector(NI_RANFUNCTIONS,  &ni_v1);
@@ -18599,6 +18608,7 @@ void proto_register_e2ap(void) {
      { &ei_e2ap_ran_function_names_no_match, { "e2ap.ran-function-names-no-match", PI_PROTOCOL, PI_WARN, "RAN Function name doesn't match known service models", EXPFILL }},
      { &ei_e2ap_ran_function_id_not_mapped,   { "e2ap.ran-function-id-not-known", PI_PROTOCOL, PI_WARN, "Service Model not known for RANFunctionID", EXPFILL }},
      { &ei_e2ap_ran_function_dissector_mismatch,   { "e2ap.ran-function-dissector-version-mismatch", PI_PROTOCOL, PI_WARN, "Available dissector does not match signalled", EXPFILL }},
+     { &ei_e2ap_ran_function_max_dissectors_registered,   { "e2ap.ran-function-max-dissectors-registered", PI_PROTOCOL, PI_WARN, "Available dissector does not match signalled", EXPFILL }},
 
   };
 
