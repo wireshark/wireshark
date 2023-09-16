@@ -139,7 +139,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	ws_mempbrk_int.h
 	ws_pipe.h
 	ws_roundup.h
-	ws_return.h
 	ws_strptime.h
 	wsgcrypt.h
 	wsjson.h

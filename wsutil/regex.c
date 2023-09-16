@@ -10,7 +10,6 @@
 
 #include "regex.h"
 
-#include <wsutil/ws_return.h>
 #include <wsutil/str_util.h>
 #include <pcre2.h>
 

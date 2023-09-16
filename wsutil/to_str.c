@@ -19,7 +19,6 @@
 #include <wsutil/wslog.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/pint.h>
-#include <wsutil/ws_return.h>
 #include <wsutil/time_util.h>
 
 /*
