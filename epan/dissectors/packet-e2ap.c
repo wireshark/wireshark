@@ -31,6 +31,8 @@
 
 #include "packet-e2ap.h"
 #include "packet-per.h"
+#include "packet-ntp.h"
+
 #define PNAME  "E2 Application Protocol"
 #define PSNAME "E2AP"
 #define PFNAME "e2ap"
@@ -965,7 +967,7 @@ static int hf_e2ap_subscriptionInfo = -1;         /* E2SM_KPM_ActionDefinition_F
 static int hf_e2ap_matchingUEidList_01 = -1;      /* MatchingUEidPerSubList */
 static int hf_e2ap_indicationHeader_formats = -1;  /* T_indicationHeader_formats */
 static int hf_e2ap_indicationHeader_Format1_01 = -1;  /* E2SM_KPM_IndicationHeader_Format1 */
-static int hf_e2ap_colletStartTime = -1;          /* TimeStamp */
+static int hf_e2ap_colletStartTime = -1;          /* T_colletStartTime */
 static int hf_e2ap_fileFormatversion = -1;        /* PrintableString_SIZE_0_15_ */
 static int hf_e2ap_senderName = -1;               /* PrintableString_SIZE_0_400_ */
 static int hf_e2ap_senderType = -1;               /* PrintableString_SIZE_0_8_ */
@@ -1069,6 +1071,9 @@ static int hf_e2ap_ran_function_setup_frame = -1;
 
 static int hf_e2ap_dissector_version= -1;
 static int hf_e2ap_frame_version = -1;
+
+static int hf_e2ap_timestamp_string = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_e2ap = -1;
@@ -5459,9 +5464,6 @@ static int
 dissect_e2ap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   e2ap_data->message_type = UNSUCCESSFUL_OUTCOME;
-
-
-
 
 
 
@@ -11710,6 +11712,24 @@ dissect_e2ap_E2SM_KPM_ActionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static int
+dissect_e2ap_T_colletStartTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  int ts_offset = offset;
+    offset = dissect_e2ap_TimeStamp(tvb, offset, actx, tree, hf_index);
+
+  /* Add as a generated field the timestamp decoded */
+  const char *time_str = tvb_ntp_fmt_ts_sec(tvb, (ts_offset+7)/8);
+  proto_item *ti = proto_tree_add_string(tree, hf_e2ap_timestamp_string, tvb, (ts_offset+7)/8, 4, time_str);
+  proto_item_set_generated(ti);
+
+
+
+
+  return offset;
+}
+
+
+
+static int
 dissect_e2ap_PrintableString_SIZE_0_15_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
                                           0, 15, TRUE,
@@ -11753,7 +11773,7 @@ dissect_e2ap_PrintableString_SIZE_0_32_(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static const per_sequence_t E2SM_KPM_IndicationHeader_Format1_sequence[] = {
-  { &hf_e2ap_colletStartTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_TimeStamp },
+  { &hf_e2ap_colletStartTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_colletStartTime },
   { &hf_e2ap_fileFormatversion, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_PrintableString_SIZE_0_15_ },
   { &hf_e2ap_senderName     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_PrintableString_SIZE_0_400_ },
   { &hf_e2ap_senderType     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_PrintableString_SIZE_0_8_ },
@@ -17652,7 +17672,7 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_colletStartTime,
       { "colletStartTime", "e2ap.colletStartTime",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "TimeStamp", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_fileFormatversion,
       { "fileFormatversion", "e2ap.fileFormatversion",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -18056,6 +18076,11 @@ void proto_register_e2ap(void) {
             NULL, HFILL }},
       { &hf_e2ap_frame_version,
           { "Version (frame)", "e2ap.version.frame",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+      { &hf_e2ap_timestamp_string,
+          { "Timestamp string", "e2ap.timestamp-string",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
   };

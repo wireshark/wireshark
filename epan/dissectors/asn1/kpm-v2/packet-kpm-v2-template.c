@@ -18,6 +18,8 @@
 
 #include "packet-e2ap.h"
 #include "packet-per.h"
+#include "packet-ntp.h"
+
 #define PNAME  "KPM V2"
 #define PSNAME "KPMv2"
 #define PFNAME "kpm-v2"
@@ -32,6 +34,8 @@ void proto_reg_handoff_kpm_v2(void);
 /* Initialize the protocol and registered fields */
 static int proto_kpm_v2 = -1;
 #include "packet-kpm-v2-hf.c"
+
+static int hf_kpm_v2_timestamp_string = -1;
 
 
 #include "packet-kpm-v2-ett.c"
@@ -85,6 +89,10 @@ void proto_register_kpm_v2(void) {
 
   static hf_register_info hf[] = {
 #include "packet-kpm-v2-hfarr.c"
+      { &hf_kpm_v2_timestamp_string,
+          { "Timestamp string", "kpm-v2.timestamp-string",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
   };
 
   /* List of subtrees */

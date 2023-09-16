@@ -62,6 +62,13 @@ E2SM-KPM-RANfunction-Description
 				   tvb_captured_length(parameter_tvb), ENC_ASCII));
 
 
+#.FN_BODY E2SM-KPM-IndicationHeader-Format1/colletStartTime
+  int ts_offset = offset;
+  %(DEFAULT_BODY)s
+  /* Add as a generated field the timestamp decoded */
+  const char *time_str = tvb_ntp_fmt_ts_sec(tvb, (ts_offset+7)/8);
+  proto_item *ti = proto_tree_add_string(tree, hf_kpm_v2_timestamp_string, tvb, (ts_offset+7)/8, 4, time_str);
+  proto_item_set_generated(ti);
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -26,6 +26,8 @@
 
 #include "packet-e2ap.h"
 #include "packet-per.h"
+#include "packet-ntp.h"
+
 #define PNAME  "E2 Application Protocol"
 #define PSNAME "E2AP"
 #define PFNAME "e2ap"
@@ -50,6 +52,9 @@ static int hf_e2ap_ran_function_setup_frame = -1;
 
 static int hf_e2ap_dissector_version= -1;
 static int hf_e2ap_frame_version = -1;
+
+static int hf_e2ap_timestamp_string = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_e2ap = -1;
@@ -753,6 +758,11 @@ void proto_register_e2ap(void) {
             NULL, HFILL }},
       { &hf_e2ap_frame_version,
           { "Version (frame)", "e2ap.version.frame",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+      { &hf_e2ap_timestamp_string,
+          { "Timestamp string", "e2ap.timestamp-string",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
   };

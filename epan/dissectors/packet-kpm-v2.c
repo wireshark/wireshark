@@ -23,6 +23,8 @@
 
 #include "packet-e2ap.h"
 #include "packet-per.h"
+#include "packet-ntp.h"
+
 #define PNAME  "KPM V2"
 #define PSNAME "KPMv2"
 #define PFNAME "kpm-v2"
@@ -145,7 +147,7 @@ static int hf_kpm_v2_subscriptionInfo = -1;       /* E2SM_KPM_ActionDefinition_F
 static int hf_kpm_v2_matchingUEidList_01 = -1;    /* MatchingUEidPerSubList */
 static int hf_kpm_v2_indicationHeader_formats = -1;  /* T_indicationHeader_formats */
 static int hf_kpm_v2_indicationHeader_Format1 = -1;  /* E2SM_KPM_IndicationHeader_Format1 */
-static int hf_kpm_v2_colletStartTime = -1;        /* TimeStamp */
+static int hf_kpm_v2_colletStartTime = -1;        /* T_colletStartTime */
 static int hf_kpm_v2_fileFormatversion = -1;      /* PrintableString_SIZE_0_15_ */
 static int hf_kpm_v2_senderName = -1;             /* PrintableString_SIZE_0_400_ */
 static int hf_kpm_v2_senderType = -1;             /* PrintableString_SIZE_0_8_ */
@@ -227,6 +229,8 @@ static int hf_kpm_v2_sST = -1;                    /* SST */
 static int hf_kpm_v2_sD = -1;                     /* SD */
 static int hf_kpm_v2_gNB = -1;                    /* GlobalGNB_ID */
 static int hf_kpm_v2_ng_eNB = -1;                 /* GlobalNgENB_ID */
+
+static int hf_kpm_v2_timestamp_string = -1;
 
 
 static gint ett_kpm_v2_MeasurementType = -1;
@@ -2186,6 +2190,22 @@ dissect_kpm_v2_E2SM_KPM_ActionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 static int
+dissect_kpm_v2_T_colletStartTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  int ts_offset = offset;
+    offset = dissect_kpm_v2_TimeStamp(tvb, offset, actx, tree, hf_index);
+
+  /* Add as a generated field the timestamp decoded */
+  const char *time_str = tvb_ntp_fmt_ts_sec(tvb, (ts_offset+7)/8);
+  proto_item *ti = proto_tree_add_string(tree, hf_kpm_v2_timestamp_string, tvb, (ts_offset+7)/8, 4, time_str);
+  proto_item_set_generated(ti);
+
+
+  return offset;
+}
+
+
+
+static int
 dissect_kpm_v2_PrintableString_SIZE_0_15_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
                                           0, 15, TRUE,
@@ -2229,7 +2249,7 @@ dissect_kpm_v2_PrintableString_SIZE_0_32_(tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 static const per_sequence_t E2SM_KPM_IndicationHeader_Format1_sequence[] = {
-  { &hf_kpm_v2_colletStartTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_kpm_v2_TimeStamp },
+  { &hf_kpm_v2_colletStartTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_kpm_v2_T_colletStartTime },
   { &hf_kpm_v2_fileFormatversion, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_kpm_v2_PrintableString_SIZE_0_15_ },
   { &hf_kpm_v2_senderName   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_kpm_v2_PrintableString_SIZE_0_400_ },
   { &hf_kpm_v2_senderType   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_kpm_v2_PrintableString_SIZE_0_8_ },
@@ -2379,7 +2399,6 @@ dissect_kpm_v2_T_ranFunction_E2SM_OID(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
                                    tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
 				   tvb_captured_length(parameter_tvb), ENC_ASCII));
-
 
 
 
@@ -2974,7 +2993,7 @@ void proto_register_kpm_v2(void) {
     { &hf_kpm_v2_colletStartTime,
       { "colletStartTime", "kpm-v2.colletStartTime",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "TimeStamp", HFILL }},
+        NULL, HFILL }},
     { &hf_kpm_v2_fileFormatversion,
       { "fileFormatversion", "kpm-v2.fileFormatversion",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -3299,6 +3318,10 @@ void proto_register_kpm_v2(void) {
       { "ng-eNB", "kpm-v2.ng_eNB_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GlobalNgENB_ID", HFILL }},
+      { &hf_kpm_v2_timestamp_string,
+          { "Timestamp string", "kpm-v2.timestamp-string",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
   };
 
   /* List of subtrees */
