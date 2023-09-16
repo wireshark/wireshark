@@ -4867,7 +4867,7 @@ proto_register_ospf(void)
         {&hf_ospf_ls_epfx_stlv,
          { "TLV Type", "ospf.tlv.extpfx.subtlv_type", FT_UINT16, BASE_DEC, VALS(ext_pfx_stlv_type_vals), 0x0, NULL, HFILL }},
         {&hf_ospf_ls_epfx_route_type,
-         { "Route Type", "ospf.tlv.extpfx.rotuetype", FT_UINT16, BASE_DEC, VALS(ext_pfx_tlv_route_vals), 0x0, NULL, HFILL }},
+         { "Route Type", "ospf.tlv.extpfx.routetype", FT_UINT16, BASE_DEC, VALS(ext_pfx_tlv_route_vals), 0x0, NULL, HFILL }},
         {&hf_ospf_ls_epfx_af,
          { "Address Family", "ospf.tlv.extpfx.af", FT_UINT8, BASE_DEC, VALS(ext_pfx_tlv_af_vals), 0x0, NULL, HFILL }},
 

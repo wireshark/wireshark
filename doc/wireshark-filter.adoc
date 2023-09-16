@@ -204,8 +204,8 @@ are equivalent:
 
 Boolean values are either true or false.  In a display filter expression
 testing the value of a Boolean field, true is expressed as the word `true`
-(case-insentive) or any non-zero number.  False is expressed as
-`false` (case-insentivie) or the number zero. For example, a token-ring packet's
+(case-insensitive) or any non-zero number.  False is expressed as
+`false` (case-insensitive) or the number zero. For example, a token-ring packet's
 source route field is Boolean.  To find any source-routed packets, a display
 filter would be any of the following:
 

@@ -1686,8 +1686,8 @@ static const value_string party_idorigination_market_vals[] = { // PartyIDOrigin
     { 0, NULL }
 };
 static const value_string party_idsettlement_location_vals[] = { // PartyIDSettlementLocation
-    { 1, "Clearstrem_Banking_Frankfurt" },
-    { 2, "Clearstrem_Banking_Luxemburg" },
+    { 1, "Clearstream_Banking_Frankfurt" },
+    { 2, "Clearstream_Banking_Luxemburg" },
     { 3, "CLS_Group" },
     { 4, "Euroclear" },
     { 0xFF, "NO_VALUE" },

@@ -933,6 +933,11 @@ static const value_string adf_usim_dfs[] = {
 
 static const value_string adf_usim_efs[] = {
 #endif
+	{ 0x6f00, "EF.5GAuthKeys" },
+	{ 0x6f01, "EF.5GS3GPPAccessNASSecCtxt" },
+	{ 0x6f02, "EF.5GSnon3GPPAccessNASSecCtxt" },
+	{ 0x6f03, "EF.SCICI" },
+	{ 0x6f04, "EF.UACAcessIdConfig" },
 	{ 0x6f06, "EF.ARR" },
 	{ 0x6f07, "EF.IMSI" },
 	{ 0x6f08, "EF.Keys" },
@@ -1032,7 +1037,9 @@ static const value_string adf_usim_efs[] = {
 	{ 0x6ffa, "EF.3GPPPSDATAOFFservicelist" },
 	{ 0x6ffb, "EF.TVCONFIG" },
 	{ 0x6ffc, "EF.XCAPConfigData" },
-	{ 0x6ffe, "EF.ePDGSeEARFCNListlection" },
+	{ 0x6ffd, "EF.EARFCNList" },
+	{ 0x6ffe, "EF.5GS3GPPLocationInformation" },
+	{ 0x6fff, "EF.5GSnon3GPPLocationInformation" },
 #if 0
 	{ 0, NULL }
 };

@@ -1320,7 +1320,7 @@ wtap_name_to_encap(const char *name)
  */
 static const char *precnames[NUM_WS_TSPREC_VALS] = {
 	"seconds",
-	"100 millisconds (deciseconds)",
+	"100 milliseconds (deciseconds)",
 	"10 milliseconds (centiseconds)",
 	"milliseconds",
 	"100 microseconds",

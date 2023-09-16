@@ -665,7 +665,7 @@ Conversion to UTF-8 can produce a string with a length longer than
 that of the string in the original packet data; this includes strings
 encoded in ASCII or UTF-8 itself if they have invalid character sequences
 that are replaced with the 3 byte UTF-8 REPLACEMENT CHARACTER. Truncating
-a valid UTF-8 string to an arbitrary number of bytes does not gurarantee
+a valid UTF-8 string to an arbitrary number of bytes does not guarantee
 that the result is a valid UTF-8 string, because a multibyte character
 might span the boundary.
 

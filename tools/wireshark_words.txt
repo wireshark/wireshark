@@ -26,6 +26,7 @@ acyclic
 addba
 additionals
 additionsr
+addon
 adjacency
 adlink
 administrable
@@ -110,6 +111,7 @@ available
 avaya
 avrcp
 bacapp
+backedup
 backend
 backhaul
 backoff
@@ -202,6 +204,7 @@ cdmachanneldata
 celeron
 cellid
 cellidentity
+centillion
 centiseconds
 centrino
 cfilters
@@ -239,10 +242,12 @@ classifiers
 classmark
 classmark3
 claypaky
+clearallportcounters
 clientkey
 clientout
 clopts
 clsfr
+clustermap
 cmake
 cmdcontrol
 cmstatus
@@ -378,6 +383,7 @@ demultiplexer
 demultiplexers
 denso
 deobfuscated
+deobfuscation
 depassivated
 deprecated
 deprotection
@@ -481,6 +487,7 @@ enciphered
 encodings
 encrypt
 encrypting
+encryptionkey
 endace
 endian
 endianness
@@ -837,6 +844,7 @@ mbits
 mbsfn
 mbytes
 mcast
+mcmemberrecord
 mcptt
 mcsset
 measurability
@@ -1157,6 +1165,7 @@ protocolie
 protos
 proxied
 proxying
+proxykey
 pscell
 pseudowire
 psname
@@ -1561,6 +1570,7 @@ toolbar
 toolongfragment
 toolset
 tooltip
+toprowflag
 topup
 toshiba
 totemsrp
@@ -1570,6 +1580,7 @@ traceroute
 traff
 transceive
 transcoder
+transiently
 transifex
 transitioning
 transitivity
