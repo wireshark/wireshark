@@ -235,29 +235,32 @@ CMake can compile Wireshark for several different build types:
 |`RelWithDebInfo`
 |`-O2 -g`
 |Default, build with default optimizations and generate debug symbols.
-Does not enable extra debugging code or debug level logs
+Enables assertions and disables debug level logs
 
 |`Debug`
 |`-O0 -g -DWS_DEBUG -DWS_DEBUG_UTF_8`
-|For debugging, no optimization. Enables extra debugging code
+|For development, no optimization. Enables assertions
+and debug level logs
 
 |`Release`
 |`-O3 -DNDEBUG`
-|Optimized for speed, no debug symbols or debug level logs
+|Optimized for speed, no debug symbols or debug level logs or assertions
 
 |`MinSizeRel`
 |`-Os -DNDEBUG`
-|Optimized for size, no debug symbols or debug level logs
+|Optimized for size, no debug symbols or debug level logs or assertions
 |===
 
 The default is `RelWithDebInfo`, which provides a good compromise of
 some optimization (`-O2`) along with including debug symbols (`-g`)
 for release builds. For normal development coding you probably want to be
 using `Debug` build type or set -DENABLE_DEBUG=On, to enable full
-<<ChSrcLogging,logging capabilities>> and all assertions.
+<<ChSrcLogging,logging capabilities>> and debug code.
 
 CMake will automatically add the -DNDEBUG option to certain build
-types but this macro is not used very much in Wireshark code, if at all.
+types. This macro is used to disable assertions but it can be overruled
+using ENABLE_ASSERT, which can be used to unconditionally enable assertions
+if defined.
 
 To change the build type, set the CMake variable `CMAKE_BUILD_TYPE`, e.g.:
 

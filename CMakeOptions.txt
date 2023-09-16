@@ -50,11 +50,12 @@ option(BUILD_mmdbresolve   "Build MaxMind DB resolver" ON)
 option(BUILD_fuzzshark     "Build fuzzshark" OFF)
 
 option(ENABLE_WERROR     "Treat warnings as errors" ON)
-# Debugging is enabled for "Debug" and "RelWithDebInfo" build types.
+# Debugging is enabled for "Debug" build type.
 option(ENABLE_DEBUG      "Enable debugging for all build configurations" OFF)
-# UTF-8 debugging is enabled for "Debug" and "RelWithDebInfo" build types.
 option(ENABLE_DEBUG_UTF_8  "Enable UTF-8 sanity checks (requires ENABLE_DEBUG)" ON)
 option(ENABLE_DEBUG_A2W  "Enable line directive from .cnf file" OFF)
+# Assertions are enabled for "Debug" and "RelWithDebInfo" build types.
+option(ENABLE_ASSERT     "Enable assertions for all build configurations" OFF)
 
 option(ENABLE_CCACHE     "Speed up compiling and linking using ccache if possible" OFF)
 option(DISABLE_FRAME_LARGER_THAN_WARNING "Disable warning if the size of a function frame is large" OFF)
