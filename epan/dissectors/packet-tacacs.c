@@ -142,7 +142,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(type, tacacs_type_vals, "Unknown (0x%02x)"));
 
-	if (tree)
+	/* if (tree) */
 	{
 		ti = proto_tree_add_protocol_format(tree, proto_tacacs,
 		 tvb, 0, -1, version==0?"TACACS":"XTACACS");
@@ -901,7 +901,7 @@ dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 				request ? "Q" : "R",
 				val_to_str(tvb_get_guint8(tvb,1), tacplus_type_vals, "Unknown (0x%02x)"));
 
-	if (tree)
+	/* if (tree) */
 	{
 		ti = proto_tree_add_item(tree, proto_tacplus, tvb, 0, -1, ENC_NA);
 
