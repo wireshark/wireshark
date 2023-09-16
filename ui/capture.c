@@ -892,7 +892,8 @@ capture_stat_start(capture_options *capture_opts)
             }
         }
     } else {
-        g_free(msg); /* XXX: should we display this to the user ? */
+        ws_warning("%s", msg);
+        g_free(msg); /* XXX: should we display this to the user via the GUI? */
     }
     return sc;
 }

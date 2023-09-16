@@ -94,7 +94,7 @@
 #include <wsutil/ws_pipe.h>
 
 #ifdef _WIN32
-static void create_dummy_signal_pipe(void);
+static int create_dummy_signal_pipe(char **msg);
 static HANDLE dummy_signal_pipe; /* Dummy named pipe which lets the child check for a dropped connection */
 static char *dummy_control_id;
 #else
@@ -1389,7 +1389,10 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **m
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
 #ifdef _WIN32
-    create_dummy_signal_pipe();
+    ret = create_dummy_signal_pipe(msg);
+    if (ret == -1) {
+        return -1;
+    }
     argv = sync_pipe_add_arg(argv, &argc, dummy_control_id);
 #else
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
@@ -1534,7 +1537,10 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **m
 int
 sync_interface_stats_close(int *read_fd, ws_process_id *fork_child, char **msg)
 {
-#ifndef _WIN32
+#ifdef _WIN32
+    CloseHandle(dummy_signal_pipe);
+    dummy_signal_pipe = NULL;
+#else
     /*
      * Don't bother waiting for the child. sync_pipe_close_command
      * does this for us on Windows.
@@ -2083,10 +2089,10 @@ sync_pipe_signame(int sig)
 
 #ifdef _WIN32
 
-static void create_dummy_signal_pipe(void) {
+static int create_dummy_signal_pipe(char **msg) {
     char *dummy_signal_pipe_name;
 
-    if (dummy_signal_pipe != NULL) return;
+    if (dummy_signal_pipe != NULL) return 0;
 
     if (!dummy_control_id) {
         dummy_control_id = ws_strdup_printf("%ld.dummy", GetCurrentProcessId());
@@ -2097,6 +2103,12 @@ static void create_dummy_signal_pipe(void) {
     dummy_signal_pipe = CreateNamedPipe(utf_8to16(dummy_signal_pipe_name),
                                   PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 65535, 65535, 0, NULL);
     g_free(dummy_signal_pipe_name);
+    if (dummy_signal_pipe == INVALID_HANDLE_VALUE) {
+        *msg = ws_strdup_printf("Couldn't create signal pipe: %s",
+            win32strerror(GetLastError()));
+        return -1;
+    }
+    return 0;
 }
 
 /* tell the child through the signal pipe that we want to quit the capture */
