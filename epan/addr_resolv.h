@@ -225,13 +225,13 @@ const gchar *get_ether_name_if_known(const guint8 *addr);
  * Given a sequence of 3 octets containing an OID, get_manuf_name()
  * returns the vendor name, or "%02x:%02x:%02x" if not known.
  */
-extern const gchar *get_manuf_name(const guint8 *addr);
+extern const gchar *get_manuf_name(const guint8 *addr, size_t size);
 
 /*
  * Given a sequence of 3 octets containing an OID, get_manuf_name_if_known()
  * returns the vendor name, or NULL if not known.
  */
-WS_DLL_PUBLIC const gchar *get_manuf_name_if_known(const guint8 *addr);
+WS_DLL_PUBLIC const gchar *get_manuf_name_if_known(const guint8 *addr, size_t size);
 
 /*
  * Given an integer containing a 24-bit OID, uint_get_manuf_name_if_known()

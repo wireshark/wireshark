@@ -1669,11 +1669,13 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name, gchar *longna
 } /* add_manuf_name */
 
 static hashmanuf_t *
-manuf_name_lookup(const guint8 *addr)
+manuf_name_lookup(const guint8 *addr, size_t size)
 {
     guint32       manuf_key;
     guint8       oct;
     hashmanuf_t  *manuf_value;
+
+    ws_return_val_if(size < 6, NULL);
 
     /* manuf needs only the 3 most significant octets of the ethernet address */
     manuf_key = addr[0];
@@ -1870,6 +1872,7 @@ eth_addr_resolve(hashether_t *tp) {
     ether_t      *eth;
     hashmanuf_t *manuf_value;
     const guint8 *addr = tp->addr;
+    size_t addr_size = sizeof(tp->addr);
 
     if ( (eth = get_ethbyaddr(addr)) != NULL) {
         (void) g_strlcpy(tp->resolved_name, eth->name, MAXNAMELEN);
@@ -1916,7 +1919,7 @@ eth_addr_resolve(hashether_t *tp) {
         } while (mask--);
 
         /* Now try looking in the manufacturer table. */
-        manuf_value = manuf_name_lookup(addr);
+        manuf_value = manuf_name_lookup(addr, addr_size);
         if ((manuf_value != NULL) && (manuf_value->status != HASHETHER_STATUS_UNRESOLVED)) {
             snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
                     manuf_value->resolved_name, addr[3], addr[4], addr[5]);
@@ -3484,11 +3487,11 @@ get_vlan_name(wmem_allocator_t *allocator, const guint16 id)
 } /* get_vlan_name */
 
 const gchar *
-get_manuf_name(const guint8 *addr)
+get_manuf_name(const guint8 *addr, size_t size)
 {
     hashmanuf_t *manuf_value;
 
-    manuf_value = manuf_name_lookup(addr);
+    manuf_value = manuf_name_lookup(addr, size);
     if (gbl_resolv_flags.mac_name && manuf_value->status != HASHETHER_STATUS_UNRESOLVED)
         return manuf_value->resolved_name;
 
@@ -3499,15 +3502,19 @@ get_manuf_name(const guint8 *addr)
 const gchar *
 tvb_get_manuf_name(tvbuff_t *tvb, gint offset)
 {
-    return get_manuf_name(tvb_get_ptr(tvb, offset, 3));
+    guint8 buf[6] = { 0 };
+    tvb_memcpy(tvb, buf, offset, 3);
+    return get_manuf_name(buf, sizeof(buf));
 }
 
 const gchar *
-get_manuf_name_if_known(const guint8 *addr)
+get_manuf_name_if_known(const guint8 *addr, size_t size)
 {
     hashmanuf_t *manuf_value;
     guint manuf_key;
     guint8 oct;
+
+    ws_return_val_if(size != 6, NULL);
 
     /* manuf needs only the 3 most significant octets of the ethernet address */
     manuf_key = addr[0];
@@ -3564,7 +3571,9 @@ uint_get_manuf_name_if_known(const guint32 manuf_key)
 const gchar *
 tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset)
 {
-    return get_manuf_name_if_known(tvb_get_ptr(tvb, offset, 3));
+    guint8 buf[6] = { 0 };
+    tvb_memcpy(tvb, buf, offset, 3);
+    return get_manuf_name_if_known(buf, sizeof(buf));
 }
 
 char* get_hash_manuf_resolved_name(hashmanuf_t* manuf)
@@ -3582,7 +3591,7 @@ eui64_to_display(wmem_allocator_t *allocator, const guint64 addr_eui64)
     /* Copy and convert the address to network byte order. */
     *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
 
-    manuf_value = manuf_name_lookup(addr);
+    manuf_value = manuf_name_lookup(addr, 8);
     if (!gbl_resolv_flags.mac_name || (manuf_value->status == HASHETHER_STATUS_UNRESOLVED)) {
         ret = wmem_strdup_printf(allocator, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
     } else {
