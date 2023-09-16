@@ -64,7 +64,7 @@ The setup script is tools/bsd-setup.sh; its options are:
 * `[other]` other options are passed as-is to pkg manager
 
 [discrete]
-====Debian, and Linux distributions based on Debian, such as Ubuntu
+==== Debian, and Linux distributions based on Debian, such as Ubuntu
 
 The setup script is tools/debian-setup.sh; its options are:
 
