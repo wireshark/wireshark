@@ -134,7 +134,7 @@ environment:
 
 [subs="attributes+"]
 ----
-set WIRESHARK_QT6_PREFIX_PATH=~/Qt/{qt6-lts-version}/macos
+WIRESHARK_QT6_PREFIX_PATH=~/Qt/{qt6-lts-version}/macos
 export WIRESHARK_QT6_PREFIX_PATH
 ----
 
@@ -143,7 +143,7 @@ command
 
 [subs="attributes+"]
 ----
-set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
+WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 export WIRESHARK_VERSION_EXTRA
 ----
 
