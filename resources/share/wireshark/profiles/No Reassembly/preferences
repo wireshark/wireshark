@@ -53,8 +53,8 @@ gsm_sms.reassemble_with_lower_layers_info: FALSE
 gss-api.gssapi_reassembly: FALSE
 h225.reassembly: FALSE
 h245.reassembly: FALSE
-h501.desegment: FALSE
 h248.desegment: FALSE
+h501.desegment: FALSE
 hart_ip.desegment: FALSE
 hzlcst.desegment: FALSE
 hpfeeds.desegment_hpfeeds_messages: FALSE
@@ -66,6 +66,7 @@ ipdc.desegment_ipdc_messages: FALSE
 ippusb.attempt_reassembly: FALSE
 iscsi.desegment_iscsi_messages: FALSE
 isns.desegment: FALSE
+iwarp_ddp_rdmap.reassemble_iwarp_rdma_send: FALSE
 jxta.desegment: FALSE
 kip.desegment: FALSE
 kpasswd.desegment: FALSE
@@ -104,6 +105,7 @@ ppi.reassemble: FALSE
 pvfs.desegment: FALSE
 q931.desegment_h323_messages: FALSE
 q931.reassembly: FALSE
+quic.reassemble_crypto_out_of_order: FALSE
 resp.desegment_data: FALSE
 rlc.perform_reassembly: FALSE
 rlc-lte.reassembly: FALSE
