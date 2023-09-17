@@ -1662,9 +1662,10 @@ void LograyMainWindow::openTapParameterDialog()
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
 void LograyMainWindow::softwareUpdateRequested() {
-    // We could call testCaptureFileClose here, but that would give us yet
-    // another dialog. Just try again later.
-    if (capture_file_.capFile() && capture_file_.capFile()->state != FILE_CLOSED) {
+    // testCaptureFileClose doesn't use this string because we aren't
+    // going to launch another dialog, but maybe we'll change that.
+    QString before_what(tr(" before updating"));
+    if (!testCaptureFileClose(before_what, Update)) {
         mainApp->rejectSoftwareUpdate();
     }
 }
