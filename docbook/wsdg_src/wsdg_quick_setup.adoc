@@ -366,21 +366,22 @@ Visual Studio 2022 is also used to create official Wireshark builds, so it will 
 ==== Install Qt
 
 The main Wireshark application uses the Qt windowing toolkit. To install
-Qt, go to the https://www.qt.io/download[“Download Qt” page], select “Go
-open source”, download the *Qt Online Installer for Windows* from the Qt
-Project, select “Custom installation“ on the “Installation Folder“ of
-the installer screen (do _not_ select “Qt 6.4 for desktop development“)
-and, on the “Select Components“ screen of the installer, select, for
-the desired Qt version, a component that matches your target system and
-compiler. For example, at the time of this writing the Qt {qt6-lts-version}
-“msvc2019 64-bit” component is used to build the official 64-bit packages.
-The “Qt Debug Information Files” component contains PDB files which can
-be used for debugging. You can deselect all of the other the components
-such as “Qt Charts” or “Android xxxx” as they aren’t required.
+Qt, go to the https://www.qt.io/download[“Download Qt” page], select
+"Download open source", then "Download Qt Online Installer", and download
+"*Qt Online Installer for Windows*". When executing it, sign up or log in,
+and use Next button to proceed. When asked, select "*Custom installation*".
 
-Qt 6 needs the "Qt 5 Compatibility Module" to be installed as well. Additionally, the module
-"Qt Multimedia" may be installed, to support advanced controls for playing back streams in the
-RTP Player dialog.
+In the "Select Components" page, select your desired Qt version. We recommend
+the latest LTS version, and the stable Windows installers currently ship with Qt {qt6-lts-version}.
+Select the following components:
+
+* MSVC 2019 64-bit
+* Qt 5 Compatibility Module
+* Qt Debug Information Files (contains PDB files which can be used for debugging)
+* Under "Additional Libraries" select "Qt Multimedia" to support advanced
+controls for playing back streams in the RTP Player dialog
+* You can deselect all of the other the components
+such as “Qt Charts” or “Android xxxx” as they aren’t required.
 
 The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{qt6-lts-version}\msvc2019_64_
 Alternatively you can also use the environment variable WIRESHARK_QT6_PREFIX_PATH.
