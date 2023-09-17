@@ -152,7 +152,8 @@ private:
         Default,
         Quit,
         Restart,
-        Reload
+        Reload,
+        Update
     };
 
     Ui::WiresharkMainWindow *main_ui_;
