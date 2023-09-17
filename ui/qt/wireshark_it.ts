@@ -13980,6 +13980,22 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Tenths of a millisecond</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hundredths of a millisecond</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tenths of a microsecond</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hundredths of a microsecond</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>&amp;Diagramma del pacchetto</translation>
     </message>

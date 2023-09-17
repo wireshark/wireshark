@@ -53,8 +53,8 @@ gsm_sms.reassemble_with_lower_layers_info: FALSE
 gss-api.gssapi_reassembly: FALSE
 h225.reassembly: FALSE
 h245.reassembly: FALSE
-h501.desegment: FALSE
 h248.desegment: FALSE
+h501.desegment: FALSE
 hart_ip.desegment: FALSE
 hzlcst.desegment: FALSE
 hpfeeds.desegment_hpfeeds_messages: FALSE
@@ -66,6 +66,7 @@ ipdc.desegment_ipdc_messages: FALSE
 ippusb.attempt_reassembly: FALSE
 iscsi.desegment_iscsi_messages: FALSE
 isns.desegment: FALSE
+iwarp_ddp_rdmap.reassemble_iwarp_rdma_send: FALSE
 jxta.desegment: FALSE
 kip.desegment: FALSE
 kpasswd.desegment: FALSE
@@ -75,6 +76,7 @@ lapdm.reassemble: FALSE
 laplink.desegment_laplink_over_tcp: FALSE
 ldap.desegment_ldap_messages: FALSE
 ldp.desegment_ldp_messages: FALSE
+ltp.reassemble_block: FALSE
 memcache.desegment_headers: FALSE
 memcache.desegment_pdus: FALSE
 mbrtu.desegment: FALSE
@@ -104,6 +106,7 @@ ppi.reassemble: FALSE
 pvfs.desegment: FALSE
 q931.desegment_h323_messages: FALSE
 q931.reassembly: FALSE
+quic.reassemble_crypto_out_of_order: FALSE
 resp.desegment_data: FALSE
 rlc.perform_reassembly: FALSE
 rlc-lte.reassembly: FALSE
@@ -116,6 +119,7 @@ rtp.desegment_rtp_streams: FALSE
 rtsp.desegment_headers: FALSE
 rtsp.desegment_body: FALSE
 sametime.reassemble: FALSE
+sapni.desegment: FALSE
 sasp.desegment_sasp_messages: FALSE
 sctp.reassembly: FALSE
 scylla.desegment: FALSE
@@ -158,6 +162,7 @@ tls.desegment_ssl_application_data: FALSE
 tns.desegment_tns_messages: FALSE
 tpkt.desegment: FALSE
 transum.reassembly: FALSE
+uci.tcp.desegment: FALSE
 ucp.desegment_ucp_messages: FALSE
 udpcp.attempt_reassembly: FALSE
 ulp.desegment_ulp_messages: FALSE
@@ -172,3 +177,4 @@ xot.desegment: FALSE
 yami.desegment: FALSE
 ymsg.desegment: FALSE
 z3950.desegment_buffers: FALSE
+zabbix.desegment: FALSE
