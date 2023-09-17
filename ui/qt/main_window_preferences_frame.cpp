@@ -52,8 +52,14 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     ui->maxRecentLineEdit->setStyleSheet(indent_ss);
 
     int num_entry_width = ui->maxFilterLineEdit->fontMetrics().height() * 3;
-    ui->maxFilterLineEdit->setMaximumWidth(num_entry_width);
-    ui->maxRecentLineEdit->setMaximumWidth(num_entry_width);
+    int num_entry_height = ui->maxFilterLineEdit->fontMetrics().height();
+    // Some styles (e.g., adwaita) add some extra space around the contents.
+    // Find the actual maximum size to set the widget.
+    QStyleOptionFrame opt;
+    initStyleOption(&opt);
+    QSize num_entry_size = ui->maxRecentLineEdit->style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(num_entry_width, num_entry_height));
+    ui->maxFilterLineEdit->setMaximumWidth(num_entry_size.width());
+    ui->maxRecentLineEdit->setMaximumWidth(num_entry_size.width());
 
     QString li_path = QString(":/languages/language%1.svg").arg(ColorUtils::themeIsDark() ? ".dark" : "");
     QIcon language_icon = QIcon(li_path);
