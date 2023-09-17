@@ -127,6 +127,26 @@ RTP Player dialog.
 
 ==== Building
 
+Before building:
+
+On macOS, you will need to set the Qt installation directory in the
+environment:
+
+[subs="attributes+"]
+----
+set WIRESHARK_QT6_PREFIX_PATH=~/Qt/{qt6-lts-version}/macos
+export WIRESHARK_QT6_PREFIX_PATH
+----
+
+If you want to append a custom string to the package version, run the
+command
+
+[subs="attributes+"]
+----
+set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
+export WIRESHARK_VERSION_EXTRA
+----
+
 The recommended (and fastest) way to build Wireshark is with CMake
 and Ninja. Building with make took nearly 2x time as Ninja in one
 experiment.
