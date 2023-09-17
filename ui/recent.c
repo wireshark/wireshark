@@ -32,6 +32,7 @@
 #include "ui/simple_dialog.h"
 
 #include <wsutil/file_util.h>
+#include <wsutil/strtoi.h>
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW            "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW          "gui.filter_toolbar_show"
@@ -116,11 +117,7 @@ static const value_string ts_precision_values[] = {
     { TS_PREC_FIXED_100_MSEC,  "DSEC" },
     { TS_PREC_FIXED_10_MSEC,   "CSEC" },
     { TS_PREC_FIXED_MSEC,      "MSEC" },
-    { TS_PREC_FIXED_100_USEC,  "4"    },
-    { TS_PREC_FIXED_10_USEC,   "5"    },
     { TS_PREC_FIXED_USEC,      "USEC" },
-    { TS_PREC_FIXED_100_NSEC,  "7"    },
-    { TS_PREC_FIXED_10_NSEC,   "8"    },
     { TS_PREC_FIXED_NSEC,      "NSEC" },
     { 0, NULL }
 };
@@ -888,9 +885,49 @@ write_profile_recent(void)
             RECENT_GUI_TIME_FORMAT, ts_type_values,
             recent.gui_time_format);
 
-    write_recent_enum(rf, "Timestamp display precision",
-            RECENT_GUI_TIME_PRECISION, ts_precision_values,
-            recent.gui_time_precision);
+    /*
+     * The value of this item is either TS_PREC_AUTO, which is a
+     * negative number meaning "pick the display precision based
+     * on the time stamp precision of the packet", or is a numerical
+     * value giving the number of decimal places to display, from 0
+     * to WS_TSPREC_MAX.
+     *
+     * It used to be that not all values between 0 and 9 (the maximum
+     * precision back then) were supported, and that names were
+     * written out to the recent file.
+     *
+     * For backwards compatibility with those older versions of
+     * Wireshark, write out the names for those values, and the
+     * raw number for other values.
+     */
+    {
+        const char *if_invalid = NULL;
+        const value_string *valp;
+        const gchar *str_value;
+
+        fprintf(rf, "\n# %s.\n", "Timestamp display precision");
+        fprintf(rf, "# One of: ");
+        valp = ts_precision_values;
+        while (valp->strptr != NULL) {
+            if (if_invalid == NULL)
+                if_invalid = valp->strptr;
+            fprintf(rf, "%s", valp->strptr);
+            valp++;
+            if (valp->strptr != NULL)
+                fprintf(rf, ", ");
+        }
+        fprintf(rf, ", or a number between 0 and %d\n", WS_TSPREC_MAX);
+
+        str_value = try_val_to_str(recent.gui_time_precision, ts_precision_values);
+        if (str_value != NULL)
+            fprintf(rf, "%s: %s\n", RECENT_GUI_TIME_PRECISION, str_value);
+        else {
+            if (recent.gui_time_precision >= 0 && recent.gui_time_precision < WS_TSPREC_MAX)
+                fprintf(rf, "%s: %d\n", RECENT_GUI_TIME_PRECISION, recent.gui_time_precision);
+            else
+                fprintf(rf, "%s: %s\n", RECENT_GUI_TIME_PRECISION, if_invalid != NULL ? if_invalid : "Unknown");
+        }
+    }
 
     write_recent_enum(rf, "Seconds display format",
             RECENT_GUI_SECONDS_FORMAT, ts_seconds_values,
@@ -1075,6 +1112,7 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
                             gboolean return_range_errors _U_)
 {
     long num;
+    gint32 num_int32;
     char *p;
     GList *col_l, *col_l_elt;
     col_width_data *cfmt;
@@ -1106,8 +1144,28 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         recent.gui_time_format = (ts_type)str_to_val(value, ts_type_values,
             is_packet_configuration_namespace() ? TS_RELATIVE : TS_ABSOLUTE);
     } else if (strcmp(key, RECENT_GUI_TIME_PRECISION) == 0) {
-        recent.gui_time_precision =
-            (ts_precision)str_to_val(value, ts_precision_values, TS_PREC_AUTO);
+        /*
+         * The value of this item is either TS_PREC_AUTO, which is a
+         * negative number meaning "pick the display precision based
+         * on the time stamp precision of the packet", or is a numerical
+         * value giving the number of decimal places to display, from 0
+         * to WS_TSPREC_MAX.
+         *
+         * It used to be that not all values between 0 and 9 (the maximum
+         * precision back then) were supported, and that names were
+         * written out to the recent file.
+         *
+         * If the string value is a valid number in that range, use
+         * that number, otherwise look it up in the table of names,
+         * and, if that fails, set it to TS_PREC_AUTO.
+         */
+        if (ws_strtoi32(value, NULL, &num_int32) && num_int32 >= 0 &&
+            num_int32 <= TS_PREC_AUTO) {
+            recent.gui_time_precision = num_int32;
+        } else {
+            recent.gui_time_precision =
+                (ts_precision)str_to_val(value, ts_precision_values, TS_PREC_AUTO);
+        }
     } else if (strcmp(key, RECENT_GUI_SECONDS_FORMAT) == 0) {
         recent.gui_seconds_format =
             (ts_seconds_type)str_to_val(value, ts_seconds_values, TS_SECONDS_DEFAULT);
