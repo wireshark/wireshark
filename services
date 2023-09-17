@@ -5212,6 +5212,7 @@ senomix06	8057/tcp/udp	# Senomix Timesheets Client [1 year assignment]
 senomix07	8058/tcp/udp	# Senomix Timesheets Client [1 year assignment]
 senomix08	8059/tcp/udp	# Senomix Timesheets Client [1 year assignment]
 aero		8060/udp	# Asymmetric Extended Route Optimization (AERO)
+nikatron-dev	8061/tcp	# Nikatron Device Protocol
 toad-bi-appsrvr	8066/tcp	# Toad BI Application Server
 infi-async	8067/tcp	# Infinidat async replication
 ucs-isc		8070/tcp	# Oracle Unified Communication Suite's Indexed Search Converter
