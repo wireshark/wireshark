@@ -39,7 +39,7 @@ shown in the section for that family.
 [discrete]
 ==== Alpine Linux
 
-The setup script is tools/alpine-setup.sh; its options are:
+The setup script is `tools/alpine-setup.sh`; its options are:
 
 * `--install-optional` install optional software as well
 * `--install-all` install everything
@@ -48,7 +48,7 @@ The setup script is tools/alpine-setup.sh; its options are:
 [discrete]
 ==== Arch Linux and pacman-based systems
 
-The setup script is tools/arch-setup.sh; its options are:
+The setup script is `tools/arch-setup.sh`; its options are:
 
 * `--install-optional` install optional software as well
 * `--install-test-deps` install packages required to run all tests
@@ -58,7 +58,7 @@ The setup script is tools/arch-setup.sh; its options are:
 [discrete]
 ==== BSD systems such as FreeBSD, NetBSD, OpenBSD, and DragonFly BSD
 
-The setup script is tools/bsd-setup.sh; its options are:
+The setup script is `tools/bsd-setup.sh`; its options are:
 
 * `--install-optional` install optional software as well
 * `[other]` other options are passed as-is to pkg manager
@@ -66,7 +66,7 @@ The setup script is tools/bsd-setup.sh; its options are:
 [discrete]
 ==== Debian, and Linux distributions based on Debian, such as Ubuntu
 
-The setup script is tools/debian-setup.sh; its options are:
+The setup script is `tools/debian-setup.sh`; its options are:
 
 * `--install-optional` install optional software as well
 * `--install-deb-deps` install packages required to build the .deb file
@@ -79,7 +79,7 @@ The setup script is tools/debian-setup.sh; its options are:
 [discrete]
 ==== RPM-based Linux distributions such as Red Hat, Centos, Fedora, and openSUSE +
 
-The setup script is tools/rpm-setup.sh; its options are:
+The setup script is `tools/rpm-setup.sh`; its options are:
 
 * `--install-optional` install optional software as well
 * `--install-rpm-deps` install packages required to build the .rpm file
@@ -93,7 +93,7 @@ The setup script is tools/rpm-setup.sh; its options are:
 
 You must first install Xcode.
 
-After installing Xcode, the setup script tools/macos-setup.sh will
+After installing Xcode, the setup script `tools/macos-setup.sh` will
 install the rest of the tools and libraries required to build Wireshark,
 except for Qt 6, as well as the additional tools required to build the
 documentation and the libraries required for all Wireshark features.  If
