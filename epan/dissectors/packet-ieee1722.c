@@ -549,6 +549,7 @@ static int hf_1722_aaf_bit_depth = -1;
 static int hf_1722_aaf_stream_data_length = -1;
 static int hf_1722_aaf_sparse_timestamp = -1;
 static int hf_1722_aaf_evtfield = -1;
+static int hf_1722_aaf_reserved = -1;
 static int hf_1722_aaf_channels_per_frame = -1;
 static int hf_1722_aaf_data = -1;
 static int hf_1722_aaf_sample = -1;
@@ -1523,6 +1524,7 @@ static int dissect_1722_aaf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     if (format < IEEE_1722_AAF_FORMAT_AES3_32_BIT)
     {
+        /* PCM Format */
         proto_tree_add_item(ti_aaf_tree, hf_1722_aaf_nominal_sample_rate, tvb, offset, 2, ENC_BIG_ENDIAN);
         ti_channels_per_frame = proto_tree_add_item_ret_uint(ti_aaf_tree, hf_1722_aaf_channels_per_frame, tvb, offset, 2, ENC_BIG_ENDIAN, &channels_per_frame);
         if (channels_per_frame == 0)
@@ -1542,7 +1544,10 @@ static int dissect_1722_aaf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             offset += 2;
 
             proto_tree_add_bitmask_list(ti_aaf_tree, tvb, offset, 1, fields_pcm, ENC_BIG_ENDIAN);
-            offset += 2;
+            offset += 1;
+
+            proto_tree_add_item(ti_aaf_tree, hf_1722_aaf_reserved, tvb, offset, 1, ENC_NA);
+            offset += 1;
 
             /* Make the Audio sample tree. */
             ti            = proto_tree_add_item(ti_aaf_tree, hf_1722_aaf_data, tvb, offset, datalen, ENC_NA);
@@ -1635,6 +1640,10 @@ void proto_register_1722_aaf (void)
         { &hf_1722_aaf_evtfield,
             { "EVT", "aaf.evtfield",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_EVT_MASK, NULL, HFILL }
+        },
+        { &hf_1722_aaf_reserved,
+            { "Reserved", "aaf.reserved",
+              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_aaf_data,
             { "Audio Data", "aaf.data",
