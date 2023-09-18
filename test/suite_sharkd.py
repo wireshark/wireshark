@@ -956,6 +956,63 @@ class TestSharkd:
             }},
         ))
 
+    def test_sharkd_req_tap_hosts(self, check_sharkd_session, capture_file):
+        matchAddrNameList = MatchList(
+            {"name": MatchAny(str), "addr": MatchAny(str)})
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+             "params":{"file": capture_file('dns-mdns.pcap')}
+             },
+            {"jsonrpc":"2.0", "id":2, "method":"tap", "params":{"tap0": "hosts:"}},
+            {"jsonrpc":"2.0", "id":3, "method":"tap", "params":{"tap0": "hosts:ip"}},
+            {"jsonrpc":"2.0", "id":4, "method":"tap", "params":{"tap0": "hosts:ipv4"}},
+            {"jsonrpc":"2.0", "id":5, "method":"tap", "params":{"tap0": "hosts:ipv6"}},
+            {"jsonrpc":"2.0", "id":6, "method":"tap", "params":{"tap0": "hosts:invalid"}},
+            {"jsonrpc":"2.0", "id":7, "method":"tap", "params":{"tap0": "hosts:ipv4,ipv6"}},
+            {"jsonrpc":"2.0", "id":8, "method":"tap", "params":{"tap0": "hosts:ipv4,ipv6,invalid"}},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{
+                "taps":[{
+                    "tap":"hosts:",
+                    "type":"hosts",
+                    "ipv4_hosts":matchAddrNameList,
+                    "ipv6_hosts":matchAddrNameList,
+                }]
+            }},
+            {"jsonrpc":"2.0","id":3,"result":{
+                "taps":[{
+                    "tap":"hosts:ip",
+                    "type":"hosts",
+                    "ipv4_hosts":matchAddrNameList,
+                }]
+            }},
+            {"jsonrpc":"2.0","id":4,"result":{
+                "taps":[{
+                    "tap":"hosts:ipv4",
+                    "type":"hosts",
+                    "ipv4_hosts":matchAddrNameList,
+                }]
+            }},
+            {"jsonrpc":"2.0","id":5,"result":{
+                "taps":[{
+                    "tap":"hosts:ipv6",
+                    "type":"hosts",
+                    "ipv6_hosts":matchAddrNameList,
+                }]
+            }},
+            {"jsonrpc":"2.0","id":6,"error":{"code":-11015,"message":"sharkd_session_process_tap() hosts=hosts:invalid invalid 'protos' parameter"}},
+            {"jsonrpc":"2.0","id":7,"result":{
+                "taps":[{
+                    "tap":"hosts:ipv4,ipv6",
+                    "type":"hosts",
+                    "ipv4_hosts":matchAddrNameList,
+                    "ipv6_hosts":matchAddrNameList,
+                }]
+            }},
+            {"jsonrpc":"2.0","id":8,"error":{"code":-11015,"message":"sharkd_session_process_tap() hosts=hosts:ipv4,ipv6,invalid invalid 'protos' parameter"}},
+        ))
+
     def test_sharkd_req_tap_eo_http(self, check_sharkd_session, capture_file):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"load",

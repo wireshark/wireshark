@@ -3204,6 +3204,130 @@ sharkd_session_free_tap_voip_convs_cb(void *tapdata)
     g_free(voip_convs_req);
 }
 
+struct sharkd_hosts_req {
+    const char *tap_name;
+    gboolean dump_v4;
+    gboolean dump_v6;
+};
+
+static gint
+sharkd_session_tap_ipv4_host_compare(gconstpointer a, gconstpointer b)
+{
+    return ws_ascii_strnatcmp(((const hashipv4_t *)a)->name,
+                              ((const hashipv4_t *)b)->name);
+}
+
+static gint
+sharkd_session_tap_ipv6_host_compare(gconstpointer a, gconstpointer b)
+{
+    return ws_ascii_strnatcmp(((const hashipv6_t *)a)->name,
+                              ((const hashipv6_t *)b)->name);
+}
+
+static void
+sharkd_session_tap_ipv4_host_print(gpointer data, gpointer user_data _U_)
+{
+    hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)data;
+    sharkd_json_object_open(NULL);
+    sharkd_json_value_string("name", ipv4_hash_table_entry->name);
+    sharkd_json_value_string("addr", ipv4_hash_table_entry->ip);
+    sharkd_json_object_close();
+}
+
+static void
+sharkd_session_tap_ipv6_host_print(gpointer data, gpointer user_data _U_)
+{
+    hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)data;
+    sharkd_json_object_open(NULL);
+    sharkd_json_value_string("name", ipv6_hash_table_entry->name);
+    sharkd_json_value_string("addr", ipv6_hash_table_entry->ip6);
+    sharkd_json_object_close();
+}
+
+static void
+sharkd_session_tap_ipv4_host_insert_sorted(gpointer key _U_, gpointer value, gpointer user_data)
+{
+    hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
+    GSList **list = (GSList **)user_data;
+    if ((ipv4_hash_table_entry->flags & NAME_RESOLVED)) {
+        *list = g_slist_insert_sorted(*list, ipv4_hash_table_entry, sharkd_session_tap_ipv4_host_compare);
+    }
+}
+
+static void
+sharkd_session_tap_ipv6_host_insert_sorted(gpointer key _U_, gpointer value, gpointer user_data)
+{
+    hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
+    GSList **list = (GSList **) user_data;
+    if ((ipv6_hash_table_entry->flags & NAME_RESOLVED)) {
+        *list = g_slist_insert_sorted(*list, ipv6_hash_table_entry, sharkd_session_tap_ipv6_host_compare);
+    }
+}
+
+static void
+sharkd_session_tap_ipv4_hosts_print(void)
+{
+    wmem_map_t *ipv4_hash_table = get_ipv4_hash_table();
+    if (!ipv4_hash_table)
+        return;
+    GSList *list = NULL;
+    wmem_map_foreach(ipv4_hash_table, sharkd_session_tap_ipv4_host_insert_sorted, &list);
+    g_slist_foreach(list, sharkd_session_tap_ipv4_host_print, NULL);
+    g_slist_free(list);
+}
+
+static void
+sharkd_session_tap_ipv6_hosts_print(void)
+{
+    wmem_map_t *ipv6_hash_table = get_ipv6_hash_table();
+    if (!ipv6_hash_table)
+        return;
+    GSList *list = NULL;
+    wmem_map_foreach(ipv6_hash_table, sharkd_session_tap_ipv6_host_insert_sorted, &list);
+    g_slist_foreach(list, sharkd_session_tap_ipv6_host_print, NULL);
+    g_slist_free(list);
+}
+
+/**
+ * sharkd_session_process_tap_hosts_cb()
+ *
+ * Output Hosts tap:
+ *   (m) tap                    - tap name
+ *   (m) type                   - tap output type
+ *   (o) ipv4_hosts             - array of objects with attributes:
+ *                              (m) addr - ipv4 address
+ *                              (m) name - resolved name of address
+ *   (o) ipv6_hosts             - array of objects with attributes:
+ *                              (m) addr - ipv6 address
+ *                              (m) name - resolved name of address
+ */
+static void
+sharkd_session_process_tap_hosts_cb(void *arg)
+{
+    struct sharkd_hosts_req *hosts_req = (struct sharkd_hosts_req *)arg;
+    sharkd_json_object_open(NULL);
+    sharkd_json_value_string("tap", hosts_req->tap_name);
+    sharkd_json_value_string("type", "hosts");
+    if (hosts_req->dump_v4) {
+        sharkd_json_array_open("ipv4_hosts");
+        sharkd_session_tap_ipv4_hosts_print();
+        sharkd_json_array_close();
+    }
+    if (hosts_req->dump_v6) {
+        sharkd_json_array_open("ipv6_hosts");
+        sharkd_session_tap_ipv6_hosts_print();
+        sharkd_json_array_close();
+    }
+    sharkd_json_object_close();
+}
+
+static void
+sharkd_session_free_tap_hosts_cb(void *tapdata)
+{
+    struct sharkd_hosts_req *hosts_req = (struct sharkd_hosts_req *)tapdata;
+    g_free(hosts_req);
+}
+
 static GString*
 sharkd_session_eo_register_tap_listener(register_eo_t *eo, const char *tap_type, const char *tap_filter, tap_draw_cb tap_draw, void **ptap_data, GFreeFunc* ptap_free)
 {
@@ -3649,6 +3773,55 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
             tap_data = voip_convs_req;
             tap_free = sharkd_session_free_tap_voip_convs_cb;
+        }
+        else if (!strncmp(tok_tap, "hosts:", 6))
+        {
+            gboolean dump_v4;
+            gboolean dump_v6;
+            struct sharkd_hosts_req *hosts_req;
+            const char *proto_arg;
+            gchar **proto_tokens;
+            gint proto_count;
+
+            proto_arg = tok_tap + 6;
+
+            if (strlen(proto_arg) == 0) {
+                dump_v4 = TRUE;
+                dump_v6 = TRUE;
+            } else {
+                dump_v4 = FALSE;
+                dump_v6 = FALSE;
+
+                proto_tokens = g_strsplit(proto_arg, ",", 0);
+                proto_count = 0;
+                while (proto_tokens[proto_count]) {
+                    if (!strcmp("ip", proto_tokens[proto_count]) ||
+                        !strcmp("ipv4", proto_tokens[proto_count])) {
+                        dump_v4 = TRUE;
+                    } else if (!strcmp("ipv6", proto_tokens[proto_count])) {
+                        dump_v6 = TRUE;
+                    } else {
+                        g_strfreev(proto_tokens);
+                        sharkd_json_error(
+                                rpcid, -11015, NULL,
+                                "sharkd_session_process_tap() hosts=%s invalid 'protos' parameter", tok_tap
+                        );
+                        return;
+                    }
+                    proto_count++;
+                }
+                g_strfreev(proto_tokens);
+            }
+
+            hosts_req = (struct sharkd_hosts_req *)g_malloc0(sizeof(*hosts_req));
+            hosts_req->dump_v4 = dump_v4;
+            hosts_req->dump_v6 = dump_v6;
+            hosts_req->tap_name = tok_tap;
+
+            tap_error = register_tap_listener("frame", hosts_req, tap_filter, TL_REQUIRES_PROTO_TREE, NULL, NULL, sharkd_session_process_tap_hosts_cb, NULL);
+
+            tap_data = hosts_req;
+            tap_free = sharkd_session_free_tap_hosts_cb;
         }
         else
         {
