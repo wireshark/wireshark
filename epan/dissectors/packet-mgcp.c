@@ -1527,40 +1527,25 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi
 
 		if (my_param)
 		{
-			if (*my_param == hf_mgcp_param_connectionparam)
-			{
-				tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
+			tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
+			if (*my_param == hf_mgcp_param_connectionparam) {
 				dissect_mgcp_connectionparams(mgcp_param_tree, tvb, tvb_linebegin,
-						tvb_tokenbegin - tvb_linebegin, tokenlen);
+							      tvb_tokenbegin - tvb_linebegin, tokenlen);
+			} else if (*my_param == hf_mgcp_param_localconnoptions) {
+				dissect_mgcp_localconnectionoptions(mgcp_param_tree, tvb, tvb_linebegin,
+								    tvb_tokenbegin - tvb_linebegin, tokenlen);
+			} else if (*my_param == hf_mgcp_param_localvoicemetrics) {
+				dissect_mgcp_localvoicemetrics(mgcp_param_tree, tvb, tvb_linebegin,
+							       tvb_tokenbegin - tvb_linebegin, tokenlen);
+			} else if (*my_param == hf_mgcp_param_remotevoicemetrics) {
+				dissect_mgcp_remotevoicemetrics(mgcp_param_tree, tvb, tvb_linebegin,
+								tvb_tokenbegin - tvb_linebegin, tokenlen);
+			} else {
+				proto_tree_add_string(mgcp_param_tree, *my_param, tvb,
+						      tvb_linebegin, linelen,
+						      tvb_format_text(wmem_packet_scope(),
+								      tvb, tvb_tokenbegin, tokenlen));
 			}
-			else
-				if (*my_param == hf_mgcp_param_localconnoptions)
-				{
-					tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
-					dissect_mgcp_localconnectionoptions(mgcp_param_tree, tvb, tvb_linebegin,
-							tvb_tokenbegin - tvb_linebegin, tokenlen);
-				}
-				else
-				if (*my_param == hf_mgcp_param_localvoicemetrics)
-				{
-					tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
-					dissect_mgcp_localvoicemetrics(mgcp_param_tree, tvb, tvb_linebegin,
-					                         tvb_tokenbegin - tvb_linebegin, tokenlen);
-				}
-				else
-				if (*my_param == hf_mgcp_param_remotevoicemetrics)
-				{
-					tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
-					dissect_mgcp_remotevoicemetrics(mgcp_param_tree, tvb, tvb_linebegin,
-					                         tvb_tokenbegin - tvb_linebegin, tokenlen);
-				}
-				else
-				{
-					tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
-					proto_tree_add_string(mgcp_param_tree, *my_param, tvb,
-							tvb_linebegin, linelen,
-							tvb_format_text(wmem_packet_scope(), tvb, tvb_tokenbegin, tokenlen));
-				}
 		}
 
 		tvb_linebegin = tvb_lineend;
