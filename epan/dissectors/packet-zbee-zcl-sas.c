@@ -362,43 +362,43 @@ proto_register_zbee_zcl_ias_ace(void)
 
         { &hf_zbee_zcl_ias_ace_arm_mode,
             { "Arm Mode", "zbee_zcl_sas.ias_ace.arm_mode", FT_UINT8, BASE_DEC, VALS(arm_mode_values),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_ace_no_of_zones,
             { "Number of Zones", "zbee_zcl_sas.ias_ace.no_of_zones", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_ace_zone_id,
             { "Zone ID", "zbee_zcl_sas.ias_ace.zone_id", FT_UINT8, BASE_HEX, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_ace_zone_id_list,
             { "Zone ID List", "zbee_zcl_sas.ias_ace.zone_id_list", FT_NONE, BASE_NONE, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_ace_arm_notif,
             { "Arm Notifications", "zbee_zcl_sas.ias_ace.arm_notif", FT_UINT8, BASE_DEC, VALS(arm_notif_values),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_ace_zone_id_map_section,
             { "Zone ID Map Section", "zbee_zcl_sas.ias_ace.zone_id_map_section", FT_UINT16, BASE_HEX, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_ace_zone_type,
             { "Zone Type", "zbee_zcl_sas.ias_ace.zone_type", FT_UINT16, BASE_HEX, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_ace_ieee_add,
             { "IEEE Address", "zbee_zcl_sas.ias_ace.ieee_add", FT_BYTES, BASE_NONE, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_ace_srv_rx_cmd_id,
           { "Command", "zbee_zcl_sas.ias_ace.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ias_ace_srv_rx_cmd_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_ace_srv_tx_cmd_id,
           { "Command", "zbee_zcl_sas.ias_ace.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ias_ace_srv_tx_cmd_names),
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
 
     };
 
@@ -690,7 +690,7 @@ proto_register_zbee_zcl_ias_wd(void)
 
         { &hf_zbee_zcl_ias_wd_attr_id,
             { "Attribute", "zbee_zcl_sas.ias_wd.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_ias_wd_attr_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_wd_warning_mode,
             { "Warning Mode", "zbee_zcl_sas.ias_wd.warning_mode", FT_UINT8, BASE_DEC, VALS(warning_mode_values),
@@ -710,7 +710,7 @@ proto_register_zbee_zcl_ias_wd(void)
 
         { &hf_zbee_zcl_ias_wd_warning_duration,
             { "Warning Duration", "zbee_zcl_sas.ias_wd.warning_duration", FT_UINT16, BASE_HEX, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_wd_squawk_level,
             { "Squawk Level", "zbee_zcl_sas.ias_wd.squawk_level", FT_UINT8, BASE_DEC, VALS(squawk_level_values),
@@ -718,7 +718,7 @@ proto_register_zbee_zcl_ias_wd(void)
 
         { &hf_zbee_zcl_ias_wd_srv_rx_cmd_id,
           { "Command", "zbee_zcl_sas.ias_wd.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ias_wd_srv_rx_cmd_names),
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
     };
 
     /* ZCL IAS WD subtrees */

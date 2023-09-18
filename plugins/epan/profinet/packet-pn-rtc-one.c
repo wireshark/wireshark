@@ -1144,7 +1144,7 @@ init_pn_io_rtc1(int proto)
         },
         { &hf_pn_io_ps_sb_toggelBitChanged,
             { "Status Byte", "pn_io.ps.sb.toggle_d_changed",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pn_io_ps_sb_toggelBitChange_slot_nr,
@@ -1164,7 +1164,7 @@ init_pn_io_rtc1(int proto)
         },
         { &hf_pn_io_ps_cb_toggelBitChanged,
             { "Control Byte", "pn_io.ps.cb.toggle_h_changed",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pn_io_ps_cb_toggelBitChange_slot_nr,

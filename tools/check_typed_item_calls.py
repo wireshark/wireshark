@@ -366,7 +366,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'xmcp.type.class',
                                 'xmcp.type.method',
                                 'hf_hiqnet_flags',
-                                'hf_hiqnet_flagmask'
+                                'hf_hiqnet_flagmask',
+                                'hf_h223_mux_mpl'
                               }
 ##################################################################################################
 
@@ -686,9 +687,10 @@ class Item:
 
         # Optionally check that mask bits are contiguous
         if check_mask:
-            if self.mask_read and not mask in { 'NULL', '0x0', '0', '0x00'}:
+            if self.mask_read and not mask in { 'NULL', '0x0', '0', '0x00' }:
                 self.check_contiguous_bits(mask)
                 self.check_num_digits(self.mask)
+                # N.B., if last entry in set is removed, see around 18,000 warnings
                 self.check_digits_all_zeros(self.mask)
 
         # N.B. these checks are already done by checkApis.pl

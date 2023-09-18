@@ -1123,7 +1123,7 @@ proto_register_pn_rt(void)
         /* Is this a string or a bunch of bytes? Should it be FT_BYTES? */
         { &hf_pn_rt_frag_data,
           { "FragData", "pn_rt.frag_data",
-            FT_STRING, BASE_NONE, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
     };

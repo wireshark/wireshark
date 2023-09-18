@@ -2662,43 +2662,43 @@ proto_register_unistim(void){
       },
       { &hf_net_server_id,
         {"Download Server ID","unistim.download.id",FT_UINT8,
-         BASE_HEX, VALS(network_server_id),0x00,NULL,HFILL}
+         BASE_HEX, VALS(network_server_id),0x0,NULL,HFILL}
       },
       { &hf_net_server_port,
         {"Download Server Port","unistim.download.port",FT_UINT16,
-         BASE_DEC, NULL,0x00,NULL,HFILL}
+         BASE_DEC, NULL,0x0,NULL,HFILL}
       },
       { &hf_net_server_action,
         {"Download Server Action","unistim.download.action",FT_UINT8,
-         BASE_HEX, VALS(server_action),0x00,NULL,HFILL}
+         BASE_HEX, VALS(server_action),0x0,NULL,HFILL}
       },
       { &hf_net_server_retry_count,
         {"Download Retry Count","unistim.download.retry",FT_UINT8,
-         BASE_DEC, NULL,0x00,NULL,HFILL}
+         BASE_DEC, NULL,0x0,NULL,HFILL}
       },
       { &hf_net_server_failover_id,
         {"Download Failover Server ID","unistim.download.failover",FT_UINT8,
-         BASE_HEX, VALS(network_server_id),0x00,NULL,HFILL}
+         BASE_HEX, VALS(network_server_id),0x0,NULL,HFILL}
       },
       { &hf_net_server_ip_address,
         {"Download Server Address","unistim.download.address",FT_IPv4,
-         BASE_NONE, NULL,0x00,NULL,HFILL}
+         BASE_NONE, NULL,0x0,NULL,HFILL}
       },
       { &hf_net_server_time_out,
         {"Watchdog Timeout","unistim.watchdog.timeout",FT_UINT16,
-         BASE_DEC, NULL,0x00,NULL,HFILL}
+         BASE_DEC, NULL,0x0,NULL,HFILL}
       },
       { &hf_net_server_config_element,
         {"Configure Network Element","unistim.config.element",FT_UINT8,
-         BASE_HEX, VALS(network_elements),0x00,NULL,HFILL}
+         BASE_HEX, VALS(network_elements),0x0,NULL,HFILL}
       },
       { &hf_net_server_recovery_time_low,
         {"Recovery Procedure Idle Low Boundary","unistim.recovery.low",FT_UINT16,
-         BASE_DEC, NULL,0x00,NULL,HFILL}
+         BASE_DEC, NULL,0x0,NULL,HFILL}
       },
       { &hf_net_server_recovery_time_high,
         {"Recovery Procedure Idle High Boundary","unistim.recovery.high",FT_UINT16,
-         BASE_DEC, NULL,0x00,NULL,HFILL}
+         BASE_DEC, NULL,0x0,NULL,HFILL}
       },
       { &hf_net_phone_rx_ovr_flag,
         {"Receive Buffer Overflow","unistim.receive.overflow",
@@ -2776,11 +2776,11 @@ proto_register_unistim(void){
       },
       { &hf_basic_switch_element_id,
         {"Basic Element ID","unistim.basic.element.id",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_basic_switch_eeprom_data,
         {"EEProm Data","unistim.basic.eeprom.data",FT_BYTES,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_basic_phone_eeprom_stat_cksum,
         {"Basic Phone EEProm Static Checksum","unistim.static.cksum",FT_UINT8,
@@ -2788,19 +2788,19 @@ proto_register_unistim(void){
       },
       { &hf_basic_phone_eeprom_dynam,
         {"Basic Phone EEProm Dynamic Checksum","unistim.dynam.cksum",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_basic_phone_eeprom_net_config_cksum,
         {"Basic Phone EEProm Net Config Checksum","unistim.netconfig.cksum",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_basic_phone_hw_id,
         {"Basic Phone Hardware ID","unistim.basic.hw.id",FT_BYTES,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_basic_phone_fw_ver,
         {"Basic Phone Firmware Version","unistim.basic.fw.ver",FT_STRING,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_key_code,
         {"Key Name","unistim.key.name",FT_UINT8,
@@ -2852,7 +2852,7 @@ proto_register_unistim(void){
       },
       { &hf_audio_default_rx_vol_id,
         {"Audio Manager Default Receive Volume ID","unistim.audio.volume.id",FT_UINT8,
-         BASE_HEX,VALS(default_rx_vol_id),0x00,NULL,HFILL}
+         BASE_HEX,VALS(default_rx_vol_id),0x0,NULL,HFILL}
       },
       { &hf_audio_mgr_opt_max_vol,
         {"Audio Manager Enable Max Tone Volume","unistim.audio.max.tone",FT_BOOLEAN,
@@ -2888,7 +2888,7 @@ proto_register_unistim(void){
       },
       { &hf_audio_mgr_stream_id,
         {"Audio Manager Stream ID","unistim.audio.stream.id",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_mgr_transducer_based_tone_id,
         {"Audio Manager Transducer Based Tone On","unistim.audio.transducer.on",FT_UINT8,
@@ -2916,7 +2916,7 @@ proto_register_unistim(void){
       },
       { &hf_audio_special_tone,
         {"Special Tone Select","unistim.special.tone.select",FT_UINT8,
-         BASE_HEX,VALS(special_tones_vals),0x00,NULL,HFILL}
+         BASE_HEX,VALS(special_tones_vals),0x0,NULL,HFILL}
       },
       { &hf_audio_tone_level,
         {"Tone Level","unistim.audio.tone.level",FT_UINT8,
@@ -2940,63 +2940,63 @@ proto_register_unistim(void){
       },
       { &hf_audio_stream_id,
         {"Stream ID","unistim.audio.stream.id",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_stream_based_volume,
         {"Stream Based Volume ID","unistim.stream.volume.id",FT_UINT8,
-         BASE_HEX,VALS(stream_base_vol_level),0x00,NULL,HFILL}
+         BASE_HEX,VALS(stream_base_vol_level),0x0,NULL,HFILL}
       },
       { &hf_basic_switch_terminal_id,
         {"Terminal ID assigned by Switch","unistim.switch.terminal.id",FT_IPv4,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_basic_it_type,
         {"IT (Phone) Type","unistim.it.type",FT_UINT8,
-         BASE_HEX,VALS(it_types),0x00,NULL,HFILL}
+         BASE_HEX,VALS(it_types),0x0,NULL,HFILL}
       },
       { &hf_basic_prod_eng_code,
         {"Product Engineering Code for phone","unistim.basic.eng.code",FT_STRING,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_phone_primary_server_id,
         {"Phone Primary Server ID","unistim.net.phone.primary.id",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_phone_server_port,
         {"Port Number","unistim.server.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_phone_server_action,
         {"Action","unistim.server.action.byte",FT_UINT8,
-         BASE_HEX,VALS(action_bytes),0x00,NULL,HFILL}
+         BASE_HEX,VALS(action_bytes),0x0,NULL,HFILL}
       },
       { &hf_net_phone_server_retry_count,
         {"Number of times to Retry","unistim.server.retry.count",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_phone_server_failover_id,
         {"Failover Server ID","unistim.server.failover.id",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_phone_server_ip,
         {"IP address","unistim.server.ip.address",FT_IPv4,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_apb_number,
         {"APB Number","unistim.audio.apb.number",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { & hf_audio_apb_op_code,
         {"APB Operation Code","unistim.audio.apb.op.code",FT_UINT8,
-         BASE_HEX,VALS(apb_op_codes),0x00,NULL,HFILL}
+         BASE_HEX,VALS(apb_op_codes),0x0,NULL,HFILL}
       },
       { &hf_audio_apb_param_len,
         {"APB Operation Parameter Length","unistim.apb.param.len",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_apb_data,
         {"APB Operation Data","unistim.apb.operation.data",FT_BYTES,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_display_write_address_numeric,
         {"Is Address Numeric","unistim.write.address.numeric",FT_BOOLEAN,
@@ -3056,7 +3056,7 @@ proto_register_unistim(void){
       },
       { &hf_display_write_tag,
         {"Tag for text","unistim.display.text.tag",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_display_cursor_move_cmd,
         {"Cursor Movement Command","unistim.cursor.move.cmd",FT_UINT8,
@@ -3068,7 +3068,7 @@ proto_register_unistim(void){
       },
       { &hf_audio_vocoder_id,
         {"Vocoder Protocol","unistim.vocoder.id",FT_UINT8,
-         BASE_HEX,VALS(vocoder_ids),0x00,NULL,HFILL}
+         BASE_HEX,VALS(vocoder_ids),0x0,NULL,HFILL}
       },
       { &hf_audio_vocoder_param,
         {"Vocoder Config Param","unistim.vocoder.config.param",FT_UINT8,
@@ -3088,35 +3088,35 @@ proto_register_unistim(void){
       },
       { &hf_audio_sample_rate,
         {"Sample Rate","unistim.audio.sample.rate",FT_UINT8,
-         BASE_HEX,VALS(sample_rates),0x00,NULL,HFILL}
+         BASE_HEX,VALS(sample_rates),0x0,NULL,HFILL}
       },
       { &hf_audio_rtp_type,
         {"RTP Type","unistim.audio.rtp.type",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_bytes_per_frame,
         {"Bytes Per Frame","unistim.audio.bytes.per.frame",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_rx_stream_id,
         {"Receive Stream Id","unistim.rx.stream.id",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_tx_stream_id,
         {"Transmit Stream Id","unistim.tx.stream.id",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_rx_vocoder_type,
         {"Receive Vocoder Protocol","unistim.vocoder.id",FT_UINT8,
-         BASE_HEX,VALS(vocoder_ids),0x00,NULL,HFILL}
+         BASE_HEX,VALS(vocoder_ids),0x0,NULL,HFILL}
       },
       { &hf_tx_vocoder_type,
         {"Transmit Vocoder Protocol","unistim.vocoder.id",FT_UINT8,
-         BASE_HEX,VALS(vocoder_ids),0x00,NULL,HFILL}
+         BASE_HEX,VALS(vocoder_ids),0x0,NULL,HFILL}
       },
       { &hf_frames_per_packet,
         {"Frames Per Packet","unistim.vocoder.frames.per.packet",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_tos,
         {"Type of Service","unistim.audio.type.service",FT_UINT8,
@@ -3132,31 +3132,31 @@ proto_register_unistim(void){
       },
       { &hf_audio_lcl_rtp_port,
         {"Phone RTP Port","unistim.local.rtp.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_lcl_rtcp_port,
         {"Phone RTCP Port","unistim.local.rtcp.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_far_rtp_port,
         {"Distant RTP Port","unistim.far.rtp.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_far_rtcp_port,
         {"Distant RTCP Port","unistim.far.rtcp.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_far_ip_add,
         {"Distant IP Address for RT[C]P","unistim.far.ip.address",FT_IPv4,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_rtcp_bucket_id,
         {"RTCP Bucket ID","unistim.rtcp.bucket.id",FT_UINT16,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_key_icon_id,
         {"Icon ID","unistim.key.icon.id",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_display_clear_numeric,
         {"Numeric Index Field in InfoBar","unistim.display.clear.numeric",FT_BOOLEAN,
@@ -3304,7 +3304,7 @@ proto_register_unistim(void){
       },
       { &hf_basic_ether_address,
         {"Phone Ethernet Address","unistim.phone.ether",FT_ETHER,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_rtcp_bucket_id,
         {"RTCP Bucket ID","unistim.audio.rtcp.bucket.id",FT_UINT8,
@@ -3316,7 +3316,7 @@ proto_register_unistim(void){
       },
       { &hf_display_arrow,
         {"Arrow Display Direction","unistim.arrow.direction",FT_UINT8,
-         BASE_HEX,VALS(arrow_dirs),0x00,NULL,HFILL}
+         BASE_HEX,VALS(arrow_dirs),0x0,NULL,HFILL}
       },
       { &hf_audio_transducer_pair,
         {"Audio Transducer Pair","unistim.transducer.pairs",FT_UINT8,
@@ -3400,7 +3400,7 @@ proto_register_unistim(void){
       },
       { &hf_display_contrast,
         {"Phone Contrast Level","unistim.phone.contrast.level",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_display_cursor_numeric,
         {"Numeric Index Field","unistim.field.numeric",FT_BOOLEAN,
@@ -3432,11 +3432,11 @@ proto_register_unistim(void){
       },
       { &hf_display_hlight_start,
         {"Display Highlight Start Position","unistim.hilite.start.pos",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_display_hlight_end,
         {"Display Highlight End Position","unistim.hilite.end.pos",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_display_date_format,
         {"Date Format","unistim.display.date.format",FT_UINT8,
@@ -3464,11 +3464,11 @@ proto_register_unistim(void){
       },
       { &hf_display_char_address,
         {"Display Character Address","unistim.display.char.address",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_display_layer_number,
         {"Softkey Layer Number","unistim.softkey.layer.num",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_display_layer_skey_id,
         {"Softkey ID","unistim.layer.softkey.id",FT_UINT8,
@@ -3484,7 +3484,7 @@ proto_register_unistim(void){
       },
       { &hf_display_layer_duration,
         {"Display Duration (20ms steps)","unistim.layer.display.duration",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_key_programmable_keys,
         {"Number of Programmable Keys","unistim.num.prog.keys",FT_UINT8,
@@ -3552,39 +3552,39 @@ proto_register_unistim(void){
       },
       { &hf_audio_desired_jitter,
         {"Desired Jitter","unistim.audio.desired.jitter",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_high_water_mark,
         {"Threshold of audio frames where jitter buffer removes frames","unistim.high.water.mark",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       {  &hf_audio_early_packet_resync_thresh,
          {"Threshold in x/8000 sec where packets are too early","unistim.early.packet.thresh",FT_UINT32,
-          BASE_DEC,NULL,0x00,NULL,HFILL}
+          BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_late_packet_resync_thresh,
         {"Threshold in x/8000 sec where packets are too late","unistim.late.packet.thresh",FT_UINT32,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_resolve_phone_port,
         {"Resolve Phone Port","unistim.resolve.phone.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_far_end_echo_port,
         {"Resolve Far End Port","unistim.resolve.far.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_far_end_ip_address,
         {"Resolve Far End IP","unistim.resolve.far.ip",FT_IPv4,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_nat_port,
         {"NAT Port","unistim.audio.nat.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_nat_ip_address,
         {"NAT IP Address","unistim.audio.nat.ip",FT_IPv4,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_direction_code,
         {"Stream Direction Code","unistim.audio.direction.codes",FT_UINT8,
@@ -3641,11 +3641,11 @@ proto_register_unistim(void){
       },
       { &hf_audio_current_rx_level,
         {"Current RX Volume Level","unistim.current.rx.vol.level",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_current_rx_range,
         {"Current RX Volume Range","unistim.current.rx.vol.range",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_cadence_select,
         {"Alerting Cadence Select","unistim.alert.cad.sel",FT_UINT8,
@@ -3657,7 +3657,7 @@ proto_register_unistim(void){
       },
       { &hf_audio_open_stream_rpt,
         {"Open Stream Report","unistim.open.audio.stream.rpt",FT_UINT8,
-         BASE_HEX,VALS(stream_result),0x00,NULL,HFILL}
+         BASE_HEX,VALS(stream_result),0x0,NULL,HFILL}
       },
       { &hf_audio_sdes_rpt_source_desc,
         {"Report Source Description","unistim.rpt.src.desc",FT_UINT8,
@@ -3669,27 +3669,27 @@ proto_register_unistim(void){
       },
       { &hf_audio_phone_port,
         {"Phone Listen Port","unistim.phone.listen.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_phone_ip,
         {"Phone Listen Address","unistim.phone.listen.address",FT_IPv4,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_phone_add_len,
         {"Phone Address Length","unistim.phone.address.len",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_nat_listen_port,
         {"NAT Listen Port","unistim.nat.listen.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_nat_ip,
         {"NAT Listen Address","unistim.nat.listen.address",FT_IPv4,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_nat_add_len,
         {"NAT Address Length","unistim.nat.address.len",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_stream_direction_code,
         {"Audio Stream Direction","unistim.audio.stream.direction",FT_UINT8,
@@ -3701,7 +3701,7 @@ proto_register_unistim(void){
       },
       { &hf_audio_transducer_list_length,
         {"Transducer List Length","unistim.trans.list.len",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_file_xfer_mode,
         {"File Transfer Mode","unistim.net.file.xfer.mode",FT_UINT8,
@@ -3721,23 +3721,23 @@ proto_register_unistim(void){
       },
       { &hf_net_file_server_port,
         {"File Server Port","unistim.net.file.server.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_full_pathname,
         {"Full Pathname","unistim.net.full_pathname",FT_STRINGZ,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_file_identifier,
         {"File Identifier","unistim.net.file_identifier",FT_STRINGZ,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_local_port,
         {"Local XFer Port","unistim.net.local.xfer.port",FT_UINT16,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_net_file_server_address,
         {"File Server IP Address","unistim.net.file.server.address",FT_IPv4,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_keys_admin_command,
         {"Admin Command","unistim.key.icon.admin.cmd",FT_UINT8,
@@ -3745,35 +3745,35 @@ proto_register_unistim(void){
       },
       { &hf_keys_logical_icon_id,
         {"Logical Icon ID","unistim.keys.logical.icon.id",FT_UINT16,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_keys_repeat_timer_one,
         {"Key Repeat Timer 1 Value","unistim.keys.repeat.time.one",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_keys_repeat_timer_two,
         {"Key Repeat Timer 2 Value","unistim.keys.repeat.time.two",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_keys_led_id,
         {"Led ID","unistim.keys.led.id",FT_UINT8,
-         BASE_HEX,VALS(keys_led_ids),0x00,NULL,HFILL}
+         BASE_HEX,VALS(keys_led_ids),0x0,NULL,HFILL}
       },
       { &hf_keys_phone_icon_id,
         {"Phone Icon ID","unistim.keys.phone.icon.id",FT_UINT8,
-         BASE_HEX,NULL,0x00,NULL,HFILL}
+         BASE_HEX,NULL,0x0,NULL,HFILL}
       },
       { &hf_keys_cadence_on_time,
         {"Indicator Cadence On Time","unistim.keys.cadence.on.time",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_keys_cadence_off_time,
         {"Indicator Cadence Off Time","unistim.keys.cadence.off.time",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_keys_user_activity_timeout,
         {"User Activity Timeout Value","unistim.keys.user.timeout.value",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_display_call_timer_mode,
         {"Call Timer Mode","unistim.display.call.timer.mode",FT_BOOLEAN,
@@ -3809,18 +3809,18 @@ proto_register_unistim(void){
       },
       { &hf_expansion_softlabel_number,
         {"Module Soft Label Number","unistim.expansion.label.number",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+         BASE_DEC,NULL,0x0,NULL,HFILL}
       },
 
 
       /****LAST****/
       { &hf_generic_string,
         {"DATA","unistim.generic.string_data",FT_STRING,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_generic_data,
         {"DATA","unistim.generic.data",FT_BYTES,
-         BASE_NONE,NULL,0x00,NULL,HFILL}
+         BASE_NONE,NULL,0x0,NULL,HFILL}
       }
    };
 

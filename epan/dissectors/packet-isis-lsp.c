@@ -6772,7 +6772,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_expense,
           { "Expense metric", "isis.lsp.expense",
-            FT_UINT8, BASE_DEC, NULL, 0xef,
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
             NULL, HFILL }
         },
         { &hf_isis_lsp_expense_support,

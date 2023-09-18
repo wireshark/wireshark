@@ -258,27 +258,27 @@ proto_register_zbee_zcl_illum_meas(void)
 
         { &hf_zbee_zcl_illum_meas_attr_id,
             { "Attribute", "zbee_zcl_meas_sensing.illummeas.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_illum_meas_attr_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_measured_value,
             { "Measured Value", "zbee_zcl_meas_sensing.illummeas.attr.value", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_meas_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_min_measured_value,
             { "Min Measured Value", "zbee_zcl_meas_sensing.illummeas.attr.value.min", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_meas_min_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_max_measured_value,
             { "Max Measured Value", "zbee_zcl_meas_sensing.illummeas.attr.value.max", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_meas_max_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_tolerance,
             { "Tolerance", "zbee_zcl_meas_sensing.illummeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_meas_tolerance),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_sensor_type,
             { "Sensor Type", "zbee_zcl_meas_sensing.illummeas.attr.sensor_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_illum_meas_sensor_type_names),
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
     };
 
     /* ZCL Illuminance Measurement subtrees */
@@ -481,19 +481,19 @@ proto_register_zbee_zcl_illum_level_sen(void)
 
         { &hf_zbee_zcl_illum_level_sen_attr_id,
             { "Attribute", "zbee_zcl_meas_sensing.illumlevelsen.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_illum_level_sen_attr_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_level_sen_level_status,
             { "Level Status", "zbee_zcl_meas_sensing.illumlevelsen.attr.level_status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_illum_level_sen_level_status_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_level_sen_light_sensor_type,
             { "Light Sensor Type", "zbee_zcl_meas_sensing.illumlevelsen.attr.light_sensor_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_illum_level_sen_sensor_type_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_level_sen_illum_target_level,
             { "Target Level", "zbee_zcl_meas_sensing.illumlevelsen.attr.target_level", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_level_sen_target_level),
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
     };
 
     /* ZCL Illuminance Level Sensing subtrees */
@@ -746,23 +746,23 @@ proto_register_zbee_zcl_temp_meas(void)
 
         { &hf_zbee_zcl_temp_meas_attr_id,
             { "Attribute", "zbee_zcl_meas_sensing.tempmeas.attr_idd", FT_UINT16, BASE_HEX, VALS(zbee_zcl_temp_meas_attr_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_temp_meas_measured_value,
             { "Measured Value", "zbee_zcl_meas_sensing.tempmeas.attr.value", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_temp_meas_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_temp_meas_min_measured_value,
             { "Min Measured Value", "zbee_zcl_meas_sensing.tempmeas.attr.value.min", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_temp_meas_min_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_temp_meas_max_measured_value,
             { "Max Measured Value", "zbee_zcl_meas_sensing.tempmeas.attr.value.max", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_temp_meas_max_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_temp_meas_tolerance,
             { "Tolerance", "zbee_zcl_meas_sensing.tempmeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_temp_meas_tolerance),
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
 
     };
 
@@ -1056,43 +1056,43 @@ proto_register_zbee_zcl_press_meas(void)
 
         { &hf_zbee_zcl_press_meas_attr_id,
             { "Attribute", "zbee_zcl_meas_sensing.pressmeas.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_press_meas_attr_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_measured_value,
             { "Measured Value", "zbee_zcl_meas_sensing.pressmeas.attr.value", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_press_meas_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_min_measured_value,
             { "Min Measured Value", "zbee_zcl_meas_sensing.pressmeas.attr.value.min", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_press_meas_min_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_max_measured_value,
             { "Max Measured Value", "zbee_zcl_meas_sensing.pressmeas.attr.value.max", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_press_meas_max_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_tolerance,
             { "Tolerance", "zbee_zcl_meas_sensing.pressmeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_press_meas_tolerance),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_scaled_value,
             { "Scaled Value", "zbee_zcl_meas_sensing.pressmeas.attr.scaled_value", FT_INT16, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_min_scaled_value,
             { "Min Scaled Value", "zbee_zcl_meas_sensing.pressmeas.attr.scaled_value.min", FT_INT16, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_max_scaled_value,
             { "Max Scaled Value", "zbee_zcl_meas_sensing.pressmeas.attr.scaled_value.max", FT_INT16, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_scaled_tolerance,
             { "Scaled Tolerance", "zbee_zcl_meas_sensing.pressmeas.attr.scaled_tolerance", FT_UINT16, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_scale,
             { "Scale", "zbee_zcl_meas_sensing.pressmeas.attr.scale", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
 
     };
 
@@ -1346,23 +1346,23 @@ proto_register_zbee_zcl_flow_meas(void)
 
         { &hf_zbee_zcl_flow_meas_attr_id,
             { "Attribute", "zbee_zcl_meas_sensing.flowmeas.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_flow_meas_attr_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_flow_meas_measured_value,
             { "Measured Value", "zbee_zcl_meas_sensing.flowmeas.attr.value", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_flow_meas_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_flow_meas_min_measured_value,
             { "Min Measured Value", "zbee_zcl_meas_sensing.flowmeas.attr.value.min", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_flow_meas_min_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_flow_meas_max_measured_value,
             { "Max Measured Value", "zbee_zcl_meas_sensing.flowmeas.attr.value.max", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_flow_meas_max_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_flow_meas_tolerance,
             { "Tolerance", "zbee_zcl_meas_sensing.flowmeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_flow_meas_tolerance),
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
     };
 
     /* ZCL Flow Measurement subtrees */
@@ -1612,23 +1612,23 @@ proto_register_zbee_zcl_relhum_meas(void)
 
         { &hf_zbee_zcl_relhum_meas_attr_id,
             { "Attribute", "zbee_zcl_meas_sensing.relhummeas.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_relhum_meas_attr_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_relhum_meas_measured_value,
             { "Measured Value", "zbee_zcl_meas_sensing.relhummeas.attr.value", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_relhum_meas_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_relhum_meas_min_measured_value,
             { "Min Measured Value", "zbee_zcl_meas_sensing.relhummeas.attr.value.min", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_relhum_meas_min_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_relhum_meas_max_measured_value,
             { "Max Measured Value", "zbee_zcl_meas_sensing.relhummeas.attr.value.max", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_relhum_meas_max_value),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_relhum_meas_tolerance,
             { "Tolerance", "zbee_zcl_meas_sensing.relhummeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_relhum_meas_tolerance),
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
 
     };
 
@@ -1817,11 +1817,11 @@ proto_register_zbee_zcl_occ_sen(void)
 
         { &hf_zbee_zcl_occ_sen_attr_id,
             { "Attribute", "zbee_zcl_meas_sensing.occsen.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_occ_sen_attr_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_occ_sen_occupancy,
             { "Occupancy", "zbee_zcl_meas_sensing.occsen.attr.occupancy", FT_UINT8, BASE_HEX, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_occ_sen_occupancy_occupied,
             { "Occupied", "zbee_zcl_meas_sensing.occsen.attr.occupancy_occupied", FT_BOOLEAN, 8, TFS(&tfs_true_false),
@@ -1829,7 +1829,7 @@ proto_register_zbee_zcl_occ_sen(void)
 
         { &hf_zbee_zcl_occ_sen_occ_sensor_type,
             { "Occupancy Sensor Type", "zbee_zcl_meas_sensing.occsen.attr.occ_sensor_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_occ_sen_sensor_type_names),
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
     };
 
 
@@ -2439,47 +2439,47 @@ proto_register_zbee_zcl_elec_mes(void)
 
         { &hf_zbee_zcl_elec_mes_srv_tx_cmd_id,
             { "Command", "zbee_zcl_meas_sensing.elecmes.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_elec_mes_srv_tx_cmd_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_srv_rx_cmd_id,
             { "Command", "zbee_zcl_meas_sensing.elecmes.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_elec_mes_srv_rx_cmd_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_attr_id,
             { "Attribute", "zbee_zcl_meas_sensing.elecmes.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_elec_mes_attr_names_ext,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_start_time,
             { "Start Time", "zbee_zcl_meas_sensing.elecmes.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_number_of_intervals,
             { "Number of Intervals", "zbee_zcl_meas_sensing.elecmes.number_of_intervals", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_profile_count,
             { "Profile Count", "zbee_zcl_meas_sensing.elecmes.profile_count", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_profile_interval_period,
             { "Profile Interval Period", "zbee_zcl_meas_sensing.elecmes.profile_interval_period", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_max_number_of_intervals,
             { "Max Number of Intervals", "zbee_zcl_meas_sensing.elecmes.max_number_of_intervals", FT_UINT8, BASE_DEC, VALS(zbee_zcl_elec_mes_profile_interval_period_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_status,
             { "Status", "zbee_zcl_meas_sensing.elecmes.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_elec_mes_status_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_number_of_intervals_delivered,
             { "Number of Intervals Delivered", "zbee_zcl_meas_sensing.elecmes.number_of_intervals_delivered", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_intervals,
             { "Intervals", "zbee_zcl_meas_sensing.elecmes.intervals", FT_BYTES, BASE_NONE, NULL,
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
     };
 
     /* ZCL Electrical Measurement subtrees */
