@@ -45,6 +45,7 @@ typedef struct _sdp_setup_info {
     int  hf_id;                         /* Header field to use */
     enum sdp_trace_id_hf_type hf_type;  /* Indicates which of the following variables to use( add guint32 etc as needed)*/
     gboolean add_hidden;
+    gboolean is_osmux;
     union {
         gchar  *str;                    /* The trace id if the hf_type is str */
         guint32 num;                    /* Numerical trace id */

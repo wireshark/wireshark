@@ -3035,14 +3035,16 @@ dissect_megaco_LocalRemotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadesc
 
     /* Only fill in the info when we have valid contex */
     if ((context != 0) && (context < 0xfffffffe)) {
-        setup_info.hf_id = hf_megaco_Context;
-        setup_info.hf_type = SDP_TRACE_ID_HF_TYPE_GUINT32;
+        setup_info = (sdp_setup_info_t){
+            .hf_id = hf_megaco_Context,
+            .hf_type = SDP_TRACE_ID_HF_TYPE_GUINT32,
+            .trace_id.num = context,
+        };
         if (!sip_hide_generated_call_ids) {
             setup_info.add_hidden = FALSE;
         } else {
             setup_info.add_hidden = prefs_get_bool_value(sip_hide_generated_call_ids, pref_current);
         }
-        setup_info.trace_id.num = context;
         content_info.data = &setup_info;
     }
 

@@ -33,7 +33,9 @@
 #include <epan/strutil.h>
 #include <epan/rtd_table.h>
 #include <epan/expert.h>
+#include "packet-media-type.h"
 #include "packet-mgcp.h"
+#include "packet-sdp.h"
 
 #include <wsutil/strtoi.h>
 
@@ -157,6 +159,7 @@ static int hf_mgcp_req_dup = -1;
 static int hf_mgcp_req_dup_frame = -1;
 static int hf_mgcp_rsp_dup = -1;
 static int hf_mgcp_rsp_dup_frame = -1;
+static int hf_mgcp_param_x_osmux = -1;
 static int hf_mgcp_unknown_parameter = -1;
 static int hf_mgcp_malformed_parameter = -1;
 
@@ -578,7 +581,9 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	gint tvb_sectionend, tvb_sectionbegin, tvb_len;
 	tvbuff_t *next_tvb;
 	const gchar *verb_name = "";
-    mgcp_info_t* mi = wmem_new0(pinfo->pool, mgcp_info_t);
+	mgcp_info_t* mi = wmem_new0(pinfo->pool, mgcp_info_t);
+	sdp_setup_info_t setup_info = { .hf_id = 0, .hf_type = SDP_TRACE_ID_HF_TYPE_GUINT32 };
+	media_content_info_t content_info = { MEDIA_CONTAINER_SIP_DATA, NULL, NULL, &setup_info };
 
 	mi->mgcp_type = MGCP_OTHERS;
 
@@ -632,8 +637,9 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		/* Dissect sdp payload */
 		if (tvb_sectionend < tvb_len)
 		{
+			setup_info.is_osmux = mi->is_osmux;
 			next_tvb = tvb_new_subset_remaining(tvb, tvb_sectionend);
-			call_dissector(sdp_handle, next_tvb, pinfo, tree);
+			call_dissector_with_data(sdp_handle, next_tvb, pinfo, tree, &content_info);
 		}
 	}
 }
@@ -780,7 +786,7 @@ static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength)
  */
 static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp_info_t* mi)
 {
-	gint returnvalue = -1, tvb_current_offset, counter;
+	gint returnvalue = -1, tvb_current_offset, ext_off;
 	guint8 tempchar, plus_minus;
 	gchar **buf;
 
@@ -882,25 +888,34 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 					tvb_current_offset++;
 
 					/* Keep going, through possible vendor param name */
-					for (counter = 1;
-					    ((len > (counter + tvb_current_offset-offset)) &&
-					    (g_ascii_isalpha(tempchar = tvb_get_guint8(tvb, tvb_current_offset+counter)) ||
+					char ext_buf[256];
+					ext_buf[0] = '\0';
+					for (ext_off = 0;
+					    ((len > (ext_off + tvb_current_offset-offset)) &&
+					    (g_ascii_isalpha(tempchar = tvb_get_guint8(tvb, tvb_current_offset + ext_off)) ||
 					     g_ascii_isdigit(tempchar))) ;
-					     counter++);
+					     ext_off++) ext_buf[ext_off] = g_ascii_toupper(tempchar);
 
 					if (tempchar == ':')
 					{
 						/* Looks like a valid vendor param name */
-						tvb_current_offset += counter;
+						ext_buf[ext_off] = '\0';
+						//fprintf(stderr, "MGCP Extension: %s\n", ext_buf);
 						switch (plus_minus)
 						{
 							case '+':
 								*hf = &hf_mgcp_param_extension_critical;
 								break;
 							case '-':
-								*hf = &hf_mgcp_param_extension;
+								if (strcmp(ext_buf, "OSMUX") == 0) {
+									*hf = &hf_mgcp_param_x_osmux;
+								} else {
+									*hf = &hf_mgcp_param_extension;
+								}
 								break;
 						}
+						/* -1: Final generic path below expects us to point to char before the ':'. */
+						tvb_current_offset += ext_off - 1;
 					}
 				}
 				break;
@@ -1540,6 +1555,14 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi
 			} else if (*my_param == hf_mgcp_param_remotevoicemetrics) {
 				dissect_mgcp_remotevoicemetrics(mgcp_param_tree, tvb, tvb_linebegin,
 								tvb_tokenbegin - tvb_linebegin, tokenlen);
+			} else if (*my_param == hf_mgcp_param_x_osmux) {
+					proto_tree_add_string(mgcp_param_tree, *my_param, tvb,
+							      tvb_linebegin, linelen,
+							      tvb_format_text(wmem_packet_scope(),
+									      tvb, tvb_tokenbegin, tokenlen));
+					/* Mark that Osmux is used, so that packet-sdp.c doesn't call
+					 * srtp_add_address() and decodes it as RTP. */
+					mi->is_osmux = TRUE;
 			} else {
 				proto_tree_add_string(mgcp_param_tree, *my_param, tvb,
 						      tvb_linebegin, linelen,
@@ -2649,6 +2672,9 @@ void proto_register_mgcp(void)
 			{ &hf_mgcp_rsp_dup_frame,
 			  { "Original Response Frame", "mgcp.rsp.dup.frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			    "Frame containing original response", HFILL }},
+			{ &hf_mgcp_param_x_osmux,
+			  { "X-Osmux", "mgcp.param.x_osmux", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Osmux CID", HFILL }},
 			{ &hf_mgcp_unknown_parameter,
 			  { "Unknown parameter", "mgcp.unknown_parameter", FT_STRING, BASE_NONE, NULL, 0x0,
 			    NULL, HFILL }},
