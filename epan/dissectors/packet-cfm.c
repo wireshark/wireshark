@@ -3450,7 +3450,7 @@ void proto_register_cfm(void)
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_tlv_management_addr_ipv6,
-			{ "Management Address", "cfm.tlv.sender_id.management_addr.ipv4", FT_IPv6,
+			{ "Management Address", "cfm.tlv.sender_id.management_addr.ipv6", FT_IPv6,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_tlv_management_addr_eth,
