@@ -701,7 +701,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             calculated_checksum ^= temp_guint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                 tfs_get_string((gboolean)temp_guint64 >> 7, &tfs_forward_reverse));
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Speed=0x%02lx",
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Speed=0x%02" PRIx64,
                 temp_guint64 & 0x7f);
 
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
