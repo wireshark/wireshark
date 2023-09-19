@@ -1011,7 +1011,7 @@ dcm_rsp2str(guint16 status_value)
 {
 
     dcm_status_t    *status = NULL;
-    const gchar *s = "";
+    const gchar *s;
 
     /* Use specific text first */
     status = (dcm_status_t*) wmem_map_lookup(dcm_status_table, GUINT_TO_POINTER((guint32)status_value));
@@ -1664,7 +1664,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     guint8  item_type;
     guint16 item_len;
 
-    gchar *buf_desc = "";             /* Used for item text */
+    gchar *buf_desc;                    /* Used for item text */
 
     *item_value = NULL;
     *item_description = NULL;
@@ -2014,7 +2014,7 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gchar *pctx_xfer_uid = NULL;            /* Transfer Syntax UID */
     const gchar *pctx_xfer_desc = NULL;     /* Description of UID */
 
-    gchar *buf_desc = "";                   /* Used in info mode for item text */
+    gchar *buf_desc;                        /* Used in info mode for item text */
 
     guint32 endpos = 0;
     int     cnt_abbs = 0;                   /* Number of Abstract Syntax Items */

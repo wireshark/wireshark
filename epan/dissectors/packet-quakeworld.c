@@ -345,7 +345,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	int		offset;
 	guint32		marker;
 	int		command_len;
-	const char	*command = "";
+	const char	*command;
 	gboolean	command_finished = FALSE;
 
 	marker = tvb_get_ntohl(tvb, 0);

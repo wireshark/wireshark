@@ -555,7 +555,7 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_q932_ros_Reject(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const gchar *descr = "";
+  const gchar *descr;
 
   problem_str[0] = '\0';
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
