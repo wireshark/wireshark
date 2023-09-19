@@ -115,6 +115,9 @@ enum {
 	GSMTAP_SUB_FR,
 	GSMTAP_SUB_V5EF,
 	GSMTAP_SUB_GSM_RLP,
+	/* E1/T1 */
+	GSMTAP_SUB_PPP,
+	GSMTAP_SUB_V120,
 
 	GSMTAP_SUB_MAX
 };
@@ -472,6 +475,11 @@ static const value_string gsmtap_um_e1t1_types[] = {
 	{ GSMTAP_E1T1_TRAU16,			"TRAU 16k" },	/* 16k/s sub-channels (I.460) with GSM TRAU frames */
 	{ GSMTAP_E1T1_TRAU8,			"TRAU 8k" },	/* 8k/s sub-channels (I.460) with GSM TRAU frames */
 	{ GSMTAP_E1T1_V5EF,			"V5-EF" },	/* V5 Envelope Function */
+	{ GSMTAP_E1T1_X75,			"X.75" },	/* X.75 B-channel data */
+	{ GSMTAP_E1T1_V120,			"V.120" },	/* V.120 B-channel data */
+	{ GSMTAP_E1T1_V110,			"V.110" },	/* V.110 B-channel data */
+	{ GSMTAP_E1T1_H221,			"H.221" },	/* H.221 B-channel data */
+	{ GSMTAP_E1T1_PPP,			"PPP" },	/* PPP */
 	{ 0,					NULL },
 };
 
@@ -1106,6 +1114,24 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				call_dissector_with_data(sub_handles[sub_handle], payload_tvb, pinfo, tree, &isdn);
 			}
 			return tvb_captured_length(tvb);
+		case GSMTAP_E1T1_PPP:
+			sub_handle = GSMTAP_SUB_PPP;
+			if (sub_handles[sub_handle]) {
+				struct isdn_phdr isdn;
+				isdn.uton = pinfo->p2p_dir == P2P_DIR_SENT ? 1 : 0;
+				isdn.channel = 0;
+				call_dissector_with_data(sub_handles[sub_handle], payload_tvb, pinfo, tree, &isdn);
+			}
+			return tvb_captured_length(tvb);
+		case GSMTAP_E1T1_V120:
+			sub_handle = GSMTAP_SUB_V120;
+			if (sub_handles[sub_handle]) {
+				struct isdn_phdr isdn;
+				isdn.uton = pinfo->p2p_dir == P2P_DIR_SENT ? 1 : 0;
+				isdn.channel = 0;
+				call_dissector_with_data(sub_handles[sub_handle], payload_tvb, pinfo, tree, &isdn);
+			}
+			return tvb_captured_length(tvb);
 		default:
 			sub_handle = GSMTAP_SUB_DATA;
 			break;
@@ -1245,6 +1271,8 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_FR] = find_dissector_add_dependency("fr", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_V5EF] = find_dissector_add_dependency("v5ef", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_GSM_RLP] = find_dissector_add_dependency("gsm_rlp", proto_gsmtap);
+	sub_handles[GSMTAP_SUB_PPP] = find_dissector_add_dependency("ppp", proto_gsmtap);
+	sub_handles[GSMTAP_SUB_V120] = find_dissector_add_dependency("v120", proto_gsmtap);
 
 	rrc_sub_handles[GSMTAP_RRC_SUB_DL_DCCH_Message] = find_dissector_add_dependency("rrc.dl.dcch", proto_gsmtap);
 	rrc_sub_handles[GSMTAP_RRC_SUB_UL_DCCH_Message] = find_dissector_add_dependency("rrc.ul.dcch", proto_gsmtap);
