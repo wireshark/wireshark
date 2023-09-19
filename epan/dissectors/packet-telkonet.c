@@ -30,6 +30,7 @@ static int hf_telkonet_type = -1;
 
 static gint ett_telkonet = -1;
 
+static dissector_handle_t telkonet_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 
 typedef enum {
@@ -84,16 +85,14 @@ proto_register_telkonet(void)
 	proto_telkonet = proto_register_protocol("Telkonet powerline", "TELKONET", "telkonet");
 	proto_register_field_array(proto_telkonet, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	telkonet_handle = register_dissector("telkonet", dissect_telkonet, proto_telkonet);
 }
 
 void
 proto_reg_handoff_telkonet(void)
 {
-	dissector_handle_t telkonet_handle;
-
 	eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_telkonet);
 
-	telkonet_handle = create_dissector_handle(dissect_telkonet, proto_telkonet);
 	dissector_add_uint("ethertype", ETHERTYPE_TELKONET, telkonet_handle);
 }
 

@@ -24,6 +24,8 @@
 void proto_register_vrrp(void);
 void proto_reg_handoff_vrrp(void);
 
+static dissector_handle_t vrrp_handle;
+
 static gint proto_vrrp = -1;
 static gint ett_vrrp = -1;
 static gint ett_vrrp_ver_type = -1;
@@ -317,6 +319,8 @@ void proto_register_vrrp(void)
     proto_register_field_array(proto_vrrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    vrrp_handle = register_dissector("vrrp", dissect_vrrp, proto_vrrp);
+
     expert_vrrp = expert_register_protocol(proto_vrrp);
     expert_register_field_array(expert_vrrp, ei, array_length(ei));
 
@@ -327,16 +331,11 @@ void proto_register_vrrp(void)
         "There is some ambiguity on how to calculate V3 checksums"
         "As in V3 will use a pseudo header(which may only be implemented for IPv6 by some manufacturers)",
         &g_vrrp_v3_checksum_as_in_v2);
-
-
 }
 
 void
 proto_reg_handoff_vrrp(void)
 {
-    dissector_handle_t vrrp_handle;
-
-    vrrp_handle = create_dissector_handle(dissect_vrrp, proto_vrrp);
     dissector_add_uint("ip.proto", IP_PROTO_VRRP, vrrp_handle);
 }
 

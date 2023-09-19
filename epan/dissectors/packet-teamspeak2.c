@@ -94,6 +94,8 @@
 void proto_reg_handoff_ts2(void);
 void proto_register_ts2(void);
 
+static dissector_handle_t ts2_handle;
+
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;
 static int hf_msg_fragment_overlap = -1;
@@ -1201,6 +1203,7 @@ void proto_register_ts2(void)
     proto_ts2 = proto_register_protocol ("Teamspeak2 Protocol", "TeamSpeak2", "ts2");
     proto_register_field_array(proto_ts2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    ts2_handle = register_dissector("ts2", dissect_ts2, proto_ts2);
     expert_ts2 = expert_register_protocol(proto_ts2);
     expert_register_field_array(expert_ts2, ei, array_length(ei));
 
@@ -1213,8 +1216,6 @@ void proto_register_ts2(void)
  * */
 void proto_reg_handoff_ts2(void)
 {
-    dissector_handle_t ts2_handle;
-    ts2_handle = create_dissector_handle(dissect_ts2, proto_ts2);
     dissector_add_uint_with_preference("udp.port", TS2_PORT, ts2_handle);
 }
 

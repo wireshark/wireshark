@@ -21,6 +21,8 @@ void proto_register_rsip(void);
 /* Forward declaration we need below */
 void proto_reg_handoff_rsip(void);
 
+static dissector_handle_t rsip_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_rsip = -1;
 static int hf_rsip_version = -1;
@@ -1225,14 +1227,12 @@ proto_register_rsip(void)
 	proto_register_field_array(proto_rsip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	rsip_handle = register_dissector("rsip", dissect_rsip, proto_rsip);
 }
 
 void
 proto_reg_handoff_rsip(void)
 {
-	dissector_handle_t rsip_handle;
-
-	rsip_handle = create_dissector_handle(dissect_rsip, proto_rsip);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_RSIP, rsip_handle);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_RSIP, rsip_handle);
 }

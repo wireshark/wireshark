@@ -27,6 +27,8 @@
 void proto_register_rtcdc(void);
 void proto_reg_handoff_rtcdc(void);
 
+static dissector_handle_t rtcdc_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_rtcdc = -1;
 static int hf_message_type = -1;
@@ -365,14 +367,13 @@ proto_register_rtcdc(void)
     expert_rtcdc = expert_register_protocol(proto_rtcdc);
     expert_register_field_array(expert_rtcdc, ei, array_length(ei));
     /* rtcdc_module = prefs_register_protocol(proto_rtcdc, NULL); */
+
+    rtcdc_handle = register_dissector("rtcdc", dissect_rtcdc, proto_rtcdc);
 }
 
 void
 proto_reg_handoff_rtcdc(void)
 {
-    static dissector_handle_t rtcdc_handle;
-
-    rtcdc_handle = create_dissector_handle(dissect_rtcdc, proto_rtcdc);
     dissector_add_uint_with_preference("sctp.ppi", WEBRTC_DCEP_PROTOCOL_ID, rtcdc_handle);
 }
 

@@ -29,6 +29,8 @@
 void proto_register_udld(void);
 void proto_reg_handoff_udld(void);
 
+static dissector_handle_t udld_handle;
+
 static int proto_udld = -1;
 static int hf_udld_version = -1;
 static int hf_udld_opcode = -1;
@@ -282,14 +284,12 @@ proto_register_udld(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_udld = expert_register_protocol(proto_udld);
     expert_register_field_array(expert_udld, ei, array_length(ei));
+    udld_handle = register_dissector("udld", dissect_udld, proto_udld);
 }
 
 void
 proto_reg_handoff_udld(void)
 {
-    dissector_handle_t udld_handle;
-
-    udld_handle = create_dissector_handle(dissect_udld, proto_udld);
     dissector_add_uint("llc.cisco_pid", CISCO_PID_UDLD, udld_handle);
     dissector_add_uint("chdlc.protocol", 0x0111, udld_handle);
 }

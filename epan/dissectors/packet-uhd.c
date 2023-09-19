@@ -139,6 +139,8 @@ static const value_string uhd_reg_actions[] = {
 
 void proto_reg_handoff_uhd(void);
 
+static dissector_handle_t uhd_handle;
+
 /* dissect a UHD header and hand payload off to respective dissector */
 static int
 dissect_uhd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -256,14 +258,12 @@ proto_register_uhd(void)
 	proto_uhd = proto_register_protocol("UHD", "UHD", "uhd");
 	proto_register_field_array(proto_uhd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	uhd_handle = register_dissector("uhd", dissect_uhd, proto_uhd);
 }
 
 void
 proto_reg_handoff_uhd(void)
 {
-	dissector_handle_t uhd_handle;
-
-	uhd_handle = create_dissector_handle(dissect_uhd, proto_uhd);
 	dissector_add_for_decode_as_with_preference("udp.port", uhd_handle);
 }
 

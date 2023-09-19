@@ -109,6 +109,7 @@ static gint ett_tpncp_body = -1;
 static gboolean global_tpncp_load_db = FALSE;
 
 static dissector_handle_t tpncp_handle;
+static dissector_handle_t tpncp_tcp_handle;
 
 /* XXX: ToDo: allocate at runtime as needed
  *      The following allocates something on the order of 2M of static memory !
@@ -931,16 +932,14 @@ proto_reg_handoff_tpncp(void)
     if (proto_tpncp == -1) return;
 
     if (!initialized) {
-        dissector_handle_t tpncp_udp_handle = create_dissector_handle(dissect_tpncp, proto_tpncp);
-        dissector_handle_t tpncp_tcp_handle = create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
-        dissector_add_uint_with_preference("udp.port", UDP_PORT_TPNCP_TRUNKPACK, tpncp_udp_handle);
+        dissector_add_uint_with_preference("udp.port", UDP_PORT_TPNCP_TRUNKPACK, tpncp_handle);
         dissector_add_uint_with_preference("tcp.port", TCP_PORT_TPNCP_TRUNKPACK, tpncp_tcp_handle);
-        dissector_add_uint("acdr.media_type", ACDR_PCIIF_COMMAND, tpncp_udp_handle);
-        dissector_add_uint("acdr.media_type", ACDR_COMMAND, tpncp_udp_handle);
-        dissector_add_uint("acdr.media_type", ACDR_Event, create_dissector_handle(dissect_acdr_event, -1));
+        dissector_add_uint("acdr.media_type", ACDR_PCIIF_COMMAND, tpncp_handle);
+        dissector_add_uint("acdr.media_type", ACDR_COMMAND, tpncp_handle);
+        dissector_add_uint("acdr.media_type", ACDR_Event, create_dissector_handle(dissect_acdr_event, proto_tpncp));
         dissector_add_uint("acdr.media_type", ACDR_TPNCP,
-                           create_dissector_handle(dissect_acdr_tpncp_by_tracepoint, -1));
-        dissector_add_uint("acdr.tls_application", TLS_APP_TPNCP, tpncp_udp_handle);
+                           create_dissector_handle(dissect_acdr_tpncp_by_tracepoint, proto_tpncp));
+        dissector_add_uint("acdr.tls_application", TLS_APP_TPNCP, tpncp_handle);
         initialized = TRUE;
     }
     /*  If we weren't able to load the database (and thus the hf_ entries)
@@ -1007,6 +1006,7 @@ proto_register_tpncp(void)
                                           "TPNCP", "tpncp");
 
     tpncp_handle = register_dissector("tpncp", dissect_tpncp, proto_tpncp);
+    tpncp_tcp_handle = register_dissector("tpncp.tcp", dissect_tpncp_tcp, proto_tpncp);
 
     tpncp_module = prefs_register_protocol(proto_tpncp, proto_reg_handoff_tpncp);
 

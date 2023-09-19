@@ -34,6 +34,8 @@
 void proto_register_usbip(void);
 void proto_reg_handoff_usbip(void);
 
+static dissector_handle_t usbip_handle;
+
 /* Initialize the protocol and registered fields
  */
 static int proto_usbip = -1;
@@ -1061,6 +1063,8 @@ proto_register_usbip(void)
     proto_register_field_array(proto_usbip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    usbip_handle = register_dissector("usbip", dissect_usbip, proto_usbip);
+
     expert_usbip = expert_register_protocol(proto_usbip);
     expert_register_field_array(expert_usbip, ei, array_length(ei));
 
@@ -1069,9 +1073,6 @@ proto_register_usbip(void)
 void
 proto_reg_handoff_usbip(void)
 {
-    dissector_handle_t usbip_handle;
-
-    usbip_handle = create_dissector_handle(dissect_usbip, proto_usbip);
     dissector_add_for_decode_as_with_preference("tcp.port", usbip_handle);
 }
 

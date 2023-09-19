@@ -27,6 +27,8 @@
 void proto_register_rsh(void);
 void proto_reg_handoff_rsh(void);
 
+static dissector_handle_t rsh_handle;
+
 /* Variables for our preferences */
 static gboolean preference_info_show_client_username = FALSE;
 static gboolean preference_info_show_server_username = TRUE;
@@ -387,6 +389,9 @@ proto_register_rsh(void)
     proto_register_field_array(proto_rsh, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* Register the dissector handle */
+    rsh_handle = register_dissector("rsh", dissect_rsh, proto_rsh);
+
     /* Register preferences module */
     rsh_module = prefs_register_protocol(proto_rsh, NULL);
 
@@ -412,9 +417,6 @@ proto_register_rsh(void)
 void
 proto_reg_handoff_rsh(void)
 {
-    dissector_handle_t rsh_handle;
-
-    rsh_handle = create_dissector_handle(dissect_rsh, proto_rsh);
     dissector_add_uint_with_preference("tcp.port", RSH_PORT, rsh_handle);
 }
 

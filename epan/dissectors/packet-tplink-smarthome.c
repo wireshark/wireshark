@@ -46,6 +46,9 @@
 void proto_reg_handoff_tplink_smarthome(void);
 void proto_register_tplink_smarthome(void);
 
+static dissector_handle_t tplink_smarthome_handle;
+static dissector_handle_t tplink_smarthome_message_handle;
+
 		/* Initialize the protocol and registered fields */
 
 static int	proto_tplink_smarthome	= -1;
@@ -192,6 +195,10 @@ proto_register_tplink_smarthome(void)
 
 	proto_tplink_smarthome = proto_register_protocol("TP-Link Smart Home Protocol",			/* register the protocol name and description */
 			"TPLINK-SMARTHOME", "tplink-smarthome");
+	tplink_smarthome_handle = register_dissector("tplink-smarthome",
+			dissect_tplink_smarthome, proto_tplink_smarthome);
+	tplink_smarthome_message_handle = register_dissector("tplink-smarthome-message",
+			dissect_tplink_smarthome_message, proto_tplink_smarthome);
 
 	proto_register_field_array(proto_tplink_smarthome, hf, array_length(hf));			/* register the header fields */
 	proto_register_subtree_array(ett, array_length(ett));						/* and subtrees */
@@ -200,12 +207,9 @@ proto_register_tplink_smarthome(void)
 void
 proto_reg_handoff_tplink_smarthome(void)
 {
-	dissector_handle_t tplink_smarthome_handle;
 
-	tplink_smarthome_handle = create_dissector_handle(dissect_tplink_smarthome, proto_tplink_smarthome);
 	dissector_add_uint_with_preference("tcp.port", TPLINK_SMARTHOME_PORT, tplink_smarthome_handle);
-	tplink_smarthome_handle = create_dissector_handle(dissect_tplink_smarthome_message, proto_tplink_smarthome);
-	dissector_add_uint_with_preference("udp.port", TPLINK_SMARTHOME_PORT, tplink_smarthome_handle);
+	dissector_add_uint_with_preference("udp.port", TPLINK_SMARTHOME_PORT, tplink_smarthome_message_handle);
 }
 
 /*

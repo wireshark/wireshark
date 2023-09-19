@@ -66,6 +66,8 @@ void proto_register_tns(void);
 /* desegmentation of TNS over TCP */
 static gboolean tns_desegment = TRUE;
 
+static dissector_handle_t tns_handle;
+
 static int proto_tns = -1;
 static int hf_tns_request = -1;
 static int hf_tns_response = -1;
@@ -1639,6 +1641,7 @@ void proto_register_tns(void)
 		"Transparent Network Substrate Protocol", "TNS", "tns");
 	proto_register_field_array(proto_tns, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	tns_handle = register_dissector("tns", dissect_tns, proto_tns);
 
 	tns_module = prefs_register_protocol(proto_tns, NULL);
 	prefs_register_bool_preference(tns_module, "desegment_tns_messages",
@@ -1651,9 +1654,6 @@ void proto_register_tns(void)
 void
 proto_reg_handoff_tns(void)
 {
-	dissector_handle_t tns_handle;
-
-	tns_handle = create_dissector_handle(dissect_tns, proto_tns);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_TNS, tns_handle);
 }
 

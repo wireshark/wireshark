@@ -42,6 +42,8 @@
 void proto_reg_handoff_ssyncp(void);
 void proto_register_ssyncp(void);
 
+static dissector_handle_t ssyncp_handle;
+
 static int proto_ssyncp = -1;
 static int hf_ssyncp_direction = -1;
 static int hf_ssyncp_seq = -1;
@@ -402,6 +404,9 @@ proto_register_ssyncp(void)
     /* Register the protocol name and description */
     proto_ssyncp = proto_register_protocol("State Synchronization Protocol", "SSyncP", "ssyncp");
 
+    /* Register the dissector handle */
+    ssyncp_handle = register_dissector("ssyncp", dissect_ssyncp, proto_ssyncp);
+
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_ssyncp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -420,11 +425,9 @@ proto_register_ssyncp(void)
 void
 proto_reg_handoff_ssyncp(void)
 {
-    static dissector_handle_t ssyncp_handle;
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        ssyncp_handle = create_dissector_handle(dissect_ssyncp, proto_ssyncp);
         dissector_add_uint("udp.port", SSYNCP_UDP_PORT, ssyncp_handle);
 
         dissector_protobuf = find_dissector("protobuf");

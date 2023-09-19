@@ -75,6 +75,8 @@ static void dissect_ptpIP_guid                 (tvbuff_t *tvb, packet_info *pinf
 void proto_register_ptpip( void );
 void proto_reg_handoff_ptpIP( void );
 
+static dissector_handle_t ptpIP_handle;
+
 typedef enum {
     PTP_VENDOR_UNKNOWN = 0,
     PTP_VENDOR_EASTMAN_KODAK = 1,
@@ -1090,6 +1092,12 @@ void proto_register_ptpip( void )
     proto_register_field_array(proto_ptpIP, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /*  Use register_dissector() to indicate that dissect_ptpIP()
+    *  returns the number of bytes it dissected (or 0 if it thinks the packet
+    *  does not belong to PROTONAME).
+    */
+    ptpIP_handle = register_dissector("ptpip", dissect_ptpIP, proto_ptpIP);
+
     ptpIP_module = prefs_register_protocol(proto_ptpIP, NULL);
 
     prefs_register_enum_preference(ptpIP_module, "vendor",
@@ -1100,15 +1108,6 @@ void proto_register_ptpip( void )
 }
 
 void proto_reg_handoff_ptpIP( void ) {
-
-    dissector_handle_t ptpIP_handle;
-
-    /*  Use create_dissector_handle() to indicate that dissect_ptpIP()
-    *  returns the number of bytes it dissected (or 0 if it thinks the packet
-    *  does not belong to PROTONAME).
-    */
-
-    ptpIP_handle = create_dissector_handle(dissect_ptpIP, proto_ptpIP);
     dissector_add_uint_with_preference("tcp.port", PTPIP_PORT, ptpIP_handle);
 }
 

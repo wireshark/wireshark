@@ -21,6 +21,8 @@
 void proto_register_usb_hub(void);
 void proto_reg_handoff_usb_hub(void);
 
+static dissector_handle_t usb_hub_control_handle;
+
 /* protocols and header fields */
 static int proto_usb_hub = -1;
 
@@ -820,14 +822,12 @@ proto_register_usb_hub(void)
 	proto_usb_hub = proto_register_protocol("USB HUB", "USBHUB", "usbhub");
 	proto_register_field_array(proto_usb_hub, hf, array_length(hf));
 	proto_register_subtree_array(usb_hub_subtrees, array_length(usb_hub_subtrees));
+	usb_hub_control_handle = register_dissector("usbhub", dissect_usb_hub_control, proto_usb_hub);
 }
 
 void
 proto_reg_handoff_usb_hub(void)
 {
-	dissector_handle_t usb_hub_control_handle;
-
-	usb_hub_control_handle = create_dissector_handle(dissect_usb_hub_control, proto_usb_hub);
 	dissector_add_uint("usb.control", IF_CLASS_HUB, usb_hub_control_handle);
 	dissector_add_uint("usb.control", IF_CLASS_UNKNOWN, usb_hub_control_handle);
 }

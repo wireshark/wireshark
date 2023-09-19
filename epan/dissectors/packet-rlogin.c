@@ -24,6 +24,8 @@
 void proto_register_rlogin(void);
 void proto_reg_handoff_rlogin(void);
 
+static dissector_handle_t rlogin_handle;
+
 static int proto_rlogin = -1;
 
 static int ett_rlogin = -1;
@@ -585,12 +587,13 @@ void proto_register_rlogin(void)
 
 	expert_rlogin = expert_register_protocol(proto_rlogin);
 	expert_register_field_array(expert_rlogin, ei, array_length(ei));
+
+	rlogin_handle = register_dissector("rlogin", dissect_rlogin,proto_rlogin);
 }
 
 void proto_reg_handoff_rlogin(void)
 {
 	/* Dissector install routine */
-	dissector_handle_t rlogin_handle = create_dissector_handle(dissect_rlogin,proto_rlogin);
 	dissector_add_uint_with_preference("tcp.port", RLOGIN_PORT, rlogin_handle);
 }
 

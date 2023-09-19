@@ -566,6 +566,7 @@ proto_register_tcpros(void)
 	proto_register_field_array(proto_tcpros, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	tcpros_handle = register_dissector("tcpros", dissect_tcpros, proto_tcpros);
 
 	tcpros_module = prefs_register_protocol(proto_tcpros, NULL);
 
@@ -616,7 +617,6 @@ dissect_tcpros_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 void
 proto_reg_handoff_tcpros(void)
 {
-	tcpros_handle = create_dissector_handle(dissect_tcpros, proto_tcpros);
 	dissector_add_for_decode_as_with_preference("tcp.port", tcpros_handle);   /* for "decode-as" */
 
 	/* register as heuristic dissector */

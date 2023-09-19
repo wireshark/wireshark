@@ -36,6 +36,8 @@
 void proto_register_skype(void);
 void proto_reg_handoff_skype(void);
 
+static dissector_handle_t skype_handle;
+
 /* Things we may want to remember for a whole conversation */
 typedef struct _skype_udp_conv_info_t {
 	guint32 global_src_ip;
@@ -426,14 +428,13 @@ proto_register_skype(void)
 	proto_skype = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "skype");
 	proto_register_field_array(proto_skype, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	skype_handle = register_dissector("skype", dissect_skype_static, proto_skype);
 }
 
 void
 proto_reg_handoff_skype(void)
 {
-	dissector_handle_t skype_handle;
-
-	skype_handle = create_dissector_handle(dissect_skype_static, proto_skype);
 	dissector_add_for_decode_as_with_preference("tcp.port", skype_handle);
 	dissector_add_for_decode_as_with_preference("udp.port", skype_handle);
 

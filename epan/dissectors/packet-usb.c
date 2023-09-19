@@ -33,6 +33,14 @@
 #include "packet-usbip.h"
 #include "packet-netmon.h"
 
+/* dissector handles */
+static dissector_handle_t  linux_usb_handle;
+static dissector_handle_t  linux_usb_mmapped_handle;
+static dissector_handle_t  win32_usb_handle;
+static dissector_handle_t  freebsd_usb_handle;
+static dissector_handle_t  darwin_usb_handle;
+static dissector_handle_t  netmon_usb_port_handle;
+
 /* protocols and header fields */
 static int proto_usb = -1;
 static int proto_usbport = -1;
@@ -7366,6 +7374,13 @@ proto_register_usb(void)
     register_decode_as(&usb_product_da);
     register_decode_as(&usb_device_da);
 
+    linux_usb_handle = register_dissector("usb_linux", dissect_linux_usb, proto_usb);
+    linux_usb_mmapped_handle = register_dissector("usb_linux_mmapped", dissect_linux_usb_mmapped, proto_usb);
+    win32_usb_handle = register_dissector("usb_win32", dissect_win32_usb, proto_usb);
+    freebsd_usb_handle = register_dissector("usb_freebsd", dissect_freebsd_usb, proto_usb);
+    darwin_usb_handle = register_dissector("usb_darwin", dissect_darwin_usb, proto_usb);
+    netmon_usb_port_handle = register_dissector("usb_netmon", dissect_netmon_usb_port, proto_usbport);
+
     usb_address_type = address_type_dissector_register("AT_USB", "USB Address", usb_addr_to_str, usb_addr_str_len, NULL, usb_col_filter_str, NULL, NULL, NULL);
 
     register_conversation_table(proto_usb, TRUE, usb_conversation_packet, usb_endpoint_packet);
@@ -7374,20 +7389,7 @@ proto_register_usb(void)
 void
 proto_reg_handoff_usb(void)
 {
-    dissector_handle_t  linux_usb_handle;
-    dissector_handle_t  linux_usb_mmapped_handle;
-    dissector_handle_t  win32_usb_handle;
-    dissector_handle_t  freebsd_usb_handle;
-    dissector_handle_t  darwin_usb_handle;
-    dissector_handle_t  netmon_usb_port_handle;
     static guid_key usb_port_key = {{ 0xc88a4ef5, 0xd048, 0x4013, { 0x94, 0x08, 0xe0, 0x4b, 0x7d, 0xb2, 0x81, 0x4a }}, 0 };
-
-    linux_usb_handle = create_dissector_handle(dissect_linux_usb, proto_usb);
-    linux_usb_mmapped_handle = create_dissector_handle(dissect_linux_usb_mmapped,
-                                                       proto_usb);
-    win32_usb_handle = create_dissector_handle(dissect_win32_usb, proto_usb);
-    freebsd_usb_handle = create_dissector_handle(dissect_freebsd_usb, proto_usb);
-    darwin_usb_handle = create_dissector_handle(dissect_darwin_usb, proto_usb);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_LINUX, linux_usb_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_LINUX_MMAPPED, linux_usb_mmapped_handle);
@@ -7395,9 +7397,7 @@ proto_reg_handoff_usb(void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_FREEBSD, freebsd_usb_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_DARWIN, darwin_usb_handle);
 
-    netmon_usb_port_handle = create_dissector_handle( dissect_netmon_usb_port, proto_usbport);
     dissector_add_guid( "netmon.provider_id", &usb_port_key, netmon_usb_port_handle);
-
 }
 
 /*

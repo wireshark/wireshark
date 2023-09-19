@@ -3794,6 +3794,9 @@ proto_register_sflow(void) {
 
     header_subdissector_table  = register_dissector_table("sflow_245.header_protocol", "SFLOW header protocol", proto_sflow, FT_UINT32, BASE_DEC);
 
+    /* Register our dissector handle */
+    sflow_handle = register_dissector("sflow", dissect_sflow_245, proto_sflow);
+
     /* Register our configuration options for sFlow */
     sflow_245_module = prefs_register_protocol(proto_sflow, NULL);
 
@@ -3828,7 +3831,6 @@ proto_register_sflow(void) {
 void
 proto_reg_handoff_sflow_245(void) {
 
-    sflow_handle = create_dissector_handle(dissect_sflow_245, proto_sflow);
     dissector_add_uint_range_with_preference("udp.port", SFLOW_UDP_PORTS, sflow_handle);
 }
 

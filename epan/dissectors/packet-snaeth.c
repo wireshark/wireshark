@@ -28,6 +28,7 @@ static int hf_snaeth_padding = -1;
 static gint ett_snaeth = -1;
 
 static dissector_handle_t llc_handle;
+static dissector_handle_t snaeth_handle;
 
 static int
 dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -84,19 +85,18 @@ proto_register_snaeth(void)
 	    "SNAETH", "snaeth");
 	proto_register_field_array(proto_snaeth, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	snaeth_handle = register_dissector("snaeth", dissect_snaeth, proto_snaeth);
 }
 
 void
 proto_reg_handoff_snaeth(void)
 {
-	dissector_handle_t snaeth_handle;
-
 	/*
 	 * Get handle for the LLC dissector.
 	 */
 	llc_handle = find_dissector_add_dependency("llc", proto_snaeth);
 
-	snaeth_handle = create_dissector_handle(dissect_snaeth, proto_snaeth);
 	dissector_add_uint("ethertype", ETHERTYPE_SNA, snaeth_handle);
 }
 

@@ -21,6 +21,8 @@
 void proto_register_pana(void);
 void proto_reg_handoff_pana(void);
 
+static dissector_handle_t pana_handle;
+
 #if 0
 #define PANA_UDP_PORT 3001
 #endif
@@ -864,18 +866,16 @@ proto_register_pana(void)
         proto_register_field_array(proto_pana, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 
+        /* Register the dissector handle */
+        pana_handle = register_dissector("pana", dissect_pana, proto_pana);
 }
 
 
 void
 proto_reg_handoff_pana(void)
 {
-
-        dissector_handle_t pana_handle;
-
         heur_dissector_add("udp", dissect_pana, "PANA over UDP", "pana_udp", proto_pana, HEURISTIC_ENABLE);
 
-        pana_handle = create_dissector_handle(dissect_pana, proto_pana);
         dissector_add_for_decode_as_with_preference("udp.port", pana_handle);
 
         eap_handle = find_dissector_add_dependency("eap", proto_pana);

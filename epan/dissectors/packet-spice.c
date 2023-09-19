@@ -4689,6 +4689,9 @@ proto_register_spice(void)
     /* Register the protocol name and description */
     proto_spice = proto_register_protocol("Spice protocol", "Spice", "spice");
 
+    /* Register the dissector handle */
+    spice_handle = register_dissector("spice", dissect_spice, proto_spice);
+
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_spice, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -4700,7 +4703,6 @@ proto_register_spice(void)
 void
 proto_reg_handoff_spice(void)
 {
-    spice_handle = create_dissector_handle(dissect_spice, proto_spice);
     dissector_add_for_decode_as_with_preference("tcp.port", spice_handle);
     heur_dissector_add("tcp", test_spice_protocol, "Spice over TCP", "spice_tcp", proto_spice, HEURISTIC_ENABLE);
     jpeg_handle  = find_dissector_add_dependency("image-jfif", proto_spice);

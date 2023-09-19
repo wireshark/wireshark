@@ -70,6 +70,8 @@
 void proto_register_sebek(void);
 void proto_reg_handoff_sebek(void);
 
+static dissector_handle_t sebek_handle;
+
 static int proto_sebek = -1;
 
 static int hf_sebek_magic = -1;
@@ -317,14 +319,13 @@ proto_register_sebek(void)
 	proto_sebek = proto_register_protocol("SEBEK - Kernel Data Capture", "SEBEK", "sebek");
 	proto_register_field_array(proto_sebek, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	sebek_handle = register_dissector("sebek", dissect_sebek, proto_sebek);
 }
 
 void
 proto_reg_handoff_sebek(void)
 {
-	dissector_handle_t sebek_handle;
-
-	sebek_handle = create_dissector_handle(dissect_sebek, proto_sebek);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_SEBEK, sebek_handle);
 }
 

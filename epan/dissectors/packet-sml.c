@@ -78,6 +78,8 @@ Short description of the SML protocol on the SML Wireshark Wiki page:
 void proto_register_sml(void);
 void proto_reg_handoff_sml(void);
 
+static dissector_handle_t sml_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_sml = -1;
 
@@ -3005,6 +3007,8 @@ void proto_register_sml (void) {
 	};
 
 	proto_sml = proto_register_protocol("Smart Message Language","SML", "sml");
+	sml_handle = register_dissector("sml", dissect_sml, proto_sml);
+
 	sml_module = prefs_register_protocol(proto_sml, NULL);
 
 	prefs_register_bool_preference (sml_module, "reassemble", "Enable reassemble", "Enable reassembling (default is enabled)", &sml_reassemble);
@@ -3017,13 +3021,8 @@ void proto_register_sml (void) {
 }
 
 void proto_reg_handoff_sml(void) {
-	dissector_handle_t sml_handle;
-
-	sml_handle = create_dissector_handle(dissect_sml, proto_sml);
 	dissector_add_for_decode_as_with_preference("tcp.port", sml_handle);
 	dissector_add_for_decode_as_with_preference("udp.port", sml_handle);
-
-	register_dissector("sml", dissect_sml, proto_sml);
 }
 
 /*

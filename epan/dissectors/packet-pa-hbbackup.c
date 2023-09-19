@@ -35,6 +35,7 @@ static int hf_hbbak_trailer = -1;
 
 static gint ett_hbbak = -1;
 
+static dissector_handle_t hbbak_handle;
 static dissector_handle_t ethertype_handle;
 
 static int
@@ -95,16 +96,15 @@ proto_register_hbbak(void)
 	proto_hbbak = proto_register_protocol(PROTO_LONG_NAME, PROTO_LONG_NAME, "hbbak");
 	proto_register_field_array(proto_hbbak, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	hbbak_handle = register_dissector("hbbak", dissect_hbbak, proto_hbbak);
 }
 
 void
 proto_reg_handoff_hbbak(void)
 {
-	dissector_handle_t hbbak_handle;
 
 	ethertype_handle = find_dissector_add_dependency("ethertype", proto_hbbak);
 
-	hbbak_handle = create_dissector_handle(dissect_hbbak, proto_hbbak);
 	dissector_add_uint("ethertype", ETHERTYPE_PA_HBBACKUP, hbbak_handle);
 }
 

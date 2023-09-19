@@ -61,6 +61,7 @@ static const value_string roofnet_pt_vals[] = {
 void proto_register_roofnet(void);
 void proto_reg_handoff_roofnet(void);
 
+static dissector_handle_t roofnet_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 static int proto_roofnet = -1;
@@ -379,18 +380,17 @@ void proto_register_roofnet(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_roofnet = expert_register_protocol(proto_roofnet);
   expert_register_field_array(expert_roofnet, ei, array_length(ei));
+
+  roofnet_handle = register_dissector("roofnet", dissect_roofnet, proto_roofnet);
 }
 
 
 void proto_reg_handoff_roofnet(void)
 {
-  dissector_handle_t roofnet_handle;
-
   /* Until now there is no other option than having an IPv4 payload (maybe
    * extended one day to IPv6 or other?) */
   ip_handle = find_dissector_add_dependency("ip", proto_roofnet);
   eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_roofnet);
-  roofnet_handle = create_dissector_handle(dissect_roofnet, proto_roofnet);
   /* I did not put the type numbers in the ethertypes.h as they only are
    * experimental and not official */
   dissector_add_uint("ethertype", 0x0641, roofnet_handle);

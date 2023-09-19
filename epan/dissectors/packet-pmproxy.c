@@ -239,12 +239,13 @@ void proto_register_pmproxy(void) {
 
     proto_register_field_array(proto_pmproxy, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    pmproxy_handle = register_dissector("pmproxy", dissect_pmproxy, proto_pmproxy);
 }
 
 
 void proto_reg_handoff_pmproxy(void) {
 
-    pmproxy_handle = create_dissector_handle(dissect_pmproxy, proto_pmproxy);
     pcp_handle = find_dissector_add_dependency("pcp", proto_pmproxy);
 
     dissector_add_uint_with_preference("tcp.port", PMPROXY_PORT, pmproxy_handle);

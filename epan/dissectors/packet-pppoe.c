@@ -24,6 +24,9 @@ void proto_register_pppoes(void);
 void proto_register_pppoe(void);
 void proto_reg_handoff_pppoes(void);
 
+static dissector_handle_t pppoed_handle;
+static dissector_handle_t pppoes_handle;
+
 static int proto_pppoed = -1;
 
 /* Common to session and discovery protocols */
@@ -1010,6 +1013,9 @@ void proto_register_pppoed(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_pppoed, hf, array_length(hf));
 
+	/* Register dissector handle */
+	pppoed_handle = register_dissector("pppoed", dissect_pppoed, proto_pppoed);
+
 	/* Preference setting */
 	pppoed_module = prefs_register_protocol(proto_pppoed, NULL);
 	prefs_register_bool_preference(pppoed_module, "show_tags_and_lengths",
@@ -1020,9 +1026,6 @@ void proto_register_pppoed(void)
 
 void proto_reg_handoff_pppoed(void)
 {
-	dissector_handle_t pppoed_handle;
-
-	pppoed_handle = create_dissector_handle(dissect_pppoed, proto_pppoed);
 	dissector_add_uint("ethertype", ETHERTYPE_PPPOED, pppoed_handle);
 }
 
@@ -1225,6 +1228,8 @@ void proto_register_pppoes(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_pppoes, hf, array_length(hf));
+
+	pppoes_handle = register_dissector("pppoes", dissect_pppoes, proto_pppoes);
 }
 
 void proto_register_pppoe(void)
@@ -1282,8 +1287,6 @@ void proto_register_pppoe(void)
 
 void proto_reg_handoff_pppoes(void)
 {
-	dissector_handle_t pppoes_handle  =
-	    create_dissector_handle(dissect_pppoes, proto_pppoes);
 	dissector_add_uint("ethertype", ETHERTYPE_PPPOES, pppoes_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP_ETHER, pppoes_handle);
 

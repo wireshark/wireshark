@@ -30,6 +30,7 @@
 #include <epan/addr_resolv.h>
 
 void proto_register_quake3(void);
+static dissector_handle_t quake3_handle;
 static int proto_quake3 = -1;
 
 static int hf_quake3_direction = -1;
@@ -549,6 +550,9 @@ proto_register_quake3(void)
 	proto_register_field_array(proto_quake3, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	/* Register the dissector handle */
+	quake3_handle = register_dissector("quake3", dissect_quake3, proto_quake3);
+
 	/* Register a configuration option for port */
 	quake3_module = prefs_register_protocol(proto_quake3, proto_reg_handoff_quake3);
 	prefs_register_uint_preference(quake3_module, "udp.arena_port",
@@ -566,14 +570,11 @@ void
 proto_reg_handoff_quake3(void)
 {
 	static gboolean initialized=FALSE;
-	static dissector_handle_t quake3_handle;
 	static guint server_port;
 	static guint master_port;
 	int i;
 
 	if (!initialized) {
-		quake3_handle = create_dissector_handle(dissect_quake3,
-				proto_quake3);
 		initialized=TRUE;
 	} else {
 		for (i=0;i<4;i++)

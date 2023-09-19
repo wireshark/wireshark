@@ -2803,6 +2803,12 @@ register_per_oid_dissector(const char *oid, dissector_t dissector, int proto, co
 {
 	dissector_handle_t dissector_handle;
 
+	/* FIXME: This would be better as register_dissector()
+	 * so the dissector could be referenced by name
+	 * from the command line, Lua, etc.
+	 * But can we blindly trust name to be a unique dissector name,
+	 * or should we prefix "per." or something?
+	 */
 	dissector_handle = create_dissector_handle(dissector, proto);
 	dissector_add_string("per.oid", oid, dissector_handle);
 	oid_add_from_string(name, oid);

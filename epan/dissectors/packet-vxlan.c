@@ -25,6 +25,9 @@
 void proto_register_vxlan(void);
 void proto_reg_handoff_vxlan(void);
 
+static dissector_handle_t vxlan_handle;
+static dissector_handle_t vxlan_gpe_handle;
+
 static int proto_vxlan = -1;
 static int proto_vxlan_gpe = -1;
 
@@ -273,15 +276,14 @@ proto_register_vxlan(void)
     proto_register_subtree_array(ett, array_length(ett));
     vxlan_dissector_table = register_dissector_table("vxlan.next_proto", "VXLAN Next Protocol", proto_vxlan, FT_UINT8, BASE_DEC);
 
-
+    /* Register dissector handles */
+    vxlan_handle = register_dissector("vxlan", dissect_vxlan, proto_vxlan);
+    vxlan_gpe_handle = register_dissector("vxlan_gpe", dissect_vxlan_gpe, proto_vxlan_gpe);
 }
 
 void
 proto_reg_handoff_vxlan(void)
 {
-    dissector_handle_t vxlan_handle;
-    dissector_handle_t vxlan_gpe_handle;
-
     /*
      * RFC 7348 Figures 1 and 2, in the Payload section, say
      *
@@ -292,8 +294,6 @@ proto_reg_handoff_vxlan(void)
      */
     eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_vxlan);
 
-    vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
-    vxlan_gpe_handle = create_dissector_handle(dissect_vxlan_gpe, proto_vxlan_gpe);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_VXLAN, vxlan_handle);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_VXLAN_GPE, vxlan_gpe_handle);
 }

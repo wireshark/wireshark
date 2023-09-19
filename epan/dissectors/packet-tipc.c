@@ -197,6 +197,7 @@ static gint     handle_v2_as = V2_AS_ALL;
 static gboolean tipc_tcp_desegment = TRUE;
 
 static dissector_handle_t tipc_handle;
+static dissector_handle_t tipc_tcp_handle;
 
 /* IANA have assigned port 6118 port for TIPC UDP transport. */
 #define DEFAULT_TIPC_PORT_RANGE   "6118"
@@ -3100,6 +3101,7 @@ proto_register_tipc(void)
 
 	/* Register by name */
 	tipc_handle = register_dissector("tipc", dissect_tipc, proto_tipc);
+	tipc_tcp_handle = register_dissector("tipc.tcp", dissect_tipc_tcp, proto_tipc);
 
 	reassembly_table_register(&tipc_msg_reassembly_table,
 	    &addresses_reassembly_table_functions);
@@ -3142,10 +3144,6 @@ proto_register_tipc(void)
 void
 proto_reg_handoff_tipc(void)
 {
-	dissector_handle_t tipc_tcp_handle;
-
-	tipc_tcp_handle = create_dissector_handle(dissect_tipc_tcp, proto_tipc);
-
 	dissector_add_uint("ethertype", ETHERTYPE_TIPC, tipc_handle);
 	dissector_add_for_decode_as_with_preference("tcp.port", tipc_tcp_handle);
 	dissector_add_uint_range_with_preference("udp.port", DEFAULT_TIPC_PORT_RANGE, tipc_handle);

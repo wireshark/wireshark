@@ -587,15 +587,13 @@ void proto_register_udt(void)
 	expert_udt = expert_register_protocol(proto_udt);
 	expert_register_field_array(expert_udt, ei, array_length(ei));
 
-	register_dissector("udt", dissect_udt, proto_udt);
+	udt_handle = register_dissector("udt", dissect_udt, proto_udt);
 
 	heur_subdissector_list = register_heur_dissector_list("udt", proto_udt);
 }
 
 void proto_reg_handoff_udt(void)
 {
-	udt_handle  = create_dissector_handle(dissect_udt, proto_udt);
-
 	heur_dissector_add("udp", dissect_udt_heur_udp, "UDT over UDP", "udt_udp", proto_udt, HEURISTIC_ENABLE);
 	heur_dissector_add("dtls", dissect_udt_heur_dtls, "UDT over DTLS", "udt_dtls", proto_udt, HEURISTIC_ENABLE);
 	dissector_add_for_decode_as_with_preference("udp.port", udt_handle);

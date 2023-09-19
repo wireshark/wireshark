@@ -29,6 +29,8 @@
 void proto_reg_handoff_steam_ihs_discovery(void);
 void proto_register_steam_ihs_discovery(void);
 
+static dissector_handle_t steam_ihs_discovery_handle;
+
 static int proto_steam_ihs_discovery = -1;
 
 static int hf_steam_ihs_discovery_signature = -1;
@@ -1404,6 +1406,9 @@ proto_register_steam_ihs_discovery(void)
     proto_steam_ihs_discovery = proto_register_protocol("Steam In-Home Streaming Discovery Protocol",
             "Steam IHS Discovery", "steam_ihs_discovery");
 
+    /* Register the dissector handle */
+    steam_ihs_discovery_handle = register_dissector("steam_ihs_discovery", dissect_steam_ihs_discovery, proto_steam_ihs_discovery);
+
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_steam_ihs_discovery, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1419,10 +1424,6 @@ proto_register_steam_ihs_discovery(void)
 void
 proto_reg_handoff_steam_ihs_discovery(void)
 {
-    static dissector_handle_t steam_ihs_discovery_handle;
-
-    steam_ihs_discovery_handle = create_dissector_handle(dissect_steam_ihs_discovery, proto_steam_ihs_discovery);
-
     dissector_add_uint_with_preference("udp.port", STEAM_IHS_DISCOVERY_UDP_PORT, steam_ihs_discovery_handle);
 }
 

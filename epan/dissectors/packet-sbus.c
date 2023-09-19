@@ -18,6 +18,8 @@
 void proto_register_sbus(void);
 void proto_reg_handoff_sbus(void);
 
+static dissector_handle_t sbus_handle;
+
 #define SBUS_UDP_PORT   5050 /* Not IANA registered */
 
 /* Attribute values*/
@@ -2586,14 +2588,14 @@ proto_register_sbus(void)
        expert_sbus = expert_register_protocol(proto_sbus);
        expert_register_field_array(expert_sbus, ei, array_length(ei));
        sbus_request_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), sbus_hash, sbus_equal);
+
+/* Register the dissector handle */
+       sbus_handle = register_dissector("sbus", dissect_sbus, proto_sbus);
 }
 
 void
 proto_reg_handoff_sbus(void)
 {
-       dissector_handle_t sbus_handle;
-
-       sbus_handle = create_dissector_handle(dissect_sbus, proto_sbus);
        dissector_add_uint_with_preference("udp.port", SBUS_UDP_PORT, sbus_handle);
 }
 

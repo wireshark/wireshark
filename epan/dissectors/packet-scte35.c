@@ -136,6 +136,10 @@ static gint hf_private_byte = -1;
 static dissector_table_t private_identifier_table = NULL;
 
 static dissector_handle_t scte35_handle = NULL;
+static dissector_handle_t scte35_time_handle;
+static dissector_handle_t scte35_private_command_handle;
+static dissector_handle_t scte35_si_handle;
+static dissector_handle_t scte35_ss_handle;
 
 /* splice_insert protocol and fields */
 static int proto_scte35_si = -1;
@@ -359,17 +363,14 @@ proto_register_scte35_time_signal(void)
     proto_scte35_time = proto_register_protocol("SCTE-35 Time Signal", "SCTE35 TS", "scte35_time");
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_scte35_time, hf, array_length(hf));
+
+    /* Create a dissector for time_signal packets. */
+    scte35_time_handle = register_dissector("scte35_time", dissect_scte35_time_signal, proto_scte35_time);
 }
 
 void
 proto_reg_handoff_scte35_time_signal(void)
 {
-    dissector_handle_t scte35_time_handle;
-
-    /* Create a dissector for time_signal packets. */
-    scte35_time_handle = create_dissector_handle(dissect_scte35_time_signal, proto_scte35_time);
-
-    /* And hook it up to SCTE-35 messages. */
     dissector_add_uint("scte35.splice_command_type", SCTE35_CMD_TIME_SIGNAL, scte35_time_handle);
 }
 
@@ -428,17 +429,14 @@ proto_register_scte35_private_command(void)
     private_identifier_table = register_dissector_table(
         "scte35_private_command.identifier", "SCTE-35 Private Command Identifier",
         proto_private_command, FT_UINT32, BASE_HEX);
+
+    /* Create a dissector for private commands. */
+    scte35_private_command_handle = register_dissector("scte35_private_command", dissect_scte35_private_command, proto_private_command);
 }
 
 void
 proto_reg_handoff_scte35_private_command(void)
 {
-    dissector_handle_t scte35_private_command_handle;
-
-    /* Create a dissector for private commands. */
-    scte35_private_command_handle = create_dissector_handle(dissect_scte35_private_command, proto_private_command);
-
-    /* Trigger our dissector on any private_command SCTE-35 messages. */
     dissector_add_uint("scte35.splice_command_type", SCTE35_CMD_PRIVATE_COMMAND, scte35_private_command_handle);
 }
 
@@ -712,15 +710,14 @@ proto_register_scte35_splice_insert(void)
 
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_scte35_si, hf, array_length(hf));
+
+    /* Create a splice_insert dissector. */
+    scte35_si_handle = register_dissector("scte35_si", dissect_scte35_splice_insert, proto_scte35_si);
 }
 
 void
 proto_reg_handoff_scte35_splice_insert(void)
 {
-    dissector_handle_t scte35_si_handle;
-
-    /* Create a splice_insert dissector, and hook it into SCTE35 parsing. */
-    scte35_si_handle = create_dissector_handle(dissect_scte35_splice_insert, proto_scte35_si);
     dissector_add_uint("scte35.splice_command_type", SCTE35_CMD_SPLICE_INSERT, scte35_si_handle);
 }
 
@@ -935,15 +932,14 @@ proto_register_scte35_splice_schedule(void)
 
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_scte35_splice_schedule, hf, array_length(hf));
+
+    scte35_ss_handle = register_dissector("scte35_splice_schedule", dissect_scte35_splice_schedule, proto_scte35_splice_schedule);
 }
 
 void
 proto_reg_handoff_scte35_splice_schedule(void)
 {
-    dissector_handle_t dissector;
-
-    dissector = create_dissector_handle(dissect_scte35_splice_schedule, proto_scte35_splice_schedule);
-    dissector_add_uint("scte35.splice_command_type", SCTE35_CMD_SPLICE_SCHEDULE, dissector);
+    dissector_add_uint("scte35.splice_command_type", SCTE35_CMD_SPLICE_SCHEDULE, scte35_ss_handle);
 }
 
 

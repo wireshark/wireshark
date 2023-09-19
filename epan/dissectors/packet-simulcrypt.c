@@ -60,6 +60,9 @@ static void dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *sim
 /* Wireshark ID of the SIMULCRYPT protocol */
 static guint proto_simulcrypt = -1;
 
+/* Dissector handle for SIMULCRYPT protocol */
+static dissector_handle_t simulcrypt_handle;
+
 /* Preferences (with default values) */
 static int ca_system_id_mikey = CA_SYSTEM_ID_MIKEY; /* MIKEY ECM CA_system_ID */
 
@@ -1803,6 +1806,8 @@ proto_register_simulcrypt (void)
 
 	register_init_routine(simulcrypt_init);
 
+	simulcrypt_handle = register_dissector("simulcrypt", dissect_simulcrypt, proto_simulcrypt);
+
 	/* Register our configuration options for Simulcrypt, particularly our port. */
 	/* This registers our preferences; function proto_reg_handoff_simulcrypt is  */
 	/*  called when preferences are applied.                                     */
@@ -1817,11 +1822,9 @@ void
 proto_reg_handoff_simulcrypt(void)
 {
 	static gboolean initialized=FALSE;
-	dissector_handle_t simulcrypt_handle;
 	guint  i;
 
 	if (!initialized) {
-		simulcrypt_handle = create_dissector_handle(dissect_simulcrypt, proto_simulcrypt);
 		for(i=0;i<ECM_INTERPRETATION_SIZE;i++)
 		{
 			tab_ecm_inter[i].protocol_handle = find_dissector(tab_ecm_inter[i].protocol_name);

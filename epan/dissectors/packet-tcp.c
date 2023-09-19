@@ -735,6 +735,8 @@ static dissector_handle_t data_handle;
 static dissector_handle_t tcp_handle;
 static dissector_handle_t sport_handle;
 static dissector_handle_t tcp_opt_unknown_handle;
+static capture_dissector_handle_t tcp_cap_handle;
+
 static guint32 tcp_stream_count;
 static guint32 mptcp_stream_count;
 
@@ -9780,6 +9782,7 @@ proto_register_tcp(void)
 
     proto_tcp = proto_register_protocol("Transmission Control Protocol", "TCP", "tcp");
     tcp_handle = register_dissector("tcp", dissect_tcp, proto_tcp);
+    tcp_cap_handle = register_capture_dissector("tcp", capture_tcp, proto_tcp);
     proto_register_field_array(proto_tcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_tcp = expert_register_protocol(proto_tcp);
@@ -9968,8 +9971,6 @@ proto_register_tcp(void)
 void
 proto_reg_handoff_tcp(void)
 {
-    capture_dissector_handle_t tcp_cap_handle;
-
     dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_handle);
     dissector_add_for_decode_as_with_preference("udp.port", tcp_handle);
     data_handle = find_dissector("data");
@@ -9977,7 +9978,6 @@ proto_reg_handoff_tcp(void)
     tcp_tap = register_tap("tcp");
     tcp_follow_tap = register_tap("tcp_follow");
 
-    tcp_cap_handle = create_capture_dissector_handle(capture_tcp, proto_tcp);
     capture_dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_cap_handle);
 
     /* Create dissection function handles for all TCP options */

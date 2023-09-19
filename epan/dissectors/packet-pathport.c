@@ -31,6 +31,8 @@
 void proto_reg_handoff_pathport(void);
 void proto_register_pathport(void);
 
+static dissector_handle_t pathport_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_pathport = -1;
 
@@ -675,14 +677,14 @@ proto_register_pathport(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_pathport, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the dissector handle */
+    pathport_handle = register_dissector("pathport", dissect_pathport, proto_pathport);
 }
 
 void
 proto_reg_handoff_pathport(void)
 {
-    static dissector_handle_t pathport_handle;
-
-    pathport_handle = create_dissector_handle(dissect_pathport, proto_pathport);
     heur_dissector_add("udp", dissect_pathport_heur, "Pathport over UDP", "pathport_udp", proto_pathport, HEURISTIC_ENABLE);
     dissector_add_uint_with_preference("udp.port", PATHPORT_UDP_PORT, pathport_handle);
 }

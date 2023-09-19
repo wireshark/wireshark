@@ -24,6 +24,8 @@
 void proto_register_vtp(void);
 void proto_reg_handoff_vtp(void);
 
+static dissector_handle_t vtp_handle;
+
 static int proto_vtp = -1;
 static int hf_vtp_version = -1;
 static int hf_vtp_code = -1;
@@ -671,14 +673,12 @@ proto_register_vtp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_vtp = expert_register_protocol(proto_vtp);
 	expert_register_field_array(expert_vtp, ei, array_length(ei));
+	vtp_handle = register_dissector("vtp", dissect_vtp, proto_vtp);
 }
 
 void
 proto_reg_handoff_vtp(void)
 {
-	dissector_handle_t vtp_handle;
-
-	vtp_handle = create_dissector_handle(dissect_vtp, proto_vtp);
 	dissector_add_uint("llc.cisco_pid", CISCO_PID_VTP, vtp_handle);
 }
 

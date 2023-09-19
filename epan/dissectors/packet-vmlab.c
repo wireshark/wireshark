@@ -36,6 +36,7 @@
 void proto_register_vmlab(void);
 void proto_reg_handoff_vmlab(void);
 
+static dissector_handle_t vmlab_handle;
 static dissector_handle_t ethertype_handle;
 
 static int proto_vmlab = -1;
@@ -156,15 +157,12 @@ proto_register_vmlab(void)
     proto_vmlab = proto_register_protocol("VMware Lab Manager", "VMLAB", "vmlab");
     proto_register_field_array(proto_vmlab, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    vmlab_handle = register_dissector("vmlab", dissect_vmlab, proto_vmlab);
 }
 
 void
 proto_reg_handoff_vmlab(void)
 {
-    dissector_handle_t vmlab_handle;
-
-    vmlab_handle = create_dissector_handle(dissect_vmlab, proto_vmlab);
-
     dissector_add_uint("ethertype", ETHERTYPE_VMLAB, vmlab_handle);
 
     ethertype_handle = find_dissector_add_dependency("ethertype", proto_vmlab);

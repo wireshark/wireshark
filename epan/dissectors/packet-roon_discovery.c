@@ -26,6 +26,8 @@
 void proto_reg_handoff_roon_discover(void);
 void proto_register_roon_discover(void);
 
+static dissector_handle_t roon_discover_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_roon_discover = -1;
 static int hf_roon_disco_config_version   = -1;
@@ -329,14 +331,13 @@ proto_register_roon_discover(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_roon_discover, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    roon_discover_handle = register_dissector("roon_disco", dissect_roon_discover, proto_roon_discover);
 }
 
 void
 proto_reg_handoff_roon_discover(void)
 {
-    static dissector_handle_t roon_discover_handle;
-
-    roon_discover_handle = create_dissector_handle(dissect_roon_discover, proto_roon_discover);
     dissector_add_uint_with_preference("udp.port", ROON_DISCOVERY_UDP_PORT, roon_discover_handle);
 }
 

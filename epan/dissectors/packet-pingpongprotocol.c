@@ -26,6 +26,8 @@
 void proto_register_pingpongprotocol(void);
 void proto_reg_handoff_pingpongprotocol(void);
 
+static dissector_handle_t pingpongprotocol_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_pingpongprotocol         = -1;
 static int tap_pingpongprotocol           = -1;
@@ -433,15 +435,15 @@ proto_register_pingpongprotocol(void)
   proto_register_subtree_array(ett, array_length(ett));
   tap_pingpongprotocol = register_tap("pingpongprotocol");
 
+  /* Register the dissector handle */
+  pingpongprotocol_handle = register_dissector("pingpongprotocol", dissect_pingpongprotocol, proto_pingpongprotocol);
+
   register_stat_tap_table_ui(&pingpongprotocol_stat_table);
 }
 
 void
 proto_reg_handoff_pingpongprotocol(void)
 {
-  dissector_handle_t pingpongprotocol_handle;
-
-  pingpongprotocol_handle = create_dissector_handle(dissect_pingpongprotocol, proto_pingpongprotocol);
   dissector_add_uint("sctp.ppi", PINGPONGPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY, pingpongprotocol_handle);
   dissector_add_uint("sctp.ppi", PPP_PAYLOAD_PROTOCOL_ID, pingpongprotocol_handle);
 }

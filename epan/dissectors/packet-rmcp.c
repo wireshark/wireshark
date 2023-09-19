@@ -21,6 +21,9 @@ void proto_register_rsp(void);
 void proto_reg_handoff_rmcp(void);
 void proto_reg_handoff_rsp(void);
 
+static dissector_handle_t rmcp_handle;
+static dissector_handle_t rsp_handle;
+
 /*
  * See
  *	http://www.dmtf.org/standards/standard_alert.php
@@ -210,6 +213,8 @@ proto_register_rmcp(void)
 	proto_register_field_array(proto_rmcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	rmcp_handle = register_dissector("rmcp", dissect_rmcp, proto_rmcp);
+
 	rmcp_dissector_table = register_dissector_table(
 		"rmcp.class", "RMCP Class", proto_rmcp, FT_UINT8, BASE_HEX);
 }
@@ -235,23 +240,19 @@ proto_register_rsp(void)
 		"RMCP Security-extensions Protocol", "RSP", "rsp");
 	proto_register_field_array(proto_rsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	rsp_handle = register_dissector("rsp", dissect_rsp, proto_rsp);
 }
 
 void
 proto_reg_handoff_rmcp(void)
 {
-	dissector_handle_t rmcp_handle;
-
-	rmcp_handle = create_dissector_handle(dissect_rmcp, proto_rmcp);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_RMCP, rmcp_handle);
 }
 
 void
 proto_reg_handoff_rsp(void)
 {
-	dissector_handle_t rsp_handle;
-
-	rsp_handle = create_dissector_handle(dissect_rsp, proto_rsp);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_RMCP_SECURE, rsp_handle);
 }
 

@@ -56,6 +56,8 @@
 void proto_register_pgm(void);
 void proto_reg_handoff_pgm(void);
 
+static dissector_handle_t pgm_handle;
+
 /*
  * Flag to control whether to check the PGM checksum.
  */
@@ -1377,6 +1379,7 @@ proto_register_pgm(void)
 	expert_register_field_array(expert_pgm, ei, array_length(ei));
 
 	/* subdissector code */
+	pgm_handle = register_dissector("pgm", dissect_pgm, proto_pgm);
 	subdissector_table = register_dissector_table("pgm.port",
 						      "PGM port", proto_pgm, FT_UINT16, BASE_DEC);
 	heur_subdissector_list = register_heur_dissector_list("pgm", proto_pgm);
@@ -1405,9 +1408,6 @@ proto_register_pgm(void)
 void
 proto_reg_handoff_pgm(void)
 {
-	dissector_handle_t pgm_handle;
-
-	pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
 	dissector_add_uint_range_with_preference("udp.port", "", pgm_handle);
 	dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
 }

@@ -428,6 +428,7 @@ void proto_register_resp(void) {
     expert_module_t *expert_pcp = expert_register_protocol(proto_resp);
     expert_register_field_array(expert_pcp, ei, array_length(ei));
 
+    resp_handle = register_dissector("resp", dissect_resp, proto_resp);
 
     proto_register_field_array(proto_resp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -435,7 +436,5 @@ void proto_register_resp(void) {
 
 
 void proto_reg_handoff_resp(void) {
-    resp_handle = create_dissector_handle(dissect_resp, proto_resp);
-
     dissector_add_uint_with_preference("tcp.port", RESP_PORT, resp_handle);
 }

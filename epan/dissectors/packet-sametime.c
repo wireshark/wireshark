@@ -877,6 +877,8 @@ proto_register_sametime(void)
    proto_register_field_array(proto_sametime, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
+   sametime_handle = register_dissector("sametime", dissect_sametime, proto_sametime);
+
    sametime_tap = register_tap("sametime");
 
    /* Preference setting */
@@ -897,7 +899,6 @@ proto_register_sametime(void)
 void
 proto_reg_handoff_sametime(void)
 {
-   sametime_handle = create_dissector_handle(dissect_sametime, proto_sametime);
    dissector_add_uint_with_preference("tcp.port", DEFAULT_SAMETIME_PORT, sametime_handle);
 
    stats_tree_register("sametime", "sametime", "Sametime/Messages", 0,

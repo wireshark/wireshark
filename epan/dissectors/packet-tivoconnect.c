@@ -28,6 +28,9 @@
 void proto_reg_handoff_tivoconnect(void);
 void proto_register_tivoconnect(void);
 
+static dissector_handle_t tivoconnect_tcp_handle;
+static dissector_handle_t tivoconnect_udp_handle;
+
 #define TIVOCONNECT_PORT 2190
 
 static int proto_tivoconnect = -1;
@@ -220,16 +223,15 @@ proto_register_tivoconnect(void)
 
     proto_register_field_array(proto_tivoconnect, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    tivoconnect_tcp_handle = register_dissector("tivo.tcp", dissect_tivoconnect_tcp, proto_tivoconnect);
+    tivoconnect_udp_handle = register_dissector("tivo.udp", dissect_tivoconnect_udp, proto_tivoconnect);
 }
 
 
 void
 proto_reg_handoff_tivoconnect(void)
 {
-    dissector_handle_t tivoconnect_tcp_handle, tivoconnect_udp_handle;
-
-    tivoconnect_tcp_handle = create_dissector_handle(dissect_tivoconnect_tcp, proto_tivoconnect);
-    tivoconnect_udp_handle = create_dissector_handle(dissect_tivoconnect_udp, proto_tivoconnect);
     dissector_add_uint_with_preference("udp.port", TIVOCONNECT_PORT, tivoconnect_udp_handle);
     dissector_add_uint_with_preference("tcp.port", TIVOCONNECT_PORT, tivoconnect_tcp_handle);
 }

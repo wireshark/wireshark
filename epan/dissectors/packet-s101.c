@@ -63,6 +63,7 @@ static int hf_S101_crc_status = -1;
 static int hf_S101_eof = -1;
 static int hf_S101_error = -1;
 
+static dissector_handle_t S101_handle;
 static dissector_handle_t glow_handle = NULL;
 static reassembly_table s101_data_reassembly_table;
 
@@ -630,6 +631,8 @@ proto_register_S101(void)
     proto_register_field_array(proto_S101, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    S101_handle = register_dissector("s101", dissect_S101, proto_S101);
+
     reassembly_table_register(&s101_data_reassembly_table,
                               &addresses_ports_reassembly_table_functions);
 
@@ -645,11 +648,6 @@ proto_register_S101(void)
 void
 proto_reg_handoff_S101(void)
 {
-    static dissector_handle_t S101_handle;
-
-    S101_handle = create_dissector_handle(dissect_S101,
-            proto_S101);
-
     glow_handle = find_dissector_add_dependency("glow", proto_S101);
     dissector_add_uint_with_preference("tcp.port", S101_TCP_PORT, S101_handle);
 }

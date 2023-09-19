@@ -36,6 +36,9 @@ void proto_reg_handoff_pktc(void);
 void proto_register_pktc_mtafqdn(void);
 void proto_reg_handoff_pktc_mtafqdn(void);
 
+static dissector_handle_t pktc_handle;
+static dissector_handle_t pktc_mtafqdn_handle;
+
 static int proto_pktc = -1;
 static int proto_pktc_mtafqdn = -1;
 static gint hf_pktc_app_spec_data = -1;
@@ -735,14 +738,13 @@ proto_register_pktc(void)
     proto_pktc = proto_register_protocol("PacketCable", "PKTC", "pktc");
     proto_register_field_array(proto_pktc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    pktc_handle = register_dissector("pktc", dissect_pktc, proto_pktc);
 }
 
 void
 proto_reg_handoff_pktc(void)
 {
-    dissector_handle_t pktc_handle;
-
-    pktc_handle = create_dissector_handle(dissect_pktc, proto_pktc);
     dissector_add_uint_with_preference("udp.port", PKTC_PORT, pktc_handle);
 }
 
@@ -796,14 +798,13 @@ proto_register_pktc_mtafqdn(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_pktc = expert_register_protocol(proto_pktc_mtafqdn);
     expert_register_field_array(expert_pktc, ei, array_length(ei));
+
+    pktc_mtafqdn_handle = register_dissector("pktc.mtafqdn", dissect_pktc_mtafqdn, proto_pktc_mtafqdn);
 }
 
 void
 proto_reg_handoff_pktc_mtafqdn(void)
 {
-    dissector_handle_t pktc_mtafqdn_handle;
-
-    pktc_mtafqdn_handle = create_dissector_handle(dissect_pktc_mtafqdn, proto_pktc_mtafqdn);
     dissector_add_uint_with_preference("udp.port", PKTC_MTAFQDN_PORT, pktc_mtafqdn_handle);
 }
 

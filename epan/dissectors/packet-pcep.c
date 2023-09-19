@@ -67,6 +67,8 @@
 void proto_register_pcep(void);
 void proto_reg_handoff_pcep(void);
 
+static dissector_handle_t pcep_handle;
+
 /* Object-Class */
 #define PCEP_OPEN_OBJ                    1 /* RFC 5440 */
 #define PCEP_RP_OBJ                      2 /* RFC 5440 */
@@ -6599,15 +6601,15 @@ proto_register_pcep(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_pcep = expert_register_protocol(proto_pcep);
     expert_register_field_array(expert_pcep, ei, array_length(ei));
+
+    /* Register the dissector handle */
+    pcep_handle = register_dissector("pcep", dissect_pcep, proto_pcep);
 }
 
 /*Dissector Handoff*/
 void
 proto_reg_handoff_pcep(void)
 {
-    dissector_handle_t pcep_handle;
-
-    pcep_handle = create_dissector_handle(dissect_pcep, proto_pcep);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_PCEP, pcep_handle);
 }
 

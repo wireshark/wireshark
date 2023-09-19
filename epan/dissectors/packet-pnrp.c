@@ -96,6 +96,8 @@
 void proto_register_pnrp(void);
 void proto_reg_handoff_pnrp(void);
 
+static dissector_handle_t pnrp_handle;
+
 /* Define all helper methods  */
 static void dissect_pnrp_ids(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
 static void dissect_ipv6_address(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
@@ -1459,6 +1461,8 @@ void proto_register_pnrp(void)
     proto_register_field_array(proto_pnrp,hf,array_length(hf));
     proto_register_subtree_array (ett, array_length(ett));
 
+    pnrp_handle = register_dissector(PROTOABBREV, dissect_pnrp, proto_pnrp);
+
     reassembly_table_register(&pnrp_reassembly_table,
                           &addresses_reassembly_table_functions);
 }
@@ -1466,8 +1470,6 @@ void proto_register_pnrp(void)
 /* Initialise the dissector */
 void proto_reg_handoff_pnrp(void)
 {
-    dissector_handle_t pnrp_handle;
-    pnrp_handle = create_dissector_handle(dissect_pnrp, proto_pnrp);
     dissector_add_uint_with_preference("udp.port",PNRP_PORT,pnrp_handle);
 }
 

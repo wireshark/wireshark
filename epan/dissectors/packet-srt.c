@@ -1259,14 +1259,12 @@ void proto_register_srt(void)
     expert_srt = expert_register_protocol(proto_srt);
     expert_register_field_array(expert_srt, ei, array_length(ei));
 
-    register_dissector("srt", dissect_srt_udp, proto_srt);
+    srt_udp_handle = register_dissector("srt", dissect_srt_udp, proto_srt);
 }
 
 
 void proto_reg_handoff_srt(void)
 {
-    srt_udp_handle  = create_dissector_handle(dissect_srt_udp, proto_srt);
-
     /* register as heuristic dissector for UDP */
     heur_dissector_add("udp", dissect_srt_heur_udp, "SRT over UDP",
                        "srt_udp", proto_srt, HEURISTIC_ENABLE);

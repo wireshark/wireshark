@@ -24,6 +24,8 @@
 void proto_register_quake2(void);
 void proto_reg_handoff_quake2(void);
 
+static dissector_handle_t quake2_handle;
+
 static int proto_quake2 = -1;
 
 static int hf_quake2_s2c = -1;
@@ -820,6 +822,9 @@ proto_register_quake2(void)
     proto_register_field_array(proto_quake2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* Register the dissector handle */
+    quake2_handle = register_dissector("quake2", dissect_quake2, proto_quake2);
+
     /* Register a configuration option for port */
     prefs_register_protocol(proto_quake2, apply_quake2_prefs);
 }
@@ -827,9 +832,6 @@ proto_register_quake2(void)
 void
 proto_reg_handoff_quake2(void)
 {
-    dissector_handle_t quake2_handle;
-    quake2_handle = create_dissector_handle(dissect_quake2, proto_quake2);
-
     dissector_add_uint_with_preference("udp.port", PORT_MASTER, quake2_handle);
     apply_quake2_prefs();
 }

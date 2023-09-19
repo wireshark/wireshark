@@ -32,6 +32,9 @@
 void proto_register_srvloc(void);
 void proto_reg_handoff_srvloc(void);
 
+static dissector_handle_t srvloc_handle;
+static dissector_handle_t srvloc_tcp_handle;
+
 static gboolean srvloc_desegment = TRUE;
 static int proto_srvloc = -1;
 static int hf_srvloc_version = -1;
@@ -1856,6 +1859,8 @@ proto_register_srvloc(void)
                                            "SRVLOC", "srvloc");
     proto_register_field_array(proto_srvloc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    srvloc_handle = register_dissector("srvloc", dissect_srvloc, proto_srvloc);
+    srvloc_tcp_handle = register_dissector("srvloc.tcp", dissect_srvloc_tcp, proto_srvloc);
     expert_srvloc = expert_register_protocol(proto_srvloc);
     expert_register_field_array(expert_srvloc, ei, array_length(ei));
         srvloc_module = prefs_register_protocol(proto_srvloc, NULL);
@@ -1869,11 +1874,7 @@ proto_register_srvloc(void)
 void
 proto_reg_handoff_srvloc(void)
 {
-    dissector_handle_t srvloc_handle, srvloc_tcp_handle;
-    srvloc_handle = create_dissector_handle(dissect_srvloc, proto_srvloc);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_SRVLOC, srvloc_handle);
-    srvloc_tcp_handle = create_dissector_handle(dissect_srvloc_tcp,
-                                                proto_srvloc);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_SRVLOC, srvloc_tcp_handle);
 }
 

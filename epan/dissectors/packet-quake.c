@@ -571,13 +571,14 @@ proto_register_quake(void)
 	proto_quake = proto_register_protocol("Quake Network Protocol", "QUAKE", "quake");
 	proto_register_field_array(proto_quake, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	quake_handle = register_dissector("quake", dissect_quake, proto_quake);
 }
 
 
 void
 proto_reg_handoff_quake(void)
 {
-	quake_handle = create_dissector_handle(dissect_quake, proto_quake);
 	dissector_add_uint_with_preference("udp.port", DEFAULTnet_hostport, quake_handle);
 }
 

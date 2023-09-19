@@ -29,6 +29,8 @@
 void proto_register_userlog(void);
 void proto_reg_handoff_userlog(void);
 
+static dissector_handle_t userlog_handle;
+
 static int proto_userlog           = -1;
 
 static int hf_userlog_version      = -1;
@@ -394,14 +396,12 @@ proto_register_userlog(void)
 	proto_userlog = proto_register_protocol("UserLog Protocol", "UserLog", "userlog");
 	proto_register_field_array(proto_userlog, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	userlog_handle = register_dissector("userlog", dissect_userlog, proto_userlog);
 }
 
 void
 proto_reg_handoff_userlog(void)
 {
-	dissector_handle_t userlog_handle;
-
-	userlog_handle = create_dissector_handle(dissect_userlog, proto_userlog);
 	dissector_add_for_decode_as_with_preference("udp.port", userlog_handle);
 
 }

@@ -22,6 +22,8 @@
 void proto_register_pagp(void);
 void proto_reg_handoff_pagp(void);
 
+static dissector_handle_t pagp_handle;
+
 /* Offsets of fields within a PagP PDU */
 
 #define PAGP_VERSION_NUMBER              0
@@ -471,15 +473,13 @@ proto_register_pagp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_pagp = expert_register_protocol(proto_pagp);
     expert_register_field_array(expert_pagp, ei, array_length(ei));
+    pagp_handle = register_dissector("pagp", dissect_pagp, proto_pagp);
 }
 
 
 void
 proto_reg_handoff_pagp(void)
 {
-    dissector_handle_t pagp_handle;
-
-    pagp_handle = create_dissector_handle(dissect_pagp, proto_pagp);
     dissector_add_uint("llc.cisco_pid", CISCO_PID_PAGP, pagp_handle);
 }
 

@@ -2797,6 +2797,9 @@ proto_register_ucp(void)
     expert_ucp = expert_register_protocol(proto_ucp);
     expert_register_field_array(expert_ucp, ei, array_length(ei));
 
+    /* Register the dissector handle */
+    ucp_handle = register_dissector("ucp", dissect_ucp_tcp, proto_ucp);
+
     /* Register for tapping */
     ucp_tap = register_tap("ucp");
 
@@ -2824,7 +2827,6 @@ proto_reg_handoff_ucp(void)
     /*
      * Also register as a dissector that can be selected by a TCP port number via "decode as".
      */
-    ucp_handle = create_dissector_handle(dissect_ucp_tcp, proto_ucp);
     dissector_add_for_decode_as_with_preference("tcp.port", ucp_handle);
 
     /* Tapping setup */

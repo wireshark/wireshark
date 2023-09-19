@@ -38,6 +38,8 @@
 void proto_register_v5ua(void);
 void proto_reg_handoff_v5ua(void);
 
+static dissector_handle_t v5ua_handle;
+
 static int paddingl = 0;
 static int dlci_efa = -1;
 
@@ -1619,6 +1621,9 @@ proto_register_v5ua(void)
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_v5ua, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
+
+   /* Register the dissector handle */
+   v5ua_handle = register_dissector("v5ua", dissect_v5ua, proto_v5ua);
 }
 
 
@@ -1629,9 +1634,6 @@ proto_register_v5ua(void)
 void
 proto_reg_handoff_v5ua(void)
 {
-   dissector_handle_t v5ua_handle;
-
-   v5ua_handle = create_dissector_handle(dissect_v5ua, proto_v5ua);
    q931_handle = find_dissector_add_dependency("q931", proto_v5ua);
    v52_handle = find_dissector_add_dependency("v52", proto_v5ua);
 

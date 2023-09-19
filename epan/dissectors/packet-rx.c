@@ -30,6 +30,8 @@
 void proto_register_rx(void);
 void proto_reg_handoff_rx(void);
 
+static dissector_handle_t rx_handle;
+
 #define UDP_PORT_RX_RANGE	"7000-7009,7021"
 
 static const value_string rx_types[] = {
@@ -753,19 +755,18 @@ proto_register_rx(void)
 	proto_rx = proto_register_protocol("RX Protocol", "RX", "rx");
 	proto_register_field_array(proto_rx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	rx_handle = register_dissector("rx", dissect_rx, proto_rx);
 }
 
 void
 proto_reg_handoff_rx(void)
 {
-	dissector_handle_t rx_handle;
-
 	/*
 	 * Get handle for the AFS dissector.
 	 */
 	afs_handle = find_dissector_add_dependency("afs", proto_rx);
 
-	rx_handle = create_dissector_handle(dissect_rx, proto_rx);
 	dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RX_RANGE, rx_handle);
 }
 

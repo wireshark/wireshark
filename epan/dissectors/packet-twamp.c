@@ -831,6 +831,9 @@ void proto_register_twamp(void)
     proto_register_subtree_array (ett_twamp_test_arr,
                       array_length(ett_twamp_test_arr));
 
+    /* Register the dissector handle */
+    twamp_test_handle = register_dissector("twamp.test", dissect_twamp_test, proto_twamp_test);
+
     /* Register the protocol */
     proto_twamp_control = proto_register_protocol(
         "TwoWay Active Measurement Control Protocol",
@@ -845,20 +848,21 @@ void proto_register_twamp(void)
     proto_register_subtree_array (ett_twamp_control_arr,
                       array_length(ett_twamp_control_arr));
 
+    /* Register the dissector handle */
+    twamp_control_handle = register_dissector("twamp.control", dissect_twamp_server_greeting, proto_twamp_control);
+
+    /* Register the protocol */
     proto_owamp_test = proto_register_protocol(
         "One-way Active Measurement Protocol",
         "OWAMP-Test",
         "owamp.test");
 
+    /* Register the dissector handle */
+    owamp_test_handle = register_dissector("owamp.test", dissect_owamp_test, proto_owamp_test);
 }
 
 void proto_reg_handoff_twamp(void)
 {
-    twamp_test_handle = create_dissector_handle(dissect_twamp_test, proto_twamp_test);
-
-    owamp_test_handle = create_dissector_handle(dissect_owamp_test, proto_owamp_test);
-
-    twamp_control_handle = create_dissector_handle(dissect_twamp_server_greeting, proto_twamp_control);
     dissector_add_uint("tcp.port", TWAMP_CONTROL_PORT, twamp_control_handle);
 
     dissector_add_for_decode_as("udp.port", twamp_test_handle);

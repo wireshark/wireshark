@@ -23,6 +23,8 @@
 void proto_register_ripng(void);
 void proto_reg_handoff_ripng(void);
 
+static dissector_handle_t ripng_handle;
+
 static int proto_ripng = -1;
 static int hf_ripng_cmd = -1;
 static int hf_ripng_version = -1;
@@ -152,14 +154,13 @@ proto_register_ripng(void)
     proto_ripng = proto_register_protocol("RIPng", "RIPng", "ripng");
     proto_register_field_array(proto_ripng, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ripng_handle = register_dissector("ripng", dissect_ripng, proto_ripng);
 }
 
 void
 proto_reg_handoff_ripng(void)
 {
-    dissector_handle_t ripng_handle;
-
-    ripng_handle = create_dissector_handle(dissect_ripng, proto_ripng);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_RIPNG, ripng_handle);
 }
 

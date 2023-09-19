@@ -17,6 +17,8 @@
 void proto_register_pcapng_block(void);
 void proto_reg_handoff_pcapng_block(void);
 
+static dissector_handle_t pcapng_block_handle;
+
 static int proto_pcapng_block = -1;
 
 static dissector_table_t pcapng_block_type_dissector_table;
@@ -48,15 +50,14 @@ void proto_register_pcapng_block(void)
 	    "PCAPNG", "pcapng");
 	pcapng_block_type_dissector_table = register_dissector_table("pcapng.block_type",
 	    "pcapng block type", proto_pcapng_block, FT_UINT32, BASE_DEC);
+
+	pcapng_block_handle = register_dissector("pcapng", dissect_pcapng_block,
+	    proto_pcapng_block);
 }
 
 void
 proto_reg_handoff_pcapng_block(void)
 {
-	dissector_handle_t pcapng_block_handle;
-
-	pcapng_block_handle = create_dissector_handle(dissect_pcapng_block,
-	    proto_pcapng_block);
 	dissector_add_uint("wtap_fts_rec", wtap_pcapng_file_type_subtype(),
 	    pcapng_block_handle);
 }

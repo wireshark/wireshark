@@ -25,6 +25,8 @@
 void proto_register_smb_direct(void);
 void proto_reg_handoff_smb_direct(void);
 
+static dissector_handle_t smb_direct_handle;
+
 static int proto_smb_direct = -1;
 
 static gint ett_smb_direct = -1;
@@ -662,6 +664,8 @@ void proto_register_smb_direct(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb_direct, hf, array_length(hf));
 
+	smb_direct_handle = register_dissector("smb_direct", dissect_smb_direct_infiniband, proto_smb_direct);
+
 	smb_direct_heur_subdissector_list = register_heur_dissector_list("smb_direct", proto_smb_direct);
 
 	smb_direct_module = prefs_register_protocol(proto_smb_direct, NULL);
@@ -685,7 +689,7 @@ proto_reg_handoff_smb_direct(void)
 				dissect_smb_direct_infiniband_heur,
 				"SMB Direct Infiniband", "smb_direct_infiniband",
 				proto_smb_direct, HEURISTIC_ENABLE);
-	dissector_add_for_decode_as("infiniband", create_dissector_handle( dissect_smb_direct_infiniband, proto_smb_direct ) );
+	dissector_add_for_decode_as("infiniband", smb_direct_handle);
 
 }
 

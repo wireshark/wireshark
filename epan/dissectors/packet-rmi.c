@@ -19,6 +19,8 @@
 void proto_register_rmi(void);
 void proto_reg_handoff_rmi(void);
 
+static dissector_handle_t rmi_handle;
+
 static void
 dissect_ser(tvbuff_t *tvb, proto_tree *tree);
 
@@ -353,14 +355,12 @@ proto_register_rmi(void)
     proto_register_field_array(proto_rmi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    rmi_handle = register_dissector("rmi", dissect_rmi, proto_rmi);
 }
 
 void
 proto_reg_handoff_rmi(void)
 {
-    dissector_handle_t rmi_handle;
-
-    rmi_handle = create_dissector_handle(dissect_rmi, proto_rmi);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_RMI, rmi_handle);
 }
 

@@ -56,6 +56,8 @@ void proto_reg_handoff_pflog(void);
 void proto_register_old_pflog(void);
 void proto_reg_handoff_old_pflog(void);
 
+static dissector_handle_t old_pflog_handle;
+static dissector_handle_t pflog_handle;
 static dissector_handle_t  ip_handle, ipv6_handle;
 
 /* header fields */
@@ -528,6 +530,8 @@ proto_register_pflog(void)
   expert_pflog = expert_register_protocol(proto_pflog);
   expert_register_field_array(expert_pflog, ei, array_length(ei));
 
+  pflog_handle = register_dissector("pflog", dissect_pflog, proto_pflog);
+
   pflog_module = prefs_register_protocol(proto_pflog, NULL);
 
   prefs_register_enum_preference(pflog_module, "id_endian",
@@ -540,12 +544,9 @@ proto_register_pflog(void)
 void
 proto_reg_handoff_pflog(void)
 {
-  dissector_handle_t pflog_handle;
-
   ip_handle = find_dissector_add_dependency("ip", proto_pflog);
   ipv6_handle = find_dissector_add_dependency("ipv6", proto_pflog);
 
-  pflog_handle = create_dissector_handle(dissect_pflog, proto_pflog);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_PFLOG, pflog_handle);
 }
 
@@ -650,15 +651,14 @@ proto_register_old_pflog(void)
           "PFLOG-OLD", "pflog-old");
   proto_register_field_array(proto_old_pflog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  old_pflog_handle = register_dissector("pflog-old", dissect_old_pflog, proto_old_pflog);
 }
 
 void
 proto_reg_handoff_old_pflog(void)
 {
-  dissector_handle_t pflog_handle;
-
-  pflog_handle = create_dissector_handle(dissect_old_pflog, proto_old_pflog);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_OLD_PFLOG, pflog_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_OLD_PFLOG, old_pflog_handle);
 }
 /*
  * Editor modelines

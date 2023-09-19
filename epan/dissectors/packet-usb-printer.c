@@ -25,6 +25,8 @@
 #include "packet-usb.h"
 #include <epan/value_string.h>
 
+static dissector_handle_t usb_printer_ctl_handle;
+
 static int proto_usb_printer = -1;
 
 static int hf_usb_printer_req = -1;
@@ -163,16 +165,12 @@ void proto_register_usb_printer(void)
             "USB Printer", "USBPRINTER", "usbprinter");
     proto_register_field_array(proto_usb_printer, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    usb_printer_ctl_handle = register_dissector("usbprinter",  dissect_usb_printer_ctl, proto_usb_printer);
 }
 
 void
 proto_reg_handoff_usb_printer(void)
 {
-    dissector_handle_t usb_printer_ctl_handle;
-
-    usb_printer_ctl_handle = create_dissector_handle(
-            dissect_usb_printer_ctl, proto_usb_printer);
-
     dissector_add_uint("usb.control", IF_CLASS_PRINTER, usb_printer_ctl_handle);
 }
 

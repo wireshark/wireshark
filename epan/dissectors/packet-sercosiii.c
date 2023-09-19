@@ -36,6 +36,8 @@
 void proto_register_sercosiii(void);
 void proto_reg_handoff_sercosiii(void);
 
+static dissector_handle_t siii_handle;
+
 /* Initialize the protocol and registered fields */
 static gint proto_siii = -1;
 
@@ -1607,7 +1609,7 @@ proto_register_sercosiii(void)
   proto_siii = proto_register_protocol("SERCOS III V1.1",
       "SERCOS III V1.1", "siii");
 
-  register_dissector("sercosiii", dissect_siii, proto_siii);
+  siii_handle = register_dissector("sercosiii", dissect_siii, proto_siii);
 
   /* subdissector code */
   heur_subdissector_list = register_heur_dissector_list("sercosiii", proto_siii);
@@ -1622,9 +1624,6 @@ proto_register_sercosiii(void)
 void
 proto_reg_handoff_sercosiii(void)
 {
-  dissector_handle_t siii_handle;
-
-  siii_handle = create_dissector_handle(dissect_siii, proto_siii);
   dissector_add_uint("ethertype", ETHERTYPE_SERCOS, siii_handle);
 }
 

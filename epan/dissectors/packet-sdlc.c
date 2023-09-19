@@ -27,6 +27,8 @@
 void proto_register_sdlc(void);
 void proto_reg_handoff_sdlc(void);
 
+static dissector_handle_t sdlc_handle;
+
 static int proto_sdlc = -1;
 static int hf_sdlc_address = -1;
 static int hf_sdlc_control = -1;
@@ -182,19 +184,18 @@ proto_register_sdlc(void)
 		"Synchronous Data Link Control (SDLC)", "SDLC", "sdlc");
 	proto_register_field_array(proto_sdlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	sdlc_handle = register_dissector("sdlc", dissect_sdlc, proto_sdlc);
 }
 
 void
 proto_reg_handoff_sdlc(void)
 {
-	dissector_handle_t sdlc_handle;
-
 	/*
 	 * Get handle for the SNA dissector.
 	 */
 	sna_handle = find_dissector_add_dependency("sna", proto_sdlc);
 
-	sdlc_handle = create_dissector_handle(dissect_sdlc, proto_sdlc);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SDLC, sdlc_handle);
 }
 

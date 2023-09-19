@@ -1575,7 +1575,7 @@ proto_register_snort(void)
                                    &snort_ignore_checksum_errors);
 
 
-    snort_handle = create_dissector_handle(snort_dissector, proto_snort);
+    snort_handle = register_dissector("snort", snort_dissector, proto_snort);
 
     register_init_routine(snort_start);
     register_postdissector(snort_handle);

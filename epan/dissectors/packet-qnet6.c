@@ -22,6 +22,8 @@
 void proto_reg_handoff_qnet6(void);
 void proto_register_qnet6(void);
 
+static dissector_handle_t qnet6_handle;
+
 static int proto_qnet6_l4 = -1;
 static int proto_qnet6_qos = -1;
 static int proto_qnet6_lr = -1;
@@ -5952,6 +5954,9 @@ proto_register_qnet6(void)
 
   proto_qnet6_nr =  proto_register_protocol("QNX6 QNET Network Resolver protocol", "NR", "nr");
 
+  /* Register the dissector handle */
+  qnet6_handle = register_dissector("lwl4", dissect_qnet6, proto_qnet6_l4);
+
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_qnet6_l4, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -5980,9 +5985,6 @@ proto_register_qnet6(void)
 void
 proto_reg_handoff_qnet6(void)
 {
-  dissector_handle_t qnet6_handle;
-
-  qnet6_handle = create_dissector_handle(dissect_qnet6, proto_qnet6_l4);
   dissector_add_uint("ethertype", ETHERTYPE_QNX_QNET6, qnet6_handle);
   dissector_add_uint("ip.proto", IP_PROTO_QNX, qnet6_handle);
 }

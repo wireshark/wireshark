@@ -31,6 +31,8 @@ static gint ett_vicp = -1;
 void proto_register_vicp(void);
 void proto_reg_handoff_vicp(void);
 
+static dissector_handle_t vicp_handle;
+
 static int dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_item *ti;
@@ -98,12 +100,11 @@ void proto_register_vicp(void)
    proto_vicp = proto_register_protocol("LeCroy VICP", "VICP", "vicp");
    proto_register_field_array(proto_vicp, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
+   vicp_handle = register_dissector("vicp", dissect_vicp, proto_vicp);
 }
 
 void proto_reg_handoff_vicp(void)
-{  dissector_handle_t vicp_handle;
-
-   vicp_handle = create_dissector_handle(dissect_vicp, proto_vicp);
+{
    dissector_add_uint_with_preference("tcp.port", VICP_PORT, vicp_handle);
 }
 

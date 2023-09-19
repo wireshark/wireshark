@@ -68,6 +68,7 @@ static gint ett_smp_flags = -1;
 #define SMP_MIN_LENGTH 16
 
 static dissector_handle_t tds_handle;
+static dissector_handle_t smp_handle;
 static dissector_table_t smp_payload_table;
 
 static gboolean reassemble_smp = TRUE;
@@ -232,6 +233,7 @@ proto_register_smp(void)
     proto_register_field_array(proto_smp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_dissector("smp_tds", dissect_smp_tds, proto_smp);
+    smp_handle = register_dissector("smp", dissect_smp, proto_smp);
 
     smp_payload_table = register_decode_as_next_proto(proto_smp, "smp.payload", "SMP Payload", smp_prompt);
 
@@ -246,8 +248,6 @@ proto_register_smp(void)
 void
 proto_reg_handoff_smp(void)
 {
-    dissector_handle_t smp_handle;
-    smp_handle = create_dissector_handle(dissect_smp, proto_smp);
     dissector_add_for_decode_as_with_preference("tcp.port", smp_handle);
 
     tds_handle = find_dissector_add_dependency("tds", proto_smp);

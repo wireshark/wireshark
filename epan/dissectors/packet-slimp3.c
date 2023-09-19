@@ -21,6 +21,8 @@
 void proto_register_slimp3(void);
 void proto_reg_handoff_slimp3(void);
 
+static dissector_handle_t slimp3_handle;
+
 static int proto_slimp3 = -1;
 static int hf_slimp3_opcode = -1;
 static int hf_slimp3_control = -1;
@@ -691,14 +693,13 @@ proto_register_slimp3(void)
     proto_slimp3 = proto_register_protocol("SliMP3 Communication Protocol", "SliMP3", "slimp3");
     proto_register_field_array(proto_slimp3, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    slimp3_handle = register_dissector("slimp3", dissect_slimp3, proto_slimp3);
 }
 
 void
 proto_reg_handoff_slimp3(void)
 {
-    dissector_handle_t slimp3_handle;
-
-    slimp3_handle = create_dissector_handle(dissect_slimp3, proto_slimp3);
     dissector_add_uint_range_with_preference("udp.port", UDP_PORT_SLIMP3_RANGE, slimp3_handle);
 }
 

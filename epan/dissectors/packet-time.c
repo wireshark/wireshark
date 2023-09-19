@@ -23,6 +23,8 @@
 void proto_reg_handoff_time(void);
 void proto_register_time(void);
 
+static dissector_handle_t time_handle;
+
 static const enum_val_t time_display_types[] = {
     { "UTC", "UTC", ABSOLUTE_TIME_UTC },
     { "Local", "Local", ABSOLUTE_TIME_LOCAL},
@@ -91,6 +93,7 @@ proto_register_time(void)
     proto_time = proto_register_protocol("Time Protocol", "TIME", "time");
     proto_register_field_array(proto_time, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    time_handle = register_dissector("time", dissect_time, proto_time);
 
     time_pref = prefs_register_protocol(proto_time, NULL);
     prefs_register_enum_preference(time_pref,
@@ -105,9 +108,6 @@ proto_register_time(void)
 void
 proto_reg_handoff_time(void)
 {
-    dissector_handle_t time_handle;
-
-    time_handle = create_dissector_handle(dissect_time, proto_time);
     dissector_add_uint_with_preference("udp.port", TIME_PORT, time_handle);
     dissector_add_uint_with_preference("tcp.port", TIME_PORT, time_handle);
 }

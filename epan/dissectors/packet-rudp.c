@@ -37,6 +37,8 @@ void proto_register_rudp(void);
 
 void proto_reg_handoff_rudp(void);
 
+static dissector_handle_t rudp_handle;
+
 static int proto_rudp = -1;
 
 static int hf_rudp_flags = -1;
@@ -194,12 +196,12 @@ proto_register_rudp(void)
 
 	proto_register_field_array(proto_rudp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	rudp_handle = register_dissector("rudp", dissect_rudp, proto_rudp);
 }
 
 void
 proto_reg_handoff_rudp(void) {
-
-	dissector_handle_t rudp_handle;
 
 /* Disable rudp by default. The previously hardcoded value of
  * 7000 (used by Cisco) collides with afs and as the draft states:
@@ -210,7 +212,6 @@ proto_reg_handoff_rudp(void) {
  *        heuristic dissector, but it isn't complete anyway.
  */
 
-	rudp_handle = create_dissector_handle(dissect_rudp, proto_rudp);
 	dissector_add_for_decode_as_with_preference("udp.port", rudp_handle);
 	sm_handle = find_dissector_add_dependency("sm", proto_rudp);
 }

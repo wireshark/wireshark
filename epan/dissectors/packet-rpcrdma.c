@@ -46,6 +46,7 @@ void proto_reg_handoff_rpcordma(void);
 void proto_register_rpcordma(void);
 
 static int proto_rpcordma = -1;
+static dissector_handle_t rpcordma_handle;
 static dissector_handle_t rpc_handler;
 
 /* RPCoRDMA Header */
@@ -2047,6 +2048,9 @@ proto_register_rpcordma(void)
     proto_register_subtree_array(ett, array_length(ett));
     reassembly_table_register(&rpcordma_reassembly_table, &addresses_ports_reassembly_table_functions);
 
+    /* Register dissector handle */
+    rpcordma_handle = register_dissector("rpcordma", dissect_rpcrdma, proto_rpcordma);
+
     /* Register preferences */
     rpcordma_module = prefs_register_protocol_obsolete(proto_rpcordma);
 
@@ -2067,7 +2071,7 @@ proto_reg_handoff_rpcordma(void)
 {
     heur_dissector_add("infiniband.payload", dissect_rpcrdma_ib_heur, "RPC-over-RDMA on Infiniband",
                         "rpcrdma_infiniband", proto_rpcordma, HEURISTIC_ENABLE);
-    dissector_add_for_decode_as("infiniband", create_dissector_handle( dissect_rpcrdma, proto_rpcordma ) );
+    dissector_add_for_decode_as("infiniband", rpcordma_handle);
 
     heur_dissector_add("iwarp_ddp_rdmap", dissect_rpcrdma_iwarp_heur, "RPC-over-RDMA on iWARP",
                         "rpcrdma_iwarp", proto_rpcordma, HEURISTIC_ENABLE);

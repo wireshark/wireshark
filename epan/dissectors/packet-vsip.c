@@ -23,6 +23,8 @@
 void proto_register_vsip(void);
 void proto_reg_handoff_vsip(void);
 
+static dissector_handle_t vsip_handle;
+
 static const value_string EVsipMessageType_vals[] =
 {
    { 1, "VSIP Ping Request"},
@@ -2060,13 +2062,11 @@ void proto_register_vsip(void)
 
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_vsip, hf, array_length(hf));
+    vsip_handle = register_dissector("vsip", dissect_vsip, proto_vsip);
 }
 
 void proto_reg_handoff_vsip(void)
 {
-    dissector_handle_t vsip_handle;
-
-    vsip_handle = create_dissector_handle(dissect_vsip, proto_vsip);
     dissector_add_for_decode_as_with_preference("udp.port", vsip_handle);
     dissector_add_for_decode_as_with_preference("tcp.port", vsip_handle);
 }

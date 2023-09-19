@@ -25,6 +25,11 @@
 void proto_register_usb_hid(void);
 void proto_reg_handoff_usb_hid(void);
 
+/* Dissector handles */
+static dissector_handle_t usb_hid_control_handle;
+static dissector_handle_t usb_hid_interrupt_handle;
+static dissector_handle_t usb_hid_descr_handle;
+
 /* protocols and header fields */
 static int proto_usb_hid = -1;
 static int hf_usb_hid_item_bSize = -1;
@@ -5906,22 +5911,17 @@ proto_register_usb_hid(void)
     /*usb_hid_boot_keyboard_input_report_handle  =*/ register_dissector("usbhid.boot_report.keyboard.input",  dissect_usb_hid_boot_keyboard_input_report,  proto_usb_hid);
     /*usb_hid_boot_keyboard_output_report_handle =*/ register_dissector("usbhid.boot_report.keyboard.output", dissect_usb_hid_boot_keyboard_output_report, proto_usb_hid);
     /*usb_hid_boot_mouse_input_report_handle     =*/ register_dissector("usbhid.boot_report.mouse.input",     dissect_usb_hid_boot_mouse_input_report,     proto_usb_hid);
-
+    usb_hid_control_handle                         = register_dissector("usbhid.control", dissect_usb_hid_control, proto_usb_hid);
+    usb_hid_interrupt_handle                       = register_dissector("usbhid.data", dissect_usb_hid_data, proto_usb_hid);
+    usb_hid_descr_handle                           = register_dissector("usbhid.class_descriptors", dissect_usb_hid_class_descriptors, proto_usb_hid);
 }
 
 void
 proto_reg_handoff_usb_hid(void)
 {
-    dissector_handle_t usb_hid_control_handle, usb_hid_interrupt_handle, usb_hid_descr_handle;
-
-    usb_hid_control_handle = create_dissector_handle(dissect_usb_hid_control, proto_usb_hid);
     dissector_add_uint("usb.control", IF_CLASS_HID, usb_hid_control_handle);
     dissector_add_for_decode_as("usb.device", usb_hid_control_handle);
-
-    usb_hid_interrupt_handle = create_dissector_handle(dissect_usb_hid_data, proto_usb_hid);
     dissector_add_uint("usb.interrupt", IF_CLASS_HID, usb_hid_interrupt_handle);
-
-    usb_hid_descr_handle = create_dissector_handle(dissect_usb_hid_class_descriptors, proto_usb_hid);
     dissector_add_uint("usb.descriptor", IF_CLASS_HID, usb_hid_descr_handle);
 }
 

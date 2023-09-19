@@ -23,6 +23,8 @@
 void proto_register_tsp(void);
 void proto_reg_handoff_tsp(void);
 
+static dissector_handle_t tsp_handle;
+
 static int proto_tsp = -1;
 static int hf_tsp_type = -1;
 static int hf_tsp_vers = -1;
@@ -153,9 +155,6 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 void
 proto_reg_handoff_tsp(void)
 {
-	dissector_handle_t	tsp_handle;
-
-	tsp_handle = create_dissector_handle(dissect_tsp, proto_tsp);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_TIMED, tsp_handle);
 }
 
@@ -201,6 +200,7 @@ proto_register_tsp(void)
 					    "TSP", "tsp");
 	proto_register_field_array(proto_tsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	tsp_handle = register_dissector("tsp", dissect_tsp, proto_tsp);
 }
 
 /*

@@ -42,6 +42,8 @@
 void proto_register_sccpmg(void);
 void proto_reg_handoff_sccpmg(void);
 
+static dissector_handle_t sccpmg_handle;
+
 /* Same as below but with names typed out */
 static const value_string sccpmg_message_type_values[] = {
 	{ SCCPMG_MESSAGE_TYPE_SSA,   "SubSystem Allowed" },
@@ -337,15 +339,14 @@ proto_register_sccpmg(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_sccpmg = expert_register_protocol(proto_sccpmg);
 	expert_register_field_array(expert_sccpmg, ei, array_length(ei));
+
+	/* Register the dissector handle */
+	sccpmg_handle = register_dissector("sccpmg", dissect_sccpmg, proto_sccpmg);
 }
 
 void
 proto_reg_handoff_sccpmg(void)
 {
-	dissector_handle_t sccpmg_handle;
-
-	sccpmg_handle = create_dissector_handle(dissect_sccpmg, proto_sccpmg);
-
 	/* Register for SCCP SSN=1 messages */
 	dissector_add_uint("sccp.ssn", SCCPMG_SSN, sccpmg_handle);
 }

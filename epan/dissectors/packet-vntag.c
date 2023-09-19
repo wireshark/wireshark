@@ -18,6 +18,7 @@
 void proto_register_vntag(void);
 void proto_reg_handoff_vntag(void);
 
+static dissector_handle_t vntag_handle;
 static dissector_handle_t ethertype_handle;
 
 static int proto_vntag = -1;
@@ -165,15 +166,12 @@ proto_register_vntag(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_vntag = expert_register_protocol(proto_vntag);
 	expert_register_field_array(expert_vntag, ei, array_length(ei));
-
+	vntag_handle = register_dissector("vntag", dissect_vntag, proto_vntag);
 }
 
 void
 proto_reg_handoff_vntag(void)
 {
-	dissector_handle_t vntag_handle;
-
-	vntag_handle = create_dissector_handle(dissect_vntag, proto_vntag);
 	dissector_add_uint("ethertype", ETHERTYPE_VNTAG, vntag_handle);
 
 	ethertype_handle = find_dissector_add_dependency("ethertype", proto_vntag);

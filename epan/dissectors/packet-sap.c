@@ -28,6 +28,8 @@
 void proto_register_sap(void);
 void proto_reg_handoff_sap(void);
 
+static dissector_handle_t sap_handle;
+
 static const value_string mcast_sap_ver[] = {
     { MCAST_SAP_VER0,     "SAPv0"},
     { MCAST_SAP_VER1PLUS, "SAPv1 or later"},
@@ -363,14 +365,13 @@ void proto_register_sap(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_sap = expert_register_protocol(proto_sap);
     expert_register_field_array(expert_sap, ei, array_length(ei));
+
+    sap_handle = register_dissector("sap", dissect_sap, proto_sap);
 }
 
 void
 proto_reg_handoff_sap(void)
 {
-    dissector_handle_t sap_handle;
-
-    sap_handle = create_dissector_handle(dissect_sap, proto_sap);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_SAP, sap_handle);
 
     /*

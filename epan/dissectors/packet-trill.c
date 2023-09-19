@@ -21,6 +21,8 @@
 void proto_register_trill(void);
 void proto_reg_handoff_trill(void);
 
+static dissector_handle_t trill_handle;
+
 static int proto_trill = -1 ;
 static gint ett_trill = -1 ;
 
@@ -181,14 +183,12 @@ proto_register_trill(void)
   proto_trill = proto_register_protocol("TRILL", "TRILL", "trill");
   proto_register_field_array(proto_trill, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  trill_handle = register_dissector("trill", dissect_trill, proto_trill);
 }
 
 void
 proto_reg_handoff_trill(void)
 {
-  dissector_handle_t trill_handle;
-
-  trill_handle = create_dissector_handle(dissect_trill, proto_trill);
   dissector_add_uint("ethertype", ETHERTYPE_TRILL, trill_handle);
 
   /*

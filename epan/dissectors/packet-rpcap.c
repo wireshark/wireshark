@@ -1633,6 +1633,7 @@ proto_register_rpcap (void)
 
   proto_rpcap = proto_register_protocol (PNAME, PSNAME, PFNAME);
   register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
+  rpcap_tcp_handle = register_dissector(PFNAME ".tcp", dissect_rpcap_tcp, proto_rpcap);
   expert_rpcap = expert_register_protocol(proto_rpcap);
   expert_register_field_array(expert_rpcap, ei, array_length(ei));
 
@@ -1672,8 +1673,6 @@ proto_reg_handoff_rpcap (void)
 
     heur_dissector_add ("tcp", dissect_rpcap_heur_tcp, "RPCAP over TCP", "rpcap_tcp", proto_rpcap, HEURISTIC_ENABLE);
     heur_dissector_add ("udp", dissect_rpcap_heur_udp, "RPCAP over UDP", "rpcap_udp", proto_rpcap, HEURISTIC_ENABLE);
-
-    rpcap_tcp_handle = create_dissector_handle(dissect_rpcap_tcp, proto_rpcap);
   }
 
   info_added = FALSE;

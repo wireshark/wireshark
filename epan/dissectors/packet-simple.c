@@ -176,6 +176,7 @@ static const value_string Link11_Role[] = {
 
 static int proto_simple = -1;
 
+static dissector_handle_t simple_dissector_handle;
 static dissector_handle_t link16_handle;
 
 static gint hf_simple_sync_byte_1 = -1;
@@ -660,13 +661,11 @@ void proto_register_simple(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_simple = expert_register_protocol(proto_simple);
     expert_register_field_array(expert_simple, ei, array_length(ei));
-    register_dissector("simple", dissect_simple, proto_simple);
+    simple_dissector_handle = register_dissector("simple", dissect_simple, proto_simple);
 }
 
 void proto_reg_handoff_simple(void)
 {
-    dissector_handle_t simple_dissector_handle;
-    simple_dissector_handle = create_dissector_handle(dissect_simple, proto_simple);
     dissector_add_for_decode_as_with_preference("udp.port", simple_dissector_handle);
     dissector_add_for_decode_as_with_preference("tcp.port", simple_dissector_handle);
 

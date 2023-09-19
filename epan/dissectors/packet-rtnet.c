@@ -31,6 +31,9 @@
 void proto_register_rtmac(void);
 void proto_reg_handoff_rtmac(void);
 
+static dissector_handle_t rtmac_handle;
+static dissector_handle_t rtcfg_handle;
+
 void proto_register_rtcfg(void);
 void proto_reg_handoff_rtcfg(void);
 
@@ -1153,6 +1156,8 @@ proto_register_rtmac(void) {
   proto_register_field_array(proto_rtmac, hf_array_rtmac, array_length(hf_array_rtmac));
   proto_register_subtree_array(ett_array_rtmac, array_length(ett_array_rtmac));
 
+  rtmac_handle = register_dissector("rtmac", dissect_rtmac, proto_rtmac);
+
   proto_tdma = proto_register_protocol("TDMA RTmac Discipline", "TDMA", "tdma");
   proto_register_field_array(proto_rtmac, hf_array_tdma, array_length(hf_array_tdma));
   proto_register_subtree_array(ett_array_tdma, array_length(ett_array_tdma));
@@ -1314,25 +1319,21 @@ proto_register_rtcfg(void) {
   proto_rtcfg = proto_register_protocol("RTcfg","RTcfg","rtcfg");
   proto_register_field_array(proto_rtcfg,hf,array_length(hf));
   proto_register_subtree_array(ett,array_length(ett));
+
+  rtcfg_handle = register_dissector("rtcfg", dissect_rtcfg, proto_rtcfg);
 }
 
 /* The registration hand-off routing */
 
 void
 proto_reg_handoff_rtmac(void) {
-  dissector_handle_t rtmac_handle;
-
-  rtmac_handle = create_dissector_handle(dissect_rtmac, proto_rtmac);
   dissector_add_uint("ethertype", ETHERTYPE_RTMAC, rtmac_handle);
   ethertype_table = find_dissector_table("ethertype");
 }
 
 void
 proto_reg_handoff_rtcfg(void) {
-  dissector_handle_t rtcfg_handle;
-
   data_handle = find_dissector("data");
-  rtcfg_handle = create_dissector_handle(dissect_rtcfg, proto_rtcfg);
   dissector_add_uint("ethertype", ETHERTYPE_RTCFG, rtcfg_handle);
 }
 

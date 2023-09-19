@@ -119,6 +119,8 @@ static expert_field ei_invalid_num_sessions = EI_INIT;
 void proto_register_tpm20(void);
 void proto_reg_handoff_tpm20(void);
 
+static dissector_handle_t tpm20_handle;
+
 #define TCP_TPM_PORT_PLATFORM_PORT    2321
 #define TCP_TPM_PORT_COMMAND_PORT     2322
 #define TCP_TPM_PORTS    "2321-2322"
@@ -1379,14 +1381,12 @@ proto_register_tpm20(void)
 	expert_module_t* expert_mod = expert_register_protocol(proto_tpm20);
 	expert_register_field_array(expert_mod, ei, array_length(ei));
 	register_init_routine(tpm_init);
+	tpm20_handle = register_dissector("tpm", dissect_tpm20, proto_tpm20);
 }
 
 void
 proto_reg_handoff_tpm20(void)
 {
-	dissector_handle_t tpm20_handle;
-
-	tpm20_handle = create_dissector_handle(dissect_tpm20, proto_tpm20);
 	dissector_add_uint_range_with_preference("tcp.port", TCP_TPM_PORTS, tpm20_handle);
 }
 

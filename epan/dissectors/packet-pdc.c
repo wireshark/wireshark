@@ -40,6 +40,9 @@ void proto_reg_handoff_pdc(void);
 #define PDC_MSG_SIZE_FIELD_LENGTH 2 /* minimum amount of data to find out how big the split packet should be when recombined */
 #define FRAME_HEADER_LEN 8
 
+/* global handle for our dissector */
+static dissector_handle_t pdc_tcp_handle;
+
 /* global handle for calling asterix decoder if required */
 static dissector_handle_t asterix_handle;
 
@@ -563,16 +566,15 @@ void proto_register_pdc(void)
 	/*Required Function Calls to register the header fields and subtrees used*/
 	proto_register_field_array(proto_pdc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register our dissector handle */
+	pdc_tcp_handle = register_dissector("pdc", tcp_dissect_pdc, proto_pdc);
 }
 
 /* Function to add pdc dissector to tcp.port dissector table and to get handle for asterix dissector */
 void proto_reg_handoff_pdc(void)
 {
-	dissector_handle_t pdc_tcp_handle;
-
 	asterix_handle = find_dissector_add_dependency("asterix", proto_pdc);
-	pdc_tcp_handle = create_dissector_handle(tcp_dissect_pdc, proto_pdc);
-
 	dissector_add_for_decode_as_with_preference("tcp.port", pdc_tcp_handle);
 }
 

@@ -25,6 +25,8 @@
 void proto_reg_handoff_teimanagement(void);
 void proto_register_teimanagement(void);
 
+static dissector_handle_t teimanagement_handle;
+
 static int proto_tei=-1;
 
 static int lm_entity_id=-1;
@@ -115,15 +117,13 @@ proto_register_teimanagement(void)
                                          "TEI_MANAGEMENT", "tei_management");
     proto_register_field_array (proto_tei, hf, array_length(hf));
     proto_register_subtree_array(subtree, array_length(subtree));
+
+    teimanagement_handle = register_dissector("tei_management", dissect_teimanagement, proto_tei);
 }
 
 void
 proto_reg_handoff_teimanagement(void)
 {
-    dissector_handle_t teimanagement_handle;
-
-    teimanagement_handle = create_dissector_handle(dissect_teimanagement,
-        proto_tei);
     dissector_add_uint("lapd.sapi", LAPD_SAPI_L2, teimanagement_handle);
 }
 

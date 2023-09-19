@@ -114,6 +114,8 @@ static int hf_ccid_bIFSC = -1;
 static int hf_ccid_bNadValue = -1;
 
 static dissector_handle_t usb_ccid_handle;
+static dissector_handle_t usb_ccid_descr_handle;
+
 
 static int * const bVoltageLevel_fields[] = {
     &hf_ccid_bVoltageSupport18,
@@ -1018,6 +1020,7 @@ proto_register_ccid(void)
     prefs_register_obsolete_preference(pref_mod, "prtype");
 
     usb_ccid_handle = register_dissector("usbccid", dissect_ccid, proto_ccid);
+    usb_ccid_descr_handle = register_dissector("usbccid.descriptor", dissect_usb_ccid_descriptor, proto_ccid);
 
     subdissector_table = register_decode_as_next_proto(proto_ccid, "usbccid.subdissector", "USB CCID payload", NULL);
 }
@@ -1026,10 +1029,6 @@ proto_register_ccid(void)
 void
 proto_reg_handoff_ccid(void)
 {
-    dissector_handle_t usb_ccid_descr_handle;
-
-    usb_ccid_descr_handle = create_dissector_handle(
-            dissect_usb_ccid_descriptor, proto_ccid);
     dissector_add_uint("usb.descriptor", IF_CLASS_SMART_CARD, usb_ccid_descr_handle);
 
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_handle);

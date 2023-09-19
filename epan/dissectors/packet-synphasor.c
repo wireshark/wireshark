@@ -174,6 +174,7 @@ static expert_field ei_synphasor_data_error		= EI_INIT;
 static expert_field ei_synphasor_pmu_not_sync		= EI_INIT;
 
 static dissector_handle_t synphasor_udp_handle;
+static dissector_handle_t synphasor_tcp_handle;
 
 /* the different frame types for this protocol */
 enum FrameType {
@@ -2346,6 +2347,7 @@ void proto_register_synphasor(void)
 
 	/* Registering protocol to be called by another dissector */
 	synphasor_udp_handle = register_dissector("synphasor", dissect_udp, proto_synphasor);
+	synphasor_tcp_handle = register_dissector("synphasor.tcp", dissect_tcp, proto_synphasor);
 
 	proto_register_field_array(proto_synphasor, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -2357,13 +2359,9 @@ void proto_register_synphasor(void)
 /* called at startup and when the preferences change */
 void proto_reg_handoff_synphasor(void)
 {
-	dissector_handle_t synphasor_tcp_handle;
-
-	synphasor_tcp_handle = create_dissector_handle(dissect_tcp, proto_synphasor);
 	dissector_add_for_decode_as("rtacser.data", synphasor_udp_handle);
 	dissector_add_uint_with_preference("udp.port", SYNPHASOR_UDP_PORT, synphasor_udp_handle);
 	dissector_add_uint_with_preference("tcp.port", SYNPHASOR_TCP_PORT, synphasor_tcp_handle);
-
 } /* proto_reg_handoff_synphasor() */
 
 /*

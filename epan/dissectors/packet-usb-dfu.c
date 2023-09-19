@@ -53,6 +53,8 @@ static expert_field ei_descriptor_invalid_length = EI_INIT;
 static expert_field ei_invalid_command_for_request_type = EI_INIT;
 
 static dissector_handle_t usb_dfu_handle;
+static dissector_handle_t usf_dfu_descriptor_handle;
+
 
 static wmem_tree_t *command_info = NULL;
 
@@ -541,6 +543,7 @@ proto_register_usb_dfu(void)
     proto_register_field_array(proto_usb_dfu, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     usb_dfu_handle = register_dissector("usb_dfu", dissect_usb_dfu, proto_usb_dfu);
+    usf_dfu_descriptor_handle = register_dissector("usb_dfu.descriptor", dissect_usb_dfu_descriptor, proto_usb_dfu);
 
     expert_module = expert_register_protocol(proto_usb_dfu);
     expert_register_field_array(expert_module, ei, array_length(ei));
@@ -557,9 +560,6 @@ proto_register_usb_dfu(void)
 void
 proto_reg_handoff_usb_dfu(void)
 {
-    dissector_handle_t  usf_dfu_descriptor_handle;
-
-    usf_dfu_descriptor_handle = create_dissector_handle(dissect_usb_dfu_descriptor, proto_usb_dfu);
     dissector_add_uint("usb.descriptor", IF_CLASS_APPLICATION_SPECIFIC, usf_dfu_descriptor_handle);
 
     dissector_add_uint("usb.control", RUNTIME_KEY, usb_dfu_handle);

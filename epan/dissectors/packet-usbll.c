@@ -28,6 +28,11 @@
 void proto_register_usbll(void);
 void proto_reg_handoff_usbll(void);
 
+static dissector_handle_t unknown_speed_handle;
+static dissector_handle_t low_speed_handle;
+static dissector_handle_t full_speed_handle;
+static dissector_handle_t high_speed_handle;
+
 static int proto_usbll = -1;
 
 /* Fields defined by USB 2.0 standard */
@@ -2700,7 +2705,10 @@ proto_register_usbll(void)
         "Use specified speed if speed is not indicated in capture",
         &global_dissect_unknown_speed_as, dissect_unknown_speed_as, FALSE);
 
-    register_dissector("usbll", dissect_usbll_unknown_speed, proto_usbll);
+    unknown_speed_handle = register_dissector("usbll", dissect_usbll_unknown_speed, proto_usbll);
+    low_speed_handle = register_dissector("usbll.low_speed", dissect_usbll_low_speed, proto_usbll);
+    full_speed_handle = register_dissector("usbll.full_speed", dissect_usbll_full_speed, proto_usbll);
+    high_speed_handle = register_dissector("usbll.high_speed", dissect_usbll_high_speed, proto_usbll);
     register_cleanup_routine(usbll_cleanup_data);
 
     usbll_address_type = address_type_dissector_register("AT_USBLL", "USBLL Address",
@@ -2713,11 +2721,6 @@ proto_register_usbll(void)
 void
 proto_reg_handoff_usbll(void)
 {
-    dissector_handle_t unknown_speed_handle = create_dissector_handle(dissect_usbll_unknown_speed, proto_usbll);
-    dissector_handle_t low_speed_handle = create_dissector_handle(dissect_usbll_low_speed, proto_usbll);
-    dissector_handle_t full_speed_handle = create_dissector_handle(dissect_usbll_full_speed, proto_usbll);
-    dissector_handle_t high_speed_handle = create_dissector_handle(dissect_usbll_high_speed, proto_usbll);
-
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_2_0, unknown_speed_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_2_0_LOW_SPEED, low_speed_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_2_0_FULL_SPEED, full_speed_handle);

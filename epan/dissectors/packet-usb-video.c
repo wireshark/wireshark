@@ -200,6 +200,11 @@ void proto_reg_handoff_usb_vid(void);
 #define USB_SETUP_GET_RES_ALL       0x94    /* UVC 1.5 */
 #define USB_SETUP_GET_DEF_ALL       0x97    /* UVC 1.5 */
 
+/* dissector handles */
+static dissector_handle_t usb_vid_control_handle;
+static dissector_handle_t usb_vid_descriptor_handle;
+static dissector_handle_t usb_vid_interrupt_handle;
+
 /* protocols and header fields */
 static int proto_usb_vid = -1;
 
@@ -3234,22 +3239,17 @@ proto_register_usb_vid(void)
     proto_register_subtree_array(usb_vid_subtrees, array_length(usb_vid_subtrees));
     expert_usb_vid = expert_register_protocol(proto_usb_vid);
     expert_register_field_array(expert_usb_vid, ei, array_length(ei));
+
+    usb_vid_control_handle = register_dissector("usbvideo.control", dissect_usb_vid_control, proto_usb_vid);
+    usb_vid_descriptor_handle = register_dissector("usbvideo.descriptor", dissect_usb_vid_descriptor, proto_usb_vid);
+    usb_vid_interrupt_handle = register_dissector("usbvideo.interrupt", dissect_usb_vid_interrupt, proto_usb_vid);
 }
 
 void
 proto_reg_handoff_usb_vid(void)
 {
-    dissector_handle_t usb_vid_control_handle;
-    dissector_handle_t usb_vid_descriptor_handle;
-    dissector_handle_t usb_vid_interrupt_handle;
-
-    usb_vid_control_handle = create_dissector_handle(dissect_usb_vid_control, proto_usb_vid);
     dissector_add_uint("usb.control", IF_CLASS_VIDEO, usb_vid_control_handle);
-
-    usb_vid_descriptor_handle = create_dissector_handle(dissect_usb_vid_descriptor, proto_usb_vid);
     dissector_add_uint("usb.descriptor", IF_CLASS_VIDEO, usb_vid_descriptor_handle);
-
-    usb_vid_interrupt_handle = create_dissector_handle(dissect_usb_vid_interrupt, proto_usb_vid);
     dissector_add_uint("usb.interrupt", IF_CLASS_VIDEO, usb_vid_interrupt_handle);
 }
 /*

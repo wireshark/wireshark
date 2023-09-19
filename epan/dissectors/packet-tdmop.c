@@ -24,6 +24,8 @@
 void proto_register_tdmop(void);
 void proto_reg_handoff_tdmop(void);
 
+static dissector_handle_t tdmop_handle;
+
 static int proto_tdmop    = -1;
 static gint ett_tdmop     = -1;
 static gint ett_tdmop_channel    = -1;
@@ -303,6 +305,7 @@ void proto_register_tdmop(void)
     proto_tdmop = proto_register_protocol ("TDMoP protocol", "TDMoP", "tdmop");
     proto_register_field_array(proto_tdmop, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    tdmop_handle = register_dissector("tdmop", dissect_tdmop, proto_tdmop);
     tdmop_module = prefs_register_protocol(proto_tdmop, proto_reg_handoff_tdmop);
     prefs_register_uint_preference(tdmop_module, "d_channel",
                     "TDMoP D-Channel",
@@ -320,12 +323,10 @@ void proto_register_tdmop(void)
 
 void proto_reg_handoff_tdmop(void)
 {
-    static dissector_handle_t tdmop_handle;
     static gboolean init = FALSE;
     static guint32 current_tdmop_ethertype;
     if (!init)
     {
-        tdmop_handle = create_dissector_handle(dissect_tdmop, proto_tdmop);
         dissector_add_for_decode_as_with_preference("udp.port", tdmop_handle);
 
         if (pref_tdmop_ethertype) {

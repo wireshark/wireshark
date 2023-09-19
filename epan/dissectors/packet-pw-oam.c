@@ -19,6 +19,8 @@
 void proto_register_pw_oam(void);
 void proto_reg_handoff_pw_oam(void);
 
+static dissector_handle_t pw_oam_handle;
+
 /* MPLS-TP FM protocol specific variables */
 static gint proto_pw_oam             = -1;
 static gint ett_pw_oam               = -1;
@@ -188,14 +190,13 @@ proto_register_pw_oam(void)
 
   proto_register_field_array (proto_pw_oam, hf, array_length(hf));
   proto_register_subtree_array (ett, array_length(ett));
+
+  pw_oam_handle = register_dissector ("pw_oam",  dissect_pw_oam, proto_pw_oam);
 }
 
 void
 proto_reg_handoff_pw_oam(void)
 {
-  dissector_handle_t pw_oam_handle;
-
-  pw_oam_handle = create_dissector_handle( dissect_pw_oam, proto_pw_oam );
   dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_PW_OAM, pw_oam_handle);
 }
 

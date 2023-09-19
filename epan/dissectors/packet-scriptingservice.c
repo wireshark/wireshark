@@ -21,6 +21,8 @@
 void proto_register_ssprotocol(void);
 void proto_reg_handoff_ssprotocol(void);
 
+static dissector_handle_t ssprotocol_handle;
+
 #define SSPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097604
 
 
@@ -466,15 +468,15 @@ proto_register_ssprotocol(void)
   proto_register_subtree_array(ett, array_length(ett));
   tap_ssprotocol = register_tap("ssprotocol");
 
+  /* Register the dissector handle */
+  ssprotocol_handle = register_dissector("ssp", dissect_ssprotocol, proto_ssprotocol);
+
   register_stat_tap_table_ui(&ssprotocol_stat_table);
 }
 
 void
 proto_reg_handoff_ssprotocol(void)
 {
-  dissector_handle_t ssprotocol_handle;
-
-  ssprotocol_handle = create_dissector_handle(dissect_ssprotocol, proto_ssprotocol);
   dissector_add_uint("sctp.ppi", SSPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY, ssprotocol_handle);
   dissector_add_uint("sctp.ppi", SSP_PAYLOAD_PROTOCOL_ID, ssprotocol_handle);
 }

@@ -25,6 +25,7 @@
 # define SAPID_UDOP	7
 
 /* Forward reference */
+static dissector_handle_t s5066_tcp_handle;
 /* Register functions */
 void proto_register_s5066(void);
 void proto_reg_handoff_s5066(void);
@@ -1413,6 +1414,8 @@ proto_register_s5066(void)
 	proto_register_field_array(proto_s5066, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	s5066_tcp_handle = register_dissector("s5066sis", dissect_s5066_tcp, proto_s5066);
+
 	s5066_module = prefs_register_protocol(proto_s5066, proto_reg_handoff_s5066);
 	prefs_register_bool_preference(s5066_module, "desegment_pdus",
 				       "Reassemble S5066 SIS PDUs spanning multiple TCP segments",
@@ -1433,10 +1436,8 @@ void
 proto_reg_handoff_s5066(void)
 {
 	static gboolean Initialized = FALSE;
-	static dissector_handle_t s5066_tcp_handle;
 
 	if (!Initialized) {
-		s5066_tcp_handle = create_dissector_handle(dissect_s5066_tcp, proto_s5066);
 		dissector_add_uint_with_preference("tcp.port", S5066_PORT, s5066_tcp_handle);
 		Initialized = TRUE;
 	}

@@ -41,6 +41,7 @@ static int hf_swipe_authenticator  = -1;
 /* Initialize the subtree pointers */
 static gint ett_swipe              = -1;
 
+static dissector_handle_t swipe_handle;
 static dissector_handle_t ipv6_handle;
 
 static int
@@ -104,6 +105,9 @@ proto_register_swipe(void)
     /* Register the protocol name and description */
     proto_swipe = proto_register_protocol("swIPe IP Security Protocol", "swIPe", "swipe");
 
+    /* Register the dissector handle */
+    swipe_handle = register_dissector("swipe", dissect_swipe, proto_swipe);
+
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_swipe, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -112,9 +116,6 @@ proto_register_swipe(void)
 void
 proto_reg_handoff_swipe(void)
 {
-    dissector_handle_t swipe_handle;
-
-    swipe_handle = create_dissector_handle(dissect_swipe, proto_swipe );
     dissector_add_uint("ip.proto", IP_PROTO_SWIPE, swipe_handle);
 
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_swipe );

@@ -22,6 +22,8 @@
 void proto_reg_handoff_tdmoe(void);
 void proto_register_tdmoe(void);
 
+static dissector_handle_t tdmoe_handle;
+
 /* protocols and header fields */
 static int proto_tdmoe = -1;
 
@@ -151,6 +153,7 @@ proto_register_tdmoe(void)
 	proto_tdmoe = proto_register_protocol("Digium TDMoE Protocol", "TDMoE", "tdmoe");
 	proto_register_field_array(proto_tdmoe, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	tdmoe_handle = register_dissector("tdmoe", dissect_tdmoe, proto_tdmoe);
 	tdmoe_module = prefs_register_protocol(proto_tdmoe, NULL);
 	prefs_register_uint_preference(tdmoe_module, "d_channel",
 				       "TDMoE D-Channel",
@@ -161,9 +164,6 @@ proto_register_tdmoe(void)
 void
 proto_reg_handoff_tdmoe(void)
 {
-	dissector_handle_t tdmoe_handle;
-
-	tdmoe_handle = create_dissector_handle(dissect_tdmoe, proto_tdmoe);
 	dissector_add_uint("ethertype", ETHERTYPE_TDMOE, tdmoe_handle);
 
 	lapd_handle = find_dissector_add_dependency("lapd-bitstream", proto_tdmoe);

@@ -381,7 +381,7 @@ proto_register_rip(void)
 
     prefs_register_bool_preference(rip_module, "display_routing_domain", "Display Routing Domain field", "Display the third and forth bytes of the RIPv2 header as the Routing Domain field (introduced in RFC 1388 [January 1993] and obsolete as of RFC 1723 [November 1994])", &pref_display_routing_domain);
 
-    rip_handle = create_dissector_handle(dissect_rip, proto_rip);
+    rip_handle = register_dissector("rip", dissect_rip, proto_rip);
 }
 
 void

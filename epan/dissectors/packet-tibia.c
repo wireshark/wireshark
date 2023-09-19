@@ -109,6 +109,9 @@
 
 void proto_register_tibia(void);
 void proto_reg_handoff_tibia(void);
+static int dissect_tibia_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
+
+static dissector_handle_t tibia_handle;
 
 /* preferences */
 static gboolean try_otserv_key          = TRUE,
@@ -2603,6 +2606,7 @@ proto_register_tibia(void)
             );
     proto_register_field_array(proto_tibia, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    tibia_handle = register_dissector("tibia", dissect_tibia_tcp, proto_tibia);
 
     expert_module_t *expert_tibia = expert_register_protocol(proto_tibia);
     expert_register_field_array (expert_tibia, ei, array_length (ei));
@@ -2731,8 +2735,6 @@ dissect_tibia_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void
 proto_reg_handoff_tibia(void)
 {
-    dissector_handle_t tibia_handle = create_dissector_handle(dissect_tibia_tcp, proto_tibia);
-
     dissector_add_uint_range_with_preference("tcp.port", TIBIA_DEFAULT_TCP_PORT_RANGE, tibia_handle);
 }
 

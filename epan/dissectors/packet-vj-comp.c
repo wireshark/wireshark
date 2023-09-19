@@ -87,6 +87,8 @@ typedef struct vjc_conv_s {
     wmem_map_t *vals;           // Hash of frame_number => vjc_hdr_t*
 } vjc_conv_t;
 
+static dissector_handle_t vjcu_handle;
+static dissector_handle_t vjcc_handle;
 static dissector_handle_t ip_handle;
 
 void proto_register_vjc(void);
@@ -841,6 +843,8 @@ proto_register_vjc(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_vjc = expert_register_protocol(proto_vjc);
     expert_register_field_array(expert_vjc, ei, array_length(ei));
+    vjcc_handle = register_dissector("vjc_compressed", dissect_vjc_comp, proto_vjc);
+    vjcu_handle = register_dissector("vjc_uncompressed", dissect_vjc_uncomp, proto_vjc);
 
     register_init_routine(&vjc_init_protocol);
     register_cleanup_routine(&vjc_cleanup_protocol);
@@ -849,15 +853,9 @@ proto_register_vjc(void)
 void
 proto_reg_handoff_vjc(void)
 {
-    dissector_handle_t vjcu_handle;
-    dissector_handle_t vjcc_handle;
-
     ip_handle = find_dissector("ip");
 
-    vjcc_handle = create_dissector_handle(dissect_vjc_comp, proto_vjc);
     dissector_add_uint("ppp.protocol", PPP_VJC_COMP, vjcc_handle);
-
-    vjcu_handle = create_dissector_handle(dissect_vjc_uncomp, proto_vjc);
     dissector_add_uint("ppp.protocol", PPP_VJC_UNCOMP, vjcu_handle);
 }
 

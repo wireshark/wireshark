@@ -477,6 +477,8 @@ typedef struct solaredge_conversion_data {
 void proto_reg_handoff_solaredge(void);
 void proto_register_solaredge(void);
 
+static dissector_handle_t solaredge_handle;
+
 static gboolean global_show_unknown_fields = TRUE;
 
 static expert_field ei_solaredge_invalid_length = EI_INIT;
@@ -1357,8 +1359,6 @@ dissect_solaredge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void 
 void
 proto_reg_handoff_solaredge(void)
 {
-	dissector_handle_t solaredge_handle;
-	solaredge_handle = create_dissector_handle(dissect_solaredge, proto_solaredge);
 	dissector_add_for_decode_as("tcp.port", solaredge_handle);
 }
 
@@ -1658,6 +1658,7 @@ proto_register_solaredge(void)
 		"SolarEdge",
 		"solaredge"
 	);
+	solaredge_handle = register_dissector("solaredge", dissect_solaredge, proto_solaredge);
 
 	module_t * module_solaredge = prefs_register_protocol(proto_solaredge, NULL);
 	prefs_register_bool_preference(module_solaredge, "unknown", "Show unknown fields", "Show unidentified fields (\"padding\") in packet dissections", &global_show_unknown_fields);

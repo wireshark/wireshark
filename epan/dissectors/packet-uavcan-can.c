@@ -52,6 +52,8 @@ struct uavcan_proto_data
 void proto_register_uavcan(void);
 void proto_reg_handoff_uavcan(void);
 
+static dissector_handle_t uavcan_handle;
+
 static int proto_uavcan = -1;
 
 static int hf_uavcan_can_id = -1;
@@ -622,6 +624,8 @@ proto_register_uavcan(void)
     proto_register_field_array(proto_uavcan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    uavcan_handle = register_dissector("uavcan_can", dissect_uavcan, proto_uavcan);
+
     expert_uavcan = expert_register_protocol(proto_uavcan);
     expert_register_field_array(expert_uavcan, ei, array_length(ei));
 
@@ -634,10 +638,6 @@ proto_register_uavcan(void)
 void
 proto_reg_handoff_uavcan(void)
 {
-    dissector_handle_t uavcan_handle;
-
-    uavcan_handle = create_dissector_handle(dissect_uavcan, proto_uavcan);
-
     dsdl_message_handle = find_dissector_add_dependency("uavcan_dsdl.message", proto_uavcan);
     dsdl_request_handle = find_dissector_add_dependency("uavcan_dsdl.request", proto_uavcan);
     dsdl_response_handle = find_dissector_add_dependency("uavcan_dsdl.response", proto_uavcan);

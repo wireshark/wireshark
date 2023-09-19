@@ -683,6 +683,8 @@ proto_register_starteam(void)
   proto_register_field_array(proto_starteam, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  starteam_tcp_handle = register_dissector("starteam", dissect_starteam_tcp, proto_starteam);
+
   starteam_module = prefs_register_protocol(proto_starteam, NULL);
   prefs_register_bool_preference(starteam_module, "desegment",
     "Reassemble StarTeam messages spanning multiple TCP segments",
@@ -696,7 +698,6 @@ void
 proto_reg_handoff_starteam(void)
 {
   heur_dissector_add("tcp", dissect_starteam_heur, "StarTeam over TCP", "starteam_tcp", proto_starteam, HEURISTIC_ENABLE);
-  starteam_tcp_handle = create_dissector_handle(dissect_starteam_tcp, proto_starteam);
 }
 
 /*

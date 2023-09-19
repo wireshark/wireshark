@@ -70,6 +70,8 @@
 void proto_reg_handoff_riemann(void);
 void proto_register_riemann(void);
 
+static dissector_handle_t riemann_udp_handle, riemann_tcp_handle;
+
 static int proto_riemann = -1;
 static int hf_riemann_msg_ok = -1;
 static int hf_riemann_msg_error = -1;
@@ -807,15 +809,14 @@ proto_register_riemann(void)
 
     proto_register_field_array(proto_riemann, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    riemann_udp_handle = register_dissector("riemann.udp", dissect_riemann_udp, proto_riemann);
+    riemann_tcp_handle = register_dissector("riemann.tcp", dissect_riemann_tcp, proto_riemann);
 }
 
 void
 proto_reg_handoff_riemann(void)
 {
-    dissector_handle_t riemann_udp_handle, riemann_tcp_handle;
-
-    riemann_udp_handle = create_dissector_handle(dissect_riemann_udp, proto_riemann);
-    riemann_tcp_handle = create_dissector_handle(dissect_riemann_tcp, proto_riemann);
     dissector_add_for_decode_as_with_preference("tcp.port", riemann_tcp_handle);
     dissector_add_for_decode_as_with_preference("udp.port", riemann_udp_handle);
 }

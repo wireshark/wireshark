@@ -60,6 +60,9 @@ void proto_register_s5066dts(void);
 
 static gint proto_s5066dts = -1;
 
+static dissector_handle_t s5066dts_handle;
+static dissector_handle_t s5066dts_over_tcp_handle;
+
 /* Configuration parameters */
 static gboolean config_proto_desegment = TRUE;
 
@@ -1325,7 +1328,8 @@ void proto_register_s5066dts (void)
         proto_register_subtree_array(ett, array_length(ett));
         expert_s5066dts = expert_register_protocol(proto_s5066dts);
         expert_register_field_array(expert_s5066dts, ei, array_length(ei));
-        register_dissector(DISSECTOR_NAME, dissect_s5066dts_tcp, proto_s5066dts);
+        s5066dts_handle = register_dissector(DISSECTOR_NAME ".raw", dissect_s5066dts_raw, proto_s5066dts);
+        s5066dts_over_tcp_handle = register_dissector(DISSECTOR_NAME, dissect_s5066dts_tcp, proto_s5066dts);
     }
 
     s5066dts_module = prefs_register_protocol(proto_s5066dts, apply_s5066dts_prefs);
@@ -1339,13 +1343,7 @@ void proto_register_s5066dts (void)
 /* Routine that will be called when s5066dts is handing off to the next dissector */
 void proto_reg_handoff_s5066dts(void)
 {
-    dissector_handle_t s5066dts_handle;
-    dissector_handle_t s5066dts_over_tcp_handle;
-
-    s5066dts_handle = create_dissector_handle(dissect_s5066dts_raw, proto_s5066dts);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_STANAG_5066_D_PDU, s5066dts_handle);
-    s5066dts_over_tcp_handle = create_dissector_handle(dissect_s5066dts_tcp, proto_s5066dts);
-
     dissector_add_for_decode_as_with_preference("tcp.port", s5066dts_over_tcp_handle);
     apply_s5066dts_prefs();
 }

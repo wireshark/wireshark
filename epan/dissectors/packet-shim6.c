@@ -24,6 +24,8 @@
 void proto_register_shim6(void);
 void proto_reg_handoff_shim6(void);
 
+static dissector_handle_t shim6_handle;
+
 /* SHIM6 header */
 struct ip6_shim {
     guint8  ip6s_nxt; /* next header */
@@ -852,14 +854,12 @@ proto_register_shim6(void)
     proto_register_subtree_array(ett_shim6, array_length(ett_shim6));
     expert_shim6 = expert_register_protocol(proto_shim6);
     expert_register_field_array(expert_shim6, ei_shim6, array_length(ei_shim6));
+    shim6_handle = register_dissector("shim6", dissect_shim6, proto_shim6);
 }
 
 void
 proto_reg_handoff_shim6(void)
 {
-    dissector_handle_t shim6_handle;
-
-    shim6_handle = create_dissector_handle(dissect_shim6, proto_shim6);
     dissector_add_uint("ip.proto", IP_PROTO_SHIM6, shim6_handle);
 }
 

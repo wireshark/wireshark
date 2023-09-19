@@ -439,6 +439,7 @@ static int hf_smcr_rmbe_ctrl_peer_abnormal_close = -1;
 void proto_register_smcr(void);
 void proto_reg_handoff_smcr(void);
 static dissector_handle_t smc_tcp_handle;
+static dissector_handle_t smc_infiniband_handle;
 
 static void
 disect_smc_uncompress_size(proto_item* ti, guint size, guint max_valid)
@@ -2559,6 +2560,7 @@ proto_register_smcr(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	smc_tcp_handle = register_dissector("smc", dissect_smc_tcp, proto_smc);
+	smc_infiniband_handle = register_dissector("smc.infiniband", dissect_smcr_infiniband, proto_smc);
 }
 
 void
@@ -2566,7 +2568,7 @@ proto_reg_handoff_smcr(void)
 {
 	heur_dissector_add("tcp", dissect_smc_tcp_heur, "Shared Memory Communications over TCP", "smc_tcp", proto_smc, HEURISTIC_ENABLE);
 	heur_dissector_add("infiniband.payload", dissect_smcr_infiniband_heur, "Shared Memory Communications Infiniband", "smcr_infiniband", proto_smc, HEURISTIC_ENABLE);
-	dissector_add_for_decode_as("infiniband", create_dissector_handle( dissect_smcr_infiniband, proto_smc ) );
+	dissector_add_for_decode_as("infiniband", smc_infiniband_handle);
 }
 
 /*

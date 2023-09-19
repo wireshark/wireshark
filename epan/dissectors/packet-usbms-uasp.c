@@ -20,6 +20,9 @@ void proto_reg_handoff_uasp(void);
 
 #define IF_PROTOCOL_UAS 0x62
 
+static dissector_handle_t uasp_descriptor_handle;
+static dissector_handle_t uasp_bulk_handle;
+
 static int proto_uasp = -1;
 
 static int hf_pipe_usage_descr_pipe_id = -1;
@@ -616,17 +619,14 @@ proto_register_uasp(void)
     proto_uasp = proto_register_protocol("USB Attached SCSI", "UASP", "uasp");
     proto_register_field_array(proto_uasp, hf, array_length(hf));
     proto_register_subtree_array(uasp_subtrees, array_length(uasp_subtrees));
+
+    uasp_descriptor_handle = register_dissector("uasp", dissect_uasp_descriptor, proto_uasp);
+    uasp_bulk_handle = register_dissector("uasp.bulk", dissect_uasp_bulk, proto_uasp);
 }
 
 void
 proto_reg_handoff_uasp(void)
 {
-    dissector_handle_t uasp_descriptor_handle;
-    dissector_handle_t uasp_bulk_handle;
-
-    uasp_descriptor_handle = create_dissector_handle(dissect_uasp_descriptor, proto_uasp);
     dissector_add_uint("usbms.descriptor", IF_PROTOCOL_UAS, uasp_descriptor_handle);
-
-    uasp_bulk_handle = create_dissector_handle(dissect_uasp_bulk, proto_uasp);
     dissector_add_uint("usbms.bulk", IF_PROTOCOL_UAS, uasp_bulk_handle);
 }

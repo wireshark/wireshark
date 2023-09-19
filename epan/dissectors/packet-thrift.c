@@ -70,6 +70,7 @@ void proto_reg_handoff_thrift(void);
     } } while (0)
 
 static dissector_handle_t thrift_handle;
+static dissector_handle_t thrift_http_handle;
 static gboolean framed_desegment = TRUE;
 static guint thrift_tls_port = 0;
 
@@ -3516,6 +3517,7 @@ proto_register_thrift(void)
 
     /* register dissector */
     thrift_handle = register_dissector("thrift", dissect_thrift_transport, proto_thrift);
+    thrift_http_handle = register_dissector("thrift.http", dissect_thrift_heur, proto_thrift);
 
     thrift_module = prefs_register_protocol(proto_thrift, proto_reg_handoff_thrift);
 
@@ -3561,10 +3563,7 @@ void
 proto_reg_handoff_thrift(void)
 {
     static guint saved_thrift_tls_port;
-    static dissector_handle_t thrift_http_handle;
     static gboolean thrift_initialized = FALSE;
-
-    thrift_http_handle = create_dissector_handle(dissect_thrift_heur, proto_thrift);
 
     if (!thrift_initialized) {
         thrift_initialized = TRUE;

@@ -39,6 +39,7 @@ static int hf_usbms_bot_maxlun = -1;
 static gint ett_usbms_bot = -1;
 
 static dissector_handle_t usbms_bot_bulk_handle;
+static dissector_handle_t usbms_bot_control_handle;
 
 /* there is one such structure for each masstorage conversation */
 typedef struct _usbms_bot_conv_info_t {
@@ -510,16 +511,13 @@ proto_register_usbms_bot(void)
     proto_register_subtree_array(usbms_bot_subtrees, array_length(usbms_bot_subtrees));
 
     usbms_bot_bulk_handle = register_dissector("usbms", dissect_usbms_bot_bulk, proto_usbms_bot);
+    usbms_bot_control_handle = register_dissector("usbms.control", dissect_usbms_bot_control, proto_usbms_bot);
 }
 
 void
 proto_reg_handoff_usbms_bot(void)
 {
-    dissector_handle_t usbms_bot_control_handle;
-
     dissector_add_uint("usbms.bulk", IF_PROTOCOL_BULK_ONLY, usbms_bot_bulk_handle);
-
-    usbms_bot_control_handle = create_dissector_handle(dissect_usbms_bot_control, proto_usbms_bot);
     dissector_add_uint("usbms.control", IF_PROTOCOL_BULK_ONLY, usbms_bot_control_handle);
 
     heur_dissector_add("usb.bulk", dissect_usbms_bot_bulk_heur,

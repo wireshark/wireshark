@@ -523,6 +523,7 @@ proto_register_soupbintcp(void)
     module_t *soupbintcp_module;
 
     proto_soupbintcp = proto_register_protocol("SoupBinTCP", "SoupBinTCP", "soupbintcp");
+    soupbintcp_handle = register_dissector("soupbintcp", dissect_soupbintcp_tcp, proto_soupbintcp);
 
     proto_register_field_array(proto_soupbintcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -547,7 +548,6 @@ proto_register_soupbintcp(void)
 void
 proto_reg_handoff_soupbintcp(void)
 {
-    soupbintcp_handle = create_dissector_handle(dissect_soupbintcp_tcp, proto_soupbintcp);
     dissector_add_uint_range_with_preference("tcp.port", "", soupbintcp_handle);
 }
 

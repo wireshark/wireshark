@@ -28,6 +28,8 @@
 void proto_register_slsk(void);
 void proto_reg_handoff_slsk(void);
 
+static dissector_handle_t slsk_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_slsk = -1;
 
@@ -2335,9 +2337,11 @@ proto_register_slsk(void)
   expert_slsk = expert_register_protocol(proto_slsk);
   expert_register_field_array(expert_slsk, ei, array_length(ei));
 
-  slsk_module = prefs_register_protocol(proto_slsk, NULL);
+  /* Register the dissector handle */
+  slsk_handle = register_dissector("slsk", dissect_slsk, proto_slsk);
 
 /* Registers the options in the menu preferences */
+  slsk_module = prefs_register_protocol(proto_slsk, NULL);
   prefs_register_bool_preference(slsk_module, "desegment",
       "Reassemble SoulSeek messages spanning multiple TCP segments",
       "Whether the SoulSeek dissector should reassemble messages spanning multiple TCP segments."
@@ -2356,9 +2360,6 @@ proto_register_slsk(void)
 void
 proto_reg_handoff_slsk(void)
 {
-  dissector_handle_t slsk_handle;
-
-  slsk_handle = create_dissector_handle(dissect_slsk, proto_slsk);
   dissector_add_uint_range_with_preference("tcp.port", SLSK_TCP_PORT_RANGE, slsk_handle);
 }
 

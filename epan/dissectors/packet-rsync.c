@@ -339,7 +339,7 @@ proto_register_rsync(void)
                                    " \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &rsync_desegment);
 
-    rsync_handle = create_dissector_handle(dissect_rsync, proto_rsync);
+    rsync_handle = register_dissector("rsync", dissect_rsync, proto_rsync);
 }
 void
 proto_reg_handoff_rsync(void)

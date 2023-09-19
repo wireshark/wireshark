@@ -60,6 +60,8 @@
 void proto_register_pcli(void);
 void proto_reg_handoff_pcli(void);
 
+static dissector_handle_t pcli_handle, pcli_handle8, pcli_handle12, pcli_handle20;
+
 /* Define the pcli proto */
 
 static int proto_pcli = -1;
@@ -235,6 +237,12 @@ proto_register_pcli(void)
 
     pcli_subdissector_table = register_decode_as_next_proto(proto_pcli, "pcli.payload",
                                                              "PCLI payload dissector", pcli_prompt);
+
+    /* Register the dissector handles */
+    pcli_handle = register_dissector("pcli", dissect_pcli, proto_pcli);
+    pcli_handle8 = register_dissector("pcli8", dissect_pcli8, proto_pcli8);
+    pcli_handle12 = register_dissector("pcli12", dissect_pcli12, proto_pcli12);
+    pcli_handle20 = register_dissector("pcli20", dissect_pcli20, proto_pcli20);
 }
 
 /* The registration hand-off routing */
@@ -242,13 +250,6 @@ proto_register_pcli(void)
 void
 proto_reg_handoff_pcli(void)
 {
-    dissector_handle_t pcli_handle, pcli_handle8, pcli_handle12, pcli_handle20;
-
-    pcli_handle = create_dissector_handle(dissect_pcli, proto_pcli);
-    pcli_handle8 = create_dissector_handle(dissect_pcli8, proto_pcli8);
-    pcli_handle12 = create_dissector_handle(dissect_pcli12, proto_pcli12);
-    pcli_handle20 = create_dissector_handle(dissect_pcli20, proto_pcli20);
-
     dissector_add_for_decode_as_with_preference("udp.port", pcli_handle);
     dissector_add_for_decode_as_with_preference("udp.port", pcli_handle8);
     dissector_add_for_decode_as_with_preference("udp.port", pcli_handle12);

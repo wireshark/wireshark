@@ -26,6 +26,8 @@
 void proto_reg_handoff_tfp(void);
 void proto_register_tfp(void);
 
+static dissector_handle_t tfp_handle_tcp;
+
 /* variables for creating the tree */
 static gint proto_tfp = -1;
 static gint ett_tfp = -1;
@@ -391,15 +393,12 @@ proto_register_tfp(void)
 
 	proto_register_field_array(proto_tfp, hf_tfp, array_length(hf_tfp));
 	proto_register_subtree_array(ett, array_length(ett));
+	tfp_handle_tcp = register_dissector("tfp", dissect_tfp_tcp, proto_tfp);
 }
 
 /* handoff function */
 void
 proto_reg_handoff_tfp(void) {
-
-	dissector_handle_t tfp_handle_tcp;
-
-	tfp_handle_tcp = create_dissector_handle(dissect_tfp_tcp, proto_tfp);
 
 	dissector_add_uint_with_preference("tcp.port", tfp_PORT, tfp_handle_tcp);
 	heur_dissector_add("usb.bulk", dissect_tfp_bulk_heur, "Tinkerforge USB bulk endpoint", "tfp_usb_bulk", proto_tfp, HEURISTIC_ENABLE);

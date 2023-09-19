@@ -43,6 +43,8 @@ static int hf_reload_framing_response_to = -1;
 static int hf_reload_framing_time = -1;
 
 static dissector_handle_t reload_handle;
+static dissector_handle_t reload_framing_tcp_handle;
+static dissector_handle_t reload_framing_udp_handle;
 
 static gint exported_pdu_tap = -1;
 
@@ -565,20 +567,14 @@ proto_register_reload_framing(void)
   expert_reload_framing = expert_register_protocol(proto_reload_framing);
   expert_register_field_array(expert_reload_framing, ei, array_length(ei));
 
-  register_dissector("reload-framing", dissect_reload_framing, proto_reload_framing);
+  reload_framing_udp_handle = register_dissector("reload-framing", dissect_reload_framing, proto_reload_framing);
+  reload_framing_tcp_handle = register_dissector("reload-framing.tcp", dissect_reload_framing_tcp, proto_reload_framing);
 
 }
 
 void
 proto_reg_handoff_reload_framing(void)
 {
-
-  dissector_handle_t reload_framing_tcp_handle;
-  dissector_handle_t reload_framing_udp_handle;
-
-  reload_framing_tcp_handle = create_dissector_handle(dissect_reload_framing_tcp, proto_reload_framing);
-  reload_framing_udp_handle = create_dissector_handle(dissect_reload_framing, proto_reload_framing);
-
   reload_handle = find_dissector_add_dependency("reload", proto_reload_framing);
 
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_RELOAD, reload_framing_tcp_handle);

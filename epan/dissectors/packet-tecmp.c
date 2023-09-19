@@ -38,6 +38,8 @@ void proto_reg_handoff_tecmp(void);
 void proto_register_tecmp_payload(void);
 void proto_reg_handoff_tecmp_payload(void);
 
+static dissector_handle_t tecmp_handle;
+
 static int proto_tecmp = -1;
 static int proto_tecmp_payload = -1;
 
@@ -2811,6 +2813,7 @@ proto_register_tecmp(void) {
     proto_tecmp = proto_register_protocol("Technically Enhanced Capture Module Protocol", "TECMP", "tecmp");
     proto_register_field_array(proto_tecmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    tecmp_handle = register_dissector("tecmp", dissect_tecmp, proto_tecmp);
     tecmp_module = prefs_register_protocol(proto_tecmp, NULL);
 
     /* UATs */
@@ -2895,9 +2898,6 @@ proto_register_tecmp(void) {
 
 void
 proto_reg_handoff_tecmp(void) {
-    dissector_handle_t tecmp_handle;
-
-    tecmp_handle = create_dissector_handle(dissect_tecmp, proto_tecmp);
     dissector_add_uint("ethertype", ETHERTYPE_TECMP, tecmp_handle);
 
     lin_subdissector_table = find_dissector_table("lin.frame_id");
