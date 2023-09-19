@@ -76,10 +76,7 @@ static dissector_handle_t asterix_handle;
 /*#define RE             5*/
 #define COMPOUND       6
 /*#define SP             7*/
-#define FX_UAP         8    /* The FX_UAP field type is a hack. Currently it *
-                             * is only used in:                              *
-                             *   - I001_020                                  *
-                             *   - asterix_get_active_uap()                  */
+/*#define FX_UAP         8*/
 #define EXP            9    /* Explicit (RE or SP) */
 
 /* The following defines tell us how to
@@ -725,7 +722,6 @@ static int asterix_field_length (tvbuff_t *tvb, unsigned offset, const AsterixFi
                 count = (count << 8) + tvb_get_guint8 (tvb, offset + i);
             size = (unsigned)(field->repetition_counter_size + count * field->length);
             break;
-        case FX_UAP:
         case FX:
             for (size = field->length + field->header_length; tvb_get_guint8 (tvb, offset + size - 1) & 1; size += field->length);
             break;
@@ -761,7 +757,7 @@ static uint8_t asterix_get_active_uap (tvbuff_t *tvb, unsigned offset, uint8_t c
                 inner_offset = asterix_fspec_len (tvb, offset);
                 for (i = 0; current_uap[i] != NULL; i++) {
                     if (asterix_field_exists (tvb, offset, i)) {
-                        if (current_uap[i]->type == FX_UAP) {
+                        if (i == 1) {  /* uap selector (I001/020) is always at index '1' */
                             return tvb_get_guint8 (tvb, offset + inner_offset) >> 7;
                         }
                         inner_offset += asterix_field_length (tvb, offset + inner_offset, current_uap[i]);
