@@ -1365,7 +1365,7 @@ proto_register_xra (void)
   proto_register_field_array (proto_xra, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("xra", dissect_xra, proto_xra);
+  xra_handle = register_dissector ("xra", dissect_xra, proto_xra);
 
 }
 
@@ -1374,7 +1374,6 @@ proto_reg_handoff_xra(void)
 {
   docsis_handle = find_dissector ("docsis");
 
-  xra_handle = create_dissector_handle(dissect_xra, proto_xra);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_DOCSIS31_XRA31, xra_handle);
 }
 

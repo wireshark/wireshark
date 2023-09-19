@@ -48,6 +48,8 @@
 void proto_reg_handoff_zebra(void);
 void proto_register_zebra(void);
 
+static dissector_handle_t zebra_handle;
+
 static int proto_zebra = -1;
 static int hf_zebra_len = -1;
 static int hf_zebra_command = -1;
@@ -2871,14 +2873,12 @@ proto_register_zebra(void)
 	proto_zebra = proto_register_protocol("Zebra Protocol", "ZEBRA", "zebra");
 	proto_register_field_array(proto_zebra, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	zebra_handle = register_dissector("zebra", dissect_zebra, proto_zebra);
 }
 
 void
 proto_reg_handoff_zebra(void)
 {
-	dissector_handle_t zebra_handle;
-
-	zebra_handle = create_dissector_handle(dissect_zebra, proto_zebra);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_ZEBRA, zebra_handle);
 }
 

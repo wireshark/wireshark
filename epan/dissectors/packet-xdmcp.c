@@ -37,6 +37,8 @@
 void proto_register_xdmcp(void);
 void proto_reg_handoff_xdmcp(void);
 
+static dissector_handle_t xdmcp_handle;
+
 static const value_string opcode_vals[] = {
   { XDMCP_BROADCAST_QUERY, "Broadcast_query" },
   { XDMCP_QUERY, "Query" },
@@ -605,14 +607,14 @@ void proto_register_xdmcp(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_xdmcp = expert_register_protocol(proto_xdmcp);
   expert_register_field_array(expert_xdmcp, ei, array_length(ei));
+
+  /* Register the dissector handle */
+  xdmcp_handle = register_dissector("xdmcp", dissect_xdmcp, proto_xdmcp);
 }
 
 void
 proto_reg_handoff_xdmcp(void)
 {
-  dissector_handle_t xdmcp_handle;
-
-  xdmcp_handle = create_dissector_handle(dissect_xdmcp, proto_xdmcp);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_XDMCP, xdmcp_handle);
 }
 /*

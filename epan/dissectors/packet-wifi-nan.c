@@ -17,6 +17,10 @@
 void proto_reg_handoff_nan(void);
 void proto_register_nan(void);
 
+static dissector_handle_t nan_act_handle;
+static dissector_handle_t nan_disco_handle;
+static dissector_handle_t nan_beacon_handle;
+
 static dissector_table_t ie_handle_table;
 
 #define WFA_ACTION_OUI_TYPE 0x18
@@ -4159,6 +4163,10 @@ proto_register_nan(void)
     proto_register_field_array(proto_nan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    nan_act_handle = register_dissector("nan.action", dissect_nan_action, proto_nan);
+    nan_disco_handle = register_dissector("nan.service_discovery", dissect_nan_service_discovery, proto_nan);
+    nan_beacon_handle = register_dissector("nan.beacon", dissect_nan_beacon, proto_nan);
+
     expert_module_t* expert_nan = expert_register_protocol(proto_nan);
     expert_register_field_array(expert_nan, ei, array_length(ei));
 
@@ -4168,9 +4176,9 @@ proto_register_nan(void)
 void
 proto_reg_handoff_nan(void)
 {
-    dissector_add_uint("wlan.pa.wifi_alliance.subtype", WFA_ACTION_OUI_TYPE, create_dissector_handle(dissect_nan_action, proto_nan));
-    dissector_add_uint("wlan.pa.wifi_alliance.subtype", WFA_SERVICE_DISCOVERY_SUBTYPE, create_dissector_handle(dissect_nan_service_discovery, proto_nan));
-    dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_NAN_IE_OUI_TYPE, create_dissector_handle(dissect_nan_beacon, proto_nan));
+    dissector_add_uint("wlan.pa.wifi_alliance.subtype", WFA_ACTION_OUI_TYPE, nan_act_handle);
+    dissector_add_uint("wlan.pa.wifi_alliance.subtype", WFA_SERVICE_DISCOVERY_SUBTYPE, nan_disco_handle);
+    dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_NAN_IE_OUI_TYPE, nan_beacon_handle);
 }
 
 /*

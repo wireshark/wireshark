@@ -55,6 +55,8 @@
 void proto_register_wlccp(void);
 void proto_reg_handoff_wlccp(void);
 
+static dissector_handle_t wlccp_handle;
+
 /* The UDP port that WLCCP is expected to ride on */
 /* WLCCP also uses an LLC OUI type and an ethertype */
 #define WLCCP_UDP_PORT 2887 /* Not IANA registered */
@@ -4091,6 +4093,9 @@ proto_register_wlccp(void)
 	proto_register_field_array(proto_wlccp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	/* Register the subdissector */
+	wlccp_handle = register_dissector("wlccp", dissect_wlccp, proto_wlccp);
+
 	llc_add_oui(OUI_CISCOWL, "llc.wlccp_pid", "LLC Cisco WLCCP OUI PID", oui_hf, proto_wlccp);
 }
 
@@ -4098,10 +4103,6 @@ proto_register_wlccp(void)
 void
 proto_reg_handoff_wlccp(void)
 {
-	dissector_handle_t wlccp_handle;
-
-	wlccp_handle = create_dissector_handle(dissect_wlccp, proto_wlccp);
-
 	dissector_add_uint("ethertype", ETHERTYPE_WLCCP, wlccp_handle);
 	dissector_add_uint_with_preference("udp.port", WLCCP_UDP_PORT, wlccp_handle);
 	dissector_add_uint("llc.wlccp_pid", 0x0000, wlccp_handle);

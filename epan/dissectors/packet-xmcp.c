@@ -128,6 +128,8 @@ static expert_field ei_xmcp_attr_error_code_unusual = EI_INIT;
 
 void proto_reg_handoff_xmcp(void);
 
+static dissector_handle_t xmcp_tcp_handle;
+
 #define XMCP_HDR_LEN      20
 #define XMCP_ATTR_HDR_LEN 4
 
@@ -1330,14 +1332,12 @@ proto_register_xmcp(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_xmcp = expert_register_protocol(proto_xmcp);
   expert_register_field_array(expert_xmcp, ei, array_length(ei));
+  xmcp_tcp_handle = register_dissector("xmcp", dissect_xmcp_tcp, proto_xmcp);
 }
 
 void
 proto_reg_handoff_xmcp(void)
 {
-  dissector_handle_t xmcp_tcp_handle;
-
-  xmcp_tcp_handle = create_dissector_handle(dissect_xmcp_tcp, proto_xmcp);
   heur_dissector_add("tcp", dissect_xmcp_heur, "XMCP over TCP", "xmcp_tcp", proto_xmcp, HEURISTIC_ENABLE);
   media_type_dissector_table = find_dissector_table("media_type");
 

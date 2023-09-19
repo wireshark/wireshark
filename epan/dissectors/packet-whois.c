@@ -21,6 +21,8 @@
 void proto_register_whois(void);
 void proto_reg_handoff_whois(void);
 
+static dissector_handle_t whois_handle;
+
 static int proto_whois = -1;
 static int hf_whois_query = -1;
 static int hf_whois_answer = -1;
@@ -239,14 +241,12 @@ proto_register_whois(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_whois = expert_register_protocol(proto_whois);
     expert_register_field_array(expert_whois, ei, array_length(ei));
+    whois_handle = register_dissector("whois", dissect_whois, proto_whois);
 }
 
 void
 proto_reg_handoff_whois(void)
 {
-    static dissector_handle_t whois_handle;
-
-    whois_handle = create_dissector_handle(dissect_whois, proto_whois);
     dissector_add_uint_with_preference("tcp.port", WHOIS_PORT, whois_handle);
 }
 

@@ -2598,7 +2598,7 @@ proto_register_wps(void)
 void
 proto_reg_handoff_wps(void)
 {
-  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_IEEE1905_MULTI_AP, create_dissector_handle(dissect_wps_wfa_ext_via_dt, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_IEEE1905_MULTI_AP, create_dissector_handle(dissect_wps_wfa_ext_via_dt, proto_wps));
   dissector_add_uint("eap.ext.vendor_id", WFA_VENDOR_ID, wps_handle);
 }
 

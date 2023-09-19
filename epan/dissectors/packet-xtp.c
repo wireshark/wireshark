@@ -71,6 +71,8 @@
 void proto_register_xtp(void);
 void proto_reg_handoff_xtp(void);
 
+static dissector_handle_t xtp_handle;
+
 /** packet structures definition **/
 struct xtp_cntl {
 	guint64		rseq;
@@ -1373,14 +1375,12 @@ proto_register_xtp(void)
 	expert_xtp = expert_register_protocol(proto_xtp);
 	expert_register_field_array(expert_xtp, ei, array_length(ei));
 
+	xtp_handle = register_dissector("xtp", dissect_xtp, proto_xtp);
 }
 
 void
 proto_reg_handoff_xtp(void)
 {
-	dissector_handle_t xtp_handle;
-
-	xtp_handle = create_dissector_handle(dissect_xtp, proto_xtp);
 	dissector_add_uint("ip.proto", IP_PROTO_XTP, xtp_handle);
 }
 

@@ -27,6 +27,8 @@
 void proto_register_wtls(void);
 void proto_reg_handoff_wtls(void);
 
+static dissector_handle_t wtls_handle;
+
 /* File scoped variables for the protocol and registered fields */
 static int proto_wtls = -1;
 
@@ -1553,14 +1555,14 @@ proto_register_wtls(void)
 /* Required function calls to register the header fields and subtrees used  */
 	proto_register_field_array(proto_wtls, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+/* Register our dissector handle */
+	wtls_handle = register_dissector("wtls", dissect_wtls, proto_wtls);
 }
 
 void
 proto_reg_handoff_wtls(void)
 {
-	dissector_handle_t wtls_handle;
-
-	wtls_handle = create_dissector_handle(dissect_wtls, proto_wtls);
 	dissector_add_uint_range_with_preference("udp.port", UDP_PORT_WTLS_RANGE, wtls_handle);
 }
 

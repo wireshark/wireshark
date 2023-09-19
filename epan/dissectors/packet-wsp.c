@@ -385,6 +385,10 @@ static dissector_handle_t media_handle;
 /* Handle for WBXML-encoded UAPROF dissector */
 static dissector_handle_t wbxml_uaprof_handle;
 
+/* Handle for Session Initiation Request dissector */
+static dissector_handle_t sir_handle;
+
+
 static const value_string wsp_vals_pdu_type[] = {
     { 0x00, "Reserved" },
     { 0x01, "Connect" },
@@ -7189,7 +7193,7 @@ proto_register_wsp(void)
     register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
     heur_subdissector_list = register_heur_dissector_list("wsp", proto_wsp);
 
-    wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
+    wsp_fromudp_handle = register_dissector("wsp.udp", dissect_wsp_fromudp,
                                                  proto_wsp);
 }
 
@@ -7372,17 +7376,14 @@ proto_register_sir(void)
     proto_register_field_array(proto_sir, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_stat_tap_table_ui(&wsp_stat_table);
+    sir_handle = register_dissector("wap-sir", dissect_sir, proto_sir);
 
+    register_stat_tap_table_ui(&wsp_stat_table);
 }
 
 void
 proto_reg_handoff_sir(void)
 {
-    dissector_handle_t sir_handle;
-
-    sir_handle = create_dissector_handle(dissect_sir, proto_sir);
-
     /* Add dissector bindings for SIR dissection */
     dissector_add_string("media_type", "application/vnd.wap.sia", sir_handle);
 }

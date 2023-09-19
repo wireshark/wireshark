@@ -21,6 +21,8 @@
 void proto_register_wreth(void);
 void proto_reg_handoff_wreth(void);
 
+static dissector_handle_t wreth_handle;
+
 static gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
 static gint WrethConnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
 static gint WrethDisconnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
@@ -1983,13 +1985,11 @@ void proto_register_wreth(void)
     );
     proto_register_field_array(wreth_proto, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    wreth_handle = register_dissector("wreth", dissect_wreth, wreth_proto);
 }
 
 void proto_reg_handoff_wreth(void)
 {
-    dissector_handle_t wreth_handle;
-
-    wreth_handle = create_dissector_handle(dissect_wreth, wreth_proto);
     dissector_add_uint("ethertype", WRETH_PORT, wreth_handle);
 }
 

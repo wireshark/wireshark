@@ -419,6 +419,10 @@ static expert_field ei_wifi_p2p_attr_len = EI_INIT;
 static expert_field ei_wifi_p2p_anqp_length = EI_INIT;
 static expert_field ei_wifi_p2p_anqp_unexpected_padding = EI_INIT;
 
+static dissector_handle_t wifi_p2p_act_handle;
+static dissector_handle_t wifi_p2p_anqp_handle;
+static dissector_handle_t wifi_p2p_ie_handle;
+static dissector_handle_t wifi_p2p_pubact_handle;
 static dissector_handle_t wifi_display_ie_handle;
 
 static void dissect_wifi_p2p_capability(proto_item *tlv_root,
@@ -1827,15 +1831,20 @@ proto_register_p2p(void)
 
   expert_p2p = expert_register_protocol(proto_p2p);
   expert_register_field_array(expert_p2p, ei, array_length(ei));
+
+  wifi_p2p_act_handle = register_dissector("wifi_p2p.action", dissect_wifi_p2p_action, proto_p2p);
+  wifi_p2p_anqp_handle = register_dissector("wifi_p2p.anqp", dissect_wifi_p2p_anqp, proto_p2p);
+  wifi_p2p_ie_handle = register_dissector("wifi_p2p.ie", dissect_wifi_p2p_ie, proto_p2p);
+  wifi_p2p_pubact_handle = register_dissector("wifi_p2p.public_action", dissect_wifi_p2p_public_action, proto_p2p);
 }
 
 void
 proto_reg_handoff_p2p(void)
 {
-  dissector_add_uint("wlan.action.wifi_alliance.subtype", WFA_SUBTYPE_P2P, create_dissector_handle(dissect_wifi_p2p_action, proto_p2p));
-  dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_SUBTYPE_P2P, create_dissector_handle(dissect_wifi_p2p_anqp, proto_p2p));
-  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_P2P, create_dissector_handle(dissect_wifi_p2p_ie, proto_p2p));
-  dissector_add_uint("wlan.pa.wifi_alliance.subtype", WFA_SUBTYPE_P2P, create_dissector_handle(dissect_wifi_p2p_public_action, proto_p2p));
+  dissector_add_uint("wlan.action.wifi_alliance.subtype", WFA_SUBTYPE_P2P, wifi_p2p_act_handle);
+  dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_SUBTYPE_P2P, wifi_p2p_anqp_handle);
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_P2P, wifi_p2p_ie_handle);
+  dissector_add_uint("wlan.pa.wifi_alliance.subtype", WFA_SUBTYPE_P2P, wifi_p2p_pubact_handle);
 
   wifi_display_ie_handle = find_dissector_add_dependency("wifi_display_ie", proto_p2p);
 }

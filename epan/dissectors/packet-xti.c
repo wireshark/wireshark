@@ -41,6 +41,8 @@
 void proto_reg_handoff_xti(void);
 void proto_register_xti(void);
 
+static dissector_handle_t xti_handle;
+
 static int proto_xti = -1;
 static expert_field ei_xti_counter_overflow = EI_INIT;
 static expert_field ei_xti_invalid_template = EI_INIT;
@@ -11577,14 +11579,12 @@ proto_register_xti(void)
     proto_register_field_array(proto_xti, hf, array_length(hf));
     static gint * const ett[] = { &ett_xti[0], &ett_xti[1], &ett_xti[2], &ett_xti[3], &ett_xti[4], &ett_xti[5], &ett_xti[6], &ett_xti[7], &ett_xti[8], &ett_xti[9], &ett_xti[10], &ett_xti[11], &ett_xti[12], &ett_xti[13], &ett_xti[14], &ett_xti[15], &ett_xti[16], &ett_xti[17], &ett_xti[18], &ett_xti[19], &ett_xti[20], &ett_xti[21], &ett_xti[22], &ett_xti[23], &ett_xti[24], &ett_xti[25], &ett_xti[26], &ett_xti[27], &ett_xti[28], &ett_xti[29], &ett_xti[30], &ett_xti[31], &ett_xti_dscp };
     proto_register_subtree_array(ett, array_length(ett));
+    xti_handle = register_dissector("xti", dissect_xti, proto_xti);
 }
 
 void
 proto_reg_handoff_xti(void)
 {
-    dissector_handle_t xti_handle = create_dissector_handle(dissect_xti,
-            proto_xti);
-
     // cf. N7 Network Access Guide, e.g.
     // https://www.xetra.com/xetra-en/technology/t7/system-documentation/release10-0/Release-10.0-2692700?frag=2692724
     // https://www.xetra.com/resource/blob/2762078/388b727972b5122945eedf0e63c36920/data/N7-Network-Access-Guide-v2.0.59.pdf

@@ -224,6 +224,8 @@ static const bitmap_info_t bitmap_info[] = {
 void proto_register_zvt(void);
 void proto_reg_handoff_zvt(void);
 
+static dissector_handle_t zvt_tcp_handle;
+
 static int proto_zvt = -1;
 
 static int ett_zvt = -1;
@@ -1505,6 +1507,7 @@ proto_register_zvt(void)
 
     /* register by name to allow mapping to a user DLT */
     register_dissector("zvt", dissect_zvt, proto_zvt);
+    zvt_tcp_handle = register_dissector("zvt.tcp", dissect_zvt_tcp, proto_zvt);
 
     register_shutdown_routine(zvt_shutdown);
 }
@@ -1513,10 +1516,6 @@ proto_register_zvt(void)
 void
 proto_reg_handoff_zvt(void)
 {
-    dissector_handle_t  zvt_tcp_handle;
-
-    zvt_tcp_handle = create_dissector_handle(dissect_zvt_tcp, proto_zvt);
-
     dissector_add_for_decode_as_with_preference("tcp.port", zvt_tcp_handle);
 }
 

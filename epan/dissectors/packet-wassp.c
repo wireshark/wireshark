@@ -4118,6 +4118,9 @@ static int hf_lsb_wh_addr4 = -1;                   // 6 bytes
 
 
 
+/* Our dissector handle */
+static dissector_handle_t wassp_handle;
+
 /* Dissector handles used in dissector registration */
 static dissector_handle_t data_handle;
 static dissector_handle_t eth_handle;
@@ -4357,6 +4360,7 @@ static int  dissect_wassp(tvbuff_t *, packet_info *, proto_tree *);
 /* Dissector registration routines */
 void proto_register_wassp(void);
 void proto_reg_handoff_wassp(void);
+static int dissect_wassp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
 static int g_wassp_ver = 0;
 static reassembly_table  wassp_reassembled_table;
@@ -7024,6 +7028,8 @@ void proto_register_wassp(void)
 	proto_wassp = proto_register_protocol("Wireless Access Station Session Protocol", "WASSP", "wassp");
 	/* Register wassp protocol fields */
 	proto_register_field_array(proto_wassp, hf, array_length(hf));
+	/* Register dissector handle */
+	wassp_handle = register_dissector("wassp", dissect_wassp_static, proto_wassp);
 	/* Register wassp protocol sub-trees */
 	proto_register_subtree_array(ett, array_length(ett));
 	wassp_dissector_table = register_dissector_table("wassp.subd", "WASSP subdissectors", proto_wassp, FT_UINT16, BASE_DEC);
@@ -7075,9 +7081,6 @@ dissect_wassp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 void
 proto_reg_handoff_wassp(void)
 {
-	dissector_handle_t wassp_handle;
-
-	wassp_handle = create_dissector_handle(dissect_wassp_static, proto_wassp);
 	dissector_add_uint_range_with_preference("udp.port", PORT_WASSP_RANGE, wassp_handle);
 	heur_dissector_add("udp", dissect_wassp_heur, "WASSP over UDP", "wassp_udp", proto_wassp, HEURISTIC_DISABLE);
 

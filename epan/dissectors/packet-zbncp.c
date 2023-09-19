@@ -5866,6 +5866,5 @@ void proto_register_zbncp(void)
 
 void proto_reg_handoff_zbncp(void)
 {
-    zbncp_handle = create_dissector_handle(dissect_zbncp, zbncp_frame);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_ZBNCP, zbncp_handle);
 }

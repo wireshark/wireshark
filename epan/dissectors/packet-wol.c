@@ -49,6 +49,8 @@
 void proto_register_wol(void);
 void proto_reg_handoff_wol(void);
 
+static dissector_handle_t wol_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_wol = -1;
 static int hf_wol_sync = -1;
@@ -293,6 +295,9 @@ proto_register_wol(void)
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_wol, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+/* Register our dissector handle */
+    wol_handle = register_dissector("wol", dissect_wol, proto_wol);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -303,14 +308,6 @@ proto_register_wol(void)
 void
 proto_reg_handoff_wol(void)
 {
-    dissector_handle_t wol_handle;
-
-/*  Use create_dissector_handle() to indicate that dissect_wol()
- *  returns the number of bytes it dissected (or 0 if it thinks the packet
- *  does not belong to PROTONAME).
- */
-    wol_handle = create_dissector_handle(dissect_wol, proto_wol);
-
     /* We don't really want to register with EVERY possible dissector,
      * do we?  I know that the AMD white paper specifies that the
      * MagicPacket could be present in any frame, but are we seriously

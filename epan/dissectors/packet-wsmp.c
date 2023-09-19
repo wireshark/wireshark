@@ -31,6 +31,8 @@
 void proto_register_wsmp(void);
 void proto_reg_handoff_wsmp(void);
 
+static dissector_handle_t wsmp_handle;
+
 static const value_string wsmp_elemenid_names[] = {
     { 0x80, "WSMP" },
     { 0x81, "WSMP-S" },
@@ -516,14 +518,13 @@ proto_register_wsmp(void)
     expert_wsmp = expert_register_protocol(proto_wsmp);
     expert_register_field_array(expert_wsmp, ei, array_length(ei));
 
+    /* Register the dissector handle */
+    wsmp_handle = register_dissector("wsmp", dissect_wsmp, proto_wsmp);
 }
 
 void
 proto_reg_handoff_wsmp(void)
 {
-    dissector_handle_t wsmp_handle;
-
-    wsmp_handle = create_dissector_handle(dissect_wsmp, proto_wsmp);
     dissector_add_uint("ethertype", ETHERTYPE_WSMP, wsmp_handle);
 
     IEEE1609dot2_handle = find_dissector_add_dependency("ieee1609dot2.data", proto_wsmp);

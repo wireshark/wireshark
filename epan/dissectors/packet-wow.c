@@ -23,6 +23,8 @@
 void proto_register_wow(void);
 void proto_reg_handoff_wow(void);
 
+static dissector_handle_t wow_handle;
+
 typedef enum {
 	AUTH_LOGON_CHALLENGE       = 0x00,
 	AUTH_LOGON_PROOF           = 0x01,
@@ -998,6 +1000,8 @@ proto_register_wow(void)
 	proto_register_field_array(proto_wow, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	wow_handle = register_dissector("wow", dissect_wow, proto_wow);
+
 	wow_module = prefs_register_protocol(proto_wow, NULL);
 
 	prefs_register_bool_preference(wow_module, "desegment", "Reassemble wow messages spanning multiple TCP segments.", "Whether the wow dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &wow_preference_desegment);
@@ -1007,11 +1011,7 @@ proto_register_wow(void)
 void
 proto_reg_handoff_wow(void)
 {
-	dissector_handle_t wow_handle;
-
-	wow_handle = create_dissector_handle(dissect_wow, proto_wow);
 	dissector_add_uint_with_preference("tcp.port", WOW_PORT, wow_handle);
-
 }
 
 /*

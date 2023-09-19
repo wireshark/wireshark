@@ -27,6 +27,11 @@ extern const value_string wfa_subtype_vals[];
 void proto_register_wifi_dpp(void);
 void proto_reg_handoff_wifi_dpp(void);
 
+static dissector_handle_t wifi_dpp_handle;
+static dissector_handle_t wifi_dpp_tcp_handle;
+static dissector_handle_t wifi_dpp_ie_handle;
+static dissector_handle_t wifi_dpp_pubact_handle;
+
 #define WIFI_DPP_TCP_PORT (7871)
 static guint wifi_dpp_tcp_port = WIFI_DPP_TCP_PORT;
 
@@ -788,6 +793,12 @@ proto_register_wifi_dpp(void)
   proto_register_field_array(proto_wifi_dpp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /* Register the dissector handles */
+  wifi_dpp_handle = register_dissector("dpp", dissect_wifi_dpp, proto_wifi_dpp);
+  wifi_dpp_tcp_handle = register_dissector("dpp.tcp", dissect_wifi_dpp_tcp_pdus, proto_wifi_dpp);
+  wifi_dpp_ie_handle = register_dissector("dpp.ie", dissect_wifi_dpp_ie, proto_wifi_dpp);
+  wifi_dpp_pubact_handle = register_dissector("dpp.public_action", dissect_wifi_dpp_public_action, proto_wifi_dpp);
+
   /* Register the preferred TCP port? Is there one? */
   wifi_dpp_module = prefs_register_protocol(proto_wifi_dpp, NULL);
   prefs_register_uint_preference(wifi_dpp_module, "tcp.port", "DPP TCP Port",
@@ -799,19 +810,16 @@ void
 proto_reg_handoff_wifi_dpp(void)
 {
   static gboolean initialized = FALSE;
-  static dissector_handle_t wifi_dpp_tcp_handle;
   static int current_port;
 
-  dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_SUBTYPE_DPP, create_dissector_handle(dissect_wifi_dpp, proto_wifi_dpp));
-  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_DPP, create_dissector_handle(dissect_wifi_dpp_ie, proto_wifi_dpp));
-  dissector_add_uint("wlan.pa.wifi_alliance.subtype", WFA_SUBTYPE_DPP, create_dissector_handle(dissect_wifi_dpp_public_action, proto_wifi_dpp));
+  dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_SUBTYPE_DPP, wifi_dpp_handle);
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_DPP, wifi_dpp_ie_handle);
+  dissector_add_uint("wlan.pa.wifi_alliance.subtype", WFA_SUBTYPE_DPP, wifi_dpp_pubact_handle);
 
   /*
    * Register the TCP port
    */
   if (!initialized) {
-    wifi_dpp_tcp_handle = create_dissector_handle(dissect_wifi_dpp_tcp_pdus,
-                                                  proto_wifi_dpp);
     initialized = TRUE;
   } else {
     dissector_delete_uint("tcp.port", current_port, wifi_dpp_tcp_handle);

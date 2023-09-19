@@ -162,6 +162,7 @@ static expert_field ei_wcp_invalid_window_offset = EI_INIT;
 static expert_field ei_wcp_buffer_too_long = EI_INIT;
 /* static expert_field ei_wcp_invalid_match_length = EI_INIT; */
 
+static dissector_handle_t wcp_handle;
 static dissector_handle_t fr_uncompressed_handle;
 
 /*
@@ -767,19 +768,17 @@ proto_register_wcp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_wcp = expert_register_protocol(proto_wcp);
 	expert_register_field_array(expert_wcp, ei, array_length(ei));
+	wcp_handle = register_dissector("wcp", dissect_wcp, proto_wcp);
 }
 
 
 void
 proto_reg_handoff_wcp(void) {
-	dissector_handle_t wcp_handle;
-
 	/*
 	 * Get handle for the Frame Relay (uncompressed) dissector.
 	 */
 	fr_uncompressed_handle = find_dissector_add_dependency("fr_uncompressed", proto_wcp);
 
-	wcp_handle = create_dissector_handle(dissect_wcp, proto_wcp);
 	dissector_add_uint("fr.nlpid", NLPID_COMPRESSED, wcp_handle);
 	dissector_add_uint("ethertype",  ETHERTYPE_WCP, wcp_handle);
 }
