@@ -118,6 +118,7 @@ enum {
 	/* E1/T1 */
 	GSMTAP_SUB_PPP,
 	GSMTAP_SUB_V120,
+	GSMTAP_SUB_X75,
 
 	GSMTAP_SUB_MAX
 };
@@ -1132,6 +1133,15 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				call_dissector_with_data(sub_handles[sub_handle], payload_tvb, pinfo, tree, &isdn);
 			}
 			return tvb_captured_length(tvb);
+		case GSMTAP_E1T1_X75:
+			sub_handle = GSMTAP_SUB_X75;
+			if (sub_handles[sub_handle]) {
+				struct isdn_phdr isdn;
+				isdn.uton = pinfo->p2p_dir == P2P_DIR_SENT ? 1 : 0;
+				isdn.channel = 0;
+				call_dissector_with_data(sub_handles[sub_handle], payload_tvb, pinfo, tree, &isdn);
+			}
+			return tvb_captured_length(tvb);
 		default:
 			sub_handle = GSMTAP_SUB_DATA;
 			break;
@@ -1273,6 +1283,7 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_GSM_RLP] = find_dissector_add_dependency("gsm_rlp", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_PPP] = find_dissector_add_dependency("ppp", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_V120] = find_dissector_add_dependency("v120", proto_gsmtap);
+	sub_handles[GSMTAP_SUB_X75] = find_dissector_add_dependency("x75", proto_gsmtap);
 
 	rrc_sub_handles[GSMTAP_RRC_SUB_DL_DCCH_Message] = find_dissector_add_dependency("rrc.dl.dcch", proto_gsmtap);
 	rrc_sub_handles[GSMTAP_RRC_SUB_UL_DCCH_Message] = find_dissector_add_dependency("rrc.ul.dcch", proto_gsmtap);
