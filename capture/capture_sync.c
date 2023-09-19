@@ -1464,8 +1464,8 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **m
         /*
          * Pick up the child status.
          */
-        ret = sync_pipe_close_command(data_read_fd, message_read_io,
-                                      fork_child, msg);
+        sync_pipe_close_command(data_read_fd, message_read_io,
+                                fork_child, msg);
         ret = -1;
         break;
 
