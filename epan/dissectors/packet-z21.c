@@ -655,17 +655,17 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             calculated_checksum ^= (unsigned)direction_and_speed;
             if (direction_and_speed & 0x80) {
                 proto_item_set_text(temp_ti,
-                    "Locomotive direction and speed: Forward, 0x%02lx",
+                    "Locomotive direction and speed: Forward, 0x%02" PRIx64,
                     direction_and_speed & 0x7F);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Forward");
             }
             else {
                 proto_item_set_text(temp_ti,
-                    "Locomotive direction and speed: Reverse, 0x%02lx",
+                    "Locomotive direction and speed: Reverse, 0x%02" PRIx64,
                     direction_and_speed & 0x7F);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Reverse");
             }
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Speed=0x%02lx",
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Speed=0x%02" PRIx64,
                 direction_and_speed & 0x7F);
             break;
         case Z21_LAN_X_GET_LOCO_INFO:
@@ -779,10 +779,10 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 loco_func_bits, ENC_NA, &temp_guint64);
             offset += 1;
             calculated_checksum ^= temp_guint64;
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Function=%ld, State=%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Function=%" PRIu64 ", State=%s",
                 temp_guint64 & 0x3f,
                 val_to_str_const((guint32)temp_guint64 >> 6, z21_loco_func_vals, "unknown"));
-            proto_item_append_text(z21_tree, ", Function: %ld, State: %s",
+            proto_item_append_text(z21_tree, ", Function: %" PRIu64 ", State: %s",
                 temp_guint64 & 0x3f,
                 val_to_str_const((guint32)temp_guint64 >> 6, z21_loco_func_vals, "unknown"));
             break;
@@ -979,9 +979,9 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 cv_bits, ENC_NA, &temp_guint64);
             offset += 1;
             calculated_checksum ^= (unsigned)temp_guint64;
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Loco=%d, CV%d, Bit position=%ld, Value=%ld",
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Loco=%d, CV%d, Bit position=%" PRIu64 ", Value=%" PRIu64,
                 addr, cv_addr, temp_guint64 & 0x07, temp_guint64 >> 3 & 0x01);
-            proto_item_append_text(z21_tree, ", Loco: %d, CV%d, Bit position: %ld, Value: %ld",
+            proto_item_append_text(z21_tree, ", Loco: %d, CV%d, Bit position: %" PRIu64 ", Value: %" PRIu64,
                 addr, cv_addr, temp_guint64 & 0x07, temp_guint64 >> 3 & 0x01);
             break;
         case Z21_LAN_X_CV_POM_READ_BYTE:
