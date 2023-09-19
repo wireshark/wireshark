@@ -7808,7 +7808,6 @@ dissect_smb2_FSCTL_GET_NTFS_VOLUME_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	offset += 8;
 
 	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_mft_zone_end, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-	offset += 8;
 }
 
 void
