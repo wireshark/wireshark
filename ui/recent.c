@@ -1160,7 +1160,7 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
          * and, if that fails, set it to TS_PREC_AUTO.
          */
         if (ws_strtoi32(value, NULL, &num_int32) && num_int32 >= 0 &&
-            num_int32 <= TS_PREC_AUTO) {
+            num_int32 <= WS_TSPREC_MAX) {
             recent.gui_time_precision = num_int32;
         } else {
             recent.gui_time_precision =
