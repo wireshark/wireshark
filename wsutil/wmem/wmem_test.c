@@ -1405,10 +1405,10 @@ wmem_test_itree(void)
 
     tree = wmem_itree_new(allocator);
 
-    /* even though keys are uint64_t, we use G_MAXINT32 as a max because of the type returned by
+    /* even though keys are uint64_t, we use INT32_MAX as a max because of the type returned by
       g_test_rand_int_range.
      */
-    max_rand = G_MAXINT32;
+    max_rand = INT32_MAX;
     r2.max_edge = range.max_edge = 0;
     range.low = g_test_rand_int_range(0, max_rand);
     range.high = g_test_rand_int_range( (int32_t)range.low, (int32_t)max_rand);

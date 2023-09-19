@@ -60,11 +60,11 @@ ws_init_version_info(const char *appname,
 
 	copyright_info_str = g_string_new(get_copyright_info());
 	end_string(copyright_info_str);
-	copyright_info = g_string_free(copyright_info_str, FALSE);
+	copyright_info = g_string_free(copyright_info_str, false);
 
 	license_info_str = g_string_new(get_license_info_short());
 	end_string(license_info_str);
-	license_info = g_string_free(license_info_str, FALSE);
+	license_info = g_string_free(license_info_str, false);
 
 	/*
 	 * Combine the supplied application name string with the
@@ -86,8 +86,8 @@ ws_init_version_info(const char *appname,
 	/* Get the run-time version information string */
 	runtime_info_str = get_runtime_version_info(gather_runtime);
 
-	comp_info = g_string_free(comp_info_str, FALSE);
-	runtime_info = g_string_free(runtime_info_str, FALSE);
+	comp_info = g_string_free(comp_info_str, false);
+	runtime_info = g_string_free(runtime_info_str, false);
 
 	/* Add this information to the information to be reported on a crash. */
 	ws_add_crash_info("%s\n"
@@ -104,9 +104,9 @@ ws_init_version_info(const char *appname,
  * get_compiled_version_info() and get_runtime_version_info().
  */
 static void
-feature_to_gstring(gpointer data, gpointer user_data)
+feature_to_gstring(void * data, void * user_data)
 {
-	gchar *feature = (gchar *)data;
+	char *feature = (char *)data;
 	GString *str = (GString *)user_data;
 	if (str->len > 0) {
 		g_string_append(str, ", ");
@@ -230,7 +230,7 @@ get_compiled_version_info(gather_feature_func gather_compile)
 static void
 get_mem_info(GString *str)
 {
-	gint64 memsize = 0;
+	int64_t memsize = 0;
 
 #ifdef _WIN32
 	MEMORYSTATUSEX statex;
@@ -249,7 +249,7 @@ get_mem_info(GString *str)
 #endif
 
 	if (memsize > 0)
-		g_string_append_printf(str, ", with %" G_GINT64_FORMAT " MB of physical memory", memsize/(1024*1024));
+		g_string_append_printf(str, ", with %" PRId64 " MB of physical memory", memsize/(1024*1024));
 }
 
 /*
@@ -372,7 +372,7 @@ get_compiler_info(GString *str)
 		 */
 		#if defined(__clang__)
 			/* clang */
-			gchar *version; /* clang's version string has a trailing space. */
+			char *version; /* clang's version string has a trailing space. */
 			#if defined(__clang_version__)
 				version = g_strdup(__clang_version__);
 				g_string_append_printf(str, "Clang %s", g_strstrip(version));
@@ -466,7 +466,7 @@ GString *
 get_runtime_version_info(gather_feature_func gather_runtime)
 {
 	GString *str;
-	gchar *lc;
+	char *lc;
 	GList *l = NULL;
 
 	str = g_string_new("Running on ");

@@ -58,6 +58,11 @@ type_map = {
     'G_MININT64': 'INT64_MIN',
 }
 
+format_spec_map = {
+    'G_GINT64_FORMAT': 'PRId64',
+    'G_GUINT64_FORMAT': 'PRIu64',
+}
+
 def convert_file(file):
     lines = ''
     try:
@@ -67,6 +72,8 @@ def convert_file(file):
                 lines = lines.replace(glib_type, c99_type)
             for glib_type, c99_type in type_map.items():
                 lines = re.sub(rf'([^"])\b{glib_type}\b([^"])', rf'\1{c99_type}\2', lines, flags=re.MULTILINE)
+            for glib_fmt_spec, c99_fmt_spec in format_spec_map.items():
+                lines = re.sub(rf'\b{glib_fmt_spec}\b', rf'{c99_fmt_spec}', lines, flags=re.MULTILINE)
     except IsADirectoryError:
         sys.stderr.write(f'{file} is a directory.\n')
         return
