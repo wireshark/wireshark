@@ -431,6 +431,7 @@ macOS Arm Package:
     - mkdir build
     - cd build
   script:
+    - export CMAKE_PREFIX_PATH=/usr/local/Qt-5.15.3/lib/cmake
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # XXX - Move this to a separate DENABLE_PCAP=OFF job?
     - arch -arch arm64 cmake -DENABLE_CCACHE=ON -DENABLE_PCAP=OFF -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_ARCHITECTURES=arm64 -G Ninja ..
