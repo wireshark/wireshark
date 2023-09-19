@@ -70,7 +70,7 @@ oper_free(void *value)
 static char *
 oper_todisplay(const oper_t *oper)
 {
-	const char *s = "(notset)";
+	const char *s;
 
 	switch(oper->op) {
 		case STNODE_OP_NOT:
@@ -139,6 +139,9 @@ oper_todisplay(const oper_t *oper)
 			break;
 		case STNODE_OP_UNINITIALIZED:
 			s = "(uninitialized)";
+			break;
+		default:
+			s = "(notset)";
 			break;
 	}
 	return g_strdup(s);
