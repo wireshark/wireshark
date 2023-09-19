@@ -5017,7 +5017,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
     case RTI_CDR_TK_UNION: {
         guint32     struct_name_len;
         guint8      *struct_name;
-        const char *discriminator_name      = "<unknown>"; /* for unions */
+        const char *discriminator_name;                    /* for unions */
         char       *discriminator_enum_name = NULL;        /* for unions with enum discriminator */
         /*guint32 defaultIdx;*/ /* Currently is ignored */
         guint32     disc_id;                               /* Used temporarily to populate 'discriminator_name' */

@@ -3100,7 +3100,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
    enum enip_packet_type packet_type;
    guint16             encap_cmd, encap_data_length;
-   const char         *pkt_type_str = "";
+   const char         *pkt_type_str;
    guint32             ifacehndl;
    conversation_t     *conversation;
 

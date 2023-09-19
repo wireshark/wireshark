@@ -628,7 +628,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
 
     /* these are used to specially handle RelativeTo: */
     guint32  relativeto_int;
-    const gchar *relativeto_str= "RelativeTo: Forward"; /* default if vflags is not present*/
+    const gchar *relativeto_str;
 
     /* normal fields*/
     guint32 flags=0, chars=0;

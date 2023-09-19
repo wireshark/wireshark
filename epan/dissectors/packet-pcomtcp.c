@@ -198,9 +198,9 @@ dissect_pcomtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t    *next_tvb;
 
     guint        offset = 0;
-    const char   *pkt_type = "";
+    const char   *pkt_type;
     guint8       pcom_mode;
-    const char   *pcom_mode_str = "";
+    const char   *pcom_mode_str;
 
     proto_item    *hf_pcomtcp_reserved_item = NULL;
 

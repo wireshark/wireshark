@@ -4288,7 +4288,7 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
 static void netflow_add_transport_info(packet_info *pinfo, guint64 pen_type, guint8 ip_protocol,
                                        guint16 port_number, proto_item *ti)
 {
-    const char *port_str = "";
+    const char *port_str;
 
     /* UDP */
     if ((ip_protocol == IP_PROTO_UDP) || (pen_type == 180) || (pen_type == 181)) {

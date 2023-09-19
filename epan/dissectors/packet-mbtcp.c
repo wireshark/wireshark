@@ -416,7 +416,7 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     proto_tree    *mbtcp_tree;
     int           offset;
     tvbuff_t      *next_tvb;
-    const char    *func_string = "";
+    const char    *func_string;
     const char    *pkt_type_str = "";
     const char    *err_str = "";
     guint16       transaction_id, protocol_id, len;
@@ -559,7 +559,7 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ra
     proto_tree    *mbrtu_tree;
     int           offset;
     tvbuff_t      *next_tvb;
-    const char    *func_string = "";
+    const char    *func_string;
     const char    *pkt_type_str = "";
     const char    *err_str = "";
     guint16       len, calc_crc16;
