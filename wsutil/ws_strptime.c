@@ -732,7 +732,6 @@ namedzone:
 					week_offset = 0;
 			}
 			tm->tm_wday = week_offset;
-			state |= S_WDAY;
 		}
 	}
 
