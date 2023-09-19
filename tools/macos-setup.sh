@@ -20,7 +20,8 @@ DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
 # The minimum supported version of Qt is 5.9, so the minimum supported version
-# of macOS is OS X 10.10 (Yosemite), aka Darwin 14.0
+# of macOS is OS X 10.10 (Yosemite), aka Darwin 14.0.
+#
 if [[ $DARWIN_MAJOR_VERSION -lt 14 ]]; then
     echo "This script does not support any versions of macOS before Yosemite" 1>&2
     exit 1
@@ -776,7 +777,109 @@ install_gettext() {
         $no_build && echo "Skipping installation" && return
         gzcat gettext-$GETTEXT_VERSION.tar.gz | tar xf - || exit 1
         cd gettext-$GETTEXT_VERSION
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+
+        #
+        # This is annoying.
+        #
+        # GNU gettext's configuration script checks for the presence of an
+        # implementation of iconv().  Not only does it check whether iconv()
+        # is available, *but* it checks for certain behavior *not* specified
+        # by POSIX that the GNU implementation provides, namely that an
+        # attempt to convert the UTF-8 for the EURO SYMBOL chaaracter to
+        # ISO 8859-1 results in an error.
+        #
+        # macOS, prior to Sierra, provided the GNU iconv library (as it's
+        # a POSIX API).
+        #
+        # Sierra appears to have picked up an implementation from FreeBSD
+        # (that implementation originated with the CITRUS project:
+        #
+        #    http://citrus.bsdclub.org
+        #
+        # with additional work done to integrate it into NetBSD, and then
+        # adopted by FreeBSD with further work done).
+        #
+        # That implementation does *NOT* return an error in that case; instead,
+        # it transliterates the EURO SYMBOL to "EUR".
+        #
+        # Both behaviors conform to POSIX.
+        #
+        # This causes GNU gettext's configure script to conclude that it
+        # should not say iconv() is available.  That, unfortunately, causes
+        # the build to fail with a linking error when trying to build
+        # libtextstyle (a library for which we have no use, that is offered
+        # as a separate library by the GNU project:
+        #
+        #    https://www.gnu.org/software/gettext/libtextstyle/manual/libtextstyle.html
+        #
+        # and that is presumably bundled in GNU gettext because some gettext
+        # tool depends on it).  The failure appears to be due to:
+        #
+        #     libtextstyle's exported symbols file is generated from a
+        #     template and a script that passes through only symbols
+        #     that appear in a header file that declares the symbol
+        #     as extern;
+        #
+        #     one such header file declares iconv_ostream_create, but only
+        #     if HAVE_ICONV is defined.
+        #
+        #     the source file that defines iconv_ostream_create does so
+        #     only if HAVE_ICONV is defined;
+        #
+        #     the aforementioned script pays *NO ATTENTION* to #ifdefs,
+        #     so it will include iconv_ostream_create in the list of
+        #     symbols to export regardless of whether a working iconv()
+        #     was found;
+        #
+        #     the linker failing because it was told to export a symbol
+        #     that doesn't exist.
+        #
+        # This is a collection of multiple messes:
+        #
+        #    1) not all versions of iconv() defaulting to "return an error
+        #    if the target character set doesn't have a character that
+        #    corresponds to the source character" and not offering a way
+        #    to force that behavior;
+        #
+        #    2) either some parts of GNU gettext - and libraries bundled
+        #    with it, for some mysterious reason - depending on the GNU
+        #    behavior rather than assuming only what POSIX specifies, and
+        #    the configure script checking for the GNU behavior and not
+        #    setting HAVE_ICONV if it's not found;
+        #
+        #    3) the process for building the exported symbols file not
+        #    removing symbols that won't exist in the build due to
+        #    a "working" iconv() not being found;
+        #
+        #    4) the file that would define iconv_ostream_create() not
+        #    defining as an always-failing stub if HAVE_ICONV isn't
+        #    defined;
+        #
+        #    5) macOS's linker failing if a symbol is specified in an
+        #    exported symbols file but not found, while other linkers
+        #    just ignore it?  (I add this because I'm a bit surprised
+        #    that this has not been fixed, as I suspect it would fail
+        #    on FreeBSD and possibly NetBSD as well, as I think their
+        #    iconv()s also default to transliterating rather than failing
+        #    if an input character has no corresponding character in
+        #    the output encoding.)
+        #
+        # The Homebrew folks are aware of this and have reported it to
+        # Apple as a "feedback", for what that's worth:
+        #
+        #    https://github.com/Homebrew/homebrew-core/commit/af3b4da5a096db3d9ee885e99ed29b33dec1f1c4
+        #
+        # We adopt their fix, which is to run the configure script with
+        # "am_cv_func_iconv_works=y" as one of the arguments if it's
+        # running on Sonoma; in at least one test, doing so on Ventura
+        # caused the build to fail.
+        #
+        if [[ $DARWIN_MAJOR_VERSION -ge 23 ]]; then
+            workaround_arg="am_cv_func_iconv_works=y"
+        else
+            workaround_arg=
+        fi
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure $workaround_arg || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
