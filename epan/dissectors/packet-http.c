@@ -1300,7 +1300,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		if (have_seen_http) {
 			tvbuff_t *next_tvb;
-			const gchar *file_data;
+			int data_len;
 
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
@@ -1319,10 +1319,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if(have_tap_listener(http_follow_tap)) {
 				tap_queue_packet(http_follow_tap, pinfo, next_tvb);
 			}
-			file_data = tvb_get_string_enc(pinfo->pool, next_tvb, 0, tvb_captured_length(next_tvb), ENC_ASCII);
-			proto_tree_add_string_format_value(http_tree, hf_http_file_data,
-				next_tvb, 0, tvb_captured_length(next_tvb), file_data, "%u bytes", tvb_captured_length(next_tvb));
-
+			data_len = tvb_captured_length(next_tvb);
+			proto_tree_add_bytes_format_value(http_tree, hf_http_file_data,
+				next_tvb, 0, data_len, NULL, "%u byte%s", data_len, plurality(data_len, "", "s"));
 			call_data_dissector(next_tvb, pinfo, http_tree);
 		}
 		return -1;
@@ -1979,7 +1978,7 @@ dissecting_body:
 		 */
 		tvbuff_t *next_tvb;
 		guint chunked_datalen = 0;
-		const gchar *file_data;
+		int data_len;
 
 		/*
 		 * Create a tvbuff for the payload.
@@ -2168,9 +2167,9 @@ dissecting_body:
 		if(have_tap_listener(http_follow_tap)) {
 			tap_queue_packet(http_follow_tap, pinfo, next_tvb);
 		}
-		file_data = tvb_get_string_enc(pinfo->pool, next_tvb, 0, tvb_captured_length(next_tvb), ENC_ASCII);
-		proto_tree_add_string_format_value(http_tree, hf_http_file_data,
-			next_tvb, 0, tvb_captured_length(next_tvb), file_data, "%u bytes", tvb_captured_length(next_tvb));
+		data_len = tvb_captured_length(next_tvb);
+		proto_tree_add_bytes_format_value(http_tree, hf_http_file_data,
+			next_tvb, 0, data_len, NULL, "%u byte%s", data_len, plurality(data_len, "", "s"));
 
 		if (tvb_captured_length(next_tvb) == 0)
 			goto body_dissected;
@@ -4440,7 +4439,7 @@ proto_register_http(void)
 		NULL, HFILL }},
 	    { &hf_http_file_data,
 	      { "File Data", "http.file_data",
-		FT_STRING, BASE_NONE, NULL, 0,
+		FT_BYTES, BASE_NONE, NULL, 0,
 		NULL, HFILL }},
 	    { &hf_http_unknown_header,
 	      { "Unknown header", "http.unknown_header",

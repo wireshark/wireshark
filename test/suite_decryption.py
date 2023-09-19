@@ -16,7 +16,7 @@ import sys
 import sysconfig
 import types
 import pytest
-
+import binascii
 
 class TestDecrypt80211:
     def test_80211_wep(self, cmd_tshark, capture_file, test_env):
@@ -521,13 +521,16 @@ class TestDecryptTLS:
                 '-e', 'http.file_data',
                 '-E', 'separator=|',
             ), encoding='utf-8', env=test_env)
+        first_response = binascii.hexlify(b'Request for /first, version TLSv1.3, Early data: no\n').decode("ascii")
+        early_response = binascii.hexlify(b'Request for /early, version TLSv1.3, Early data: yes\n').decode("ascii")
+        second_response = binascii.hexlify(b'Request for /second, version TLSv1.3, Early data: yes\n').decode("ascii")
         assert [
             r'5|/first|',
-            r'6||Request for /first, version TLSv1.3, Early data: no\n',
+            fr'6||{first_response}',
             r'8|/early|',
-            r'10||Request for /early, version TLSv1.3, Early data: yes\n',
+            fr'10||{early_response}',
             r'12|/second|',
-            r'13||Request for /second, version TLSv1.3, Early data: yes\n',
+            fr'13||{second_response}',
         ] == stdout.splitlines()
 
     def test_tls13_rfc8446_noearly(self, cmd_tshark, dirs, features, capture_file, test_env):
@@ -543,12 +546,15 @@ class TestDecryptTLS:
                 '-e', 'http.file_data',
                 '-E', 'separator=|',
             ), encoding='utf-8', env=test_env)
+        first_response = binascii.hexlify(b'Request for /first, version TLSv1.3, Early data: no\n').decode("ascii")
+        early_response = binascii.hexlify(b'Request for /early, version TLSv1.3, Early data: yes\n').decode("ascii")
+        second_response = binascii.hexlify(b'Request for /second, version TLSv1.3, Early data: yes\n').decode("ascii")
         assert [
             r'5|/first|',
-            r'6||Request for /first, version TLSv1.3, Early data: no\n',
-            r'10||Request for /early, version TLSv1.3, Early data: yes\n',
+            fr'6||{first_response}',
+            fr'10||{early_response}',
             r'12|/second|',
-            r'13||Request for /second, version TLSv1.3, Early data: yes\n',
+            fr'13||{second_response}',
         ] == stdout.splitlines()
 
     def test_tls12_dsb(self, cmd_tshark, capture_file, test_env):
