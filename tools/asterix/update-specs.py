@@ -14,7 +14,7 @@ import argparse
 import urllib.request
 import json
 from copy import copy, deepcopy
-from itertools import chain, repeat
+from itertools import chain, repeat, takewhile
 from functools import reduce
 import os
 import sys
@@ -50,7 +50,6 @@ class Context(object):
     def __init__(self):
         self.buffer = {}
         self.offset = Offset()
-        self.inside_extended = None
         self.inside_repetitive = False
 
     def __enter__(self):
@@ -378,7 +377,6 @@ def part1(ctx, get_ref, catalogue):
     tell_pr = lambda s: ctx.tell('insert2', s)
 
     ctx.reset_offset()
-    ctx.inside_extended = None
 
     def handle_item(path, item):
         """Handle 'spare' or regular 'item'.
@@ -421,16 +419,6 @@ def part1(ctx, get_ref, catalogue):
 
                 ctx.offset += n
 
-                if ctx.inside_extended is not None:
-                    n, rest = ctx.inside_extended
-                    if ctx.offset.get + 1 > n:
-                        raise Exception("unexpected offset")
-                    # FX bit
-                    if ctx.offset.get + 1 == n:
-                        ctx.offset += 1
-                        m = next(rest)
-                        ctx.inside_extended = (m, rest)
-
             elif t == 'Group':
                 ctx.reset_offset()
 
@@ -458,10 +446,7 @@ def part1(ctx, get_ref, catalogue):
                         (ref, '{', byte_size, ref, parts, comp, '}'))
 
             elif t == 'Extended':
-                n1 = variation['first']
-                n2 = variation['extents']
                 ctx.reset_offset()
-                ctx.inside_extended = (n1, chain(repeat(n1,1), repeat(n2)))
 
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
@@ -469,45 +454,37 @@ def part1(ctx, get_ref, catalogue):
 
                 items = []
                 for i in variation['items']:
+                    if i is None:
+                        items.append(i)
+                        continue
                     if i.get('variation') is not None:
                         if i['variation']['type'] == 'Group':
                             i = ungroup(i)
                     items.append(i)
 
                 for i in items:
-                    handle_item(path, i)
+                    if i is None:
+                        ctx.offset += 1
+                    else:
+                        handle_item(path, i)
 
                 tell('static const FieldPart *I{}_PARTS[] = {}'.format(ref,'{'))
-                chunks = chain(repeat(n1,1), repeat(n2))
-                # iterate over items, reinsert FX bits
-                while True:
-                    bit_size = next(chunks)
-                    assert (bit_size % 8) == 0, "bit alignment error"
-                    byte_size = bit_size // 8
-                    bits_from = bit_size
-                    while True:
-                        i = items[0]
-                        items = items[1:]
-                        n = get_bit_size(i)
+                for i in items:
+                    if i is None:
+                        tell('    &IXXX_FX,')
+                    else:
                         tell('    {},'.format(part_of(i)))
-                        bits_from -= n
-                        if bits_from <= 1:
-                            break
-                    tell('    &IXXX_FX,')
-                    if not items:
-                        break
+
                 tell('    NULL')
                 tell('};')
 
                 # AsterixField
-                n1 = variation['first'] // 8
-                n2 = variation['extents'] // 8
+                first_part = list(takewhile(lambda x: x is not None, items))
+                n = (sum([get_bit_size(i) for i in first_part]) + 1) // 8
                 parts = 'I{}_PARTS'.format(ref)
                 comp = '{ NULL }'
                 tell('static const AsterixField I{} = {} FX, {}, 0, {}, &hf_{}, {}, {} {};'.format
-                    (ref, '{', n2, n1 - 1, ref, parts, comp, '}'))
-
-                ctx.inside_extended = None
+                    (ref, '{', n, 0, ref, parts, comp, '}'))
 
             elif t == 'Repetitive':
                 ctx.reset_offset()
@@ -580,13 +557,9 @@ def part1(ctx, get_ref, catalogue):
             var = item['variation']['variation'].copy()
             if var['type'] != 'Element':
                 raise Exception("Expecting 'Element'")
-            n = var['size']
             item = item.copy()
             item['variation'] = {
                 'type': 'Extended',
-                'first': n+1,
-                'extents': n+1,
-                'fx': 'Regular',
                 'items': [{
                     'definition': None,
                     'description': None,
@@ -595,7 +568,7 @@ def part1(ctx, get_ref, catalogue):
                     'spare': False,
                     'title': 'Subitem',
                     'variation': var,
-                    }]
+                    }, None]
             }
         handle_item([], item)
     tell('')
@@ -751,12 +724,10 @@ def is_valid(spec):
         elif t == 'Group':
             return all([check_item(i) for i in variation['items']])
         elif t == 'Extended':
-            n1 = variation['first']
-            n2 = variation['extents']
-            fx = variation['fx']
-            if fx != 'Regular':
-                return False    # 'iregular extended item'
-            return all([check_item(i) for i in variation['items']])
+            trailing_fx = variation['items'][-1] == None
+            if not trailing_fx:
+                return False
+            return all([check_item(i) for i in variation['items'] if i is not None])
         elif t == 'Repetitive':
             return check_variation(variation['variation'])
         elif t == 'Explicit':
