@@ -1516,10 +1516,14 @@ __mode__ specifies the output mode.  It can be one of:
   ebcdic EBCDIC output with dots for non-printable characters
   hex    Hexadecimal and ASCII data with offsets
   raw    Hexadecimal data
+  utf-8  UTF-8 output with REPLACEMENT CHARACTERs for invalid sequences
   yaml   YAML format
 
-Since the output in *ascii* or *ebcdic* mode may contain newlines, the length
-of each section of output plus a newline precedes each section of output.
+Since the output in *ascii*, *ebcdic*, or *utf-8* mode may contain newlines,
+each section of output is preceded by its length in bytes plus a newline.
+(Note that for *utf-8* this is not UTF-8 characters, and may be different
+than the length as transmitted due to the substitution of replacement
+characters for invalid sequences.)
 
 __filter__ specifies the stream to be displayed. There are three formats:
 

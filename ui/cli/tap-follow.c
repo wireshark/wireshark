@@ -21,6 +21,7 @@
 #include <glib.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/str_util.h>
+#include <wsutil/unicode-utils.h>
 #include <epan/follow.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
@@ -65,6 +66,7 @@ typedef struct _cli_follow_info {
 #define STR_ASCII       ",ascii"
 #define STR_EBCDIC      ",ebcdic"
 #define STR_RAW         ",raw"
+#define STR_CODEC       ",utf-8"
 #define STR_YAML        ",yaml"
 
 WS_NORETURN static void follow_exit(const char *strp)
@@ -81,6 +83,7 @@ static const char * follow_str_type(cli_follow_info_t* cli_follow_info)
   case SHOW_ASCII:      return "ascii";
   case SHOW_EBCDIC:     return "ebcdic";
   case SHOW_RAW:        return "raw";
+  case SHOW_CODEC:      return "utf-8";
   case SHOW_YAML:       return "yaml";
   default:
     ws_assert_not_reached();
@@ -179,6 +182,7 @@ static void follow_draw(void *contextp)
   guint32 *global_pos;
   guint32           ii, jj;
   char              *buffer;
+  wmem_strbuf_t     *strbuf;
   GList             *cur;
   follow_record_t   *follow_record;
   guint             chunk;
@@ -242,6 +246,7 @@ static void follow_draw(void *contextp)
     {
     case SHOW_HEXDUMP:
     case SHOW_YAML:
+    case SHOW_CODEC: /* The transformation to UTF-8 can change the length */
       break;
 
     case SHOW_ASCII:
@@ -276,6 +281,12 @@ static void follow_draw(void *contextp)
       {
         switch (follow_record->data->data[ii])
         {
+        // XXX: qt/follow_stream_dialog.c sanitize_buffer() also passes
+        // tabs ('\t') through. Should we do that here too?
+        // The Qt code has automatic universal new line handling for reading
+        // so, e.g., \r\n in HTML becomes just \n, but we don't do that here.
+        // (The Qt version doesn't write the file as Text, so all files use
+        // Unix line endings, including on Windows.)
         case '\r':
         case '\n':
           buffer[ii] = follow_record->data->data[ii];
@@ -293,6 +304,20 @@ static void follow_draw(void *contextp)
       }
       printf("%s", buffer);
       g_free(buffer);
+      break;
+
+    case SHOW_CODEC:
+      // This does the same as the Show As UTF-8 code in the Qt version
+      // (passing through all legal UTF-8, including control codes and
+      // internal NULs, substituting illegal UTF-8 sequences with
+      // REPLACEMENT CHARACTER, and not handling valid UTF-8 sequences
+      // which are split between unreassembled frames), except for the
+      // end of line terminator issue as above.
+      strbuf = ws_utf8_make_valid_strbuf(NULL, follow_record->data->data, follow_record->data->len);
+      printf("%s%zu\n", follow_record->is_server ? "\t" : "", wmem_strbuf_get_len(strbuf));
+      fwrite(wmem_strbuf_get_str(strbuf), 1, wmem_strbuf_get_len(strbuf), stdout);
+      wmem_strbuf_destroy(strbuf);
+      putchar('\n');
       break;
 
     case SHOW_RAW:
@@ -376,6 +401,10 @@ follow_arg_mode(const char **opt_argp, follow_info_t *follow_info)
   else if (follow_arg_strncmp(opt_argp, STR_RAW))
   {
     cli_follow_info->show_type = SHOW_RAW;
+  }
+  else if (follow_arg_strncmp(opt_argp, STR_CODEC))
+  {
+    cli_follow_info->show_type = SHOW_CODEC;
   }
   else if (follow_arg_strncmp(opt_argp, STR_YAML))
   {
