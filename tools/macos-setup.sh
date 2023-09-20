@@ -987,6 +987,25 @@ install_glib() {
         # doesn't find libffi, we construct a .pc file for that libffi,
         # and install it in /usr/local/lib/pkgconfig.
         #
+        # First, check whether pkg-config finds libffi but thinks its
+        # header files are in a non-existent directory.  That probaby
+        # means that we generated the .pc file when some SDK was the
+        # appropriate choice, but Xcode has been updated since then
+        # and that SDK is no longer present.  If so, we remove it,
+        # so that we will regenerate it if necessary, rather than
+        # trying to build with a bogus include directory.  (Yes, this
+        # can happen, and has happened, causing mysterius build
+        # failures when "#include <ffi.h>" fails.)
+        #
+        if pkg-config libffi ; then
+            # We have a .pc file for libffi; what does it say the
+            # include directory is?
+            incldir=`pkg-config --variable=includedir libffi`
+            if [ ! -z "$incldir" -a ! -d "$incldir" ] ; then
+                # Bogus - remove it, assuming
+                $DO_RM /usr/local/lib/pkgconfig/libffi.pc
+            fi
+        fi
         if pkg-config libffi ; then
             # It found libffi; no need to install a .pc file, and we
             # don't want to overwrite what's there already.
