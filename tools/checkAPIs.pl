@@ -1165,12 +1165,13 @@ while ($_ = pop @filelist)
             $errorCount += check_hf_entries(\$fileContents, $filename);
         }
 
-        if ($fileContents =~ m{ %ll }xo)
+        if ($fileContents =~ m{ %\d*?ll }dxo)
         {
                 # use PRI[dux...]N instead of ll
                 print STDERR "Error: Found %ll in " .$filename."\n";
                 $errorCount++;
         }
+
         if ($fileContents =~ m{ %hh }xo)
         {
                 # %hh is C99 and Windows doesn't like it:
