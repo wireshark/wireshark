@@ -371,7 +371,7 @@ macOS Arm Package:
   stage: build
   rules: !reference [.if-w-w-only-merged]
   variables:
-    CODE_SIGN_IDENTITY: "Wireshark Foundation, Inc."
+    CODE_SIGN_IDENTITY: "Wireshark Foundation"
   tags:
     - wireshark-macos-arm-package
   retry: 1
@@ -407,7 +407,7 @@ macOS Intel Package:
   stage: build
   rules: !reference [.if-w-w-only-merged]
   variables:
-    CODE_SIGN_IDENTITY: "Wireshark Foundation, Inc."
+    CODE_SIGN_IDENTITY: "Wireshark Foundation"
   tags:
     - wireshark-macos-intel-package
   retry: 1
