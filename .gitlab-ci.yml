@@ -447,8 +447,8 @@ macOS Arm Package:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - codesign-prep
+    - security find-identity -v -s "$CODE_SIGN_IDENTITY"
     - ninja dmg_package
-    - codesign-cleanup
     - cd run
     - xcrun notarytool submit Wireshark?[1-9]*.dmg --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD" --wait --timeout 10m
     - xcrun stapler staple Wireshark?[1-9]*.dmg
@@ -483,8 +483,8 @@ macOS Intel Package:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - codesign-prep
+    - security find-identity -v -s "$CODE_SIGN_IDENTITY"
     - ninja dmg_package
-    - codesign-cleanup
     - cd run
     - xcrun notarytool submit Wireshark?[1-9]*.dmg --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD" --wait --timeout 10m
     - xcrun stapler staple Wireshark?[1-9]*.dmg
