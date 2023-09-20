@@ -2365,14 +2365,20 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, g
         return 0;
     }
 
-    if (paramlist == NULL || !spdu_deserializer_activated) {
-        /* we only receive subtvbs with nothing behind us */
+    if (!spdu_deserializer_activated) {
+        /* we only receive a tvb with nothing behind us */
         proto_tree_add_text_internal(tree, tvb, 0, tvb_captured_length(tvb), "Dissection of payload is disabled. It can be enabled via protocol preferences.");
         return tvb_captured_length(tvb);
     }
 
+    if (tvb_captured_length(tvb) > 0 && paramlist == NULL) {
+        /* we only receive a tvb with nothing behind us */
+        proto_tree_add_text_internal(tree, tvb, 0, tvb_captured_length(tvb), "Payload of PDU is not configured. See protocol preferences.");
+        return tvb_captured_length(tvb);
+    }
+
     if (root_tree == NULL && !proto_field_is_referenced(root_tree, proto_signal_pdu) && !paramlist->aggregation) {
-        /* we only receive subtvbs with nothing behind us */
+        /* we only receive a tvb with nothing behind us */
         return tvb_captured_length(tvb);
     }
 
