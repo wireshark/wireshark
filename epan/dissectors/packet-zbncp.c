@@ -391,7 +391,7 @@ static int hf_ieee802154_cinfo_sec_capable = -1;
 static int hf_ieee802154_cinfo_alloc_addr = -1;
 
 /* ZBNCP traffic dump */
-static int hf_zbncp_dump_preambule = -1;
+static int hf_zbncp_dump_preamble = -1;
 static int hf_zbncp_dump_version = -1;
 static int hf_zbncp_dump_type = -1;
 static int hf_zbncp_dump_options = -1;
@@ -1161,7 +1161,7 @@ dissect_zbncp_dump_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     zbncp_dump_info_tree = proto_tree_add_subtree(tree, tvb, 0, ZBNCP_DUMP_INFO_SIZE, ett_zbncp_dump, NULL, "ZBNCP Dump");
 
-    proto_tree_add_item(zbncp_dump_info_tree, hf_zbncp_dump_preambule, tvb, 0, ZBNCP_DUMP_INFO_SIGN_SIZE, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(zbncp_dump_info_tree, hf_zbncp_dump_preamble, tvb, 0, ZBNCP_DUMP_INFO_SIGN_SIZE, ENC_ASCII|ENC_NA);
     offset = ZBNCP_DUMP_INFO_SIGN_SIZE;
 
     proto_tree_add_item(zbncp_dump_info_tree, hf_zbncp_dump_version, tvb, offset, 1, ENC_NA);
@@ -5767,8 +5767,8 @@ void proto_register_zbncp(void)
          {"Production config body", "zbncp.data.prod_conf.body", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},
 
         /* ZBOSS NCP dump */
-        {&hf_zbncp_dump_preambule,
-         {"ZBNCP Dump preambule", "zbncp.dump.preambule", FT_STRING, BASE_NONE, NULL, 0x0,
+        {&hf_zbncp_dump_preamble,
+         {"ZBNCP Dump preamble", "zbncp.dump.preamble", FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}},
 
         {&hf_zbncp_dump_version,
