@@ -1159,8 +1159,8 @@ static char *
 boolean_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	if (fv->value.uinteger64)
-		return wmem_strdup(scope, "1");
-	return wmem_strdup(scope, "0");
+		return wmem_strdup(scope, "True");
+	return wmem_strdup(scope, "False");
 }
 
 /* False is less than True (arbitrary):

@@ -825,10 +825,10 @@ class TestDecryptWireguard:
             '-e', 'wg.receiver_pubkey.known_privkey',
         ])
         assert len(lines) == 4
-        assert '1\t%s\t0' % self.key_Spub_r in lines
-        assert '2\t%s\t0' % self.key_Spub_i in lines
-        assert '13\t%s\t0' % self.key_Spub_r in lines
-        assert '14\t%s\t0' % self.key_Spub_i in lines
+        assert '1\t%s\tFalse' % self.key_Spub_r in lines
+        assert '2\t%s\tFalse' % self.key_Spub_i in lines
+        assert '13\t%s\tFalse' % self.key_Spub_r in lines
+        assert '14\t%s\tFalse' % self.key_Spub_i in lines
 
     def test_mac1_private(self, run_wireguard_test):
         """Check that MAC1 identification using private keys work."""
@@ -842,10 +842,10 @@ class TestDecryptWireguard:
             '-e', 'wg.receiver_pubkey.known_privkey',
         ])
         assert len(lines) == 4
-        assert '1\t%s\t1' % self.key_Spub_r in lines
-        assert '2\t%s\t1' % self.key_Spub_i in lines
-        assert '13\t%s\t1' % self.key_Spub_r in lines
-        assert '14\t%s\t1' % self.key_Spub_i in lines
+        assert '1\t%s\tTrue' % self.key_Spub_r in lines
+        assert '2\t%s\tTrue' % self.key_Spub_i in lines
+        assert '13\t%s\tTrue' % self.key_Spub_r in lines
+        assert '14\t%s\tTrue' % self.key_Spub_i in lines
 
     def test_decrypt_initiation_sprivr(self, run_wireguard_test):
         """Check for partial decryption using Spriv_r."""
@@ -860,8 +860,8 @@ class TestDecryptWireguard:
             '-e', 'wg.timestamp.nanoseconds',
         ])
         # static pubkey is unknown because Spub_i is not added to wg_keys.
-        assert '1\t%s\t0\t0\t%s' % (self.key_Spub_i, '356537872') in lines
-        assert '13\t%s\t0\t0\t%s' % (self.key_Spub_i, '490514356') in lines
+        assert '1\t%s\tFalse\tFalse\t%s' % (self.key_Spub_i, '356537872') in lines
+        assert '13\t%s\tFalse\tFalse\t%s' % (self.key_Spub_i, '490514356') in lines
 
     def test_decrypt_initiation_ephemeral_only(self, run_wireguard_test):
         """Check for partial decryption using Epriv_i."""
@@ -879,8 +879,8 @@ class TestDecryptWireguard:
         ])
         # The current implementation tries to write as much decrypted data as
         # possible, even if the full handshake cannot be derived.
-        assert '1\t1\t%s\t%s' % (self.key_Spub_i, '') in lines
-        assert '13\t1\t%s\t%s' % (self.key_Spub_i, '') in lines
+        assert '1\tTrue\t%s\t%s' % (self.key_Spub_i, '') in lines
+        assert '13\tTrue\t%s\t%s' % (self.key_Spub_i, '') in lines
 
     def test_decrypt_full_initiator(self, run_wireguard_test):
         """
@@ -902,12 +902,12 @@ class TestDecryptWireguard:
             '  LOCAL_EPHEMERAL_PRIVATE_KEY = %s' % self.key_Epriv_i0_alt,
             '  LOCAL_EPHEMERAL_PRIVATE_KEY = %s' % self.key_Epriv_i1,
         ])
-        assert '1\t1\t%s\t%s\t\t\t' % (self.key_Spub_i, '356537872') in lines
-        assert '2\t0\t\t\t1\t\t' in lines
+        assert '1\tTrue\t%s\t%s\t\t\t' % (self.key_Spub_i, '356537872') in lines
+        assert '2\tFalse\t\t\tTrue\t\t' in lines
         assert '3\t\t\t\t\t8\t' in lines
         assert '4\t\t\t\t\t0\t' in lines
-        assert '13\t1\t%s\t%s\t\t\t' % (self.key_Spub_i, '490514356') in lines
-        assert '14\t0\t\t\t1\t\t' in lines
+        assert '13\tTrue\t%s\t%s\t\t\t' % (self.key_Spub_i, '490514356') in lines
+        assert '14\tFalse\t\t\tTrue\t\t' in lines
         assert '17\t\t\t\t\t\t443' in lines
         assert '18\t\t\t\t\t\t49472' in lines
 
@@ -927,12 +927,12 @@ class TestDecryptWireguard:
             '-e', 'icmp.type',
             '-e', 'tcp.dstport',
         ], pcap_file='wireguard-ping-tcp-dsb.pcapng')
-        assert '1\t1\t%s\t%s\t\t\t' % (self.key_Spub_i, '356537872') in lines
-        assert '2\t0\t\t\t1\t\t' in lines
+        assert '1\tTrue\t%s\t%s\t\t\t' % (self.key_Spub_i, '356537872') in lines
+        assert '2\tFalse\t\t\tTrue\t\t' in lines
         assert '3\t\t\t\t\t8\t' in lines
         assert '4\t\t\t\t\t0\t' in lines
-        assert '13\t1\t%s\t%s\t\t\t' % (self.key_Spub_i, '490514356') in lines
-        assert '14\t0\t\t\t1\t\t' in lines
+        assert '13\tTrue\t%s\t%s\t\t\t' % (self.key_Spub_i, '490514356') in lines
+        assert '14\tFalse\t\t\tTrue\t\t' in lines
         assert '17\t\t\t\t\t\t443' in lines
         assert '18\t\t\t\t\t\t49472' in lines
 
@@ -953,12 +953,12 @@ class TestDecryptWireguard:
             'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r0,
             'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r1,
         ])
-        assert '1\t0\t%s\t%s\t\t\t' % (self.key_Spub_i, '356537872') in lines
-        assert '2\t1\t\t\t1\t\t' in lines
+        assert '1\tFalse\t%s\t%s\t\t\t' % (self.key_Spub_i, '356537872') in lines
+        assert '2\tTrue\t\t\tTrue\t\t' in lines
         assert '3\t\t\t\t\t8\t' in lines
         assert '4\t\t\t\t\t0\t' in lines
-        assert '13\t0\t%s\t%s\t\t\t' % (self.key_Spub_i, '490514356') in lines
-        assert '14\t1\t\t\t1\t\t' in lines
+        assert '13\tFalse\t%s\t%s\t\t\t' % (self.key_Spub_i, '490514356') in lines
+        assert '14\tTrue\t\t\tTrue\t\t' in lines
         assert '17\t\t\t\t\t\t443' in lines
         assert '18\t\t\t\t\t\t49472' in lines
 
@@ -976,8 +976,8 @@ class TestDecryptWireguard:
             'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r3,
             'PRESHARED_KEY=%s' % self.key_psk3,
         ], pcap_file='wireguard-psk.pcap')
-        assert '2\t1' in lines
-        assert '4\t1' in lines
+        assert '2\tTrue' in lines
+        assert '4\tTrue' in lines
 
     def test_decrypt_psk_responder(self, run_wireguard_test):
         """Check whether PSKs enable decryption for responder keys."""
@@ -1001,8 +1001,8 @@ class TestDecryptWireguard:
             'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_i3,
             'PRESHARED_KEY=%s' % self.key_dummy,
         ], pcap_file='wireguard-psk.pcap')
-        assert '2\t1' in lines
-        assert '4\t1' in lines
+        assert '2\tTrue' in lines
+        assert '4\tTrue' in lines
 
     def test_decrypt_psk_wrong_orderl(self, run_wireguard_test):
         """Check that the wrong order of lines indeed fail decryption."""
@@ -1018,8 +1018,8 @@ class TestDecryptWireguard:
             'PRESHARED_KEY=%s' % self.key_psk2, # note: swapped with previous line
             'PRESHARED_KEY=%s' % self.key_psk3,
         ], pcap_file='wireguard-psk.pcap')
-        assert '2\t0' in lines
-        assert '4\t0' in lines
+        assert '2\tFalse' in lines
+        assert '4\tFalse' in lines
 
 
 class TestDecryptKnxip:
