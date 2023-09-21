@@ -236,7 +236,7 @@ static inline bool level_filter_matches(log_filter_t *filter,
 }
 
 
-static void
+static inline void
 get_timestamp(struct timespec *ts)
 {
     bool ok = false;
@@ -854,6 +854,8 @@ void ws_log_init(const char *progname,
         registered_progname = progname;
         g_set_prgname(progname);
     }
+
+    ws_tzset();
 
     current_log_level = DEFAULT_LOG_LEVEL;
 

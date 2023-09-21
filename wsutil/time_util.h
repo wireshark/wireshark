@@ -63,6 +63,9 @@ WS_DLL_PUBLIC
 guint64 create_timestamp(void);
 
 WS_DLL_PUBLIC
+void ws_tzset(void);
+
+WS_DLL_PUBLIC
 struct timespec *ws_clock_get_realtime(struct timespec *ts);
 
 WS_DLL_PUBLIC

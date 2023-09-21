@@ -43,6 +43,7 @@
 #include <ui/urls.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/time_util.h>
 #include <wsutil/socket.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
@@ -1012,6 +1013,8 @@ main(int argc, char *argv[])
 #else
     setlocale(LC_ALL, "");
 #endif
+
+    ws_tzset();
 
     cmdarg_err_init(tshark_cmdarg_err, tshark_cmdarg_err_cont);
 

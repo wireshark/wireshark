@@ -284,9 +284,6 @@ struct tm *
 ws_localtime_r(const time_t *timep, struct tm *result)
 {
 #if defined(HAVE_LOCALTIME_R)
-#ifdef HAVE_TZSET
-	tzset();
-#endif
 	return localtime_r(timep, result);
 #elif defined(_MSC_VER)
 	errno_t err = localtime_s(result, timep);
@@ -302,13 +299,17 @@ ws_localtime_r(const time_t *timep, struct tm *result)
 #endif
 }
 
+void ws_tzset(void)
+{
+#ifdef HAVE_TZSET
+	tzset();
+#endif
+}
+
 struct tm *
 ws_gmtime_r(const time_t *timep, struct tm *result)
 {
 #if defined(HAVE_GMTIME_R)
-#ifdef HAVE_TZSET
-	tzset();
-#endif
 	return gmtime_r(timep, result);
 #elif defined(_MSC_VER)
 	errno_t err = gmtime_s(result, timep);

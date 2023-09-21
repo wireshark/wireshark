@@ -26,6 +26,7 @@
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <ui/urls.h>
+#include <wsutil/time_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/socket.h>
@@ -524,6 +525,8 @@ int main(int argc, char *qt_argv[])
 #else
     setlocale(LC_ALL, "");
 #endif
+
+    ws_tzset();
 
 #ifdef _WIN32
     //
