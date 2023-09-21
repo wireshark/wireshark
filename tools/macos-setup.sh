@@ -389,7 +389,7 @@ install_pcre2() {
         # https://github.com/Homebrew/homebrew-core/blob/master/Formula/pcre2.rb
         # https://github.com/microsoft/vcpkg/blob/master/ports/pcre2/portfile.cmake
         MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" \
-            cmake -DBUILD_STATIC_LIBS=OFF -DBUILD_SHARED_LIBS=ON -DPCRE2_SUPPORT_JIT=ON -DPCRE2_SUPPORT_UNICODE=ON .. || exit 1
+            $DO_CMAKE -DBUILD_STATIC_LIBS=OFF -DBUILD_SHARED_LIBS=ON -DPCRE2_SUPPORT_JIT=ON -DPCRE2_SUPPORT_UNICODE=ON .. || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ../..
@@ -1745,7 +1745,7 @@ install_snappy() {
         # will carry that dependency with it, so linking with it should
         # Just Work.
         #
-        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake -DBUILD_SHARED_LIBS=YES -DSNAPPY_BUILD_BENCHMARKS=NO -DSNAPPY_BUILD_TESTS=NO ../ || exit 1
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" $DO_CMAKE -DBUILD_SHARED_LIBS=YES -DSNAPPY_BUILD_BENCHMARKS=NO -DSNAPPY_BUILD_TESTS=NO ../ || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ../..
@@ -2086,7 +2086,7 @@ install_libssh() {
         cd libssh-$LIBSSH_VERSION
         mkdir build
         cd build
-        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake -DWITH_GCRYPT=1 ../ || exit 1
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" $DO_CMAKE -DWITH_GCRYPT=1 ../ || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ../..
@@ -2326,7 +2326,7 @@ install_bcg729() {
         cd bcg729-$BCG729_VERSION
         mkdir build_dir
         cd build_dir
-        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake  ../ || exit 1
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" $DO_CMAKE  ../ || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ../..
@@ -2530,7 +2530,7 @@ install_brotli() {
         cd brotli-$BROTLI_VERSION
         mkdir build_dir
         cd build_dir
-        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake ../ || exit 1
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" $DO_CMAKE ../ || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ../..
@@ -3426,6 +3426,29 @@ else
     DO_RM="sudo rm"
     DO_MV="sudo mv"
 fi
+
+#
+# When building with CMake, don't build libraries with an install path
+# that begins with @rpath because that will cause binaries linked with it
+# to use that path as the library to look for, and that will cause the
+# run-time linker, at least on macOS 14 and later, not to find the library
+# in /usr/local/lib unless you explicitly set DYLD_LIBRARY_PATH to include
+# /usr/local/lib.  That means that you get "didn't find libpcre" errors if
+# you try to run binaries from a build unless you set DYLD_LIBRARYPATH to
+# include /usr/local/lib.
+#
+# However, setting CMAKE_MACOSX_RPATH to OFF causes the installed
+# library just to have the file name of the library as its install
+# name.  It needs to be the full installed path of the library in
+# order to make running binaries from the build directory work, so
+# we set CMAKE_INSTALL_NAME_DIR to /usr/local/lib.
+# 
+# packaging/macosx/osx-app.sh will convert *all* libraries in
+# the app bundle to have an @rpath install name, so this won't
+# break anything there; it just fixes the ability to run from the
+# build directory.
+#
+DO_CMAKE="cmake -DCMAKE_MACOSX_RPATH=OFF -DCMAKE_INSTALL_NAME_DIR=/usr/local/lib"
 
 # This script is meant to be run in the source root.  The following
 # code will attempt to get you there, but is not perfect (particulary
