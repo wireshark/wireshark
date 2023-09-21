@@ -19,6 +19,7 @@
 #include <epan/nlpid.h>
 
 static const value_string algorithm_vals[] = {
+    { 16, "hmac-md5" },
     { 20, "hmac-sha1" },
     { 28, "hmac-sha224" },
     { 32, "hmac-sha256" },
