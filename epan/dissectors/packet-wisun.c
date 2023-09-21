@@ -62,7 +62,7 @@ static reassembly_table netricity_reassembly_table;
 #define WISUN_SUBID_LTO    0x11
 #define WISUN_SUBID_PANID  0x12
 #define WISUN_SUBID_RT     0x1D
-#define WISUN_SUBID_LBC    0x80
+#define WISUN_SUBID_LBC    0xC0
 
 /* Wi-SUN Payload/Nested ID values. */
 #define WISUN_PIE_SUBID_US       0x01
