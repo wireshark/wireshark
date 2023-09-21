@@ -37,7 +37,7 @@ def name_has_one_of(name, substring_list):
     return False
 
 # A call is an individual call to an API we are interested in.
-# Internal to APICheck below.
+# Used by APICheck below.
 class Call:
     def __init__(self, hf_name, macros, line_number=None, length=None, fields=None):
         self.hf_name = hf_name
@@ -228,7 +228,7 @@ class APICheck:
                     warnings_found += 1
 
 
-
+# Specialization of APICheck for add_item() calls
 class ProtoTreeAddItemCheck(APICheck):
     def __init__(self, ptv=None):
 
@@ -393,6 +393,7 @@ field_widths = {
     'FT_INT64'   : 64
 }
 
+# TODO: most of these might as well be strings...
 def is_ignored_consecutive_filter(filter):
     ignore_patterns = [
         re.compile(r'^elf.sh_type'),
@@ -654,13 +655,15 @@ class Item:
 
     previousItem = None
 
-    def __init__(self, filename, hf, filter, label, item_type, display, strings, macros, mask=None,
-                 check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False, blurb=''):
+    def __init__(self, filename, hf, filter, label, item_type, display, strings, macros, value_strings,
+                 mask=None, check_mask=False, mask_exact_width=False, check_label=False,
+                 check_consecutive=False, blurb=''):
         self.filename = filename
         self.hf = hf
         self.filter = filter
         self.label = label
         self.mask = mask
+        self.strings = strings
         self.mask_exact_width = mask_exact_width
 
         global warnings_found
@@ -702,6 +705,15 @@ class Item:
         if strings.find('VALS_EXT_PTR') != -1 and display.find('BASE_EXT_STRING') == -1:
             print('Warning: ' + filename, hf, 'filter "' + filter + ' strings has VALS_EXT_PTR but display lacks BASE_EXT_STRING')
             warnings_found += 1
+
+        # For VALS, lookup the corresponding ValueString and try to check range.
+        vs_re = re.compile(r'VALS\(([a-zA-Z0-9_]*)\)')
+        m = vs_re.search(strings)
+        if m:
+            self.vs_name = m.group(1)
+            if self.vs_name in value_strings:
+                vs = value_strings[self.vs_name]
+                self.check_value_string_range(vs.min_value, vs.max_value)
 
 
     def __str__(self):
@@ -754,6 +766,18 @@ class Item:
             self.mask_read = False
             self.mask_value = 0
 
+    def check_value_string_range(self, vs_min, vs_max):
+        # N,B, this doesn't reduce bit count when a mask is set!
+        item_width = self.get_field_width_in_bits()
+        if item_width is None:
+            # Type field defined by macro?
+            return
+        item_max = (2 ** item_width) - 1
+        if vs_max > item_max:
+            global warnings_found
+            print('Warning:', self.filename, self.hf, 'filter=', self.filter,
+                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", item_width, 'bits')
+            warnings_found += 1
 
     # Return true if bit position n is set in value.
     def check_bit(self, value, n):
@@ -1163,7 +1187,8 @@ def find_macros(filename):
 
 
 # Look for hf items (i.e. full item to be registered) in a dissector file.
-def find_items(filename, macros, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
+def find_items(filename, macros, value_strings,
+               check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
     with open(filename, 'r', encoding="utf8") as f:
@@ -1187,6 +1212,7 @@ def find_items(filename, macros, check_mask=False, mask_exact_width=False, check
                              display=m.group(5),
                              strings=m.group(6),
                              macros=macros,
+                             value_strings=value_strings,
                              mask=m.group(7),
                              blurb=blurb,
                              check_mask=check_mask,
@@ -1324,8 +1350,16 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     # Find simple macros so can substitute into items and calls.
     macros = find_macros(filename)
 
+    # Find (and sanity-check) value_strings
+    value_strings = findValueStrings(filename, macros, do_extra_checks=extra_value_string_checks)
+    if extra_value_string_checks:
+        for name in value_strings:
+            value_strings[name].extraChecks()
+
+
     # Find important parts of items.
-    items_defined = find_items(filename, macros, check_mask, mask_exact_width, check_label, check_consecutive)
+    items_defined = find_items(filename, macros, value_strings,
+                               check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
 
     items_declared = {}
@@ -1347,12 +1381,6 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     field_arrays = {}
     if check_bitmask_fields:
         field_arrays = find_field_arrays(filename, fields, items_defined)
-
-    # Find (and sanity-check) value_strings
-    value_strings = findValueStrings(filename, macros, do_extra_checks=extra_value_string_checks)
-    if extra_value_string_checks:
-        for name in value_strings:
-            value_strings[name].extraChecks()
 
     if check_mask and check_bitmask_fields:
         for i in items_defined:
