@@ -289,7 +289,7 @@ def findTFS(filename):
 
     with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
-        # Example: const true_false_string tfs_true_false = { "True", "False" };
+        # Example: const true_false_string tfs_yes_no = { "Yes", "No" };
 
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)

@@ -1132,7 +1132,6 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
     gint32             svalue;
     guint64            uvalue64;
     gint64             svalue64;
-    const true_false_string *tfstring = &tfs_true_false;
 
     hfinfo = finfo->hfinfo;
 
@@ -1175,8 +1174,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                         switch(hfinfo->type) {
                             case FT_BOOLEAN:
                                 uvalue64 = fvalue_get_uinteger64(finfo->value);
-                                tfstring = (const true_false_string*) hfinfo->strings;
-                                g_string_append(label_s, tfs_get_string(!!uvalue64, tfstring));
+                                g_string_append(label_s, tfs_get_string(!!uvalue64, hfinfo->strings));
                                 break;
                             case FT_INT8:
                             case FT_INT16:

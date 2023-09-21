@@ -1760,11 +1760,11 @@ proto_register_iso14443(void)
         },
         { &hf_iso14443_cid_following,
             { "CID following", "iso14443.cid_following", FT_BOOLEAN, 8,
-                TFS(&tfs_true_false), 0x08, NULL, HFILL }
+                NULL, 0x08, NULL, HFILL }
         },
         { &hf_iso14443_nad_following,
             { "NAD following", "iso14443.nad_following", FT_BOOLEAN, 8,
-                TFS(&tfs_true_false), 0x04, NULL, HFILL }
+                NULL, 0x04, NULL, HFILL }
         },
         { &hf_iso14443_nak,
             { "NAK/ACK", "iso14443.nak", FT_BOOLEAN, 8,

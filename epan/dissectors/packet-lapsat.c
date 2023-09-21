@@ -628,17 +628,17 @@ proto_register_lapsat(void)
 		},
 		{ &hf_lapsat_ctl_p,
 		  { "Poll", "lapsat.control.p",
-		    FT_BOOLEAN, 16, TFS(&tfs_true_false), LAPSAT_CTL_P_F << 4,
+		    FT_BOOLEAN, 16, NULL, LAPSAT_CTL_P_F << 4,
 		    NULL, HFILL }
 		},
 		{ &hf_lapsat_ctl_f,
 		  { "Final", "lapsat.control.f",
-		    FT_BOOLEAN, 16, TFS(&tfs_true_false), LAPSAT_CTL_P_F << 4,
+		    FT_BOOLEAN, 16, NULL, LAPSAT_CTL_P_F << 4,
 		    NULL, HFILL }
 		},
 		{ &hf_lapsat_ctl_mii,
 		  { "MII", "lapsat.control.mii",
-		    FT_BOOLEAN, 16, TFS(&tfs_true_false), LAPSAT_CTL_MII << 4,
+		    FT_BOOLEAN, 16, NULL, LAPSAT_CTL_MII << 4,
 		    "Mobile Identity Indicator", HFILL }
 		},
 

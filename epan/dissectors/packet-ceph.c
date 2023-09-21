@@ -7614,17 +7614,17 @@ proto_register_ceph(void)
 		} },
 		{ &hf_pgpool_flag_hashpool, {
 			"Hash Seed and Pool Together", "ceph.pgpool.flag.hashpool",
-			FT_BOOLEAN, 32, TFS(&tfs_true_false), C_PGPOOL_FLAG_HASHPSPOOL,
+			FT_BOOLEAN, 32, NULL, C_PGPOOL_FLAG_HASHPSPOOL,
 			NULL, HFILL
 		} },
 		{ &hf_pgpool_flag_full, {
 			"Pool Full", "ceph.pgpool.flag.full",
-			FT_BOOLEAN, 32, TFS(&tfs_true_false), C_PGPOOL_FLAG_FULL,
+			FT_BOOLEAN, 32, NULL, C_PGPOOL_FLAG_FULL,
 			NULL, HFILL
 		} },
 		{ &hf_pgpool_flag_fake_ec_pool, {
 			"Fake Erasure-Coded Pool", "ceph.pgpool.flag.fake_ec_pool",
-			FT_BOOLEAN, 32, TFS(&tfs_true_false), C_PGPOOL_FLAG_FAKE_EC_POOL,
+			FT_BOOLEAN, 32, NULL, C_PGPOOL_FLAG_FAKE_EC_POOL,
 			NULL, HFILL
 		} },
 		{ &hf_monmap, {

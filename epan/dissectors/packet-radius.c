@@ -2757,7 +2757,7 @@ register_radius_fields(const char *unused _U_)
 		{ "Extended Type", "radius.avp.extended_type", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_extended_more,
-		{ "Extended More", "radius.avp.extended_more", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x80,
+		{ "Extended More", "radius.avp.extended_more", FT_BOOLEAN, 8, NULL, 0x80,
 			NULL, HFILL }},
 		{ &hf_radius_egress_vlanid_tag,
 		{ "Tag", "radius.egress_vlanid_tag", FT_UINT32, BASE_HEX, VALS(egress_vlan_tag_vals), 0xFF000000,

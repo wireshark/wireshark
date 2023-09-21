@@ -2428,37 +2428,37 @@ proto_register_oampdu(void)
 
         { &hf_oampdu_flags_link_fault,
             { "Link Fault",        "oampdu.flags.linkFault",
-                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LINK_FAULT,
+                FT_BOOLEAN,    8,        NULL,    OAMPDU_FLAGS_LINK_FAULT,
                 "The PHY detected a fault in the receive direction. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_dying_gasp,
             { "Dying Gasp",        "oampdu.flags.dyingGasp",
-                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_DYING_GASP,
+                FT_BOOLEAN,    8,        NULL,    OAMPDU_FLAGS_DYING_GASP,
                 "An unrecoverable local failure occurred. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_critical_event,
             { "Critical Event",        "oampdu.flags.criticalEvent",
-                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_CRITICAL_EVENT,
+                FT_BOOLEAN,    8,        NULL,    OAMPDU_FLAGS_CRITICAL_EVENT,
                 "A critical event has occurred. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_local_evaluating,
             { "Local Evaluating",        "oampdu.flags.localEvaluating",
-                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_EVAL,
+                FT_BOOLEAN,    8,        NULL,    OAMPDU_FLAGS_LOCAL_EVAL,
                 "Local DTE Discovery process in progress. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_local_stable,
             { "Local Stable",        "oampdu.flags.localStable",
-                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_STABLE,
+                FT_BOOLEAN,    8,        NULL,    OAMPDU_FLAGS_LOCAL_STABLE,
                 "Local DTE is Stable. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_remote_evaluating,
             { "Remote Evaluating",        "oampdu.flags.remoteEvaluating",
-                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_EVAL,
+                FT_BOOLEAN,    8,        NULL,    OAMPDU_FLAGS_REMOTE_EVAL,
                 "Remote DTE Discovery process in progress. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_remote_stable,
             { "Remote Stable",        "oampdu.flags.remoteStable",
-                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_STABLE,
+                FT_BOOLEAN,    8,        NULL,    OAMPDU_FLAGS_REMOTE_STABLE,
                 "Remote DTE is Stable. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_code,

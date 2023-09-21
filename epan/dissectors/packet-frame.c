@@ -2014,7 +2014,7 @@ proto_register_frame(void)
 
 		{ &hf_frame_bblog_t_flags_goodput_in_progress,
 		  { "Goodput measurement in progress", "frame.bblog.t_flags_goodput_in_progress",
-		    FT_BOOLEAN, 32, TFS(&tfs_true_false), BBLOG_T_FLAGS_GPUTINPROG,
+		    FT_BOOLEAN, 32, NULL, BBLOG_T_FLAGS_GPUTINPROG,
 		    NULL, HFILL} },
 
 		{ &hf_frame_bblog_t_flags_more_to_come,
@@ -2069,12 +2069,12 @@ proto_register_frame(void)
 
 		{ &hf_frame_bblog_t_flags_unused_0,
 		  { "Unused 1", "frame.bblog.t_flags_unused_0",
-		    FT_BOOLEAN, 32, TFS(&tfs_true_false), BBLOG_T_FLAGS_UNUSED0,
+		    FT_BOOLEAN, 32, NULL, BBLOG_T_FLAGS_UNUSED0,
 		    NULL, HFILL} },
 
 		{ &hf_frame_bblog_t_flags_unused_1,
 		  { "Unused 2", "frame.bblog.t_flags_unused_1",
-		    FT_BOOLEAN, 32, TFS(&tfs_true_false), BBLOG_T_FLAGS_UNUSED1,
+		    FT_BOOLEAN, 32, NULL, BBLOG_T_FLAGS_UNUSED1,
 		    NULL, HFILL} },
 
 		{ &hf_frame_bblog_t_flags_lost_rtx_detection,

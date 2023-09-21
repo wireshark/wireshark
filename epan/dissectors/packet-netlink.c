@@ -631,12 +631,12 @@ proto_register_netlink(void)
 		},
 		{ &hf_netlink_attr_type_nested,
 			{ "Nested", "netlink.attr_type.nested",
-			  FT_BOOLEAN, 16, TFS(&tfs_true_false), NLA_F_NESTED,
+			  FT_BOOLEAN, 16, NULL, NLA_F_NESTED,
 			  "Carries nested attributes", HFILL }
 		},
 		{ &hf_netlink_attr_type_net_byteorder,
 			{ "Network byte order", "netlink.attr_type.net_byteorder",
-			  FT_BOOLEAN, 16, TFS(&tfs_true_false), NLA_F_NET_BYTEORDER,
+			  FT_BOOLEAN, 16, NULL, NLA_F_NET_BYTEORDER,
 			  "Payload stored in host or network byte order", HFILL }
 		},
 		{ &hf_netlink_attr_index,

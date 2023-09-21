@@ -6424,7 +6424,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_ig_control_boresight,
             { "Tracking Device Boresight", "cigi.ig_control.boresight",
-                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10,
+                FT_BOOLEAN, 8, NULL, 0x10,
                 "Used by the host to enable boresight mode", HFILL }
         },
         { &hf_cigi2_ig_control_frame_ctr,
@@ -7381,7 +7381,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_rate_control_apply_to_part,
             { "Apply to Articulated Part", "cigi.rate_control.apply_to_part",
-                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
+                FT_BOOLEAN, 8, NULL, 0x01,
                 "Determines whether the rate is applied to the articulated part specified by the Articulated Part ID parameter", HFILL }
         },
         { &hf_cigi3_rate_control_x_rate,
@@ -7433,7 +7433,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_rate_control_apply_to_part,
             { "Apply to Articulated Part", "cigi.rate_control.apply_to_part",
-                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
+                FT_BOOLEAN, 8, NULL, 0x01,
                 "Determines whether the rate is applied to the articulated part specified by the Articulated Part ID parameter", HFILL }
         },
         { &hf_cigi3_2_rate_control_coordinate_system,
@@ -8616,7 +8616,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_view_definition_tracker_assign,
             { "Tracker Assign", "cigi.view_def.tracker_assign",
-                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x80,
+                FT_BOOLEAN, 8, NULL, 0x80,
                 "Specifies whether the view should be controlled by an external tracking device", HFILL }
         },
         { &hf_cigi2_view_definition_near_enable,

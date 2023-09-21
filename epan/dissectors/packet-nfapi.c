@@ -9407,12 +9407,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_shared_bands,
 			{ "Shared bands", "nfapi.shared.bands",
-			FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x0,
+			FT_BOOLEAN, 8, NULL, 0x0,
 			"Indication that the PNF device shares the list of RF band options available across all available PHYs, so each may only be used with a single PHY.", HFILL }
 		},
 		{ &hf_nfapi_shared_pa,
 			{ "Shared pa", "nfapi.shared.pa",
-			FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x0,
+			FT_BOOLEAN, 8, NULL, 0x0,
 			"Indication that the PNF device shares a single RF PA across all available PHYs, so that the maximum Total Power is shared across all available PHYs.", HFILL }
 		},
 		{ &hf_nfapi_maximum_total_power,

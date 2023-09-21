@@ -364,27 +364,27 @@ proto_register_ipvs_syncd(void)
 
 		{ &hf_flags_hashed_entry,
 			{ "Hashed Entry", "ipvs.flags.hashed_entry", FT_BOOLEAN, 16,
-			  TFS(&tfs_true_false), IP_VS_CONN_F_HASHED, NULL, HFILL }},
+			  NULL, IP_VS_CONN_F_HASHED, NULL, HFILL }},
 
 		{ &hf_flags_no_output_packets,
 			{ "No Output Packets", "ipvs.flags.no_output_packets", FT_BOOLEAN, 16,
-			  TFS(&tfs_true_false), IP_VS_CONN_F_NOOUTPUT, NULL, HFILL }},
+			  NULL, IP_VS_CONN_F_NOOUTPUT, NULL, HFILL }},
 
 		{ &hf_flags_conn_not_established,
 			{ "Connection Not Established", "ipvs.flags.conn_not_established", FT_BOOLEAN, 16,
-			  TFS(&tfs_true_false), IP_VS_CONN_F_INACTIVE, NULL, HFILL }},
+			  NULL, IP_VS_CONN_F_INACTIVE, NULL, HFILL }},
 
 		{ &hf_flags_adjust_output_seq,
 			{ "Adjust Output Sequence", "ipvs.flags.adjust_output_seq", FT_BOOLEAN, 16,
-			  TFS(&tfs_true_false), IP_VS_CONN_F_OUT_SEQ, NULL, HFILL }},
+			  NULL, IP_VS_CONN_F_OUT_SEQ, NULL, HFILL }},
 
 		{ &hf_flags_adjust_input_seq,
 			{ "Adjust Input Sequence", "ipvs.flags.adjust_input_seq", FT_BOOLEAN, 16,
-			  TFS(&tfs_true_false), IP_VS_CONN_F_IN_SEQ, NULL, HFILL }},
+			  NULL, IP_VS_CONN_F_IN_SEQ, NULL, HFILL }},
 
 		{ &hf_flags_no_client_port_set,
 			{ "No Client Port Set", "ipvs.flags.no_client_port_set", FT_BOOLEAN, 16,
-			  TFS(&tfs_true_false), IP_VS_CONN_F_NO_CPORT, NULL, HFILL }},
+			  NULL, IP_VS_CONN_F_NO_CPORT, NULL, HFILL }},
 
 		{ &hf_state,
 			{ "State", "ipvs.state", FT_UINT16, BASE_HEX,

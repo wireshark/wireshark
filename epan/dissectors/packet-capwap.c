@@ -3652,12 +3652,12 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_msg_element_type_ac_descriptor_security_s,
             { "AC supports the pre-shared", "capwap.control.message_element.ac_descriptor.security.s",
-              FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+              FT_BOOLEAN, 8, NULL, 0x04,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ac_descriptor_security_x,
             { "AC supports X.509 Certificate", "capwap.control.message_element.ac_descriptor.security.x",
-              FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+              FT_BOOLEAN, 8, NULL, 0x02,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ac_descriptor_security_r,
@@ -3684,12 +3684,12 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_d,
             { "DTLS-Enabled Data Channel Supported", "capwap.control.message_element.ac_descriptor.dtls_policy.d",
-              FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+              FT_BOOLEAN, 8, NULL, 0x04,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_c,
             { "Clear Text Data Channel Supported", "capwap.control.message_element.ac_descriptor.dtls_policy.c",
-              FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+              FT_BOOLEAN, 8, NULL, 0x02,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_r,
@@ -4085,17 +4085,17 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_n,
             { "Native Frame Tunnel Mode", "capwap.control.message_element.wtp_frame_tunnel_mode.n",
-              FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,
+              FT_BOOLEAN, 8, NULL, 0x08,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_e,
             { "802.3 Frame Tunnel Mode", "capwap.control.message_element.wtp_frame_tunnel_mode.e",
-              FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+              FT_BOOLEAN, 8, NULL, 0x04,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_l,
             { "Local Bridging", "capwap.control.message_element.wtp_frame_tunnel_mode.l",
-              FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+              FT_BOOLEAN, 8, NULL, 0x02,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_r,
@@ -4945,22 +4945,22 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_n,
             { "Radio Type 802.11n", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_n",
-              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x8,
+              FT_BOOLEAN, 4, NULL, 0x8,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_g,
             { "Radio Type 802.11g", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_g",
-              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x4,
+              FT_BOOLEAN, 4, NULL, 0x4,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_a,
             { "Radio Type 802.11a", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_a",
-              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x2,
+              FT_BOOLEAN, 4, NULL, 0x2,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b,
             { "Radio Type 802.11b", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_b",
-              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x1,
+              FT_BOOLEAN, 4, NULL, 0x1,
               NULL, HFILL }
         },
 

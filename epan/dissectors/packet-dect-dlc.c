@@ -314,12 +314,12 @@ void proto_register_dect_dlc(void)
 		},
 		{ &hf_dect_dlc_p,
 			{ "Poll", "dect_dlc.control.p", FT_BOOLEAN, 8,
-				TFS(&tfs_true_false), 0x10, NULL, HFILL
+				NULL, 0x10, NULL, HFILL
 			}
 		},
 		{ &hf_dect_dlc_f,
 			{ "Final", "dect_dlc.control.f", FT_BOOLEAN, 8,
-				TFS(&tfs_true_false), 0x10, NULL, HFILL
+				NULL, 0x10, NULL, HFILL
 			}
 		},
 		{ &hf_dect_dlc_s_ftype,

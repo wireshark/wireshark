@@ -311,7 +311,7 @@ proto_register_stcsig(void)
 		},
 		{ &hf_stcsig_prbseq,
 			{ "Pseudo-Random Binary Sequence", "stcsig.prbseq",
-			  FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+			  FT_BOOLEAN, 8, NULL, 0x02,
 			  NULL, HFILL }
 		},
 		{ &hf_stcsig_tslr,

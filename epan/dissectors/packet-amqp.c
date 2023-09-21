@@ -11762,27 +11762,27 @@ proto_register_amqp(void)
             "Exchange is durable", HFILL}},
         {&hf_amqp_0_10_struct_exchange_query_result_not_found, {
             "Not-found", "amqp.exchange.exchange-query-result.not-found",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             "Exchange was not found", HFILL}},
         {&hf_amqp_0_10_struct_exchange_bound_result_exchange_not_found, {
             "Exchange-not-found", "amqp.exchange.exchange-bound-result.exchange-not-found",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL}},
         {&hf_amqp_0_10_struct_exchange_bound_result_queue_not_found, {
             "Queue-not-found", "amqp.exchange.exchange-bound-result.queue-not-found",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL}},
         {&hf_amqp_0_10_struct_exchange_bound_result_queue_not_matched, {
             "Queue-not-matched", "amqp.exchange.exchange-bound-result.queue-not-matched",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             "No binding from exchange to queue", HFILL}},
         {&hf_amqp_0_10_struct_exchange_bound_result_key_not_matched, {
             "Key-not-matched", "amqp.exchange.exchange-bound-result.key-not-matched",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,
+            FT_BOOLEAN, 8, NULL, 0x08,
             "No binding from exchange with binding-key", HFILL}},
         {&hf_amqp_0_10_struct_exchange_bound_result_args_not_matched, {
             "Args-not-matched", "amqp.exchange.exchange-bound-result.args-not-matched",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10,
+            FT_BOOLEAN, 8, NULL, 0x10,
             "No binding from exchange with specified arguments", HFILL}},
         {&hf_amqp_0_10_struct_queue_query_result_durable, {
             "Durable", "amqp.queue.queue-query-result.durable",
@@ -12102,11 +12102,11 @@ proto_register_amqp(void)
             "Declaration arguments", HFILL}},
         {&hf_amqp_0_10_method_queue_delete_if_unused, {
             "If-unused", "amqp.queue.delete.if-unused",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+            FT_BOOLEAN, 8, NULL, 0x02,
             "Delete the queue only if there are no consumers", HFILL}},
         {&hf_amqp_0_10_method_queue_delete_if_empty, {
             "If-empty", "amqp.queue.delete.if-empty",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             "Delete queue only if empty", HFILL}},
         {&hf_amqp_0_10_method_file_qos_prefetch_size, {
             "Prefetch-size", "amqp.file.qos.prefetch-size",
@@ -12118,7 +12118,7 @@ proto_register_amqp(void)
             "Pre-fetch window size in messages", HFILL}},
         {&hf_amqp_0_10_method_file_qos_global, {
             "Global", "amqp.file.qos.global",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             "Apply QoS to entire connection", HFILL}},
         {&hf_amqp_0_10_method_file_consumer_tag, {
             "Consumer-tag", "amqp.file.consumer-tag",
@@ -12126,19 +12126,19 @@ proto_register_amqp(void)
             "Consumer tag", HFILL}},
         {&hf_amqp_0_10_method_file_consume_no_local, {
             "No-local", "amqp.file.consume.no-local",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             "Don't send messages to connection that publishes them", HFILL}},
         {&hf_amqp_0_10_method_file_consume_no_ack, {
             "No-ack", "amqp.file.consume.no-ack",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,
+            FT_BOOLEAN, 8, NULL, 0x08,
             "No acknowledgement needed", HFILL}},
         {&hf_amqp_0_10_method_file_consume_exclusive, {
             "Exclusive", "amqp.file.consume.exclusive",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10,
+            FT_BOOLEAN, 8, NULL, 0x10,
             "Request exclusive access", HFILL}},
         {&hf_amqp_0_10_method_file_consume_nowait, {
             "Nowait", "amqp.file.consume.nowait",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x20,
+            FT_BOOLEAN, 8, NULL, 0x20,
             "Do not send a reply", HFILL}},
         {&hf_amqp_0_10_method_file_consume_arguments, {
             "Arguments", "amqp.file.consume.arguments",
@@ -12166,11 +12166,11 @@ proto_register_amqp(void)
             "Message routing key", HFILL}},
         {&hf_amqp_0_10_method_file_publish_mandatory, {
             "Mandatory", "amqp.file.publish.mandatory",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             "Mandatory routing", HFILL}},
         {&hf_amqp_0_10_method_file_publish_immediate, {
             "Immediate", "amqp.file.publish.immediate",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,
+            FT_BOOLEAN, 8, NULL, 0x08,
             "Request immediate delivery", HFILL}},
         {&hf_amqp_0_10_method_file_return_reply_code, {
             "Reply-code", "amqp.file.return.reply-code",
@@ -12214,7 +12214,7 @@ proto_register_amqp(void)
             "Identifier of message being acknowledged", HFILL}},
         {&hf_amqp_0_10_method_file_ack_multiple, {
             "Multiple", "amqp.file.ack.multiple",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+            FT_BOOLEAN, 8, NULL, 0x02,
             "Acknowledge multiple messages", HFILL}},
         {&hf_amqp_0_10_method_file_reject_delivery_tag, {
             "Delivery-tag", "amqp.file.reject.delivery-tag",
@@ -12240,7 +12240,7 @@ proto_register_amqp(void)
 #endif
         {&hf_amqp_0_10_method_stream_qos_global, {
             "Global", "amqp.stream.qos.global",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,
+            FT_BOOLEAN, 8, NULL, 0x08,
             "Apply QoS to entire connection", HFILL}},
         {&hf_amqp_0_10_method_stream_consumer_tag, {
             "Consumer-tag", "amqp.stream.consumer-tag",
@@ -12248,15 +12248,15 @@ proto_register_amqp(void)
             NULL, HFILL}},
         {&hf_amqp_0_10_method_stream_consume_no_local, {
             "No-local", "amqp.stream.consume.no-local",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             "Don't send messages to connection that publishes them", HFILL}},
         {&hf_amqp_0_10_method_stream_consume_exclusive, {
             "Exclusive", "amqp.stream.consume.exclusive",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,
+            FT_BOOLEAN, 8, NULL, 0x08,
             "Request exclusive access", HFILL}},
         {&hf_amqp_0_10_method_stream_consume_nowait, {
             "Nowait", "amqp.stream.consume.nowait",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10,
+            FT_BOOLEAN, 8, NULL, 0x10,
             "Do not send a reply", HFILL}},
         {&hf_amqp_0_10_method_stream_consume_arguments, {
             "Arguments", "amqp.stream.consume.arguments",
@@ -12272,11 +12272,11 @@ proto_register_amqp(void)
             "Message routing key", HFILL}},
         {&hf_amqp_0_10_method_stream_publish_mandatory, {
             "Mandatory", "amqp.stream.publish.mandatory",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             "Mandatory routing", HFILL}},
         {&hf_amqp_0_10_method_stream_publish_immediate, {
             "Immediate", "amqp.stream.publish.immediate",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,
+            FT_BOOLEAN, 8, NULL, 0x08,
             "Request immediate delivery", HFILL}},
         {&hf_amqp_0_10_method_stream_return_reply_code, {
             "Reply-code", "amqp.stream.return.reply-code",

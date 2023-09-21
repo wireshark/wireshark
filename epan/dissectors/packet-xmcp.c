@@ -1252,7 +1252,7 @@ proto_register_xmcp(void)
     { &xmcp_attr_flag_removal_reason_network_withdraw,
       { "Network Withdraw",
         "xmcp.attr.flag.removal-reason.network-withdraw",
-        FT_BOOLEAN, 16, TFS(&tfs_true_false),
+        FT_BOOLEAN, 16, NULL,
         XMCP_REMOVAL_REASON_NETWORK_WITHDRAW, NULL, HFILL }
     },
     { &xmcp_attr_flag_removal_reason_reserved,

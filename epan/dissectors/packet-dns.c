@@ -6501,7 +6501,7 @@ proto_register_dns(void)
 
     { &hf_dns_wins_local_flag,
       { "Local Flag", "dns.wins.local_flag",
-        FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x1,
+        FT_BOOLEAN, 32, NULL, 0x1,
         NULL, HFILL }},
 
     { &hf_dns_wins_lookup_timeout,
@@ -6526,7 +6526,7 @@ proto_register_dns(void)
 
     { &hf_dns_winsr_local_flag,
       { "Local Flag", "dns.winsr.local_flag",
-        FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x1,
+        FT_BOOLEAN, 32, NULL, 0x1,
         NULL, HFILL }},
 
     { &hf_dns_winsr_lookup_timeout,

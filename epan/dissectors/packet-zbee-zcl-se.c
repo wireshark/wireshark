@@ -8985,7 +8985,7 @@ proto_register_zbee_zcl_tun(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_tun_flow_control_support,
-            { "Flow Control Supported", "zbee_zcl_se.tun.flow_control_supported", FT_BOOLEAN, 8, TFS(&tfs_true_false),
+            { "Flow Control Supported", "zbee_zcl_se.tun.flow_control_supported", FT_BOOLEAN, 8, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_tun_max_in_size,
@@ -9017,7 +9017,7 @@ proto_register_zbee_zcl_tun(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_tun_protocol_list_complete,
-            { "List Complete", "zbee_zcl_se.tun.protocol_list_complete", FT_BOOLEAN, 8, TFS(&tfs_true_false),
+            { "List Complete", "zbee_zcl_se.tun.protocol_list_complete", FT_BOOLEAN, 8, NULL,
             0x00, NULL, HFILL } },
 
     };

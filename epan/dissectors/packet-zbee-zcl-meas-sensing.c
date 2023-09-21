@@ -1824,7 +1824,7 @@ proto_register_zbee_zcl_occ_sen(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_occ_sen_occupancy_occupied,
-            { "Occupied", "zbee_zcl_meas_sensing.occsen.attr.occupancy_occupied", FT_BOOLEAN, 8, TFS(&tfs_true_false),
+            { "Occupied", "zbee_zcl_meas_sensing.occsen.attr.occupancy_occupied", FT_BOOLEAN, 8, NULL,
             ZBEE_ZCL_OCCUPANCY_SENSED_OCC, NULL, HFILL } },
 
         { &hf_zbee_zcl_occ_sen_occ_sensor_type,

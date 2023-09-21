@@ -2143,7 +2143,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_clear_transfers_partial,
             { "Partial Delivery", "mausb.clear_transfers.partial", FT_BOOLEAN, 6,
-              TFS(&tfs_true_false), MAUSB_CLEAR_TRANSFERS_PARTIAL_MASK,
+              NULL, MAUSB_CLEAR_TRANSFERS_PARTIAL_MASK,
               NULL, HFILL
             }
        },

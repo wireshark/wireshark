@@ -546,17 +546,17 @@ proto_register_metamako(void)
 
     {&hf_metamako_flags_ts_degraded, {
         "Timestamp degraded", "metamako.flags.ts_degraded",
-        FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10,
+        FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL}},
 
     {&hf_metamako_flags_duplicate, {
         "Duplicate Packet", "metamako.flags.is_duplicate",
-        FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+        FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL}},
 
     {&hf_metamako_flags_has_ext, {
         "Has Trailer Extensions", "metamako.flags.has_extensions",
-        FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+        FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL}},
 
     {&hf_metamako_flags_orig_fcs_vld, {

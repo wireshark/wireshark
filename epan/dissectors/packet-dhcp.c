@@ -8058,7 +8058,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option_value_boolean,
 		  { "Value", "dhcp.option.value.bool",
-		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0x00,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 		    "Boolean DHCP/BOOTP option value", HFILL }},
 
 		{ &hf_dhcp_option_padding,
@@ -8946,7 +8946,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option63_value_boolean,
 		  { "Value", "dhcp.option.novell_options.value.bool",
-		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0x00,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 		    "Option 63: Suboption Boolean value", HFILL }},
 
 		{ &hf_dhcp_option63_broadcast,

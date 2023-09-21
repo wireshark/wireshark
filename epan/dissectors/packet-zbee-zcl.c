@@ -2595,7 +2595,7 @@ void proto_register_zbee_zcl(void)
                 &zbee_zcl_data_type_names_ext, 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_boolean,
-            { "Boolean",    "zbee_zcl.attr.boolean", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0xff,
+            { "Boolean",    "zbee_zcl.attr.boolean", FT_BOOLEAN, 8, NULL, 0xff,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_bitmap8,

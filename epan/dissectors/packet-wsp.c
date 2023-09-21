@@ -6727,21 +6727,21 @@ proto_register_wsp(void)
         { &hf_hdr_push_flag_auth,
           { "Initiator URI is authenticated",
             "wsp.header.push_flag.authenticated",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
+            FT_BOOLEAN, 8, NULL, 0x01,
             "The X-Wap-Initiator-URI has been authenticated.", HFILL
           }
         },
         { &hf_hdr_push_flag_trust,
           { "Content is trusted",
             "wsp.header.push_flag.trusted",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+            FT_BOOLEAN, 8, NULL, 0x02,
             "The push content is trusted.", HFILL
           }
         },
         { &hf_hdr_push_flag_last,
           { "Last push message",
             "wsp.header.push_flag.last",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             "Indicates whether this is the last push message.", HFILL
           }
         },

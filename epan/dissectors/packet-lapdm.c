@@ -440,11 +440,11 @@ proto_register_lapdm(void)
 
         { &hf_lapdm_p,
           { "Poll", "lapdm.control.p", FT_BOOLEAN, 8,
-            TFS(&tfs_true_false), XDLC_P_F, NULL, HFILL }},
+            NULL, XDLC_P_F, NULL, HFILL }},
 
         { &hf_lapdm_f,
           { "Final", "lapdm.control.f", FT_BOOLEAN, 8,
-            TFS(&tfs_true_false), XDLC_P_F, NULL, HFILL }},
+            NULL, XDLC_P_F, NULL, HFILL }},
 
         { &hf_lapdm_s_ftype,
           { "Supervisory frame type", "lapdm.control.s_ftype", FT_UINT8, BASE_HEX,

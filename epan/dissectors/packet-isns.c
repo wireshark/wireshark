@@ -469,16 +469,6 @@ static value_string_ext isns_attribute_tags_ext = VALUE_STRING_EXT_INIT(isns_att
 #define ISNS_FLAGS_FIRST_PDU 0x0400
 
 
-#define tfs_isns_scn_bitmap_initiator_and_self_information_only tfs_true_false
-#define tfs_isns_scn_bitmap_target_and_self_information_only    tfs_true_false
-#define tfs_isns_scn_bitmap_management_registration_scn         tfs_true_false
-#define tfs_isns_scn_bitmap_object_removed                      tfs_true_false
-#define tfs_isns_scn_bitmap_object_added                        tfs_true_false
-#define tfs_isns_scn_bitmap_object_updated                      tfs_true_false
-#define tfs_isns_scn_bitmap_dd_dds_member_removed               tfs_true_false
-#define tfs_isns_scn_bitmap_dd_dds_member_added                 tfs_true_false
-
-
 #define tfs_isns_psb_tunnel_mode    tfs_preferred_no_preference
 #define tfs_isns_psb_transport_mode tfs_preferred_no_preference
 
@@ -1298,42 +1288,42 @@ void proto_register_isns(void)
     },
     { &hf_isns_scn_bitmap_initiator_and_self_information_only,
       { "Initiator And Self Information Only", "isns.scn_bitmap.initiator_and_self_information_only",
-        FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_initiator_and_self_information_only),     0x00000080, /* bit 24 */
+        FT_BOOLEAN, 32, NULL,     0x00000080, /* bit 24 */
         NULL, HFILL }
     },
     { &hf_isns_scn_bitmap_target_and_self_information_only,
       { "Target And Self Information Only", "isns.scn_bitmap.target_and_self_information_only",
-        FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_target_and_self_information_only),     0x00000040, /* bit 25 */
+        FT_BOOLEAN, 32, NULL,     0x00000040, /* bit 25 */
         NULL, HFILL }
     },
     { &hf_isns_scn_bitmap_management_registration_scn,
       { "Management Registration/SCN", "isns.scn_bitmap.management_registration_scn",
-        FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_management_registration_scn),     0x00000020, /* bit 26 */
+        FT_BOOLEAN, 32, NULL,     0x00000020, /* bit 26 */
         NULL, HFILL }
     },
     { &hf_isns_scn_bitmap_object_removed,
       { "Object Removed", "isns.scn_bitmap.object_removed",
-        FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_removed),     0x00000010, /* bit 27 */
+        FT_BOOLEAN, 32, NULL,     0x00000010, /* bit 27 */
         NULL, HFILL }
     },
     { &hf_isns_scn_bitmap_object_added,
       { "Object Added", "isns.scn_bitmap.object_added",
-        FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_added),     0x00000008, /* bit 28 */
+        FT_BOOLEAN, 32, NULL,     0x00000008, /* bit 28 */
         NULL, HFILL }
     },
     { &hf_isns_scn_bitmap_object_updated,
       { "Object Updated", "isns.scn_bitmap.object_updated",
-        FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_updated),     0x00000004, /* bit 29 */
+        FT_BOOLEAN, 32, NULL,     0x00000004, /* bit 29 */
         NULL, HFILL }
     },
     { &hf_isns_scn_bitmap_dd_dds_member_removed,
       { "DD/DDS Member Removed (Mgmt Reg/SCN only)", "isns.scn_bitmap.dd_dds_member_removed",
-        FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_dd_dds_member_removed),     0x00000002, /* bit 30 */
+        FT_BOOLEAN, 32, NULL,     0x00000002, /* bit 30 */
         NULL, HFILL }
     },
     { &hf_isns_scn_bitmap_dd_dds_member_added,
       { "DD/DDS Member Added (Mgmt Reg/SCN only)", "isns.scn_bitmap.dd_dds_member_added",
-        FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_dd_dds_member_added),     0x00000001, /* bit 31 */
+        FT_BOOLEAN, 32, NULL,     0x00000001, /* bit 31 */
         NULL, HFILL }
     },
 

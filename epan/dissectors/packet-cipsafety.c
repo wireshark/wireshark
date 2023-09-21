@@ -2538,35 +2538,35 @@ proto_register_cipsafety(void)
       },
       { &hf_cip_ssupervisor_reset_attr_bitmap_macid,
         { "Preserve MacID", "cipsafety.ssupervisor.reset.attr_bitmap.macid",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01, NULL, HFILL }
+          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_reset_attr_bitmap_baudrate,
         { "Preserve Baud Rate", "cipsafety.ssupervisor.reset.attr_bitmap.baudrate",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02, NULL, HFILL }
+          FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_reset_attr_bitmap_tunid,
         { "Preserve TUNID", "cipsafety.ssupervisor.reset.attr_bitmap.tunid",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04, NULL, HFILL }
+          FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_reset_attr_bitmap_password,
         { "Preserve Password", "cipsafety.ssupervisor.reset.attr_bitmap.password",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08, NULL, HFILL }
+          FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_reset_attr_bitmap_cfunid,
         { "Preserve CFUNID", "cipsafety.ssupervisor.reset.attr_bitmap.cfunid",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10, NULL, HFILL }
+          FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_reset_attr_bitmap_ocpunid,
         { "Preserve OPCUNID", "cipsafety.ssupervisor.reset.attr_bitmap.ocpunid",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x20, NULL, HFILL }
+          FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_reset_attr_bitmap_reserved,
         { "Reserved", "cipsafety.ssupervisor.reset.attr_bitmap.reserved",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x40, NULL, HFILL }
+          FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_reset_attr_bitmap_extended,
         { "Use Extended Map", "cipsafety.ssupervisor.reset.attr_bitmap.extended",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x80, NULL, HFILL }
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_reset_password_data_size,
         { "Data Size", "cipsafety.ssupervisor.reset_password.data_size",
@@ -2686,11 +2686,11 @@ proto_register_cipsafety(void)
       },
       { &hf_cip_ssupervisor_alarm_enable,
         { "Exception Detail Alarm", "cipsafety.ssupervisor.alarm_enable",
-          FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0, NULL, HFILL }
+          FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_warning_enable,
         { "Exception Detail Warning", "cipsafety.ssupervisor.warning_enable",
-          FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0, NULL, HFILL }
+          FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_time,
         { "Time", "cipsafety.ssupervisor.time",

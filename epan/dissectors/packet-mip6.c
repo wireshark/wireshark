@@ -4626,7 +4626,7 @@ proto_register_mip6(void)
     },
     { &hf_mip6_bi_h_flag,
       { "Simultaneous Home and Foreign Binding (H)", "mip6.bi.h_flag",
-        FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x80,
+        FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }
     },
     { &hf_mip6_bi_coa_ipv4,

@@ -6687,7 +6687,6 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 	const guint8 *bytes;
 	guint32 number;
 	guint64 number64;
-	const true_false_string  *tfstring;
 	const char *hf_str_val;
 	char number_buf[48];
 	const char *number_out;
@@ -6725,12 +6724,8 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 
 		case FT_BOOLEAN:
 			number64 = fvalue_get_uinteger64(finfo->value);
-			tfstring = &tfs_true_false;
-			if (hfinfo->strings) {
-				tfstring = (const struct true_false_string*) hfinfo->strings;
-			}
 			label_len = protoo_strlcpy(display_label_str,
-					tfs_get_string(!!number64, tfstring), label_str_size);
+					tfs_get_string(!!number64, hfinfo->strings), label_str_size);
 			break;
 
 		case FT_CHAR:
@@ -9749,11 +9744,6 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	guint64  value;
 
 	header_field_info	*hfinfo   = fi->hfinfo;
-	const true_false_string	*tfstring = &tfs_true_false;
-
-	if (hfinfo->strings) {
-		tfstring = (const struct true_false_string*) hfinfo->strings;
-	}
 
 	value = fvalue_get_uinteger64(fi->value);
 	if (hfinfo->bitmask) {
@@ -9770,7 +9760,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	}
 
 	/* Fill in the textual info */
-	label_fill(label_str, bitfield_byte_length, hfinfo, tfs_get_string(!!value, tfstring));
+	label_fill(label_str, bitfield_byte_length, hfinfo, tfs_get_string(!!value, hfinfo->strings));
 }
 
 static const char *
@@ -12653,8 +12643,6 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	proto_item        *pi;
 	header_field_info *hf_field;
 
-	const true_false_string *tfstring;
-
 	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
 	PROTO_REGISTRAR_GET_NTH(hfindex, hf_field);
 
@@ -12718,12 +12706,9 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	switch (hf_field->type) {
 	case FT_BOOLEAN:
 		/* Boolean field */
-		tfstring = &tfs_true_false;
-		if (hf_field->strings)
-			tfstring = (const true_false_string *)hf_field->strings;
 		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, (guint32)value,
 			"%s = %s: %s",
-			bf_str, hf_field->name, tfs_get_string(!!value, tfstring));
+			bf_str, hf_field->name, tfs_get_string(!!value, hf_field->strings));
 		break;
 
 	case FT_CHAR:
@@ -12805,7 +12790,6 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 	guint64     composite_bitmap;
 
 	header_field_info       *hf_field;
-	const true_false_string *tfstring;
 
 	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
 	PROTO_REGISTRAR_GET_NTH(hfindex, hf_field);
@@ -12911,13 +12895,10 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 	switch (hf_field->type) {
 	case FT_BOOLEAN: /* it is a bit odd to have a boolean encoded as split-bits, but possible, I suppose? */
 		/* Boolean field */
-		tfstring = &tfs_true_false;
-		if (hf_field->strings)
-			tfstring = (const true_false_string *) hf_field->strings;
 		return proto_tree_add_boolean_format(tree, hfindex,
 						     tvb, octet_offset, octet_length, (guint32)value,
 						     "%s = %s: %s",
-						     bf_str, hf_field->name, tfs_get_string(!!value, tfstring));
+						     bf_str, hf_field->name, tfs_get_string(!!value, hf_field->strings));
 		break;
 
 	case FT_CHAR:

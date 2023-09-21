@@ -1859,17 +1859,17 @@ proto_register_arp(void)
 
     { &hf_arp_isgratuitous,
       { "Is gratuitous",                "arp.isgratuitous",
-        FT_BOOLEAN,     BASE_NONE,      TFS(&tfs_true_false),   0x0,
+        FT_BOOLEAN,     BASE_NONE,      NULL,   0x0,
         NULL, HFILL }},
 
     { &hf_arp_isprobe,
       { "Is probe",                "arp.isprobe",
-        FT_BOOLEAN,     BASE_NONE,      TFS(&tfs_true_false),   0x0,
+        FT_BOOLEAN,     BASE_NONE,      NULL,   0x0,
         NULL, HFILL }},
 
     { &hf_arp_isannouncement,
       { "Is announcement",                "arp.isannouncement",
-        FT_BOOLEAN,     BASE_NONE,      TFS(&tfs_true_false),   0x0,
+        FT_BOOLEAN,     BASE_NONE,      NULL,   0x0,
         NULL, HFILL }},
 
     { &hf_atmarp_spln,

@@ -450,7 +450,7 @@ static const value_string zbee_zdp_ieee_join_policy_vals[] = {
 };
 
 /* The reason this has it's own value_string and doesn't use
-   tfs_true_false, is that some hf_ fields use bitmasks larger
+   tfs_get_string(), is that some hf_ fields use bitmasks larger
    than 0x01, and it's intentional that those other values be
    "Unknown" (which is what value_string will give us)
  */

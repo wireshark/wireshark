@@ -468,7 +468,7 @@ proto_register_vdp(void)
 			NULL, 0x20, NULL, HFILL }},
 		{ &hf_vdp_tlv_assoc_flag_req_rsp,
 		{ "Response", "vdp21.assoc.flags.req_rsp", FT_BOOLEAN, 8,
-			TFS(&tfs_true_false), 0x40, NULL, HFILL }},
+			NULL, 0x40, NULL, HFILL }},
 		{ &hf_vdp_tlv_assoc_flag_hard_error,
 		{ "Hard Error", "vdp21.assoc.flags.hard_error", FT_BOOLEAN, 8,
 			NULL, 0x10, NULL, HFILL }},

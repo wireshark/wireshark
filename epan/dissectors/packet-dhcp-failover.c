@@ -1412,7 +1412,7 @@ proto_register_dhcpfo(void)
 		},
 		{&hf_dhcpfo_ms_client_nap_capable,
 			{"Client NAP capable (Microsoft-specific)", "dhcpfo.microsoft.clientnapcapable",
-			FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0,
+			FT_BOOLEAN, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
 		{&hf_dhcpfo_ms_client_nap_probation,

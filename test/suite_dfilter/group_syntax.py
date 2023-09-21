@@ -437,5 +437,26 @@ class TestDfilterTFSValueString:
     trace_file = "http.pcap"
 
     def test_tfs_1(self, checkDFilterCount):
+        dfilter = 'ip.flags.df == True'
+        checkDFilterCount(dfilter, 1)
+
+    def test_tfs_2(self, checkDFilterCount):
+        dfilter = 'ip.flags.df == "True"'
+        checkDFilterCount(dfilter, 1)
+
+    def test_tfs_3(self, checkDFilterCount):
         dfilter = 'ip.flags.df == "Set"'
         checkDFilterCount(dfilter, 1)
+
+    def test_tfs_4(self, checkDFilterCount):
+        dfilter = 'frame.ignored == False'
+        checkDFilterCount(dfilter, 1)
+
+    def test_tfs_5(self, checkDFilterCount):
+        dfilter = 'frame.ignored == "False"'
+        checkDFilterCount(dfilter, 1)
+
+    def test_tfs_6(self, checkDFilterFail):
+        error = 'expected "True" or "False", not "Unset"'
+        dfilter = 'frame.ignored == "Unset"'
+        checkDFilterFail(dfilter, error)

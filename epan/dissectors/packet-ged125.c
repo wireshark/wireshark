@@ -1526,7 +1526,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_ResultCode,
 		  { "Errors running script", "ged125.result_code",
-			FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001, NULL, HFILL }},
+			FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }},
 
 		{ &hf_ged125_LabelType,
 		  { "Label Type", "ged125.label_type",

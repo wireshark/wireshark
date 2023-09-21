@@ -51048,7 +51048,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_measure_map_field_unmeasured,
      {"Unmeasured", "wlan.measure.rep.repmode.mapfield.unmeasured",
-      FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10,
+      FT_BOOLEAN, 8, NULL, 0x10,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_map_field_reserved,

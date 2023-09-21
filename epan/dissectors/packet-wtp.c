@@ -859,7 +859,7 @@ proto_register_wtp(void)
         },
         { &hf_wtp_header_Ack_flag_TVETOK,
             { "Tve/Tok flag", "wtp.ack.tvetok",
-                FT_BOOLEAN, 8, TFS( &tfs_true_false ), 0x04,
+                FT_BOOLEAN, 8, NULL, 0x04,
                 NULL, HFILL
             }
     },

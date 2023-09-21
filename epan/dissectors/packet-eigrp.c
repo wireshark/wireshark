@@ -2961,22 +2961,22 @@ proto_register_eigrp(void)
  */
         { &hf_eigrp_metric_flags_srcwd,
           { "Source Withdraw", "eigrp.metric.flags.srcwd",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), EIGRP_OPAQUE_SRCWD,
+            FT_BOOLEAN, 8, NULL, EIGRP_OPAQUE_SRCWD,
             "Route Source Withdraw", HFILL }
         },
         { &hf_eigrp_metric_flags_cd,
           { "Candidate Default", "eigrp.metric.flags.cd",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), EIGRP_OPAQUE_CD,
+            FT_BOOLEAN, 8, NULL, EIGRP_OPAQUE_CD,
             NULL, HFILL }
         },
         { &hf_eigrp_metric_flags_active,
           { "Route is Active", "eigrp.metric.flags.active",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), EIGRP_OPAQUE_ACTIVE,
+            FT_BOOLEAN, 8, NULL, EIGRP_OPAQUE_ACTIVE,
             "Route is currently in active state", HFILL }
         },
         { &hf_eigrp_metric_flags_repl,
           { "Route is Replicated", "eigrp.metric.flags.repl",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), EIGRP_OPAQUE_REPL,
+            FT_BOOLEAN, 8, NULL, EIGRP_OPAQUE_REPL,
             "Route is replicated from different tableid", HFILL }
         },
 
@@ -3031,12 +3031,12 @@ proto_register_eigrp(void)
 
         { &hf_eigrp_extdata_flag_ext,
           { "Route is External", "eigrp.opaque.flag.ext",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), EIGRP_OPAQUE_EXT,
+            FT_BOOLEAN, 8, NULL, EIGRP_OPAQUE_EXT,
             "External route", HFILL }
         },
         { &hf_eigrp_extdata_flag_cd,
           { "Route is Candidate Default", "eigrp.opaque.flag.cd",
-            FT_BOOLEAN, 8, TFS(&tfs_true_false), EIGRP_OPAQUE_CD,
+            FT_BOOLEAN, 8, NULL, EIGRP_OPAQUE_CD,
             "Candidate-Default route", HFILL }
         },
 

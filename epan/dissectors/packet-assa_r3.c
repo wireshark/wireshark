@@ -8502,7 +8502,7 @@ void proto_register_r3 (void)
       },
       { &hf_r3_mortisestatelog_waiting,
         { "Waiting For Door Closed", "r3.mortisestatelog.waiting",
-          FT_BOOLEAN, BASE_NONE, TFS (&tfs_true_false ), 0x00,
+          FT_BOOLEAN, BASE_NONE, NULL, 0x00,
           NULL, HFILL }
       },
       { &hf_r3_mortisestatelog_state,

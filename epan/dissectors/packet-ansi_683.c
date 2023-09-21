@@ -3383,9 +3383,9 @@ proto_register_ansi_683(void)
         },
 
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_ansi_683_fresh_incl16, { "FRESH_INCL", "ansi_683.fresh_incl", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x8000, NULL, HFILL }},
+      { &hf_ansi_683_fresh_incl16, { "FRESH_INCL", "ansi_683.fresh_incl", FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL }},
       { &hf_ansi_683_fresh, { "FRESH", "ansi_683.fresh", FT_UINT16, BASE_DEC, NULL, 0x7fff, NULL, HFILL }},
-      { &hf_ansi_683_fresh_incl8, { "FRESH_INCL", "ansi_683.fresh_incl", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x80, NULL, HFILL }},
+      { &hf_ansi_683_fresh_incl8, { "FRESH_INCL", "ansi_683.fresh_incl", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
       { &hf_ansi_683_firstchp, { "First paging channel (FIRSTCHP) used in the home system", "ansi_683.firstchp", FT_UINT16, BASE_DEC, NULL, 0xffe0, NULL, HFILL }},
       { &hf_ansi_683_home_sid, { "Home system identification (HOME_SID)", "ansi_683.home_sid", FT_UINT24, BASE_DEC, NULL, 0x1fffc0, NULL, HFILL }},
       { &hf_ansi_683_extended_address_indicator, { "Extended address indicator (EX)", "ansi_683.extended_address_indicator", FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},

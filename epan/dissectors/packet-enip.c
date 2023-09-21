@@ -3549,12 +3549,12 @@ proto_register_enip(void)
 
       { &hf_enip_lsr_tcp,
         { "Supports CIP Encapsulation via TCP", "enip.lsr.capaflags.tcp",
-          FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0020,
+          FT_BOOLEAN, 16, NULL, 0x0020,
           "ListServices Reply: Supports CIP Encapsulation via TCP", HFILL }},
 
       { &hf_enip_lsr_udp,
         { "Supports CIP Class 0 or 1 via UDP", "enip.lsr.capaflags.udp",
-          FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0100,
+          FT_BOOLEAN, 16, NULL, 0x0100,
           "ListServices Reply: Supports CIP Class 0 or 1 via UDP", HFILL }},
 
       { &hf_enip_lsr_servicename,
@@ -3822,12 +3822,12 @@ proto_register_enip(void)
 
       { &hf_tcpip_status_mcast_pending,
         { "MCast Pending", "cip.tcpip.status.mcast_pending",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010,
+          FT_BOOLEAN, 32, NULL, 0x00000010,
           NULL, HFILL }},
 
       { &hf_tcpip_status_interface_config_pending,
         { "Interface Configuration Pending", "cip.tcpip.status.interface_config_pending",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
+          FT_BOOLEAN, 32, NULL, 0x00000020,
           NULL, HFILL }},
 
       { &hf_tcpip_status_acd,
@@ -3837,17 +3837,17 @@ proto_register_enip(void)
 
       { &hf_tcpip_acd_fault,
         { "ACD Fault", "cip.tcpip.status.acd_fault",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000080,
+          FT_BOOLEAN, 32, NULL, 0x00000080,
           NULL, HFILL }},
 
       { &hf_tcpip_status_iana_port_admin_change,
         { "IANA Port Admin Change Pending", "cip.tcpip.status.iana_port_admin",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000100,
+          FT_BOOLEAN, 32, NULL, 0x00000100,
           NULL, HFILL }},
 
       { &hf_tcpip_status_iana_protocol_admin_change,
         { "IANA Protocol Admin Change Pending", "cip.tcpip.status.iana_protocol_admin",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000200,
+          FT_BOOLEAN, 32, NULL, 0x00000200,
           NULL, HFILL }},
 
       { &hf_tcpip_status_reserved,
@@ -3862,42 +3862,42 @@ proto_register_enip(void)
 
       { &hf_tcpip_config_cap_bootp,
         { "BOOTP Client", "cip.tcpip.config_cap.bootp",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001,
+          FT_BOOLEAN, 32, NULL, 0x00000001,
           NULL, HFILL }},
 
       { &hf_tcpip_config_cap_dns,
         { "DNS Client", "cip.tcpip.config_cap.dns",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002,
+          FT_BOOLEAN, 32, NULL, 0x00000002,
           NULL, HFILL }},
 
       { &hf_tcpip_config_cap_dhcp,
         { "DHCP Client", "cip.tcpip.config_cap.dhcp",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000004,
+          FT_BOOLEAN, 32, NULL, 0x00000004,
           NULL, HFILL }},
 
       { &hf_tcpip_config_cap_dhcp_dns_update,
         { "DHCP-DNS Update", "cip.tcpip.config_cap.dhcp_dns_update",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008,
+          FT_BOOLEAN, 32, NULL, 0x00000008,
           NULL, HFILL }},
 
       { &hf_tcpip_config_cap_config_settable,
         { "Configuration Settable", "cip.tcpip.config_cap.config_settable",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010,
+          FT_BOOLEAN, 32, NULL, 0x00000010,
           NULL, HFILL }},
 
       { &hf_tcpip_config_cap_hardware_config,
         { "Hardware Configurable", "cip.tcpip.config_cap.hardware_config",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
+          FT_BOOLEAN, 32, NULL, 0x00000020,
           NULL, HFILL }},
 
       { &hf_tcpip_config_cap_interface_reset,
         { "Interface Configuration Change Requires Reset", "cip.tcpip.config_cap.interface_reset",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000040,
+          FT_BOOLEAN, 32, NULL, 0x00000040,
           NULL, HFILL }},
 
       { &hf_tcpip_config_cap_acd,
         { "ACD Capable", "cip.tcpip.config_cap.acd",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000080,
+          FT_BOOLEAN, 32, NULL, 0x00000080,
           NULL, HFILL }},
 
       { &hf_tcpip_config_cap_reserved,
@@ -3917,7 +3917,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_config_control_dns,
         { "DNS Enable", "cip.tcpip.config_control.dns",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010,
+          FT_BOOLEAN, 32, NULL, 0x00000010,
           NULL, HFILL }},
 
       { &hf_tcpip_config_control_reserved,
@@ -4040,8 +4040,8 @@ proto_register_enip(void)
       { &hf_tcpip_port_admin_state, { "Admin State", "cip.tcpip.admin_state", FT_BOOLEAN, BASE_NONE, TFS(&tfs_open_closed), 0, NULL, HFILL } },
 
       { &hf_tcpip_port_admin_capability, { "Admin Capability", "cip.tcpip.admin_capability", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-      { &hf_tcpip_admin_capability_configurable, { "Configurable", "cip.tcpip.admin_capability.configurable", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01, NULL, HFILL } },
-      { &hf_tcpip_admin_capability_reset_required, { "Reset Required", "cip.tcpip.admin_capability.reset_required", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02, NULL, HFILL } },
+      { &hf_tcpip_admin_capability_configurable, { "Configurable", "cip.tcpip.admin_capability.configurable", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL } },
+      { &hf_tcpip_admin_capability_reset_required, { "Reset Required", "cip.tcpip.admin_capability.reset_required", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL } },
       { &hf_tcpip_admin_capability_reserved, { "Reserved", "cip.tcpip.admin_capability", FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
 
       { &hf_elink_interface_speed,
@@ -4416,7 +4416,7 @@ proto_register_enip(void)
 
       { &hf_dlr_rsc_ring_supervisor_enable,
         { "Ring Supervisor Enable", "cip.dlr.rscconfig.supervisor_enable",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
+          FT_BOOLEAN, 8, NULL, 0,
           NULL, HFILL }},
 
       { &hf_dlr_rsc_ring_supervisor_precedence,
@@ -4501,12 +4501,12 @@ proto_register_enip(void)
 
       { &hf_dlr_capflags_announce_base_node,
         { "Announce-based Ring Node", "cip.dlr.capflags.announce_based",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001,
+          FT_BOOLEAN, 32, NULL, 0x00000001,
           NULL, HFILL }},
 
       { &hf_dlr_capflags_beacon_base_node,
         { "Beacon-based Ring Node", "cip.dlr.capflags.beacon_based",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002,
+          FT_BOOLEAN, 32, NULL, 0x00000002,
           NULL, HFILL }},
 
       { &hf_dlr_capflags_reserved1,
@@ -4516,17 +4516,17 @@ proto_register_enip(void)
 
       { &hf_dlr_capflags_supervisor_capable,
         { "Supervisor Capable", "cip.dlr.capflags.supervisor_capable",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
+          FT_BOOLEAN, 32, NULL, 0x00000020,
           NULL, HFILL }},
 
       { &hf_dlr_capflags_redundant_gateway_capable,
         { "Redundant Gateway Capable", "cip.dlr.capflags.redundant_gateway_capable",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000040,
+          FT_BOOLEAN, 32, NULL, 0x00000040,
           NULL, HFILL }},
 
       { &hf_dlr_capflags_flush_frame_capable,
         { "Flush_Table Frame Capable", "cip.dlr.capflags.flush_frame_capable",
-          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000080,
+          FT_BOOLEAN, 32, NULL, 0x00000080,
           NULL, HFILL }},
 
       { &hf_dlr_capflags_reserved2,
@@ -4536,7 +4536,7 @@ proto_register_enip(void)
 
       { &hf_dlr_rgc_red_gateway_enable,
         { "Redundant Gateway Enable", "cip.dlr.rgc.gateway_enable",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
+          FT_BOOLEAN, 8, NULL, 0,
           NULL, HFILL }},
 
       { &hf_dlr_rgc_gateway_precedence,
@@ -4556,7 +4556,7 @@ proto_register_enip(void)
 
       { &hf_dlr_rgc_learning_update_enable,
         { "Learning Update Enable", "cip.dlr.rgc.learning_update_enable",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
+          FT_BOOLEAN, 8, NULL, 0,
           NULL, HFILL }},
 
       { &hf_dlr_redundant_gateway_status,
@@ -4895,12 +4895,12 @@ proto_register_enip(void)
       },
       { &hf_dlr_lnknbrstatus_port1,
         { "Port 1 Active", "enip.dlr.lnknbrstatus.port1",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
+          FT_BOOLEAN, 8, NULL, 0x01,
           NULL, HFILL }
       },
       { &hf_dlr_lnknbrstatus_port2,
         { "Port 2 Active", "enip.dlr.lnknbrstatus.port2",
-          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+          FT_BOOLEAN, 8, NULL, 0x02,
           NULL, HFILL }
       },
       { &hf_dlr_lnknbrstatus_reserved,
