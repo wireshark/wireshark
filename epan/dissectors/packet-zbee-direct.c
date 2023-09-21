@@ -809,7 +809,7 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
 
 /* 6.4.3. CCM Nonce */
 typedef struct
-#if defined(WIN32)
+#if defined(_MSC_VER)
 # pragma pack(push, 1)
 #else
 __attribute__((__packed__))
@@ -820,7 +820,7 @@ __attribute__((__packed__))
     guint32  frame_counter;
     guint8   secur_control;
 } zb_secur_ccm_nonce_t;
-#ifdef WIN32
+#ifdef _MSC_VER
 # pragma pack(pop)
 #endif
 
