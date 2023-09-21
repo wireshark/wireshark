@@ -549,8 +549,8 @@ macOS Intel Package:
     - for digest in sha512 sha256 sha1 ; do openssl $digest Wireshark*.dmg ; done
     - |
       if [ -n "$S3_DESTINATION_MACOS_INTEL64" ] ; then
-        aws s3 cp Wireshark?[1-9]*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
-        aws s3 cp Wireshark?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
+        aws s3 cp Wireshark?[1-9]*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/" --debug
+        aws s3 cp Wireshark?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/" --debug
       fi
     - cd ..
     - ninja test-programs
