@@ -769,6 +769,12 @@ class Item:
     def check_value_string_range(self, vs_min, vs_max):
         # N,B, this doesn't reduce bit count when a mask is set!
         item_width = self.get_field_width_in_bits()
+        if self.mask_value > 0:
+            # Have mask, so count number of bits set.
+            item_width = 0
+            for n in range(0,63):
+                item_width += 1 if self.check_bit(self.mask_value, n) else 0
+
         if item_width is None:
             # Type field defined by macro?
             return
@@ -776,7 +782,8 @@ class Item:
         if vs_max > item_max:
             global warnings_found
             print('Warning:', self.filename, self.hf, 'filter=', self.filter,
-                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", item_width, 'bits')
+                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", item_width, 'bits',
+                  '( mask is', hex(self.mask_value), ')')
             warnings_found += 1
 
     # Return true if bit position n is set in value.
@@ -786,7 +793,7 @@ class Item:
     # Output a warning if non-contigous bits are found in the mask (guint64).
     # Note that this legimately happens in several dissectors where multiple reserved/unassigned
     # bits are conflated into one field.
-    # TODO: there is probably a cool/efficient way to check this?
+    # TODO: there is probably a cool/efficient way to check this (+1 => 1-bit set?)
     def check_contiguous_bits(self, mask):
         if not self.mask_value:
             return
@@ -869,38 +876,39 @@ class Item:
         if mask.startswith('0x') and len(mask) > 3:
             global warnings_found
             global errors_found
-            # Warn if odd number of digits/  TODO: only if >= 5?
+
+            width_in_bits = self.get_field_width_in_bits()
+            # Warn if odd number of digits.  TODO: only if >= 5?
             if len(mask) % 2  and self.item_type != 'FT_BOOLEAN':
                 print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask has odd number of digits', mask,
-                      'expected max for', self.item_type, 'is', int((self.get_field_width_in_bits())/4))
+                      'expected max for', self.item_type, 'is', int(width_in_bits/4))
                 warnings_found += 1
 
             if self.item_type in field_widths:
                 # Longer than it should be?
-                width_in_bits = self.get_field_width_in_bits()
                 if width_in_bits is None:
                     return
                 if len(mask)-2 > width_in_bits/4:
-                    extra_digits = mask[2:2+(len(mask)-2 - int(self.get_field_width_in_bits()/4))]
+                    extra_digits = mask[2:2+(len(mask)-2 - int(width_in_bits/4))]
                     # Its definitely an error if any of these are non-zero, as they won't have any effect!
                     if extra_digits != '0'*len(extra_digits):
                         print('Error:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len is", len(mask)-2,
-                              "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4),
+                              "but type", self.item_type, " indicates max of", int(width_in_bits/4),
                               "and extra digits are non-zero (" + extra_digits + ")")
                         errors_found += 1
                     else:
                         # Has extra leading zeros, still confusing, so warn.
                         print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
-                              "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
+                              "but type", self.item_type, " indicates max of", int(width_in_bits/4))
                         warnings_found += 1
 
                 # Strict/fussy check - expecting mask length to match field width exactly!
                 # Currently only doing for FT_BOOLEAN, and don't expect to be in full for 64-bit fields!
                 if self.mask_exact_width:
-                    ideal_mask_width = int(self.get_field_width_in_bits()/4)
+                    ideal_mask_width = int(width_in_bits/4)
                     if self.item_type == 'FT_BOOLEAN' and ideal_mask_width < 16 and len(mask)-2 != ideal_mask_width:
                         print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
-                                "but type", self.item_type, "|", self.display,  " indicates should be", int(self.get_field_width_in_bits()/4))
+                                "but type", self.item_type, "|", self.display,  " indicates should be", int(width_in_bits/4))
                         warnings_found += 1
 
             else:
