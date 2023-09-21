@@ -6556,9 +6556,19 @@ static int * const bss_config_report_flags[] = {
     NULL
 };
 
-static const true_false_string tfs_allowed_disallowed = {
-    "Allowed",
-    "Disallowed"
+static const true_false_string tfs_disallowed_allowed = {
+    "Disallowed",
+    "Allowed"
+};
+
+static const true_false_string tfs_configured_not_configured = {
+    "Configured",
+    "Not-Configured"
+};
+
+static const true_false_string tfs_not_inuse_inuse = {
+    "Not in use",
+    "In use"
 };
 
 static const true_false_string tfs_transmitted_non_transmitted = {
@@ -10738,26 +10748,26 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_bss_config_report_backhaul_bss,
           { "Backhaul BSS", "ieee1905.bss_config_report.backhaul_bss",
-            FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x80, NULL, HFILL }},
+            FT_BOOLEAN, 8, TFS(&tfs_not_inuse_inuse), 0x80, NULL, HFILL }},
 
         { &hf_ieee1905_bss_config_report_fronthaul_bss,
           { "Fronthaul BSS", "ieee1905.bss_config_report.fronthaul_bss",
-            FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x40, NULL, HFILL }},
+            FT_BOOLEAN, 8, TFS(&tfs_not_inuse_inuse), 0x40, NULL, HFILL }},
 
         { &hf_ieee1905_bss_config_report_r1_disallowed_status,
           { "R1 Disallowed Status",
             "ieee1905.bss_config_report.r1_disallowed_status",
-            FT_BOOLEAN, 8, TFS(&tfs_allowed_disallowed), 0x20, NULL, HFILL }},
+            FT_BOOLEAN, 8, TFS(&tfs_disallowed_allowed), 0x20, NULL, HFILL }},
 
         { &hf_ieee1905_bss_config_report_r2_disallowed_status,
           { "R2 Disallowed Status",
             "ieee1905.bss_config_report.r2_disallowed_status",
-            FT_BOOLEAN, 8, TFS(&tfs_allowed_disallowed), 0x10, NULL, HFILL }},
+            FT_BOOLEAN, 8, TFS(&tfs_disallowed_allowed), 0x10, NULL, HFILL }},
 
         { &hf_ieee1905_bss_config_report_multiple_bssid_set,
           { "Multiple BSSID Set",
             "ieee1905.bss_config_report.multiple_bssid_set",
-            FT_BOOLEAN, 8, TFS(&tfs_transmitted_non_transmitted),
+            FT_BOOLEAN, 8, TFS(&tfs_configured_not_configured),
             0x08, NULL, HFILL }},
 
         { &hf_ieee1905_bss_config_report_transmitted_bssid,
