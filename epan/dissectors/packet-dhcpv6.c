@@ -50,6 +50,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/arptypes.h>
+#include <epan/sminmpec.h>
 #include <epan/strutil.h>
 #include "packet-tcp.h"
 #include "packet-arp.h"
@@ -63,6 +64,8 @@ static gboolean cablelabs_interface_id = FALSE;
 
 static int proto_dhcpv6 = -1;
 static int proto_dhcpv6_bulk_leasequery = -1;
+static int proto_dhcpv6_cablelabs = -1;
+
 static int hf_dhcpv6_msgtype = -1;
 static int hf_clientfqdn_bad_msgtype = -1;
 static int hf_clientfqdn_flags = -1;
@@ -310,6 +313,9 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_query_type = EI_INIT;
 static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 
 static dissector_handle_t dhcpv6_handle;
+static dissector_handle_t dhcpv6_cablelabs_handle;
+
+static dissector_table_t dhcpv6_enterprise_opts_dissector_table;
 
 #define DHCPV6_HW_IS_ETHER(hwtype, length) ((hwtype == 1 || hwtype == 6) && length == 6)
 
@@ -1532,11 +1538,12 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
 }
 
 /* ToDo: review latest CL docs for updates */
-static void
-dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_info *pinfo, tvbuff_t *tvb, int voff, int len)
+static int
+dissect_cablelabs_specific_opts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint type,
           sub_value;
+    proto_item *v_item;
     proto_item *ti;
     proto_item *ti2;
     proto_tree *subtree;
@@ -1544,7 +1551,8 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
     int tlv5_cap_index,
         tlv5_counter,
         tlv5_cap_len;
-    int off = voff,
+    int off = 0,
+        len,
         sub_off, /** The offset for the sub-option */
         i,
         tlv_len, /* holds the number of elements in the tlv */
@@ -1553,12 +1561,19 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
         field_value;
     gchar *device_type = NULL;
 
+    len = tvb_reported_length(tvb);
+
+    /* Enterprise */
+    v_item = proto_tree_add_item(tree, hf_vendoropts_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
+    off += 4;
+    len -= 4;
+
     if (len > 4) {
-        while (off - voff < len) {
+        while (off < len) {
 
             /* Type */
             type = tvb_get_ntohs(tvb, off);
-            ti = proto_tree_add_item(v_tree, hf_cablelabs_opts, tvb, off, 2, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, hf_cablelabs_opts, tvb, off, 2, ENC_BIG_ENDIAN);
             /* Length */
             tlv_len = tvb_get_ntohs(tvb, off+2);
 
@@ -1805,6 +1820,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
     else {
         expert_add_info_format(pinfo, v_item, &ei_dhcpv6_bogus_length, "Bogus length: %d", len);
     }
+    return tvb_reported_length(tvb);
 }
 
 static void
@@ -2312,17 +2328,20 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_tree_add_item(subtree, hf_vendorclass_data, tvb, off+6, optlen-6, ENC_ASCII);
         break;
     case OPTION_VENDOR_OPTS:
+    {
         if (optlen < 4) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "VENDOR_OPTS: malformed option");
             break;
         }
 
-        enterprise_no = tvb_get_ntohl(tvb, off);
-        ti = proto_tree_add_item(subtree, hf_vendoropts_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
+        tvbuff_t   *opt_tvb;
 
-        if (enterprise_no == 4491) {
-            dissect_cablelabs_specific_opts(subtree, ti, pinfo, tvb, off+4, optlen-4);
-        } else {
+        enterprise_no = tvb_get_ntohl(tvb, off);
+        opt_tvb = tvb_new_subset_length(tvb, off, optlen);
+
+        // Find a per-vendor dissector or fallback to the generic-enterprise-dissector.
+        if (!dissector_try_uint_new(dhcpv6_enterprise_opts_dissector_table, enterprise_no, opt_tvb, pinfo, subtree, FALSE, &msgtype)) {
+            proto_tree_add_item(subtree, hf_vendoropts_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
             int optoffset = 0;
 
             while ((optlen - 4 - optoffset) > 0) {
@@ -2336,6 +2355,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             }
         }
         break;
+    }
     case OPTION_INTERFACE_ID:
     {
         if (optlen == 0) {
@@ -3590,6 +3610,12 @@ proto_register_dhcpv6(void)
                                     "Desegment all Bulk Leasequery messages spanning multiple TCP segments",
                                     "Whether the Bulk Leasequery dissector should desegment all messages spanning multiple TCP segments",
                                     &dhcpv6_bulk_leasequery_desegment);
+
+    dhcpv6_enterprise_opts_dissector_table = register_dissector_table("dhcpv6.enterprise_opts", "DHCPv6 Enterprise OPTs", proto_dhcpv6, FT_UINT32, BASE_DEC);
+
+    proto_dhcpv6_cablelabs  = proto_register_protocol("DHCPv6 Cablelabs", "DHCPv6(cablelabs)", "dhcpv6_cablelabs");
+    dhcpv6_cablelabs_handle = register_dissector("dhcpv6", dissect_cablelabs_specific_opts, proto_dhcpv6_cablelabs);
+    dissector_add_uint("dhcpv6.enterprise_opts", VENDOR_CABLELABS, dhcpv6_cablelabs_handle);
 }
 
 void
