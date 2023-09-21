@@ -252,6 +252,18 @@ mk_uint64_fvalue(guint64 val)
 	return fv;
 }
 
+/* Creates a FT_BOOLEAN fvalue with a given value. */
+static fvalue_t*
+mk_boolean_fvalue(bool val)
+{
+	fvalue_t *fv;
+
+	fv = fvalue_new(FT_BOOLEAN);
+	fvalue_set_uinteger64(fv, val);
+
+	return fv;
+}
+
 /* Try to make an fvalue from a string using a value_string or true_false_string.
  * This works only for ftypes that are integers. Returns the created fvalue_t*
  * or NULL if impossible. */
@@ -289,9 +301,9 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
 		case FT_FRAMENUM: /* hfinfo->strings contains ft_framenum_type_t, not strings */
-		case FT_BOOLEAN:
 			return NULL;
 
+		case FT_BOOLEAN:
 		case FT_CHAR:
 		case FT_UINT8:
 		case FT_UINT16:
@@ -327,7 +339,19 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 	 * I happen to have now. */
 	df_error_free(&dfw->error);
 
-	if (hfinfo->display & BASE_RANGE_STRING) {
+	if (hfinfo->type == FT_BOOLEAN) {
+		const true_false_string	*tf = (const true_false_string *)hfinfo->strings;
+
+		if (g_ascii_strcasecmp(s, tf->true_string) == 0) {
+			return mk_boolean_fvalue(true);
+		}
+		if (g_ascii_strcasecmp(s, tf->false_string) == 0) {
+			return mk_boolean_fvalue(false);
+		}
+		dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot be found among the possible values for %s.",
+								s, hfinfo->abbrev);
+	}
+	else if (hfinfo->display & BASE_RANGE_STRING) {
 		dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot accept [range] strings as values.",
 				hfinfo->abbrev);
 	}

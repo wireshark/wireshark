@@ -432,3 +432,10 @@ class TestDfilterXor:
     def test_xor_4(self, checkDFilterCount):
         dfilter = 'ip.src == 9.9.9.9 ^^ ip.dst == 9.9.9.9'
         checkDFilterCount(dfilter, 0)
+
+class TestDfilterTFSValueString:
+    trace_file = "http.pcap"
+
+    def test_tfs_1(self, checkDFilterCount):
+        dfilter = 'ip.flags.df == "Set"'
+        checkDFilterCount(dfilter, 1)
