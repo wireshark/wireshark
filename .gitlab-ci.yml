@@ -360,9 +360,9 @@ Win64 Package:
     - foreach ($package in $packages) { Write-Host $package.name $package.length "bytes" }
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
     - |
-      if (Test-Path env:S3_DESTINATION_WINDOWS_X64) {
+      if (Test-Path env:MC_DESTINATION_WINDOWS_X64) {
         foreach ($package in $packages) {
-          aws s3 cp "$package" "$env:S3_DESTINATION_WINDOWS_X64/"
+          mc cp "$package" "$env:MC_DESTINATION_WINDOWS_X64/"
         }
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
