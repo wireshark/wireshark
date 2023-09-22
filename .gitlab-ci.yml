@@ -442,7 +442,7 @@ Windows x64 Package:
     - |
       if (Test-Path env:MC_DESTINATION_WINDOWS_X64) {
         foreach ($package in $packages) {
-          mc cp "$package" "$env:MC_DESTINATION_WINDOWS_X64/"
+          C:\gitlab-builds\bin\mc cp "$package" "$env:MC_DESTINATION_WINDOWS_X64/"
         }
       }
     - C:\Windows\py.exe -m pytest
@@ -479,7 +479,7 @@ Windows Arm64 Package:
     - |
       if (Test-Path env:MC_DESTINATION_WINDOWS_ARM64) {
         foreach ($package in $packages) {
-          mc cp "$package" "$env:MC_DESTINATION_WINDOWS_ARM64/"
+          C:\gitlab-builds\bin\mc cp "$package" "$env:MC_DESTINATION_WINDOWS_ARM64/"
         }
       }
     - C:\Windows\py.exe -m pytest
