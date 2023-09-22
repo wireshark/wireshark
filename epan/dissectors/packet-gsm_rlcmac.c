@@ -10156,7 +10156,7 @@ proto_register_gsm_rlcmac(void)
      { &hf_prach11_message_type_9,
        { "Message Type (9 bit)",
          "gsm_rlcmac.message_type_9",
-         FT_UINT8, BASE_DEC, VALS(ul_prach11_message_type9_vals), 0x0,
+         FT_UINT16, BASE_DEC, VALS(ul_prach11_message_type9_vals), 0x0,
          NULL, HFILL
        }
      },
