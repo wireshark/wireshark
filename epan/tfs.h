@@ -38,11 +38,12 @@ typedef struct true_false_string {
  */
 WS_DLL_PUBLIC const char *tfs_get_string(gboolean value, const true_false_string *tfs);
 
+#define tfs_get_true_false(value)   tfs_get_string(value, NULL)
+
 /*
  * A default set of true/false strings that dissectors can use for
- * FT_BOOLEAN header fields. By default tfs_true_false is used.
+ * FT_BOOLEAN header fields. By default { "True", "False" } is used.
  */
-WS_DLL_PUBLIC const true_false_string tfs_true_false;
 WS_DLL_PUBLIC const true_false_string tfs_yes_no;
 WS_DLL_PUBLIC const true_false_string tfs_no_yes;
 WS_DLL_PUBLIC const true_false_string tfs_set_notset;

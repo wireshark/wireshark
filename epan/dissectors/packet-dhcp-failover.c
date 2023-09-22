@@ -1117,7 +1117,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			}
 			ms_client_nap_capable = tvb_get_guint8(tvb, offset);
 			proto_item_append_text(oi, ", %s (%d)",
-				tfs_get_string(ms_client_nap_capable, &tfs_true_false),
+				tfs_get_true_false(ms_client_nap_capable),
 				ms_client_nap_capable);
 			proto_tree_add_item(option_tree, hf_dhcpfo_ms_client_nap_capable, tvb, offset, option_length, ENC_BIG_ENDIAN);
 			break;

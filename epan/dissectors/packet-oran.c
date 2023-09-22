@@ -1727,7 +1727,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Summary */
                     proto_item_set_len(set_ti, (bit_offset+7)/8 - set_start_offset);
                     proto_item_append_text(set_ti, " (mcScaleReMask=%u  csf=%s  mcScaleOffset=%u)",
-                                           (guint)mcScaleReMask, tfs_get_string((gboolean)csf, &tfs_true_false), (guint)mcScaleOffset);
+                                           (guint)mcScaleReMask, tfs_get_true_false((gboolean)csf), (guint)mcScaleOffset);
                 }
 
                 proto_item_append_text(extension_ti, " (%u sets)", sets);

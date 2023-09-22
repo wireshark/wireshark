@@ -2043,7 +2043,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
      * and "OUT", but rather can continue to use typical boolean values.  "IN"
      * and "OUT" are provided as convenience. */
     proto_tree_add_boolean_format_value(tree, hf_ingress, tvb, o, 1, ingress, "%s (%s)",
-            tfs_get_string(ingress, &tfs_true_false),
+            tfs_get_true_false(ingress),
             tfs_get_string(ingress, &f5tfs_ing));
     o++;
 
@@ -2446,7 +2446,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
      * and "OUT", but rather can continue to use typical boolean values.  "IN"
      * and "OUT" are provided as convenience. */
     pi = proto_tree_add_boolean_format_value(tree, hf_ingress, tvb, offset, 1, ingress,
-        "%s (%s)", tfs_get_string(ingress, &tfs_true_false),
+        "%s (%s)", tfs_get_true_false(ingress),
             tfs_get_string(ingress, &f5tfs_ing));
     if (ver > 2) {
         /* The old ingress field is now a flag field.  Leave the old ingress field

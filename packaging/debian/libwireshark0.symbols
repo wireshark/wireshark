@@ -1779,7 +1779,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_shared_independent@Base 1.9.1
  tfs_success_fail@Base 1.9.1
  tfs_supported_not_supported@Base 1.9.1
- tfs_true_false@Base 1.9.1
  tfs_up_down@Base 2.5.0
  tfs_uplink_downlink@Base 2.5.0
  tfs_used_notused@Base 1.9.1

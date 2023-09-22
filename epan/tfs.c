@@ -29,7 +29,6 @@ const char *tfs_get_string(gboolean value, const true_false_string *tfs)
  * A default set of true/false strings that dissectors can use for
  * FT_BOOLEAN header fields.
  */
-const true_false_string tfs_true_false = { "True", "False" };
 const true_false_string tfs_yes_no = { "Yes", "No" };
 const true_false_string tfs_no_yes = { "No", "Yes" };
 const true_false_string tfs_set_notset = { "Set", "Not set" };
