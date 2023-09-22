@@ -522,6 +522,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_strtou64@Base 2.3.0
  ws_strtou8@Base 2.3.0
  ws_strtou@Base 3.3.0
+ ws_tzset@Base 4.1.1rc0
  ws_utf8_make_valid@Base 4.1.0
  ws_utf8_make_valid_strbuf@Base 4.1.0
  ws_utf8_seqlen@Base 4.1.0
