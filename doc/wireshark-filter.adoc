@@ -579,7 +579,7 @@ will match all packets that do not contain the llc protocol.
 The third filter expression includes the constraint that offset 199 in the
 frame exists, in other words the length of the frame is at least 200.
 
-Each comparison has an implicit exists test for any field value. Care must
+Because each comparison has an implicit exists test for field values care must
 be taken when using the display filter to remove noise from
 the packet trace. If, for example, you want to filter out all IP
 multicast packets to address 224.1.2.3, then using:
