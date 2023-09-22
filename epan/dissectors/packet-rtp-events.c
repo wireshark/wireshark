@@ -352,7 +352,7 @@ static const value_string rtp_event_type_values[] =
     { 189,                           "MFC forward signal 14" }, // [RFC5244]
     { 190,                           "MFC forward signal 15" }, // [RFC5244]
     { 191,                           "MFC backward signal 1" }, // [RFC5244]
-    { 192,                           "MFC backward signal 2" }, // [RFC5244]
+    //{ 192,                           "MFC backward signal 2" }, // [RFC5244]
 
         //193	MFC backward signal 3[RFC5244]
         //194	MFC backward signal 4[RFC5244]
