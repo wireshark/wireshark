@@ -362,7 +362,7 @@ Win64 Package:
     - |
       if (Test-Path env:MC_DESTINATION_WINDOWS_X64) {
         foreach ($package in $packages) {
-          mc cp "$package" "$env:MC_DESTINATION_WINDOWS_X64/"
+          C:\gitlab-builds\bin\mc cp "$package" "$env:MC_DESTINATION_WINDOWS_X64/"
         }
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
