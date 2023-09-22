@@ -19,8 +19,16 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#ifndef _WIN32
+#include <sys/resource.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#if defined(__APPLE__)
+#include <sys/sysctl.h>
 #endif
 
 #include <string.h>
@@ -99,6 +107,62 @@ add_idb_index_map(merge_in_file_t *in_file, const guint orig_index _U_, const gu
     g_array_append_val(in_file->idb_index_map, found_index);
 }
 
+#ifndef _WIN32
+static bool
+raise_limit(int resource, unsigned add)
+{
+    struct rlimit rl;
+    /* For now don't try to raise the hard limit; we could if we
+     * have the appropriate privileges (CAP_SYS_RESOURCE on Linux).
+     */
+    if ((getrlimit(resource, &rl) == 0) && rl.rlim_cur < rl.rlim_max) {
+        rlim_t old_cur = rl.rlim_cur;
+        /* What open file descriptor limit do we need? */
+        rl.rlim_cur = rl.rlim_cur + add;
+        /* Check for overflow (unlikely). */
+        rl.rlim_cur = MAX(old_cur, rl.rlim_cur);
+        rl.rlim_cur = MIN(rl.rlim_cur, rl.rlim_max);
+        if (setrlimit(resource, &rl) == 0) {
+            return true;
+        }
+#if defined(__APPLE__)
+        /* On Leopard, setrlimit(RLIMIT_NOFILE, ...) fails
+         * on attempts to set rlim_cur above OPEN_MAX, even
+         * if rlim_max > OPEN_MAX. OPEN_MAX is 10240.
+         *
+         * Starting with some later version (at least Mojave,
+         * possibly earlier), it can be set to kern.maxfilesperproc
+         * from sysctl, which is _usually_ higher than 10240.
+         *
+         * In Big Sur and later, it can always be set to rlim_max.
+         * (That is, setrlimit() will return 0 and getrlimit() will
+         * subsequently return the set value; the enforced limit
+         * is the lesser of that and kern.maxfilesperproc.)
+         */
+        if (resource == RLIMIT_NOFILE) {
+            unsigned int nlimit = 0;
+            size_t limit_len = sizeof(nlimit);
+            if (sysctlbyname("kern.maxfilesperproc", &nlimit, &limit_len, NULL, 0) != 0 || nlimit < OPEN_MAX) {
+                rl.rlim_cur = OPEN_MAX;
+            } else {
+                rl.rlim_cur = nlimit;
+            }
+            if (setrlimit(RLIMIT_NOFILE, &rl) == 0) {
+                return true;
+            }
+            if (rl.rlim_cur > OPEN_MAX) {
+                rl.rlim_cur = OPEN_MAX;
+                if (setrlimit(RLIMIT_NOFILE, &rl) == 0) {
+                    return true;
+                }
+            }
+        }
+#endif
+    }
+    return false;
+}
+#endif
+
 /** Open a number of input files to merge.
  *
  * @param in_file_count number of entries in in_file_names
@@ -115,16 +179,19 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
                     merge_in_file_t **out_files, merge_progress_callback_t* cb,
                     int *err, gchar **err_info, guint *err_fileno)
 {
-    guint i;
+    guint i = 0;
     guint j;
     size_t files_size = in_file_count * sizeof(merge_in_file_t);
     merge_in_file_t *files;
     gint64 size;
+#ifndef _WIN32
+    bool try_raise_nofile = false;
+#endif
 
     files = (merge_in_file_t *)g_malloc0(files_size);
     *out_files = NULL;
 
-    for (i = 0; i < in_file_count; i++) {
+    while (i < in_file_count) {
         files[i].filename    = in_file_names[i];
         files[i].wth         = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, FALSE);
         files[i].state       = RECORD_NOT_PRESENT;
@@ -140,6 +207,12 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
 #ifdef _WIN32
                 report_warning("Requested opening %u files but could only open %u: %s\nUsing temporary files to batch process.", in_file_count, i, g_strerror(*err));
 #else
+                if (!try_raise_nofile) {
+                    try_raise_nofile = true;
+                    if (raise_limit(RLIMIT_NOFILE, in_file_count - i)) {
+                        continue;
+                    }
+                }
                 report_warning("Requested opening %u files but could only open %u: %s\nUsing temporary files to batch process (try ulimit -n to adjust the limit).", in_file_count, i, g_strerror(*err));
 #endif
                 in_file_count = i;
@@ -168,6 +241,8 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
         ws_buffer_init(&files[i].frame_buffer, 1514);
         files[i].size = size;
         files[i].idb_index_map = g_array_new(FALSE, FALSE, sizeof(guint));
+
+        i++;
     }
 
     if (cb)
