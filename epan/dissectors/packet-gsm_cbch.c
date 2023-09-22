@@ -35,13 +35,12 @@ static const value_string block_type_seq_num_values[] = {
     { 0x02, "Third Block"},
     { 0x03, "Fourth Block"},
     { 0x08, "First Schedule Block"},
-    { 0xFF, "Null message"},
+    { 0x0F, "Null message"},
     {    0, NULL}
 };
 
 static const value_string sched_type_values[] = {
     { 0x00, "messages formatted as specified in subclause 3.5 of 3GPP 44.012"},
-    { 0xFF, "Unknown schedule message format"},
     {    0, NULL}
 };
 
