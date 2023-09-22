@@ -25,7 +25,7 @@ extern "C" {
 enum ftenum {
 	FT_NONE,	/* used for text labels with no value */
 	FT_PROTOCOL,
-	FT_BOOLEAN,	/* TRUE and FALSE come from <glib.h> */
+	FT_BOOLEAN,	/* true and false come from <glib.h> */
 	FT_CHAR,	/* 1-octet character as 0-255 */
 	FT_UINT8,
 	FT_UINT16,
@@ -158,7 +158,7 @@ enum ft_result {
  *     ft_bool != FT_TRUE
  * are different results (three-state logic).
  */
-typedef int ft_bool_t;
+typedef bool ft_bool_t;
 #define FT_TRUE		1
 #define FT_FALSE	0
 
@@ -181,7 +181,7 @@ ftypes_register_pseudofields(void);
 
 /* given two types, are they similar - for example can two
  * duplicate fields be registered of these two types. */
-gboolean
+bool
 ftype_similar_types(const enum ftenum ftype_a, const enum ftenum ftype_b);
 
 /* Return a string representing the name of the type */
@@ -200,72 +200,72 @@ ftype_pretty_name(ftenum_t ftype);
 int
 ftype_wire_size(ftenum_t ftype);
 
-gboolean
+bool
 ftype_can_length(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_slice(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_eq(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_cmp(enum ftenum ftype);
 
-gboolean
+bool
 ftype_can_bitwise_and(enum ftenum ftype);
 
-gboolean
+bool
 ftype_can_unary_minus(enum ftenum ftype);
 
-gboolean
+bool
 ftype_can_add(enum ftenum ftype);
 
-gboolean
+bool
 ftype_can_subtract(enum ftenum ftype);
 
-gboolean
+bool
 ftype_can_multiply(enum ftenum ftype);
 
-gboolean
+bool
 ftype_can_divide(enum ftenum ftype);
 
-gboolean
+bool
 ftype_can_modulo(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_contains(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_matches(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_is_zero(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_is_negative(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_val_to_sinteger(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_val_to_uinteger(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_val_to_sinteger64(enum ftenum ftype);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 ftype_can_val_to_uinteger64(enum ftenum ftype);
 
 /* ---------------- FVALUE ----------------- */
@@ -282,8 +282,8 @@ typedef struct _protocol_value_t
 {
 	tvbuff_t	*tvb;
 	int		length;
-	gchar		*proto_string;
-	gboolean	tvb_is_private;
+	char		*proto_string;
+	bool	tvb_is_private;
 } protocol_value_t;
 
 typedef struct _fvalue_t fvalue_t;
@@ -305,14 +305,14 @@ fvalue_free(fvalue_t *fv);
 
 WS_DLL_PUBLIC
 fvalue_t*
-fvalue_from_literal(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg);
+fvalue_from_literal(ftenum_t ftype, const char *s, bool allow_partial_value, char **err_msg);
 
 /* String *MUST* be null-terminated. Length is optional (pass zero) and does not include the null terminator. */
 fvalue_t*
-fvalue_from_string(ftenum_t ftype, const char *s, size_t len, gchar **err_msg);
+fvalue_from_string(ftenum_t ftype, const char *s, size_t len, char **err_msg);
 
 fvalue_t*
-fvalue_from_charconst(ftenum_t ftype, unsigned long number, gchar **err_msg);
+fvalue_from_charconst(ftenum_t ftype, unsigned long number, char **err_msg);
 
 /* Creates the string representation of the field value.
  * Memory for the buffer is allocated based on wmem allocator
@@ -329,16 +329,16 @@ fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtyp
 	fvalue_to_string_repr(scope, fv, FTREPR_DFILTER, 0)
 
 WS_DLL_PUBLIC enum ft_result
-fvalue_to_uinteger(const fvalue_t *fv, guint32 *repr);
+fvalue_to_uinteger(const fvalue_t *fv, uint32_t *repr);
 
 WS_DLL_PUBLIC enum ft_result
-fvalue_to_sinteger(const fvalue_t *fv, gint32 *repr);
+fvalue_to_sinteger(const fvalue_t *fv, int32_t *repr);
 
 WS_DLL_PUBLIC enum ft_result
-fvalue_to_uinteger64(const fvalue_t *fv, guint64 *repr);
+fvalue_to_uinteger64(const fvalue_t *fv, uint64_t *repr);
 
 WS_DLL_PUBLIC enum ft_result
-fvalue_to_sinteger64(const fvalue_t *fv, gint64 *repr);
+fvalue_to_sinteger64(const fvalue_t *fv, int64_t *repr);
 
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(fvalue_t *fv);
@@ -357,16 +357,16 @@ void
 fvalue_set_bytes_data(fvalue_t *fv, const void *data, size_t size);
 
 void
-fvalue_set_fcwwn(fvalue_t *fv, const guint8 *value);
+fvalue_set_fcwwn(fvalue_t *fv, const uint8_t *value);
 
 void
-fvalue_set_ax25(fvalue_t *fv, const guint8 *value);
+fvalue_set_ax25(fvalue_t *fv, const uint8_t *value);
 
 void
-fvalue_set_vines(fvalue_t *fv, const guint8 *value);
+fvalue_set_vines(fvalue_t *fv, const uint8_t *value);
 
 void
-fvalue_set_ether(fvalue_t *fv, const guint8 *value);
+fvalue_set_ether(fvalue_t *fv, const uint8_t *value);
 
 void
 fvalue_set_guid(fvalue_t *fv, const e_guid_t *value);
@@ -375,28 +375,28 @@ void
 fvalue_set_time(fvalue_t *fv, const nstime_t *value);
 
 void
-fvalue_set_string(fvalue_t *fv, const gchar *value);
+fvalue_set_string(fvalue_t *fv, const char *value);
 
 void
 fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value);
 
 void
-fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name, int length);
+fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, int length);
 
 void
-fvalue_set_uinteger(fvalue_t *fv, guint32 value);
+fvalue_set_uinteger(fvalue_t *fv, uint32_t value);
 
 void
-fvalue_set_sinteger(fvalue_t *fv, gint32 value);
+fvalue_set_sinteger(fvalue_t *fv, int32_t value);
 
 void
-fvalue_set_uinteger64(fvalue_t *fv, guint64 value);
+fvalue_set_uinteger64(fvalue_t *fv, uint64_t value);
 
 void
-fvalue_set_sinteger64(fvalue_t *fv, gint64 value);
+fvalue_set_sinteger64(fvalue_t *fv, int64_t value);
 
 void
-fvalue_set_floating(fvalue_t *fv, gdouble value);
+fvalue_set_floating(fvalue_t *fv, double value);
 
 void
 fvalue_set_ipv6(fvalue_t *fv, const ws_in6_addr *value);
@@ -407,7 +407,7 @@ GBytes *
 fvalue_get_bytes(fvalue_t *fv);
 
 WS_DLL_PUBLIC
-gsize
+size_t
 fvalue_get_bytes_size(fvalue_t *fv);
 
 /* Same as fvalue_length() */
@@ -435,18 +435,18 @@ WS_DLL_PUBLIC
 tvbuff_t *
 fvalue_get_protocol(fvalue_t *fv);
 
-WS_DLL_PUBLIC guint32
+WS_DLL_PUBLIC uint32_t
 fvalue_get_uinteger(fvalue_t *fv);
 
-WS_DLL_PUBLIC gint32
+WS_DLL_PUBLIC int32_t
 fvalue_get_sinteger(fvalue_t *fv);
 
 WS_DLL_PUBLIC
-guint64
+uint64_t
 fvalue_get_uinteger64(fvalue_t *fv);
 
 WS_DLL_PUBLIC
-gint64
+int64_t
 fvalue_get_sinteger64(fvalue_t *fv);
 
 WS_DLL_PUBLIC double
@@ -479,13 +479,13 @@ fvalue_contains(const fvalue_t *a, const fvalue_t *b);
 ft_bool_t
 fvalue_matches(const fvalue_t *a, const ws_regex_t *re);
 
-gboolean
+bool
 fvalue_is_zero(const fvalue_t *a);
 
-gboolean
+bool
 fvalue_is_negative(const fvalue_t *a);
 
-gsize
+size_t
 fvalue_length2(fvalue_t *fv);
 
 fvalue_t*
@@ -498,24 +498,24 @@ fvalue_t*
 fvalue_unary_minus(const fvalue_t *fv, char **err_msg);
 
 fvalue_t*
-fvalue_add(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+fvalue_add(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
 fvalue_t*
-fvalue_subtract(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+fvalue_subtract(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
 fvalue_t*
-fvalue_multiply(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+fvalue_multiply(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
 fvalue_t*
-fvalue_divide(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+fvalue_divide(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
 fvalue_t*
-fvalue_modulo(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+fvalue_modulo(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
-guint
+unsigned
 fvalue_hash(const fvalue_t *fv);
 
-gboolean
+bool
 fvalue_equal(const fvalue_t *a, const fvalue_t *b);
 
 #ifdef __cplusplus

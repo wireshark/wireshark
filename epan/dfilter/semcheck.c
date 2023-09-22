@@ -43,7 +43,7 @@
 		THROW(TypeError); \
 	} while (0)
 
-typedef gboolean (*FtypeCanFunc)(enum ftenum);
+typedef bool (*FtypeCanFunc)(enum ftenum);
 
 static ftenum_t
 check_arithmetic_LHS(dfwork_t *dfw, stnode_op_t st_op,

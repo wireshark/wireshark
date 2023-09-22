@@ -166,7 +166,7 @@ df_func_string(GSList *stack, guint32 arg_count _U_, df_cell_t *retval)
 
 static gboolean
 df_func_compare(GSList *stack, guint32 arg_count, df_cell_t *retval,
-                    gboolean (*fv_cmp)(const fvalue_t *a, const fvalue_t *b))
+                    bool (*fv_cmp)(const fvalue_t *a, const fvalue_t *b))
 {
     fvalue_t *fv_ret = NULL;
     GSList   *args;

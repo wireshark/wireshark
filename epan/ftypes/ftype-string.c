@@ -65,8 +65,8 @@ value_get(fvalue_t *fv)
 	return fv->value.strbuf;
 }
 
-static gboolean
-val_from_string(fvalue_t *fv, const char *s, size_t len, gchar **err_msg _U_)
+static bool
+val_from_string(fvalue_t *fv, const char *s, size_t len, char **err_msg _U_)
 {
 	/* Free up the old value, if we have one */
 	string_fvalue_free(fv);
@@ -76,11 +76,11 @@ val_from_string(fvalue_t *fv, const char *s, size_t len, gchar **err_msg _U_)
 	else
 		fv->value.strbuf = wmem_strbuf_new(NULL, s);
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
-val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+static bool
+val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
 {
 	/* Just turn it into a string */
 	/* XXX Should probably be a syntax error instead. It's more user-friendly to ask the
@@ -89,8 +89,8 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 	return val_from_string(fv, s, 0, err_msg);
 }
 
-static gboolean
-val_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg)
+static bool
+val_from_charconst(fvalue_t *fv, unsigned long num, char **err_msg)
 {
 	/* XXX Should be a syntax error if literal is also a syntax error. */
 
@@ -102,45 +102,45 @@ val_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg)
 		if (err_msg) {
 			*err_msg = ws_strdup_printf("%lu is too large for a byte value", num);
 		}
-		return FALSE;
+		return false;
 	}
 
 	char c = (char)num;
 	fv->value.strbuf = wmem_strbuf_new(NULL, NULL);
 	wmem_strbuf_append_c(fv->value.strbuf, c);
 
-	return TRUE;
+	return true;
 }
 
-static guint
+static unsigned
 string_hash(const fvalue_t *fv)
 {
 	return g_str_hash(wmem_strbuf_get_str(fv->value.strbuf));
 }
 
-static gboolean
+static bool
 string_is_zero(const fvalue_t *fv)
 {
 	return fv->value.strbuf == NULL || fv->value.strbuf->len == 0;
 }
 
-static guint
+static unsigned
 len(fvalue_t *fv)
 {
-	/* g_utf8_strlen returns glong for no apparent reason*/
-	glong len = g_utf8_strlen(fv->value.strbuf->str, -1);
+	/* g_utf8_strlen returns long for no apparent reason*/
+	long len = g_utf8_strlen(fv->value.strbuf->str, -1);
 	if (len < 0)
 		return 0;
-	return (guint)len;
+	return (unsigned)len;
 }
 
 static void
-slice(fvalue_t *fv, wmem_strbuf_t *buf, guint offset, guint length)
+slice(fvalue_t *fv, wmem_strbuf_t *buf, unsigned offset, unsigned length)
 {
 	const char *str = fv->value.strbuf->str;
 
 	/* Go to the starting offset */
-	const char *p = g_utf8_offset_to_pointer(str, (glong)offset);
+	const char *p = g_utf8_offset_to_pointer(str, (long)offset);
 	const char *n;
 	/* Copy 'length' codepoints to dst. Skip the terminating NULL */
 	while (*p != '\0' && length-- > 0) {
@@ -159,29 +159,29 @@ cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 }
 
 static enum ft_result
-cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b, gboolean *contains)
+cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b, bool *contains)
 {
 	/* According to
 	* http://www.introl.com/introl-demo/Libraries/C/ANSI_C/string/strstr.html
 	* strstr() returns a non-NULL value if needle is an empty
 	* string. We don't that behavior for cmp_contains. */
 	if (fv_b->value.strbuf->len == 0) {
-		*contains = FALSE;
+		*contains = false;
 		return FT_OK;
 	}
 
 	if (wmem_strbuf_strstr(fv_a->value.strbuf, fv_b->value.strbuf)) {
-		*contains = TRUE;
+		*contains = true;
 	}
 	else {
-		*contains = FALSE;
+		*contains = false;
 	}
 
 	return FT_OK;
 }
 
 static enum ft_result
-cmp_matches(const fvalue_t *fv, const ws_regex_t *regex, gboolean *matches)
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex, bool *matches)
 {
 	wmem_strbuf_t *buf = fv->value.strbuf;
 

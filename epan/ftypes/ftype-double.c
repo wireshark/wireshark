@@ -23,7 +23,7 @@ double_fvalue_new(fvalue_t *fv)
 }
 
 static void
-double_fvalue_set_floating(fvalue_t *fv, gdouble value)
+double_fvalue_set_floating(fvalue_t *fv, double value)
 {
 	fv->value.floating = value;
 }
@@ -34,8 +34,8 @@ value_get_floating(fvalue_t *fv)
 	return fv->value.floating;
 }
 
-static gboolean
-val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+static bool
+val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
 {
 	char    *endptr = NULL;
 
@@ -45,7 +45,7 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 		/* This isn't a valid number. */
 		if (err_msg != NULL)
 			*err_msg = ws_strdup_printf("\"%s\" is not a valid floating-point number.", s);
-		return FALSE;
+		return false;
 	}
 	if (errno == ERANGE) {
 		if (fv->value.floating == 0) {
@@ -61,10 +61,10 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 				*err_msg = ws_strdup_printf("\"%s\" is not a valid floating-point number.",
 				    s);
 		}
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 static char *
@@ -136,19 +136,19 @@ cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 	return FT_OK;
 }
 
-static gboolean
+static bool
 val_is_zero(const fvalue_t *fv_a)
 {
 	return fv_a->value.floating == 0;
 }
 
-static gboolean
+static bool
 val_is_negative(const fvalue_t *fv_a)
 {
 	return fv_a->value.floating < 0;
 }
 
-static guint
+static unsigned
 val_hash(const fvalue_t *fv)
 {
 	return g_double_hash(&fv->value.floating);

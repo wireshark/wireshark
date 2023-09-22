@@ -40,66 +40,66 @@ sfloat_ieee_11073_fvalue_new(fvalue_t *fv)
     fv->value.sfloat_ieee_11073 = 0x0000;
 }
 
-static gboolean
-sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg _U_)
+static bool
+sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg _U_)
 {
-    const char *i_char = s;
-    char          c;
-    guint8        mantissa_sign = 0;
-    guint32       mantissa = 0;
-    gint8         exponent = 0;
-    gboolean      fraction_mode = FALSE;
-    const guint16 mantissa_max = 0x07FF;
+    const char    *i_char = s;
+    char           c;
+    uint8_t        mantissa_sign = 0;
+    uint32_t       mantissa = 0;
+    int8_t         exponent = 0;
+    bool           fraction_mode = false;
+    const uint16_t mantissa_max = 0x07FF;
 
     c = *i_char;
 
     if (c== '\0')
-        return FALSE;
+        return false;
 
     if (c == '.')
-        return FALSE;
+        return false;
 
     if (c == '-' && s[1] == '.')
-        return FALSE;
+        return false;
 
     if (c == '-' && (s[1] == 'I' || s[1] == 'i')) {
         if (!g_ascii_strcasecmp(s, "-INFINITY")) {
             fv->value.sfloat_ieee_11073 = SFLOAT_VALUE_INFINITY_MINUS;
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     } else if (c == 'R' || c == 'r') {
         if (!g_ascii_strcasecmp(s, "RFU")) {
             fv->value.sfloat_ieee_11073 = SFLOAT_VALUE_RFU;
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     } else if (c == 'N' || c == 'n') {
         if (!g_ascii_strcasecmp(s, "NRes")) {
             fv->value.sfloat_ieee_11073 = SFLOAT_VALUE_NRES;
-            return TRUE;
+            return true;
         }
 
         if (!g_ascii_strcasecmp(s, "NaN")) {
             fv->value.sfloat_ieee_11073 = SFLOAT_VALUE_NAN;
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     } else if (c == '+') {
         if (!g_ascii_strcasecmp(s, "+INFINITY")) {
             fv->value.sfloat_ieee_11073 = SFLOAT_VALUE_INFINITY_PLUS;
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     if (c == '-') {
         if (s[1] == '\0')
-            return FALSE;
+            return false;
 
         mantissa_sign = 1;
         i_char += 1;
@@ -113,10 +113,10 @@ sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_p
 
     do {
         if (c == '0') {
-            if (mantissa * 10 >  (guint32) mantissa_max + mantissa_sign) {
+            if (mantissa * 10 >  (uint32_t) mantissa_max + mantissa_sign) {
                 exponent += 1;
                 if (exponent > 7)
-                    return FALSE;
+                    return false;
             } else {
                 mantissa *= 10;
             }
@@ -149,13 +149,13 @@ sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_p
             mantissa += 9;
         } else if (c == '.') {
             if (fraction_mode)
-                return FALSE;
-            fraction_mode = TRUE;
+                return false;
+            fraction_mode = true;
             i_char += 1;
 
             while (*i_char == '0') {
                 i_char += 1;
-                if (mantissa * 10 <= (guint32) mantissa_max + mantissa_sign) {
+                if (mantissa * 10 <= (uint32_t) mantissa_max + mantissa_sign) {
                     mantissa *= 10;
                     if (exponent > -8 - 4) /* -8 is min exponent; 4 is mantissa size */
                          exponent -= 1;
@@ -165,11 +165,11 @@ sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_p
             i_char -= 1;
         } else if (c != '\0') {
             /* NOTE: Maybe 5e-10, 5e3 notation should be also supported */
-            return FALSE;
+            return false;
         }
 
-        if (mantissa > (guint32) mantissa_max + mantissa_sign)
-            return FALSE;
+        if (mantissa > (uint32_t) mantissa_max + mantissa_sign)
+            return false;
 
         if (c != '.' && fraction_mode)
             exponent -= 1;
@@ -193,23 +193,23 @@ sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_p
     }
 
     if (exponent < -8)
-        return FALSE;
+        return false;
 
     fv->value.sfloat_ieee_11073 = ((exponent & 0x0F) << 12) | mantissa;
 
-    return TRUE;
+    return true;
 }
 
 static char *
 sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-    gint8    exponent;
+    int8_t   exponent;
     uint16_t mantissa;
-    guint16  mantissa_sign;
-    guint32  offset = 0;
+    uint16_t mantissa_sign;
+    uint32_t offset = 0;
     char     mantissa_buf[5];
     char    *mantissa_str;
-    guint8   mantissa_digits;
+    uint8_t  mantissa_digits;
 
     /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
     if (fv->value.sfloat_ieee_11073 >= 0x07FE && fv->value.sfloat_ieee_11073 <= 0x0802) {
@@ -242,11 +242,11 @@ sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrep
 
     exponent = fv->value.sfloat_ieee_11073 >> 12;
     if (exponent & 0x8)
-        exponent |= 0xF0; /* It is signed (4bits), so make it signed in gint8 */
+        exponent |= 0xF0; /* It is signed (4bits), so make it signed in int8_t */
     mantissa = fv->value.sfloat_ieee_11073 & 0x07FF;
     mantissa_sign = (fv->value.sfloat_ieee_11073 & 0x0800);
     if (mantissa_sign)
-        mantissa = -((gint16)mantissa | 0xF800);
+        mantissa = -((int16_t)mantissa | 0xF800);
 
     if (mantissa == 0) {
         return wmem_strdup(scope, "0");
@@ -301,29 +301,29 @@ sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrep
 }
 
 static void
-sfloat_ieee_11073_value_set(fvalue_t *fv, guint32 value)
+sfloat_ieee_11073_value_set(fvalue_t *fv, uint32_t value)
 {
-    fv->value.sfloat_ieee_11073 = (guint16) value;
+    fv->value.sfloat_ieee_11073 = (uint16_t) value;
 }
 
-static guint32
+static uint32_t
 sfloat_ieee_11073_value_get(fvalue_t *fv)
 {
-    return (guint32) fv->value.sfloat_ieee_11073;
+    return (uint32_t) fv->value.sfloat_ieee_11073;
 }
 
-static guint16 sfloat_to_normal_form(guint16 value)
+static uint16_t sfloat_to_normal_form(uint16_t value)
 {
-    gint8    exponent;
-    guint16  mantissa;
-    guint8   mantissa_sign;
+    int8_t   exponent;
+    uint16_t mantissa;
+    uint8_t  mantissa_sign;
 
     if (value >= 0x07FE && value <= 0x0802) /* Save special values */
         return value;
 
     mantissa = value & 0x07FF;
     if (value & 0x0800) {
-        mantissa = -((gint16)mantissa | 0xF800);
+        mantissa = -((int16_t)mantissa | 0xF800);
         mantissa_sign = 1;
     } else {
         mantissa_sign = 0;
@@ -347,44 +347,44 @@ static guint16 sfloat_to_normal_form(guint16 value)
     return ((((exponent & 0x80) ? 0x8 : 0x0 ) | (exponent & 0x7)) << 12) | (mantissa_sign << 11) | mantissa;
 }
 
-static gboolean
+static bool
 sfloat_ieee_11073_cmp_eq(const fvalue_t *a, const fvalue_t *b)
 {
     return sfloat_to_normal_form(a->value.sfloat_ieee_11073) == sfloat_to_normal_form(b->value.sfloat_ieee_11073);
 }
 
-static gboolean
+static bool
 sfloat_ieee_11073_cmp_lt(const fvalue_t *a, const fvalue_t *b)
 {
-    guint16 a_norm;
-    guint16 b_norm;
-    gint16  a_norm_mantissa;
-    gint16  b_norm_mantissa;
-    gint8   a_norm_exponent;
-    gint8   b_norm_exponent;
+    uint16_t a_norm;
+    uint16_t b_norm;
+    int16_t  a_norm_mantissa;
+    int16_t  b_norm_mantissa;
+    int8_t   a_norm_exponent;
+    int8_t   b_norm_exponent;
 
     a_norm = sfloat_to_normal_form(a->value.sfloat_ieee_11073);
     b_norm = sfloat_to_normal_form(b->value.sfloat_ieee_11073);
 
     if (a_norm == b_norm)
-        return FALSE;
+        return false;
 
     switch (a_norm) {
     case SFLOAT_VALUE_NAN:
     case SFLOAT_VALUE_NRES:
     case SFLOAT_VALUE_RFU:
     case SFLOAT_VALUE_INFINITY_PLUS:
-        return FALSE;
+        return false;
     case SFLOAT_VALUE_INFINITY_MINUS:
         switch (b_norm) {
         case SFLOAT_VALUE_NAN:
         case SFLOAT_VALUE_NRES:
         case SFLOAT_VALUE_RFU:
         case SFLOAT_VALUE_INFINITY_MINUS: /* Dead, informative case */
-            return FALSE;
+            return false;
         case SFLOAT_VALUE_INFINITY_PLUS:
         default:
-            return TRUE;
+            return true;
         }
     }
 
@@ -408,29 +408,29 @@ sfloat_ieee_11073_cmp_lt(const fvalue_t *a, const fvalue_t *b)
     }
 
     if (a_norm_mantissa == b_norm_mantissa && a_norm_exponent < b_norm_exponent)
-        return TRUE;
+        return true;
 
     if (a_norm_exponent == b_norm_exponent && a_norm_mantissa < b_norm_mantissa)
-        return TRUE;
+        return true;
 
     if (a_norm_exponent < b_norm_exponent) {
-        guint8  exponent_difference;
+        uint8_t exponent_difference;
 
         exponent_difference = b_norm_exponent - a_norm_exponent;
 
         if (exponent_difference >= 4)
-            return TRUE;
+            return true;
 
         while (exponent_difference--) {
             b_norm_mantissa *= 10;
         }
     } else {
-        guint8  exponent_difference;
+        uint8_t exponent_difference;
 
         exponent_difference = a_norm_exponent - b_norm_exponent;
 
         if (exponent_difference >= 4)
-            return FALSE;
+            return false;
 
         while (exponent_difference--) {
             a_norm_mantissa *= 10;
@@ -438,9 +438,9 @@ sfloat_ieee_11073_cmp_lt(const fvalue_t *a, const fvalue_t *b)
     }
 
     if (a_norm_mantissa < b_norm_mantissa)
-        return TRUE;
+        return true;
 
-    return FALSE;
+    return false;
 }
 
 static enum ft_result
@@ -454,16 +454,16 @@ sfloat_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
     return FT_OK;
 }
 
-static gboolean
+static bool
 sfloat_ieee_11073_is_zero(const fvalue_t *a)
 {
     return a->value.sfloat_ieee_11073 == 0;
 }
 
-static guint
+static unsigned
 sfloat_ieee_11073_hash(const fvalue_t *fv)
 {
-    gint64 value = fv->value.sfloat_ieee_11073;
+    int64_t value = fv->value.sfloat_ieee_11073;
     return g_int64_hash(&value);
 }
 
@@ -475,66 +475,66 @@ float_ieee_11073_fvalue_new(fvalue_t *fv)
     fv->value.float_ieee_11073 = 0x0000;
 }
 
-static gboolean
-float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg _U_)
+static bool
+float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg _U_)
 {
     const char *i_char = s;
     char          c;
-    guint8        mantissa_sign = 0;
-    guint32       mantissa = 0;
-    gint16        exponent = 0;
-    gboolean      fraction_mode = FALSE;
-    const guint32 mantissa_max = 0x007FFFFF;
+    uint8_t       mantissa_sign = 0;
+    uint32_t      mantissa = 0;
+    int16_t       exponent = 0;
+    bool          fraction_mode = false;
+    const uint32_t mantissa_max = 0x007FFFFF;
 
     c = *i_char;
 
     if (c== '\0')
-        return FALSE;
+        return false;
 
     if (c == '.')
-        return FALSE;
+        return false;
 
     if (c == '-' && s[1] == '.')
-        return FALSE;
+        return false;
 
     if (c == '-' && (s[1] == 'I' || s[1] == 'i')) {
         if (!g_ascii_strcasecmp(s, "-INFINITY")) {
             fv->value.float_ieee_11073 = FLOAT_VALUE_INFINITY_MINUS;
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     } else if (c == 'R' || c == 'r') {
         if (!g_ascii_strcasecmp(s, "RFU")) {
             fv->value.float_ieee_11073 = FLOAT_VALUE_RFU;
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     } else if (c == 'N' || c == 'n') {
         if (!g_ascii_strcasecmp(s, "NRes")) {
             fv->value.float_ieee_11073 = FLOAT_VALUE_NRES;
-            return TRUE;
+            return true;
         }
 
         if (!g_ascii_strcasecmp(s, "NaN")) {
             fv->value.float_ieee_11073 = FLOAT_VALUE_NAN;
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     } else if (c == '+') {
         if (!g_ascii_strcasecmp(s, "+INFINITY")) {
             fv->value.float_ieee_11073 = FLOAT_VALUE_INFINITY_PLUS;
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     if (c == '-') {
         if (s[1] == '\0')
-            return FALSE;
+            return false;
 
         mantissa_sign = 1;
         i_char += 1;
@@ -551,7 +551,7 @@ float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_pa
             if (mantissa * 10 > mantissa_sign + mantissa_max) {
                 exponent += 1;
                 if (exponent <= 127)
-                    return FALSE;
+                    return false;
             } else {
                 mantissa *= 10;
             }
@@ -584,8 +584,8 @@ float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_pa
             mantissa += 9;
         } else if (c == '.') {
             if (fraction_mode)
-                return FALSE;
-            fraction_mode = TRUE;
+                return false;
+            fraction_mode = true;
             i_char += 1;
 
             while (*i_char == '0') {
@@ -600,11 +600,11 @@ float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_pa
             i_char -= 1;
         } else if (c != '\0') {
             /* NOTE: Maybe 5e-10, 5e3 notation should be also supported */
-            return FALSE;
+            return false;
         }
 
         if (mantissa > mantissa_max + mantissa_sign)
-            return FALSE;
+            return false;
 
         if (c != '.' && fraction_mode)
             exponent -= 1;
@@ -628,23 +628,23 @@ float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_pa
     }
 
     if (exponent < -128)
-        return FALSE;
+        return false;
 
     fv->value.float_ieee_11073 = ((exponent & 0xFF) << 24) | mantissa;
 
-    return TRUE;
+    return true;
 }
 
 static char *
 float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-    gint8    exponent;
+    int8_t   exponent;
     uint32_t mantissa;
-    guint32  mantissa_sign;
-    guint32  offset = 0;
+    uint32_t mantissa_sign;
+    uint32_t offset = 0;
     char     mantissa_buf[8];
     char    *mantissa_str;
-    guint8   mantissa_digits;
+    uint8_t  mantissa_digits;
 
     /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
     if (fv->value.float_ieee_11073 >= 0x007FFFFE && fv->value.float_ieee_11073 <= 0x00800002) {
@@ -677,7 +677,7 @@ float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr
     mantissa = fv->value.float_ieee_11073 & 0x007FFFFF;
     mantissa_sign = (fv->value.float_ieee_11073 & 0x00800000);
     if (mantissa_sign)
-        mantissa = (guint32)(-((gint32)(mantissa | 0xFF000000)));
+        mantissa = (uint32_t)(-((int32_t)(mantissa | 0xFF000000)));
 
     if (mantissa == 0) {
         return wmem_strdup(scope, "0");
@@ -732,29 +732,29 @@ float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr
 }
 
 static void
-float_ieee_11073_value_set(fvalue_t *fv, guint32 value)
+float_ieee_11073_value_set(fvalue_t *fv, uint32_t value)
 {
     fv->value.float_ieee_11073 = value;
 }
 
-static guint32
+static uint32_t
 float_ieee_11073_value_get(fvalue_t *fv)
 {
     return fv->value.float_ieee_11073;
 }
 
-static guint32 float_to_normal_form(guint32 value)
+static uint32_t float_to_normal_form(uint32_t value)
 {
-    gint8    exponent;
-    guint16  mantissa;
-    guint8   mantissa_sign;
+    int8_t   exponent;
+    uint16_t mantissa;
+    uint8_t  mantissa_sign;
 
     if (value >= 0x007FFFFE && value <= 0x00800002) /* Save special values */
         return value;
 
     mantissa = value & 0x907FFFFF;
     if (value & 0x00800000) {
-        mantissa = (guint32)(-((gint32)(mantissa | 0xFF000000)));
+        mantissa = (uint32_t)(-((int32_t)(mantissa | 0xFF000000)));
         mantissa_sign = 1;
     } else {
         mantissa_sign = 0;
@@ -774,44 +774,44 @@ static guint32 float_to_normal_form(guint32 value)
     return (exponent << 24) | (mantissa_sign << 23) | mantissa;
 }
 
-static gboolean
+static bool
 float_ieee_11073_cmp_eq(const fvalue_t *a, const fvalue_t *b)
 {
     return float_to_normal_form(a->value.float_ieee_11073) == float_to_normal_form(b->value.float_ieee_11073);
 }
 
-static gboolean
+static bool
 float_ieee_11073_cmp_lt(const fvalue_t *a, const fvalue_t *b)
 {
-    guint32 a_norm;
-    guint32 b_norm;
-    gint32  a_norm_mantissa;
-    gint32  b_norm_mantissa;
-    gint8   a_norm_exponent;
-    gint8   b_norm_exponent;
+    uint32_t a_norm;
+    uint32_t b_norm;
+    int32_t a_norm_mantissa;
+    int32_t b_norm_mantissa;
+    int8_t  a_norm_exponent;
+    int8_t  b_norm_exponent;
 
     a_norm = float_to_normal_form(a->value.float_ieee_11073);
     b_norm = float_to_normal_form(b->value.float_ieee_11073);
 
     if (a_norm == b_norm)
-        return FALSE;
+        return false;
 
     switch (a_norm) {
     case FLOAT_VALUE_NAN:
     case FLOAT_VALUE_NRES:
     case FLOAT_VALUE_RFU:
     case FLOAT_VALUE_INFINITY_PLUS:
-        return FALSE;
+        return false;
     case FLOAT_VALUE_INFINITY_MINUS:
         switch (b_norm) {
         case FLOAT_VALUE_NAN:
         case FLOAT_VALUE_NRES:
         case FLOAT_VALUE_RFU:
         case FLOAT_VALUE_INFINITY_MINUS: /* Dead, informative case */
-            return FALSE;
+            return false;
         case FLOAT_VALUE_INFINITY_PLUS:
         default:
-            return TRUE;
+            return true;
         }
     }
 
@@ -827,29 +827,29 @@ float_ieee_11073_cmp_lt(const fvalue_t *a, const fvalue_t *b)
     b_norm_exponent = b_norm >> 24;
 
     if (a_norm_mantissa == b_norm_mantissa && a_norm_exponent < b_norm_exponent)
-        return TRUE;
+        return true;
 
     if (a_norm_exponent == b_norm_exponent && a_norm_mantissa < b_norm_mantissa)
-        return TRUE;
+        return true;
 
     if (a_norm_exponent < b_norm_exponent) {
-        guint8  exponent_difference;
+        uint8_t exponent_difference;
 
         exponent_difference = b_norm_exponent - a_norm_exponent;
 
         if (exponent_difference >= 7)
-            return TRUE;
+            return true;
 
         while (exponent_difference--) {
             b_norm_mantissa *= 10;
         }
     } else {
-        guint8  exponent_difference;
+        uint8_t exponent_difference;
 
         exponent_difference = a_norm_exponent - b_norm_exponent;
 
         if (exponent_difference >= 7)
-            return FALSE;
+            return false;
 
         while (exponent_difference--) {
             a_norm_mantissa *= 10;
@@ -857,9 +857,9 @@ float_ieee_11073_cmp_lt(const fvalue_t *a, const fvalue_t *b)
     }
 
     if (a_norm_mantissa < b_norm_mantissa)
-        return TRUE;
+        return true;
 
-    return FALSE;
+    return false;
 }
 
 static enum ft_result
@@ -873,16 +873,16 @@ float_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
     return FT_OK;
 }
 
-static gboolean
+static bool
 float_ieee_11073_is_zero(const fvalue_t *a)
 {
     return a->value.float_ieee_11073 == 0;
 }
 
-static guint
+static unsigned
 float_ieee_11073_hash(const fvalue_t *fv)
 {
-    gint64 value = fv->value.float_ieee_11073;
+    int64_t value = fv->value.float_ieee_11073;
     return g_int64_hash(&value);
 }
 

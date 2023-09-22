@@ -27,7 +27,7 @@ value_get(fvalue_t *fv)
     return &(fv->value.guid);
 }
 
-static gboolean
+static bool
 get_guid(const char *s, e_guid_t *guid)
 {
     size_t i, n;
@@ -38,47 +38,47 @@ get_guid(const char *s, e_guid_t *guid)
 
     n = strnlen(s, fmtchars);
     if (n != fmtchars)
-        return FALSE;
+        return false;
     for (i=0; i<n; i++) {
         if (fmt[i] == 'X') {
             if (!g_ascii_isxdigit(s[i]))
-                return FALSE;
+                return false;
         } else {
             if (s[i] != fmt[i])
-                return FALSE;
+                return false;
         }
     }
 
     p = s;
-    guid->data1 = (guint32)strtoul(p, NULL, 16);
+    guid->data1 = (uint32_t)strtoul(p, NULL, 16);
     p += 9;
-    guid->data2 = (guint16)strtoul(p, NULL, 16);
+    guid->data2 = (uint16_t)strtoul(p, NULL, 16);
     p += 5;
-    guid->data3 = (guint16)strtoul(p, NULL, 16);
+    guid->data3 = (uint16_t)strtoul(p, NULL, 16);
     p += 5;
     for (i=0; i < sizeof(guid->data4); i++) {
         if (*p == '-') p++;
         digits[0] = *(p++);
         digits[1] = *(p++);
         digits[2] = '\0';
-        guid->data4[i] = (guint8)strtoul(digits, NULL, 16);
+        guid->data4[i] = (uint8_t)strtoul(digits, NULL, 16);
     }
-    return TRUE;
+    return true;
 }
 
-static gboolean
-guid_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+static bool
+guid_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
 {
      e_guid_t guid;
 
     if (!get_guid(s, &guid)) {
         if (err_msg != NULL)
             *err_msg = ws_strdup_printf("\"%s\" is not a valid GUID.", s);
-        return FALSE;
+        return false;
     }
 
     fv->value.guid = guid;
-    return TRUE;
+    return true;
 }
 
 static char *
@@ -94,7 +94,7 @@ cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
     return FT_OK;
 }
 
-static guint
+static unsigned
 value_hash(const fvalue_t *fv)
 {
     return guid_hash(&fv->value.guid);

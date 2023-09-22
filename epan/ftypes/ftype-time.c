@@ -34,7 +34,7 @@ cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
  *
  * If successful endptr points to the first invalid character.
  */
-static gboolean
+static bool
 get_nsecs(const char *startp, int *nsecs, const char **endptr)
 {
 	int ndigits = 0;
@@ -68,7 +68,7 @@ get_nsecs(const char *startp, int *nsecs, const char **endptr)
 			/*
 			 * Not a digit - error.
 			 */
-			return FALSE;
+			return false;
 		}
 		digit = *p - '0';
 		if (digit != 0) {
@@ -81,7 +81,7 @@ get_nsecs(const char *startp, int *nsecs, const char **endptr)
 			 * isn't valid.
 			 */
 			if (scale < 0)
-				return FALSE;
+				return false;
 			for (i = 0; i < scale; i++)
 				digit *= 10;
 			val += digit;
@@ -91,20 +91,20 @@ get_nsecs(const char *startp, int *nsecs, const char **endptr)
 	*nsecs = val;
 	if (endptr)
 		*endptr = startp + ndigits;
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 val_from_unix_time(fvalue_t *fv, const char *s)
 {
 	const char    *curptr;
 	char *endptr;
-	gboolean negative = FALSE;
+	bool negative = false;
 
 	curptr = s;
 
 	if (*curptr == '-') {
-		negative = TRUE;
+		negative = true;
 		curptr++;
 	}
 
@@ -118,7 +118,7 @@ val_from_unix_time(fvalue_t *fv, const char *s)
 		 */
 		fv->value.time.secs = strtoul(curptr, &endptr, 10);
 		if (endptr == curptr || (*endptr != '\0' && *endptr != '.'))
-			return FALSE;
+			return false;
 		curptr = endptr;
 		if (*curptr == '.')
 			curptr++;	/* skip the decimal point */
@@ -139,7 +139,7 @@ val_from_unix_time(fvalue_t *fv, const char *s)
 		 * Get the nanoseconds value.
 		 */
 		if (!get_nsecs(curptr, &fv->value.time.nsecs, NULL))
-			return FALSE;
+			return false;
 	} else {
 		/*
 		 * No nanoseconds value - it's 0.
@@ -151,18 +151,18 @@ val_from_unix_time(fvalue_t *fv, const char *s)
 		fv->value.time.secs = -fv->value.time.secs;
 		fv->value.time.nsecs = -fv->value.time.nsecs;
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean
-relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+static bool
+relative_val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
 {
 	if (val_from_unix_time(fv, s))
-		return TRUE;
+		return true;
 
 	if (err_msg != NULL)
 		*err_msg = ws_strdup_printf("\"%s\" is not a valid time.", s);
-	return FALSE;
+	return false;
 }
 
 /*
@@ -230,26 +230,26 @@ relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_va
 
 #define EXAMPLE "Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\""
 
-static gboolean
+static bool
 absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err_msg_ptr)
 {
 	struct tm tm;
 	const char *bufptr, *curptr = NULL;
 	const char *endptr;
-	gboolean has_seconds = TRUE;
-	gboolean has_timezone = TRUE;
+	bool has_seconds = true;
+	bool has_timezone = true;
 	char *err_msg = NULL;
 	struct ws_timezone zoneinfo = { 0, NULL };
 
 	/* Try Unix time first. */
 	if (val_from_unix_time(fv, s))
-		return TRUE;
+		return true;
 
 	/* Try ISO 8601 format. */
 	endptr = iso8601_to_nstime(&fv->value.time, s, ISO8601_DATETIME);
 	/* Check whether it parsed all of the string */
 	if (endptr != NULL && *endptr == '\0')
-		return TRUE;
+		return true;
 
 	/* No - try other legacy formats. */
 	memset(&tm, 0, sizeof(tm));
@@ -268,7 +268,7 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 	bufptr = curptr;
 	curptr = ws_strptime(bufptr, " %H:%M:%S", &tm, &zoneinfo);
 	if (curptr == NULL) {
-		has_seconds = FALSE;
+		has_seconds = false;
 		/* Seconds can be omitted but minutes (and hours) are required
 		 * for a valid time value. */
 		curptr = ws_strptime(bufptr," %H:%M", &tm, &zoneinfo);
@@ -306,7 +306,7 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 	curptr = ws_strptime(bufptr, "%n%z", &tm, &zoneinfo);
 	if (curptr == NULL) {
 		/* No timezone, assume localtime. */
-		has_timezone = FALSE;
+		has_timezone = false;
 		curptr = bufptr;
 	}
 
@@ -349,7 +349,7 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 		fv->value.time.secs -= zoneinfo.tm_gmtoff;
 	}
 
-	return TRUE;
+	return true;
 
 fail:
 	if (err_msg_ptr != NULL) {
@@ -364,11 +364,11 @@ fail:
 		g_free(err_msg);
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
-absolute_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+static bool
+absolute_val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
 {
 	return absolute_val_from_string(fv, s, 0, err_msg);
 }
@@ -471,19 +471,19 @@ relative_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 	return rel_time_to_secs_str(scope, &fv->value.time);
 }
 
-static guint
+static unsigned
 time_hash(const fvalue_t *fv)
 {
 	return nstime_hash(&fv->value.time);
 }
 
-static gboolean
+static bool
 time_is_zero(const fvalue_t *fv)
 {
 	return nstime_is_zero(&fv->value.time);
 }
 
-static gboolean
+static bool
 time_is_negative(const fvalue_t *fv)
 {
 	return fv->value.time.secs < 0;

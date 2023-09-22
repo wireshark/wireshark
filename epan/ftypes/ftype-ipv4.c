@@ -17,22 +17,22 @@
 #include <wsutil/bits_count_ones.h>
 
 static void
-set_uinteger(fvalue_t *fv, guint32 value)
+set_uinteger(fvalue_t *fv, uint32_t value)
 {
 	fv->value.ipv4.addr = g_ntohl(value);
 	fv->value.ipv4.nmask = ip_get_subnet_mask(32);
 }
 
-static guint32
+static uint32_t
 value_get(fvalue_t *fv)
 {
 	return g_htonl(fv->value.ipv4.addr);
 }
 
-static gboolean
-val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+static bool
+val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
 {
-	guint32	addr;
+	uint32_t	addr;
 	unsigned int nmask_bits;
 
 	const char *slash, *net_str;
@@ -59,7 +59,7 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 		}
 		if (addr_str_to_free)
 			wmem_free(NULL, addr_str_to_free);
-		return FALSE;
+		return false;
 	}
 
 	if (addr_str_to_free)
@@ -72,9 +72,9 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 		net_str = slash + 1;
 
 		/* XXX - this is inefficient */
-		nmask_fvalue = fvalue_from_literal(FT_UINT32, net_str, FALSE, err_msg);
+		nmask_fvalue = fvalue_from_literal(FT_UINT32, net_str, false, err_msg);
 		if (!nmask_fvalue) {
-			return FALSE;
+			return false;
 		}
 		nmask_bits = fvalue_get_uinteger(nmask_fvalue);
 		fvalue_free(nmask_fvalue);
@@ -84,7 +84,7 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 				*err_msg = ws_strdup_printf("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
 						nmask_bits);
 			}
-			return FALSE;
+			return false;
 		}
 		fv->value.ipv4.nmask = ip_get_subnet_mask(nmask_bits);
 	}
@@ -93,7 +93,7 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 		fv->value.ipv4.nmask = ip_get_subnet_mask(32);
 	}
 
-	return TRUE;
+	return true;
 }
 
 static char *
@@ -102,8 +102,8 @@ val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int
 	char buf[WS_INET_ADDRSTRLEN];
 	char *repr;
 
-	guint32	ipv4_net_order = g_htonl(fv->value.ipv4.addr);
-	ip_to_str_buf((guint8*)&ipv4_net_order, buf, sizeof(buf));
+	uint32_t	ipv4_net_order = g_htonl(fv->value.ipv4.addr);
+	ip_to_str_buf((uint8_t*)&ipv4_net_order, buf, sizeof(buf));
 
 	if (fv->value.ipv4.nmask != 0 && fv->value.ipv4.nmask != 0xffffffff)
 		repr = wmem_strdup_printf(scope, "%s/%d", buf, ws_count_ones(fv->value.ipv4.nmask));
@@ -117,13 +117,13 @@ val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int
 /* Compares two ipv4_addr_and_masks, taking into account the less restrictive of the
  * two netmasks, applying that netmask to both addrs.
  *
- * So, for example, w.x.y.z/32 eq w.x.y.0/24 is TRUE.
+ * So, for example, w.x.y.z/32 eq w.x.y.0/24 is true.
  */
 
 static enum ft_result
 cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b, int *cmp)
 {
-	guint32		addr_a, addr_b, nmask;
+	uint32_t		addr_a, addr_b, nmask;
 
 	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
 	addr_a = fv_a->value.ipv4.addr & nmask;
@@ -143,30 +143,30 @@ bitwise_and(fvalue_t *dst, const fvalue_t *fv_a, const fvalue_t *fv_b, char **er
 	return FT_OK;
 }
 
-static guint
+static unsigned
 len(fvalue_t *fv _U_)
 {
 	return 4;
 }
 
 static void
-slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
+slice(fvalue_t *fv, GByteArray *bytes, unsigned offset, unsigned length)
 {
-	guint8* data;
-	guint32 addr = g_htonl(fv->value.ipv4.addr);
-	data = ((guint8*)&addr)+offset;
+	uint8_t* data;
+	uint32_t addr = g_htonl(fv->value.ipv4.addr);
+	data = ((uint8_t*)&addr)+offset;
 	g_byte_array_append(bytes, data, length);
 }
 
-static guint
+static unsigned
 ipv4_hash(const fvalue_t *fv)
 {
-	gint64 val1 = fv->value.ipv4.addr;
-	gint64 val2 = fv->value.ipv4.nmask;
+	int64_t val1 = fv->value.ipv4.addr;
+	int64_t val2 = fv->value.ipv4.nmask;
 	return g_int64_hash(&val1) ^ g_int64_hash(&val2);
 }
 
-static gboolean
+static bool
 is_zero(const fvalue_t *fv_a)
 {
 	return fv_a->value.ipv4.addr == 0;
