@@ -552,6 +552,7 @@ highest to lowest precedence:
 
     not, !    Logical NOT   (right-associative)
     and, &&   Logical AND   (left-associative)
+    xor, ^^   Logical XOR   (left-associative)
     or,  ||   Logical OR    (left-associative)
 
 The evaluation is always performed left to right. Expressions can be grouped
