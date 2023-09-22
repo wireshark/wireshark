@@ -8441,7 +8441,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 static void
 dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
-    guint8          optlen;    /* Option Length */
+    uint16_t        optlen;    /* Option Length */
     int             ptype;     /* parameter type        */
     int             plen;      /* parameter length      */
     int             cend;      /* capabilities end      */
@@ -11439,10 +11439,10 @@ proto_register_bgp(void)
           NULL, 0x0, "The total length of the Optional Parameters field in octets", HFILL }},
       { &hf_bgp_open_opt_extension,
         { "Optional Parameter Extension", "bgp.open.opt.extension", FT_NONE, BASE_NONE,
-          NULL, 0x0, "Optional Parameters Extension dedetected", HFILL }},
+          NULL, 0x0, "Optional Parameters Extension detected", HFILL }},
       { &hf_bgp_open_opt_extension_mark,
         { "Extension Mark", "bgp.open.opt.extension.mark", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "Optional Parameters Extension dedetected", HFILL }},
+          NULL, 0x0, "Optional Parameters Extension detected", HFILL }},
       { &hf_bgp_open_opt_extension_len,
         { "Extended Length", "bgp.open.opt.extension_len", FT_UINT16, BASE_DEC,
           NULL, 0x0, "The total extended length of the Optional Parameters field in octets", HFILL }},
