@@ -439,12 +439,7 @@ Windows x64 Package:
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $package.length "bytes" }
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
-    - |
-      if (Test-Path env:MC_DESTINATION_WINDOWS_X64) {
-        foreach ($package in $packages) {
-          C:\gitlab-builds\bin\mc cp "$package" "$env:MC_DESTINATION_WINDOWS_X64/"
-        }
-      }
+    - if (Test-Path env:MC_DESTINATION_WINDOWS_X64) { C:\gitlab-builds\bin\mc --quiet cp $packages "$env:MC_DESTINATION_WINDOWS_X64/" }
     - C:\Windows\py.exe -m pytest
 
 Windows Arm64 Package:
@@ -476,12 +471,7 @@ Windows Arm64 Package:
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $package.length "bytes" }
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
-    - |
-      if (Test-Path env:MC_DESTINATION_WINDOWS_ARM64) {
-        foreach ($package in $packages) {
-          C:\gitlab-builds\bin\mc cp "$package" "$env:MC_DESTINATION_WINDOWS_ARM64/"
-        }
-      }
+    - if (Test-Path env:MC_DESTINATION_WINDOWS_ARM64) { C:\gitlab-builds\bin\mc --quiet cp $packages "$env:MC_DESTINATION_WINDOWS_ARM64/" }
     - C:\Windows\py.exe -m pytest
 
 macOS Arm Package:
