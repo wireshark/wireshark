@@ -26,7 +26,7 @@ sanitize_prefix(const char *prefix)
    * https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions.
    * Add to the list as necessary for other OS's.
    */
-  const gchar *delimiters = "<>:\"/\\|?*"
+  const char *delimiters = "<>:\"/\\|?*"
     "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a"
     "\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
     "\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
@@ -51,14 +51,14 @@ sanitize_prefix(const char *prefix)
  * @return The file descriptor of the new tempfile, from mkstemps().
  */
 int
-create_tempfile(const char *tempdir, gchar **namebuf, const char *pfx, const char *sfx, GError **err)
+create_tempfile(const char *tempdir, char **namebuf, const char *pfx, const char *sfx, GError **err)
 {
   int fd;
-  gchar *safe_pfx = sanitize_prefix(pfx);
+  char *safe_pfx = sanitize_prefix(pfx);
 
   if (tempdir == NULL || tempdir[0] == '\0') {
     /* Use OS default tempdir behaviour */
-    gchar* filetmpl = ws_strdup_printf("%sXXXXXX%s", safe_pfx ? safe_pfx : "", sfx ? sfx : "");
+    char* filetmpl = ws_strdup_printf("%sXXXXXX%s", safe_pfx ? safe_pfx : "", sfx ? sfx : "");
     g_free(safe_pfx);
 
     fd = g_file_open_tmp(filetmpl, namebuf, err);
@@ -68,9 +68,9 @@ create_tempfile(const char *tempdir, gchar **namebuf, const char *pfx, const cha
     /* User-specified tempdir.
      * We don't get libc's help generating a random name here.
      */
-    const gchar alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
-    const gint32 a_len = 64;
-    gchar* filetmpl = NULL;
+    const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+    const int32_t a_len = 64;
+    char* filetmpl = NULL;
 
     while(1) {
       g_free(filetmpl);
@@ -115,13 +115,13 @@ create_tempfile(const char *tempdir, gchar **namebuf, const char *pfx, const cha
 }
 
 char *
-create_tempdir(const gchar *parent_dir, const char *tmpl, GError **err)
+create_tempdir(const char *parent_dir, const char *tmpl, GError **err)
 {
   if (parent_dir == NULL || parent_dir[0] == '\0') {
       parent_dir = g_get_tmp_dir();
   }
 
-  gchar *safe_pfx = sanitize_prefix(tmpl);
+  char *safe_pfx = sanitize_prefix(tmpl);
   if (safe_pfx == NULL) {
     safe_pfx = g_strdup("wireshark_XXXXXX");
   }
@@ -133,7 +133,7 @@ create_tempdir(const gchar *parent_dir, const char *tmpl, GError **err)
       g_free(temp_subdir);
       g_set_error_literal(err, G_FILE_ERROR,
           g_file_error_from_errno(errno), g_strerror(errno));
-      return FALSE;
+      return false;
   }
 
   return temp_subdir;

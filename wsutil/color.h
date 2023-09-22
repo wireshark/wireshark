@@ -15,13 +15,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include <inttypes.h>
+
 /*
  * Data structure holding RGB value for a color, 16 bits per channel.
  */
 typedef struct {
-    guint16 red;
-    guint16 green;
-    guint16 blue;
+    uint16_t red;
+    uint16_t green;
+    uint16_t blue;
 } color_t;
 
 /*

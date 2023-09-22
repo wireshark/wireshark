@@ -786,7 +786,7 @@ void ws_log_set_writer_with_data(ws_log_writer_cb *writer,
 
 
 static void glib_log_handler(const char *domain, GLogLevelFlags flags,
-                        const char *message, gpointer user_data _U_)
+                        const char *message, void * user_data _U_)
 {
     enum ws_log_level level;
 

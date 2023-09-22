@@ -111,7 +111,7 @@ WS_DLL_PUBLIC const char *get_extcap_pers_dir(void);
  * Get the flag indicating whether we're running from a build
  * directory.
  */
-WS_DLL_PUBLIC gboolean running_in_build_directory(void);
+WS_DLL_PUBLIC bool running_in_build_directory(void);
 
 /*
  * Get the directory in which global configuration files are
@@ -164,7 +164,7 @@ WS_DLL_PUBLIC const char *get_systemfile_dir(void);
  * Set the configuration profile name to be used for storing
  * personal configuration files.
  */
-WS_DLL_PUBLIC void set_profile_name(const gchar *profilename);
+WS_DLL_PUBLIC void set_profile_name(const char *profilename);
 
 /*
  * Get the current configuration profile name used for storing
@@ -175,12 +175,12 @@ WS_DLL_PUBLIC const char *get_profile_name(void);
 /*
  * Check if current profile is default profile.
  */
-WS_DLL_PUBLIC gboolean is_default_profile(void);
+WS_DLL_PUBLIC bool is_default_profile(void);
 
 /*
  * Check if we have global profiles.
  */
-WS_DLL_PUBLIC gboolean has_global_profiles(void);
+WS_DLL_PUBLIC bool has_global_profiles(void);
 
 /*
  * Get the directory used to store configuration profile directories.
@@ -192,7 +192,7 @@ WS_DLL_PUBLIC char *get_profiles_dir(void);
  * Get the directory used to store configuration files for a given profile.
  * Caller must free the returned string.
  */
-WS_DLL_PUBLIC char *get_profile_dir(const char *profilename, gboolean is_global);
+WS_DLL_PUBLIC char *get_profile_dir(const char *profilename, bool is_global);
 
 /*
  * Create the directory used to store configuration profile directories.
@@ -210,7 +210,7 @@ WS_DLL_PUBLIC char *get_global_profiles_dir(void);
  * Store filenames used for personal config files so we know which
  * files to copy when duplicate a configuration profile.
  */
-WS_DLL_PUBLIC void profile_store_persconffiles(gboolean store);
+WS_DLL_PUBLIC void profile_store_persconffiles(bool store);
 
 /*
  * Register a filename to the personal config files storage.
@@ -221,7 +221,7 @@ WS_DLL_PUBLIC void profile_register_persconffile(const char *filename);
 /*
  * Check if given configuration profile exists.
  */
-WS_DLL_PUBLIC gboolean profile_exists(const gchar *profilename, gboolean global);
+WS_DLL_PUBLIC bool profile_exists(const char *profilename, bool global);
 
 /*
  * Create a directory for the given configuration profile.
@@ -259,7 +259,7 @@ WS_DLL_PUBLIC int rename_persconffile_profile(const char *fromname, const char *
  * Copy files in one profile to the other.
  */
 WS_DLL_PUBLIC int copy_persconffile_profile(const char *toname, const char *fromname,
-				     gboolean from_global,
+				     bool from_global,
 				     char **pf_filename_return,
 				     char **pf_to_dir_path_return,
 				     char **pf_from_dir_path_return);
@@ -276,12 +276,12 @@ WS_DLL_PUBLIC int create_persconffile_dir(char **pf_dir_path_return);
 /*
  * Construct the path name of a personal configuration file, given the
  * file name.  If using configuration profiles this directory will be
- * used if "from_profile" is TRUE.
+ * used if "from_profile" is true.
  *
  * The returned file name was g_malloc()'d so it must be g_free()d when the
  * caller is done with it.
  */
-WS_DLL_PUBLIC char *get_persconffile_path(const char *filename, gboolean from_profile);
+WS_DLL_PUBLIC char *get_persconffile_path(const char *filename, bool from_profile);
 
 /*
  * Set the path of the personal configuration file directory.
@@ -305,7 +305,7 @@ WS_DLL_PUBLIC void set_persdatafile_dir(const char *p);
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
  */
-WS_DLL_PUBLIC const char *file_open_error_message(int err, gboolean for_writing);
+WS_DLL_PUBLIC const char *file_open_error_message(int err, bool for_writing);
 
 /*
  * Return an error message for UNIX-style errno indications on write
@@ -361,33 +361,33 @@ WS_DLL_PUBLIC int test_for_fifo(const char *);
 /*
  * Check, if file is existing.
  */
-WS_DLL_PUBLIC gboolean file_exists(const char *fname);
+WS_DLL_PUBLIC bool file_exists(const char *fname);
 
 /*
  * Check if file is existing and has text entries which does not start
  * with the comment character.
  */
-WS_DLL_PUBLIC gboolean config_file_exists_with_entries(const char *fname, char comment_char);
+WS_DLL_PUBLIC bool config_file_exists_with_entries(const char *fname, char comment_char);
 
 /*
  * Check if two filenames are identical (with absolute and relative paths).
  */
-WS_DLL_PUBLIC gboolean files_identical(const char *fname1, const char *fname2);
+WS_DLL_PUBLIC bool files_identical(const char *fname1, const char *fname2);
 
 /*
  * Check if file has been recreated since it was opened.
  */
-WS_DLL_PUBLIC gboolean file_needs_reopen(int fd, const char* filename);
+WS_DLL_PUBLIC bool file_needs_reopen(int fd, const char* filename);
 
 /*
  * Write content to a file in binary mode, for those operating systems that
  * care about such things. This should be OK for all files, even text files, as
  * we'll write the raw bytes, and we don't look at the bytes as we copy them.
  *
- * Returns TRUE on success, FALSE on failure. If a failure, it also
+ * Returns true on success, false on failure. If a failure, it also
  * displays a simple dialog window with the error message.
  */
-WS_DLL_PUBLIC gboolean write_file_binary_mode(const char *filename,
+WS_DLL_PUBLIC bool write_file_binary_mode(const char *filename,
     const void *content, size_t content_len);
 
 /*
@@ -396,10 +396,10 @@ WS_DLL_PUBLIC gboolean write_file_binary_mode(const char *filename,
  * we'll copy the raw bytes, and we don't look at the bytes as we copy
  * them.
  *
- * Returns TRUE on success, FALSE on failure. If a failure, it also
+ * Returns true on success, false on failure. If a failure, it also
  * displays a simple dialog window with the error message.
  */
-WS_DLL_PUBLIC gboolean copy_file_binary_mode(const char *from_filename,
+WS_DLL_PUBLIC bool copy_file_binary_mode(const char *from_filename,
     const char *to_filename);
 
 
@@ -412,7 +412,7 @@ WS_DLL_PUBLIC gboolean copy_file_binary_mode(const char *from_filename,
  * @return A filesystem URL for the file or NULL on failure. A non-NULL return
  * value must be freed with g_free().
  */
-WS_DLL_PUBLIC gchar* data_file_url(const gchar *filename);
+WS_DLL_PUBLIC char* data_file_url(const char *filename);
 
 /*
  * Free the internal structtures

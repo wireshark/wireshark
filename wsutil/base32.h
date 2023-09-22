@@ -23,8 +23,8 @@ extern "C" {
 
 /* Encoding of a base32 byte array */
 WS_DLL_PUBLIC
-int ws_base32_decode(guint8* output, const guint32 outputLength,
-						const guint8* in, const guint32 inputLength);
+int ws_base32_decode(uint8_t* output, const uint32_t outputLength,
+						const uint8_t* in, const uint32_t inputLength);
 
 #ifdef __cplusplus
 }

@@ -13,7 +13,7 @@
 #include "bitswap.h"
 
 /* "swaptab[i]" is the value of "i" with the bits reversed. */
-static const guint8 swaptab[256] =
+static const uint8_t swaptab[256] =
 {
   0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
   0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
@@ -49,7 +49,7 @@ static const guint8 swaptab[256] =
   0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
 
-void bitswap_buf_inplace(guint8 *buf, size_t len)
+void bitswap_buf_inplace(uint8_t *buf, size_t len)
 {
   size_t i;
 

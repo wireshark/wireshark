@@ -83,7 +83,7 @@ char *doc_dir = NULL;
 static char *progfile_dir = NULL;
 static char *install_prefix = NULL;
 
-static gboolean do_store_persconffiles = FALSE;
+static bool do_store_persconffiles = false;
 static GHashTable *profile_files = NULL;
 
 /*
@@ -275,10 +275,10 @@ static char *appbundle_dir;
 #endif
 
 /*
- * TRUE if we're running from the build directory and we aren't running
+ * true if we're running from the build directory and we aren't running
  * with special privileges.
  */
-static gboolean running_in_build_directory_flag = FALSE;
+static bool running_in_build_directory_flag = false;
 
 /*
  * Set our configuration namespace. This will be used for top-level
@@ -588,7 +588,7 @@ configuration_init_w32(const char* arg0 _U_)
     char *prog_pathname;
     DWORD error;
     TCHAR *msg_w;
-    guchar *msg;
+    unsigned char *msg;
     size_t msglen;
 
     /*
@@ -657,7 +657,7 @@ configuration_init_w32(const char* arg0 _U_)
     }
     else {
         install_prefix = g_strdup(progfile_dir);
-        running_in_build_directory_flag = TRUE;
+        running_in_build_directory_flag = true;
     }
 #endif /* HAVE_MSYSTEM */
 
@@ -695,7 +695,7 @@ configuration_init_posix(const char* arg0)
     const char *run_from_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("RUN_FROM_BUILD_DIRECTORY");
     if (g_getenv(run_from_envar) != NULL
         && !started_with_special_privs()) {
-        running_in_build_directory_flag = TRUE;
+        running_in_build_directory_flag = true;
     }
 
     execname = get_current_executable_path();
@@ -831,12 +831,12 @@ configuration_init_posix(const char* arg0)
                  * CMakeCache.txt file before assuming a CMake output dir.
                  */
                 if (strcmp(dir_end, "/run") == 0) {
-                    gchar *cmake_file;
+                    char *cmake_file;
                     cmake_file = ws_strdup_printf("%.*s/CMakeCache.txt",
                                                  (int)(dir_end - prog_pathname),
                                                  prog_pathname);
                     if (file_exists(cmake_file))
-                        running_in_build_directory_flag = TRUE;
+                        running_in_build_directory_flag = true;
                     g_free(cmake_file);
                 }
 #ifdef ENABLE_APPLICATION_BUNDLE
@@ -915,7 +915,7 @@ configuration_init_posix(const char* arg0)
     }
     else {
         install_prefix = g_strdup(progfile_dir);
-        running_in_build_directory_flag = TRUE;
+        running_in_build_directory_flag = true;
     }
 
     return NULL;
@@ -1000,7 +1000,7 @@ get_datafile_dir(void)
     if (running_in_build_directory_flag) {
         datafile_dir = g_strdup(install_prefix);
     } else {
-        datafile_dir = g_build_filename(install_prefix, DATA_DIR, (gchar *)NULL);
+        datafile_dir = g_build_filename(install_prefix, DATA_DIR, (char *)NULL);
     }
 #elif defined(_WIN32)
     /*
@@ -1047,7 +1047,7 @@ get_datafile_dir(void)
          * We're (probably) being run from the build directory and
          * weren't started with special privileges.
          *
-         * (running_in_build_directory_flag is never set to TRUE
+         * (running_in_build_directory_flag is never set to true
          * if we're started with special privileges, so we need
          * only check it; we don't need to call started_with_special_privs().)
          *
@@ -1078,7 +1078,7 @@ get_doc_dir(void)
     if (running_in_build_directory_flag) {
         doc_dir = g_strdup(install_prefix);
     } else {
-        doc_dir = g_build_filename(install_prefix, DOC_DIR, (gchar *)NULL);
+        doc_dir = g_build_filename(install_prefix, DOC_DIR, (char *)NULL);
     }
 #elif defined(_WIN32)
     if (progfile_dir != NULL) {
@@ -1161,9 +1161,9 @@ init_plugin_dir(void)
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 #if defined(HAVE_MSYSTEM)
     if (running_in_build_directory_flag) {
-        plugin_dir = g_build_filename(install_prefix, "plugins", (gchar *)NULL);
+        plugin_dir = g_build_filename(install_prefix, "plugins", (char *)NULL);
     } else {
-        plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (gchar *)NULL);
+        plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (char *)NULL);
     }
 #elif defined(_WIN32)
     /*
@@ -1174,7 +1174,7 @@ init_plugin_dir(void)
      * on Windows, the data file directory is the directory
      * in which the Wireshark binary resides.
      */
-    plugin_dir = g_build_filename(get_datafile_dir(), "plugins", (gchar *)NULL);
+    plugin_dir = g_build_filename(get_datafile_dir(), "plugins", (char *)NULL);
 
     /*
      * Make sure that pathname refers to a directory.
@@ -1194,8 +1194,8 @@ init_plugin_dir(void)
          * directory for plugins.
          */
         g_free(plugin_dir);
-        plugin_dir = g_build_filename(get_datafile_dir(), "plugins", (gchar *)NULL);
-        running_in_build_directory_flag = TRUE;
+        plugin_dir = g_build_filename(get_datafile_dir(), "plugins", (char *)NULL);
+        running_in_build_directory_flag = true;
     }
 #else
 #ifdef ENABLE_APPLICATION_BUNDLE
@@ -1210,7 +1210,7 @@ init_plugin_dir(void)
      */
     else if (appbundle_dir != NULL) {
         plugin_dir = g_build_filename(appbundle_dir, "Contents/PlugIns",
-                                        CONFIGURATION_NAMESPACE_LOWER, (gchar *)NULL);
+                                        CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
     }
 #endif
     else if (running_in_build_directory_flag) {
@@ -1220,7 +1220,7 @@ init_plugin_dir(void)
          * the "plugins" subdirectory of the directory where the program
          * we're running is (that's the build directory).
          */
-        plugin_dir = g_build_filename(get_progfile_dir(), "plugins", (gchar *)NULL);
+        plugin_dir = g_build_filename(get_progfile_dir(), "plugins", (char *)NULL);
     } else {
         plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (char *)NULL);
     }
@@ -1233,10 +1233,10 @@ init_plugin_pers_dir(void)
 {
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 #ifdef _WIN32
-    plugin_pers_dir = get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
+    plugin_pers_dir = get_persconffile_path(PLUGINS_DIR_NAME, false);
 #else
     plugin_pers_dir = g_build_filename(g_get_home_dir(), ".local/lib",
-                                       CONFIGURATION_NAMESPACE_LOWER, PLUGINS_DIR_NAME, (gchar *)NULL);
+                                       CONFIGURATION_NAMESPACE_LOWER, PLUGINS_DIR_NAME, (char *)NULL);
 #endif
 #endif /* defined(HAVE_PLUGINS) || defined(HAVE_LUA) */
 }
@@ -1258,7 +1258,7 @@ get_plugins_dir_with_version(void)
     if (!plugin_dir)
         init_plugin_dir();
     if (plugin_dir && !plugin_dir_with_version)
-        plugin_dir_with_version = g_build_filename(plugin_dir, PLUGIN_PATH_ID, (gchar *)NULL);
+        plugin_dir_with_version = g_build_filename(plugin_dir, PLUGIN_PATH_ID, (char *)NULL);
     return plugin_dir_with_version;
 }
 
@@ -1277,7 +1277,7 @@ get_plugins_pers_dir_with_version(void)
     if (!plugin_pers_dir)
         init_plugin_pers_dir();
     if (plugin_pers_dir && !plugin_pers_dir_with_version)
-        plugin_pers_dir_with_version = g_build_filename(plugin_pers_dir, PLUGIN_PATH_ID, (gchar *)NULL);
+        plugin_pers_dir_with_version = g_build_filename(plugin_pers_dir, PLUGIN_PATH_ID, (char *)NULL);
     return plugin_pers_dir_with_version;
 }
 
@@ -1315,9 +1315,9 @@ init_extcap_dir(void)
 
 #if defined(HAVE_MSYSTEM)
     else if (running_in_build_directory_flag) {
-        extcap_dir = g_build_filename(install_prefix, "extcap", (gchar *)NULL);
+        extcap_dir = g_build_filename(install_prefix, "extcap", (char *)NULL);
     } else {
-        extcap_dir = g_build_filename(install_prefix, EXTCAP_DIR, (gchar *)NULL);
+        extcap_dir = g_build_filename(install_prefix, EXTCAP_DIR, (char *)NULL);
     }
 #elif defined(_WIN32)
     else {
@@ -1329,7 +1329,7 @@ init_extcap_dir(void)
          * on Windows, the data file directory is the directory
          * in which the Wireshark binary resides.
          */
-        extcap_dir = g_build_filename(get_datafile_dir(), "extcap", (gchar *)NULL);
+        extcap_dir = g_build_filename(get_datafile_dir(), "extcap", (char *)NULL);
     }
 #else
     else if (running_in_build_directory_flag) {
@@ -1339,7 +1339,7 @@ init_extcap_dir(void)
          * the "extcap hooks" subdirectory of the directory where the program
          * we're running is (that's the build directory).
          */
-        extcap_dir = g_build_filename(get_progfile_dir(), "extcap", (gchar *)NULL);
+        extcap_dir = g_build_filename(get_progfile_dir(), "extcap", (char *)NULL);
     }
 #ifdef ENABLE_APPLICATION_BUNDLE
     else if (appbundle_dir != NULL) {
@@ -1352,7 +1352,7 @@ init_extcap_dir(void)
          * started with special privileges, so we need only check
          * it; we don't need to call started_with_special_privs().)
          */
-        extcap_dir = g_build_filename(appbundle_dir, "Contents/MacOS/extcap", (gchar *)NULL);
+        extcap_dir = g_build_filename(appbundle_dir, "Contents/MacOS/extcap", (char *)NULL);
     }
 #endif
     else {
@@ -1365,10 +1365,10 @@ static void
 init_extcap_pers_dir(void)
 {
 #ifdef _WIN32
-    extcap_pers_dir = get_persconffile_path(EXTCAP_DIR_NAME, FALSE);
+    extcap_pers_dir = get_persconffile_path(EXTCAP_DIR_NAME, false);
 #else
     extcap_pers_dir = g_build_filename(g_get_home_dir(), ".local/lib",
-                                       CONFIGURATION_NAMESPACE_LOWER, EXTCAP_DIR_NAME, (gchar *)NULL);
+                                       CONFIGURATION_NAMESPACE_LOWER, EXTCAP_DIR_NAME, (char *)NULL);
 #endif
 }
 
@@ -1397,7 +1397,7 @@ get_extcap_pers_dir(void)
  * Get the flag indicating whether we're running from a build
  * directory.
  */
-gboolean
+bool
 running_in_build_directory(void)
 {
     return running_in_build_directory_flag;
@@ -1420,7 +1420,7 @@ get_systemfile_dir(void)
 }
 
 void
-set_profile_name(const gchar *profilename)
+set_profile_name(const char *profilename)
 {
     g_free (persconfprofile);
 
@@ -1443,20 +1443,20 @@ get_profile_name(void)
     }
 }
 
-gboolean
+bool
 is_default_profile(void)
 {
-    return (!persconfprofile || strcmp(persconfprofile, DEFAULT_PROFILE) == 0) ? TRUE : FALSE;
+    return (!persconfprofile || strcmp(persconfprofile, DEFAULT_PROFILE) == 0) ? true : false;
 }
 
-gboolean
+bool
 has_global_profiles(void)
 {
     WS_DIR *dir;
     WS_DIRENT *file;
-    gchar *global_dir = get_global_profiles_dir();
-    gchar *filename;
-    gboolean has_global = FALSE;
+    char *global_dir = get_global_profiles_dir();
+    char *filename;
+    bool has_global = false;
 
     if ((test_for_directory(global_dir) == EISDIR) &&
         ((dir = ws_dir_open(global_dir, 0, NULL)) != NULL))
@@ -1465,7 +1465,7 @@ has_global_profiles(void)
             filename = ws_strdup_printf ("%s%s%s", global_dir, G_DIR_SEPARATOR_S,
                             ws_dir_get_name(file));
             if (test_for_directory(filename) == EISDIR) {
-                has_global = TRUE;
+                has_global = true;
                 g_free (filename);
                 break;
             }
@@ -1478,7 +1478,7 @@ has_global_profiles(void)
 }
 
 void
-profile_store_persconffiles(gboolean store)
+profile_store_persconffiles(bool store)
 {
     if (store) {
         profile_files = g_hash_table_new (g_str_hash, g_str_equal);
@@ -1692,7 +1692,7 @@ get_global_profiles_dir(void)
 }
 
 static char *
-get_persconffile_dir(const gchar *profilename)
+get_persconffile_dir(const char *profilename)
 {
     char *persconffile_profile_dir = NULL, *profile_dir;
 
@@ -1710,15 +1710,15 @@ get_persconffile_dir(const gchar *profilename)
 }
 
 char *
-get_profile_dir(const char *profilename, gboolean is_global)
+get_profile_dir(const char *profilename, bool is_global)
 {
-    gchar *profile_dir;
+    char *profile_dir;
 
     if (is_global) {
         if (profilename && strlen(profilename) > 0 &&
             strcmp(profilename, DEFAULT_PROFILE) != 0)
         {
-            gchar *global_path = get_global_profiles_dir();
+            char *global_path = get_global_profiles_dir();
             profile_dir = g_build_filename(global_path, profilename, NULL);
             g_free(global_path);
         } else {
@@ -1735,21 +1735,21 @@ get_profile_dir(const char *profilename, gboolean is_global)
     return profile_dir;
 }
 
-gboolean
-profile_exists(const gchar *profilename, gboolean global)
+bool
+profile_exists(const char *profilename, bool global)
 {
-    gchar *path = NULL;
-    gboolean exists;
+    char *path = NULL;
+    bool exists;
 
     /*
      * If we're looking up a global profile, we must have a
      * profile name.
      */
     if (global && !profilename)
-        return FALSE;
+        return false;
 
     path = get_profile_dir(profilename, global);
-    exists = (test_for_directory(path) == EISDIR) ? TRUE : FALSE;
+    exists = (test_for_directory(path) == EISDIR) ? true : false;
 
     g_free(path);
     return exists;
@@ -1760,7 +1760,7 @@ delete_directory (const char *directory, char **pf_dir_path_return)
 {
     WS_DIR *dir;
     WS_DIRENT *file;
-    gchar *filename;
+    char *filename;
     int ret = 0;
 
     if ((dir = ws_dir_open(directory, 0, NULL)) != NULL) {
@@ -1797,7 +1797,7 @@ static int
 copy_directory(const char *from_dir, const char *to_dir, char **pf_filename_return)
 {
     int ret = 0;
-    gchar *from_file, *to_file;
+    char *from_file, *to_file;
     const char *filename;
     WS_DIR *dir;
     WS_DIRENT *file;
@@ -1835,14 +1835,14 @@ static int
 reset_default_profile(char **pf_dir_path_return)
 {
     char *profile_dir = get_persconffile_dir(NULL);
-    gchar *filename, *del_file;
+    char *filename, *del_file;
     GList *files, *file;
     int ret = 0;
 
     files = g_hash_table_get_keys(profile_files);
     file = g_list_first(files);
     while (file) {
-        filename = (gchar *)file->data;
+        filename = (char *)file->data;
         del_file = ws_strdup_printf("%s%s%s", profile_dir, G_DIR_SEPARATOR_S, filename);
 
         if (file_exists(del_file)) {
@@ -2013,16 +2013,16 @@ create_persconffile_dir(char **pf_dir_path_return)
 }
 
 int
-copy_persconffile_profile(const char *toname, const char *fromname, gboolean from_global,
+copy_persconffile_profile(const char *toname, const char *fromname, bool from_global,
               char **pf_filename_return, char **pf_to_dir_path_return, char **pf_from_dir_path_return)
 {
     int ret = 0;
-    gchar *from_dir;
-    gchar *to_dir = get_persconffile_dir(toname);
-    gchar *from_file, *to_file;
+    char *from_dir;
+    char *to_dir = get_persconffile_dir(toname);
+    char *from_file, *to_file;
     const char *filename;
     GHashTableIter files;
-    gpointer file;
+    void * file;
 
     from_dir = get_profile_dir(fromname, from_global);
 
@@ -2085,7 +2085,7 @@ get_persdatafile_dir(void)
      * Hint: SHGetFolderPath is not available on MSVC 6 - without
      * Platform SDK
      */
-    if (SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE)) {
+    if (SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, false)) {
         persdatafile_dir = g_utf16_to_utf8(tszPath, -1, NULL, NULL, NULL);
         return persdatafile_dir;
     } else {
@@ -2107,7 +2107,7 @@ set_persdatafile_dir(const char *p)
  * Construct the path name of a personal configuration file, given the
  * file name.
  *
- * On Win32, if "for_writing" is FALSE, we check whether the file exists
+ * On Win32, if "for_writing" is false, we check whether the file exists
  * and, if not, construct a path name relative to the ".wireshark"
  * subdirectory of the user's home directory, and check whether that
  * exists; if it does, we return that, so that configuration files
@@ -2117,7 +2117,7 @@ set_persdatafile_dir(const char *p)
  * caller is done with it.
  */
 char *
-get_persconffile_path(const char *filename, gboolean from_profile)
+get_persconffile_path(const char *filename, bool from_profile)
 {
     char *path, *dir = NULL;
 
@@ -2184,7 +2184,7 @@ get_docfile_path(const char *filename)
  * create operations.
  */
 const char *
-file_open_error_message(int err, gboolean for_writing)
+file_open_error_message(int err, bool for_writing)
 {
     const char *errmsg;
     static char errmsg_errno[1024+1];
@@ -2317,41 +2317,41 @@ file_write_error_message(int err)
 }
 
 
-gboolean
+bool
 file_exists(const char *fname)
 {
     ws_statb64 file_stat;
 
     if (!fname) {
-        return FALSE;
+        return false;
     }
 
     if (ws_stat64(fname, &file_stat) != 0 && errno == ENOENT) {
-        return FALSE;
+        return false;
     } else {
-        return TRUE;
+        return true;
     }
 }
 
-gboolean config_file_exists_with_entries(const char *fname, char comment_char)
+bool config_file_exists_with_entries(const char *fname, char comment_char)
 {
-    gboolean start_of_line = TRUE;
-    gboolean has_entries = FALSE;
+    bool start_of_line = true;
+    bool has_entries = false;
     FILE *file;
     int c;
 
     if (!fname) {
-        return FALSE;
+        return false;
     }
 
     if ((file = ws_fopen(fname, "r")) == NULL) {
-        return FALSE;
+        return false;
     }
 
     do {
         c = ws_getc_unlocked(file);
         if (start_of_line && c != comment_char && !g_ascii_isspace(c) && g_ascii_isprint(c)) {
-            has_entries = TRUE;
+            has_entries = true;
             break;
         }
         if (c == '\n' || !g_ascii_isspace(c)) {
@@ -2370,7 +2370,7 @@ gboolean config_file_exists_with_entries(const char *fname, char comment_char)
  * name and the read file name may be relative (if supplied on
  * the command line), so we can't just compare paths. From Joerg Mayer.
  */
-gboolean
+bool
 files_identical(const char *fname1, const char *fname2)
 {
     /* Two different implementations, because:
@@ -2392,17 +2392,17 @@ files_identical(const char *fname1, const char *fname2)
      * XXX - will _fullpath work with UNC?
      */
     if( _fullpath( full1, fname1, MAX_PATH ) == NULL ) {
-        return FALSE;
+        return false;
     }
 
     if( _fullpath( full2, fname2, MAX_PATH ) == NULL ) {
-        return FALSE;
+        return false;
     }
 
     if(strcmp(full1, full2) == 0) {
-        return TRUE;
+        return true;
     } else {
-        return FALSE;
+        return false;
     }
 #else
     ws_statb64 filestat1, filestat2;
@@ -2411,15 +2411,15 @@ files_identical(const char *fname1, const char *fname2)
      * Compare st_dev and st_ino.
      */
     if (ws_stat64(fname1, &filestat1) == -1)
-        return FALSE;   /* can't get info about the first file */
+        return false;   /* can't get info about the first file */
     if (ws_stat64(fname2, &filestat2) == -1)
-        return FALSE;   /* can't get info about the second file */
+        return false;   /* can't get info about the second file */
     return (filestat1.st_dev == filestat2.st_dev &&
         filestat1.st_ino == filestat2.st_ino);
 #endif
 }
 
-gboolean
+bool
 file_needs_reopen(int fd, const char* filename)
 {
 #ifdef _WIN32
@@ -2442,7 +2442,7 @@ file_needs_reopen(int fd, const char* filename)
     BY_HANDLE_FILE_INFORMATION open_info, current_info;
 
     if (current_handle == INVALID_HANDLE_VALUE) {
-        return TRUE;
+        return true;
     }
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
@@ -2459,24 +2459,24 @@ file_needs_reopen(int fd, const char* filename)
         GetFileInformationByHandle(current_handle, &current_info)) {
         /* Fallback to 64-bit identifier */
         CloseHandle(current_handle);
-        guint64 open_size = (((guint64)open_info.nFileSizeHigh) << 32) | open_info.nFileSizeLow;
-        guint64 current_size = (((guint64)current_info.nFileSizeHigh) << 32) | current_info.nFileSizeLow;
+        uint64_t open_size = (((uint64_t)open_info.nFileSizeHigh) << 32) | open_info.nFileSizeLow;
+        uint64_t current_size = (((uint64_t)current_info.nFileSizeHigh) << 32) | current_info.nFileSizeLow;
         return open_info.dwVolumeSerialNumber != current_info.dwVolumeSerialNumber ||
                open_info.nFileIndexHigh != current_info.nFileIndexHigh ||
                open_info.nFileIndexLow != current_info.nFileIndexLow ||
                open_size > current_size;
     }
     CloseHandle(current_handle);
-    return TRUE;
+    return true;
 #else
     ws_statb64 open_stat, current_stat;
 
     /* consider a file deleted when stat fails for either file,
      * or when the residing device / inode has changed. */
     if (0 != ws_fstat64(fd, &open_stat))
-        return TRUE;
+        return true;
     if (0 != ws_stat64(filename, &current_stat))
-        return TRUE;
+        return true;
 
     return open_stat.st_dev != current_stat.st_dev ||
            open_stat.st_ino != current_stat.st_ino ||
@@ -2484,20 +2484,20 @@ file_needs_reopen(int fd, const char* filename)
 #endif
 }
 
-gboolean
+bool
 write_file_binary_mode(const char *filename, const void *content, size_t content_len)
 {
     int fd;
     size_t bytes_left;
     unsigned int bytes_to_write;
     ssize_t bytes_written;
-    const guint8 *ptr;
+    const uint8_t *ptr;
     int err;
 
     fd = ws_open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
     if (fd == -1) {
-        report_open_failure(filename, errno, TRUE);
-        return FALSE;
+        report_open_failure(filename, errno, true);
+        return false;
     }
 
     /*
@@ -2514,7 +2514,7 @@ write_file_binary_mode(const char *filename, const void *content, size_t content
      * chunks of at most 2^31 bytes.
      */
 
-    ptr = (const guint8 *)content;
+    ptr = (const uint8_t *)content;
     bytes_left = content_len;
     while (bytes_left != 0) {
         if (bytes_left > 0x40000000) {
@@ -2531,14 +2531,14 @@ write_file_binary_mode(const char *filename, const void *content, size_t content
             }
             report_write_failure(filename, err);
             ws_close(fd);
-            return FALSE;
+            return false;
         }
         bytes_left -= bytes_written;
         ptr += bytes_written;
     }
 
     ws_close(fd);
-    return TRUE;
+    return true;
 }
 
 /*
@@ -2547,20 +2547,20 @@ write_file_binary_mode(const char *filename, const void *content, size_t content
  * we'll copy the raw bytes, and we don't look at the bytes as we copy
  * them.
  *
- * Returns TRUE on success, FALSE on failure. If a failure, it also
+ * Returns true on success, false on failure. If a failure, it also
  * displays a simple dialog window with the error message.
  */
-gboolean
+bool
 copy_file_binary_mode(const char *from_filename, const char *to_filename)
 {
     int           from_fd, to_fd, err;
     ws_file_ssize_t nread, nwritten;
-    guint8        *pd = NULL;
+    uint8_t       *pd = NULL;
 
     /* Copy the raw bytes of the file. */
     from_fd = ws_open(from_filename, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
     if (from_fd < 0) {
-        report_open_failure(from_filename, errno, FALSE);
+        report_open_failure(from_filename, errno, false);
         goto done;
     }
 
@@ -2571,13 +2571,13 @@ copy_file_binary_mode(const char *from_filename, const char *to_filename)
        to be open in binary mode. */
     to_fd = ws_open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
     if (to_fd < 0) {
-        report_open_failure(to_filename, errno, TRUE);
+        report_open_failure(to_filename, errno, true);
         ws_close(from_fd);
         goto done;
     }
 
 #define FS_READ_SIZE 65536
-    pd = (guint8 *)g_malloc(FS_READ_SIZE);
+    pd = (uint8_t *)g_malloc(FS_READ_SIZE);
     while ((nread = ws_read(from_fd, pd, FS_READ_SIZE)) > 0) {
         nwritten = ws_write(to_fd, pd, nread);
         if (nwritten < nread) {
@@ -2606,18 +2606,18 @@ copy_file_binary_mode(const char *from_filename, const char *to_filename)
 
     g_free(pd);
     pd = NULL;
-    return TRUE;
+    return true;
 
 done:
     g_free(pd);
-    return FALSE;
+    return false;
 }
 
-gchar *
-data_file_url(const gchar *filename)
+char *
+data_file_url(const char *filename)
 {
-    gchar *file_path;
-    gchar *uri;
+    char *file_path;
+    char *uri;
 
     /* Absolute path? */
     if(g_path_is_absolute(filename)) {
@@ -2634,11 +2634,11 @@ data_file_url(const gchar *filename)
     return uri;
 }
 
-gchar *
-doc_file_url(const gchar *filename)
+char *
+doc_file_url(const char *filename)
 {
-    gchar *file_path;
-    gchar *uri;
+    char *file_path;
+    char *uri;
 
     /* Absolute path? */
     if(g_path_is_absolute(filename)) {

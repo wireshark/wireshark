@@ -35,7 +35,7 @@
    Copyright (C) 2010 Free Software Foundation, Inc.
  */
 
-static const gint8 ___m128i_shift_right[31] =
+static const int8_t ___m128i_shift_right[31] =
   {
     0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
@@ -51,7 +51,7 @@ __m128i_shift_right (__m128i value, unsigned long int offset)
 
 
 void
-ws_mempbrk_sse42_compile(ws_mempbrk_pattern* pattern, const gchar *needles)
+ws_mempbrk_sse42_compile(ws_mempbrk_pattern* pattern, const char *needles)
 {
     size_t length = strlen(needles);
 
@@ -96,7 +96,7 @@ ws_mempbrk_sse42_compile(ws_mempbrk_pattern* pattern, const gchar *needles)
    X for case 1.  */
 
 const char *
-ws_mempbrk_sse42_exec(const char *haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, guchar *found_needle)
+ws_mempbrk_sse42_exec(const char *haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
   const char *aligned;
   int offset;

@@ -32,7 +32,7 @@ void nstime_set_zero(nstime_t *nstime)
 }
 
 /* is the given nstime_t currently zero? */
-gboolean nstime_is_zero(const nstime_t *nstime)
+bool nstime_is_zero(const nstime_t *nstime)
 {
     return nstime->secs == 0 && nstime->nsecs == 0;
 }
@@ -44,16 +44,16 @@ gboolean nstime_is_zero(const nstime_t *nstime)
 void nstime_set_unset(nstime_t *nstime)
 {
     nstime->secs  = 0;
-    nstime->nsecs = G_MAXINT;
+    nstime->nsecs = INT_MAX;
 }
 
 /* is the given nstime_t currently (0,maxint)? */
-gboolean nstime_is_unset(const nstime_t *nstime)
+bool nstime_is_unset(const nstime_t *nstime)
 {
-    if(nstime->secs == 0 && nstime->nsecs == G_MAXINT) {
-        return TRUE;
+    if(nstime->secs == 0 && nstime->nsecs == INT_MAX) {
+        return true;
     } else {
-        return FALSE;
+        return false;
     }
 }
 
@@ -155,9 +155,9 @@ int nstime_cmp (const nstime_t *a, const nstime_t *b )
     }
 }
 
-guint nstime_hash(const nstime_t *nstime)
+unsigned nstime_hash(const nstime_t *nstime)
 {
-    gint64 val1 = (gint64)nstime->secs;
+    int64_t val1 = (int64_t)nstime->secs;
 
     return g_int64_hash(&val1) ^ g_int_hash(&nstime->nsecs);
 }
@@ -199,10 +199,10 @@ double nstime_to_sec(const nstime_t *nstime)
 #define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
 #endif
 
-static gboolean
-common_filetime_to_nstime(nstime_t *nstime, guint64 ftsecs, int nsecs)
+static bool
+common_filetime_to_nstime(nstime_t *nstime, uint64_t ftsecs, int nsecs)
 {
-    gint64 secs;
+    int64_t secs;
 
     /*
      * Shift the seconds from the Windows epoch to the UN*X epoch.
@@ -213,11 +213,11 @@ common_filetime_to_nstime(nstime_t *nstime, guint64 ftsecs, int nsecs)
      * maximum 64-bit signed value, so the difference between them
      * should also fit in a 64-bit signed value.
      */
-    secs = (gint64)ftsecs - EPOCH_DELTA_1601_01_01_00_00_00_UTC;
+    secs = (int64_t)ftsecs - EPOCH_DELTA_1601_01_01_00_00_00_UTC;
 
     if (!(TIME_T_MIN <= secs && secs <= TIME_T_MAX)) {
         /* The result won't fit in a time_t */
-        return FALSE;
+        return false;
     }
 
     /*
@@ -225,20 +225,20 @@ common_filetime_to_nstime(nstime_t *nstime, guint64 ftsecs, int nsecs)
      */
     nstime->secs = (time_t) secs;
     nstime->nsecs = nsecs;
-    return TRUE;
+    return true;
 }
 
 /*
  * function: filetime_to_nstime
  * converts a Windows FILETIME value to an nstime_t
- * returns TRUE if the conversion succeeds, FALSE if it doesn't
+ * returns true if the conversion succeeds, false if it doesn't
  * (for example, with a 32-bit time_t, the time overflows or
  * underflows time_t)
  */
-gboolean
-filetime_to_nstime(nstime_t *nstime, guint64 filetime)
+bool
+filetime_to_nstime(nstime_t *nstime, uint64_t filetime)
 {
-    guint64 ftsecs;
+    uint64_t ftsecs;
     int nsecs;
 
     /*
@@ -255,14 +255,14 @@ filetime_to_nstime(nstime_t *nstime, guint64 filetime)
  * function: nsfiletime_to_nstime
  * converts a Windows FILETIME-like value, but given in nanoseconds
  * rather than 10ths of microseconds, to an nstime_t
- * returns TRUE if the conversion succeeds, FALSE if it doesn't
+ * returns true if the conversion succeeds, false if it doesn't
  * (for example, with a 32-bit time_t, the time overflows or
  * underflows time_t)
  */
-gboolean
-nsfiletime_to_nstime(nstime_t *nstime, guint64 nsfiletime)
+bool
+nsfiletime_to_nstime(nstime_t *nstime, uint64_t nsfiletime)
 {
-    guint64 ftsecs;
+    uint64_t ftsecs;
     int nsecs;
 
     /* Split into seconds and nanoseconds. */
@@ -304,14 +304,14 @@ const char *
 iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
 {
     struct tm tm;
-    gint n_scanned = 0;
-    gint n_chars = 0;
-    guint frac = 0;
-    gint off_hr = 0;
-    gint off_min = 0;
+    int n_scanned = 0;
+    int n_chars = 0;
+    unsigned frac = 0;
+    int off_hr = 0;
+    int off_min = 0;
     char sign = '\0';
-    gboolean has_separator = FALSE;
-    gboolean have_offset = FALSE;
+    bool has_separator = false;
+    bool have_offset = false;
 
     memset(&tm, 0, sizeof(tm));
     tm.tm_isdst = -1;
@@ -334,7 +334,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
             case ISO8601_DATETIME:
             case ISO8601_DATETIME_AUTO:
             default:
-                has_separator = TRUE;
+                has_separator = true;
                 ptr++;
         };
     } else if (g_ascii_isdigit(*ptr)) {
@@ -345,7 +345,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
             case ISO8601_DATETIME_BASIC:
             case ISO8601_DATETIME_AUTO:
             default:
-                has_separator = FALSE;
+                has_separator = false;
         };
     } else {
         return NULL;
@@ -463,7 +463,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
         /* We have a UTC-relative offset */
         if (*ptr == 'Z') {
             off_hr = off_min = 0;
-            have_offset = TRUE;
+            have_offset = true;
             ptr++;
         }
         else {
@@ -471,7 +471,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
             n_scanned = sscanf(ptr, "%3d%n", &off_hr, &n_chars);
             if (n_scanned >= 1) {
                 /* Definitely got hours */
-                have_offset = TRUE;
+                have_offset = true;
                 ptr += n_chars;
                 n_scanned = sscanf(ptr, *ptr == ':' ? ":%2d%n" : "%2d%n", &off_min, &n_chars);
                 if (n_scanned >= 1) {
@@ -481,7 +481,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
             }
             else {
                 /* Didn't get a valid offset, treat as if there's none at all */
-                have_offset = FALSE;
+                have_offset = false;
             }
         }
     }
@@ -524,11 +524,11 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
 const char *
 unix_epoch_to_nstime(nstime_t *nstime, const char *ptr)
 {
-    gint64 secs;
+    int64_t secs;
     const char *ptr_new;
 
-    gint n_chars = 0;
-    guint frac = 0;
+    int n_chars = 0;
+    unsigned frac = 0;
 
     nstime_set_unset(nstime);
 

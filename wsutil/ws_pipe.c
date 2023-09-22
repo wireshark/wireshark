@@ -41,21 +41,21 @@
 
 #ifdef HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG
 struct linux_dirent64 {
-    guint64        d_ino;    /* 64-bit inode number */
-    guint64        d_off;    /* 64-bit offset to next structure */
+    uint64_t       d_ino;    /* 64-bit inode number */
+    uint64_t       d_off;    /* 64-bit offset to next structure */
     unsigned short d_reclen; /* Size of this dirent */
     unsigned char  d_type;   /* File type */
     char           d_name[]; /* Filename (null-terminated) */
 };
 
 /* Async-signal-safe string to integer conversion. */
-static gint
+static int
 filename_to_fd(const char *p)
 {
     char c;
     int fd = 0;
-    const int cutoff = G_MAXINT / 10;
-    const int cutlim = G_MAXINT % 10;
+    const int cutoff = INT_MAX / 10;
+    const int cutlim = INT_MAX % 10;
 
     if (*p == '\0')
         return -1;
@@ -76,7 +76,7 @@ filename_to_fd(const char *p)
 }
 
 static void
-close_non_standard_fds_linux(gpointer user_data _U_)
+close_non_standard_fds_linux(void * user_data _U_)
 {
     /*
      * GLib 2.14.2 and newer (up to at least GLib 2.58.1) on Linux with multiple
@@ -118,12 +118,12 @@ close_non_standard_fds_linux(gpointer user_data _U_)
 static ULONG pipe_serial_number;
 
 /* Alternative for CreatePipe() where read handle is opened with FILE_FLAG_OVERLAPPED */
-static gboolean
+static bool
 ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_handle,
                                SECURITY_ATTRIBUTES *sa, DWORD suggested_buffer_size)
 {
     HANDLE read_pipe, write_pipe;
-    guchar *name = ws_strdup_printf("\\\\.\\Pipe\\WiresharkWsPipe.%08lx.%08lx",
+    unsigned char *name = ws_strdup_printf("\\\\.\\Pipe\\WiresharkWsPipe.%08lx.%08lx",
                                    GetCurrentProcessId(),
                                    InterlockedIncrement(&pipe_serial_number));
     gunichar2 *wname = g_utf8_to_utf16(name, -1, NULL, NULL, NULL);
@@ -137,7 +137,7 @@ ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_hand
     if (INVALID_HANDLE_VALUE == read_pipe)
     {
         g_free(wname);
-        return FALSE;
+        return false;
     }
 
     write_pipe = CreateFile(wname, GENERIC_WRITE, 0, sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -147,13 +147,13 @@ ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_hand
         CloseHandle(read_pipe);
         SetLastError(error);
         g_free(wname);
-        return FALSE;
+        return false;
     }
 
     *read_pipe_handle = read_pipe;
     *write_pipe_handle = write_pipe;
     g_free(wname);
-    return(TRUE);
+    return(true);
 }
 #endif
 
@@ -161,12 +161,12 @@ ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_hand
  * Helper to convert a command and argument list to an NULL-terminated 'argv'
  * array, suitable for g_spawn_sync and friends. Free with g_strfreev.
  */
-static gchar **
+static char **
 convert_to_argv(const char *command, int args_count, char *const *args)
 {
-    gchar **argv = g_new(gchar *, args_count + 2);
-    // The caller does not seem to modify this, but g_spawn_sync uses 'gchar **'
-    // as opposed to 'const gchar **', so just to be sure clone it.
+    char **argv = g_new(char *, args_count + 2);
+    // The caller does not seem to modify this, but g_spawn_sync uses 'char **'
+    // as opposed to 'const char **', so just to be sure clone it.
     argv[0] = g_strdup(command);
     for (int i = 0; i < args_count; i++) {
         // Empty arguments may indicate a bug in Wireshark. Extcap for example
@@ -187,15 +187,15 @@ convert_to_argv(const char *command, int args_count, char *const *args)
  * string for displaying purposes. On Windows, the returned string is properly
  * escaped and can be executed directly.
  */
-static gchar *
-convert_to_command_line(gchar **argv)
+static char *
+convert_to_command_line(char **argv)
 {
     GString *command_line = g_string_sized_new(200);
 #ifdef _WIN32
     // The first argument must always be quoted even if it does not contain
     // special characters or else CreateProcess might consider arguments as part
     // of the executable.
-    gchar *quoted_arg = protect_arg(argv[0]);
+    char *quoted_arg = protect_arg(argv[0]);
     if (quoted_arg[0] != '"') {
         g_string_append_c(command_line, '"');
         g_string_append(command_line, quoted_arg);
@@ -213,7 +213,7 @@ convert_to_command_line(gchar **argv)
     }
 #else
     for (int i = 0; argv[i]; i++) {
-        gchar *quoted_arg = g_shell_quote(argv[i]);
+        char *quoted_arg = g_shell_quote(argv[i]);
         if (i != 0) {
             g_string_append_c(command_line, ' ');
         }
@@ -221,14 +221,14 @@ convert_to_command_line(gchar **argv)
         g_free(quoted_arg);
     }
 #endif
-    return g_string_free(command_line, FALSE);
+    return g_string_free(command_line, false);
 }
 
-gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command, gint argc, gchar **args, gchar **command_output)
+bool ws_pipe_spawn_sync(const char *working_directory, const char *command, int argc, char **args, char **command_output)
 {
-    gboolean status = FALSE;
-    gboolean result = FALSE;
-    gchar *local_output = NULL;
+    bool status = false;
+    bool result = false;
+    char *local_output = NULL;
 #ifdef _WIN32
 
 #define BUFFER_SIZE 16384
@@ -246,41 +246,41 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     OVERLAPPED stdout_overlapped;
     OVERLAPPED stderr_overlapped;
 #else
-    gint exit_status = 0;
+    int exit_status = 0;
 #endif
 
-    gchar **argv = convert_to_argv(command, argc, args);
-    gchar *command_line = convert_to_command_line(argv);
+    char **argv = convert_to_argv(command, argc, args);
+    char *command_line = convert_to_command_line(argv);
 
     ws_debug("command line: %s", command_line);
 
-    guint64 start_time = g_get_monotonic_time();
+    uint64_t start_time = g_get_monotonic_time();
 
 #ifdef _WIN32
     /* Setup overlapped structures. Create Manual Reset events, initially not signalled */
     memset(&stdout_overlapped, 0, sizeof(OVERLAPPED));
     memset(&stderr_overlapped, 0, sizeof(OVERLAPPED));
-    stdout_overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    stdout_overlapped.hEvent = CreateEvent(NULL, true, false, NULL);
     if (!stdout_overlapped.hEvent)
     {
         g_free(command_line);
         g_strfreev(argv);
         ws_debug("Could not create stdout overlapped event");
-        return FALSE;
+        return false;
     }
-    stderr_overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    stderr_overlapped.hEvent = CreateEvent(NULL, true, false, NULL);
     if (!stderr_overlapped.hEvent)
     {
         CloseHandle(stdout_overlapped.hEvent);
         g_free(command_line);
         g_strfreev(argv);
         ws_debug("Could not create stderr overlapped event");
-        return FALSE;
+        return false;
     }
 
     memset(&sa, 0, sizeof(SECURITY_ATTRIBUTES));
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = FALSE;
+    sa.bInheritHandle = false;
     sa.lpSecurityDescriptor = NULL;
 
     if (!ws_pipe_create_overlapped_read(&child_stdout_rd, &child_stdout_wr, &sa, 0))
@@ -290,7 +290,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         g_free(command_line);
         g_strfreev(argv);
         ws_debug("Could not create stdout handle");
-        return FALSE;
+        return false;
     }
 
     if (!ws_pipe_create_overlapped_read(&child_stderr_rd, &child_stderr_wr, &sa, 0))
@@ -302,7 +302,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         g_free(command_line);
         g_strfreev(argv);
         ws_debug("Could not create stderr handle");
-        return FALSE;
+        return false;
     }
 
     inherit_handles[0] = child_stderr_wr;
@@ -320,14 +320,14 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     if (win32_create_process(NULL, command_line, NULL, NULL, G_N_ELEMENTS(inherit_handles), inherit_handles,
                              CREATE_NEW_CONSOLE, NULL, working_directory, &info, &processInfo))
     {
-        gchar* stdout_buffer = (gchar*)g_malloc(BUFFER_SIZE);
-        gchar* stderr_buffer = (gchar*)g_malloc(BUFFER_SIZE);
+        char* stdout_buffer = (char*)g_malloc(BUFFER_SIZE);
+        char* stderr_buffer = (char*)g_malloc(BUFFER_SIZE);
         DWORD dw;
         DWORD bytes_read;
         GString *output_string = g_string_new(NULL);
-        gboolean process_finished = FALSE;
-        gboolean pending_stdout = TRUE;
-        gboolean pending_stderr = TRUE;
+        bool process_finished = false;
+        bool pending_stdout = true;
+        bool pending_stderr = true;
 
         /* Start asynchronous reads from child process stdout and stderr */
         if (!ReadFile(child_stdout_rd, stdout_buffer, BUFFER_SIZE, NULL, &stdout_overlapped))
@@ -335,7 +335,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
             if (GetLastError() != ERROR_IO_PENDING)
             {
                 ws_debug("ReadFile on child stdout pipe failed. Error %ld", GetLastError());
-                pending_stdout = FALSE;
+                pending_stdout = false;
             }
         }
 
@@ -344,7 +344,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
             if (GetLastError() != ERROR_IO_PENDING)
             {
                 ws_debug("ReadFile on child stderr pipe failed. Error %ld", GetLastError());
-                pending_stderr = FALSE;
+                pending_stderr = false;
             }
         }
 
@@ -371,7 +371,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                 break;
             }
 
-            dw = WaitForMultipleObjects(n_handles, handles, FALSE, INFINITE);
+            dw = WaitForMultipleObjects(n_handles, handles, false, INFINITE);
             if (dw < (WAIT_OBJECT_0 + n_handles))
             {
                 int i = dw - WAIT_OBJECT_0;
@@ -382,16 +382,16 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                      */
                     CloseHandle(child_stdout_wr);
                     CloseHandle(child_stderr_wr);
-                    process_finished = TRUE;
+                    process_finished = true;
                 }
                 else if (handles[i] == stdout_overlapped.hEvent)
                 {
                     bytes_read = 0;
-                    if (!GetOverlappedResult(child_stdout_rd, &stdout_overlapped, &bytes_read, TRUE))
+                    if (!GetOverlappedResult(child_stdout_rd, &stdout_overlapped, &bytes_read, true))
                     {
                         if (GetLastError() == ERROR_BROKEN_PIPE)
                         {
-                            pending_stdout = FALSE;
+                            pending_stdout = false;
                             continue;
                         }
                         ws_debug("GetOverlappedResult on stdout failed. Error %ld", GetLastError());
@@ -399,7 +399,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                     if (process_finished && (bytes_read == 0))
                     {
                         /* We have drained the pipe and there isn't any process that holds active write handle to the pipe. */
-                        pending_stdout = FALSE;
+                        pending_stdout = false;
                         continue;
                     }
                     g_string_append_len(output_string, stdout_buffer, bytes_read);
@@ -408,7 +408,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                         if (GetLastError() != ERROR_IO_PENDING)
                         {
                             ws_debug("ReadFile on child stdout pipe failed. Error %ld", GetLastError());
-                            pending_stdout = FALSE;
+                            pending_stdout = false;
                         }
                     }
                 }
@@ -416,18 +416,18 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                 {
                     /* Discard the stderr data just like non-windows version of this function does. */
                     bytes_read = 0;
-                    if (!GetOverlappedResult(child_stderr_rd, &stderr_overlapped, &bytes_read, TRUE))
+                    if (!GetOverlappedResult(child_stderr_rd, &stderr_overlapped, &bytes_read, true))
                     {
                         if (GetLastError() == ERROR_BROKEN_PIPE)
                         {
-                            pending_stderr = FALSE;
+                            pending_stderr = false;
                             continue;
                         }
                         ws_debug("GetOverlappedResult on stderr failed. Error %ld", GetLastError());
                     }
                     if (process_finished && (bytes_read == 0))
                     {
-                        pending_stderr = FALSE;
+                        pending_stderr = false;
                         continue;
                     }
                     if (!ReadFile(child_stderr_rd, stderr_buffer, BUFFER_SIZE, NULL, &stderr_overlapped))
@@ -435,7 +435,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                         if (GetLastError() != ERROR_IO_PENDING)
                         {
                             ws_debug("ReadFile on child stderr pipe failed. Error %ld", GetLastError());
-                            pending_stderr = FALSE;
+                            pending_stderr = false;
                         }
                     }
                 }
@@ -452,10 +452,10 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         status = GetExitCodeProcess(processInfo.hProcess, &dw);
         if (status && dw != 0)
         {
-            status = FALSE;
+            status = false;
         }
 
-        local_output = g_string_free(output_string, FALSE);
+        local_output = g_string_free(output_string, false);
 
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stderr_rd);
@@ -465,7 +465,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     }
     else
     {
-        status = FALSE;
+        status = false;
 
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stdout_wr);
@@ -487,7 +487,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                           flags, child_setup, NULL, &local_output, NULL, &exit_status, NULL);
 
     if (status && exit_status != 0)
-        status = FALSE;
+        status = false;
 #endif
 
     ws_debug("%s finished in %.3fms", argv[0], (g_get_monotonic_time() - start_time) / 1000.0);
@@ -499,7 +499,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
             if (command_output != NULL)
                 *command_output = g_strdup(local_output);
         }
-        result = TRUE;
+        result = true;
     }
 
     g_free(local_output);
@@ -519,7 +519,7 @@ void ws_pipe_init(ws_pipe_t *ws_pipe)
 GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
 {
     GPid pid = WS_INVALID_PID;
-    gint stdin_fd, stdout_fd, stderr_fd;
+    int stdin_fd, stdout_fd, stderr_fd;
 #ifdef _WIN32
     STARTUPINFO info;
     PROCESS_INFORMATION processInfo;
@@ -536,15 +536,15 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
 
     // XXX harmonize handling of command arguments for the sync/async functions
     // and make them const? This array ends with a trailing NULL by the way.
-    gchar **args_array = (gchar **)args->pdata;
-    gchar **argv = convert_to_argv(args_array[0], args->len - 2, args_array + 1);
-    gchar *command_line = convert_to_command_line(argv);
+    char **args_array = (char **)args->pdata;
+    char **argv = convert_to_argv(args_array[0], args->len - 2, args_array + 1);
+    char *command_line = convert_to_command_line(argv);
 
     ws_debug("command line: %s", command_line);
 
 #ifdef _WIN32
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = FALSE;
+    sa.bInheritHandle = false;
     sa.lpSecurityDescriptor = NULL;
 
     if (!CreatePipe(&child_stdin_rd, &child_stdin_wr, &sa, 0))
@@ -624,7 +624,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     flags = (GSpawnFlags)(flags | G_SPAWN_LEAVE_DESCRIPTORS_OPEN);
     child_setup = close_non_standard_fds_linux;
 #endif
-    gboolean spawned = g_spawn_async_with_pipes(NULL, argv, NULL,
+    bool spawned = g_spawn_async_with_pipes(NULL, argv, NULL,
                              flags, child_setup, NULL,
                              &pid, &stdin_fd, &stdout_fd, &stderr_fd, &error);
     if (!spawned) {
@@ -651,12 +651,12 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         g_io_channel_set_encoding(ws_pipe->stdin_io, NULL, NULL);
         g_io_channel_set_encoding(ws_pipe->stdout_io, NULL, NULL);
         g_io_channel_set_encoding(ws_pipe->stderr_io, NULL, NULL);
-        g_io_channel_set_buffered(ws_pipe->stdin_io, FALSE);
-        g_io_channel_set_buffered(ws_pipe->stdout_io, FALSE);
-        g_io_channel_set_buffered(ws_pipe->stderr_io, FALSE);
-        g_io_channel_set_close_on_unref(ws_pipe->stdin_io, TRUE);
-        g_io_channel_set_close_on_unref(ws_pipe->stdout_io, TRUE);
-        g_io_channel_set_close_on_unref(ws_pipe->stderr_io, TRUE);
+        g_io_channel_set_buffered(ws_pipe->stdin_io, false);
+        g_io_channel_set_buffered(ws_pipe->stdout_io, false);
+        g_io_channel_set_buffered(ws_pipe->stderr_io, false);
+        g_io_channel_set_close_on_unref(ws_pipe->stdin_io, true);
+        g_io_channel_set_close_on_unref(ws_pipe->stdout_io, true);
+        g_io_channel_set_close_on_unref(ws_pipe->stderr_io, true);
     }
 
     return pid;
@@ -671,24 +671,24 @@ typedef struct
     BOOL pendingIO;
 } PIPEINTS;
 
-gboolean
+bool
 ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
 {
     PIPEINTS pipeinsts[3];
     HANDLE handles[4];
-    gboolean result = TRUE;
+    bool result = true;
 
     SecureZeroMemory(pipeinsts, sizeof(pipeinsts));
 
     if (num_pipe_handles == 0 || num_pipe_handles > 3)
     {
         ws_debug("Invalid number of pipes given as argument.");
-        return FALSE;
+        return false;
     }
 
     for (int i = 0; i < num_pipe_handles; ++i)
     {
-        pipeinsts[i].ol.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+        pipeinsts[i].ol.hEvent = CreateEvent(NULL, true, false, NULL);
         if (!pipeinsts[i].ol.hEvent)
         {
             ws_debug("Could not create overlapped event");
@@ -696,7 +696,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
             {
                 CloseHandle(pipeinsts[j].ol.hEvent);
             }
-            return FALSE;
+            return false;
         }
     }
 
@@ -704,14 +704,14 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
     {
         pipeinsts[i].pipeHandle = pipe_handles[i];
         pipeinsts[i].ol.Pointer = 0;
-        pipeinsts[i].pendingIO = FALSE;
+        pipeinsts[i].pendingIO = false;
         if (!ConnectNamedPipe(pipeinsts[i].pipeHandle, &pipeinsts[i].ol))
         {
             DWORD error = GetLastError();
             switch (error)
             {
             case ERROR_IO_PENDING:
-                pipeinsts[i].pendingIO = TRUE;
+                pipeinsts[i].pendingIO = true;
                 break;
 
             case ERROR_PIPE_CONNECTED:
@@ -720,7 +720,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
 
             default:
                 ws_debug("ConnectNamedPipe failed with %ld\n.", error);
-                result = FALSE;
+                result = false;
             }
         }
     }
@@ -746,12 +746,12 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
         handles[num_handles] = pid;
         num_handles++;
 
-        dw = WaitForMultipleObjects(num_handles, handles, FALSE, 30000);
+        dw = WaitForMultipleObjects(num_handles, handles, false, 30000);
         int handle_idx = dw - WAIT_OBJECT_0;
         if (dw == WAIT_TIMEOUT)
         {
             ws_debug("extcap didn't connect to pipe within 30 seconds.");
-            result = FALSE;
+            result = false;
             break;
         }
         // If index points to our handles array
@@ -760,7 +760,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
             if (handles[handle_idx] == pid)
             {
                 ws_debug("extcap terminated without connecting to pipe.");
-                result = FALSE;
+                result = false;
             }
             for (int i = 0; i < num_pipe_handles; ++i)
             {
@@ -771,20 +771,20 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
                         pipeinsts[i].pipeHandle, // handle to pipe
                         &pipeinsts[i].ol,        // OVERLAPPED structure
                         &cbRet,                    // bytes transferred
-                        TRUE);                     // wait
+                        true);                     // wait
                     if (!success)
                     {
                         ws_debug("Error %ld \n.", GetLastError());
-                        result = FALSE;
+                        result = false;
                     }
-                    pipeinsts[i].pendingIO = FALSE;
+                    pipeinsts[i].pendingIO = false;
                 }
             }
         }
         else
         {
             ws_debug("WaitForMultipleObjects returned 0x%08lX. Error %ld", dw, GetLastError());
-            result = FALSE;
+            result = false;
         }
     }
 
@@ -802,7 +802,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
 }
 #endif
 
-gboolean
+bool
 ws_pipe_data_available(int pipe_fd)
 {
 #ifdef _WIN32 /* PeekNamedPipe */
@@ -811,19 +811,19 @@ ws_pipe_data_available(int pipe_fd)
 
     if (hPipe == INVALID_HANDLE_VALUE)
     {
-        return FALSE;
+        return false;
     }
 
     if (! PeekNamedPipe(hPipe, NULL, 0, NULL, &bytes_avail, NULL))
     {
-        return FALSE;
+        return false;
     }
 
     if (bytes_avail > 0)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 #else /* select */
     fd_set rfds;
     struct timeval timeout;
@@ -835,10 +835,10 @@ ws_pipe_data_available(int pipe_fd)
 
     if (select(pipe_fd + 1, &rfds, NULL, NULL, &timeout) > 0)
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 #endif
 }
 

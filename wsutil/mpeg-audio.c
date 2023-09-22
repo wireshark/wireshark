@@ -84,10 +84,10 @@ mpa_padding(const struct mpa *mpa)
 /* Decode an ID3v2 synchsafe integer.
  * See https://id3.org/id3v2.4.0-structure section 6.2.
  */
-guint32
-decode_synchsafe_int(guint32 input)
+uint32_t
+decode_synchsafe_int(uint32_t input)
 {
-	guint32 value;
+	uint32_t value;
 
 	/* High-order byte */
 	value = (input >> 24) & 0x7f;

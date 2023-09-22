@@ -40,7 +40,7 @@
 /*                                                               */
 /*    Width   : 2 bytes.                                         */
 /*    Poly    : 0x1021                                           */
-/*    Reverse : TRUE.                                           */
+/*    Reverse : true.                                           */
 /*                                                               */
 /* For more information on the Rocksoft^tm Model CRC Algorithm,  */
 /* see the document titled "A Painless Guide to CRC Error        */

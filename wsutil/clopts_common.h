@@ -40,10 +40,10 @@ get_natural_int(const char *string, const char *name);
 WS_DLL_PUBLIC int
 get_positive_int(const char *string, const char *name);
 
-WS_DLL_PUBLIC guint32
+WS_DLL_PUBLIC uint32_t
 get_guint32(const char *string, const char *name);
 
-WS_DLL_PUBLIC guint32
+WS_DLL_PUBLIC uint32_t
 get_nonzero_guint32(const char *string, const char *name);
 
 WS_DLL_PUBLIC double

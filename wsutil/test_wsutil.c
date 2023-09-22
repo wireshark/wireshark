@@ -308,7 +308,7 @@ static void test_bytes_to_str(void)
 {
     char *str;
 
-    const guint8 buf[] = { 1, 2, 3};
+    const uint8_t buf[] = { 1, 2, 3};
 
     str = bytes_to_str(NULL, buf, sizeof(buf));
     g_assert_cmpstr(str, ==, "010203");
@@ -319,7 +319,7 @@ static void test_bytes_to_str_punct(void)
 {
     char *str;
 
-    const guint8 buf[] = { 1, 2, 3};
+    const uint8_t buf[] = { 1, 2, 3};
 
     str = bytes_to_str_punct(NULL, buf, sizeof(buf), ':');
     g_assert_cmpstr(str, ==, "01:02:03");
@@ -330,7 +330,7 @@ static void test_bytes_to_str_punct_maxlen(void)
 {
     char *str;
 
-    const guint8 buf[] = { 1, 2, 3};
+    const uint8_t buf[] = { 1, 2, 3};
 
     str = bytes_to_str_punct_maxlen(NULL, buf, sizeof(buf), ':', 4);
     g_assert_cmpstr(str, ==, "01:02:03");
@@ -357,7 +357,7 @@ static void test_bytes_to_str_maxlen(void)
 {
     char *str;
 
-    const guint8 buf[] = { 1, 2, 3};
+    const uint8_t buf[] = { 1, 2, 3};
 
     str = bytes_to_str_maxlen(NULL, buf, sizeof(buf), 4);
     g_assert_cmpstr(str, ==, "010203");
@@ -384,7 +384,7 @@ static void test_bytes_to_string_trunc1(void)
 {
     char *str;
 
-    const guint8 buf[] = {
+    const uint8_t buf[] = {
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
@@ -408,7 +408,7 @@ static void test_bytes_to_string_punct_trunc1(void)
 {
     char *str;
 
-    const guint8 buf[] = {
+    const uint8_t buf[] = {
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,

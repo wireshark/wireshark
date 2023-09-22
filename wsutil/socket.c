@@ -20,10 +20,10 @@
 
 #ifdef _WIN32
 #include <wsutil/win32-utils.h>
-#define in_port_t   guint16
+#define in_port_t   uint16_t
 #endif
 
-gchar *
+char *
 ws_init_sockets(void)
 {
     char    *errmsg = NULL;
@@ -52,8 +52,8 @@ ws_cleanup_sockets(void)
 }
 
 int
-ws_socket_ptoa(struct sockaddr_storage *dst, const gchar *src,
-                    guint16 def_port)
+ws_socket_ptoa(struct sockaddr_storage *dst, const char *src,
+                    uint16_t def_port)
 {
     int ret = -1, af = -1;
     char *addr_src, *p;
@@ -113,7 +113,7 @@ ws_socket_ptoa(struct sockaddr_storage *dst, const gchar *src,
     if (port_str != NULL && *port_str != '\0') {
         num = strtol(port_str, &endptr, 10);
         /* We want the entire string to be a valid decimal representation. */
-        if (endptr == port_str || *endptr != '\0' || num < 0 || num > G_MAXUINT16) {
+        if (endptr == port_str || *endptr != '\0' || num < 0 || num > UINT16_MAX) {
             errno = EINVAL;
             goto out;
         }

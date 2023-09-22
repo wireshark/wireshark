@@ -52,7 +52,7 @@ add_filter_entry(GList *fl, const char *filt_name, const char *filt_expr)
 }
 
 static void
-free_filter_entry(gpointer data)
+free_filter_entry(void * data)
 {
     filter_def *filt = (filter_def*)data;
     g_free(filt->name);
@@ -147,7 +147,7 @@ read_filter_list(filter_list_type_t list_type)
     }
 
     /* try to open personal "cfilters"/"dfilters" file */
-    ff_path = get_persconffile_path(ff_name, TRUE);
+    ff_path = get_persconffile_path(ff_name, true);
     if ((ff = ws_fopen(ff_path, "r")) == NULL) {
         /*
          * Did that fail because the file didn't exist?
@@ -171,7 +171,7 @@ read_filter_list(filter_list_type_t list_type)
          * a particular list.
          */
         g_free(ff_path);
-        ff_path = get_persconffile_path(FILTER_FILE_NAME, FALSE);
+        ff_path = get_persconffile_path(FILTER_FILE_NAME, false);
         if ((ff = ws_fopen(ff_path, "r")) == NULL) {
             /*
              * Did that fail because the file didn't exist?
@@ -436,13 +436,13 @@ void
 save_filter_list(filter_list_type_t list_type)
 {
     char        *pf_dir_path;
-    const gchar *ff_name, *ff_description;
-    gchar       *ff_path, *ff_path_new;
+    const char *ff_name, *ff_description;
+    char        *ff_path, *ff_path_new;
     GList       *fl;
     GList       *flpp;
     filter_def  *filt;
     FILE        *ff;
-    guchar      *p, c;
+    unsigned char      *p, c;
 
     switch (list_type) {
 
@@ -472,7 +472,7 @@ save_filter_list(filter_list_type_t list_type)
         return;
     }
 
-    ff_path = get_persconffile_path(ff_name, TRUE);
+    ff_path = get_persconffile_path(ff_name, true);
 
     /* Write to "XXX.new", and rename if that succeeds.
        That means we don't trash the file if we fail to write it out
@@ -494,7 +494,7 @@ save_filter_list(filter_list_type_t list_type)
         /* Write out the filter name as a quoted string; escape any quotes
            or backslashes. */
         putc('"', ff);
-        for (p = (guchar *)filt->name; (c = *p) != '\0'; p++) {
+        for (p = (unsigned char *)filt->name; (c = *p) != '\0'; p++) {
             if (c == '"' || c == '\\')
                 putc('\\', ff);
             putc(c, ff);

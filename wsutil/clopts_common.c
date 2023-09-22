@@ -21,7 +21,7 @@
 int
 get_natural_int(const char *string, const char *name)
 {
-    gint32 number;
+    int32_t number;
 
     if (!ws_strtoi32(string, NULL, &number)) {
         if (errno == EINVAL) {
@@ -58,10 +58,10 @@ get_positive_int(const char *string, const char *name)
     return number;
 }
 
-guint32
+uint32_t
 get_guint32(const char *string, const char *name)
 {
-    guint32 number;
+    uint32_t number;
 
     if (!ws_strtou32(string, NULL, &number)) {
         if (errno == EINVAL) {
@@ -75,10 +75,10 @@ get_guint32(const char *string, const char *name)
     return number;
 }
 
-guint32
+uint32_t
 get_nonzero_guint32(const char *string, const char *name)
 {
-    guint32 number;
+    uint32_t number;
 
     number = get_guint32(string, name);
 

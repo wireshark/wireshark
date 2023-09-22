@@ -51,10 +51,10 @@ init_process_policies(void)
  * for the session in which it's run, but I don't know whether that'd be
  * done with Wireshark/TShark or not.
  */
-gboolean
+bool
 started_with_special_privs(void)
 {
-	return FALSE;
+	return false;
 }
 
 /*
@@ -63,10 +63,10 @@ started_with_special_privs(void)
  * for the session in which it's run, but I don't know whether that'd be
  * done with Wireshark/TShark or not.
  */
-gboolean
+bool
 running_with_special_privs(void)
 {
-	return FALSE;
+	return false;
 }
 
 /*
@@ -80,9 +80,9 @@ relinquish_special_privs_perm(void)
 /*
  * Get the current username.  String must be g_free()d after use.
  */
-gchar *
+char *
 get_cur_username(void) {
-	gchar *username;
+	char *username;
 	username = g_strdup("UNKNOWN");
 	return username;
 }
@@ -90,9 +90,9 @@ get_cur_username(void) {
 /*
  * Get the current group.  String must be g_free()d after use.
  */
-gchar *
+char *
 get_cur_groupname(void) {
-	gchar *groupname;
+	char *groupname;
 	groupname = g_strdup("UNKNOWN");
 	return groupname;
 }
@@ -118,7 +118,7 @@ get_cur_groupname(void) {
 
 static uid_t ruid, euid;
 static gid_t rgid, egid;
-static gboolean init_process_policies_called = FALSE;
+static bool init_process_policies_called = false;
 
 /*
  * Called when the program starts, to save whatever credential information
@@ -139,14 +139,14 @@ init_process_policies(void)
 	rgid = getgid();
 	egid = getegid();
 
-	init_process_policies_called = TRUE;
+	init_process_policies_called = true;
 }
 
 /*
  * "Started with special privileges" means "started out set-UID or set-GID",
  * or run as the root user or group.
  */
-gboolean
+bool
 started_with_special_privs(void)
 {
 	ws_assert(init_process_policies_called);
@@ -158,10 +158,10 @@ started_with_special_privs(void)
 }
 
 /*
- * Return TRUE if the real, effective, or saved (if we can check it) user
+ * Return true if the real, effective, or saved (if we can check it) user
  * ID or group are 0.
  */
-gboolean
+bool
 running_with_special_privs(void)
 {
 #ifdef HAVE_SETRESUID
@@ -174,20 +174,20 @@ running_with_special_privs(void)
 #ifdef HAVE_SETRESUID
 	getresuid(&ru, &eu, &su);
 	if (ru == 0 || eu == 0 || su == 0)
-		return TRUE;
+		return true;
 #else
 	if (getuid() == 0 || geteuid() == 0)
-		return TRUE;
+		return true;
 #endif
 #ifdef HAVE_SETRESGID
 	getresgid(&rg, &eg, &sg);
 	if (rg == 0 || eg == 0 || sg == 0)
-		return TRUE;
+		return true;
 #else
 	if (getgid() == 0 || getegid() == 0)
-		return TRUE;
+		return true;
 #endif
-	return FALSE;
+	return false;
 }
 
 /*
@@ -202,7 +202,7 @@ running_with_special_privs(void)
  */
 
 static void
-setxid_fail(const gchar *str)
+setxid_fail(const char *str)
 {
 	ws_error("Attempt to relinquish privileges failed [%s()] - aborting: %s\n",
 		str, g_strerror(errno));
@@ -241,9 +241,9 @@ relinquish_special_privs_perm(void)
 /*
  * Get the current username.  String must be g_free()d after use.
  */
-gchar *
+char *
 get_cur_username(void) {
-	gchar *username;
+	char *username;
 	struct passwd *pw = getpwuid(getuid());
 
 	if (pw) {
@@ -258,9 +258,9 @@ get_cur_username(void) {
 /*
  * Get the current group.  String must be g_free()d after use.
  */
-gchar *
+char *
 get_cur_groupname(void) {
-	gchar *groupname;
+	char *groupname;
 	struct group *gr = getgrgid(getgid());
 
 	if (gr) {

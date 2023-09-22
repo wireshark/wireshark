@@ -28,7 +28,7 @@ extern "C" {
 typedef GList **feature_list;
 
 /*
- * The format of entries in a feature_list is a gchar* starting with a
+ * The format of entries in a feature_list is a char* starting with a
  * '+' or '-' character indicating if the feature is respectively
  * present or absent, followed by the unchanged feature description.
  * This allows the insert order of features to be preserved,

@@ -61,7 +61,7 @@ extern "C" {
  *
  * Returns NULL on success, a g_malloc()ed error message on failure.
  */
-WS_DLL_PUBLIC gchar *ws_init_sockets(void);
+WS_DLL_PUBLIC char *ws_init_sockets(void);
 
 /*
  * Clean up sockets.
@@ -74,8 +74,8 @@ WS_DLL_PUBLIC void ws_cleanup_sockets(void);
  * in host byte order.
  */
 WS_DLL_PUBLIC int
-ws_socket_ptoa(struct sockaddr_storage *dst, const gchar *src,
-			guint16 def_port);
+ws_socket_ptoa(struct sockaddr_storage *dst, const char *src,
+			uint16_t def_port);
 
 #ifdef	__cplusplus
 }

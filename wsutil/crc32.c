@@ -29,7 +29,7 @@
 /*                                                               */
 /*    Width   : 4 bytes.                                         */
 /*    Poly    : 0x1EDC6F41L                                      */
-/*    Reverse : TRUE.                                            */
+/*    Reverse : true.                                            */
 /*                                                               */
 /* For more information on the Rocksoft^tm Model CRC Algorithm,  */
 /* see the document titled "A Painless Guide to CRC Error        */

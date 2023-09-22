@@ -10,10 +10,12 @@
 
 #include "config.h"
 
+#include <glib.h>
+
 #include "type_util.h"
 
 /*
- * guint64 to gdouble conversions taken from gstutils.c of GStreamer project
+ * uint64_t to double conversions taken from gstutils.c of GStreamer project
  *
  * GStreamer
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -33,23 +35,23 @@
  * double conversion is not defined/implemented.
  */
 
-gdouble
-type_util_guint64_to_gdouble(guint64 value)
+double
+type_util_guint64_to_gdouble(uint64_t value)
 {
   if (value & G_GUINT64_CONSTANT (0x8000000000000000))
-    return (gdouble) ((gint64) value) + (gdouble) 18446744073709551616.;
+    return (double) ((int64_t) value) + (double) 18446744073709551616.;
   else
-    return (gdouble) ((gint64) value);
+    return (double) ((int64_t) value);
 }
 
-guint64
-type_util_gdouble_to_guint64(gdouble value)
+uint64_t
+type_util_gdouble_to_guint64(double value)
 {
-  if (value < (gdouble) 9223372036854775808.)   /* 1 << 63 */
-    return ((guint64) ((gint64) value));
+  if (value < (double) 9223372036854775808.)   /* 1 << 63 */
+    return ((uint64_t) ((int64_t) value));
 
-  value -= (gdouble) 18446744073709551616.;
-  return ((guint64) ((gint64) value));
+  value -= (double) 18446744073709551616.;
+  return ((uint64_t) ((int64_t) value));
 }
 
 /*

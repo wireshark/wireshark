@@ -107,7 +107,7 @@ static GSList* local_interfaces_to_list_win(void)
 	PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
 	PIP_ADAPTER_UNICAST_ADDRESS pUnicast = NULL;
 	char ip[100];
-	guint iplen = 100;
+	unsigned iplen = 100;
 
 	pAddresses = (IP_ADAPTER_ADDRESSES *)g_malloc0(outBufLen);
 	if (pAddresses == NULL)

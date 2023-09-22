@@ -65,7 +65,7 @@ report_warning(const char *msg_format, ...)
  */
 void
 report_open_failure(const char *filename, int err,
-					gboolean for_writing)
+					bool for_writing)
 {
 	(*routines->report_open_failure)(filename, err, for_writing);
 }
@@ -94,7 +94,7 @@ report_write_failure(const char *filename, int err)
  * Report an error from opening a capture file for reading.
  */
 void
-report_cfile_open_failure(const char *filename, int err, gchar *err_info)
+report_cfile_open_failure(const char *filename, int err, char *err_info)
 {
 	(*routines->report_cfile_open_failure)(filename, err, err_info);
 }
@@ -104,7 +104,7 @@ report_cfile_open_failure(const char *filename, int err, gchar *err_info)
  */
 void
 report_cfile_dump_open_failure(const char *filename,
-    int err, gchar *err_info, int file_type_subtype)
+    int err, char *err_info, int file_type_subtype)
 {
 	(*routines->report_cfile_dump_open_failure)(filename,
 	    err, err_info, file_type_subtype);
@@ -114,7 +114,7 @@ report_cfile_dump_open_failure(const char *filename,
  * Report an error from attempting to read from a capture file.
  */
 void
-report_cfile_read_failure(const char *filename, int err, gchar *err_info)
+report_cfile_read_failure(const char *filename, int err, char *err_info)
 {
 	(*routines->report_cfile_read_failure)(filename, err, err_info);
 }
@@ -124,7 +124,7 @@ report_cfile_read_failure(const char *filename, int err, gchar *err_info)
  */
 void
 report_cfile_write_failure(const char *in_filename, const char *out_filename,
-    int err, gchar *err_info, guint32 framenum, int file_type_subtype)
+    int err, char *err_info, uint32_t framenum, int file_type_subtype)
 {
 	(*routines->report_cfile_write_failure)(in_filename, out_filename,
 	    err, err_info, framenum, file_type_subtype);
@@ -134,7 +134,7 @@ report_cfile_write_failure(const char *in_filename, const char *out_filename,
  * Report an error from closing a capture file open for writing.
  */
 void
-report_cfile_close_failure(const char *filename, int err, gchar *err_info)
+report_cfile_close_failure(const char *filename, int err, char *err_info)
 {
 	(*routines->report_cfile_close_failure)(filename, err, err_info);
 }

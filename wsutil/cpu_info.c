@@ -35,8 +35,8 @@
  * Functions used for the GTree we use to keep a list of *unique*
  * model strings.
  */
-static gint
-compare_model_names(gconstpointer a, gconstpointer b, gpointer user_data _U_)
+static int
+compare_model_names(gconstpointer a, gconstpointer b, void * user_data _U_)
 {
     return strcmp((const char *)a, (const char *)b);
 }
@@ -47,8 +47,8 @@ struct string_info {
 };
 
 static gboolean
-add_model_name_to_string(gpointer key, gpointer value _U_,
-                         gpointer data)
+add_model_name_to_string(void * key, void * value _U_,
+                         void * data)
 {
     struct string_info *info = (struct string_info *)data;
 
@@ -66,7 +66,7 @@ add_model_name_to_string(gpointer key, gpointer value _U_,
     info->sep = ", ";
 
     /* Keep going. */
-    return FALSE;
+    return false;
 }
 
 /*
@@ -381,7 +381,7 @@ get_cpu_info(GString *str)
      * use ws_cpuid(), which uses CPUID on x86 and doesn't get any
      * information for other instruction sets.
      */
-    guint32 CPUInfo[4];
+    uint32_t CPUInfo[4];
     char CPUBrandString[0x40];
     unsigned nExIds;
 
@@ -416,7 +416,7 @@ get_cpu_info(GString *str)
     g_tree_insert(model_names, model_name, NULL);
 #endif
 
-    gint num_model_names = g_tree_nnodes(model_names);
+    int num_model_names = g_tree_nnodes(model_names);
 
     if (num_model_names > 0) {
         /*

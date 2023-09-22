@@ -23,10 +23,10 @@ extern "C" {
 #endif /* __cplusplus */
 
 #if !GLIB_CHECK_VERSION(2, 68, 0)
-static inline gpointer
-g_memdup2(gconstpointer mem, gsize byte_size)
+static inline void *
+g_memdup2(gconstpointer mem, size_t byte_size)
 {
-  gpointer new_mem;
+  void * new_mem;
 
   if (mem && byte_size != 0) {
       new_mem = g_malloc(byte_size);

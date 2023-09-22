@@ -41,7 +41,7 @@ WS_DLL_PUBLIC int plugins_get_count(void);
 
 WS_DLL_PUBLIC void plugins_cleanup(plugins_t *plugins);
 
-WS_DLL_PUBLIC gboolean plugins_supported(void);
+WS_DLL_PUBLIC bool plugins_supported(void);
 
 #ifdef __cplusplus
 }

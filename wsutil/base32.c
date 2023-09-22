@@ -22,14 +22,14 @@
 /** Returned by ws_base32_encode() if the output buffer is too small. */
 #define Base32_TOO_BIG -2
 
-int ws_base32_decode(guint8* output, const guint32 outputLength,
-						const guint8* in, const guint32 inputLength)
+int ws_base32_decode(uint8_t* output, const uint32_t outputLength,
+						const uint8_t* in, const uint32_t inputLength)
 {
-	guint32 outIndex = 0;
-	guint32 inIndex = 0;
-	guint32 work = 0;
-	guint32 bits = 0;
-	static const guint8* kChars = (guint8*) "0123456789bcdfghjklmnpqrstuvwxyz";
+	uint32_t outIndex = 0;
+	uint32_t inIndex = 0;
+	uint32_t work = 0;
+	uint32_t bits = 0;
+	static const uint8_t* kChars = (uint8_t*) "0123456789bcdfghjklmnpqrstuvwxyz";
 	while (inIndex < inputLength) {
 		work |= ((unsigned) in[inIndex++]) << bits;
 		bits += 8;

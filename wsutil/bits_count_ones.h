@@ -10,7 +10,7 @@
 #ifndef __WSUTIL_BITS_COUNT_ONES_H__
 #define __WSUTIL_BITS_COUNT_ONES_H__
 
-#include <glib.h>
+#include <inttypes.h>
 
 /*
  * The variable-precision SWAR algorithm is an interesting way to count
@@ -37,9 +37,9 @@
  */
 
 static inline int
-ws_count_ones(const guint64 x)
+ws_count_ones(const uint64_t x)
 {
-	guint64 bits = x;
+	uint64_t bits = x;
 
 	bits = bits - ((bits >> 1) & G_GUINT64_CONSTANT(0x5555555555555555));
 	bits = (bits & G_GUINT64_CONSTANT(0x3333333333333333)) + ((bits >> 2) & G_GUINT64_CONSTANT(0x3333333333333333));

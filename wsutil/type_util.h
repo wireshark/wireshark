@@ -11,11 +11,11 @@
 #ifndef __TYPE_UTIL_H__
 #define __TYPE_UTIL_H__
 
-#include <glib.h>
+#include <inttypes.h>
 #include "ws_symbol_export.h"
 
 /*
- * guint64 to gdouble conversions taken from gstutils.h of GStreamer project
+ * uint64_t to double conversions taken from gstutils.h of GStreamer project
  *
  * GStreamer
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -29,16 +29,16 @@
  */
 
 WS_DLL_PUBLIC
-guint64         type_util_gdouble_to_guint64(gdouble value);
+uint64_t        type_util_gdouble_to_guint64(double value);
 WS_DLL_PUBLIC
-gdouble         type_util_guint64_to_gdouble(guint64 value);
+double          type_util_guint64_to_gdouble(uint64_t value);
 
 #ifdef _WIN32
 #define         gdouble_to_guint64(value)   type_util_gdouble_to_guint64(value)
 #define         guint64_to_gdouble(value)   type_util_guint64_to_gdouble(value)
 #else
-#define         gdouble_to_guint64(value)   ((guint64)(value))
-#define         guint64_to_gdouble(value)   ((gdouble)(value))
+#define         gdouble_to_guint64(value)   ((uint64_t)(value))
+#define         guint64_to_gdouble(value)   ((double)(value))
 #endif
 
 #endif /* __TYPE_UTIL_H__ */

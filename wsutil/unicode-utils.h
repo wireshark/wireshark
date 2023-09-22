@@ -67,14 +67,14 @@ int ws_utf8_seqlen[256];
  * according to the recommended "best practices" given in the Unicode
  * Standard and specified by W3C/WHATWG.
  */
-WS_DLL_PUBLIC guint8 *
-ws_utf8_make_valid(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length);
+WS_DLL_PUBLIC uint8_t *
+ws_utf8_make_valid(wmem_allocator_t *scope, const uint8_t *ptr, ssize_t length);
 
 /*
  * Same as ws_utf8_make_valid() but returns a wmem_strbuf_t.
  */
 WS_DLL_PUBLIC wmem_strbuf_t *
-ws_utf8_make_valid_strbuf(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length);
+ws_utf8_make_valid_strbuf(wmem_allocator_t *scope, const uint8_t *ptr, ssize_t length);
 
 #ifdef _WIN32
 
@@ -95,7 +95,7 @@ const wchar_t * utf_8to16(const char *utf8str);
  * @param fmt A standard printf() format string
  */
 WS_DLL_PUBLIC
-void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...)
+void utf_8to16_snprintf(TCHAR *utf16buf, int utf16buf_len, const char* fmt, ...)
 G_GNUC_PRINTF(3, 4);
 
 /** Given a UTF-16 string, convert it to UTF-8.  This is meant to be used
@@ -106,7 +106,7 @@ G_GNUC_PRINTF(3, 4);
  * NULL.  The return value should NOT be freed by the caller.
  */
 WS_DLL_PUBLIC
-gchar * utf_16to8(const wchar_t *utf16str);
+char * utf_16to8(const wchar_t *utf16str);
 
 /** Convert the supplied program argument list from UTF-16 to UTF-8
  * return a pointer to the array of UTF-8 arguments. This is intended

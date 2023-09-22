@@ -13,6 +13,7 @@
 #ifndef __PINT_H__
 #define __PINT_H__
 
+#include <inttypes.h>
 #include <glib.h>
 
 /* Routines that take a possibly-unaligned pointer to a 16-bit, 24-bit,
@@ -90,9 +91,9 @@
 #define pint_bswap64(x) __builtin_bswap64(x)
 #endif
 
-static inline guint16 pntoh16(const void *p)
+static inline uint16_t pntoh16(const void *p)
 {
-    guint16 ret;
+    uint16_t ret;
     memcpy(&ret, p, sizeof(ret));
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     ret = pint_bswap16(ret);
@@ -100,9 +101,9 @@ static inline guint16 pntoh16(const void *p)
     return ret;
 }
 
-static inline guint32 pntoh32(const void *p)
+static inline uint32_t pntoh32(const void *p)
 {
-    guint32 ret;
+    uint32_t ret;
     memcpy(&ret, p, sizeof(ret));
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     ret = pint_bswap32(ret);
@@ -110,8 +111,9 @@ static inline guint32 pntoh32(const void *p)
     return ret;
 }
 
-static inline guint64 pntoh64(const void *p)
+static inline uint64_t pntoh64(const void *p)
 {
+    /* XXX uint64_t doesn't work on Windows. */
     guint64 ret;
     memcpy(&ret, p, sizeof(ret));
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
@@ -120,9 +122,9 @@ static inline guint64 pntoh64(const void *p)
     return ret;
 }
 
-static inline guint16 pletoh16(const void *p)
+static inline uint16_t pletoh16(const void *p)
 {
-    guint16 ret;
+    uint16_t ret;
     memcpy(&ret, p, sizeof(ret));
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     ret = pint_bswap16(ret);
@@ -130,9 +132,9 @@ static inline guint16 pletoh16(const void *p)
     return ret;
 }
 
-static inline guint32 pletoh32(const void *p)
+static inline uint32_t pletoh32(const void *p)
 {
-    guint32 ret;
+    uint32_t ret;
     memcpy(&ret, p, sizeof(ret));
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     ret = pint_bswap32(ret);
@@ -140,8 +142,9 @@ static inline guint32 pletoh32(const void *p)
     return ret;
 }
 
-static inline guint64 pletoh64(const void *p)
+static inline uint64_t pletoh64(const void *p)
 {
+    /* XXX uint64_t doesn't work on Windows. */
     guint64 ret;
     memcpy(&ret, p, sizeof(ret));
 #if G_BYTE_ORDER == G_BIG_ENDIAN
@@ -150,7 +153,7 @@ static inline guint64 pletoh64(const void *p)
     return ret;
 }
 
-static inline void phton16(guint8 *p, guint16 v)
+static inline void phton16(uint8_t *p, uint16_t v)
 {
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     v = pint_bswap16(v);
@@ -158,7 +161,7 @@ static inline void phton16(guint8 *p, guint16 v)
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phton32(guint8 *p, guint32 v)
+static inline void phton32(uint8_t *p, uint32_t v)
 {
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     v = pint_bswap32(v);
@@ -166,14 +169,14 @@ static inline void phton32(guint8 *p, guint32 v)
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phton64(guint8 *p, guint64 v) {
+static inline void phton64(uint8_t *p, uint64_t v) {
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     v = pint_bswap64(v);
 #endif
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phtole32(guint8 *p, guint32 v)
+static inline void phtole32(uint8_t *p, uint32_t v)
 {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     v = pint_bswap32(v);
@@ -181,7 +184,7 @@ static inline void phtole32(guint8 *p, guint32 v)
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phtole64(guint8 *p, guint64 v) {
+static inline void phtole64(uint8_t *p, uint64_t v) {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     v = pint_bswap64(v);
 #endif
@@ -190,178 +193,178 @@ static inline void phtole64(guint8 *p, guint64 v) {
 
 #else
 /* Portable functions */
-static inline guint16 pntoh16(const void *p)
+static inline uint16_t pntoh16(const void *p)
 {
-    return (guint16)*((const guint8 *)(p)+0)<<8|
-           (guint16)*((const guint8 *)(p)+1)<<0;
+    return (uint16_t)*((const uint8_t *)(p)+0)<<8|
+           (uint16_t)*((const uint8_t *)(p)+1)<<0;
 }
 
-static inline guint32 pntoh32(const void *p)
+static inline uint32_t pntoh32(const void *p)
 {
-    return (guint32)*((const guint8 *)(p)+0)<<24|
-           (guint32)*((const guint8 *)(p)+1)<<16|
-           (guint32)*((const guint8 *)(p)+2)<<8|
-           (guint32)*((const guint8 *)(p)+3)<<0;
+    return (uint32_t)*((const uint8_t *)(p)+0)<<24|
+           (uint32_t)*((const uint8_t *)(p)+1)<<16|
+           (uint32_t)*((const uint8_t *)(p)+2)<<8|
+           (uint32_t)*((const uint8_t *)(p)+3)<<0;
 }
 
-static inline guint64 pntoh64(const void *p)
+static inline uint64_t pntoh64(const void *p)
 {
-    return (guint64)*((const guint8 *)(p)+0)<<56|
-           (guint64)*((const guint8 *)(p)+1)<<48|
-           (guint64)*((const guint8 *)(p)+2)<<40|
-           (guint64)*((const guint8 *)(p)+3)<<32|
-           (guint64)*((const guint8 *)(p)+4)<<24|
-           (guint64)*((const guint8 *)(p)+5)<<16|
-           (guint64)*((const guint8 *)(p)+6)<<8|
-           (guint64)*((const guint8 *)(p)+7)<<0;
+    return (uint64_t)*((const uint8_t *)(p)+0)<<56|
+           (uint64_t)*((const uint8_t *)(p)+1)<<48|
+           (uint64_t)*((const uint8_t *)(p)+2)<<40|
+           (uint64_t)*((const uint8_t *)(p)+3)<<32|
+           (uint64_t)*((const uint8_t *)(p)+4)<<24|
+           (uint64_t)*((const uint8_t *)(p)+5)<<16|
+           (uint64_t)*((const uint8_t *)(p)+6)<<8|
+           (uint64_t)*((const uint8_t *)(p)+7)<<0;
 }
 
-static inline guint16 pletoh16(const void *p)
+static inline uint16_t pletoh16(const void *p)
 {
-    return (guint16)*((const guint8 *)(p)+1)<<8|
-           (guint16)*((const guint8 *)(p)+0)<<0;
+    return (uint16_t)*((const uint8_t *)(p)+1)<<8|
+           (uint16_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline guint32 pletoh32(const void *p)
+static inline uint32_t pletoh32(const void *p)
 {
-    return (guint32)*((const guint8 *)(p)+3)<<24|
-           (guint32)*((const guint8 *)(p)+2)<<16|
-           (guint32)*((const guint8 *)(p)+1)<<8|
-           (guint32)*((const guint8 *)(p)+0)<<0;
+    return (uint32_t)*((const uint8_t *)(p)+3)<<24|
+           (uint32_t)*((const uint8_t *)(p)+2)<<16|
+           (uint32_t)*((const uint8_t *)(p)+1)<<8|
+           (uint32_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline guint64 pletoh64(const void *p)
+static inline uint64_t pletoh64(const void *p)
 {
-    return (guint64)*((const guint8 *)(p)+7)<<56|
-           (guint64)*((const guint8 *)(p)+6)<<48|
-           (guint64)*((const guint8 *)(p)+5)<<40|
-           (guint64)*((const guint8 *)(p)+4)<<32|
-           (guint64)*((const guint8 *)(p)+3)<<24|
-           (guint64)*((const guint8 *)(p)+2)<<16|
-           (guint64)*((const guint8 *)(p)+1)<<8|
-           (guint64)*((const guint8 *)(p)+0)<<0;
+    return (uint64_t)*((const uint8_t *)(p)+7)<<56|
+           (uint64_t)*((const uint8_t *)(p)+6)<<48|
+           (uint64_t)*((const uint8_t *)(p)+5)<<40|
+           (uint64_t)*((const uint8_t *)(p)+4)<<32|
+           (uint64_t)*((const uint8_t *)(p)+3)<<24|
+           (uint64_t)*((const uint8_t *)(p)+2)<<16|
+           (uint64_t)*((const uint8_t *)(p)+1)<<8|
+           (uint64_t)*((const uint8_t *)(p)+0)<<0;
 }
 
 /* Pointer routines to put items out in a particular byte order.
  * These will work regardless of the byte alignment of the pointer.
  */
 
-static inline void phton16(guint8 *p, guint16 v)
+static inline void phton16(uint8_t *p, uint16_t v)
 {
-    p[0] = (guint8)(v >> 8);
-    p[1] = (guint8)(v >> 0);
+    p[0] = (uint8_t)(v >> 8);
+    p[1] = (uint8_t)(v >> 0);
 }
 
-static inline void phton32(guint8 *p, guint32 v)
+static inline void phton32(uint8_t *p, uint32_t v)
 {
-    p[0] = (guint8)(v >> 24);
-    p[1] = (guint8)(v >> 16);
-    p[2] = (guint8)(v >> 8);
-    p[3] = (guint8)(v >> 0);
+    p[0] = (uint8_t)(v >> 24);
+    p[1] = (uint8_t)(v >> 16);
+    p[2] = (uint8_t)(v >> 8);
+    p[3] = (uint8_t)(v >> 0);
 }
 
-static inline void phton64(guint8 *p, guint64 v) {
-    p[0] = (guint8)(v >> 56);
-    p[1] = (guint8)(v >> 48);
-    p[2] = (guint8)(v >> 40);
-    p[3] = (guint8)(v >> 32);
-    p[4] = (guint8)(v >> 24);
-    p[5] = (guint8)(v >> 16);
-    p[6] = (guint8)(v >> 8);
-    p[7] = (guint8)(v >> 0);
+static inline void phton64(uint8_t *p, uint64_t v) {
+    p[0] = (uint8_t)(v >> 56);
+    p[1] = (uint8_t)(v >> 48);
+    p[2] = (uint8_t)(v >> 40);
+    p[3] = (uint8_t)(v >> 32);
+    p[4] = (uint8_t)(v >> 24);
+    p[5] = (uint8_t)(v >> 16);
+    p[6] = (uint8_t)(v >> 8);
+    p[7] = (uint8_t)(v >> 0);
 }
 
-static inline void phtole32(guint8 *p, guint32 v) {
-    p[0] = (guint8)(v >> 0);
-    p[1] = (guint8)(v >> 8);
-    p[2] = (guint8)(v >> 16);
-    p[3] = (guint8)(v >> 24);
+static inline void phtole32(uint8_t *p, uint32_t v) {
+    p[0] = (uint8_t)(v >> 0);
+    p[1] = (uint8_t)(v >> 8);
+    p[2] = (uint8_t)(v >> 16);
+    p[3] = (uint8_t)(v >> 24);
 }
 
-static inline void phtole64(guint8 *p, guint64 v) {
-    p[0] = (guint8)(v >> 0);
-    p[1] = (guint8)(v >> 8);
-    p[2] = (guint8)(v >> 16);
-    p[3] = (guint8)(v >> 24);
-    p[4] = (guint8)(v >> 32);
-    p[5] = (guint8)(v >> 40);
-    p[6] = (guint8)(v >> 48);
-    p[7] = (guint8)(v >> 56);
+static inline void phtole64(uint8_t *p, uint64_t v) {
+    p[0] = (uint8_t)(v >> 0);
+    p[1] = (uint8_t)(v >> 8);
+    p[2] = (uint8_t)(v >> 16);
+    p[3] = (uint8_t)(v >> 24);
+    p[4] = (uint8_t)(v >> 32);
+    p[5] = (uint8_t)(v >> 40);
+    p[6] = (uint8_t)(v >> 48);
+    p[7] = (uint8_t)(v >> 56);
 }
 #endif
 
-static inline guint32 pntoh24(const void *p)
+static inline uint32_t pntoh24(const void *p)
 {
-    return (guint32)*((const guint8 *)(p)+0)<<16|
-           (guint32)*((const guint8 *)(p)+1)<<8|
-           (guint32)*((const guint8 *)(p)+2)<<0;
+    return (uint32_t)*((const uint8_t *)(p)+0)<<16|
+           (uint32_t)*((const uint8_t *)(p)+1)<<8|
+           (uint32_t)*((const uint8_t *)(p)+2)<<0;
 }
 
-static inline guint64 pntoh40(const void *p)
+static inline uint64_t pntoh40(const void *p)
 {
-    return (guint64)*((const guint8 *)(p)+0)<<32|
-           (guint64)*((const guint8 *)(p)+1)<<24|
-           (guint64)*((const guint8 *)(p)+2)<<16|
-           (guint64)*((const guint8 *)(p)+3)<<8|
-           (guint64)*((const guint8 *)(p)+4)<<0;
+    return (uint64_t)*((const uint8_t *)(p)+0)<<32|
+           (uint64_t)*((const uint8_t *)(p)+1)<<24|
+           (uint64_t)*((const uint8_t *)(p)+2)<<16|
+           (uint64_t)*((const uint8_t *)(p)+3)<<8|
+           (uint64_t)*((const uint8_t *)(p)+4)<<0;
 }
 
-static inline guint64 pntoh48(const void *p)
+static inline uint64_t pntoh48(const void *p)
 {
-    return (guint64)*((const guint8 *)(p)+0)<<40|
-           (guint64)*((const guint8 *)(p)+1)<<32|
-           (guint64)*((const guint8 *)(p)+2)<<24|
-           (guint64)*((const guint8 *)(p)+3)<<16|
-           (guint64)*((const guint8 *)(p)+4)<<8|
-           (guint64)*((const guint8 *)(p)+5)<<0;
+    return (uint64_t)*((const uint8_t *)(p)+0)<<40|
+           (uint64_t)*((const uint8_t *)(p)+1)<<32|
+           (uint64_t)*((const uint8_t *)(p)+2)<<24|
+           (uint64_t)*((const uint8_t *)(p)+3)<<16|
+           (uint64_t)*((const uint8_t *)(p)+4)<<8|
+           (uint64_t)*((const uint8_t *)(p)+5)<<0;
 }
 
-static inline guint64 pntoh56(const void *p)
+static inline uint64_t pntoh56(const void *p)
 {
-    return (guint64)*((const guint8 *)(p)+0)<<48|
-           (guint64)*((const guint8 *)(p)+1)<<40|
-           (guint64)*((const guint8 *)(p)+2)<<32|
-           (guint64)*((const guint8 *)(p)+3)<<24|
-           (guint64)*((const guint8 *)(p)+4)<<16|
-           (guint64)*((const guint8 *)(p)+5)<<8|
-           (guint64)*((const guint8 *)(p)+6)<<0;
+    return (uint64_t)*((const uint8_t *)(p)+0)<<48|
+           (uint64_t)*((const uint8_t *)(p)+1)<<40|
+           (uint64_t)*((const uint8_t *)(p)+2)<<32|
+           (uint64_t)*((const uint8_t *)(p)+3)<<24|
+           (uint64_t)*((const uint8_t *)(p)+4)<<16|
+           (uint64_t)*((const uint8_t *)(p)+5)<<8|
+           (uint64_t)*((const uint8_t *)(p)+6)<<0;
 }
 
-static inline guint32 pletoh24(const void *p)
+static inline uint32_t pletoh24(const void *p)
 {
-    return (guint32)*((const guint8 *)(p)+2)<<16|
-           (guint32)*((const guint8 *)(p)+1)<<8|
-           (guint32)*((const guint8 *)(p)+0)<<0;
+    return (uint32_t)*((const uint8_t *)(p)+2)<<16|
+           (uint32_t)*((const uint8_t *)(p)+1)<<8|
+           (uint32_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline guint64 pletoh40(const void *p)
+static inline uint64_t pletoh40(const void *p)
 {
-    return (guint64)*((const guint8 *)(p)+4)<<32|
-           (guint64)*((const guint8 *)(p)+3)<<24|
-           (guint64)*((const guint8 *)(p)+2)<<16|
-           (guint64)*((const guint8 *)(p)+1)<<8|
-           (guint64)*((const guint8 *)(p)+0)<<0;
+    return (uint64_t)*((const uint8_t *)(p)+4)<<32|
+           (uint64_t)*((const uint8_t *)(p)+3)<<24|
+           (uint64_t)*((const uint8_t *)(p)+2)<<16|
+           (uint64_t)*((const uint8_t *)(p)+1)<<8|
+           (uint64_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline guint64 pletoh48(const void *p)
+static inline uint64_t pletoh48(const void *p)
 {
-    return (guint64)*((const guint8 *)(p)+5)<<40|
-           (guint64)*((const guint8 *)(p)+4)<<32|
-           (guint64)*((const guint8 *)(p)+3)<<24|
-           (guint64)*((const guint8 *)(p)+2)<<16|
-           (guint64)*((const guint8 *)(p)+1)<<8|
-           (guint64)*((const guint8 *)(p)+0)<<0;
+    return (uint64_t)*((const uint8_t *)(p)+5)<<40|
+           (uint64_t)*((const uint8_t *)(p)+4)<<32|
+           (uint64_t)*((const uint8_t *)(p)+3)<<24|
+           (uint64_t)*((const uint8_t *)(p)+2)<<16|
+           (uint64_t)*((const uint8_t *)(p)+1)<<8|
+           (uint64_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline guint64 pletoh56(const void *p)
+static inline uint64_t pletoh56(const void *p)
 {
-    return (guint64)*((const guint8 *)(p)+6)<<48|
-           (guint64)*((const guint8 *)(p)+5)<<40|
-           (guint64)*((const guint8 *)(p)+4)<<32|
-           (guint64)*((const guint8 *)(p)+3)<<24|
-           (guint64)*((const guint8 *)(p)+2)<<16|
-           (guint64)*((const guint8 *)(p)+1)<<8|
-           (guint64)*((const guint8 *)(p)+0)<<0;
+    return (uint64_t)*((const uint8_t *)(p)+6)<<48|
+           (uint64_t)*((const uint8_t *)(p)+5)<<40|
+           (uint64_t)*((const uint8_t *)(p)+4)<<32|
+           (uint64_t)*((const uint8_t *)(p)+3)<<24|
+           (uint64_t)*((const uint8_t *)(p)+2)<<16|
+           (uint64_t)*((const uint8_t *)(p)+1)<<8|
+           (uint64_t)*((const uint8_t *)(p)+0)<<0;
 }
 
 /* Subtract two guint32s with respect to wraparound */

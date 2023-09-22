@@ -21,21 +21,21 @@ static GPtrArray *small_buffers = NULL; /* Guaranteed to be at least SMALL_BUFFE
 
 /* Initializes a buffer with a certain amount of allocated space */
 void
-ws_buffer_init(Buffer* buffer, gsize space)
+ws_buffer_init(Buffer* buffer, size_t space)
 {
 	ws_assert(buffer);
 	if (G_UNLIKELY(!small_buffers)) small_buffers = g_ptr_array_sized_new(1024);
 
 	if (space <= SMALL_BUFFER_SIZE) {
 		if (small_buffers->len > 0) {
-			buffer->data = (guint8*) g_ptr_array_remove_index(small_buffers, small_buffers->len - 1);
+			buffer->data = (uint8_t*) g_ptr_array_remove_index(small_buffers, small_buffers->len - 1);
 			ws_assert(buffer->data);
 		} else {
-			buffer->data = (guint8*)g_malloc(SMALL_BUFFER_SIZE);
+			buffer->data = (uint8_t*)g_malloc(SMALL_BUFFER_SIZE);
 		}
 		buffer->allocated = SMALL_BUFFER_SIZE;
 	} else {
-		buffer->data = (guint8*)g_malloc(space);
+		buffer->data = (uint8_t*)g_malloc(space);
 		buffer->allocated = space;
 	}
 	buffer->start = 0;
@@ -62,12 +62,12 @@ ws_buffer_free(Buffer* buffer)
 	doing that, the routine will also want to run
 	ws_buffer_increase_length(). */
 void
-ws_buffer_assure_space(Buffer* buffer, gsize space)
+ws_buffer_assure_space(Buffer* buffer, size_t space)
 {
 	ws_assert(buffer);
-	gsize available_at_end = buffer->allocated - buffer->first_free;
-	gsize space_used;
-	gboolean space_at_beginning;
+	size_t available_at_end = buffer->allocated - buffer->first_free;
+	size_t space_used;
+	bool space_at_beginning;
 
 	/* If we've got the space already, good! */
 	if (space <= available_at_end) {
@@ -97,11 +97,11 @@ ws_buffer_assure_space(Buffer* buffer, gsize space)
 
 	/* We'll allocate more space */
 	buffer->allocated += space + 1024;
-	buffer->data = (guint8*)g_realloc(buffer->data, buffer->allocated);
+	buffer->data = (uint8_t*)g_realloc(buffer->data, buffer->allocated);
 }
 
 void
-ws_buffer_append(Buffer* buffer, guint8 *from, gsize bytes)
+ws_buffer_append(Buffer* buffer, uint8_t *from, size_t bytes)
 {
 	ws_assert(buffer);
 	ws_buffer_assure_space(buffer, bytes);
@@ -110,13 +110,13 @@ ws_buffer_append(Buffer* buffer, guint8 *from, gsize bytes)
 }
 
 void
-ws_buffer_remove_start(Buffer* buffer, gsize bytes)
+ws_buffer_remove_start(Buffer* buffer, size_t bytes)
 {
 	ws_assert(buffer);
 	if (buffer->start + bytes > buffer->first_free) {
 		ws_error("ws_buffer_remove_start trying to remove %" PRIu64 " bytes. s=%" PRIu64 " ff=%" PRIu64 "!\n",
-			(guint64)bytes, (guint64)buffer->start,
-			(guint64)buffer->first_free);
+			(uint64_t)bytes, (uint64_t)buffer->start,
+			(uint64_t)buffer->first_free);
 		/** ws_error() does an abort() and thus never returns **/
 	}
 	buffer->start += bytes;
@@ -139,7 +139,7 @@ ws_buffer_clean(Buffer* buffer)
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 void
-ws_buffer_increase_length(Buffer* buffer, gsize bytes)
+ws_buffer_increase_length(Buffer* buffer, size_t bytes)
 {
 	ws_assert(buffer);
 	buffer->first_free += bytes;
@@ -147,7 +147,7 @@ ws_buffer_increase_length(Buffer* buffer, gsize bytes)
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-gsize
+size_t
 ws_buffer_length(Buffer* buffer)
 {
 	ws_assert(buffer);
@@ -156,7 +156,7 @@ ws_buffer_length(Buffer* buffer)
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-guint8 *
+uint8_t *
 ws_buffer_start_ptr(Buffer* buffer)
 {
 	ws_assert(buffer);
@@ -165,7 +165,7 @@ ws_buffer_start_ptr(Buffer* buffer)
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-guint8 *
+uint8_t *
 ws_buffer_end_ptr(Buffer* buffer)
 {
 	ws_assert(buffer);
@@ -187,7 +187,7 @@ ws_buffer_cleanup(void)
 {
 	if (small_buffers) {
 		g_ptr_array_set_free_func(small_buffers, g_free);
-		g_ptr_array_free(small_buffers, TRUE);
+		g_ptr_array_free(small_buffers, true);
 		small_buffers = NULL;
 	}
 }

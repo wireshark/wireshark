@@ -14,8 +14,12 @@
 #define __JSON_DUMPER_H__
 
 #include "ws_symbol_export.h"
-#include <glib.h>
+
+#include <inttypes.h>
+#include <stdbool.h>
 #include <stdio.h>
+
+#include <glib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,8 +40,8 @@ extern "C" {
  *  json_dumper_value_anyf(&dumper, "true");
  *  json_dumper_value_double(&dumper, 1.0);
  *  json_dumper_begin_base64(&dumper);
- *  json_dumper_write_base64(&dumper, (const guchar *)"abcd", 4);
- *  json_dumper_write_base64(&dumper, (const guchar *)"1234", 4);
+ *  json_dumper_write_base64(&dumper, (const unsigned char *)"abcd", 4);
+ *  json_dumper_write_base64(&dumper, (const unsigned char *)"1234", 4);
  *  json_dumper_end_base64(&dumper);
  *  json_dumper_begin_object(&dumper);
  *  json_dumper_end_object(&dumper);
@@ -58,10 +62,10 @@ typedef struct json_dumper {
 #define JSON_DUMPER_FLAGS_NO_DEBUG      (1 << 17)   /* Disable fatal ws_error messsges on error(intended for speeding up fuzzing). */
     int     flags;
     /* for internal use, initialize with zeroes. */
-    guint   current_depth;
-    gint    base64_state;
-    gint    base64_save;
-    guint8  state[JSON_DUMPER_MAX_DEPTH];
+    unsigned   current_depth;
+    int     base64_state;
+    int     base64_save;
+    uint8_t state[JSON_DUMPER_MAX_DEPTH];
 } json_dumper;
 
 WS_DLL_PUBLIC void
@@ -107,13 +111,13 @@ WS_DLL_PUBLIC void
 json_dumper_end_base64(json_dumper *dumper);
 
 WS_DLL_PUBLIC void
-json_dumper_write_base64(json_dumper *dumper, const guchar *data, size_t len);
+json_dumper_write_base64(json_dumper *dumper, const unsigned char *data, size_t len);
 
 /**
- * Finishes dumping data. Returns TRUE if everything is okay and FALSE if
+ * Finishes dumping data. Returns true if everything is okay and false if
  * something went wrong (open/close mismatch, missing values, etc.).
  */
-WS_DLL_PUBLIC gboolean
+WS_DLL_PUBLIC bool
 json_dumper_finish(json_dumper *dumper);
 
 #ifdef __cplusplus

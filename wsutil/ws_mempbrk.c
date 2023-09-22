@@ -26,9 +26,9 @@
 #include "ws_mempbrk_int.h"
 
 void
-ws_mempbrk_compile(ws_mempbrk_pattern* pattern, const gchar *needles)
+ws_mempbrk_compile(ws_mempbrk_pattern* pattern, const char *needles)
 {
-    const gchar *n = needles;
+    const char *n = needles;
     while (*n) {
         pattern->patt[(int)*n] = 1;
         n++;
@@ -40,10 +40,10 @@ ws_mempbrk_compile(ws_mempbrk_pattern* pattern, const gchar *needles)
 }
 
 
-const guint8 *
-ws_mempbrk_portable_exec(const guint8* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, guchar *found_needle)
+const uint8_t *
+ws_mempbrk_portable_exec(const uint8_t* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
-    const guint8 *haystack_end = haystack + haystacklen;
+    const uint8_t *haystack_end = haystack + haystacklen;
 
     while (haystack < haystack_end) {
         if (pattern->patt[*haystack]) {
@@ -58,8 +58,8 @@ ws_mempbrk_portable_exec(const guint8* haystack, size_t haystacklen, const ws_me
 }
 
 
-WS_DLL_PUBLIC const guint8 *
-ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, guchar *found_needle)
+WS_DLL_PUBLIC const uint8_t *
+ws_mempbrk_exec(const uint8_t* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
 #ifdef HAVE_SSE4_2
     if (haystacklen >= 16 && pattern->use_sse42)

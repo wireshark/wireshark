@@ -54,12 +54,12 @@ get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
 
 /*
  * Get the macOS version information, and append it to the GString.
- * Return TRUE if we succeed, FALSE if we fail.
+ * Return true if we succeed, false if we fail.
  *
  * XXX - this gives the OS name as "Mac OS X" even if Apple called/calls
  * it "OS X" or "macOS".
  */
-static gboolean
+static bool
 get_macos_version_info(GString *str)
 {
 	static const UInt8 server_version_plist_path[] =
@@ -88,12 +88,12 @@ get_macos_version_info(GString *str)
 	    server_version_plist_path, sizeof server_version_plist_path - 1,
 	    false);
 	if (version_plist_file_url == NULL)
-		return FALSE;
+		return false;
 	version_plist_stream = CFReadStreamCreateWithFile(NULL,
 	    version_plist_file_url);
 	CFRelease(version_plist_file_url);
 	if (version_plist_stream == NULL)
-		return FALSE;
+		return false;
 	if (!CFReadStreamOpen(version_plist_stream)) {
 		CFRelease(version_plist_stream);
 
@@ -104,15 +104,15 @@ get_macos_version_info(GString *str)
 		    system_version_plist_path, sizeof system_version_plist_path - 1,
 		    false);
 		if (version_plist_file_url == NULL)
-			return FALSE;
+			return false;
 		version_plist_stream = CFReadStreamCreateWithFile(NULL,
 		    version_plist_file_url);
 		CFRelease(version_plist_file_url);
 		if (version_plist_stream == NULL)
-			return FALSE;
+			return false;
 		if (!CFReadStreamOpen(version_plist_stream)) {
 			CFRelease(version_plist_stream);
-			return FALSE;
+			return false;
 		}
 	}
 #ifdef HAVE_CFPROPERTYLISTCREATEWITHSTREAM
@@ -126,14 +126,14 @@ get_macos_version_info(GString *str)
 #endif
 	if (version_dict == NULL) {
 		CFRelease(version_plist_stream);
-		return FALSE;
+		return false;
 	}
 	if (CFGetTypeID(version_dict) != CFDictionaryGetTypeID()) {
 		/* This is *supposed* to be a dictionary.  Punt. */
 		CFRelease(version_dict);
 		CFReadStreamClose(version_plist_stream);
 		CFRelease(version_plist_stream);
-		return FALSE;
+		return false;
 	}
 	/* Get the product name string. */
 	string = get_string_from_dictionary(version_dict,
@@ -142,7 +142,7 @@ get_macos_version_info(GString *str)
 		CFRelease(version_dict);
 		CFReadStreamClose(version_plist_stream);
 		CFRelease(version_plist_stream);
-		return FALSE;
+		return false;
 	}
 	g_string_append_printf(str, "%s", string);
 	g_free(string);
@@ -154,7 +154,7 @@ get_macos_version_info(GString *str)
 		CFRelease(version_dict);
 		CFReadStreamClose(version_plist_stream);
 		CFRelease(version_plist_stream);
-		return FALSE;
+		return false;
 	}
 	g_string_append_printf(str, " %s", string);
 	g_free(string);
@@ -166,14 +166,14 @@ get_macos_version_info(GString *str)
 		CFRelease(version_dict);
 		CFReadStreamClose(version_plist_stream);
 		CFRelease(version_plist_stream);
-		return FALSE;
+		return false;
 	}
 	g_string_append_printf(str, ", build %s", string);
 	g_free(string);
 	CFRelease(version_dict);
 	CFReadStreamClose(version_plist_stream);
 	CFRelease(version_plist_stream);
-	return TRUE;
+	return true;
 }
 #endif
 
@@ -211,7 +211,7 @@ add_os_bitsize(GString *str, SYSTEM_INFO *system_info)
 /*
  * Test whether the OS an "NT Workstation" version, meaning "not server".
  */
-static gboolean
+static bool
 is_nt_workstation(OSVERSIONINFOEX *win_version_info)
 {
 	return win_version_info->wProductType == VER_NT_WORKSTATION;

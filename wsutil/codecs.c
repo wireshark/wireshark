@@ -38,7 +38,7 @@ codecs_register_plugin(const codecs_plugin *plug _U_)
 #endif /* HAVE_PLUGINS */
 
 static void
-call_plugin_register_codec_module(gpointer data, gpointer user_data _U_)
+call_plugin_register_codec_module(void * data, void * user_data _U_)
 {
     codecs_plugin *plug = (codecs_plugin *)data;
 
@@ -100,7 +100,7 @@ find_codec(const char *name)
 }
 
 /* Register a codec by name. */
-gboolean
+bool
 register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release_fn,
         codec_get_channels_fn channels_fn, codec_get_frequency_fn frequency_fn,
         codec_decode_fn decode_fn)
@@ -121,7 +121,7 @@ register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release
     /* Make sure the registration is unique */
     if (g_hash_table_lookup(registered_codecs, key) != NULL) {
         g_free(key);
-        return FALSE;    /* report an error, or have our caller do it? */
+        return false;    /* report an error, or have our caller do it? */
     }
 
     handle = g_new(struct codec_handle, 1);
@@ -132,15 +132,15 @@ register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release
     handle->frequency_fn = frequency_fn;
     handle->decode_fn = decode_fn;
 
-    g_hash_table_insert(registered_codecs, (gpointer)key, (gpointer) handle);
-    return TRUE;
+    g_hash_table_insert(registered_codecs, (void *)key, (void *) handle);
+    return true;
 }
 
 /* Deregister a codec by name. */
-gboolean
+bool
 deregister_codec(const char *name)
 {
-    bool ret = FALSE;
+    bool ret = false;
     if (registered_codecs) {
         char *key = g_ascii_strup(name, -1);
 

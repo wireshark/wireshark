@@ -35,12 +35,12 @@ struct report_message_routines {
 	void (*report_open_failure)(const char *, int, gboolean);
 	void (*report_read_failure)(const char *, int);
 	void (*report_write_failure)(const char *, int);
-	void (*report_cfile_open_failure)(const char *, int, gchar *);
-	void (*report_cfile_dump_open_failure)(const char *, int, gchar *, int);
-	void (*report_cfile_read_failure)(const char *, int, gchar *);
+	void (*report_cfile_open_failure)(const char *, int, char *);
+	void (*report_cfile_dump_open_failure)(const char *, int, char *, int);
+	void (*report_cfile_read_failure)(const char *, int, char *);
 	void (*report_cfile_write_failure)(const char *, const char *,
-	    int, gchar *, guint32, int);
-	void (*report_cfile_close_failure)(const char *, int, gchar *);
+	    int, char *, uint32_t, int);
+	void (*report_cfile_close_failure)(const char *, int, char *);
 };
 
 WS_DLL_PUBLIC void init_report_message(const char *friendly_program_name,
@@ -63,7 +63,7 @@ WS_DLL_PUBLIC void report_warning(const char *msg_format, ...) G_GNUC_PRINTF(1, 
  * Wiretap as long as the failure code is just an errno.
  */
 WS_DLL_PUBLIC void report_open_failure(const char *filename, int err,
-    gboolean for_writing);
+    bool for_writing);
 
 /*
  * Report an error when trying to read a file.
@@ -81,32 +81,32 @@ WS_DLL_PUBLIC void report_write_failure(const char *filename, int err);
  * Report an error from opening a capture file for reading.
  */
 WS_DLL_PUBLIC void report_cfile_open_failure(const char *filename,
-    int err, gchar *err_info);
+    int err, char *err_info);
 
 /*
  * Report an error from opening a capture file for writing.
  */
 WS_DLL_PUBLIC void report_cfile_dump_open_failure(const char *filename,
-    int err, gchar *err_info, int file_type_subtype);
+    int err, char *err_info, int file_type_subtype);
 
 /*
  * Report an error from attempting to read from a capture file.
  */
 WS_DLL_PUBLIC void report_cfile_read_failure(const char *filename,
-    int err, gchar *err_info);
+    int err, char *err_info);
 
 /*
  * Report an error from attempting to write to a capture file.
  */
 WS_DLL_PUBLIC void report_cfile_write_failure(const char *in_filename,
-    const char *out_filename, int err, gchar *err_info, guint32 framenum,
+    const char *out_filename, int err, char *err_info, uint32_t framenum,
     int file_type_subtype);
 
 /*
  * Report an error from closing a capture file open for writing.
  */
 WS_DLL_PUBLIC void report_cfile_close_failure(const char *filename,
-    int err, gchar *err_info);
+    int err, char *err_info);
 
 /*
  * Return the "friendly" program name.

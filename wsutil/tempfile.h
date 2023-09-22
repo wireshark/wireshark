@@ -34,7 +34,7 @@ extern "C" {
  * @param err [out] Any error returned by g_file_open_tmp. May be NULL.
  * @return The file descriptor of the new tempfile, from mkstemps().
  */
-WS_DLL_PUBLIC int create_tempfile(const gchar *tempdir, gchar **namebuf, const char *pfx, const char *sfx, GError **err);
+WS_DLL_PUBLIC int create_tempfile(const char *tempdir, char **namebuf, const char *pfx, const char *sfx, GError **err);
 
 /**
  * Create a tempfile with the given parent directory (e.g. "/my/private/tmp"). The path
@@ -46,7 +46,7 @@ WS_DLL_PUBLIC int create_tempfile(const gchar *tempdir, gchar **namebuf, const c
  * @param err [out] Any error returned by g_mkdtemp. May be NULL.
  * @return The full path of the temporary directory or NULL on error. Must be g_freed.
  */
-WS_DLL_PUBLIC char *create_tempdir(const gchar *parent_dir, const char *tmpl, GError **err);
+WS_DLL_PUBLIC char *create_tempdir(const char *parent_dir, const char *tmpl, GError **err);
 
 #ifdef __cplusplus
 }

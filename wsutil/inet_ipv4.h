@@ -10,9 +10,10 @@
 #ifndef __INET_IPV4_H__
 #define __INET_IPV4_H__
 
+#include <inttypes.h>
 #include <glib.h>
 
-typedef guint32 ws_in4_addr;	/* 32 bit IPv4 address, in network byte order */
+typedef uint32_t ws_in4_addr;	/* 32 bit IPv4 address, in network byte order */
 
 /*
  * We define these in *network byte order*, unlike the C library. Therefore

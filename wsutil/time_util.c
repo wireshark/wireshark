@@ -120,34 +120,34 @@ mktime_utc(struct tm *tm)
  * page for ctime()/localtime()/mktime()/etc., "October 40
  * is changed into November 9").
  */
-gboolean
+bool
 tm_is_valid(struct tm *tm)
 {
-	static const gint8 days_in_month[12] = {
+	static const int8_t days_in_month[12] = {
 		31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 	};
 
 	if (tm->tm_mon < 0 || tm->tm_mon > 11) {
-		return FALSE;
+		return false;
 	}
 	if (tm->tm_mday < 0 || tm->tm_mday >
 			((tm->tm_mon == 1 && isleap(tm->tm_year)) ? 29 : days_in_month[tm->tm_mon])) {
-		return FALSE;
+		return false;
 	}
 	if (tm->tm_hour < 0 || tm->tm_hour > 23) {
-		return FALSE;
+		return false;
 	}
 	/* XXX: ISO 8601 and others allow 24:00:00 for end of day, perhaps that
 	 * one case should be allowed?
 	 */
 	if (tm->tm_min < 0 || tm->tm_min > 59) {
-		return FALSE;
+		return false;
 	}
 	if (tm->tm_sec < 0 || tm->tm_sec > 60) {
 		/* 60, not 59, to account for leap seconds */
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 void get_resource_usage(double *user_time, double *sys_time) {
@@ -177,7 +177,7 @@ void get_resource_usage(double *user_time, double *sys_time) {
 static double last_user_time = 0.0;
 static double last_sys_time = 0.0;
 
-void log_resource_usage(gboolean reset_delta, const char *format, ...) {
+void log_resource_usage(bool reset_delta, const char *format, ...) {
 	va_list ap;
 	GString *log_str = g_string_new("");
 	double user_time;
@@ -199,14 +199,14 @@ void log_resource_usage(gboolean reset_delta, const char *format, ...) {
 	va_end(ap);
 
 	ws_warning("%s", log_str->str);
-	g_string_free(log_str, TRUE);
+	g_string_free(log_str, true);
 
 }
 
 /* Copied from pcapio.c pcapng_write_interface_statistics_block()*/
-guint64
+uint64_t
 create_timestamp(void) {
-	guint64  timestamp;
+	uint64_t timestamp;
 #ifdef _WIN32
 	FILETIME now;
 #else
@@ -219,14 +219,14 @@ create_timestamp(void) {
 	 * January 1, 1601, 00:00:00 UTC.
 	 *
 	 * I think DWORD might be signed, so cast both parts of "now"
-	 * to guint32 so that the sign bit doesn't get treated specially.
+	 * to uint32_t so that the sign bit doesn't get treated specially.
 	 *
 	 * Windows 8 provides GetSystemTimePreciseAsFileTime which we
 	 * might want to use instead.
 	 */
 	GetSystemTimeAsFileTime(&now);
-	timestamp = (((guint64)(guint32)now.dwHighDateTime) << 32) +
-				(guint32)now.dwLowDateTime;
+	timestamp = (((uint64_t)(uint32_t)now.dwHighDateTime) << 32) +
+				(uint32_t)now.dwLowDateTime;
 
 	/*
 	 * Convert to same thing but as 1-microsecond, i.e. 1000-nanosecond,
@@ -249,7 +249,7 @@ create_timestamp(void) {
 	/*
 	 * Convert to delta in microseconds.
 	 */
-	timestamp = (guint64)(now.tv_sec) * 1000000 + (guint64)(now.tv_usec);
+	timestamp = (uint64_t)(now.tv_sec) * 1000000 + (uint64_t)(now.tv_usec);
 #endif
 	return timestamp;
 }
