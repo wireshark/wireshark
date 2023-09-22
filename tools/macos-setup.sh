@@ -1225,7 +1225,9 @@ install_qt() {
         # 5.9 - 5.14: qt-opensource-mac-x64-{version}.dmg
         # 5.15 - 6.0: Offline installers no longer provided.
         # ( https://download.qt.io/archive/qt/5.15/5.15.0/OFFLINE_README.txt )
-        # XXX: We need a different approach for QT >= 5.15
+        # XXX: We need a different approach for QT >= 5.15. One option would be to
+        # install https://github.com/miurahr/aqtinstall, either permanently or into
+        # a temporary venv.
         #
         case $QT_MAJOR_VERSION in
 
@@ -3442,7 +3444,7 @@ fi
 # name.  It needs to be the full installed path of the library in
 # order to make running binaries from the build directory work, so
 # we set CMAKE_INSTALL_NAME_DIR to /usr/local/lib.
-# 
+#
 # packaging/macosx/osx-app.sh will convert *all* libraries in
 # the app bundle to have an @rpath install name, so this won't
 # break anything there; it just fixes the ability to run from the
