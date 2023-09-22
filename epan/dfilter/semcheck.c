@@ -187,6 +187,10 @@ dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		 */
 		if (fv) {
 			df_error_free(&dfw->error);
+			add_compile_warning(dfw, "Interpreting the symbol \u2039%s\u203A as a %s value string. "
+					"Writing value strings without double quotes is deprecated. "
+					"Please use \"%s\" instead",
+					s, ftype_pretty_name(hfinfo_value_string->type), s);
 		}
 	}
 	if (fv == NULL) {

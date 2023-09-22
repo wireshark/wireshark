@@ -129,6 +129,12 @@ The following features are new (or have been significantly updated) since versio
      North American designations. Arbitrary timezone names are not supported
      however. Previously only ISO8601 offsets and the "UTC" designation was understood.
 
+  ** Writing value strings without double quotes is deprecated and will generate
+     a warning. Value strings are integer or boolean values that can be represented
+     using a user-friendly textual format, such as "Set"/"Unset" instead of numerical
+     values like 1 and 0. It is now a requirement that value strings need to be
+     written enclosed in double-quotes.
+
   ** The deprecated ~≃ operator symbol has been removed. It was replaced by !== in version 4.0.
 
 * Running the test suite requires the https://pypi.org/project/pytest/[pytest]
