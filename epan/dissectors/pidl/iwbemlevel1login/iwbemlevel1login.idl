@@ -1,0 +1,84 @@
+#include "idl_types.h"
+
+/*
+  IWbemLevel1Login interface definitions
+*/
+[ uuid("f309ad18-d86a-11d0-a075-00c04fb68820"),
+  restricted, 
+  pointer_default(unique)
+]
+interface IWbemLevel1Login
+{
+  /*****************/
+  /* Function 0x00 */
+  [todo] WERROR iwbemlevel1login_opnum0(
+  );
+
+  /*****************/
+  /* Function 0x01 */
+  [todo] WERROR iwbemlevel1login_opnum1(
+  );
+
+  /*****************/
+  /* Function 0x02 */
+  [todo] WERROR iwbemlevel1login_opnum2(
+  );
+
+  typedef [public] struct
+  {
+  } ORPCTHIS;
+
+  typedef [public] struct
+  {
+  } ORPCTHAT;
+
+  /*****************/
+  /* Function 0x03 */
+  WERROR EstablishPosition(
+   [in] ORPCTHIS orpcthis,
+   [in, unique, string, charset(UTF16)] uint16* reserved1,
+   [in] uint32 reserved2,
+   [out] ORPCTHAT* orpcthat,
+   [out] uint32* LocaleVersion
+  );
+
+  /*****************/
+  /* Function 0x04 */
+  WERROR RequestChallenge(
+   [in] ORPCTHIS orpcthis,
+   [in, unique, string, charset(UTF16)] uint16* reserved1,
+   [in, unique, string, charset(UTF16)] uint16* reserved2,
+   [out] ORPCTHAT* orpcthat,
+   [out, size_is(16), length_is(16)] uint8* reserved3
+  );
+
+  /*****************/
+  /* Function 0x05 */
+  WERROR WBEMLogin(
+   [in] ORPCTHIS orpcthis,
+   [in, unique, string, charset(UTF16)] uint16* reserved1,
+   [in, size_is(16), length_is(16), unique] uint8* reserved2,
+   [in] long reserved3,
+   [in] uint8* reserved4,
+   [out] ORPCTHAT* orpcthat,
+   [out, ref] IWbemServices **ppNamespace
+  );
+
+  typedef [flag(NDR_NOALIGN)] struct
+  {
+    uint32 count; 
+    [size_is(count)] uint8 services[];
+  } IWbemServices;
+
+  /*****************/
+  /* Function 0x06 */
+  WERROR NTLMLogin(
+   [in] ORPCTHIS orpcthis,
+   [in, unique, string, charset(UTF16)] uint16* wszNetworkResource,
+   [in, unique, string, charset(UTF16)] uint16* wszPreferredLocale,
+   [in] long lFlags,
+   [in, unique] uint8* pCtx,
+   [out] ORPCTHAT* orpcthat,
+   [out, ref] IWbemServices **ppNamespace
+  ); 
+};

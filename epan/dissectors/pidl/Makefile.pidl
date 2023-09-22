@@ -35,6 +35,7 @@ SUBDIRS = \
 	frstrans	\
 	fsrvp		\
 	initshutdown	\
+	iwbemlevel1login	\
 	lsa		\
 	mapi		\
 	mdssvc		\
@@ -107,6 +108,12 @@ $(SUBDIRS) $(DONT_BUILD_SUBDIRS): %: ../packet-dcerpc-%.c ../packet-dcerpc-%.h
 ../packet-dcerpc-initshutdown.h: initshutdown/initshutdown.idl \
 					initshutdown/initshutdown.cnf \
 					lsa/lsa.idl idl_types.h
+	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
+
+../packet-dcerpc-iwbemlevel1login.c \
+../packet-dcerpc-iwbemlevel1login.h: iwbemlevel1login/iwbemlevel1login.idl \
+					iwbemlevel1login/iwbemlevel1login.cnf \
+					idl_types.h
 	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
 
 ../packet-dcerpc-lsa.c \
