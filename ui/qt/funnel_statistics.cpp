@@ -64,7 +64,12 @@ static void progress_window_destroy(struct progdlg *progress_dialog);
 }
 
 FunnelAction::FunnelAction(QObject *parent) :
-        QAction(parent)
+        QAction(parent),
+        callback_(nullptr),
+        callback_data_(NULL),
+        retap_(FALSE),
+        packetCallback_(nullptr),
+        packetData_(NULL)
 {
 
 }
