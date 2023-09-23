@@ -86,11 +86,11 @@ dfilter_expand(const char *expr, df_error_t **err_ret);
  * g_malloc(), and must be freed with g_free().
  * The dfilter* will be set to NULL after a failure.
  *
- * Returns TRUE on success, FALSE on failure.
+ * Returns true on success, false on failure.
  */
 WS_DLL_PUBLIC
-gboolean
-dfilter_compile_full(const gchar *text, dfilter_t **dfp,
+bool
+dfilter_compile_full(const char *text, dfilter_t **dfp,
 			df_error_t **errpp, unsigned flags,
 			const char *caller);
 
@@ -107,11 +107,11 @@ dfilter_free(dfilter_t *df);
 
 /* Apply compiled dfilter */
 WS_DLL_PUBLIC
-gboolean
+bool
 dfilter_apply_edt(dfilter_t *df, struct epan_dissect *edt);
 
 /* Apply compiled dfilter */
-gboolean
+bool
 dfilter_apply(dfilter_t *df, proto_tree *tree);
 
 /* Prime a proto_tree using the fields/protocols used in a dfilter. */
@@ -129,30 +129,30 @@ void
 dfilter_load_field_references_edt(const dfilter_t *df, struct epan_dissect *edt);
 
 /* Check if dfilter has interesting fields */
-gboolean
+bool
 dfilter_has_interesting_fields(const dfilter_t *df);
 
 /* Check if dfilter is interested in a given field
  *
  * @param df The dfilter
  * @param hfid The header field info ID to check
- * @return TRUE if the field is interesting to the dfilter
+ * @return true if the field is interesting to the dfilter
  */
-gboolean
+bool
 dfilter_interested_in_field(const dfilter_t *df, int hfid);
 
 /* Check if dfilter is interested in a given protocol
  *
  * @param df The dfilter
  * @param proto_id The protocol ID to check
- * @return TRUE if the dfilter is interested in a field whose
+ * @return true if the dfilter is interested in a field whose
  * parent is proto_id
  */
-gboolean
+bool
 dfilter_interested_in_proto(const dfilter_t *df, int proto_id);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 dfilter_requires_columns(const dfilter_t *df);
 
 WS_DLL_PUBLIC

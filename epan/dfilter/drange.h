@@ -31,18 +31,18 @@ typedef enum {
 } drange_node_end_t;
 
 typedef struct _drange_node {
-    gint start_offset;
-    gint length;
-    gint end_offset;
+    int start_offset;
+    int length;
+    int end_offset;
     drange_node_end_t ending;
 } drange_node;
 
 typedef struct _drange {
     GSList* range_list;
-    gboolean has_total_length;
-    gint total_length;
-    gint min_start_offset;
-    gint max_start_offset;
+    bool has_total_length;
+    int total_length;
+    int min_start_offset;
+    int max_start_offset;
 } drange_t;
 
 /* drange_node constructor */
@@ -58,15 +58,15 @@ void drange_node_free(drange_node* drnode);
 void drange_node_free_list(GSList* list);
 
 /* drange_node accessors */
-gint drange_node_get_start_offset(drange_node* drnode);
-gint drange_node_get_length(drange_node* drnode);
-gint drange_node_get_end_offset(drange_node* drnode);
+int drange_node_get_start_offset(drange_node* drnode);
+int drange_node_get_length(drange_node* drnode);
+int drange_node_get_end_offset(drange_node* drnode);
 drange_node_end_t drange_node_get_ending(drange_node* drnode);
 
 /* drange_node mutators */
-void drange_node_set_start_offset(drange_node* drnode, gint offset);
-void drange_node_set_length(drange_node* drnode, gint length);
-void drange_node_set_end_offset(drange_node* drnode, gint offset);
+void drange_node_set_start_offset(drange_node* drnode, int offset);
+void drange_node_set_length(drange_node* drnode, int length);
+void drange_node_set_end_offset(drange_node* drnode, int offset);
 void drange_node_set_to_the_end(drange_node* drnode);
 
 /* drange constructor */
@@ -80,15 +80,15 @@ drange_t * drange_dup(drange_t *org);
 void drange_free(drange_t* dr);
 
 /* drange accessors */
-gboolean drange_has_total_length(drange_t* dr);
-gint drange_get_total_length(drange_t* dr);
-gint drange_get_min_start_offset(drange_t* dr);
-gint drange_get_max_start_offset(drange_t* dr);
+bool drange_has_total_length(drange_t* dr);
+int drange_get_total_length(drange_t* dr);
+int drange_get_min_start_offset(drange_t* dr);
+int drange_get_max_start_offset(drange_t* dr);
 
 /* drange mutators */
 void drange_append_drange_node(drange_t* dr, drange_node* drnode);
 void drange_prepend_drange_node(drange_t* dr, drange_node* drnode);
-void drange_foreach_drange_node(drange_t* dr, GFunc func, gpointer funcdata);
+void drange_foreach_drange_node(drange_t* dr, GFunc func, void * funcdata);
 
 char *drange_node_tostr(const drange_node *rn);
 

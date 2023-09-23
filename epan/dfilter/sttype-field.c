@@ -20,16 +20,16 @@
 #include <wsutil/ws_assert.h>
 
 typedef struct {
-	guint32	   magic;
+	uint32_t	   magic;
 	header_field_info *hfinfo;
 	drange_t  *drange;
-	gboolean raw;
+	bool raw;
 } field_t;
 
 #define FIELD_MAGIC	0xfc2002cf
 
-static gpointer
-field_new(gpointer hfinfo)
+static void *
+field_new(void * hfinfo)
 {
 	field_t *field;
 
@@ -37,12 +37,12 @@ field_new(gpointer hfinfo)
 	field->magic = FIELD_MAGIC;
 	field->hfinfo = hfinfo;
 	field->drange = NULL;
-	field->raw = FALSE;
+	field->raw = false;
 
 	return field;
 }
 
-static gpointer
+static void *
 field_dup(gconstpointer data)
 {
 	const field_t *org = data;
@@ -58,7 +58,7 @@ field_dup(gconstpointer data)
 }
 
 static void
-field_free(gpointer data)
+field_free(void * data)
 {
 	field_t *field = data;
 	ws_assert_magic(field, FIELD_MAGIC);
@@ -69,7 +69,7 @@ field_free(gpointer data)
 }
 
 static char *
-field_tostr(const void *data, gboolean pretty _U_)
+field_tostr(const void *data, bool pretty _U_)
 {
 	const field_t *field = data;
 	ws_assert_magic(field, FIELD_MAGIC);
@@ -128,7 +128,7 @@ sttype_field_drange(stnode_t *node)
 	return field->drange;
 }
 
-gboolean
+bool
 sttype_field_raw(stnode_t *node)
 {
 	field_t *field = node->data;
@@ -178,7 +178,7 @@ sttype_field_set_drange(stnode_t *node, drange_t *dr)
 }
 
 void
-sttype_field_set_raw(stnode_t *node, gboolean raw)
+sttype_field_set_raw(stnode_t *node, bool raw)
 {
 	field_t *field = stnode_data(node);
 	ws_assert_magic(field, FIELD_MAGIC);

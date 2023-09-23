@@ -29,8 +29,8 @@
     } while (0)
 
 /* Convert an FT_STRING using a callback function */
-static gboolean
-string_walk(GSList *stack, guint32 arg_count _U_, df_cell_t *retval, gchar(*conv_func)(gchar))
+static bool
+string_walk(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval, char(*conv_func)(char))
 {
     GPtrArray   *arg1;
     fvalue_t    *arg_fvalue;
@@ -41,9 +41,9 @@ string_walk(GSList *stack, guint32 arg_count _U_, df_cell_t *retval, gchar(*conv
     ws_assert(arg_count == 1);
     arg1 = stack->data;
     if (arg1 == NULL)
-        return FALSE;
+        return false;
 
-    for (guint i = 0; i < arg1->len; i++) {
+    for (unsigned i = 0; i < arg1->len; i++) {
         arg_fvalue = arg1->pdata[i];
         /* XXX - it would be nice to handle FT_TVBUFF, too */
         if (FT_IS_STRING(fvalue_type_ftenum(arg_fvalue))) {
@@ -58,47 +58,47 @@ string_walk(GSList *stack, guint32 arg_count _U_, df_cell_t *retval, gchar(*conv
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 /* dfilter function: lower() */
-static gboolean
-df_func_lower(GSList *stack, guint32 arg_count, df_cell_t *retval)
+static bool
+df_func_lower(GSList *stack, uint32_t arg_count, df_cell_t *retval)
 {
     return string_walk(stack, arg_count, retval, g_ascii_tolower);
 }
 
 /* dfilter function: upper() */
-static gboolean
-df_func_upper(GSList *stack, guint32 arg_count, df_cell_t *retval)
+static bool
+df_func_upper(GSList *stack, uint32_t arg_count, df_cell_t *retval)
 {
     return string_walk(stack, arg_count, retval, g_ascii_toupper);
 }
 
 /* dfilter function: count() */
-static gboolean
-df_func_count(GSList *stack, guint32 arg_count _U_, df_cell_t *retval)
+static bool
+df_func_count(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
 {
     GPtrArray *arg1;
     fvalue_t *ft_ret;
-    guint32   num_items;
+    uint32_t  num_items;
 
     ws_assert(arg_count == 1);
     arg1 = stack->data;
     if (arg1 == NULL)
-        return FALSE;
+        return false;
 
     num_items = arg1->len;
     ft_ret = fvalue_new(FT_UINT32);
     fvalue_set_uinteger(ft_ret, num_items);
     df_cell_append(retval, ft_ret);
 
-    return TRUE;
+    return true;
 }
 
 /* dfilter function: string() */
-static gboolean
-df_func_string(GSList *stack, guint32 arg_count _U_, df_cell_t *retval)
+static bool
+df_func_string(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
 {
     GPtrArray *arg1;
     fvalue_t *arg_fvalue;
@@ -108,9 +108,9 @@ df_func_string(GSList *stack, guint32 arg_count _U_, df_cell_t *retval)
     ws_assert(arg_count == 1);
     arg1 = stack->data;
     if (arg1 == NULL)
-        return FALSE;
+        return false;
 
-    for (guint i = 0; i < arg1->len; i++) {
+    for (unsigned i = 0; i < arg1->len; i++) {
         arg_fvalue = arg1->pdata[i];
         switch (fvalue_type_ftenum(arg_fvalue))
         {
@@ -152,7 +152,7 @@ df_func_string(GSList *stack, guint32 arg_count _U_, df_cell_t *retval)
                 s = wmem_strdup(NULL, "");
             break;
         default:
-            return TRUE;
+            return true;
         }
 
         new_ft_string = fvalue_new(FT_STRING);
@@ -161,22 +161,22 @@ df_func_string(GSList *stack, guint32 arg_count _U_, df_cell_t *retval)
         df_cell_append(retval, new_ft_string);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
-df_func_compare(GSList *stack, guint32 arg_count, df_cell_t *retval,
+static bool
+df_func_compare(GSList *stack, uint32_t arg_count, df_cell_t *retval,
                     bool (*fv_cmp)(const fvalue_t *a, const fvalue_t *b))
 {
     fvalue_t *fv_ret = NULL;
     GSList   *args;
     GPtrArray *arg1;
     fvalue_t *arg_fvalue;
-    guint32 i;
+    uint32_t i;
 
     for (args = stack, i = 0; i < arg_count; args = args->next, i++) {
         arg1 = args->data;
-        for (guint j = 0; j < arg1->len; j++) {
+        for (unsigned j = 0; j < arg1->len; j++) {
             arg_fvalue = arg1->pdata[j];
             if (fv_ret == NULL || fv_cmp(arg_fvalue, fv_ret)) {
                 fv_ret = arg_fvalue;
@@ -185,29 +185,29 @@ df_func_compare(GSList *stack, guint32 arg_count, df_cell_t *retval,
     }
 
     if (fv_ret == NULL)
-        return FALSE;
+        return false;
 
     df_cell_append(retval, fvalue_dup(fv_ret));
 
-    return TRUE;
+    return true;
 }
 
 /* Find maximum value. */
-static gboolean
-df_func_max(GSList *stack, guint32 arg_count, df_cell_t *retval)
+static bool
+df_func_max(GSList *stack, uint32_t arg_count, df_cell_t *retval)
 {
     return df_func_compare(stack, arg_count, retval, fvalue_gt);
 }
 
 /* Find minimum value. */
-static gboolean
-df_func_min(GSList *stack, guint32 arg_count, df_cell_t *retval)
+static bool
+df_func_min(GSList *stack, uint32_t arg_count, df_cell_t *retval)
 {
     return df_func_compare(stack, arg_count, retval, fvalue_lt);
 }
 
-static gboolean
-df_func_abs(GSList *stack, guint32 arg_count _U_, df_cell_t *retval)
+static bool
+df_func_abs(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
 {
     GPtrArray *arg1;
     fvalue_t *fv_arg, *new_fv;
@@ -216,9 +216,9 @@ df_func_abs(GSList *stack, guint32 arg_count _U_, df_cell_t *retval)
     ws_assert(arg_count == 1);
     arg1 = stack->data;
     if (arg1 == NULL)
-        return FALSE;
+        return false;
 
-    for (guint i = 0; i < arg1->len; i++) {
+    for (unsigned i = 0; i < arg1->len; i++) {
         fv_arg = arg1->pdata[i];
         if (fvalue_is_negative(fv_arg)) {
             new_fv = fvalue_unary_minus(fv_arg, &err_msg);
@@ -372,7 +372,7 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
         }
         else if (type == STTYPE_LITERAL) {
             if (ftype != FT_NONE) {
-                fv = dfilter_fvalue_from_literal(dfw, ftype, arg, FALSE, NULL);
+                fv = dfilter_fvalue_from_literal(dfw, ftype, arg, false, NULL);
                 stnode_replace(arg, STTYPE_FVALUE, fv);
                 ft_arg = fvalue_type_ftenum(fv);
             }
@@ -418,7 +418,7 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
             stnode_t *st;
             for (fp = wmem_list_head(literals); fp != NULL; fp = wmem_list_frame_next(fp)) {
                 st = wmem_list_frame_data(fp);
-                fv = dfilter_fvalue_from_literal(dfw, ftype, st, FALSE, NULL);
+                fv = dfilter_fvalue_from_literal(dfw, ftype, st, false, NULL);
                 stnode_replace(st, STTYPE_FVALUE, fv);
             }
         }
@@ -445,7 +445,7 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ft
     else if (stnode_type_id(st_node) == STTYPE_LITERAL) {
         if (lhs_ftype != FT_NONE) {
             /* Convert RHS literal to the same ftype as LHS. */
-            fv = dfilter_fvalue_from_literal(dfw, lhs_ftype, st_node, FALSE, NULL);
+            fv = dfilter_fvalue_from_literal(dfw, lhs_ftype, st_node, false, NULL);
             stnode_replace(st_node, STTYPE_FVALUE, fv);
             ftype = fvalue_type_ftenum(fv);
         }

@@ -31,8 +31,8 @@ drange_node_new(void)
     return new_range_node;
 }
 
-static gboolean
-drange_str_to_gint32(const char *s, gint32 *pint, char **endptr, char **err_ptr)
+static bool
+drange_str_to_gint32(const char *s, int32_t *pint, char **endptr, char **err_ptr)
 {
     long integer;
 
@@ -41,14 +41,14 @@ drange_str_to_gint32(const char *s, gint32 *pint, char **endptr, char **err_ptr)
     if (errno == EINVAL || *endptr == s) {
         /* This isn't a valid number. */
         *err_ptr = ws_strdup_printf("\"%s\" is not a valid number.", s);
-        return FALSE;
+        return false;
     }
-    if (errno == ERANGE || integer > G_MAXINT32 || integer < G_MININT32) {
+    if (errno == ERANGE || integer > INT32_MAX || integer < INT32_MIN) {
         *err_ptr = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
-        return FALSE;
+        return false;
     }
-    *pint = (gint32)integer;
-    return TRUE;
+    *pint = (int32_t)integer;
+    return true;
 }
 
 /* drange_node constructor from string */
@@ -57,10 +57,10 @@ drange_node_from_str(const char *range_str, char **err_ptr)
 {
     const char *str;
     char *endptr;
-    gint32 lower, upper = 0;
+    int32_t lower, upper = 0;
     drange_node_end_t end = DRANGE_NODE_END_T_UNINITIALIZED;
     drange_node *dn;
-    gboolean ok;
+    bool ok;
 
     /*
      * The following syntax governs slices:
@@ -95,7 +95,7 @@ drange_node_from_str(const char *range_str, char **err_ptr)
         str++;
         if (*str == '\0') {
             end = DRANGE_NODE_END_T_TO_THE_END;
-            ok = TRUE;
+            ok = true;
         }
         else {
             end = DRANGE_NODE_END_T_LENGTH;
@@ -106,10 +106,10 @@ drange_node_from_str(const char *range_str, char **err_ptr)
     else if (*str == '\0') {
         end = DRANGE_NODE_END_T_LENGTH;
         upper = 1;
-        ok = TRUE;
+        ok = true;
     }
     else {
-        ok = FALSE;
+        ok = false;
     }
 
     while (*str != '\0' && g_ascii_isspace(*str))
@@ -185,21 +185,21 @@ drange_node_free(drange_node* drnode)
 }
 
 /* drange_node accessors */
-gint
+int
 drange_node_get_start_offset(drange_node* drnode)
 {
     ws_assert(drnode->ending != DRANGE_NODE_END_T_UNINITIALIZED);
     return drnode->start_offset;
 }
 
-gint
+int
 drange_node_get_length(drange_node* drnode)
 {
     ws_assert(drnode->ending == DRANGE_NODE_END_T_LENGTH);
     return drnode->length;
 }
 
-gint
+int
 drange_node_get_end_offset(drange_node* drnode)
 {
     ws_assert(drnode->ending == DRANGE_NODE_END_T_OFFSET);
@@ -215,20 +215,20 @@ drange_node_get_ending(drange_node* drnode)
 
 /* drange_node mutators */
 void
-drange_node_set_start_offset(drange_node* drnode, gint offset)
+drange_node_set_start_offset(drange_node* drnode, int offset)
 {
     drnode->start_offset = offset;
 }
 
 void
-drange_node_set_length(drange_node* drnode, gint length)
+drange_node_set_length(drange_node* drnode, int length)
 {
     drnode->length = length;
     drnode->ending = DRANGE_NODE_END_T_LENGTH;
 }
 
 void
-drange_node_set_end_offset(drange_node* drnode, gint offset)
+drange_node_set_end_offset(drange_node* drnode, int offset)
 {
     drnode->end_offset = offset;
     drnode->ending = DRANGE_NODE_END_T_OFFSET;
@@ -248,10 +248,10 @@ drange_new(drange_node* drnode)
     drange_t * new_drange;
     new_drange = g_new(drange_t,1);
     new_drange->range_list = NULL;
-    new_drange->has_total_length = TRUE;
+    new_drange->has_total_length = true;
     new_drange->total_length = 0;
-    new_drange->min_start_offset = G_MAXINT;
-    new_drange->max_start_offset = G_MININT;
+    new_drange->min_start_offset = INT_MAX;
+    new_drange->max_start_offset = INT_MIN;
 
     if (drnode)
             drange_append_drange_node(new_drange, drnode);
@@ -260,7 +260,7 @@ drange_new(drange_node* drnode)
 }
 
 static void
-drange_append_wrapper(gpointer data, gpointer user_data)
+drange_append_wrapper(void * data, void * user_data)
 {
     drange_node *drnode = (drange_node *)data;
     drange_t    *dr             = (drange_t *)user_data;
@@ -312,16 +312,16 @@ drange_node_free_list(GSList* list)
 }
 
 /* drange accessors */
-gboolean drange_has_total_length(drange_t * dr) { return dr->has_total_length; }
-gint drange_get_total_length(drange_t * dr)     { return dr->total_length; }
-gint drange_get_min_start_offset(drange_t * dr) { return dr->min_start_offset; }
-gint drange_get_max_start_offset(drange_t * dr) { return dr->max_start_offset; }
+bool drange_has_total_length(drange_t * dr) { return dr->has_total_length; }
+int drange_get_total_length(drange_t * dr)     { return dr->total_length; }
+int drange_get_min_start_offset(drange_t * dr) { return dr->min_start_offset; }
+int drange_get_max_start_offset(drange_t * dr) { return dr->max_start_offset; }
 
 static void
 update_drange_with_node(drange_t *dr, drange_node *drnode)
 {
     if(drnode->ending == DRANGE_NODE_END_T_TO_THE_END){
-        dr->has_total_length = FALSE;
+        dr->has_total_length = false;
     }
     else if(dr->has_total_length){
         dr->total_length += drnode->length;
@@ -354,7 +354,7 @@ drange_append_drange_node(drange_t * dr, drange_node* drnode)
 }
 
 void
-drange_foreach_drange_node(drange_t * dr, GFunc func, gpointer funcdata)
+drange_foreach_drange_node(drange_t * dr, GFunc func, void * funcdata)
 {
     g_slist_foreach(dr->range_list,func,funcdata);
 }
@@ -389,7 +389,7 @@ drange_tostr(const drange_t *dr)
         }
     }
 
-    return g_string_free(repr, FALSE);
+    return g_string_free(repr, false);
 }
 
 /*

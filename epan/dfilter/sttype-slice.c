@@ -21,15 +21,15 @@
 #include <wsutil/ws_assert.h>
 
 typedef struct {
-	guint32	   magic;
+	uint32_t	   magic;
 	stnode_t  *entity;
 	drange_t  *drange;
 } slice_t;
 
 #define SLICE_MAGIC	0xec0990ce
 
-static gpointer
-slice_new(gpointer junk _U_)
+static void *
+slice_new(void * junk _U_)
 {
 	slice_t		*slice;
 
@@ -44,7 +44,7 @@ slice_new(gpointer junk _U_)
 	return slice;
 }
 
-static gpointer
+static void *
 slice_dup(gconstpointer data)
 {
 	const slice_t *org = data;
@@ -58,7 +58,7 @@ slice_dup(gconstpointer data)
 }
 
 static void
-slice_free(gpointer value)
+slice_free(void * value)
 {
 	slice_t *slice = value;
 	ws_assert_magic(slice, SLICE_MAGIC);
@@ -73,7 +73,7 @@ slice_free(gpointer value)
 }
 
 static char *
-slice_tostr(const void *data, gboolean pretty)
+slice_tostr(const void *data, bool pretty)
 {
 	const slice_t *slice = data;
 	ws_assert_magic(slice, SLICE_MAGIC);

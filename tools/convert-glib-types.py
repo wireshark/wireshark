@@ -36,12 +36,15 @@ type_map = {
     'guint64': 'uint64_t',
     'gfloat': 'float',
     'gdouble': 'double',
+    'gpointer ': 'void *', # 'void *foo' instead of 'void * foo'
     'gpointer': 'void *',
     # Is gsize the same as size_t on the platforms we support?
     # https://gitlab.gnome.org/GNOME/glib/-/issues/2493
     'gsize': 'size_t',
     'gssize': 'ssize_t',
+}
 
+definition_map = {
     'TRUE': 'true',
     'FALSE': 'false',
     'G_MAXINT8': 'INT8_MAX',
@@ -75,6 +78,8 @@ def convert_file(file):
                 lines = lines.replace(glib_type, c99_type)
             for glib_type, c99_type in type_map.items():
                 lines = re.sub(rf'([^"])\b{glib_type}\b([^"])', rf'\1{c99_type}\2', lines, flags=re.MULTILINE)
+            for glib_define, c99_define in definition_map.items():
+                lines = re.sub(rf'\b{glib_define}\b', rf'{c99_define}', lines, flags=re.MULTILINE)
             for glib_fmt_spec, c99_fmt_spec in format_spec_map.items():
                 lines = re.sub(rf'\b{glib_fmt_spec}\b', rf'{c99_fmt_spec}', lines, flags=re.MULTILINE)
     except IsADirectoryError:

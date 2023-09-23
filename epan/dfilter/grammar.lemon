@@ -199,7 +199,7 @@ rawable_field(X) ::= layered_field(F).
 rawable_field(X) ::= ATSIGN(A) layered_field(F).
 {
     X = F;
-    sttype_field_set_raw(X, TRUE);
+    sttype_field_set_raw(X, true);
     stnode_merge_location(X, A, F);
     stnode_free(A);
 }

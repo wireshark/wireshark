@@ -38,10 +38,10 @@ typedef enum {
 	STTYPE_NUM_TYPES
 } sttype_id_t;
 
-typedef gpointer        (*STTypeNewFunc)(gpointer);
-typedef gpointer        (*STTypeDupFunc)(gconstpointer);
-typedef void            (*STTypeFreeFunc)(gpointer);
-typedef char*           (*STTypeToStrFunc)(gconstpointer, gboolean pretty);
+typedef void *          (*STTypeNewFunc)(void *);
+typedef void *          (*STTypeDupFunc)(gconstpointer);
+typedef void            (*STTypeFreeFunc)(void *);
+typedef char*           (*STTypeToStrFunc)(gconstpointer, bool pretty);
 
 
 /* Type information */
@@ -62,7 +62,7 @@ typedef struct {
 typedef struct {
 	uint32_t	magic;
 	sttype_t	*type;
-	gpointer	data;
+	void *	data;
 	char 		*repr_token;
 	char 		*repr_display;
 	char 		*repr_debug;
@@ -121,7 +121,7 @@ void
 sttype_register(sttype_t *type);
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data, char *token, df_loc_t loc);
+stnode_new(sttype_id_t type_id, void * data, char *token, df_loc_t loc);
 
 stnode_t*
 stnode_new_empty(sttype_id_t type_id);
@@ -133,10 +133,10 @@ void
 stnode_clear(stnode_t *node);
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token, df_loc_t loc);
+stnode_init(stnode_t *node, sttype_id_t type_id, void * data, char *token, df_loc_t loc);
 
 void
-stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);
+stnode_replace(stnode_t *node, sttype_id_t type_id, void * data);
 
 void
 stnode_free(stnode_t *node);
@@ -147,13 +147,13 @@ stnode_type_name(stnode_t *node);
 sttype_id_t
 stnode_type_id(stnode_t *node);
 
-gpointer
+void *
 stnode_data(stnode_t *node);
 
 GString *
 stnode_string(stnode_t *node);
 
-gpointer
+void *
 stnode_steal_data(stnode_t *node);
 
 const char *
@@ -165,7 +165,7 @@ stnode_location(stnode_t *node);
 void
 stnode_set_location(stnode_t *node, df_loc_t loc);
 
-gboolean
+bool
 stnode_get_flags(stnode_t *node, uint16_t flags);
 
 void
@@ -175,11 +175,11 @@ void
 stnode_merge_location(stnode_t *dst, stnode_t *n1, stnode_t *n2);
 
 const char *
-stnode_tostr(stnode_t *node, gboolean pretty);
+stnode_tostr(stnode_t *node, bool pretty);
 
-#define stnode_todisplay(node) stnode_tostr(node, TRUE)
+#define stnode_todisplay(node) stnode_tostr(node, true)
 
-#define stnode_todebug(node) stnode_tostr(node, FALSE)
+#define stnode_todebug(node) stnode_tostr(node, false)
 
 void
 log_node_full(enum ws_log_level level,

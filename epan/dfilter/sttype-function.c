@@ -13,15 +13,15 @@
 #include <wsutil/ws_assert.h>
 
 typedef struct {
-	guint32		magic;
+	uint32_t		magic;
 	df_func_def_t *funcdef;
 	GSList *params;
 } function_t;
 
 #define FUNCTION_MAGIC	0xe10f0f99
 
-static gpointer
-function_new(gpointer funcdef)
+static void *
+function_new(void * funcdef)
 {
 	function_t		*stfuncrec;
 
@@ -34,7 +34,7 @@ function_new(gpointer funcdef)
 	return stfuncrec;
 }
 
-static gpointer
+static void *
 function_dup(gconstpointer data)
 {
 	const function_t *org = data;
@@ -51,7 +51,7 @@ function_dup(gconstpointer data)
 }
 
 static char *
-function_tostr(const void *data, gboolean pretty)
+function_tostr(const void *data, bool pretty)
 {
 	const function_t *stfuncrec = data;
 	const df_func_def_t *def = stfuncrec->funcdef;
@@ -76,11 +76,11 @@ function_tostr(const void *data, gboolean pretty)
 		g_string_printf(repr, "%s#%u", def->name, g_slist_length(params));
 	}
 
-	return g_string_free(repr, FALSE);
+	return g_string_free(repr, false);
 }
 
 static void
-slist_stnode_free(gpointer data)
+slist_stnode_free(void * data)
 {
 	stnode_free(data);
 }
@@ -92,7 +92,7 @@ st_funcparams_free(GSList *params)
 }
 
 static void
-function_free(gpointer value)
+function_free(void * value)
 {
 	function_t	*stfuncrec = value;
 	ws_assert_magic(stfuncrec, FUNCTION_MAGIC);

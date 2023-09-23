@@ -28,13 +28,13 @@ typedef struct {
 
 typedef struct {
 	GPtrArray *ptr;
-	guint idx;
+	unsigned idx;
 } df_cell_iter_t;
 
 /* Passed back to user */
 struct epan_dfilter {
 	GPtrArray	*insns;
-	guint		num_registers;
+	unsigned	num_registers;
 	df_cell_t	*registers;
 	int		*interesting_fields;
 	int		num_interesting_fields;
@@ -64,7 +64,7 @@ typedef struct {
 	GPtrArray	*deprecated;
 	stnode_t	*lval;
 	GString		*quoted_string;
-	gboolean	raw_string;
+	bool		raw_string;
 	df_loc_t	string_loc;
 	df_loc_t	location;
 } dfsyntax_t;
@@ -95,7 +95,7 @@ typedef struct {
 } dfwork_t;
 
 /* Constructor/Destructor prototypes for Lemon Parser */
-void *DfilterAlloc(void *(*)(gsize));
+void *DfilterAlloc(void *(*)(size_t));
 
 void DfilterFree(void *, void (*)(void *));
 
@@ -137,7 +137,7 @@ dfilter_resolve_unparsed(dfsyntax_t *dfs, const char *name);
 
 WS_RETNONNULL fvalue_t*
 dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
-		gboolean allow_partial_value, header_field_info *hfinfo_value_string);
+		bool allow_partial_value, header_field_info *hfinfo_value_string);
 
 WS_RETNONNULL fvalue_t *
 dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
@@ -149,7 +149,7 @@ dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st);
 const char *tokenstr(int token);
 
 df_reference_t *
-reference_new(const field_info *finfo, gboolean raw);
+reference_new(const field_info *finfo, bool raw);
 
 void
 reference_free(df_reference_t *ref);
@@ -174,9 +174,9 @@ df_cell_is_empty(const df_cell_t *rp);
 bool
 df_cell_is_null(const df_cell_t *rp);
 
-/* Pass TRUE to free the array contents when the cell is cleared. */
+/* Pass true to free the array contents when the cell is cleared. */
 void
-df_cell_init(df_cell_t *rp, gboolean free_seg);
+df_cell_init(df_cell_t *rp, bool free_seg);
 
 void
 df_cell_clear(df_cell_t *rp);

@@ -15,7 +15,7 @@
 #include <epan/proto.h> // For BASE_NONE
 
 static void
-sttype_fvalue_free(gpointer value)
+sttype_fvalue_free(void * value)
 {
 	fvalue_t *fvalue = value;
 
@@ -26,7 +26,7 @@ sttype_fvalue_free(gpointer value)
 }
 
 static void
-pcre_free(gpointer value)
+pcre_free(void * value)
 {
 	ws_regex_t *pcre = value;
 
@@ -37,7 +37,7 @@ pcre_free(gpointer value)
 }
 
 static char *
-sttype_fvalue_tostr(const void *data, gboolean pretty)
+sttype_fvalue_tostr(const void *data, bool pretty)
 {
 	const fvalue_t *fvalue = data;
 
@@ -53,13 +53,13 @@ sttype_fvalue_tostr(const void *data, gboolean pretty)
 }
 
 static char *
-pcre_tostr(const void *data, gboolean pretty _U_)
+pcre_tostr(const void *data, bool pretty _U_)
 {
 	return g_strdup(ws_regex_pattern(data));
 }
 
 static char *
-charconst_tostr(const void *data, gboolean pretty _U_)
+charconst_tostr(const void *data, bool pretty _U_)
 {
 	unsigned long num = *(const unsigned long *)data;
 

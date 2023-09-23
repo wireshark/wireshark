@@ -103,7 +103,7 @@ stnode_clear(stnode_t *node)
 }
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token, df_loc_t loc)
+stnode_init(stnode_t *node, sttype_id_t type_id, void * data, char *token, df_loc_t loc)
 {
 	sttype_t	*type;
 
@@ -136,7 +136,7 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token, df_
 }
 
 void
-stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
+stnode_replace(stnode_t *node, sttype_id_t type_id, void * data)
 {
 	char *token = g_strdup(node->repr_token);
 	df_loc_t loc = node->location;
@@ -147,7 +147,7 @@ stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 }
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data, char *token, df_loc_t loc)
+stnode_new(sttype_id_t type_id, void * data, char *token, df_loc_t loc)
 {
 	stnode_t	*node;
 
@@ -219,7 +219,7 @@ stnode_type_id(stnode_t *node)
 		return STTYPE_UNINITIALIZED;
 }
 
-gpointer
+void *
 stnode_data(stnode_t *node)
 {
 	ws_assert_magic(node, STNODE_MAGIC);
@@ -233,11 +233,11 @@ stnode_string(stnode_t *node)
 	return stnode_data(node);
 }
 
-gpointer
+void *
 stnode_steal_data(stnode_t *node)
 {
 	ws_assert_magic(node, STNODE_MAGIC);
-	gpointer data = node->data;
+	void * data = node->data;
 	ws_assert(data);
 	node->data = NULL;
 	return data;
@@ -261,7 +261,7 @@ stnode_set_location(stnode_t *node, df_loc_t loc)
 	node->location = loc;
 }
 
-gboolean
+bool
 stnode_get_flags(stnode_t *node, uint16_t flags)
 {
 	return node->flags & flags;
@@ -295,7 +295,7 @@ stnode_merge_location(stnode_t *dst, stnode_t *n1, stnode_t *n2)
 		stnode_type_id(node) == STTYPE_ARITHMETIC)
 
 static char *
-_node_tostr(stnode_t *node, gboolean pretty)
+_node_tostr(stnode_t *node, bool pretty)
 {
 	char *s, *repr;
 
@@ -319,7 +319,7 @@ _node_tostr(stnode_t *node, gboolean pretty)
 }
 
 const char *
-stnode_tostr(stnode_t *node, gboolean pretty)
+stnode_tostr(stnode_t *node, bool pretty)
 {
 	ws_assert_magic(node, STNODE_MAGIC);
 
@@ -459,14 +459,14 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 		while (nodelist) {
 			indent(buf, level + 1);
 			lower = nodelist->data;
-			wmem_strbuf_append(buf, stnode_tostr(lower, FALSE));
+			wmem_strbuf_append(buf, stnode_tostr(lower, false));
 			/* Set elements are always in pairs; upper may be null. */
 			nodelist = g_slist_next(nodelist);
 			ws_assert(nodelist);
 			upper = nodelist->data;
 			if (upper != NULL) {
 				wmem_strbuf_append(buf, " .. ");
-				wmem_strbuf_append(buf, stnode_tostr(upper, FALSE));
+				wmem_strbuf_append(buf, stnode_tostr(upper, false));
 			}
 			nodelist = g_slist_next(nodelist);
 			if (nodelist != NULL) {

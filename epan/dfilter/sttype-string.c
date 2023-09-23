@@ -10,25 +10,25 @@
 #include "syntax-tree.h"
 #include <wsutil/str_util.h>
 
-static gpointer
+static void *
 string_dup(gconstpointer string)
 {
 	return g_strdup(string);
 }
 
 static void
-string_free(gpointer value)
+string_free(void * value)
 {
 	g_free(value);
 }
 
 static char *
-string_tostr(const void *data, gboolean pretty _U_)
+string_tostr(const void *data, bool pretty _U_)
 {
 	return g_strdup(data);
 }
 
-static gpointer
+static void *
 gstring_dup(gconstpointer value)
 {
 	const GString *gs = value;
@@ -36,13 +36,13 @@ gstring_dup(gconstpointer value)
 }
 
 static void
-gstring_free(gpointer value)
+gstring_free(void * value)
 {
-	g_string_free(value, TRUE);
+	g_string_free(value, true);
 }
 
 static char *
-gstring_tostr(const void *value, gboolean pretty _U_)
+gstring_tostr(const void *value, bool pretty _U_)
 {
 	const GString *gs = value;
 	return ws_escape_string_len(NULL, gs->str, gs->len, false);

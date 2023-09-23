@@ -52,7 +52,7 @@ check_arithmetic_LHS(dfwork_t *dfw, stnode_op_t st_op,
 
 static void
 check_relation(dfwork_t *dfw, stnode_op_t st_op,
-		FtypeCanFunc can_func, gboolean allow_partial_value,
+		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2);
 
 static void
@@ -64,7 +64,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 
 /* Compares to ftenum_t's and decides if they're
  * compatible or not (if they're the same basic type) */
-gboolean
+bool
 compatible_ftypes(ftenum_t a, ftenum_t b)
 {
 	switch (a) {
@@ -84,9 +84,9 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 			switch (b) {
 				case FT_FLOAT:
 				case FT_DOUBLE:
-					return TRUE;
+					return true;
 				default:
-					return FALSE;
+					return false;
 			}
 
 		case FT_ETHER:
@@ -141,9 +141,9 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 				case FT_UINT_STRING:
 				case FT_STRINGZPAD:
 				case FT_STRINGZTRUNC:
-					return TRUE;
+					return true;
 				default:
-					return FALSE;
+					return false;
 			}
 
 		case FT_NUM_TYPES:
@@ -151,7 +151,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 	}
 
 	ws_assert_not_reached();
-	return FALSE;
+	return false;
 }
 
 /* Don't set the error message if it's already set. */
@@ -169,11 +169,11 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 WS_RETNONNULL
 fvalue_t*
 dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
-		gboolean allow_partial_value, header_field_info *hfinfo_value_string)
+		bool allow_partial_value, header_field_info *hfinfo_value_string)
 {
 	fvalue_t *fv;
 	const char *s = stnode_data(st);
-	gchar *error_message = NULL;
+	char *error_message = NULL;
 
 	fv = fvalue_from_literal(ftype, s, allow_partial_value, &error_message);
 	SET_ERROR(dfw, error_message);
@@ -209,7 +209,7 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 {
 	fvalue_t *fv;
 	const GString *gs = stnode_string(st);
-	gchar *error_message = NULL;
+	char *error_message = NULL;
 
 	fv = fvalue_from_string(ftype, gs->str, gs->len, &error_message);
 	SET_ERROR(dfw, error_message);
@@ -234,7 +234,7 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 
 /* Creates a FT_UINT32 fvalue with a given value. */
 static fvalue_t*
-mk_uint32_fvalue(guint32 val)
+mk_uint32_fvalue(uint32_t val)
 {
 	fvalue_t *fv;
 
@@ -246,7 +246,7 @@ mk_uint32_fvalue(guint32 val)
 
 /* Creates a FT_UINT64 fvalue with a given value. */
 static fvalue_t*
-mk_uint64_fvalue(guint64 val)
+mk_uint64_fvalue(uint64_t val)
 {
 	fvalue_t *fv;
 
@@ -398,7 +398,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 	return NULL;
 }
 
-static gboolean
+static bool
 is_bytes_type(enum ftenum type)
 {
 	switch(type) {
@@ -413,7 +413,7 @@ is_bytes_type(enum ftenum type)
 		case FT_OID:
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
-			return TRUE;
+			return true;
 
 		case FT_NONE:
 		case FT_PROTOCOL:
@@ -450,14 +450,14 @@ is_bytes_type(enum ftenum type)
 		case FT_INT56:
 		case FT_INT64:
 		case FT_EUI64:
-			return FALSE;
+			return false;
 
 		case FT_NUM_TYPES:
 			ws_assert_not_reached();
 	}
 
 	ws_assert_not_reached();
-	return FALSE;
+	return false;
 }
 
 /* Check the semantics of an existence test. */
@@ -559,7 +559,7 @@ check_function(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 {
 	df_func_def_t *funcdef;
 	GSList        *params;
-	guint          nparams;
+	unsigned       nparams;
 
 	LOG_NODE(st_node);
 
@@ -602,7 +602,7 @@ dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
  * and possibly some modifications of syntax tree nodes. */
 static void
 check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op _U_,
-		FtypeCanFunc can_func, gboolean allow_partial_value,
+		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
@@ -724,7 +724,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op _U_,
 
 static void
 check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op _U_,
-		FtypeCanFunc can_func, gboolean allow_partial_value,
+		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
@@ -802,7 +802,7 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op _U_,
 static void
 check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
 		FtypeCanFunc can_func _U_,
-		gboolean allow_partial_value,
+		bool allow_partial_value,
 		stnode_t *st_node _U_,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
@@ -900,7 +900,7 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
  * and possibly some modifications of syntax tree nodes. */
 static void
 check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op _U_,
-		FtypeCanFunc can_func, gboolean allow_partial_value,
+		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
@@ -1011,7 +1011,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op _U_,
 
 static void
 check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op _U_,
-		FtypeCanFunc can_func, gboolean allow_partial_value,
+		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
@@ -1117,7 +1117,7 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op _U_,
 /* Check the semantics of any relational test. */
 static void
 check_relation(dfwork_t *dfw, stnode_op_t st_op,
-		FtypeCanFunc can_func, gboolean allow_partial_value,
+		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	LOG_NODE(st_node);
@@ -1159,7 +1159,7 @@ check_warning_contains_RHS_FIELD(dfwork_t *dfw, stnode_t *st_node _U_,
 {
 	const char *token = stnode_token(st_arg2);
 	header_field_info *hfinfo = sttype_field_hfinfo(st_arg2);
-	fvalue_t *fvalue = fvalue_from_literal(FT_BYTES, token, TRUE, NULL);
+	fvalue_t *fvalue = fvalue_from_literal(FT_BYTES, token, true, NULL);
 	if (fvalue != NULL) {
 		char *repr = fvalue_to_string_repr(dfw->dfw_scope, fvalue, FTREPR_DFILTER, 0);
 		add_compile_warning(dfw, "Interpreting \"%s\" as %s instead of %s. "
@@ -1184,15 +1184,15 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 		case STTYPE_FIELD:
 		case STTYPE_REFERENCE:
 			check_relation_LHS_FIELD(dfw, STNODE_OP_CONTAINS, ftype_can_contains,
-							TRUE, st_node, st_arg1, st_arg2);
+							true, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, STNODE_OP_CONTAINS, ftype_can_contains,
-							TRUE, st_node, st_arg1, st_arg2);
+							true, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_SLICE:
 			check_relation_LHS_SLICE(dfw, STNODE_OP_CONTAINS, ftype_can_contains,
-							TRUE, st_node, st_arg1, st_arg2);
+							true, st_node, st_arg1, st_arg2);
 			break;
 		default:
 			FAIL(dfw, st_arg1, "Left side of %s expression must be a field or function, not %s.",
@@ -1232,15 +1232,15 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 		case STTYPE_FIELD:
 		case STTYPE_REFERENCE:
 			check_relation_LHS_FIELD(dfw, STNODE_OP_MATCHES, ftype_can_matches,
-							TRUE, st_node, st_arg1, st_arg2);
+							true, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, STNODE_OP_MATCHES, ftype_can_matches,
-							TRUE, st_node, st_arg1, st_arg2);
+							true, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_SLICE:
 			check_relation_LHS_SLICE(dfw, STNODE_OP_MATCHES, ftype_can_matches,
-							TRUE, st_node, st_arg1, st_arg2);
+							true, st_node, st_arg1, st_arg2);
 			break;
 		default:
 			FAIL(dfw, st_arg1, "Left side of %s expression must be a field or function, not %s.",
@@ -1282,12 +1282,12 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 		node_right = nodelist->data;
 		if (node_right) {
 			check_relation_LHS_FIELD(dfw, STNODE_OP_GE, ftype_can_cmp,
-					FALSE, st_node, st_arg1, node_left);
+					false, st_node, st_arg1, node_left);
 			check_relation_LHS_FIELD(dfw, STNODE_OP_LE, ftype_can_cmp,
-					FALSE, st_node, st_arg1, node_right);
+					false, st_node, st_arg1, node_right);
 		} else {
 			check_relation_LHS_FIELD(dfw, STNODE_OP_ANY_EQ, ftype_can_eq,
-					FALSE, st_node, st_arg1, node_left);
+					false, st_node, st_arg1, node_left);
 		}
 		nodelist = g_slist_next(nodelist);
 	}
@@ -1317,13 +1317,13 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 		case STNODE_OP_ANY_EQ:
 		case STNODE_OP_ALL_NE:
 		case STNODE_OP_ANY_NE:
-			check_relation(dfw, st_op, ftype_can_eq, FALSE, st_node, st_arg1, st_arg2);
+			check_relation(dfw, st_op, ftype_can_eq, false, st_node, st_arg1, st_arg2);
 			break;
 		case STNODE_OP_GT:
 		case STNODE_OP_GE:
 		case STNODE_OP_LT:
 		case STNODE_OP_LE:
-			check_relation(dfw, st_op, ftype_can_cmp, FALSE, st_node, st_arg1, st_arg2);
+			check_relation(dfw, st_op, ftype_can_cmp, false, st_node, st_arg1, st_arg2);
 			break;
 		case STNODE_OP_CONTAINS:
 			check_relation_contains(dfw, st_node, st_arg1, st_arg2);
@@ -1490,7 +1490,7 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 	switch (type) {
 		case STTYPE_LITERAL:
 			if (lhs_ftype != FT_NONE) {
-				fvalue_t *fvalue = dfilter_fvalue_from_literal(dfw, lhs_ftype, st_node, FALSE, NULL);
+				fvalue_t *fvalue = dfilter_fvalue_from_literal(dfw, lhs_ftype, st_node, false, NULL);
 				stnode_replace(st_node, STTYPE_FVALUE, fvalue);
 				ftype = fvalue_type_ftenum(fvalue);
 			}
@@ -1561,10 +1561,10 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 /* Check the syntax tree for semantic errors, and convert
  * some of the nodes into the form they need to be in order to
  * later generate the DFVM bytecode. */
-gboolean
+bool
 dfw_semcheck(dfwork_t *dfw)
 {
-	volatile gboolean ok_filter = TRUE;
+	volatile bool ok_filter = true;
 
 	ws_debug("Starting semantic check (dfw = %p)", dfw);
 
@@ -1575,7 +1575,7 @@ dfw_semcheck(dfwork_t *dfw)
 		semcheck(dfw, dfw->st_root);
 	}
 	CATCH(TypeError) {
-		ok_filter = FALSE;
+		ok_filter = false;
 	}
 	ENDTRY;
 

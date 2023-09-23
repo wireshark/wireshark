@@ -84,9 +84,9 @@ WS_WARN_UNUSED static int set_lval_field(dfsyntax_t *dfs, const header_field_inf
 WS_WARN_UNUSED static int set_lval_quoted_string(dfsyntax_t *dfs, GString *quoted_string);
 WS_WARN_UNUSED static int set_lval_charconst(dfsyntax_t *dfs, GString *quoted_string);
 
-static gboolean append_escaped_char(dfsyntax_t *dfs, GString *str, char c);
-static gboolean append_universal_character_name(dfsyntax_t *dfs, GString *str, const char *ucn);
-static gboolean parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep);
+static bool append_escaped_char(dfsyntax_t *dfs, GString *str, char c);
+static bool append_universal_character_name(dfsyntax_t *dfs, GString *str, const char *ucn);
+static bool parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep);
 
 static void update_location(dfsyntax_t *dfs, const char *text);
 static void update_string_loc(dfsyntax_t *dfs, const char *text);
@@ -267,17 +267,17 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 		 * Example: r"a\b\x12\"\\" is the string (including the implicit NUL terminator)
 		 * {'a', '\\', 'b', '\\', 'x', '1', '2', '\\', '"', '\\'. '\\', '\0'}
 		 */
-		yyextra->raw_string = TRUE;
+		yyextra->raw_string = true;
 	}
 	else {
-		yyextra->raw_string = FALSE;
+		yyextra->raw_string = false;
 	}
 }
 
 <DQUOTE><<EOF>>				{
 	/* unterminated string */
 	update_string_loc(yyextra, yytext);
-	g_string_free(yyextra->quoted_string, TRUE);
+	g_string_free(yyextra->quoted_string, true);
 	yyextra->quoted_string = NULL;
 	FAIL("The final quote was missing from a quoted string.");
 	return SCAN_FAILED;
@@ -303,12 +303,12 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 		unsigned long result;
 		result = strtoul(yytext + 1, NULL, 8);
 		if (result > 0xff) {
-			g_string_free(yyextra->quoted_string, TRUE);
+			g_string_free(yyextra->quoted_string, true);
 			yyextra->quoted_string = NULL;
 			FAIL("%s is larger than 255.", yytext);
 			return SCAN_FAILED;
 		}
-		g_string_append_c(yyextra->quoted_string, (gchar) result);
+		g_string_append_c(yyextra->quoted_string, (char) result);
 	}
 }
 
@@ -325,7 +325,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	else {
 		unsigned long result;
 		result = strtoul(yytext + 2, NULL, 16);
-		g_string_append_c(yyextra->quoted_string, (gchar) result);
+		g_string_append_c(yyextra->quoted_string, (char) result);
 	}
 }
 
@@ -336,7 +336,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 		g_string_append(yyextra->quoted_string, yytext);
 	}
 	else if (!append_universal_character_name(yyextra, yyextra->quoted_string, yytext)) {
-		g_string_free(yyextra->quoted_string, TRUE);
+		g_string_free(yyextra->quoted_string, true);
 		yyextra->quoted_string = NULL;
 		return SCAN_FAILED;
 	}
@@ -349,7 +349,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 		g_string_append(yyextra->quoted_string, yytext);
 	}
 	else if (!append_universal_character_name(yyextra, yyextra->quoted_string, yytext)) {
-		g_string_free(yyextra->quoted_string, TRUE);
+		g_string_free(yyextra->quoted_string, true);
 		yyextra->quoted_string = NULL;
 		return SCAN_FAILED;
 	}
@@ -363,7 +363,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 		g_string_append(yyextra->quoted_string, yytext);
 	}
 	else if (!append_escaped_char(yyextra, yyextra->quoted_string, yytext[1])) {
-		g_string_free(yyextra->quoted_string, TRUE);
+		g_string_free(yyextra->quoted_string, true);
 		yyextra->quoted_string = NULL;
 		return SCAN_FAILED;
 	}
@@ -388,7 +388,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 <SQUOTE><<EOF>>				{
 	/* unterminated character value */
 	update_string_loc(yyextra, yytext);
-	g_string_free(yyextra->quoted_string, TRUE);
+	g_string_free(yyextra->quoted_string, true);
 	yyextra->quoted_string = NULL;
 	FAIL("The final quote was missing from a character constant.");
 	return SCAN_FAILED;
@@ -661,7 +661,7 @@ set_lval_unparsed(dfsyntax_t *dfs, const char *value, const char *token_value)
 static int
 set_lval_field(dfsyntax_t *dfs, const header_field_info *hfinfo, const char *token_value)
 {
-	dfs->lval = stnode_new(STTYPE_FIELD, (gpointer)hfinfo, g_strdup(token_value), dfs->location);
+	dfs->lval = stnode_new(STTYPE_FIELD, (void *)hfinfo, g_strdup(token_value), dfs->location);
 	return TOKEN_FIELD;
 }
 
@@ -679,9 +679,9 @@ static int
 set_lval_charconst(dfsyntax_t *dfs, GString *quoted_string)
 {
 	unsigned long number;
-	gboolean ok;
+	bool ok;
 
-	char *token_value = g_string_free(quoted_string, FALSE);
+	char *token_value = g_string_free(quoted_string, false);
 	ok = parse_charconst(dfs, token_value, &number);
 	if (!ok) {
 		g_free(token_value);
@@ -691,7 +691,7 @@ set_lval_charconst(dfsyntax_t *dfs, GString *quoted_string)
 	return TOKEN_CHARCONST;
 }
 
-static gboolean
+static bool
 append_escaped_char(dfsyntax_t *dfs, GString *str, char c)
 {
 	switch (c) {
@@ -723,41 +723,41 @@ append_escaped_char(dfsyntax_t *dfs, GString *str, char c)
 		default:
 			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->location,
 					"\\%c is not a valid character escape sequence", c);
-			return FALSE;
+			return false;
 	}
 
 	g_string_append_c(str, c);
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 parse_universal_character_name(dfsyntax_t *dfs _U_, const char *str, char **ret_endptr, gunichar *valuep)
 {
-	guint64 val;
+	uint64_t val;
 	char *endptr;
 	int ndigits;
 
 	if (str[0] != '\\')
-		return FALSE;
+		return false;
 
 	if (str[1] == 'u')
 		ndigits = 4;
 	else if (str[1] == 'U')
 		ndigits = 8;
 	else
-		return FALSE;
+		return false;
 
 	for (int i = 2; i < ndigits + 2; i++) {
 		if (!g_ascii_isxdigit(str[i])) {
-			return FALSE;
+			return false;
 		}
 	}
 
 	errno = 0;
 	val = g_ascii_strtoull(str + 2, &endptr, 16); /* skip leading 'u' or 'U' */
 
-	if (errno != 0 || endptr == str || val > G_MAXUINT32) {
-		return FALSE;
+	if (errno != 0 || endptr == str || val > UINT32_MAX) {
+		return false;
 	}
 
 	/*
@@ -773,33 +773,33 @@ parse_universal_character_name(dfsyntax_t *dfs _U_, const char *str, char **ret_
 	 * 0x7F-0x9F) cannot be expressed in universal character names.
 	 */
 	if (val < 0xA0 && val != 0x24 && val != 0x40 && val != 0x60)
-		return FALSE;
+		return false;
 	else if (val >= 0xD800 && val <= 0xDFFF)
-		return FALSE;
+		return false;
 	else if (val > 0x10FFFF)
-		return FALSE;
+		return false;
 
 	*valuep = (gunichar)val;
 	if (ret_endptr)
 		*ret_endptr = endptr;
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 append_universal_character_name(dfsyntax_t *dfs, GString *str, const char *ucn)
 {
 	gunichar val;
 
 	if (!parse_universal_character_name(dfs, ucn, NULL, &val)) {
 		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->location, "%s is not a valid universal character name", ucn);
-		return FALSE;
+		return false;
 	}
 
 	g_string_append_unichar(str, val);
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 {
 	const char *cp;
@@ -810,7 +810,7 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 	cp = s + 1;	/* skip the leading ' */
 	if (*cp == '\'') {
 		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "Empty character constant.");
-		return FALSE;
+		return false;
 	}
 
 	if (*cp == '\\') {
@@ -826,7 +826,7 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 
 		case '\0':
 			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
-			return FALSE;
+			return false;
 
 		case 'a':
 			value = '\a';
@@ -887,7 +887,7 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 				value = 10 + (*cp - 'a');
 			else {
 				dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
-				return FALSE;
+				return false;
 			}
 			cp++;
 			if (*cp != '\'') {
@@ -900,7 +900,7 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 					value |= 10 + (*cp - 'a');
 				else {
 					dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
-					return FALSE;
+					return false;
 				}
 			}
 			cp++;
@@ -910,7 +910,7 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 		case 'U':
 			if (!parse_universal_character_name(dfs, s+1, &endptr, &unival)) {
 				dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s is not a valid universal character name", s);
-				return FALSE;
+				return false;
 			}
 			value = (unsigned long)unival;
 			cp = endptr;
@@ -922,7 +922,7 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 				value = *cp - '0';
 			else {
 				dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
-				return FALSE;
+				return false;
 			}
 			if (*(cp + 1) != '\'') {
 				cp++;
@@ -931,7 +931,7 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 					value |= *cp - '0';
 				else {
 					dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
-					return FALSE;
+					return false;
 				}
 				if (*(cp + 1) != '\'') {
 					cp++;
@@ -940,13 +940,13 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 						value |= *cp - '0';
 					else {
 						dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
-						return FALSE;
+						return false;
 					}
 				}
 			}
 			if (value > 0xFF) {
 				dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s is too large to be a valid character constant.", s);
-				return FALSE;
+				return false;
 			}
 			cp++;
 		}
@@ -954,15 +954,15 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 		value = *cp++;
 		if (!g_ascii_isprint(value)) {
 			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "Non-printable value '0x%02lx' in character constant.", value);
-			return FALSE;
+			return false;
 		}
 	}
 
 	if ((*cp != '\'') || (*(cp + 1) != '\0')){
 		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s is too long to be a valid character constant.", s);
-		return FALSE;
+		return false;
 	}
 
 	*valuep = value;
-	return TRUE;
+	return true;
 }

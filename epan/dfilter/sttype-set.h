@@ -15,7 +15,7 @@
 
 #include "syntax-tree.h"
 
-gboolean
+bool
 sttype_set_convert_to_range(stnode_t **node_left, stnode_t **node_right);
 
 void

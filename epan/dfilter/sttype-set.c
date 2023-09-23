@@ -19,7 +19,7 @@
  */
 
 static void
-slist_stnode_free(gpointer data)
+slist_stnode_free(void * data)
 {
 	if (data) {
 		stnode_free(data);
@@ -33,7 +33,7 @@ set_nodelist_free(GSList *params)
 }
 
 static void
-sttype_set_free(gpointer value)
+sttype_set_free(void * value)
 {
 	/* If the data was not claimed with stnode_steal_data(), free it. */
 	if (value) {
@@ -42,7 +42,7 @@ sttype_set_free(gpointer value)
 }
 
 static char *
-sttype_set_tostr(const void *data, gboolean pretty)
+sttype_set_tostr(const void *data, bool pretty)
 {
 	const GSList* nodelist = data;
 	stnode_t *lower, *upper;
@@ -67,7 +67,7 @@ sttype_set_tostr(const void *data, gboolean pretty)
 		}
 	}
 
-	return g_string_free(repr, FALSE);
+	return g_string_free(repr, false);
 }
 
 void

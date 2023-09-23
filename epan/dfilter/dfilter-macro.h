@@ -20,17 +20,17 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct _dfilter_macro_t {
-	gchar* name; /* the macro id */
-	gchar* text; /* raw data from file */
-	gboolean usable; /* macro is usable */
-	gchar** parts; /* various segments of text between insertion targets */
+	char* name; /* the macro id */
+	char* text; /* raw data from file */
+	bool usable; /* macro is usable */
+	char** parts; /* various segments of text between insertion targets */
 	int* args_pos; /* what's to be inserted */
 	int argc; /* the expected number of arguments */
 	void* priv; /* a copy of text that contains every c-string in parts */
 } dfilter_macro_t;
 
 /* applies all macros to the given text and returns the resulting string or NULL on failure */
-gchar* dfilter_macro_apply(const gchar* text, df_error_t** error);
+char* dfilter_macro_apply(const char* text, df_error_t** error);
 
 void dfilter_macro_init(void);
 
