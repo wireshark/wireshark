@@ -252,7 +252,7 @@ protobuf_udp_message_types_copy_cb(void* n, const void* o, size_t siz _U_)
     return new_rec;
 }
 
-static gboolean
+static bool
 protobuf_udp_message_types_update_cb(void *r, char **err)
 {
     protobuf_udp_message_type_t* rec = (protobuf_udp_message_type_t*)r;

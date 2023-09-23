@@ -8201,7 +8201,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key, const gchar *key_name, g
     return key_len;
 }
 
-static gboolean
+static bool
 uat_btmesh_record_update_cb(void *r, char **err)
 {
     uat_btmesh_record_t *rec = (uat_btmesh_record_t *)r;
@@ -8298,7 +8298,7 @@ UAT_CSTRING_CB_DEF(uat_btmesh_records, network_key_string, uat_btmesh_record_t)
 UAT_CSTRING_CB_DEF(uat_btmesh_records, application_key_string, uat_btmesh_record_t)
 UAT_CSTRING_CB_DEF(uat_btmesh_records, ivindex_string, uat_btmesh_record_t)
 
-static gboolean
+static bool
 uat_btmesh_dev_key_record_update_cb(void *r, char **err)
 {
     uat_btmesh_dev_key_record_t *rec = (uat_btmesh_dev_key_record_t *)r;
@@ -8364,7 +8364,7 @@ uat_btmesh_dev_key_record_free_cb(void *r)
 UAT_CSTRING_CB_DEF(uat_btmesh_dev_key_records, device_key_string, uat_btmesh_dev_key_record_t)
 UAT_CSTRING_CB_DEF(uat_btmesh_dev_key_records, src_string, uat_btmesh_dev_key_record_t)
 
-static gboolean
+static bool
 uat_btmesh_label_uuid_record_update_cb(void *r, char **err)
 {
     uat_btmesh_label_uuid_record_t *rec = (uat_btmesh_label_uuid_record_t *)r;

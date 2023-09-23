@@ -3525,7 +3525,7 @@ static struct _sccp_ul {
   {0, FALSE, NULL}
 };
 
-static gboolean
+static bool
 sccp_users_update_cb(void *r, char **err)
 {
   sccp_user_t *u = (sccp_user_t *)r;

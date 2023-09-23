@@ -784,7 +784,7 @@ c1222_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
  * \param err is updated to point to an error string if needed
  * \return FALSE if error; TRUE otherwise
  */
-static gboolean
+static bool
 c1222_uat_data_update_cb(void* n, char** err)
 {
   c1222_uat_data_t* new_rec = (c1222_uat_data_t *)n;

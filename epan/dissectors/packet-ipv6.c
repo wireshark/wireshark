@@ -682,7 +682,7 @@ static guint number_of_nat64_prefix = 0;
 
 UAT_CSTRING_CB_DEF(nat64_prefix_uats, ipaddr, struct nat64_prefix_data)
 
-static gboolean
+static bool
 nat64_prefix_uat_fld_ip_chk_cb(void *r _U_, const char *ipaddr, guint len _U_, const void *u1 _U_, const void *u2 _U_, char **err)
 {
     /* Check for a valid IPv6 address */

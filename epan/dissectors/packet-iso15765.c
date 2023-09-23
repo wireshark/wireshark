@@ -248,7 +248,7 @@ copy_config_can_addr_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_config_can_addr_mappings(void *r, char **err) {
     config_can_addr_mapping_t *rec = (config_can_addr_mapping_t *)r;
 
@@ -399,7 +399,7 @@ copy_config_pdu_transport_config_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_config_pdu_transport_config_item(void *r, char **err) {
     config_pdu_transport_config_t *rec = (config_pdu_transport_config_t *)r;
 

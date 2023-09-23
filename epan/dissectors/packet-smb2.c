@@ -1251,7 +1251,7 @@ UAT_BUFFER_CB_DEF(seskey_list, c2skey, smb2_seskey_field_t, c2skey, c2skey_len)
 
 #define SMB_SESSION_ID_SIZE 8
 
-static gboolean seskey_list_update_cb(void *r, char **err)
+static bool seskey_list_update_cb(void *r, char **err)
 {
 	smb2_seskey_field_t *rec = (smb2_seskey_field_t *)r;
 	gboolean has_seskey = rec->seskey_len != 0;

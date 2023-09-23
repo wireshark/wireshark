@@ -102,15 +102,15 @@ DIAG_OFF_FLEX()
 
 typedef struct {
 	uat_t* uat;
-	gchar *parse_str;
+	char *parse_str;
 
-	gchar* error;
-	gboolean valid_record;
-	guint colnum;
-	gchar* ptrx;
-	guint len;
+	char* error;
+	bool valid_record;
+	unsigned colnum;
+	char* ptrx;
+	unsigned len;
 	void* record;
-	guint linenum;
+	unsigned linenum;
 	size_t parse_str_pos;
 } uat_load_scanner_state_t;
 
@@ -140,13 +140,13 @@ typedef struct {
  * this message will be overwritten though.)
  */
 #define SET_FIELD() \
-	{ gchar* errx; \
+	{ char* errx; \
 	if (yyextra->uat->fields[yyextra->colnum].cb.chk) { \
 		if ( ! yyextra->uat->fields[yyextra->colnum].cb.chk(yyextra->record, yyextra->ptrx, yyextra->len, yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data, &errx) ) { \
 			g_free(yyextra->error); \
 			yyextra->error = ws_strdup_printf("%s:%d: %s",yyextra->uat->filename,yyextra->linenum,errx); \
 			g_free(errx); \
-			yyextra->valid_record = FALSE; \
+			yyextra->valid_record = false; \
 		}\
 	}\
 	yyextra->uat->fields[yyextra->colnum].cb.set(yyextra->record, yyextra->ptrx, yyextra->len, yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data);\
@@ -157,7 +157,7 @@ typedef struct {
 
 #ifdef DEBUG_UAT_LOAD
 #define DUMP_FIELD(str) \
-		{ guint i; printf("%s: %s='",str,yyextra->uat->fields[yyextra->colnum].name); for(i=0;i<yyextra->len;i++) if (yyextra->uat->fields[yyextra->colnum].mode == PT_TXTMOD_HEXBYTES) { printf("%.2x ",((guint8*)yyextra->ptrx)[i]); } else putc(yyextra->ptrx[i],stdout); printf("'[%d]\n",yyextra->len); }
+		{ unsigned i; printf("%s: %s='",str,yyextra->uat->fields[yyextra->colnum].name); for(i=0;i<yyextra->len;i++) if (yyextra->uat->fields[yyextra->colnum].mode == PT_TXTMOD_HEXBYTES) { printf("%.2x ",((uint8_t*)yyextra->ptrx)[i]); } else putc(yyextra->ptrx[i],stdout); printf("'[%d]\n",yyextra->len); }
 
 #define DUMP(str) printf("%s\n",str)
 #else
@@ -256,7 +256,7 @@ comment #[^\n]*\n
 }
 
 <START_OF_LINE,NEXT_FIELD>{quoted_string} {
-	yyextra->ptrx = uat_undquote(yytext, (guint) yyleng, &yyextra->len);
+	yyextra->ptrx = uat_undquote(yytext, (unsigned) yyleng, &yyextra->len);
 
 
 	if (yyextra->colnum < yyextra->uat->ncols - 1) {
@@ -269,7 +269,7 @@ comment #[^\n]*\n
 }
 
 <START_OF_LINE,NEXT_FIELD>{binstring} {
-	yyextra->ptrx = uat_unbinstring(yytext,  (guint) yyleng, &yyextra->len);
+	yyextra->ptrx = uat_unbinstring(yytext,  (unsigned) yyleng, &yyextra->len);
 
 	if (!yyextra->ptrx) {
 		ERROR(("uneven hexstring for field %s",yyextra->uat->fields[yyextra->colnum].name));
@@ -305,7 +305,7 @@ comment #[^\n]*\n
 	 * values that we can fill in. The field for the current column
 	 * will be filled in below in <END_OF_RECORD>{newline}.
 	 */
-	guint save_colnum = yyextra->colnum;
+	unsigned save_colnum = yyextra->colnum;
 	yyextra->colnum++;
 	while (yyextra->colnum < yyextra->uat->ncols) {
 		if (!yyextra->uat->default_values) {
@@ -315,7 +315,7 @@ comment #[^\n]*\n
 		if (!default_value) {
 			break;
 		}
-		yyextra->uat->fields[yyextra->colnum].cb.set(yyextra->record, default_value, (guint) strlen(default_value), yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data);
+		yyextra->uat->fields[yyextra->colnum].cb.set(yyextra->record, default_value, (unsigned) strlen(default_value), yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data);
 		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "%s:%d: Set %s to %s.",
 			yyextra->uat->filename, yyextra->linenum, yyextra->uat->fields[yyextra->colnum].name, default_value);
 		yyextra->colnum++;
@@ -368,7 +368,7 @@ comment #[^\n]*\n
 	}
 	memset(yyextra->record, 0, yyextra->uat->record_size);
 
-	yyextra->valid_record = TRUE;
+	yyextra->valid_record = true;
 	yyextra->colnum = 0;
 	yyextra->ptrx = NULL;
 	yyextra->len = 0;
@@ -393,10 +393,10 @@ comment #[^\n]*\n
  */
 DIAG_ON_FLEX()
 
-gboolean
-uat_load(uat_t *uat, const gchar *filename, char **errx)
+bool
+uat_load(uat_t *uat, const char *filename, char **errx)
 {
-	gchar *fname;
+	char *fname;
 	FILE *in;
 	yyscan_t scanner;
 	uat_load_scanner_state_t state;
@@ -404,7 +404,7 @@ uat_load(uat_t *uat, const gchar *filename, char **errx)
 	if (filename) {
 		fname = g_strdup(filename);
 	} else {
-		fname = uat_get_actual_filename(uat, FALSE);
+		fname = uat_get_actual_filename(uat, false);
 	}
 
 	if (!fname) {
@@ -413,21 +413,21 @@ uat_load(uat_t *uat, const gchar *filename, char **errx)
 		if (uat->post_update_cb)
 			uat->post_update_cb();
 
-		return TRUE;
+		return true;
 	}
 
 
 	if (!(in = ws_fopen(fname,"r"))) {
 		*errx = g_strdup(g_strerror(errno));
 		g_free(fname);
-		return FALSE;
+		return false;
 	}
 
 	if (uat_load_lex_init(&scanner) != 0) {
 		*errx = g_strdup(g_strerror(errno));
 		fclose(in);
 		g_free(fname);
-		return FALSE;
+		return false;
 	}
 
 	uat_load_set_in(in, scanner);
@@ -436,7 +436,7 @@ uat_load(uat_t *uat, const gchar *filename, char **errx)
 	state.parse_str = NULL;	/* we're reading from a file */
 
 	state.error = NULL;
-	state.valid_record = TRUE;
+	state.valid_record = true;
 	state.colnum = 0;
 	state.ptrx = NULL;
 	state.len = 0;
@@ -456,23 +456,23 @@ uat_load(uat_t *uat, const gchar *filename, char **errx)
 	g_free(state.record);
 	fclose(in);
 
-	uat->changed = FALSE;
-	uat->loaded = TRUE;
+	uat->changed = false;
+	uat->loaded = true;
 	UAT_UPDATE(uat);
 
 	if (state.error) {
 		*errx = state.error;
-		return FALSE;
+		return false;
 	}
 
 	if (uat->post_update_cb)
 		uat->post_update_cb();
 
 	*errx = NULL;
-	return TRUE;
+	return true;
 }
 
-gboolean
+bool
 uat_load_str(uat_t *uat, char *entry, char **err)
 {
 	yyscan_t scanner;
@@ -482,7 +482,7 @@ uat_load_str(uat_t *uat, char *entry, char **err)
 	state.parse_str = ws_strdup_printf("%s\n", entry); /* Records must end with a newline */
 
 	state.error = NULL;
-	state.valid_record = TRUE;
+	state.valid_record = true;
 	state.colnum = 0;
 	state.ptrx = NULL;
 	state.len = 0;
@@ -494,7 +494,7 @@ uat_load_str(uat_t *uat, char *entry, char **err)
 		*err = g_strdup(g_strerror(errno));
 		g_free(state.parse_str);
 		g_free(state.record);
-		return FALSE;
+		return false;
 	}
 
 	DUMP(entry);
@@ -508,18 +508,18 @@ uat_load_str(uat_t *uat, char *entry, char **err)
 	g_free(state.record);
 	g_free(state.parse_str);
 
-	uat->changed = TRUE;
-	uat->loaded = TRUE;
+	uat->changed = true;
+	uat->loaded = true;
 	UAT_UPDATE(uat);
 
 	if (state.error) {
 		*err = state.error;
-		return FALSE;
+		return false;
 	}
 
 	if (uat->post_update_cb)
 		uat->post_update_cb();
 
 	*err = NULL;
-	return TRUE;
+	return true;
 }

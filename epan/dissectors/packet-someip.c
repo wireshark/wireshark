@@ -787,7 +787,7 @@ copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_generic_one_identifier_16bit(void *r, char **err) {
     generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
 
@@ -839,7 +839,7 @@ copy_generic_two_id_string_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_generic_two_identifier_16bit(void *r, char **err) {
     generic_two_id_string_t *rec = (generic_two_id_string_t *)r;
 
@@ -1157,7 +1157,7 @@ copy_someip_parameter_list_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_someip_parameter_list(void *r, char **err) {
     someip_parameter_list_uat_t *rec = (someip_parameter_list_uat_t *)r;
     guchar c;
@@ -1344,7 +1344,7 @@ copy_someip_parameter_enum_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_someip_parameter_enum(void *r, char **err) {
     someip_parameter_enum_uat_t *rec = (someip_parameter_enum_uat_t *)r;
 
@@ -1513,7 +1513,7 @@ copy_someip_parameter_array_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_someip_parameter_array(void *r, char **err) {
     someip_parameter_array_uat_t *rec = (someip_parameter_array_uat_t *)r;
     char                         *tmp;
@@ -1692,7 +1692,7 @@ copy_someip_parameter_struct_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_someip_parameter_struct(void *r, char **err) {
     someip_parameter_struct_uat_t *rec = (someip_parameter_struct_uat_t *)r;
     char                          *tmp = NULL;
@@ -1880,7 +1880,7 @@ copy_someip_parameter_union_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_someip_parameter_union(void *r, char **err) {
     someip_parameter_union_uat_t *rec = (someip_parameter_union_uat_t *)r;
     gchar                        *tmp;
@@ -2048,7 +2048,7 @@ copy_someip_parameter_base_type_list_cb(void *n, const void *o, size_t size _U_)
     return new_rec;
 }
 
-static gboolean
+static bool
 update_someip_parameter_base_type_list(void *r, char **err) {
     someip_parameter_base_type_list_uat_t *rec = (someip_parameter_base_type_list_uat_t *)r;
 
@@ -2161,7 +2161,7 @@ copy_someip_parameter_string_list_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_someip_parameter_string_list(void *r, char **err) {
     someip_parameter_string_uat_t *rec = (someip_parameter_string_uat_t *)r;
 
@@ -2263,7 +2263,7 @@ copy_someip_parameter_typedef_list_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_someip_parameter_typedef_list(void *r, char **err) {
     someip_parameter_typedef_uat_t *rec = (someip_parameter_typedef_uat_t *)r;
 

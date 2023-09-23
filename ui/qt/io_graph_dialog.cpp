@@ -157,7 +157,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
     *out_ptr = ws_strdup_printf("%s",((rec_t*)rec)->field_name ? "Enabled" : "Disabled"); \
     *out_len = (unsigned)strlen(*out_ptr); }
 
-static gboolean uat_fld_chk_enable(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err)
+static bool uat_fld_chk_enable(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err)
 {
     char* str = g_strndup(strptr,len);
 
@@ -224,7 +224,7 @@ static void io_graph_sma_period_tostr_cb(void* rec, char** out_ptr, unsigned* ou
     *out_len = (unsigned)strlen("None");
 }
 
-static gboolean sma_period_chk_enum(void* u1 _U_, const char* strptr, guint len, const void* v, const void* u3 _U_, char** err) {
+static bool sma_period_chk_enum(void* u1 _U_, const char* strptr, guint len, const void* v, const void* u3 _U_, char** err) {
     char *str = g_strndup(strptr,len);
     guint i;
     const value_string* vs = (const value_string *)v;

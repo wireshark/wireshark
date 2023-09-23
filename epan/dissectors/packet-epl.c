@@ -582,10 +582,10 @@ static const value_string epl_device_profiles[] = {
 
 /* EPL Device Profiles loading */
 /* User Access Table Checkers */
-static gboolean epl_profile_uat_fld_fileopen_check_cb(void *, const char *, unsigned, const void *, const void *, char **);
-static gboolean epl_uat_fld_cn_check_cb(void *, const char *, unsigned, const void *, const void *, char **);
-static gboolean epl_uat_fld_uint16dec_check_cb(void *, const char *, unsigned, const void *, const void *, char **);
-static gboolean epl_uat_fld_uint32hex_check_cb(void *, const char *, unsigned, const void *, const void *, char **);
+static bool epl_profile_uat_fld_fileopen_check_cb(void *, const char *, unsigned, const void *, const void *, char **);
+static bool epl_uat_fld_cn_check_cb(void *, const char *, unsigned, const void *, const void *, char **);
+static bool epl_uat_fld_uint16dec_check_cb(void *, const char *, unsigned, const void *, const void *, char **);
+static bool epl_uat_fld_uint32hex_check_cb(void *, const char *, unsigned, const void *, const void *, char **);
 
 /* DeviceType:Path User Access Table */
 struct device_profile_uat_assoc {
@@ -602,7 +602,7 @@ static guint ndevice_profile_uat = 0;
 
 static void *device_profile_uat_copy_cb(void *, const void *, size_t);
 static void device_profile_uat_free_cb(void *);
-static gboolean device_profile_uat_update_record(void *, char **);
+static bool device_profile_uat_update_record(void *, char **);
 static void device_profile_parse_uat(void);
 
 UAT_DEC_CB_DEF(device_profile_list_uats, device_type, struct device_profile_uat_assoc)
@@ -643,7 +643,7 @@ static void nodeid_profile_list_uats_nodeid_set_cb(void *, const char *, unsigne
 static void nodeid_profile_list_uats_nodeid_tostr_cb(void *, char **, unsigned *, const void*, const void*);
 static void *nodeid_profile_uat_copy_cb(void *, const void *, size_t);
 static void nodeid_profile_uat_free_cb(void *);
-static gboolean nodeid_profile_uat_update_record(void *, char **);
+static bool nodeid_profile_uat_update_record(void *, char **);
 static void nodeid_profile_parse_uat(void);
 
 UAT_FILENAME_CB_DEF(nodeid_profile_list_uats, path, struct nodeid_profile_uat_assoc)
@@ -6465,7 +6465,7 @@ proto_reg_handoff_epl(void)
 }
 
 
-static gboolean
+static bool
 epl_uat_fld_uint16dec_check_cb(void *_record _U_, const char *str, guint len _U_, const void *chk_data _U_, const void *fld_data _U_, char **err)
 {
 	guint16 val;
@@ -6477,7 +6477,7 @@ epl_uat_fld_uint16dec_check_cb(void *_record _U_, const char *str, guint len _U_
 	return TRUE;
 }
 
-static gboolean
+static bool
 epl_uat_fld_uint32hex_check_cb(void *_record _U_, const char *str, guint len _U_, const void *chk_data _U_, const void *fld_data _U_, char **err)
 {
 	guint32 val;
@@ -6489,7 +6489,7 @@ epl_uat_fld_uint32hex_check_cb(void *_record _U_, const char *str, guint len _U_
 	return TRUE;
 }
 
-static gboolean
+static bool
 epl_profile_uat_fld_fileopen_check_cb(void *record _U_, const char *path, guint len, const void *chk_data _U_, const void *fld_data _U_, char **err)
 {
 	const char *supported = "Only" IF_LIBXML(" *.xdd, *.xdc and") " *.eds profiles supported.";
@@ -6605,7 +6605,7 @@ device_profile_parse_uat(void)
 	}
 }
 
-static gboolean
+static bool
 device_profile_uat_update_record(void *_record _U_, char **err _U_)
 {
 	return TRUE;
@@ -6689,7 +6689,7 @@ nodeid_profile_parse_uat(void)
 }
 
 
-static gboolean
+static bool
 nodeid_profile_uat_update_record(void *_record _U_, char **err _U_)
 {
 	return TRUE;
@@ -6736,7 +6736,7 @@ nodeid_profile_list_uats_nodeid_tostr_cb(void *_rec, char **out_ptr, unsigned *o
 	}
 }
 
-static gboolean
+static bool
 epl_uat_fld_cn_check_cb(void *record _U_, const char *str, guint len _U_, const void *u1 _U_, const void *u2 _U_, char **err)
 {
 	guint8 nodeid;

@@ -145,7 +145,7 @@ static hf_register_info* dynamic_hf;
 static guint dynamic_hf_size;
 static wmem_map_t* user_data_fields_hash_ett;
 
-static gboolean
+static bool
 user_data_fields_update_cb(void *r, char **err)
 {
   user_data_field_t *rec = (user_data_field_t *)r;

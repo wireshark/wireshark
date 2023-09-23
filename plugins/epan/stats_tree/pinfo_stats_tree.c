@@ -56,7 +56,7 @@ static void *uat_plen_record_copy_cb(void *n, const void *o, size_t siz _U_) {
 	return n;
 }
 
-static gboolean
+static bool
 uat_plen_record_update_cb(void *r, char **err)
 {
 	uat_plen_record_t *rec = (uat_plen_record_t*)r;

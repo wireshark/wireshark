@@ -242,7 +242,7 @@ addr_uat_copy_cb(void *dest, const void *source, size_t len _U_)
 }
 
 /* Sanity-checks a UAT record. */
-static gboolean
+static bool
 addr_uat_update_cb(void *r, char **err)
 {
     static_addr_t *map = (static_addr_t *)r;
@@ -327,7 +327,7 @@ static void ieee802154_key_post_update_cb(void)
     }
 }
 
-static gboolean ieee802154_key_update_cb(void *r, char **err)
+static bool ieee802154_key_update_cb(void *r, char **err)
 {
     ieee802154_key_t* rec = (ieee802154_key_t*)r;
     GByteArray *bytes;

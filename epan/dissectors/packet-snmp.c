@@ -1593,7 +1593,7 @@ snmp_users_free_cb(void* p)
 	g_free(ue->engine.data);
 }
 
-static gboolean
+static bool
 snmp_users_update_cb(void* p _U_, char** err)
 {
 	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;

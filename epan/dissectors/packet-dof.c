@@ -1930,7 +1930,7 @@ static const value_string sgmp_opcode_strings[] = {
 
 
 #if 0 /* TODO not used yet */
-static gboolean sgmp_validate_session_key(sgmp_packet_data *cmd_data, guint8 *confirmation, guint8 *kek, guint8 *key)
+static bool sgmp_validate_session_key(sgmp_packet_data *cmd_data, guint8 *confirmation, guint8 *kek, guint8 *key)
 {
     gcry_mac_hd_t hmac;
     gcry_error_t result;
@@ -3342,7 +3342,7 @@ static void secmode_list_post_update_cb(void)
 {
 }
 
-static gboolean secmode_list_update_cb(void *r, char **err)
+static bool secmode_list_update_cb(void *r, char **err)
 {
     secmode_field_t *rec = (secmode_field_t *)r;
     guint32 size;
@@ -3410,7 +3410,7 @@ static void seckey_list_post_update_cb(void)
 {
 }
 
-static gboolean seckey_list_update_cb(void *r, char **err)
+static bool seckey_list_update_cb(void *r, char **err)
 {
     seckey_field_t *rec = (seckey_field_t *)r;
 
@@ -3450,7 +3450,7 @@ static void identsecret_list_post_update_cb(void)
 {
 }
 
-static gboolean identsecret_list_update_cb(void *r, char **err)
+static bool identsecret_list_update_cb(void *r, char **err)
 {
     identsecret_field_t *rec = (identsecret_field_t *)r;
     guint32 size;
@@ -3636,7 +3636,7 @@ static guint assign_addr_port_id(address *addr, guint16 port)
 
 /* Wireshark Configuration Dialog Routines*/
 
-static gboolean identsecret_chk_cb(void *r _U_, const char *p _U_, unsigned len _U_, const void *u1 _U_, const void *u2 _U_, char **err _U_)
+static bool identsecret_chk_cb(void *r _U_, const char *p _U_, unsigned len _U_, const void *u1 _U_, const void *u2 _U_, char **err _U_)
 {
 #if 0
     gchar** protos;

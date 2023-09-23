@@ -189,7 +189,7 @@ copy_ipdum_message_list_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_ipdum_message_list(void *r, char **err) {
     ipdum_message_list_uat_t *rec = (ipdum_message_list_uat_t *)r;
 
@@ -314,7 +314,7 @@ copy_ipdum_can_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_ipdum_can_mapping(void *r, char **err) {
     ipdum_can_mapping_uat_t *rec = (ipdum_can_mapping_uat_t *)r;
 
@@ -426,7 +426,7 @@ copy_ipdum_flexray_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_ipdum_flexray_mapping(void *r, char **err) {
     ipdum_flexray_mapping_uat_t *rec = (ipdum_flexray_mapping_uat_t *)r;
 
@@ -504,7 +504,7 @@ copy_ipdum_lin_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_ipdum_lin_mapping(void *r, char **err) {
     ipdum_lin_mapping_uat_t *rec = (ipdum_lin_mapping_uat_t *)r;
 
@@ -609,7 +609,7 @@ copy_ipdum_pdu_transport_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_ipdum_pdu_transport_mapping(void *r, char **err) {
     ipdum_pdu_transport_mapping_uat_t *rec = (ipdum_pdu_transport_mapping_uat_t *)r;
 

@@ -125,7 +125,7 @@ udf_free_one_id_string_data(gpointer data _U_)  {
     /* nothing to free here since we did not malloc data in udf_post_update_one_id_string_template_cb */
 }
 
-static gboolean
+static bool
 udf_update_diag_addr_cb(void *r, char **err) {
     udf_one_id_string_t *rec = (udf_one_id_string_t *)r;
 

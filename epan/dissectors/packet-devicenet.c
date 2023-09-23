@@ -125,7 +125,7 @@ static uat_devicenet_record_t *uat_devicenet_records = NULL;
 static uat_t *devicenet_uat = NULL;
 static guint num_devicenet_records_uat = 0;
 
-static gboolean uat_devicenet_record_update_cb(void* r, char** err) {
+static bool uat_devicenet_record_update_cb(void* r, char** err) {
     uat_devicenet_record_t* rec = (uat_devicenet_record_t *)r;
 
     if (rec->mac_id > 63) {

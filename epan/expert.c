@@ -119,7 +119,7 @@ static GArray *uat_saved_fields = NULL;
 UAT_CSTRING_CB_DEF(uat_expert_entries, field, expert_level_entry_t)
 UAT_VS_DEF(uat_expert_entries, severity, expert_level_entry_t, guint32, PI_ERROR, "Error")
 
-static gboolean uat_expert_update_cb(void *r, char **err)
+static bool uat_expert_update_cb(void *r, char **err)
 {
 	expert_level_entry_t *rec = (expert_level_entry_t *)r;
 

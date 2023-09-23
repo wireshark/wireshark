@@ -370,6 +370,8 @@ Adaptive Multi-Rate (AMR), if compiled with https://sourceforge.net/projects/ope
 * The reassemble_streaming_data_and_call_subdissector() API has been added to provide a simpler way to
   reassemble the streaming data of a high level protocol that is not on top of TCP.
 
+* Some of the API now uses C99 types instead of GLib types. wsbuglink:19116[]
+
 == Getting Wireshark
 
 Wireshark source code and installation packages are available from

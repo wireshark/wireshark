@@ -662,7 +662,7 @@ static GHashTable* attribute_types_hash;
 static hf_register_info* dynamic_hf;
 static guint dynamic_hf_size;
 
-static gboolean
+static bool
 attribute_types_update_cb(void *r, char **err)
 {
   attribute_type_t *rec = (attribute_type_t *)r;

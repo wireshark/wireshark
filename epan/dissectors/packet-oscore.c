@@ -189,7 +189,7 @@ static void oscore_context_post_update_cb(void) {
 }
 
 /* Check user input, do not allocate any memory */
-static gboolean oscore_context_update_cb(void *r, char **err) {
+static bool oscore_context_update_cb(void *r, char **err) {
     oscore_context_t *rec = (oscore_context_t *) r;
     GByteArray *bytes; /* temp array to verify each parameter */
 

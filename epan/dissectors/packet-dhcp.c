@@ -1716,7 +1716,7 @@ static void* uat_dhcp_record_copy_cb(void* n, const void* o, size_t siz _U_) {
 	return new_record;
 }
 
-static gboolean uat_dhcp_record_update_cb(void* r, char** err) {
+static bool uat_dhcp_record_update_cb(void* r, char** err) {
 	uat_dhcp_record_t* rec = (uat_dhcp_record_t *)r;
 
 	if ((rec->opt == 0) || (rec->opt >=DHCP_OPT_NUM-1)) {

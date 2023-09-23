@@ -629,7 +629,7 @@ zbee_gp_security_parse_key(const gchar *key_str, guint8 *key_buf, gboolean byte_
 }
 
 /* UAT record update callback. */
-static gboolean
+static bool
 uat_key_record_update_cb(void *r, char **err)
 {
     uat_key_record_t *rec = (uat_key_record_t *)r;

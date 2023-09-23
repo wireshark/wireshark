@@ -639,7 +639,7 @@ static void *mqtt_message_decode_copy_cb(void *dest, const void *orig, size_t le
   return d;
 }
 
-static gboolean mqtt_message_decode_update_cb(void *record, char **error)
+static bool mqtt_message_decode_update_cb(void *record, char **error)
 {
   mqtt_message_decode_t *u = (mqtt_message_decode_t *)record;
 

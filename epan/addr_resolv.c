@@ -397,7 +397,7 @@ dns_server_copy_cb(void *dst_, const void *src_, size_t len _U_)
     return dst;
 }
 
-static gboolean
+static bool
 dnsserver_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     //Check for a valid IPv4 or IPv6 address.
@@ -410,7 +410,7 @@ dnsserver_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, cons
     return FALSE;
 }
 
-static gboolean
+static bool
 dnsserver_uat_fld_port_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     if (!p || strlen(p) == 0u) {

@@ -590,7 +590,7 @@ static gint ett_nrup = -1;
 
 
 /* --- PDCP DECODE ADDITIONS --- */
-static gboolean
+static bool
 pdcp_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     ws_in4_addr ip4_addr;
@@ -610,7 +610,7 @@ pdcp_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, const voi
 
 #define PDCP_TEID_WILDCARD "*"
 
-static gboolean
+static bool
 pdcp_uat_fld_teid_chk_cb(void* r _U_, const char* teid, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     if (teid) {
@@ -649,7 +649,7 @@ typedef struct {
 /* N.B. this is an array/table of the struct above, where IP address + TEID is the key */
 static uat_pdcp_lte_keys_record_t *uat_pdcp_lte_keys_records = NULL;
 
-static gboolean pdcp_lte_update_cb(void *r, char **err)
+static bool pdcp_lte_update_cb(void *r, char **err)
 {
     uat_pdcp_lte_keys_record_t* rec = (uat_pdcp_lte_keys_record_t *)r;
     ws_in4_addr ip4_addr;
@@ -741,7 +741,7 @@ typedef struct {
 /* N.B. this is an array/table of the struct above, where IP address + TEID is the key */
 static uat_pdcp_nr_keys_record_t *uat_pdcp_nr_keys_records = NULL;
 
-static gboolean pdcp_nr_update_cb(void *r, char **err) {
+static bool pdcp_nr_update_cb(void *r, char **err) {
     uat_pdcp_nr_keys_record_t* rec = (uat_pdcp_nr_keys_record_t *)r;
     ws_in4_addr ip4_addr;
     ws_in6_addr ip6_addr;

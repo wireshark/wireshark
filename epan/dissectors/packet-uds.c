@@ -1115,7 +1115,7 @@ copy_address_string_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_address_string_cb(void *r, char **err) {
     address_string_t *rec = (address_string_t *)r;
 
@@ -1171,7 +1171,7 @@ copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_generic_addr_16bit_id_var(void *r, char **err, guint32 limit) {
     generic_addr_id_string_t *rec = (generic_addr_id_string_t *)r;
 
@@ -1194,12 +1194,12 @@ update_generic_addr_16bit_id_var(void *r, char **err, guint32 limit) {
     return TRUE;
 }
 
-static gboolean
+static bool
 update_generic_addr_16bit_id_16bit(void *r, char **err) {
     return update_generic_addr_16bit_id_var(r, err, 0xffff);
 }
 
-static gboolean
+static bool
 update_generic_addr_16bit_id_24bit(void *r, char **err) {
     return update_generic_addr_16bit_id_var(r, err, 0xffffff);
 }

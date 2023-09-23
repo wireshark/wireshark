@@ -4287,7 +4287,7 @@ void proto_register_bluetooth(void);
 void proto_reg_handoff_bluetooth(void);
 
 /* UAT routines */
-static gboolean
+static bool
 bt_uuids_update_cb(void *r, char **err)
 {
     bt_uuid_t *rec = (bt_uuid_t *)r;

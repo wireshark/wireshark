@@ -30,7 +30,7 @@ typedef void (*uat_rep_fld_free_cb_t)(uat_fld_rep_t*);
 typedef void (*uat_rep_free_cb_t)(uat_rep_t*);
 
 typedef struct _fld_data_t {
-    guint colnum;
+    unsigned colnum;
     uat_fld_rep_t* rep;
     uat_rep_fld_free_cb_t free_rep;
 } fld_data_t;
@@ -39,11 +39,11 @@ struct epan_uat {
     char* name;
     size_t record_size;
     char* filename;
-    gboolean from_profile;
+    bool from_profile;
     char* help;
-    guint flags;
+    unsigned flags;
     void** user_ptr;    /**< Pointer to a dissector variable where an array of valid records are stored. */
-    guint* nrows_p;     /**< Pointer to a dissector variable where the number of valid records in user_ptr are written. */
+    unsigned* nrows_p;     /**< Pointer to a dissector variable where the number of valid records in user_ptr are written. */
     uat_copy_cb_t copy_cb;
     uat_update_cb_t update_cb;
     uat_free_cb_t free_cb;
@@ -52,19 +52,19 @@ struct epan_uat {
 
     uat_field_t* fields;
     const char** default_values;
-    guint ncols;
+    unsigned ncols;
     GArray* user_data;  /**< An array of valid records that will be exposed to the dissector. */
     GArray* raw_data;   /**< An array of records containing possibly invalid data. For internal use only. */
     GArray* valid_data; /**< An array of booleans describing whether the records in 'raw_data' are valid or not. */
-    gboolean changed;
+    bool changed;
     uat_rep_t* rep;
     uat_rep_free_cb_t free_rep;
-    gboolean loaded;
-    gboolean from_global;
+    bool loaded;
+    bool from_global;
 };
 
 WS_DLL_PUBLIC
-gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing);
+char* uat_get_actual_filename(uat_t* uat, bool for_writing);
 
 /**
  * Clones the given record and stores it internally in the UAT. If it is
@@ -72,38 +72,38 @@ gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing);
  * externally visible list.
  */
 WS_DLL_PUBLIC
-void* uat_add_record(uat_t *uat, const void *orig_rec_ptr, gboolean valid_rec);
+void* uat_add_record(uat_t *uat, const void *orig_rec_ptr, bool valid_rec);
 
 /**
  * Marks the internal record in the UAT as valid or invalid. The record must
  * exist in the UAT.
  */
 WS_DLL_PUBLIC
-void uat_update_record(uat_t *uat, const void *record, gboolean valid_rec);
+void uat_update_record(uat_t *uat, const void *record, bool valid_rec);
 
 /**
  * Changes the order of two internal UAT records.
  */
 WS_DLL_PUBLIC
-void uat_swap(uat_t *uat, guint idx_a, guint idx_b);
+void uat_swap(uat_t *uat, unsigned idx_a, unsigned idx_b);
 
 /**
  * Inserts the record at the given index in the internal record list.
  */
 WS_DLL_PUBLIC
-void uat_insert_record_idx(uat_t *uat, guint rec_idx, const void *src_record);
+void uat_insert_record_idx(uat_t *uat, unsigned rec_idx, const void *src_record);
 
 /**
  * Removes the record with the given index from the internal record list.
  */
 WS_DLL_PUBLIC
-void uat_remove_record_idx(uat_t *uat, guint rec_idx);
+void uat_remove_record_idx(uat_t *uat, unsigned rec_idx);
 
 /**
  * Moves the entry from the old position to the new one
  */
 WS_DLL_PUBLIC
-void uat_move_index(uat_t *uat, guint old_idx, guint new_idx);
+void uat_move_index(uat_t *uat, unsigned old_idx, unsigned new_idx);
 
 /**
  * Removes and destroys all records from the UAT.
@@ -113,11 +113,11 @@ void uat_clear(uat_t *uat);
 
 /**
  * Saves the records from an UAT to file.
- * Returns TRUE on success and FALSE on failure, storing the reason in 'error'
+ * Returns true on success and false on failure, storing the reason in 'error'
  * (which must be freed using g_free).
  */
 WS_DLL_PUBLIC
-gboolean uat_save(uat_t *uat, char **error);
+bool uat_save(uat_t *uat, char **error);
 
 /**
  * Loads the records for all registered UATs from file.

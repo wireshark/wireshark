@@ -634,7 +634,7 @@ static const value_string rSocketErrorCodeNames[] =
 /*----------------------------------------------------------------------------*/
 /* UAT callback functions.                                                    */
 /*----------------------------------------------------------------------------*/
-static gboolean lbmsrs_tag_update_cb(void * record, char * * error_string)
+static bool lbmsrs_tag_update_cb(void * record, char * * error_string)
 {
     lbmsrs_tag_entry_t * tag = (lbmsrs_tag_entry_t *)record;
 

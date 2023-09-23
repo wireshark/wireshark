@@ -348,7 +348,7 @@ static void *uat_key_record_copy_cb(void *n, const void *o, size_t size _U_)
  * @param  err   pointer to error pointer
  * @return success
  */
-static gboolean uat_key_record_update_cb(void *r, char **err)
+static bool uat_key_record_update_cb(void *r, char **err)
 {
     uat_key_record_t *rec = (uat_key_record_t *)r;
     guint8            zdd_ieee[8];

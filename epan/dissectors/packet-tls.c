@@ -4279,7 +4279,7 @@ UAT_CSTRING_CB_DEF(sslkeylist_uats,protocol,ssldecrypt_assoc_t)
 UAT_FILENAME_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,password,ssldecrypt_assoc_t)
 
-static gboolean
+static bool
 ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     if (!p || strlen(p) == 0u) {

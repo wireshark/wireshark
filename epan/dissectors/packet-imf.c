@@ -323,7 +323,7 @@ static GHashTable *custom_field_table;
 static hf_register_info *dynamic_hf;
 static guint dynamic_hf_size;
 
-static gboolean
+static bool
 header_fields_update_cb(void *r, char **err)
 {
   header_field_t *rec = (header_field_t *)r;

@@ -1596,7 +1596,7 @@ static void *amqp_message_decode_copy_cb(void *dest, const void *orig, size_t le
     return d;
 }
 
-static gboolean amqp_message_decode_update_cb(void *record, char **error)
+static bool amqp_message_decode_update_cb(void *record, char **error)
 {
     amqp_message_decode_t *u = (amqp_message_decode_t *)record;
 

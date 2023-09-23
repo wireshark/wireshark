@@ -452,7 +452,7 @@ sctp_chunk_type_free_cb(void* r)
   g_free(rec->type_name);
 }
 
-static gboolean
+static bool
 sctp_chunk_type_update_cb(void *r, char **err)
 {
   type_field_t *rec = (type_field_t *)r;

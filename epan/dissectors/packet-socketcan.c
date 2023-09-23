@@ -185,7 +185,7 @@ copy_interface_config_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_interface_config(void *r, char **err) {
     interface_config_t *rec = (interface_config_t *)r;
 
@@ -355,7 +355,7 @@ copy_sender_receiver_config_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-static gboolean
+static bool
 update_sender_receiver_config(void *r, char **err) {
     sender_receiver_config_t *rec = (sender_receiver_config_t *)r;
 

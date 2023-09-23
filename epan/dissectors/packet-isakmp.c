@@ -6326,7 +6326,7 @@ isakmp_cleanup_protocol(void) {
 UAT_BUFFER_CB_DEF(ikev1_users, icookie, ikev1_uat_data_key_t, icookie, icookie_len)
 UAT_BUFFER_CB_DEF(ikev1_users, key, ikev1_uat_data_key_t, key, key_len)
 
-static gboolean ikev1_uat_data_update_cb(void* p, char** err) {
+static bool ikev1_uat_data_update_cb(void* p, char** err) {
   ikev1_uat_data_key_t *ud = (ikev1_uat_data_key_t *)p;
 
   if (ud->icookie_len != COOKIE_SIZE) {
@@ -6411,7 +6411,7 @@ ikev2_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
   return dest;
 }
 
-static gboolean ikev2_uat_data_update_cb(void* p, char** err) {
+static bool ikev2_uat_data_update_cb(void* p, char** err) {
   ikev2_uat_data_t *ud = (ikev2_uat_data_t *)p;
 
   if (ud->key.spii_len != COOKIE_SIZE) {

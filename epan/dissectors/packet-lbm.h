@@ -104,7 +104,7 @@ typedef guint64 lbm_uint64_t;
 
 /* UAT macros for IPV4 fields. */
 #define UAT_IPV4_CB_DEF(basename,field_name,rec_t) \
-    static gboolean basename ## _ ## field_name ## _chk_cb(void * u1 _U_, const char * strptr, unsigned len _U_, const void * u2 _U_, const void * u3 _U_, char ** err) \
+    static bool basename ## _ ## field_name ## _chk_cb(void * u1 _U_, const char * strptr, unsigned len _U_, const void * u2 _U_, const void * u3 _U_, char ** err) \
     { \
         guint32 addr; \
         if (!ws_inet_pton4(strptr, &addr)) \
@@ -142,7 +142,7 @@ typedef guint64 lbm_uint64_t;
 
 /* UAT macros for IPV4 Multicast fields. */
 #define UAT_IPV4_MC_CB_DEF(basename,field_name,rec_t) \
-    static gboolean basename ## _ ## field_name ## _chk_cb(void * u1 _U_, const char * strptr, unsigned len _U_, const void * u2 _U_, const void * u3 _U_, char ** err) \
+    static bool basename ## _ ## field_name ## _chk_cb(void * u1 _U_, const char * strptr, unsigned len _U_, const void * u2 _U_, const void * u3 _U_, char ** err) \
     { \
         guint32 addr; \
         if (!ws_inet_pton4(strptr, &addr)) \

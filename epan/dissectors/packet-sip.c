@@ -1011,7 +1011,7 @@ static GHashTable *sip_custom_header_fields_hash;
 static hf_register_info *dynamic_hf;
 static guint dynamic_hf_size;
 
-static gboolean
+static bool
 header_fields_update_cb(void *r, char **err)
 {
     header_field_t *rec = (header_field_t *)r;
@@ -1141,7 +1141,7 @@ typedef struct _authorization_user_t {
 static authorization_user_t* sip_authorization_users = NULL;
 static guint sip_authorization_num_users = 0;
 
-static gboolean
+static bool
 authorization_users_update_cb(void *r, char **err)
 {
     authorization_user_t *rec = (authorization_user_t *)r;

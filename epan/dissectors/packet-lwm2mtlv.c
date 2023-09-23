@@ -318,7 +318,7 @@ static guint num_lwm2m_uat_object_names;
 static lwm2m_resource_t *lwm2m_uat_resources;
 static guint num_lwm2m_uat_resources;
 
-static gboolean lwm2m_object_name_update_cb(void *record, char **error)
+static bool lwm2m_object_name_update_cb(void *record, char **error)
 {
 	lwm2m_object_name_t *rec = (lwm2m_object_name_t *)record;
 
@@ -358,7 +358,7 @@ static void lwm2m_object_name_free_cb(void *record)
 UAT_DEC_CB_DEF(object_name, object_id, lwm2m_object_name_t)
 UAT_CSTRING_CB_DEF(object_name, name, lwm2m_object_name_t)
 
-static gboolean lwm2m_resource_update_cb(void *record, char **error)
+static bool lwm2m_resource_update_cb(void *record, char **error)
 {
 	lwm2m_resource_t *rec = (lwm2m_resource_t *)record;
 	char c;

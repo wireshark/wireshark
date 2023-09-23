@@ -278,7 +278,7 @@ static void update_key_from_string(const char *stringKey, guint8 *binaryKey, gbo
 }
 
 /* Update by checking whether the 3 key strings are valid or not, and storing result */
-static gboolean uat_ue_keys_record_update_cb(void* record, char** error) {
+static bool uat_ue_keys_record_update_cb(void* record, char** error) {
     uat_ue_keys_record_t* rec = (uat_ue_keys_record_t *)record;
 
     /* Check and convert RRC key */

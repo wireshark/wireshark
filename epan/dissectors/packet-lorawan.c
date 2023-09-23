@@ -382,7 +382,7 @@ byte_array_reverse(GByteArray *arr)
 	}
 }
 
-static gboolean
+static bool
 root_keys_update_cb(void *r, char **err)
 {
 	root_key_t *rec = (root_key_t *)r;
@@ -464,7 +464,7 @@ root_keys_free_cb(void *r)
 	g_byte_array_free(rec->appkey, TRUE);
 }
 
-static gboolean
+static bool
 session_keys_update_cb(void *r, char **err)
 {
 	session_key_t *rec = (session_key_t*)r;

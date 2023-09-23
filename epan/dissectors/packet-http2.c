@@ -578,7 +578,7 @@ static guint num_header_fields_cleanup = 0;
 
 static GHashTable* header_fields_hash = NULL;
 
-static gboolean
+static bool
 header_fields_update_cb(void *r, char **err)
 {
     header_field_t *rec = (header_field_t *)r;
@@ -1076,7 +1076,7 @@ http2_fake_headers_copy_cb(void* n, const void* o, size_t siz _U_)
     return new_rec;
 }
 
-static gboolean
+static bool
 http2_fake_headers_update_cb(void* r, char** err)
 {
     http2_fake_header_t* rec = (http2_fake_header_t*)r;

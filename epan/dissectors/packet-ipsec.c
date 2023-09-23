@@ -387,7 +387,7 @@ compute_ascii_key(gchar **ascii_key, const gchar *key, char **err)
 }
 
 
-static gboolean uat_esp_sa_record_update_cb(void* r, char** err) {
+static bool uat_esp_sa_record_update_cb(void* r, char** err) {
   uat_esp_sa_record_t* rec = (uat_esp_sa_record_t *)r;
 
   /* Compute keys & lengths once and for all */

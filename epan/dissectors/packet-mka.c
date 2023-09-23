@@ -237,7 +237,7 @@ ckn_info_copy_cb(void *n, const void *o, size_t size _U_) {
   return new_rec;
 }
 
-static gboolean
+static bool
 ckn_info_update_cb(void *r, char **err) {
   mka_ckn_info_t *rec = (mka_ckn_info_t *)r;
 

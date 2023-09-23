@@ -765,7 +765,7 @@ wg_key_uat_record_copy_cb(void *dest, const void *source, size_t len _U_)
     return dest;
 }
 
-static gboolean
+static bool
 wg_key_uat_record_update_cb(void *r, char **error)
 {
     wg_key_uat_record_t *rec = (wg_key_uat_record_t *)r;
