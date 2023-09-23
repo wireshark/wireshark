@@ -1112,7 +1112,7 @@ static void dissect_uci_session_config_pdu(tvbuff_t *tvb, int offset, packet_inf
         opcode_id == UCI_OID_SESSION_UPDATE_CONTROLLER_MULTICAST_LIST) {
         dissect_session_update_controller_multicast_list_rsp(tvb, offset, pinfo, payload_tree);
     }
-    else if (message_type == UCI_MT_RESPONSE &&
+    else if (message_type == UCI_MT_NOTIFICATION &&
         opcode_id == UCI_OID_SESSION_UPDATE_CONTROLLER_MULTICAST_LIST) {
         dissect_session_update_controller_multicast_list_ntf(tvb, offset, pinfo, payload_tree);
     }
