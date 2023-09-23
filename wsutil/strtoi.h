@@ -13,7 +13,8 @@
 #ifndef _WS_STRTOI_H
 #define _WS_STRTOI_H
 
-#include <glib.h>
+#include <stdbool.h>
+#include <inttypes.h>
 
 #include "ws_symbol_export.h"
 
@@ -29,21 +30,21 @@ extern "C" {
  * whitespace. If NULL, then the string is assumed to contain only valid
  * characters (or it will error out).
  * \param cint The converted integer
- * \return TRUE if the conversion succeeds, FALSE otherwise.
+ * \return true if the conversion succeeds, false otherwise.
  * On error, errno is set to EINVAL for unrecognized input and ERANGE
  * if the resulting number does not fit in the type.
  */
-WS_DLL_PUBLIC gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint);
-WS_DLL_PUBLIC gboolean ws_strtoi32(const gchar* str, const gchar** endptr, gint32* cint);
-WS_DLL_PUBLIC gboolean ws_strtoi16(const gchar* str, const gchar** endptr, gint16* cint);
-WS_DLL_PUBLIC gboolean ws_strtoi8 (const gchar* str, const gchar** endptr, gint8*  cint);
-WS_DLL_PUBLIC gboolean ws_strtoi (const gchar* str, const gchar** endptr, gint*  cint);
+WS_DLL_PUBLIC bool ws_strtoi64(const char* str, const char** endptr, int64_t* cint);
+WS_DLL_PUBLIC bool ws_strtoi32(const char* str, const char** endptr, int32_t* cint);
+WS_DLL_PUBLIC bool ws_strtoi16(const char* str, const char** endptr, int16_t* cint);
+WS_DLL_PUBLIC bool ws_strtoi8 (const char* str, const char** endptr, int8_t*  cint);
+WS_DLL_PUBLIC bool ws_strtoi (const char* str, const char** endptr, int*  cint);
 
-WS_DLL_PUBLIC gboolean ws_strtou64(const gchar* str, const gchar** endptr, guint64* cint);
-WS_DLL_PUBLIC gboolean ws_strtou32(const gchar* str, const gchar** endptr, guint32* cint);
-WS_DLL_PUBLIC gboolean ws_strtou16(const gchar* str, const gchar** endptr, guint16* cint);
-WS_DLL_PUBLIC gboolean ws_strtou8 (const gchar* str, const gchar** endptr, guint8*  cint);
-WS_DLL_PUBLIC gboolean ws_strtou (const gchar* str, const gchar** endptr, guint*  cint);
+WS_DLL_PUBLIC bool ws_strtou64(const char* str, const char** endptr, uint64_t* cint);
+WS_DLL_PUBLIC bool ws_strtou32(const char* str, const char** endptr, uint32_t* cint);
+WS_DLL_PUBLIC bool ws_strtou16(const char* str, const char** endptr, uint16_t* cint);
+WS_DLL_PUBLIC bool ws_strtou8 (const char* str, const char** endptr, uint8_t*  cint);
+WS_DLL_PUBLIC bool ws_strtou (const char* str, const char** endptr, unsigned*  cint);
 
 /*
  * \brief Convert a hexadecimal string to an unsigned int, with error checks.
@@ -53,16 +54,16 @@ WS_DLL_PUBLIC gboolean ws_strtou (const gchar* str, const gchar** endptr, guint*
  * whitespace. If NULL, then the string is assumed to contain only valid
  * characters (or it will error out).
  * \param cint The converted integer
- * \return TRUE if the conversion succeeds, FALSE otherwise.
+ * \return true if the conversion succeeds, false otherwise.
  * On error, errno is set to EINVAL for unrecognized input and ERANGE
  * if the resulting number does not fit in the type.
  */
 
-WS_DLL_PUBLIC gboolean ws_hexstrtou64(const gchar* str, const gchar** endptr, guint64* cint);
-WS_DLL_PUBLIC gboolean ws_hexstrtou32(const gchar* str, const gchar** endptr, guint32* cint);
-WS_DLL_PUBLIC gboolean ws_hexstrtou16(const gchar* str, const gchar** endptr, guint16* cint);
-WS_DLL_PUBLIC gboolean ws_hexstrtou8 (const gchar* str, const gchar** endptr, guint8*  cint);
-WS_DLL_PUBLIC gboolean ws_hexstrtou (const gchar* str, const gchar** endptr, guint*  cint);
+WS_DLL_PUBLIC bool ws_hexstrtou64(const char* str, const char** endptr, uint64_t* cint);
+WS_DLL_PUBLIC bool ws_hexstrtou32(const char* str, const char** endptr, uint32_t* cint);
+WS_DLL_PUBLIC bool ws_hexstrtou16(const char* str, const char** endptr, uint16_t* cint);
+WS_DLL_PUBLIC bool ws_hexstrtou8 (const char* str, const char** endptr, uint8_t*  cint);
+WS_DLL_PUBLIC bool ws_hexstrtou (const char* str, const char** endptr, unsigned*  cint);
 
 /*
  * \brief Convert a string in the specified base to an unsigned int, with
@@ -76,16 +77,16 @@ WS_DLL_PUBLIC gboolean ws_hexstrtou (const gchar* str, const gchar** endptr, gui
  * \param base The base for the integer; 0 means "if it begins with 0x,
  * it's hex, otherwise if it begins with 0, it's octal, otherwise it's
  * decimal".
- * \return TRUE if the conversion succeeds, FALSE otherwise.
+ * \return true if the conversion succeeds, false otherwise.
  * On error, errno is set to EINVAL for unrecognized input and ERANGE
  * if the resulting number does not fit in the type.
  */
 
-WS_DLL_PUBLIC gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, int base);
-WS_DLL_PUBLIC gboolean ws_basestrtou32(const gchar* str, const gchar** endptr, guint32* cint, int base);
-WS_DLL_PUBLIC gboolean ws_basestrtou16(const gchar* str, const gchar** endptr, guint16* cint, int base);
-WS_DLL_PUBLIC gboolean ws_basestrtou8 (const gchar* str, const gchar** endptr, guint8*  cint, int base);
-WS_DLL_PUBLIC gboolean ws_basestrtou (const gchar* str, const gchar** endptr, guint*  cint, int base);
+WS_DLL_PUBLIC bool ws_basestrtou64(const char* str, const char** endptr, uint64_t* cint, int base);
+WS_DLL_PUBLIC bool ws_basestrtou32(const char* str, const char** endptr, uint32_t* cint, int base);
+WS_DLL_PUBLIC bool ws_basestrtou16(const char* str, const char** endptr, uint16_t* cint, int base);
+WS_DLL_PUBLIC bool ws_basestrtou8 (const char* str, const char** endptr, uint8_t*  cint, int base);
+WS_DLL_PUBLIC bool ws_basestrtou (const char* str, const char** endptr, unsigned*  cint, int base);
 
 #ifdef __cplusplus
 }

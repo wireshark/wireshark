@@ -22,30 +22,30 @@
 static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
                               '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-gchar *
-wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
+char *
+wmem_strconcat(wmem_allocator_t *allocator, const char *first, ...)
 {
-    gsize   len;
+    size_t  len;
     va_list args;
-    gchar   *s;
-    gchar   *concat;
-    gchar   *ptr;
+    char    *s;
+    char    *concat;
+    char    *ptr;
 
     if (!first)
         return NULL;
 
     len = 1 + strlen(first);
     va_start(args, first);
-    while ((s = va_arg(args, gchar*))) {
+    while ((s = va_arg(args, char*))) {
         len += strlen(s);
     }
     va_end(args);
 
-    ptr = concat = (gchar *)wmem_alloc(allocator, len);
+    ptr = concat = (char *)wmem_alloc(allocator, len);
 
     ptr = g_stpcpy(ptr, first);
     va_start(args, first);
-    while ((s = va_arg(args, gchar*))) {
+    while ((s = va_arg(args, char*))) {
         ptr = g_stpcpy(ptr, s);
     }
     va_end(args);
@@ -53,16 +53,16 @@ wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
     return concat;
 }
 
-gchar *
+char *
 wmem_strjoin(wmem_allocator_t *allocator,
-             const gchar *separator, const gchar *first, ...)
+             const char *separator, const char *first, ...)
 {
-    gsize   len;
+    size_t  len;
     va_list args;
-    gsize separator_len;
-    gchar   *s;
-    gchar   *concat;
-    gchar   *ptr;
+    size_t separator_len;
+    char    *s;
+    char    *concat;
+    char    *ptr;
 
     if (!first)
         return NULL;
@@ -75,15 +75,15 @@ wmem_strjoin(wmem_allocator_t *allocator,
 
     len = 1 + strlen(first); /* + 1 for null byte */
     va_start(args, first);
-    while ((s = va_arg(args, gchar*))) {
+    while ((s = va_arg(args, char*))) {
         len += (separator_len + strlen(s));
     }
     va_end(args);
 
-    ptr = concat = (gchar *)wmem_alloc(allocator, len);
+    ptr = concat = (char *)wmem_alloc(allocator, len);
     ptr = g_stpcpy(ptr, first);
     va_start(args, first);
-    while ((s = va_arg(args, gchar*))) {
+    while ((s = va_arg(args, char*))) {
         ptr = g_stpcpy(ptr, separator);
         ptr = g_stpcpy(ptr, s);
     }
@@ -93,11 +93,11 @@ wmem_strjoin(wmem_allocator_t *allocator,
 
 }
 
-gchar *
+char *
 wmem_strjoinv(wmem_allocator_t *allocator,
-              const gchar *separator, gchar **str_array)
+              const char *separator, char **str_array)
 {
-    gchar *string = NULL;
+    char *string = NULL;
 
     if (!str_array)
         return NULL;
@@ -107,9 +107,9 @@ wmem_strjoinv(wmem_allocator_t *allocator,
     }
 
     if (str_array[0]) {
-        gint i;
-        gchar *ptr;
-        gsize len, separator_len;
+        int i;
+        char *ptr;
+        size_t len, separator_len;
 
         separator_len = strlen(separator);
 
@@ -122,7 +122,7 @@ wmem_strjoinv(wmem_allocator_t *allocator,
         }
 
         /* Allocate and build the string. */
-        string = (gchar *)wmem_alloc(allocator, len);
+        string = (char *)wmem_alloc(allocator, len);
         ptr = g_stpcpy(string, str_array[0]);
         for (i = 1; str_array[i] != NULL; i++) {
             ptr = g_stpcpy(ptr, separator);
@@ -134,28 +134,28 @@ wmem_strjoinv(wmem_allocator_t *allocator,
 
 }
 
-gchar **
-wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
-        const gchar *delimiter, int max_tokens)
+char **
+wmem_strsplit(wmem_allocator_t *allocator, const char *src,
+        const char *delimiter, int max_tokens)
 {
-    gchar *splitted;
-    gchar *s;
-    guint tokens;
-    guint sep_len;
-    guint i;
-    gchar **vec;
+    char *splitted;
+    char *s;
+    unsigned tokens;
+    unsigned sep_len;
+    unsigned i;
+    char **vec;
 
     if (!src || !delimiter || !delimiter[0])
         return NULL;
 
     /* An empty string results in an empty vector. */
     if (!src[0]) {
-        vec = wmem_new0(allocator, gchar *);
+        vec = wmem_new0(allocator, char *);
         return vec;
     }
 
     splitted = wmem_strdup(allocator, src);
-    sep_len = (guint)strlen(delimiter);
+    sep_len = (unsigned)strlen(delimiter);
 
     if (max_tokens < 1)
         max_tokens = INT_MAX;
@@ -163,18 +163,18 @@ wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
     /* Calculate the number of fields. */
     s = splitted;
     tokens = 1;
-    while (tokens < (guint)max_tokens && (s = strstr(s, delimiter))) {
+    while (tokens < (unsigned)max_tokens && (s = strstr(s, delimiter))) {
         s += sep_len;
         tokens++;
     }
 
-    vec = wmem_alloc_array(allocator, gchar *, tokens + 1);
+    vec = wmem_alloc_array(allocator, char *, tokens + 1);
 
     /* Populate the array of string tokens. */
     s = splitted;
     vec[0] = s;
     tokens = 1;
-    while (tokens < (guint)max_tokens && (s = strstr(s, delimiter))) {
+    while (tokens < (unsigned)max_tokens && (s = strstr(s, delimiter))) {
         for (i = 0; i < sep_len; i++)
             s[i] = '\0';
         s += sep_len;
@@ -192,10 +192,10 @@ wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
  * wmem_ascii_strdown:
  * based on g_ascii_strdown.
  */
-gchar*
-wmem_ascii_strdown(wmem_allocator_t *allocator, const gchar *str, gssize len)
+char*
+wmem_ascii_strdown(wmem_allocator_t *allocator, const char *str, ssize_t len)
 {
-    gchar *result, *s;
+    char *result, *s;
 
     g_return_val_if_fail (str != NULL, NULL);
 
@@ -234,57 +234,57 @@ ws_xton(char ch)
 }
 
 /* Convert all ASCII letters to lower case, in place. */
-gchar *
-ascii_strdown_inplace(gchar *str)
+char *
+ascii_strdown_inplace(char *str)
 {
-    gchar *s;
+    char *s;
 
     for (s = str; *s; s++)
-        /* What 'g_ascii_tolower (gchar c)' does, this should be slightly more efficient */
+        /* What 'g_ascii_tolower (char c)' does, this should be slightly more efficient */
         *s = g_ascii_isupper (*s) ? *s - 'A' + 'a' : *s;
 
     return (str);
 }
 
 /* Convert all ASCII letters to upper case, in place. */
-gchar *
-ascii_strup_inplace(gchar *str)
+char *
+ascii_strup_inplace(char *str)
 {
-    gchar *s;
+    char *s;
 
     for (s = str; *s; s++)
-        /* What 'g_ascii_toupper (gchar c)' does, this should be slightly more efficient */
+        /* What 'g_ascii_toupper (char c)' does, this should be slightly more efficient */
         *s = g_ascii_islower (*s) ? *s - 'a' + 'A' : *s;
 
     return (str);
 }
 
 /* Check if an entire string is printable. */
-gboolean
-isprint_string(const gchar *str)
+bool
+isprint_string(const char *str)
 {
-    guint pos;
+    unsigned pos;
 
     /* Loop until we reach the end of the string (a null) */
     for(pos = 0; str[pos] != '\0'; pos++){
         if(!g_ascii_isprint(str[pos])){
             /* The string contains a non-printable character */
-            return FALSE;
+            return false;
         }
     }
 
     /* The string contains only printable characters */
-    return TRUE;
+    return true;
 }
 
 /* Check if an entire UTF-8 string is printable. */
-gboolean
-isprint_utf8_string(const gchar *str, const guint length)
+bool
+isprint_utf8_string(const char *str, const unsigned length)
 {
-    const gchar *strend = str + length;
+    const char *strend = str + length;
 
     if (!g_utf8_validate(str, length, NULL)) {
-        return FALSE;
+        return false;
     }
 
     while (str < strend) {
@@ -294,30 +294,30 @@ isprint_utf8_string(const gchar *str, const guint length)
          * U+00AD SOFT HYPHEN? If so, format_text() should be changed too.
          */
         if (!g_unichar_isprint(g_utf8_get_char(str))) {
-            return FALSE;
+            return false;
         }
         str = g_utf8_next_char(str);
     }
 
-    return TRUE;
+    return true;
 }
 
 /* Check if an entire string is digits. */
-gboolean
-isdigit_string(const guchar *str)
+bool
+isdigit_string(const unsigned char *str)
 {
-    guint pos;
+    unsigned pos;
 
     /* Loop until we reach the end of the string (a null) */
     for(pos = 0; str[pos] != '\0'; pos++){
         if(!g_ascii_isdigit(str[pos])){
             /* The string contains a non-digit character */
-            return FALSE;
+            return false;
         }
     }
 
     /* The string contains only digits */
-    return TRUE;
+    return true;
 }
 
 const char *
@@ -326,8 +326,8 @@ ws_strcasestr(const char *haystack, const char *needle)
 #ifdef HAVE_STRCASESTR
     return strcasestr(haystack, needle);
 #else
-    gsize hlen = strlen(haystack);
-    gsize nlen = strlen(needle);
+    size_t hlen = strlen(haystack);
+    size_t nlen = strlen(needle);
 
     while (hlen-- >= nlen) {
         if (!g_ascii_strncasecmp(haystack, needle, nlen))
@@ -367,9 +367,9 @@ format_size_wmem(wmem_allocator_t *allocator, int64_t size,
     wmem_strbuf_t *human_str = wmem_strbuf_new(allocator, NULL);
     int power = 1000;
     int pfx_off = 0;
-    gboolean is_small = FALSE;
-    static const gchar *prefix[] = {" T", " G", " M", " k", " Ti", " Gi", " Mi", " Ki"};
-    gchar *ret_val;
+    bool is_small = false;
+    static const char *prefix[] = {" T", " G", " M", " k", " Ti", " Gi", " Mi", " Ki"};
+    char *ret_val;
 
     if (thousands_grouping_fmt == NULL)
         test_printf_thousands_grouping();
@@ -393,7 +393,7 @@ format_size_wmem(wmem_allocator_t *allocator, int64_t size,
         wmem_strbuf_append(human_str, prefix[pfx_off+3]);
     } else {
         wmem_strbuf_append_printf(human_str, thousands_grouping_fmt, size);
-        is_small = TRUE;
+        is_small = true;
     }
 
     switch (unit) {
@@ -425,8 +425,8 @@ format_size_wmem(wmem_allocator_t *allocator, int64_t size,
     return g_strchomp(ret_val);
 }
 
-gchar
-printable_char_or_period(gchar c)
+char
+printable_char_or_period(char c)
 {
     return g_ascii_isprint(c) ? c : '.';
 }
@@ -572,9 +572,9 @@ ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len)
  * Declare, and initialize, the variables used for an output buffer.
  */
 #define FMTBUF_VARS \
-    gchar *fmtbuf = (gchar*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE); \
-    guint fmtbuf_len = INITIAL_FMTBUF_SIZE; \
-    guint column = 0
+    char *fmtbuf = (char*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE); \
+    unsigned fmtbuf_len = INITIAL_FMTBUF_SIZE; \
+    unsigned column = 0
 
 /*
  * Expand the buffer to be large enough to add nbytes bytes, plus a
@@ -593,7 +593,7 @@ ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len)
          * for one more character plus a terminating '\0'. \
          */ \
         fmtbuf_len *= 2; \
-        fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len); \
+        fmtbuf = (char *)wmem_realloc(allocator, fmtbuf, fmtbuf_len); \
     }
 
 /*
@@ -628,14 +628,14 @@ ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len)
 #define FMTBUF_ENDSTR \
     fmtbuf[column] = '\0'
 
-static gchar *
+static char *
 format_text_internal(wmem_allocator_t *allocator,
-                        const guchar *string, size_t len,
-                        gboolean replace_space)
+                        const unsigned char *string, size_t len,
+                        bool replace_space)
 {
     FMTBUF_VARS;
-    const guchar *stringend = string + len;
-    guchar c;
+    const unsigned char *stringend = string + len;
+    unsigned char c;
 
     while (string < stringend) {
         /*
@@ -719,9 +719,9 @@ format_text_internal(wmem_allocator_t *allocator,
              * sequence into c.
              */
             int utf8_len;
-            guchar mask;
+            unsigned char mask;
             gunichar uc;
-            guchar first;
+            unsigned char first;
 
             if ((c & 0xe0) == 0xc0) {
                 /* Starts a 2-byte UTF-8 sequence; 1 byte left */
@@ -958,7 +958,7 @@ char *
 format_text(wmem_allocator_t *allocator,
                         const char *string, size_t len)
 {
-    return format_text_internal(allocator, string, len, FALSE);
+    return format_text_internal(allocator, string, len, false);
 }
 
 /** Given a wmem scope and a null-terminated string, expected to be in
@@ -982,7 +982,7 @@ format_text(wmem_allocator_t *allocator,
 char *
 format_text_string(wmem_allocator_t* allocator, const char *string)
 {
-    return format_text_internal(allocator, string, strlen(string), FALSE);
+    return format_text_internal(allocator, string, strlen(string), false);
 }
 
 /*
@@ -994,7 +994,7 @@ format_text_string(wmem_allocator_t* allocator, const char *string)
 char *
 format_text_wsp(wmem_allocator_t* allocator, const char *string, size_t len)
 {
-    return format_text_internal(allocator, string, len, TRUE);
+    return format_text_internal(allocator, string, len, true);
 }
 
 /*
@@ -1075,7 +1075,7 @@ ws_utf8_truncate(char *string, size_t len)
  * https://web.archive.org/web/20060813174742/http://www.room42.com/store/computer_center/code_tables.shtml
  */
 #if 0
-static const guint8 ASCII_translate_EBCDIC [ 256 ] = {
+static const uint8_t ASCII_translate_EBCDIC [ 256 ] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
     0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
@@ -1111,10 +1111,10 @@ static const guint8 ASCII_translate_EBCDIC [ 256 ] = {
 };
 
 void
-ASCII_to_EBCDIC(guint8 *buf, guint bytes)
+ASCII_to_EBCDIC(uint8_t *buf, unsigned bytes)
 {
-    guint    i;
-    guint8    *bufptr;
+    unsigned i;
+    uint8_t   *bufptr;
 
     bufptr = buf;
 
@@ -1123,14 +1123,14 @@ ASCII_to_EBCDIC(guint8 *buf, guint bytes)
     }
 }
 
-guint8
-ASCII_to_EBCDIC1(guint8 c)
+uint8_t
+ASCII_to_EBCDIC1(uint8_t c)
 {
     return ASCII_translate_EBCDIC[c];
 }
 #endif
 
-static const guint8 EBCDIC_translate_ASCII [ 256 ] = {
+static const uint8_t EBCDIC_translate_ASCII [ 256 ] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -1166,10 +1166,10 @@ static const guint8 EBCDIC_translate_ASCII [ 256 ] = {
 };
 
 void
-EBCDIC_to_ASCII(guint8 *buf, guint bytes)
+EBCDIC_to_ASCII(uint8_t *buf, unsigned bytes)
 {
-    guint   i;
-    guint8 *bufptr;
+    unsigned   i;
+    uint8_t *bufptr;
 
     bufptr = buf;
 
@@ -1178,8 +1178,8 @@ EBCDIC_to_ASCII(guint8 *buf, guint bytes)
     }
 }
 
-guint8
-EBCDIC_to_ASCII1(guint8 c)
+uint8_t
+EBCDIC_to_ASCII1(uint8_t c)
 {
     return EBCDIC_translate_ASCII[c];
 }
@@ -1207,18 +1207,18 @@ EBCDIC_to_ASCII1(guint8 c)
                                    offset, 2 blanks separating offset
                                    from data dump, data dump */
 
-gboolean
-hex_dump_buffer(gboolean (*print_line)(void *, const char *), void *fp,
-                                    const guchar *cp, guint length,
+bool
+hex_dump_buffer(bool (*print_line)(void *, const char *), void *fp,
+                                    const unsigned char *cp, unsigned length,
                                     hex_dump_enc encoding,
-                                    guint ascii_option)
+                                    unsigned ascii_option)
 {
     register unsigned int ad, i, j, k, l;
-    guchar                c;
-    gchar                 line[MAX_LINE_LEN + 1];
+    unsigned char         c;
+    char                  line[MAX_LINE_LEN + 1];
     unsigned int          use_digits;
 
-    static gchar binhex[16] = {
+    static char binhex[16] = {
         '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
@@ -1287,11 +1287,11 @@ hex_dump_buffer(gboolean (*print_line)(void *, const char *), void *fp,
                 line[k++] = '|';
             line[k] = '\0';
             if (!print_line(fp, line))
-                return FALSE;
+                return false;
             ad += 16;
         }
     }
-    return TRUE;
+    return true;
 }
 
 /*

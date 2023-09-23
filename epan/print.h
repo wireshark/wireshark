@@ -77,7 +77,7 @@ WS_DLL_PUBLIC gboolean output_fields_has_cols(output_fields_t* info);
  */
 
 WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
-                                        gboolean print_hex_data,
+                                        bool print_hex_data,
                                         epan_dissect_t *edt,
                                         GHashTable *output_only_tables,
                                         print_stream_t *stream);
@@ -92,7 +92,7 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
 #define HEXDUMP_SOURCE_MULTI          (0x0000U) /* create hexdumps for all data sources assigned to a frame (legacy tshark behavor) */
 #define HEXDUMP_SOURCE_PRIMARY        (0x0004U) /* create hexdumps for only the frame data */
 
-WS_DLL_PUBLIC gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_options);
+WS_DLL_PUBLIC bool print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_options);
 
 WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
 WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color);
@@ -107,7 +107,7 @@ WS_DLL_PUBLIC GSList *proto_node_group_children_by_json_key(proto_node *node);
 WS_DLL_PUBLIC json_dumper write_json_preamble(FILE *fh);
 WS_DLL_PUBLIC void write_json_proto_tree(output_fields_t* fields,
                                          print_dissections_e print_dissections,
-                                         gboolean print_hex_data,
+                                         bool print_hex_data,
                                          epan_dissect_t *edt,
                                          column_info *cinfo,
                                          proto_node_children_grouper_func node_children_grouper,
@@ -115,8 +115,8 @@ WS_DLL_PUBLIC void write_json_proto_tree(output_fields_t* fields,
 WS_DLL_PUBLIC void write_json_finale(json_dumper *dumper);
 
 WS_DLL_PUBLIC void write_ek_proto_tree(output_fields_t* fields,
-                                       gboolean print_summary,
-                                       gboolean print_hex_data,
+                                       bool print_summary,
+                                       bool print_hex_data,
                                        epan_dissect_t *edt,
                                        column_info *cinfo, FILE *fh);
 

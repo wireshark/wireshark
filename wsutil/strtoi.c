@@ -16,16 +16,16 @@
 #include <errno.h>
 #include <wsutil/ws_assert.h>
 
-gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint)
+bool ws_strtoi64(const char* str, const char** endptr, int64_t* cint)
 {
-	gchar* end;
-	gint64 val;
+	char* end;
+	int64_t val;
 
 	ws_assert(cint);
 
 	if (!str) {
 		errno = EINVAL;
-		return FALSE;
+		return false;
 	}
 
 	errno = 0;
@@ -35,9 +35,9 @@ gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint)
 		if (endptr != NULL)
 			*endptr = end;
 		errno = EINVAL;
-		return FALSE;
+		return false;
 	}
-	if ((val == G_MAXINT64 || val == G_MININT64) && errno == ERANGE) {
+	if ((val == INT64_MAX || val == INT64_MIN) && errno == ERANGE) {
 		/*
 		 * Return the value, so our caller knows whether to
 		 * report the value as "too small" or "too large".
@@ -46,22 +46,22 @@ gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint)
 		if (endptr != NULL)
 			*endptr = end;
 		/* errno is already set */
-		return FALSE;
+		return false;
 	}
 	if (endptr != NULL)
 		*endptr = end;
 	*cint = val;
-	return TRUE;
+	return true;
 }
 
 #define DEFINE_WS_STRTOI_BITS(bits) \
-gboolean ws_strtoi##bits(const gchar* str, const gchar** endptr, gint##bits* cint) \
+bool ws_strtoi##bits(const char* str, const char** endptr, int##bits##_t* cint) \
 { \
-	gint64 val = 0; \
+	int64_t val = 0; \
 	if (!ws_strtoi64(str, endptr, &val)) { \
 		/* \
-		 * For ERANGE, return either G_MININT##bits or \
-		 * G_MAXINT##bits so our caller knows whether \
+		 * For ERANGE, return either INT##bits##_MIN or \
+		 * INT##bits##_MAX so our caller knows whether \
 		 * to report the value as "too small" or "too \
 		 * large". \
 		 * \
@@ -70,46 +70,46 @@ gboolean ws_strtoi##bits(const gchar* str, const gchar** endptr, gint##bits* cin
 		 */ \
 		if (errno == ERANGE) { \
 			if (val < 0) \
-				*cint = G_MININT##bits; \
+				*cint = INT##bits##_MIN; \
 			else \
-				*cint = G_MAXINT##bits; \
+				*cint = INT##bits##_MAX; \
 		} else \
 			*cint = 0; \
-		return FALSE; \
+		return false; \
 	} \
-	if (val < G_MININT##bits) { \
+	if (val < INT##bits##_MIN) { \
 		/* \
-		 * Return G_MININT##bits so our caller knows whether to \
+		 * Return INT##bits##_MIN so our caller knows whether to \
 		 * report the value as "too small" or "too large". \
 		 */ \
-		*cint = G_MININT##bits; \
+		*cint = INT##bits##_MIN; \
 		errno = ERANGE; \
-		return FALSE; \
+		return false; \
 	} \
-	if (val > G_MAXINT##bits) { \
+	if (val > INT##bits##_MAX) { \
 		/* \
-		 * Return G_MAXINT##bits so our caller knows whether to \
+		 * Return INT##bits##_MAX so our caller knows whether to \
 		 * report the value as "too small" or "too large". \
 		 */ \
-		*cint = G_MAXINT##bits; \
+		*cint = INT##bits##_MAX; \
 		errno = ERANGE; \
-		return FALSE; \
+		return false; \
 	} \
-	*cint = (gint##bits)val; \
-	return TRUE; \
+	*cint = (int##bits##_t)val; \
+	return true; \
 }
 
 DEFINE_WS_STRTOI_BITS(32)
 DEFINE_WS_STRTOI_BITS(16)
 DEFINE_WS_STRTOI_BITS(8)
 
-gboolean ws_strtoi(const gchar* str, const gchar** endptr, gint* cint)
+bool ws_strtoi(const char* str, const char** endptr, int* cint)
 {
-	gint64 val = 0;
+	int64_t val = 0;
 	if (!ws_strtoi64(str, endptr, &val)) {
 		/*
-		 * For ERANGE, return either G_MININT or
-		 * G_MAXINT so our caller knows whether
+		 * For ERANGE, return either INT_MIN or
+		 * INT_MAX so our caller knows whether
 		 * to report the value as "too small" or "too
 		 * large".
 		 *
@@ -118,45 +118,45 @@ gboolean ws_strtoi(const gchar* str, const gchar** endptr, gint* cint)
 		 */
 		if (errno == ERANGE) {
 			if (val < 0)
-				*cint = G_MININT;
+				*cint = INT_MIN;
 			else
-				*cint = G_MAXINT;
+				*cint = INT_MAX;
 		} else
 			*cint = 0;
-		return FALSE;
+		return false;
 	}
-	if (val < G_MININT) {
+	if (val < INT_MIN) {
 		/*
-		 * Return G_MININT so our caller knows whether to
+		 * Return INT_MIN so our caller knows whether to
 		 * report the value as "too small" or "too large".
 		 */
-		*cint = G_MININT;
+		*cint = INT_MIN;
 		errno = ERANGE;
-		return FALSE;
+		return false;
 	}
-	if (val > G_MAXINT) {
+	if (val > INT_MAX) {
 		/*
-		 * Return G_MAXINT so our caller knows whether to
+		 * Return INT_MAX so our caller knows whether to
 		 * report the value as "too small" or "too large".
 		 */
-		*cint = G_MAXINT;
+		*cint = INT_MAX;
 		errno = ERANGE;
-		return FALSE;
+		return false;
 	}
-	*cint = (gint)val;
-	return TRUE;
+	*cint = (int)val;
+	return true;
 }
 
-gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, int base)
+bool ws_basestrtou64(const char* str, const char** endptr, uint64_t* cint, int base)
 {
-	gchar* end;
-	guint64 val;
+	char* end;
+	uint64_t val;
 
 	ws_assert(cint);
 
 	if (!str) {
 		errno = EINVAL;
-		return FALSE;
+		return false;
 	}
 
 	if (str[0] == '-' || str[0] == '+') {
@@ -167,7 +167,7 @@ gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, 
 		if (endptr != NULL)
 			*endptr = str;
 		errno = EINVAL;
-		return FALSE;
+		return false;
 	}
 	errno = 0;
 	val = g_ascii_strtoull(str, &end, base);
@@ -176,9 +176,9 @@ gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, 
 		if (endptr != NULL)
 			*endptr = end;
 		errno = EINVAL;
-		return FALSE;
+		return false;
 	}
-	if (val == G_MAXUINT64 && errno == ERANGE) {
+	if (val == UINT64_MAX && errno == ERANGE) {
 		/*
 		 * Return the value, because ws_strtoi64() does.
 		 */
@@ -186,61 +186,61 @@ gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, 
 		if (endptr != NULL)
 			*endptr = end;
 		/* errno is already set */
-		return FALSE;
+		return false;
 	}
 	if (endptr != NULL)
 		*endptr = end;
 	*cint = val;
-	return TRUE;
+	return true;
 }
 
-gboolean ws_strtou64(const gchar* str, const gchar** endptr, guint64* cint)
+bool ws_strtou64(const char* str, const char** endptr, uint64_t* cint)
 {
 	return ws_basestrtou64(str, endptr, cint, 10);
 }
 
-gboolean ws_hexstrtou64(const gchar* str, const gchar** endptr, guint64* cint)
+bool ws_hexstrtou64(const char* str, const char** endptr, uint64_t* cint)
 {
 	return ws_basestrtou64(str, endptr, cint, 16);
 }
 
 #define DEFINE_WS_STRTOU_BITS(bits) \
-gboolean ws_basestrtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint, int base) \
+bool ws_basestrtou##bits(const char* str, const char** endptr, uint##bits##_t* cint, int base) \
 { \
-	guint64 val; \
+	uint64_t val; \
 	if (!ws_basestrtou64(str, endptr, &val, base)) { \
 		/* \
-		 * For ERANGE, return G_MAXUINT##bits for parallelism \
+		 * For ERANGE, return UINT##bits##_MAX for parallelism \
 		 * with ws_strtoi##bits(). \
 		 * \
 		 * For other errors, return 0, for parallelism \
 		 * with ws_basestrtou64(). \
 		 */ \
 		if (errno == ERANGE) \
-			*cint = G_MAXUINT##bits; \
+			*cint = UINT##bits##_MAX; \
 		else \
 			*cint = 0; \
-		return FALSE; \
+		return false; \
 	} \
-	if (val > G_MAXUINT##bits) { \
+	if (val > UINT##bits##_MAX) { \
 		/* \
-		 * Return G_MAXUINT##bits for parallelism with \
+		 * Return UINT##bits##_MAX for parallelism with \
 		 * ws_strtoi##bits(). \
 		 */ \
-		*cint = G_MAXUINT##bits; \
+		*cint = UINT##bits##_MAX; \
 		errno = ERANGE; \
-		return FALSE; \
+		return false; \
 	} \
-	*cint = (guint##bits)val; \
-	return TRUE; \
+	*cint = (uint##bits##_t)val; \
+	return true; \
 } \
 \
-gboolean ws_strtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint) \
+bool ws_strtou##bits(const char* str, const char** endptr, uint##bits##_t* cint) \
 { \
 	return ws_basestrtou##bits(str, endptr, cint, 10); \
 } \
 \
-gboolean ws_hexstrtou##bits(const gchar* str, const gchar** endptr, guint##bits* cint) \
+bool ws_hexstrtou##bits(const char* str, const char** endptr, uint##bits##_t* cint) \
 { \
 	return ws_basestrtou##bits(str, endptr, cint, 16); \
 }
@@ -249,42 +249,42 @@ DEFINE_WS_STRTOU_BITS(32)
 DEFINE_WS_STRTOU_BITS(16)
 DEFINE_WS_STRTOU_BITS(8)
 
-gboolean ws_basestrtou(const gchar* str, const gchar** endptr, guint* cint, int base)
+bool ws_basestrtou(const char* str, const char** endptr, unsigned* cint, int base)
 {
-	guint64 val;
+	uint64_t val;
 	if (!ws_basestrtou64(str, endptr, &val, base)) {
 		/*
-		 * For ERANGE, return G_MAXUINT for parallelism
+		 * For ERANGE, return UINT_MAX for parallelism
 		 * with ws_strtoi().
 		 *
 		 * For other errors, return 0, for parallelism
 		 * with ws_basestrtou64().
 		 */
 		if (errno == ERANGE)
-			*cint = G_MAXUINT;
+			*cint = UINT_MAX;
 		else
 			*cint = 0;
-		return FALSE;
+		return false;
 	}
-	if (val > G_MAXUINT) {
+	if (val > UINT_MAX) {
 		/*
-		 * Return G_MAXUINT for parallelism with
+		 * Return UINT_MAX for parallelism with
 		 * ws_strtoi().
 		 */
-		*cint = G_MAXUINT;
+		*cint = UINT_MAX;
 		errno = ERANGE;
-		return FALSE;
+		return false;
 	}
-	*cint = (guint)val;
-	return TRUE;
+	*cint = (unsigned)val;
+	return true;
 }
 
-gboolean ws_strtou(const gchar* str, const gchar** endptr, guint* cint)
+bool ws_strtou(const char* str, const char** endptr, unsigned* cint)
 {
 	return ws_basestrtou(str, endptr, cint, 10);
 }
 \
-gboolean ws_hexstrtou(const gchar* str, const gchar** endptr, guint* cint)
+bool ws_hexstrtou(const char* str, const char** endptr, unsigned* cint)
 {
 	return ws_basestrtou(str, endptr, cint, 16);
 }

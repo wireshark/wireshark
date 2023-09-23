@@ -91,7 +91,7 @@ static void proto_tree_write_node_ek(proto_node *node, write_json_data *data);
 static const guint8 *get_field_data(GSList *src_list, field_info *fi);
 static void pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi);
 static void json_write_field_hex_value(write_json_data *pdata, field_info *fi);
-static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
+static bool print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
                                       guint length, packet_char_enc encoding,
                                       guint hexdump_options);
 static void write_specified_fields(fields_format format,
@@ -137,7 +137,7 @@ void print_cache_field_handles(void)
 }
 
 gboolean
-proto_tree_print(print_dissections_e print_dissections, gboolean print_hex,
+proto_tree_print(print_dissections_e print_dissections, bool print_hex,
                  epan_dissect_t *edt, GHashTable *output_only_tables,
                  print_stream_t *stream)
 {
@@ -355,7 +355,7 @@ write_pdml_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info 
 
 void
 write_ek_proto_tree(output_fields_t* fields,
-                    gboolean print_summary, gboolean print_hex,
+                    bool print_summary, bool print_hex,
                     epan_dissect_t *edt,
                     column_info *cinfo,
                     FILE *fh)
@@ -737,7 +737,7 @@ write_json_index(json_dumper *dumper, epan_dissect_t *edt)
 void
 write_json_proto_tree(output_fields_t* fields,
                       print_dissections_e print_dissections,
-                      gboolean print_hex,
+                      bool print_hex,
                       epan_dissect_t *edt, column_info *cinfo,
                       proto_node_children_grouper_func node_children_grouper,
                       json_dumper *dumper)
@@ -1958,7 +1958,7 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
     }
 }
 
-gboolean
+bool
 print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_options)
 {
     gboolean      multiple_sources;
@@ -2003,12 +2003,12 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_option
     return TRUE;
 }
 
-static gboolean print_hex_data_line(void *stream, const char *line)
+static bool print_hex_data_line(void *stream, const char *line)
 {
     return print_line(stream, 0, line);
 }
 
-static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
+static bool print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
                                       guint length, packet_char_enc encoding,
                                       guint hexdump_options)
 {

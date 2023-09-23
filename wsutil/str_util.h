@@ -19,20 +19,20 @@ extern "C" {
 #endif /* __cplusplus */
 
 WS_DLL_PUBLIC
-gchar *
-wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
+char *
+wmem_strconcat(wmem_allocator_t *allocator, const char *first, ...)
 G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
 
 WS_DLL_PUBLIC
-gchar *
+char *
 wmem_strjoin(wmem_allocator_t *allocator,
-             const gchar *separator, const gchar *first, ...)
+             const char *separator, const char *first, ...)
 G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
 
 WS_DLL_PUBLIC
-gchar *
+char *
 wmem_strjoinv(wmem_allocator_t *allocator,
-              const gchar *separator, gchar **str_array)
+              const char *separator, char **str_array)
 G_GNUC_MALLOC;
 
 /**
@@ -47,9 +47,9 @@ G_GNUC_MALLOC;
  * Do not use with a NULL allocator, use g_strsplit instead.
  */
 WS_DLL_PUBLIC
-gchar **
-wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
-        const gchar *delimiter, int max_tokens);
+char **
+wmem_strsplit(wmem_allocator_t *allocator, const char *src,
+        const char *delimiter, int max_tokens);
 
 /**
  * wmem_ascii_strdown:
@@ -67,8 +67,8 @@ wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
  *               the string in place.)
  **/
 WS_DLL_PUBLIC
-gchar*
-wmem_ascii_strdown(wmem_allocator_t *allocator, const gchar *str, gssize len);
+char*
+wmem_ascii_strdown(wmem_allocator_t *allocator, const char *str, ssize_t len);
 
 /** Convert all upper-case ASCII letters to their ASCII lower-case
  *  equivalents, in place, with a simple non-locale-dependent
@@ -86,7 +86,7 @@ wmem_ascii_strdown(wmem_allocator_t *allocator, const gchar *str, gssize len);
  * @return    ptr to the string
  */
 WS_DLL_PUBLIC
-gchar *ascii_strdown_inplace(gchar *str);
+char *ascii_strdown_inplace(char *str);
 
 /** Convert all lower-case ASCII letters to their ASCII upper-case
  *  equivalents, in place, with a simple non-locale-dependent
@@ -104,15 +104,15 @@ gchar *ascii_strdown_inplace(gchar *str);
  * @return    ptr to the string
  */
 WS_DLL_PUBLIC
-gchar *ascii_strup_inplace(gchar *str);
+char *ascii_strup_inplace(char *str);
 
 /** Check if an entire string consists of printable characters
  *
  * @param str    The string to be checked
- * @return       TRUE if the entire string is printable, otherwise FALSE
+ * @return       true if the entire string is printable, otherwise false
  */
 WS_DLL_PUBLIC
-gboolean isprint_string(const gchar *str);
+bool isprint_string(const char *str);
 
 /** Given a not-necessarily-null-terminated string, expected to be in
  *  UTF-8 but possibly containing invalid sequences (as it may have come
@@ -137,19 +137,19 @@ gboolean isprint_string(const gchar *str);
  *
  * @param str    The string to be checked
  * @param length The number of bytes to validate
- * @return       TRUE if the entire string is valid and printable UTF-8,
- *               otherwise FALSE
+ * @return       true if the entire string is valid and printable UTF-8,
+ *               otherwise false
  */
 WS_DLL_PUBLIC
-gboolean isprint_utf8_string(const gchar *str, const guint length);
+bool isprint_utf8_string(const char *str, const unsigned length);
 
 /** Check if an entire string consists of digits
  *
  * @param str    The string to be checked
- * @return       TRUE if the entire string is digits, otherwise FALSE
+ * @return       true if the entire string is digits, otherwise false
  */
 WS_DLL_PUBLIC
-gboolean isdigit_string(const guchar *str);
+bool isdigit_string(const unsigned char *str);
 
 /** Finds the first occurrence of string 'needle' in string 'haystack'.
  *  The matching is done in a case insensitive manner.
@@ -205,7 +205,7 @@ char *format_size_wmem(wmem_allocator_t *allocator, int64_t size,
     format_size_wmem(NULL, size, unit, flags)
 
 WS_DLL_PUBLIC
-gchar printable_char_or_period(gchar c);
+char printable_char_or_period(char c);
 
 WS_DLL_PUBLIC WS_RETNONNULL
 const char *ws_strerrorname_r(int errnum, char *buf, size_t buf_size);
@@ -330,10 +330,10 @@ WS_DLL_PUBLIC
 char* ws_utf8_truncate(char *string, size_t len);
 
 WS_DLL_PUBLIC
-void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
+void EBCDIC_to_ASCII(uint8_t *buf, unsigned bytes);
 
 WS_DLL_PUBLIC
-guint8 EBCDIC_to_ASCII1(guint8 c);
+uint8_t EBCDIC_to_ASCII1(uint8_t c);
 
 /* Types of character encodings */
 typedef enum {
@@ -353,10 +353,10 @@ typedef enum {
 #define HEXDUMP_ASCII_EXCLUDE         (0x0002U) /* exclude ASCII section from hexdump reports, if we really don't want or need it */
 
 WS_DLL_PUBLIC
-gboolean hex_dump_buffer(gboolean (*print_line)(void *, const char *), void *fp,
-                                    const guchar *cp, guint length,
+bool hex_dump_buffer(bool (*print_line)(void *, const char *), void *fp,
+                                    const unsigned char *cp, unsigned length,
                                     hex_dump_enc encoding,
-                                    guint ascii_option);
+                                    unsigned ascii_option);
 
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
