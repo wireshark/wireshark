@@ -614,6 +614,19 @@ get_interface_list_findalldevs_ex(const char *hostname, const char *port,
 	if (pcap_createsrcstr(source, PCAP_SRC_IFREMOTE, hostname, port,
 			      NULL, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
+		if (strcmp(errbuf, "not supported") == 0) {
+			/*
+			 * macOS 14's pcap_createsrcstr(), which is a
+			 * stub that always returns -1 with an error
+			 * message of "not supported".
+			 *
+			 * In this case, as we passed it an rpcap://
+			 * URL, treat that as meaning "remote capture
+			 * not supported".
+			 */
+			g_strlcpy(errbuf, "Remote capture not supported",
+			    PCAP_ERRBUF_SIZE);
+		}
 		if (err_str != NULL)
 			*err_str = cant_get_if_list_error_message(errbuf);
 		return NULL;
@@ -625,6 +638,19 @@ get_interface_list_findalldevs_ex(const char *hostname, const char *port,
 
 	if (pcap_findalldevs_ex(source, &auth, &alldevs, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
+		if (strcmp(errbuf, "not supported") == 0) {
+			/*
+			 * macOS 14's pcap_findalldevs_ex(), which is a
+			 * stub that always returns -1 with an error
+			 * message of "not supported".
+			 *
+			 * In this case, as we passed it an rpcap://
+			 * URL, treat that as meaning "remote capture
+			 * not supported".
+			 */
+			g_strlcpy(errbuf, "Remote capture not supported",
+			    PCAP_ERRBUF_SIZE);
+		}
 		if (err_str != NULL)
 			*err_str = cant_get_if_list_error_message(errbuf);
 		g_free(auth.username);
@@ -1627,6 +1653,19 @@ get_if_capabilities(interface_options *interface_opts,
 		 * to use an account that *does* have permissions.
 		 */
 		*status = CAP_DEVICE_OPEN_ERROR_GENERIC;
+		if (strcmp(errbuf, "not supported") == 0) {
+			/*
+			 * macOS 14's pcap_open(), which is a stub that
+			 * always returns NULL with an error message of
+			 * "not supported".
+			 *
+			 * In this case, as we passed it an rpcap://
+			 * URL, treat that as meaning "remote capture
+			 * not supported".
+			 */
+			g_strlcpy(errbuf, "Remote capture not supported",
+			    PCAP_ERRBUF_SIZE);
+		}
 		*status_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
 		return NULL;
 	}
@@ -1717,6 +1756,21 @@ open_capture_device(capture_options *capture_opts,
 			 * permission.)
 			 */
 			*open_status = CAP_DEVICE_OPEN_ERROR_GENERIC;
+			if (strcmp(*open_status_str, "not supported") == 0) {
+				/*
+				 * macOS 14's pcap_open(), which is a stub
+				 * that always returns NULL with an error
+				 * message of "not supported".
+				 *
+				 * In this case, as we passed it an rpcap://
+				 * URL, treat that as meaning "remote capture
+				 * not supported".
+				 */
+				g_strlcpy(*open_status_str,
+				    "Remote capture not supported",
+				    PCAP_ERRBUF_SIZE);
+			}
+
 			/* Did pcap actually supply an error message? */
 			if ((*open_status_str)[0] == '\0') {
 				/*

@@ -1056,10 +1056,15 @@ print_statistics_loop(gboolean machine_readable)
 #endif
 
 #ifdef HAVE_PCAP_OPEN
-        pch = pcap_open(if_info->name, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
-#else
-        pch = pcap_open_live(if_info->name, MIN_PACKET_SIZE, 0, 0, errbuf);
+	/*
+	 * If we're opening a remote device, use pcap_open(); that's currently
+	 * the only open routine that supports remote devices.
+	 */
+        if (strncmp(if_info->name, "rpcap://", 8) == 0)
+            pch = pcap_open(if_info->name, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
+        else
 #endif
+        pch = pcap_open_live(if_info->name, MIN_PACKET_SIZE, 0, 0, errbuf);
 
         if (pch) {
             if_stat = g_new(if_stat_t, 1);
