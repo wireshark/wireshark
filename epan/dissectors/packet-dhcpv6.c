@@ -3614,7 +3614,7 @@ proto_register_dhcpv6(void)
     dhcpv6_enterprise_opts_dissector_table = register_dissector_table("dhcpv6.enterprise_opts", "DHCPv6 Enterprise OPTs", proto_dhcpv6, FT_UINT32, BASE_DEC);
 
     proto_dhcpv6_cablelabs  = proto_register_protocol("DHCPv6 Cablelabs", "DHCPv6(cablelabs)", "dhcpv6_cablelabs");
-    dhcpv6_cablelabs_handle = register_dissector("dhcpv6", dissect_cablelabs_specific_opts, proto_dhcpv6_cablelabs);
+    dhcpv6_cablelabs_handle = register_dissector("dhcpv6_cablelabs", dissect_cablelabs_specific_opts, proto_dhcpv6_cablelabs);
     dissector_add_uint("dhcpv6.enterprise_opts", VENDOR_CABLELABS, dhcpv6_cablelabs_handle);
 }
 
