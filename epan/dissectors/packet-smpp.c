@@ -49,6 +49,7 @@
 #include <epan/proto_data.h>
 #include <wsutil/time_util.h>
 #include "packet-tcp.h"
+#include "packet-tls.h"
 #include "packet-smpp.h"
 #include <epan/strutil.h>
 
@@ -3848,7 +3849,9 @@ proto_reg_handoff_smpp(void)
      * however.
      */
     dissector_add_for_decode_as_with_preference("tcp.port", smpp_handle);
+    ssl_dissector_add(0, smpp_handle);
     heur_dissector_add("tcp", dissect_smpp_heur, "SMPP over TCP Heuristics", "smpp_tcp", proto_smpp, HEURISTIC_ENABLE);
+    heur_dissector_add("tls", dissect_smpp_heur, "SMPP over TLS Heuristics", "smpp_tls", proto_smpp, HEURISTIC_ENABLE);
     heur_dissector_add("x.25", dissect_smpp_heur, "SMPP over X.25 Heuristics", "smpp_x25", proto_smpp, HEURISTIC_ENABLE);
 
     /* Required for call_dissector() */
