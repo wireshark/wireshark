@@ -146,7 +146,8 @@ private:
         Default,
         Quit,
         Restart,
-        Reload
+        Reload,
+        Update
     };
 
     Ui::LograyMainWindow *main_ui_;

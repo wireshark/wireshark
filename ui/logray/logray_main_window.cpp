@@ -1813,6 +1813,19 @@ bool LograyMainWindow::testCaptureFileClose(QString before_what, FileCloseContex
 
     if (prefs.gui_ask_unsaved) {
         if (cf_has_unsaved_data(capture_file_.capFile())) {
+            if (context == Update) {
+                // We're being called from the software update window;
+                // don't spawn yet another dialog. Just try again later.
+                // XXX: The WinSparkle dialogs *aren't* modal, and a user
+                // can bring Wireshark to the foreground, close/save the
+                // file, and then click "Install Update" again, but it
+                // seems like many users don't expect that (and also don't
+                // know that Help->Check for Updates... exist, only knowing
+                // about the automatic check.) See #17658 and duplicates.
+                // Maybe we *should* spawn the dialog?
+                return false;
+            }
+
             QMessageBox msg_dialog;
             QString question;
             QString infotext;
