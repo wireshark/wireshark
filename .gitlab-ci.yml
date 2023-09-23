@@ -24,8 +24,13 @@ variables:
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
   # Preferred version of clang available on wireshark-ubuntu-dev
   CLANG_VERSION: "16"
-  # Enable color output in CMake, Ninja, and other tools. https://bixense.com/clicolors/
+  # Enable color output in various tools.
+  # CMake, Ninja, and others: https://bixense.com/clicolors/
   CLICOLOR_FORCE: "1"
+  # pytest
+  FORCE_COLOR: "1"
+  # Homebrew
+  HOMEBREW_COLOR: "1"
   # Skip irrelevant SAST scanners:
   SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,security-code-scan,semgrep,spotbugs"
 
@@ -188,7 +193,6 @@ variables:
     paths:
       - ccache/
   variables:
-    HOMEBREW_COLOR: "1"
     HOMEBREW_DISPLAY_INSTALL_TIMES: "1"
     HOMEBREW_NO_AUTO_UPDATE: "1"
     HOMEBREW_NO_INSTALL_CLEANUP: "1"
