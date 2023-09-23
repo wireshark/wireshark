@@ -42,6 +42,12 @@ static int hf_x509ce_IPAddress_ipv6 = -1;
 #include "packet-x509ce-ett.c"
 #include "packet-x509ce-fn.c"
 
+static const val64_string ciplus_scr_cap[] = {
+    { 0, "DES" },
+    { 1, "DES and AES" },
+    { 0, NULL }
+};
+
 static const val64_string ciplus_security_level[] = {
     { 0, "Standard Security Level" },
     { 1, "ECP Security Level" },
