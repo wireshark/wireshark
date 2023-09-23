@@ -3723,7 +3723,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         tp_more_segments = ((tvb_get_ntohl(tvb, offset) & SOMEIP_TP_OFFSET_MASK_MORE_SEGMENTS) != 0);
         /* Why can I not mask an FT_UINT32 without it being shifted. :( . */
         proto_tree_add_uint(tp_tree, hf_someip_tp_offset, tvb, offset, 4, tp_offset);
-        proto_tree_add_bitmask_with_flags(tp_tree, tvb, offset+3, hf_someip_tp_flags, ett_someip_tp_flags, someip_tp_flags, ENC_BIG_ENDIAN, BMT_NO_TFS | BMT_NO_INT);
+        proto_tree_add_bitmask_with_flags(tp_tree, tvb, offset, hf_someip_tp_flags, ett_someip_tp_flags, someip_tp_flags, ENC_BIG_ENDIAN, BMT_NO_TFS | BMT_NO_INT);
         offset += 4;
 
         proto_tree_add_item(tp_tree, hf_someip_payload, tvb, offset, someip_payload_length - SOMEIP_TP_HDR_LEN, ENC_NA);
