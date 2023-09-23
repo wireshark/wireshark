@@ -3353,14 +3353,17 @@ check_valid_dissector_name_or_fail(const char *name)
 static dissector_handle_t
 register_dissector_handle(const char *name, dissector_handle_t handle)
 {
+	gboolean new_entry;
+
 	/* Make sure name is "parsing friendly" - descriptions should be
 	 * used for complicated phrases. */
 	check_valid_dissector_name_or_fail(name);
 
-	/* Make sure the registration is unique */
-	ws_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
-
-	g_hash_table_insert(registered_dissectors, (gpointer)name, handle);
+	new_entry = g_hash_table_insert(registered_dissectors, (gpointer)name, handle);
+	if (!new_entry) {
+		/* Make sure the registration is unique */
+		ws_error("dissector handle name \"%s\" is already registered", name);
+	}
 
 	return handle;
 }
