@@ -27501,6 +27501,7 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
             dissect_extended_request(tvb, pinfo, tree, offset, ext_tag_len);
 
             offset += ext_tag_len;
+            seen_ext_request = TRUE;
           } else {
             expert_add_info_format(pinfo, subelt_tree,
                            &ei_ieee80211_eht_invalid_multi_link,
