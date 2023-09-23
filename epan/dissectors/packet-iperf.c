@@ -474,13 +474,15 @@ static int
 dissect_iperf2_cca_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
     guint32 initial_offset = offset;
+    guint cca_payload_len;
     proto_tree *cca_tree;
 
-    cca_tree = proto_tree_add_subtree(tree, tvb, offset, 34, ett_cca_hdr, NULL, "iPerf2 CCA Header");
+    cca_payload_len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    cca_tree = proto_tree_add_subtree(tree, tvb, offset, cca_payload_len + 2, ett_cca_hdr, NULL, "iPerf2 CCA Header");
     proto_tree_add_item(cca_tree, hf_iperf2_cca_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(cca_tree, hf_iperf2_cca_value, tvb, offset, 32, ENC_NA);
-    offset += 32;
+    proto_tree_add_item(cca_tree, hf_iperf2_cca_value, tvb, offset, cca_payload_len, ENC_ASCII);
+    offset += cca_payload_len;
 
     return offset - initial_offset;
 }
@@ -565,6 +567,7 @@ dissect_iperf2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
     proto_item *ti = NULL;
     proto_tree *iperf2_tree = NULL;
     guint32 offset = 0, flags = 0, upper_flags = 0, lower_flags = 0, pdu_len = 24;
+    guint16 cca_len;
     tvbparse_t *tt;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "iPerf2");
@@ -631,15 +634,25 @@ dissect_iperf2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
                     offset += dissect_iperf2_extended_header(tvb, iperf2_tree, offset);
                 }
             }
-            if (upper_flags & HEADER_TRIPTIME || upper_flags & HEADER_FQRATESET ||
-                upper_flags & HEADER_ISOCH_SETTINGS || upper_flags & HEADER_EPOCH_START) {
-                (pass == 1) ? (pdu_len += 20) : (offset += dissect_iperf2_fq_start_time_header(tvb, iperf2_tree, offset));
-            }
-            if (upper_flags & HEADER_FULLDUPLEX || upper_flags & HEADER_REVERSE || upper_flags & HEADER_PERIODICBURST) {
-                (pass == 1) ? (pdu_len += 40) : (offset += dissect_iperf2_isoch_header(tvb, iperf2_tree, offset));
-            }
+            // If CCA header is present, the the previous two headers are also present, though the flags may not be set
             if (lower_flags & HEADER_CCA) {
-                (pass == 1) ? (pdu_len += 34) : (offset += dissect_iperf2_cca_header(tvb, iperf2_tree, offset));
+                if (pass == 1) {
+                    cca_len = tvb_get_guint16(tvb, offset + 20 + 40, ENC_BIG_ENDIAN) + 2;
+                    pdu_len += 20 + 40 + cca_len;
+                }
+                else {
+                    offset += dissect_iperf2_fq_start_time_header(tvb, iperf2_tree, offset);
+                    offset += dissect_iperf2_isoch_header(tvb, iperf2_tree, offset);
+                    offset += dissect_iperf2_cca_header(tvb, iperf2_tree, offset);
+                }
+            } else {
+                if (upper_flags & HEADER_TRIPTIME || upper_flags & HEADER_FQRATESET ||
+                    upper_flags & HEADER_ISOCH_SETTINGS || upper_flags & HEADER_EPOCH_START) {
+                    (pass == 1) ? (pdu_len += 20) : (offset += dissect_iperf2_fq_start_time_header(tvb, iperf2_tree, offset));
+                }
+                if (upper_flags & HEADER_FULLDUPLEX || upper_flags & HEADER_REVERSE || upper_flags & HEADER_PERIODICBURST) {
+                    (pass == 1) ? (pdu_len += 40) : (offset += dissect_iperf2_isoch_header(tvb, iperf2_tree, offset));
+                }
             }
         }
         if ((pass == 1) && (tvb_reported_length(tvb) - offset) < pdu_len) { // We don't have enough data to decode all headers
@@ -1033,7 +1046,7 @@ proto_register_iperf2(void)
             NULL, 0, NULL, HFILL }
         },
         { &hf_iperf2_cca_value,
-            { "CCA Value", "iperf2.client.cca_value", FT_BYTES, BASE_NONE,
+            { "CCA Value", "iperf2.client.cca_value", FT_STRING, BASE_NONE,
             NULL, 0, NULL, HFILL }
         },
         { &hf_iperf2_bb_size,
