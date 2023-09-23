@@ -192,7 +192,7 @@ ipv6_hash(const fvalue_t *fv)
 	} *addr = (struct _ipv6 *)&fv->value.ipv6.addr;
 	int64_t mask = fv->value.ipv6.prefix;
 
-	return g_int64_hash(&addr[0]) ^ g_int64_hash(&addr[1]) ^ g_int64_hash(&mask);
+	return g_int64_hash(&addr->val[0]) ^ g_int64_hash(&addr->val[1]) ^ g_int64_hash(&mask);
 }
 
 static bool
