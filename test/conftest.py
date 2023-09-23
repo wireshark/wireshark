@@ -15,10 +15,16 @@ def pytest_addoption(parser):
     parser.addoption('--disable-gui', action='store_true',
         help='Disable GUI tests'
     )
-    parser.addoption('--program-path', help='Path to Wireshark executables.')
+    parser.addoption('--build-type',
+        help='CMake build type for multi-config generators.'
+    )
+    parser.addoption('--program-path',
+        help='Path to Wireshark executables.'
+    )
     parser.addoption('--skip-missing-programs',
         help='Skip tests that lack programs from this list instead of failing'
-             ' them. Use "all" to ignore all missing programs.')
+             ' them. Use "all" to ignore all missing programs.'
+    )
     parser.addoption('--enable-release', action='store_true',
         help='Enable release tests'
     )

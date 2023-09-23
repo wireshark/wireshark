@@ -611,15 +611,18 @@ Commit Check:
     - tools/validate-commit.py
     - python3 tools/checklicenses.py
 
-GCC Release Build:
+Ubuntu GCC Build:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
+  variables:
+    CC: "gcc"
+    CXX: "g++"
   needs: [ 'Commit Check' ]
   script:
     # build-ubuntu puts us in `build`.
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # Test release build.
-    - CC=gcc CXX=g++ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -G Ninja ..
+    - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=on ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - script --command ninja --flush --quiet --return ../gcc_report.txt
     - ansi2html < ../gcc_report.txt > ../gcc_report.html
@@ -710,10 +713,10 @@ Windows Build:
     - wireshark-windows-merge-req
   needs: [ 'Commit Check' ]
   script:
-    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DENABLE_DEBUG=ON ..
-    - msbuild /verbosity:minimal /maxcpucount Wireshark.sln
-    - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
-    - C:\Windows\py.exe -m pytest --disable-gui
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
+    - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug Wireshark.sln
+    - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug test-programs.vcxproj
+    - C:\Windows\py.exe -m pytest --disable-gui --build-type=Debug
 
 Windows Qt5 Build:
   extends: .build-windows
@@ -731,7 +734,7 @@ macOS Build:
   rules: !reference [.if-w-w-only-merge-request]
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DENABLE_CCACHE=ON -DENABLE_DEBUG=ON -DTEST_EXTRA_ARGS=--disable-capture ..
+    - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_CCACHE=ON -DTEST_EXTRA_ARGS=--disable-capture ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja test-programs
