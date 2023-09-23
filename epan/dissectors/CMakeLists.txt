@@ -1321,6 +1321,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipdc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipdr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iperf.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-iperf3.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipfc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipmi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipmi-app.c

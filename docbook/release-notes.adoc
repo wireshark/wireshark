@@ -259,6 +259,7 @@ DECT proprietary Mitel OMM/RFP Protocol (also named AaMiDe)
 Digital Object Identifier Resolution Protocol (DO-IRP)
 Discard Protocol
 IEEE 802.1CB (R-TAG)
+Iperf3
 FiRa UWB Controller Interface (UCI)
 FiveCo's Register Access Protocol (5CoRAP)
 Fortinet FortiGate Cluster Protocol (FGCP)
