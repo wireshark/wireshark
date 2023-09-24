@@ -108,6 +108,7 @@ static int hf_rdp_rt_cookie = -1;
 static int hf_rdp_neg_type = -1;
 static int hf_rdp_negReq_flags = -1;
 static int hf_rdp_negReq_flag_restricted_admin_mode_req = -1;
+static int hf_rdp_negReq_flag_redirected_auth_req = -1;
 static int hf_rdp_negReq_flag_correlation_info_present = -1;
 static int hf_rdp_neg_length = -1;
 static int hf_rdp_requestedProtocols = -1;
@@ -575,6 +576,7 @@ static const value_string neg_type_vals[] = {
 };
 
 #define RESTRICTED_ADMIN_MODE_REQUIRED 0x01
+#define REDIRECTED_AUTH_REQUIRED       0x02
 #define CORRELATION_INFO_PRESENT       0x08
 
 static const value_string failure_code_vals[] = {
@@ -2925,6 +2927,7 @@ dissect_rdpNegReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
   proto_item *length_item;
   static int * const flag_bits[] = {
     &hf_rdp_negReq_flag_restricted_admin_mode_req,
+    &hf_rdp_negReq_flag_redirected_auth_req,
     &hf_rdp_negReq_flag_correlation_info_present,
     NULL
   };
@@ -3569,6 +3572,10 @@ proto_register_rdp(void) {
     { &hf_rdp_negReq_flag_restricted_admin_mode_req,
       { "Restricted admin mode required", "rdp.negReq.flags.restricted_admin_mode_req",
         FT_BOOLEAN, 8, NULL, RESTRICTED_ADMIN_MODE_REQUIRED,
+	NULL, HFILL }},
+    { &hf_rdp_negReq_flag_redirected_auth_req,
+      { "Redirected Authentication required", "rdp.negReq.flags.redirected_auth_req",
+        FT_BOOLEAN, 8, NULL, REDIRECTED_AUTH_REQUIRED,
 	NULL, HFILL }},
     { &hf_rdp_negReq_flag_correlation_info_present,
       { "Correlation info present", "rdp.negReq.flags.correlation_info_present",
