@@ -27,19 +27,36 @@ typedef enum {
 	INTEGER,
 	DRANGE,
 	FUNCTION_DEF,
-	PCRE
+	PCRE,
+	VALUE_STRING,
 } dfvm_value_type_t;
+
+/* These are mapped from a convoluted combination of
+ * hfinfo->display flags in proto.h to an enum. */
+typedef enum {
+	DFVM_VS_NONE = 0,
+	DFVM_VS_RANGE,
+	DFVM_VS_VALS64,
+	DFVM_VS_VALS,
+	DFVM_VS_VALS_EXT,
+} dfvm_vs_type_t;
+
+typedef struct {
+	dfvm_vs_type_t type;
+	const void *strings; // "strings" is the name used in header_field_info
+} dfvm_value_string_t;
 
 typedef struct {
 	dfvm_value_type_t	type;
 
 	union {
 		GPtrArray		*fvalue_p; /* Always has length == 1 */
-		uint32_t			numeric;
+		uint32_t		numeric;
 		drange_t		*drange;
 		header_field_info	*hfinfo;
 		df_func_def_t		*funcdef;
 		ws_regex_t		*pcre;
+		dfvm_value_string_t	value_string;
 	} value;
 
 	int ref_count;
@@ -85,6 +102,7 @@ typedef enum {
 	DFVM_SET_CLEAR,
 	DFVM_SLICE,
 	DFVM_LENGTH,
+	DFVM_VALUE_STRING,
 	DFVM_BITWISE_AND,
 	DFVM_UNARY_MINUS,
 	DFVM_ADD,
@@ -144,6 +162,9 @@ dfvm_value_new_pcre(ws_regex_t *re);
 
 dfvm_value_t*
 dfvm_value_new_guint(unsigned num);
+
+dfvm_value_t*
+dfvm_value_new_value_string(dfvm_vs_type_t type, const void *strings);
 
 void
 dfvm_dump(FILE *f, dfilter_t *df, uint16_t flags);

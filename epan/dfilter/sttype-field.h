@@ -30,6 +30,9 @@ sttype_field_drange_steal(stnode_t *node);
 bool
 sttype_field_raw(stnode_t *node);
 
+bool
+sttype_field_value_string(stnode_t *node);
+
 /* Set a range */
 void
 sttype_field_set_range(stnode_t *node, GSList* drange_list);
@@ -42,6 +45,9 @@ sttype_field_set_drange(stnode_t *node, drange_t *dr);
 
 void
 sttype_field_set_raw(stnode_t *node, bool raw);
+
+void
+sttype_field_set_value_string(stnode_t *node, bool is_vs);
 
 char *
 sttype_field_set_number(stnode_t *node, const char *number_str);

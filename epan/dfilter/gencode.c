@@ -274,6 +274,45 @@ dfw_append_mk_slice(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	return reg_val;
 }
 
+/* returns register number. We have to attribute a type to the value_string and package it into
+ * a DFVM_VALUE_STRING instruction. This applies the value string to the contents of src. */
+static dfvm_value_t *
+dfw_append_mk_value_string(dfwork_t *dfw, stnode_t *node, dfvm_value_t *src)
+{
+	dfvm_insn_t		*insn;
+	dfvm_value_t		*reg_val, *val1;
+
+	dfvm_vs_type_t vs_type;
+	const header_field_info *hfinfo = sttype_field_hfinfo(node);
+
+	if (hfinfo->display & BASE_RANGE_STRING) {
+		vs_type = DFVM_VS_RANGE;
+	}
+	else if (hfinfo->display & BASE_VAL64_STRING) {
+		vs_type = DFVM_VS_RANGE;
+	}
+	else if (hfinfo->display == BASE_CUSTOM) {
+		// TODO
+		ws_error("BASE_CUSTOM is not a valid value string type");
+	}
+	else if (hfinfo->display & BASE_EXT_STRING) {
+		vs_type = DFVM_VS_VALS_EXT;
+	}
+	else {
+		vs_type = DFVM_VS_VALS;
+	}
+
+	insn = dfvm_insn_new(DFVM_VALUE_STRING);
+	val1 = dfvm_value_new_value_string(vs_type, hfinfo->strings);
+	insn->arg1 = dfvm_value_ref(val1);
+	insn->arg2 = dfvm_value_ref(src);
+	reg_val = dfvm_value_new_register(dfw->next_register++);
+	insn->arg3 = dfvm_value_ref(reg_val);
+	dfw_append_insn(dfw, insn);
+
+	return reg_val;
+}
+
 /* returns register number */
 _U_ static dfvm_value_t *
 dfw_append_put_fvalue(dfwork_t *dfw, fvalue_t *fv)
@@ -544,6 +583,12 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 		if (jumps_ptr != NULL) {
 			*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
 		}
+		if (sttype_field_value_string(st_arg)) {
+			val = dfw_append_mk_value_string(dfw, st_arg, val);
+			if (jumps_ptr != NULL) {
+				*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
+			}
+		}
 	}
 	else if (e_type == STTYPE_REFERENCE) {
 		hfinfo = sttype_field_hfinfo(st_arg);
@@ -552,6 +597,12 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 		val = dfw_append_read_reference(dfw, hfinfo, range, raw);
 		if (jumps_ptr != NULL) {
 			*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
+		}
+		if (sttype_field_value_string(st_arg)) {
+			val = dfw_append_mk_value_string(dfw, st_arg, val);
+			if (jumps_ptr != NULL) {
+				*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
+			}
 		}
 	}
 	else if (e_type == STTYPE_FVALUE) {

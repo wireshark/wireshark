@@ -14,6 +14,7 @@
 #include "dfilter-int.h"
 #include "dfunctions.h"
 #include "sttype-field.h"
+#include "sttype-pointer.h"
 #include "semcheck.h"
 
 #include <string.h>
@@ -358,7 +359,6 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
     sttype_id_t type;
     ftenum_t ftype, ft_arg;
     GSList *l;
-    fvalue_t *fv;
     wmem_list_t *literals = NULL;
 
     ftype = lhs_ftype;
@@ -372,9 +372,8 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
         }
         else if (type == STTYPE_LITERAL) {
             if (ftype != FT_NONE) {
-                fv = dfilter_fvalue_from_literal(dfw, ftype, arg, false, NULL);
-                stnode_replace(arg, STTYPE_FVALUE, fv);
-                ft_arg = fvalue_type_ftenum(fv);
+                dfilter_fvalue_from_literal(dfw, ftype, arg, false, NULL);
+                ft_arg = sttype_pointer_ftenum(arg);
             }
             else {
                 if (literals == NULL) {
@@ -418,8 +417,7 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
             stnode_t *st;
             for (fp = wmem_list_head(literals); fp != NULL; fp = wmem_list_frame_next(fp)) {
                 st = wmem_list_frame_data(fp);
-                fv = dfilter_fvalue_from_literal(dfw, ftype, st, false, NULL);
-                stnode_replace(st, STTYPE_FVALUE, fv);
+                dfilter_fvalue_from_literal(dfw, ftype, st, false, NULL);
             }
         }
         wmem_destroy_list(literals);
@@ -435,7 +433,6 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ft
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *st_node;
     ftenum_t ftype;
-    fvalue_t *fv;
 
     st_node = param_list->data;
 
@@ -445,9 +442,8 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ft
     else if (stnode_type_id(st_node) == STTYPE_LITERAL) {
         if (lhs_ftype != FT_NONE) {
             /* Convert RHS literal to the same ftype as LHS. */
-            fv = dfilter_fvalue_from_literal(dfw, lhs_ftype, st_node, false, NULL);
-            stnode_replace(st_node, STTYPE_FVALUE, fv);
-            ftype = fvalue_type_ftenum(fv);
+            dfilter_fvalue_from_literal(dfw, lhs_ftype, st_node, false, NULL);
+            ftype = sttype_pointer_ftenum(st_node);
         }
         else {
             FAIL(dfw, st_node, "Need a field or field-like value on the LHS.");

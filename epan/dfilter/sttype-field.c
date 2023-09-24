@@ -24,6 +24,7 @@ typedef struct {
 	header_field_info *hfinfo;
 	drange_t  *drange;
 	bool raw;
+	bool value_string;
 } field_t;
 
 #define FIELD_MAGIC	0xfc2002cf
@@ -38,6 +39,7 @@ field_new(void *hfinfo)
 	field->hfinfo = hfinfo;
 	field->drange = NULL;
 	field->raw = false;
+	field->value_string = false;
 
 	return field;
 }
@@ -53,6 +55,7 @@ field_dup(gconstpointer data)
 	field->hfinfo = org->hfinfo;
 	field->drange = drange_dup(org->drange);
 	field->raw = org->raw;
+	field->value_string = org->value_string;
 
 	return field;
 }
@@ -84,6 +87,10 @@ field_tostr(const void *data, bool pretty _U_)
 	}
 
 	wmem_strbuf_append(repr, field->hfinfo->abbrev);
+	if (field->value_string) {
+		wmem_strbuf_append_printf(repr, "::value_string(%s)",
+			proto_field_display_to_string(field->hfinfo->display));
+	}
 
 	if (field->drange) {
 		drange_str = drange_tostr(field->drange);
@@ -136,6 +143,14 @@ sttype_field_raw(stnode_t *node)
 	return field->raw;
 }
 
+bool
+sttype_field_value_string(stnode_t *node)
+{
+	field_t *field = node->data;
+	ws_assert_magic(field, FIELD_MAGIC);
+	return field->value_string;
+}
+
 drange_t *
 sttype_field_drange_steal(stnode_t *node)
 {
@@ -183,6 +198,14 @@ sttype_field_set_raw(stnode_t *node, bool raw)
 	field_t *field = stnode_data(node);
 	ws_assert_magic(field, FIELD_MAGIC);
 	field->raw = raw;
+}
+
+void
+sttype_field_set_value_string(stnode_t *node, bool is_vs)
+{
+	field_t *field = stnode_data(node);
+	ws_assert_magic(field, FIELD_MAGIC);
+	field->value_string = is_vs;
 }
 
 char *

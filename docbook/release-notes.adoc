@@ -19,6 +19,8 @@ It is used for troubleshooting, analysis, development and education.
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
+Improved display filter support for value strings (optional string
+representations for numeric fields).
 
 //=== Bug Fixes
 
@@ -34,6 +36,12 @@ The following features are new (or have been significantly updated) since versio
 
 //* The Windows installers now ship with Qt 6.5.2.
 //  They previously shipped with Qt 6.2.3.
+
+* Display filter syntax-related enhancements:
+
+  ** Better handling of comparisons with value strings. Now the display filter engine can
+     correctly handle cases where multiple different numeric values map to the same value
+     string, including but not limited to range-type value strings.
 
 //=== Removed Features and Support
 

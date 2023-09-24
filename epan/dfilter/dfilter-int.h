@@ -135,15 +135,17 @@ DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
 header_field_info *
 dfilter_resolve_unparsed(dfsyntax_t *dfs, const char *name);
 
-WS_RETNONNULL fvalue_t*
+/* Returns true if the create syntax node has a (value) string type. */
+bool
 dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		bool allow_partial_value, header_field_info *hfinfo_value_string);
 
-WS_RETNONNULL fvalue_t *
+/* Returns true if the create syntax node has a (value) string type. */
+bool
 dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		header_field_info *hfinfo_value_string);
 
-WS_RETNONNULL fvalue_t *
+void
 dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st);
 
 const char *tokenstr(int token);
