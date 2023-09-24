@@ -14603,6 +14603,10 @@ a:hover {
         <translation>Vänta medan Wireshark initieras …</translation>
     </message>
     <message>
+        <source> before updating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>There are no TLS Session Keys to save.</source>
         <translation>Det finns inga TLS-sessionsnycklar att spara.</translation>
     </message>

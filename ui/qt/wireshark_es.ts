@@ -14498,6 +14498,10 @@ a:hover {
         <translation>Por favor espere mientras Wireshark se inicia…</translation>
     </message>
     <message>
+        <source> before updating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>There are no TLS Session Keys to save.</source>
         <translation type="unfinished"></translation>
     </message>

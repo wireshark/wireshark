@@ -14614,6 +14614,10 @@ a:hover {
         <translation>Wiresharkが初期化している間お待ちください…</translation>
     </message>
     <message>
+        <source> before updating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>There are no TLS Session Keys to save.</source>
         <translation>保存するTLSセッション鍵はありません</translation>
     </message>

@@ -14603,6 +14603,10 @@ a:hover {
         <translation>Bitte Warten während Wireshark initialisiert wird…</translation>
     </message>
     <message>
+        <source> before updating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>There are no TLS Session Keys to save.</source>
         <translation>Es sind keine TLS Sitzungsschlüssel zum speichern vorhanden.</translation>
     </message>

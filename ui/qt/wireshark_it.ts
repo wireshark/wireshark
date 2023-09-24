@@ -14640,6 +14640,10 @@ a:hover {
         <translation>Attendi l&apos;inizializzazione di Wireshark...</translation>
     </message>
     <message>
+        <source> before updating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>There are no TLS Session Keys to save.</source>
         <translation>Non ci sono chiavi di sessione SSL da salvare.</translation>
     </message>
