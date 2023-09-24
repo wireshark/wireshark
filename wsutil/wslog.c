@@ -1099,8 +1099,7 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
     }
 
 #ifdef _WIN32
-    if (fatal_event || ws_log_console_open != LOG_CONSOLE_OPEN_NEVER) {
-        /* the user wants a console or the application will terminate immediately */
+    if (ws_log_console_open != LOG_CONSOLE_OPEN_NEVER) {
         create_console();
     }
 #endif /* _WIN32 */
@@ -1132,7 +1131,7 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
     }
 
 #ifdef _WIN32
-    if (fatal_event) {
+    if (fatal_event && ws_log_console_open != LOG_CONSOLE_OPEN_NEVER) {
         /* wait for a key press before the following error handler will terminate the program
             this way the user at least can read the error message */
         printf("\n\nPress any key to exit\n");
