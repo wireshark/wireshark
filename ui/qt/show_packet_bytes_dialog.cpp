@@ -13,6 +13,7 @@
 #include "main_window.h"
 #include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
+#include "ui/recent.h"
 
 #include "epan/strutil.h"
 
@@ -34,12 +35,13 @@
 // - Use ByteViewText to ShowAsHexDump and supplementary view for custom protocol
 // - Handle large data blocks
 
+Q_DECLARE_METATYPE(bytes_show_type)
+Q_DECLARE_METATYPE(bytes_decode_type)
+
 ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::ShowPacketBytesDialog),
     finfo_(cf.capFile()->finfo_selected),
-    decode_as_(DecodeAsNone),
-    show_as_(ShowAsASCII),
     use_regex_find_(false)
 {
     ui->setupUi(this);
@@ -65,23 +67,24 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbDecodeAs->addItem(tr("Percent-Encoding"), DecodeAsPercentEncoding);
     ui->cbDecodeAs->addItem(tr("Quoted-Printable"), DecodeAsQuotedPrintable);
     ui->cbDecodeAs->addItem(tr("ROT13"), DecodeAsROT13);
+    ui->cbDecodeAs->setCurrentIndex(ui->cbDecodeAs->findData(recent.gui_show_bytes_decode));
     ui->cbDecodeAs->blockSignals(false);
 
     ui->cbShowAs->blockSignals(true);
-    ui->cbShowAs->addItem(tr("ASCII"), ShowAsASCII);
-    ui->cbShowAs->addItem(tr("ASCII & Control"), ShowAsASCIIandControl);
-    ui->cbShowAs->addItem(tr("C Array"), ShowAsCArray);
-    ui->cbShowAs->addItem(tr("EBCDIC"), ShowAsEBCDIC);
-    ui->cbShowAs->addItem(tr("Hex Dump"), ShowAsHexDump);
-    ui->cbShowAs->addItem(tr("HTML"), ShowAsHTML);
-    ui->cbShowAs->addItem(tr("Image"), ShowAsImage);
-    ui->cbShowAs->addItem(tr("JSON"), ShowAsJson);
-    ui->cbShowAs->addItem(tr("Raw"), ShowAsRAW);
-    ui->cbShowAs->addItem(tr("Rust Array"), ShowAsRustArray);
+    ui->cbShowAs->addItem(tr("ASCII"), SHOW_ASCII);
+    ui->cbShowAs->addItem(tr("ASCII & Control"), SHOW_ASCII_CONTROL);
+    ui->cbShowAs->addItem(tr("C Array"), SHOW_CARRAY);
+    ui->cbShowAs->addItem(tr("EBCDIC"), SHOW_EBCDIC);
+    ui->cbShowAs->addItem(tr("Hex Dump"), SHOW_HEXDUMP);
+    ui->cbShowAs->addItem(tr("HTML"), SHOW_HTML);
+    ui->cbShowAs->addItem(tr("Image"), SHOW_IMAGE);
+    ui->cbShowAs->addItem(tr("JSON"), SHOW_JSON);
+    ui->cbShowAs->addItem(tr("Raw"), SHOW_RAW);
+    ui->cbShowAs->addItem(tr("Rust Array"), SHOW_RUSTARRAY);
     // UTF-8 is guaranteed to exist as a QTextCodec
-    ui->cbShowAs->addItem(tr("UTF-8"), ShowAsCodec);
-    ui->cbShowAs->addItem(tr("YAML"), ShowAsYAML);
-    ui->cbShowAs->setCurrentIndex(show_as_);
+    ui->cbShowAs->addItem(tr("UTF-8"), SHOW_CODEC);
+    ui->cbShowAs->addItem(tr("YAML"), SHOW_YAML);
+    ui->cbShowAs->setCurrentIndex(ui->cbShowAs->findData(recent.gui_show_bytes_show));
     ui->cbShowAs->blockSignals(false);
 
     ui->sbStart->setMinimum(0);
@@ -116,7 +119,7 @@ void ShowPacketBytesDialog::addCodecs(const QMap<QString, QTextCodec *> &codecMa
     for (const auto &codec : qAsConst(codecMap)) {
         // This is already placed in the menu and handled separately
         if (codec->name() != "US-ASCII" && codec->name() != "UTF-8")
-            ui->cbShowAs->addItem(tr(codec->name()), ShowAsCodec);
+            ui->cbShowAs->addItem(tr(codec->name()), SHOW_CODEC);
     }
     ui->cbShowAs->blockSignals(false);
 }
@@ -127,7 +130,7 @@ void ShowPacketBytesDialog::showSelected(int start, int end)
         // end set to -1 means show all packet bytes
         setStartAndEnd(0, (finfo_->length - 1));
     } else {
-        if (show_as_ == ShowAsRAW) {
+        if (recent.gui_show_bytes_show == SHOW_RAW) {
             start /= 2;
             end = (end + 1) / 2;
         }
@@ -160,12 +163,12 @@ bool ShowPacketBytesDialog::enableShowSelected()
     // - DecodeAs must not alter the number of bytes in the buffer
     // - ShowAs must show all bytes in the buffer
 
-    return (((decode_as_ == DecodeAsNone) ||
-             (decode_as_ == DecodeAsROT13)) &&
-            ((show_as_ == ShowAsASCII) ||
-             (show_as_ == ShowAsASCIIandControl) ||
-             (show_as_ == ShowAsEBCDIC) ||
-             (show_as_ == ShowAsRAW)));
+    return (((recent.gui_show_bytes_decode == DecodeAsNone) ||
+             (recent.gui_show_bytes_decode == DecodeAsROT13)) &&
+            ((recent.gui_show_bytes_show == SHOW_ASCII) ||
+             (recent.gui_show_bytes_show == SHOW_ASCII_CONTROL) ||
+             (recent.gui_show_bytes_show == SHOW_EBCDIC) ||
+             (recent.gui_show_bytes_show == SHOW_RAW)));
 }
 
 void ShowPacketBytesDialog::updateWidgets()
@@ -207,7 +210,7 @@ void ShowPacketBytesDialog::on_sbEnd_valueChanged(int value)
 void ShowPacketBytesDialog::on_cbDecodeAs_currentIndexChanged(int idx)
 {
     if (idx < 0) return;
-    decode_as_ = static_cast<DecodeAsType>(ui->cbDecodeAs->itemData(idx).toInt());
+    recent.gui_show_bytes_decode = ui->cbDecodeAs->currentData().value<bytes_decode_type>();
 
     ui->tePacketBytes->setShowSelectedEnabled(enableShowSelected());
 
@@ -217,7 +220,7 @@ void ShowPacketBytesDialog::on_cbDecodeAs_currentIndexChanged(int idx)
 void ShowPacketBytesDialog::on_cbShowAs_currentIndexChanged(int idx)
 {
     if (idx < 0) return;
-    show_as_ = static_cast<ShowAsType>(ui->cbShowAs->itemData(idx).toInt());
+    recent.gui_show_bytes_show = ui->cbShowAs->currentData().value<bytes_show_type>();
 
     ui->tePacketBytes->setShowSelectedEnabled(enableShowSelected());
     ui->lFind->setEnabled(true);
@@ -275,9 +278,9 @@ void ShowPacketBytesDialog::printBytes()
 
 void ShowPacketBytesDialog::copyBytes()
 {
-    switch (show_as_) {
+    switch (recent.gui_show_bytes_show) {
 
-    case ShowAsASCII:
+    case SHOW_ASCII:
     {
         QByteArray ba(field_bytes_);
         sanitizeBuffer(ba, true);
@@ -285,26 +288,26 @@ void ShowPacketBytesDialog::copyBytes()
         break;
     }
 
-    case ShowAsASCIIandControl:
-    case ShowAsCArray:
-    case ShowAsRustArray:
-    case ShowAsEBCDIC:
-    case ShowAsHexDump:
-    case ShowAsJson:
-    case ShowAsRAW:
-    case ShowAsYAML:
+    case SHOW_ASCII_CONTROL:
+    case SHOW_CARRAY:
+    case SHOW_RUSTARRAY:
+    case SHOW_EBCDIC:
+    case SHOW_HEXDUMP:
+    case SHOW_JSON:
+    case SHOW_RAW:
+    case SHOW_YAML:
         mainApp->clipboard()->setText(ui->tePacketBytes->toPlainText());
         break;
 
-    case ShowAsHTML:
+    case SHOW_HTML:
         mainApp->clipboard()->setText(ui->tePacketBytes->toHtml());
         break;
 
-    case ShowAsImage:
+    case SHOW_IMAGE:
         mainApp->clipboard()->setImage(image_);
         break;
 
-    case ShowAsCodec:
+    case SHOW_CODEC:
         mainApp->clipboard()->setText(ui->tePacketBytes->toPlainText().toUtf8());
         break;
     }
@@ -318,17 +321,18 @@ void ShowPacketBytesDialog::saveAs()
         return;
 
     QFile::OpenMode open_mode = QFile::WriteOnly;
-    switch (show_as_) {
-    case ShowAsASCII:
-    case ShowAsASCIIandControl:
-    case ShowAsCArray:
-    case ShowAsRustArray:
+    switch (recent.gui_show_bytes_show) {
+    case SHOW_ASCII:
+    case SHOW_ASCII_CONTROL:
+    case SHOW_CARRAY:
+    case SHOW_RUSTARRAY:
+    case SHOW_EBCDIC:
     // We always save as UTF-8, so set text mode as we would for UTF-8
-    case ShowAsCodec:
-    case ShowAsHexDump:
-    case ShowAsJson:
-    case ShowAsYAML:
-    case ShowAsHTML:
+    case SHOW_CODEC:
+    case SHOW_HEXDUMP:
+    case SHOW_JSON:
+    case SHOW_YAML:
+    case SHOW_HTML:
         open_mode |= QFile::Text;
     default:
         break;
@@ -337,9 +341,9 @@ void ShowPacketBytesDialog::saveAs()
     QFile file(file_name);
     file.open(open_mode);
 
-    switch (show_as_) {
+    switch (recent.gui_show_bytes_show) {
 
-    case ShowAsASCII:
+    case SHOW_ASCII:
     {
         QByteArray ba(field_bytes_);
         sanitizeBuffer(ba, true);
@@ -347,35 +351,35 @@ void ShowPacketBytesDialog::saveAs()
         break;
     }
 
-    case ShowAsASCIIandControl:
-    case ShowAsCArray:
-    case ShowAsRustArray:
-    case ShowAsEBCDIC:
-    case ShowAsHexDump:
-    case ShowAsJson:
-    case ShowAsYAML:
+    case SHOW_ASCII_CONTROL:
+    case SHOW_CARRAY:
+    case SHOW_RUSTARRAY:
+    case SHOW_EBCDIC:
+    case SHOW_HEXDUMP:
+    case SHOW_JSON:
+    case SHOW_YAML:
     {
         QTextStream out(&file);
         out << ui->tePacketBytes->toPlainText();
         break;
     }
 
-    case ShowAsHTML:
+    case SHOW_HTML:
     {
         QTextStream out(&file);
         out << ui->tePacketBytes->toHtml();
         break;
     }
 
-    case ShowAsCodec:
+    case SHOW_CODEC:
     {
         QTextStream out(&file);
         out << ui->tePacketBytes->toPlainText().toUtf8();
         break;
     }
 
-    case ShowAsImage:
-    case ShowAsRAW:
+    case SHOW_IMAGE:
+    case SHOW_RAW:
         file.write(field_bytes_);
         break;
     }
@@ -554,7 +558,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     if (!finfo_->ds_tvb)
         return;
 
-    switch (decode_as_) {
+    switch (recent.gui_show_bytes_decode) {
 
     case DecodeAsNone:
         bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
@@ -624,9 +628,9 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
 
     // Try loading as image at startup
     if (initialization && image_.loadFromData(field_bytes_)) {
-        show_as_ = ShowAsImage;
+        recent.gui_show_bytes_show = SHOW_IMAGE;
         ui->cbShowAs->blockSignals(true);
-        ui->cbShowAs->setCurrentIndex(ShowAsImage);
+        ui->cbDecodeAs->setCurrentIndex(ui->cbDecodeAs->findData(SHOW_IMAGE));
         ui->cbShowAs->blockSignals(false);
     }
 
@@ -640,9 +644,9 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     ui->tePacketBytes->clear();
     ui->tePacketBytes->setCurrentFont(mainApp->monospaceFont());
 
-    switch (show_as_) {
+    switch (recent.gui_show_bytes_show) {
 
-    case ShowAsASCII:
+    case SHOW_ASCII:
     {
         QByteArray ba(field_bytes_);
         sanitizeBuffer(ba, false);
@@ -651,7 +655,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
-    case ShowAsASCIIandControl:
+    case SHOW_ASCII_CONTROL:
     {
         QByteArray ba(field_bytes_);
         symbolizeBuffer(ba);
@@ -660,7 +664,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
-    case ShowAsCArray:
+    case SHOW_CARRAY:
     {
         int pos = 0, len = static_cast<int>(field_bytes_.length());
         QString text("char packet_bytes[] = {\n");
@@ -697,7 +701,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
-    case ShowAsRustArray:
+    case SHOW_RUSTARRAY:
     {
         int pos = 0, len = static_cast<int>(field_bytes_.length());
         QString text("let packet_bytes: [u8; _] = [\n");
@@ -734,7 +738,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
-    case ShowAsCodec:
+    case SHOW_CODEC:
     {
         // The QTextCodecs docs say that there's a flag to cause invalid
         // characters to be replaced with null. It's unclear what happens
@@ -748,7 +752,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
-    case ShowAsEBCDIC:
+    case SHOW_EBCDIC:
     {
         QByteArray ba(field_bytes_);
         EBCDIC_to_ASCII((guint8*)ba.data(), static_cast<int>(ba.length()));
@@ -758,7 +762,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
-    case ShowAsHexDump:
+    case SHOW_HEXDUMP:
     {
         int pos = 0, len = static_cast<int>(field_bytes_.length());
         // Use 16-bit offset if there are <= 65536 bytes, 32-bit offset if there are more
@@ -810,12 +814,12 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
-    case ShowAsHTML:
+    case SHOW_HTML:
         ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setHtml(field_bytes_);
         break;
 
-    case ShowAsImage:
+    case SHOW_IMAGE:
     {
         ui->lFind->setEnabled(false);
         ui->leFind->setEnabled(false);
@@ -832,12 +836,12 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
-    case ShowAsJson:
+    case SHOW_JSON:
         ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
         ui->tePacketBytes->setPlainText(QJsonDocument::fromJson(field_bytes_).toJson());
         break;
 
-    case ShowAsYAML:
+    case SHOW_YAML:
     {
         const int base64_raw_len = 57; // Encodes to 76 bytes, common in RFCs
         int pos = 0, len = static_cast<int>(field_bytes_.length());
@@ -864,7 +868,7 @@ DIAG_ON(stringop-overread)
         break;
     }
 
-    case ShowAsRAW:
+    case SHOW_RAW:
         ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(field_bytes_.toHex());
         break;

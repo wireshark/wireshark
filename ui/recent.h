@@ -87,13 +87,29 @@ typedef enum {
 
 typedef enum {
     SHOW_ASCII,
+    SHOW_ASCII_CONTROL,
     SHOW_CARRAY,
     SHOW_EBCDIC,
     SHOW_HEXDUMP,
+    SHOW_HTML,
+    SHOW_IMAGE,
+    SHOW_JSON,
     SHOW_RAW,
-    SHOW_CODEC, // Ordered to match UTF-8 combobox index
+    SHOW_RUSTARRAY,
+    SHOW_CODEC, // Will map to UTF-8 in the combobox (other codecs
+                // are generated at runtime).
     SHOW_YAML
-} follow_show_type;
+} bytes_show_type;
+
+typedef enum {
+    DecodeAsNone,
+    DecodeAsBASE64,
+    DecodeAsCompressed,
+    DecodeAsHexDigits,
+    DecodeAsPercentEncoding,
+    DecodeAsQuotedPrintable,
+    DecodeAsROT13
+} bytes_decode_type;
 
 /** Recent settings. */
 typedef struct recent_settings_tag {
@@ -120,7 +136,9 @@ typedef struct recent_settings_tag {
     search_char_set_type gui_search_char_set;
     gboolean    gui_search_case_sensitive;
     search_type_type gui_search_type;
-    follow_show_type gui_follow_show;
+    bytes_show_type gui_follow_show;
+    bytes_decode_type gui_show_bytes_decode;
+    bytes_show_type gui_show_bytes_show;
 
     gint        gui_geometry_main_x;
     gint        gui_geometry_main_y;

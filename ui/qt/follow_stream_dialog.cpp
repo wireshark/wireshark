@@ -65,6 +65,8 @@ static QMutex loop_break_mutex;
 // Indicates that a Follow Stream is currently running
 static gboolean isReadRunning;
 
+Q_DECLARE_METATYPE(bytes_show_type)
+
 FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id) :
     WiresharkDialog(parent, cf),
     ui(new Ui::FollowStreamDialog),
@@ -111,7 +113,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
     // UTF-8 is guaranteed to exist as a QTextCodec
     cbcs->addItem(tr("UTF-8"), SHOW_CODEC);
     cbcs->addItem(tr("YAML"), SHOW_YAML);
-    cbcs->setCurrentIndex(static_cast<int>(recent.gui_follow_show));
+    cbcs->setCurrentIndex(cbcs->findData(recent.gui_follow_show));
     cbcs->blockSignals(false);
 
     b_filter_out_ = ui->buttonBox->addButton(tr("Filter Out This Stream"), QDialogButtonBox::ActionRole);
@@ -359,7 +361,7 @@ void FollowStreamDialog::on_cbDirections_currentIndexChanged(int idx)
 void FollowStreamDialog::on_cbCharset_currentIndexChanged(int idx)
 {
     if (idx < 0) return;
-    recent.gui_follow_show = static_cast<follow_show_type>(ui->cbCharset->itemData(idx).toInt());
+    recent.gui_follow_show = ui->cbCharset->currentData().value<bytes_show_type>();
     readStream();
 }
 
@@ -901,6 +903,12 @@ DIAG_ON(stringop-overread)
         addText(ba, is_from_server, packet_num);
         break;
     }
+
+    default:
+        /* The other Show types are supported in Show Packet Bytes but
+         * not here in Follow. (XXX: Maybe some could be added?)
+         */
+        ws_assert_not_reached();
     }
 
     if (last_packet_ == 0) {

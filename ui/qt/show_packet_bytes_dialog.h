@@ -65,33 +65,6 @@ private slots:
     void saveAs();
 
 private:
-    /* Keep these enums in the same order (generally alphabetically)
-     * that they are added to the combo boxes.
-     */
-    enum DecodeAsType {
-        DecodeAsNone,
-        DecodeAsBASE64,
-        DecodeAsCompressed,
-        DecodeAsHexDigits,
-        DecodeAsPercentEncoding,
-        DecodeAsQuotedPrintable,
-        DecodeAsROT13
-    };
-    enum ShowAsType {
-        ShowAsASCII,
-        ShowAsASCIIandControl,
-        ShowAsCArray,
-        ShowAsEBCDIC,
-        ShowAsHexDump,
-        ShowAsHTML,
-        ShowAsImage,
-        ShowAsJson,
-        ShowAsRAW,
-        ShowAsRustArray,
-        ShowAsCodec, // Ordered to match the UTF-8 combobox index
-        ShowAsYAML,
-    };
-
     void setStartAndEnd(int start, int end);
     bool enableShowSelected();
     void updateWidgets(); // Needed for WiresharkDialog?
@@ -111,8 +84,6 @@ private:
     QPushButton *print_button_;
     QPushButton *copy_button_;
     QPushButton *save_as_button_;
-    DecodeAsType decode_as_;
-    ShowAsType  show_as_;
     bool        use_regex_find_;
     int         start_;
     int         end_;
