@@ -539,8 +539,6 @@ struct nflx_tcpinfo {
     guint32 tlb_len;
 };
 
-struct wtap_dumper;
-
 typedef void (*wtap_block_create_func)(wtap_block_t block);
 typedef void (*wtap_mand_free_func)(wtap_block_t block);
 typedef void (*wtap_mand_copy_func)(wtap_block_t dest_block, wtap_block_t src_block);
