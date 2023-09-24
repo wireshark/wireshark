@@ -29,7 +29,7 @@ typedef struct {
 #define FIELD_MAGIC	0xfc2002cf
 
 static void *
-field_new(void * hfinfo)
+field_new(void *hfinfo)
 {
 	field_t *field;
 
@@ -58,7 +58,7 @@ field_dup(gconstpointer data)
 }
 
 static void
-field_free(void * data)
+field_free(void *data)
 {
 	field_t *field = data;
 	ws_assert_magic(field, FIELD_MAGIC);

@@ -19,7 +19,7 @@
  */
 
 static void
-slist_stnode_free(void * data)
+slist_stnode_free(void *data)
 {
 	if (data) {
 		stnode_free(data);
@@ -33,7 +33,7 @@ set_nodelist_free(GSList *params)
 }
 
 static void
-sttype_set_free(void * value)
+sttype_set_free(void *value)
 {
 	/* If the data was not claimed with stnode_steal_data(), free it. */
 	if (value) {

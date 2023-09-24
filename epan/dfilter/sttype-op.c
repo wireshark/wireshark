@@ -21,7 +21,7 @@ typedef struct {
 #define OPER_MAGIC	0xab9009ba
 
 static void *
-oper_new(void * junk _U_)
+oper_new(void *junk _U_)
 {
 	oper_t *oper;
 
@@ -54,7 +54,7 @@ oper_dup(gconstpointer data)
 }
 
 static void
-oper_free(void * value)
+oper_free(void *value)
 {
 	oper_t *oper = value;
 	ws_assert_magic(oper, OPER_MAGIC);

@@ -29,7 +29,7 @@ typedef struct {
 #define SLICE_MAGIC	0xec0990ce
 
 static void *
-slice_new(void * junk _U_)
+slice_new(void *junk _U_)
 {
 	slice_t		*slice;
 
@@ -58,7 +58,7 @@ slice_dup(gconstpointer data)
 }
 
 static void
-slice_free(void * value)
+slice_free(void *value)
 {
 	slice_t *slice = value;
 	ws_assert_magic(slice, SLICE_MAGIC);

@@ -17,7 +17,7 @@ string_dup(gconstpointer string)
 }
 
 static void
-string_free(void * value)
+string_free(void *value)
 {
 	g_free(value);
 }
@@ -36,7 +36,7 @@ gstring_dup(gconstpointer value)
 }
 
 static void
-gstring_free(void * value)
+gstring_free(void *value)
 {
 	g_string_free(value, true);
 }

@@ -260,7 +260,7 @@ drange_new(drange_node* drnode)
 }
 
 static void
-drange_append_wrapper(void * data, void * user_data)
+drange_append_wrapper(void *data, void *user_data)
 {
     drange_node *drnode = (drange_node *)data;
     drange_t    *dr             = (drange_t *)user_data;
@@ -354,7 +354,7 @@ drange_append_drange_node(drange_t * dr, drange_node* drnode)
 }
 
 void
-drange_foreach_drange_node(drange_t * dr, GFunc func, void * funcdata)
+drange_foreach_drange_node(drange_t * dr, GFunc func, void *funcdata)
 {
     g_slist_foreach(dr->range_list,func,funcdata);
 }

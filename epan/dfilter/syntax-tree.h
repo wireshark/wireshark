@@ -121,7 +121,7 @@ void
 sttype_register(sttype_t *type);
 
 stnode_t*
-stnode_new(sttype_id_t type_id, void * data, char *token, df_loc_t loc);
+stnode_new(sttype_id_t type_id, void *data, char *token, df_loc_t loc);
 
 stnode_t*
 stnode_new_empty(sttype_id_t type_id);
@@ -133,10 +133,10 @@ void
 stnode_clear(stnode_t *node);
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, void * data, char *token, df_loc_t loc);
+stnode_init(stnode_t *node, sttype_id_t type_id, void *data, char *token, df_loc_t loc);
 
 void
-stnode_replace(stnode_t *node, sttype_id_t type_id, void * data);
+stnode_replace(stnode_t *node, sttype_id_t type_id, void *data);
 
 void
 stnode_free(stnode_t *node);

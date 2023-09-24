@@ -88,7 +88,7 @@ int drange_get_max_start_offset(drange_t* dr);
 /* drange mutators */
 void drange_append_drange_node(drange_t* dr, drange_node* drnode);
 void drange_prepend_drange_node(drange_t* dr, drange_node* drnode);
-void drange_foreach_drange_node(drange_t* dr, GFunc func, void * funcdata);
+void drange_foreach_drange_node(drange_t* dr, GFunc func, void *funcdata);
 
 char *drange_node_tostr(const drange_node *rn);
 

@@ -15,7 +15,7 @@
 #include <epan/proto.h> // For BASE_NONE
 
 static void
-sttype_fvalue_free(void * value)
+sttype_fvalue_free(void *value)
 {
 	fvalue_t *fvalue = value;
 
@@ -26,7 +26,7 @@ sttype_fvalue_free(void * value)
 }
 
 static void
-pcre_free(void * value)
+pcre_free(void *value)
 {
 	ws_regex_t *pcre = value;
 

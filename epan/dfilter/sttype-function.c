@@ -21,7 +21,7 @@ typedef struct {
 #define FUNCTION_MAGIC	0xe10f0f99
 
 static void *
-function_new(void * funcdef)
+function_new(void *funcdef)
 {
 	function_t		*stfuncrec;
 
@@ -80,7 +80,7 @@ function_tostr(const void *data, bool pretty)
 }
 
 static void
-slist_stnode_free(void * data)
+slist_stnode_free(void *data)
 {
 	stnode_free(data);
 }
@@ -92,7 +92,7 @@ st_funcparams_free(GSList *params)
 }
 
 static void
-function_free(void * value)
+function_free(void *value)
 {
 	function_t	*stfuncrec = value;
 	ws_assert_magic(stfuncrec, FUNCTION_MAGIC);

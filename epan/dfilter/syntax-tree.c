@@ -103,7 +103,7 @@ stnode_clear(stnode_t *node)
 }
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, void * data, char *token, df_loc_t loc)
+stnode_init(stnode_t *node, sttype_id_t type_id, void *data, char *token, df_loc_t loc)
 {
 	sttype_t	*type;
 
@@ -136,7 +136,7 @@ stnode_init(stnode_t *node, sttype_id_t type_id, void * data, char *token, df_lo
 }
 
 void
-stnode_replace(stnode_t *node, sttype_id_t type_id, void * data)
+stnode_replace(stnode_t *node, sttype_id_t type_id, void *data)
 {
 	char *token = g_strdup(node->repr_token);
 	df_loc_t loc = node->location;
@@ -147,7 +147,7 @@ stnode_replace(stnode_t *node, sttype_id_t type_id, void * data)
 }
 
 stnode_t*
-stnode_new(sttype_id_t type_id, void * data, char *token, df_loc_t loc)
+stnode_new(sttype_id_t type_id, void *data, char *token, df_loc_t loc)
 {
 	stnode_t	*node;
 
@@ -237,7 +237,7 @@ void *
 stnode_steal_data(stnode_t *node)
 {
 	ws_assert_magic(node, STNODE_MAGIC);
-	void * data = node->data;
+	void *data = node->data;
 	ws_assert(data);
 	node->data = NULL;
 	return data;

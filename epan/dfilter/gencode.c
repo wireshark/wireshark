@@ -20,7 +20,7 @@
 #include <wsutil/ws_assert.h>
 
 static void
-fixup_jumps(void * data, void * user_data);
+fixup_jumps(void *data, void *user_data);
 
 static void
 gencode(dfwork_t *dfw, stnode_t *st_node);
@@ -406,7 +406,7 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stmatch_t how,
 }
 
 static void
-fixup_jumps(void * data, void * user_data)
+fixup_jumps(void *data, void *user_data)
 {
 	dfvm_value_t *jmp = (dfvm_value_t*)data;
 	dfwork_t *dfw = (dfwork_t*)user_data;
@@ -850,7 +850,7 @@ typedef struct {
 } hash_key_iterator;
 
 static void
-get_hash_key(void * key, void * value _U_, void * user_data)
+get_hash_key(void *key, void *value _U_, void *user_data)
 {
 	int field_id = *(int *)key;
 	hash_key_iterator *hki = (hash_key_iterator *)user_data;
