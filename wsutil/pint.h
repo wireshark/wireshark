@@ -14,6 +14,7 @@
 #define __PINT_H__
 
 #include <inttypes.h>
+
 #include <glib.h>
 
 /* Routines that take a possibly-unaligned pointer to a 16-bit, 24-bit,
@@ -113,8 +114,7 @@ static inline uint32_t pntoh32(const void *p)
 
 static inline uint64_t pntoh64(const void *p)
 {
-    /* XXX uint64_t doesn't work on Windows. */
-    guint64 ret;
+    uint64_t ret;
     memcpy(&ret, p, sizeof(ret));
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     ret = pint_bswap64(ret);
@@ -144,8 +144,7 @@ static inline uint32_t pletoh32(const void *p)
 
 static inline uint64_t pletoh64(const void *p)
 {
-    /* XXX uint64_t doesn't work on Windows. */
-    guint64 ret;
+    uint64_t ret;
     memcpy(&ret, p, sizeof(ret));
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     ret = pint_bswap64(ret);

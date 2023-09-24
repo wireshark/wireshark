@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include <glib.h>
+
 #include "wsutil/pint.h"
 #include "wsutil/sign_ext.h"
 #include "wsutil/strtoi.h"

@@ -11,6 +11,9 @@
 
 #include <string.h>     /* for memcmp */
 #include <stdio.h>
+
+#include <glib.h>
+
 #include "packet.h"
 #include "address_types.h"
 #include "to_str.h"
@@ -19,7 +22,6 @@
 #include "wsutil/str_util.h"
 #include "wsutil/inet_addr.h"
 #include <wsutil/ws_assert.h>
-#include <wsutil/pint.h>
 
 struct _address_type_t {
     int                     addr_type; /* From address_type enumeration or registered value */

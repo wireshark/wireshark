@@ -12,8 +12,11 @@
 
 #include "config.h"
 
-#include "strtoi.h"
 #include <errno.h>
+
+#include <glib.h>
+
+#include "strtoi.h"
 #include <wsutil/ws_assert.h>
 
 bool ws_strtoi64(const char* str, const char** endptr, int64_t* cint)

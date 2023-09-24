@@ -11,6 +11,9 @@
 #define __WSUTIL_SIGN_EXT_H__
 
 #include <inttypes.h>
+
+#include <glib.h>
+
 #include <wsutil/ws_assert.h>
 
 /* sign extension routines */
