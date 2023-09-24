@@ -280,6 +280,8 @@ class Item:
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" ,code_string) # C-style comment
     code_string = re.sub(re.compile(r"//.*?\n" ) ,"" ,code_string)             # C++-style comment
+    code_string = re.sub(re.compile(r"#if 0.*?#endif",re.DOTALL ) ,"" , code_string) # Ignored region
+
     return code_string
 
 
