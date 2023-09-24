@@ -279,7 +279,13 @@ typedef struct wtapng_ft_specific_mandatory_s {
     guint     record_type;      /* the type of record this is - file type-specific value */
 } wtapng_ft_specific_mandatory_t;
 
-/* Currently supported option types */
+/*
+ * Currently supported option types.  These are not option types
+ * in the sense that each one corresponds to a particular option,
+ * they are data types for the data of an option, so, for example,
+ * all options with a 32-bit unsigned integer value have the type
+ * WTAP_OPTTYPE_UINT32.
+ */
 typedef enum {
     WTAP_OPTTYPE_UINT8,
     WTAP_OPTTYPE_UINT32,
