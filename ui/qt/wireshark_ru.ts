@@ -15061,6 +15061,10 @@ a:hover {
         <translation>Дождитесь завершения инициализации Wireshark…</translation>
     </message>
     <message>
+        <source> before updating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>There are no TLS Session Keys to save.</source>
         <translation>Нет ключей сеанса TLS для сохранения.</translation>
     </message>

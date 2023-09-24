@@ -14997,6 +14997,10 @@ a:üzerine gelin{
         <translation>Wireshark başlatılırken lütfen bekleyin…</translation>
     </message>
     <message>
+        <source> before updating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>There are no TLS Session Keys to save.</source>
         <translation>Kaydedilecek TLS Oturum Anahtarı yok.</translation>
     </message>

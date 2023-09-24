@@ -126,6 +126,13 @@ Wireshark 4.1.1 Release Notes
        Previously only ISO8601 offsets and the "UTC" designation was
        understood.
 
+        • Writing value strings without double quotes is deprecated and
+       will generate a warning. Value strings are integer or boolean
+       values that can be represented using a user-friendly textual
+       format, such as "Set"/"Unset" instead of numerical values like 1
+       and 0. It is now a requirement that value strings need to be
+       written enclosed in double-quotes.
+
         • The deprecated ~≃ operator symbol has been removed. It was
        replaced by !== in version 4.0.
 
@@ -255,23 +262,25 @@ Wireshark 4.1.1 Release Notes
    Register Access Protocol (5CoRAP), Fortinet FortiGate Cluster
    Protocol (FGCP), GPS L1 C/A LNAV navigation messages, GSM Radio Link
    Protocol (RLP), H.224, High Speed Fahrzeugzugang (HSFZ), Hypertext
-   Transfer Protocol version 3 (HTTP/3), ID3v2, JSON 3GPP, Low Level
-   Signalling (ATSC3 LLS), Management Component Transport Protocol
-   (MCTP), Management Component Transport Protocol - Control Protocol
-   (MCTP CP), Matter home automation protocol, Microsoft Delivery
-   Optimization, Multi-Drop Bus (MDB), Non-volatile Memory Express -
-   Management Interface (NVMe-MI) over MCTP, RDP audio output virtual
-   channel Protocol (rdpsnd), RDP clipboard redirection channel Protocol
-   (cliprdr), RDP Program virtual channel Protocol (RAIL), SAP Enqueue
-   Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA SQL Command Network
-   Protocol (SAPHDB), SAP Internet Graphic Server (SAP IGS), SAP Message
-   Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
-   (SAPROUTER), SAP Secure Network Connection (SNC), SBAS L1 Navigation
-   Messages (SBAS L1), SINEC AP1 Protocol (SINEC AP), SMPTE ST2110-20
-   (Uncompressed Active Video), Train Real-Time Data Protocol (TRDP),
-   UBX protocol of u-blox GNSS receivers (UBX), UDP Tracker Protocol for
-   BitTorrent (BT-Tracker), UWB UCI Protocol, Video Protocol 9 (VP9),
-   Windows Delivery Optimization (MS-DO), Zabbix, and Zigbee TLV
+   Transfer Protocol version 3 (HTTP/3), ID3v2, IEEE 802.1CB (R-TAG),
+   Iperf3, JSON 3GPP, Low Level Signalling (ATSC3 LLS), Management
+   Component Transport Protocol (MCTP), Management Component Transport
+   Protocol - Control Protocol (MCTP CP), Matter home automation
+   protocol, Microsoft Delivery Optimization, Multi-Drop Bus (MDB),
+   Non-volatile Memory Express - Management Interface (NVMe-MI) over
+   MCTP, RDP audio output virtual channel Protocol (rdpsnd), RDP
+   clipboard redirection channel Protocol (cliprdr), RDP Program virtual
+   channel Protocol (RAIL), SAP Enqueue Server (SAPEnqueue), SAP GUI
+   (SAPDiag), SAP HANA SQL Command Network Protocol (SAPHDB), SAP
+   Internet Graphic Server (SAP IGS), SAP Message Server (SAPMS), SAP
+   Network Interface (SAPNI), SAP Router (SAPROUTER), SAP Secure Network
+   Connection (SNC), SBAS L1 Navigation Messages (SBAS L1), SINEC AP1
+   Protocol (SINEC AP), SMPTE ST2110-20 (Uncompressed Active Video),
+   Train Real-Time Data Protocol (TRDP), UBX protocol of u-blox GNSS
+   receivers (UBX), UDP Tracker Protocol for BitTorrent (BT-Tracker),
+   UWB UCI Protocol, Video Protocol 9 (VP9), VMware HeartBeat, Windows
+   Delivery Optimization (MS-DO), Z21 LAN Protocol (Z21), Zabbix, ZigBee
+   Direct (ZBD), and Zigbee TLV
 
   Updated Protocol Support
 
