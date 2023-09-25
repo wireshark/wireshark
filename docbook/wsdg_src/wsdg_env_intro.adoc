@@ -268,22 +268,23 @@ Jobs provide a link to the corresponding console logfile which provides addition
 
 Release packages are built on the following platforms:
 
-* Windows Server 2019 x86-64 (Win64, little endian, Visual Studio 2022)
+* Windows Server 2022 x64, Visual Studio 2022
 
-* Ubuntu 18.04 x86-64 (Linux, little endian, gcc, Clang)
+* Windows 11 Arm64, Visual Studio 2022
 
-* macOS 10.14 x86-64 (BSD, little endian, Clang)
+* Ubuntu 22.04 x64, gcc
+
+* macOS x64, clang
+
+* macOS Arm64, clang
 
 Static code analysis and fuzz tests are run on the following platforms:
 
-* Visual Studio Code Analysis (Win64, little endian, VS 2022)
+* Visual Studio Code Analysis, Visual Studio 2022
 
-* Clang Code Analysis, Coverity Scan, and fuzz tests (Linux, little endian, Clang)
-
-Each platform is represented at the status page by a single column, the most recent entries are at the top.
+* Clang Code Analysis, Coverity Scan, and fuzz tests, clang
 
 [#ChIntroHelp]
-
 
 === Reporting problems and getting help
 
