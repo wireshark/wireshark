@@ -427,14 +427,14 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 				s, hfinfo->abbrev);
 	}
 	else if (hfinfo->display == BASE_CUSTOM) {
-		/*  If a user wants to match against a custom string, we would
-		 *  somehow have to have the integer value here to pass it in
-		 *  to the custom-display function.  But we don't have an
-		 *  integer, we have the string they're trying to match.
-		 *  -><-
-		 */
-		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot accept [custom] strings as values.",
-				hfinfo->abbrev);
+		/*  We don't have a string catalog to compare to so just assume
+		 * the provided string is a valid custom representation. */
+		if (FT_IS_INTEGER(hfinfo->type)) {
+			fv = mk_string_fvalue(s);
+			stnode_replace(st, STTYPE_FVALUE, fv);
+			return MK_OK_STRING;
+		}
+		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "%s must be an integer.", hfinfo->abbrev);
 	}
 	else {
 		const value_string *vals = (const value_string *)hfinfo->strings;

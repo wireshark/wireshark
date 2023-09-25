@@ -292,8 +292,12 @@ dfw_append_mk_value_string(dfwork_t *dfw, stnode_t *node, dfvm_value_t *src)
 		vs_type = DFVM_VS_RANGE;
 	}
 	else if (hfinfo->display == BASE_CUSTOM) {
-		// TODO
-		ws_error("BASE_CUSTOM is not a valid value string type");
+		if (FT_IS_INT32(hfinfo->type) || FT_IS_UINT32(hfinfo->type))
+			vs_type = DFVM_VS_CUSTOM;
+		else if (FT_IS_INT64(hfinfo->type) || FT_IS_UINT64(hfinfo->type))
+			vs_type = DFVM_VS_CUSTOM64;
+		else
+			ws_assert_not_reached();
 	}
 	else if (hfinfo->display & BASE_EXT_STRING) {
 		vs_type = DFVM_VS_VALS_EXT;

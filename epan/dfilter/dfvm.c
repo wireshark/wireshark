@@ -270,6 +270,8 @@ dfvm_value_tostr(dfvm_value_t *v)
 				case DFVM_VS_VALS64: t = "Vals64"; break;
 				case DFVM_VS_VALS: t = "Vals"; break;
 				case DFVM_VS_VALS_EXT: t = "ValsExt"; break;
+				case DFVM_VS_CUSTOM: t = "Custom"; break;
+				case DFVM_VS_CUSTOM64: t = "Custom64"; break;
 			}
 			s = ws_strdup_printf("%s:0x%p", t, v->value.value_string.strings);
 			break;
@@ -1275,7 +1277,7 @@ mk_length(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg)
 }
 
 static const char *
-try_value_string(dfvm_value_string_t *vs, fvalue_t *fv_num)
+try_value_string(dfvm_value_string_t *vs, fvalue_t *fv_num, char *buf)
 {
 	uint64_t val;
 
@@ -1291,6 +1293,12 @@ try_value_string(dfvm_value_string_t *vs, fvalue_t *fv_num)
 			return try_val_to_str((uint32_t)val, vs->strings);
 		case DFVM_VS_VALS_EXT:
 			return try_val_to_str_ext((uint32_t)val, (value_string_ext *)vs->strings);
+		case DFVM_VS_CUSTOM:
+			((custom_fmt_func_t)vs->strings)(buf, (uint32_t)val);
+			return buf;
+		case DFVM_VS_CUSTOM64:
+			((custom_fmt_func_64_t)vs->strings)(buf, val);
+			return buf;
 		case DFVM_VS_NONE:
 			ws_assert_not_reached();
 	}
@@ -1307,6 +1315,7 @@ mk_value_string(dfilter_t *df, dfvm_value_t *vs_arg, dfvm_value_t *from_arg, dfv
 	const char *str;
 	fvalue_t *old_fv;
 	fvalue_t *new_fv;
+	char label_buf[ITEM_LABEL_LENGTH];
 
 	vs = &vs_arg->value.value_string;
 
@@ -1316,7 +1325,7 @@ mk_value_string(dfilter_t *df, dfvm_value_t *vs_arg, dfvm_value_t *from_arg, dfv
 
 	df_cell_iter_init(from_rp, &from_iter);
 	while ((old_fv = df_cell_iter_next(&from_iter)) != NULL) {
-		str = try_value_string(vs, old_fv);
+		str = try_value_string(vs, old_fv, label_buf);
 		if (str) {
 			new_fv = fvalue_new(FT_STRING);
 			fvalue_set_string(new_fv, str);

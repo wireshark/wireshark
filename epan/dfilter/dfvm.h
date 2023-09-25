@@ -39,6 +39,8 @@ typedef enum {
 	DFVM_VS_VALS64,
 	DFVM_VS_VALS,
 	DFVM_VS_VALS_EXT,
+	DFVM_VS_CUSTOM, // Not a value string but treat it like one
+	DFVM_VS_CUSTOM64,
 } dfvm_vs_type_t;
 
 typedef struct {
