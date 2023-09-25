@@ -2106,6 +2106,7 @@ int OptInit(char **a, struct s_options *o, FILE *err)
   if( g_argv && *g_argv && op ){
     int i;
     for(i=1; g_argv[i]; i++){
+      if( strcmp(g_argv[i],"--")==0 ) break;
       if( g_argv[i][0]=='+' || g_argv[i][0]=='-' ){
         errcnt += handleflags(i,err);
       }else if( strchr(g_argv[i],'=') ){

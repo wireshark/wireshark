@@ -1,0 +1,14 @@
+Don't try to parse flags and options that are after "--". This makes it
+possible to prevent a filename path with an '=' in it from being processed
+as an option.
+SPDX-License-Identifier: CC0-1.0
+--- a/lemon.c
++++ b/lemon.c
+@@ -2106,6 +2106,7 @@ int OptInit(char **a, struct s_options *o, FILE *err)
+   if( g_argv && *g_argv && op ){
+     int i;
+     for(i=1; g_argv[i]; i++){
++      if( strcmp(g_argv[i],"--")==0 ) break;
+       if( g_argv[i][0]=='+' || g_argv[i][0]=='-' ){
+         errcnt += handleflags(i,err);
+       }else if( strchr(g_argv[i],'=') ){

@@ -14,6 +14,7 @@ if(LEMON_EXECUTABLE)
 			COMMAND ${LEMON_EXECUTABLE}
 				-T/usr/share/lemon/lempar.c
 				-d.
+				--
 				${_in}
 			DEPENDS
 				${_in}
@@ -32,6 +33,7 @@ else()
 			COMMAND $<TARGET_FILE:lemon>
 				-T${CMAKE_SOURCE_DIR}/tools/lemon/lempar.c
 				-d.
+				--
 				${_in}
 			DEPENDS
 				${_in}
