@@ -72,12 +72,13 @@ def wireshark_k(wireshark_command):
     return tuple(list(wireshark_command) + ['-k'])
 
 
-def capture_command(*args, shell=False):
+def capture_command(*args, shell=False, quoted=False):
     cmd_args = list(args)
     if type(cmd_args[0]) != str:
         # Assume something like ['wireshark', '-k']
         cmd_args = list(cmd_args[0]) + list(cmd_args)[1:]
     if shell:
+        cmd_args[0] = f'"{cmd_args[0]}"'
         cmd_args = ' '.join(cmd_args)
     return cmd_args
 
@@ -156,7 +157,7 @@ def check_capture_stdin(cmd_capinfos, result_file):
         slow_dhcp_cmd = cat_dhcp_command('slow')
         capture_cmd = capture_command(cmd,
             '-i', '-',
-            '-w', testout_file,
+            '-w', f'"{testout_file}"',
             '-a', 'duration:{}'.format(capture_duration),
             shell=True
         )

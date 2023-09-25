@@ -129,7 +129,8 @@ variables:
   after_script:
     # The cache should be large enough to be useful but it shouldn't take
     # too long to restore+save each run.
-    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
+    - cd "$CI_PROJECT_DIR"
+    - ccache --max-size $( du --total --summarize --block-size=1M *build*/ | awk 'END {printf ("%dM", $1 * 1.5)}' )
 
 .build-rpm:
   extends: .build-linux
@@ -620,6 +621,9 @@ Ubuntu GCC Build:
   needs: [ 'Commit Check' ]
   script:
     # build-ubuntu puts us in `build`.
+    - cd ..
+    - mv build "🦈 b u i l d 🦈"
+    - cd "🦈 b u i l d 🦈"
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # Test release build.
     - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=on ..

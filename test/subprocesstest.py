@@ -63,7 +63,7 @@ def cat_dhcp_command(mode):
     if sys.executable:
         sd_cmd = '"{}" '.format(sys.executable)
     this_dir = os.path.dirname(__file__)
-    sd_cmd += os.path.join(this_dir, 'util_dump_dhcp_pcap.py ' + mode)
+    sd_cmd += '"{}" {}'.format(os.path.join(this_dir, 'util_dump_dhcp_pcap.py'), mode)
     return sd_cmd
 
 def cat_cap_file_command(cap_files):

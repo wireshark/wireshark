@@ -31,7 +31,7 @@ def fileformats_baseline_str(dirs):
 class TestFileFormatPcap:
     def test_pcap_usec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs microsecond pcap stdin'''
-        capture_stdout = subprocess.check_output(' '.join((cmd_tshark,
+        capture_stdout = subprocess.check_output(' '.join((f'"{cmd_tshark}"',
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
@@ -42,7 +42,7 @@ class TestFileFormatPcap:
 
     def test_pcap_nsec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs nanosecond pcap stdin'''
-        capture_stdout = subprocess.check_output(' '.join((cmd_tshark,
+        capture_stdout = subprocess.check_output(' '.join((f'"{cmd_tshark}"',
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
@@ -65,7 +65,7 @@ class TestFileFormatPcap:
 class TestFileFormatsPcapng:
     def test_pcapng_usec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs microsecond pcapng stdin'''
-        capture_stdout = subprocess.check_output(' '.join((cmd_tshark,
+        capture_stdout = subprocess.check_output(' '.join((f'"{cmd_tshark}"',
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta'
@@ -86,7 +86,7 @@ class TestFileFormatsPcapng:
 
     def test_pcapng_nsec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs nanosecond pcapng stdin'''
-        capture_stdout = subprocess.check_output(' '.join((cmd_tshark,
+        capture_stdout = subprocess.check_output(' '.join((f'"{cmd_tshark}"',
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta'
