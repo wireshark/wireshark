@@ -150,6 +150,7 @@ static int hf_someip_returncode                                         = -1;
 
 static int hf_someip_tp                                                 = -1;
 static int hf_someip_tp_offset                                          = -1;
+static int hf_someip_tp_offset_encoded                                  = -1;
 static int hf_someip_tp_flags                                           = -1;
 static int hf_someip_tp_reserved                                        = -1;
 static int hf_someip_tp_more_segments                                   = -1;
@@ -160,7 +161,6 @@ static int hf_someip_payload                                            = -1;
 static gint ett_someip                                                  = -1;
 static gint ett_someip_msgtype                                          = -1;
 static gint ett_someip_tp                                               = -1;
-static gint ett_someip_tp_flags                                         = -1;
 
 /* dissector handling */
 static dissector_table_t someip_dissector_table = NULL;
@@ -3579,12 +3579,6 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     gint            tvb_length = tvb_captured_length_remaining(tvb, offset);
 
-    static int * const someip_tp_flags[] = {
-        &hf_someip_tp_reserved,
-        &hf_someip_tp_more_segments,
-        NULL
-    };
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, SOMEIP_NAME);
     col_set_str(pinfo->cinfo, COL_INFO, SOMEIP_NAME_LONG);
     ti_someip = proto_tree_add_item(tree, proto_someip, tvb, offset, -1, ENC_NA);
@@ -3719,11 +3713,13 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         ti = proto_tree_add_item(someip_tree, hf_someip_tp, tvb, offset, someip_payload_length, ENC_NA);
         tp_tree = proto_item_add_subtree(ti, ett_someip_tp);
 
-        tp_offset = (tvb_get_ntohl(tvb, offset) & SOMEIP_TP_OFFSET_MASK);
-        tp_more_segments = ((tvb_get_ntohl(tvb, offset) & SOMEIP_TP_OFFSET_MASK_MORE_SEGMENTS) != 0);
-        /* Why can I not mask an FT_UINT32 without it being shifted. :( . */
-        proto_tree_add_uint(tp_tree, hf_someip_tp_offset, tvb, offset, 4, tp_offset);
-        proto_tree_add_bitmask_with_flags(tp_tree, tvb, offset, hf_someip_tp_flags, ett_someip_tp_flags, someip_tp_flags, ENC_BIG_ENDIAN, BMT_NO_TFS | BMT_NO_INT);
+        /* Unfortunately, with a bitmask set the value is always shifted and cannot be set directly. */
+        proto_tree_add_item_ret_uint(tp_tree, hf_someip_tp_offset_encoded, tvb, offset, 4, ENC_BIG_ENDIAN, &tp_offset);
+        tp_offset <<= 4;
+        proto_tree_add_item(tp_tree, hf_someip_tp_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_boolean(tp_tree, hf_someip_tp_more_segments, tvb, offset, 4, ENC_BIG_ENDIAN, &tp_more_segments);
+        ti = proto_tree_add_uint(tp_tree, hf_someip_tp_offset, tvb, offset, 4, tp_offset);
+        PROTO_ITEM_SET_GENERATED(ti);
         offset += 4;
 
         proto_tree_add_item(tp_tree, hf_someip_payload, tvb, offset, someip_payload_length - SOMEIP_TP_HDR_LEN, ENC_NA);
@@ -3952,6 +3948,9 @@ proto_register_someip(void) {
         { &hf_someip_tp_offset,
             { "Offset", "someip.tp.offset",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_someip_tp_offset_encoded,
+            { "Encoded Offset", "someip.tp.offset_encoded",
+            FT_UINT32, BASE_HEX, NULL, SOMEIP_TP_OFFSET_MASK, NULL, HFILL }},
         { &hf_someip_tp_flags,
             { "Flags", "someip.tp.flags",
             FT_UINT32, BASE_HEX, NULL, SOMEIP_TP_OFFSET_MASK_FLAGS, NULL, HFILL }},
@@ -4053,7 +4052,6 @@ proto_register_someip(void) {
         &ett_someip,
         &ett_someip_msgtype,
         &ett_someip_tp,
-        &ett_someip_tp_flags,
         &ett_someip_tp_fragment,
         &ett_someip_tp_fragments,
 
