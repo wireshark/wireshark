@@ -68,6 +68,22 @@ enum mk_result {
 static enum mk_result
 mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s, stnode_t *st);
 
+static inline bool
+op_is_equality(stnode_op_t op)
+{
+	switch (op) {
+		case STNODE_OP_ALL_EQ:
+		case STNODE_OP_ANY_EQ:
+		case STNODE_OP_ALL_NE:
+		case STNODE_OP_ANY_NE:
+		case STNODE_OP_IN:
+		case STNODE_OP_NOT_IN:
+			return true;
+		default:
+			return false;
+	}
+}
+
 /* Compares to ftenum_t's and decides if they're
  * compatible or not (if they're the same basic type) */
 bool
@@ -623,7 +639,7 @@ check_function(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 /* If the LHS of a relation test is a FIELD, run some checks
  * and possibly some modifications of syntax tree nodes. */
 static void
-check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op _U_,
+check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
@@ -682,6 +698,12 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op _U_,
 		}
 		if (mk_val_string) {
 			sttype_field_set_value_string(st_arg1, true);
+			// Value strings can only be ordered if they are numerical.
+			// Don't try to order them lexicographically, that's not
+			// what users expect.
+			if (!op_is_equality(st_op)) {
+				FAIL(dfw, st_arg2, "Value strings can only be tested for equality.");
+			}
 		}
 	}
 	else if (type2 == STTYPE_CHARCONST) {
@@ -746,7 +768,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op _U_,
 }
 
 static void
-check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op _U_,
+check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
@@ -821,6 +843,12 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op _U_,
 	}
 	if (mk_val_string) {
 		sttype_field_set_value_string(st_arg2, true);
+		// Value strings can only be ordered if they are numerical.
+		// Don't try to order them lexicographically, that's not
+		// what users expect.
+		if (!op_is_equality(st_op)) {
+			FAIL(dfw, st_arg1, "Value strings can only be tested for equality.");
+		}
 	}
 }
 
