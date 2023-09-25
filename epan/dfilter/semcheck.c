@@ -306,9 +306,22 @@ mk_string_fvalue(const char *str)
 	return fv;
 }
 
+/* Creates a FT_UINT64 fvalue with a given value. */
+static fvalue_t*
+mk_uint64_fvalue(uint64_t val)
+{
+	fvalue_t *fv = fvalue_new(FT_UINT64);
+	fvalue_set_uinteger64(fv, val);
+	return fv;
+}
+
 /* Try to make an fvalue from a string using a value_string or true_false_string.
  * This works only for ftypes that are integers. Returns the created fvalue_t*
- * or NULL if impossible. */
+ * or NULL if impossible.
+ * If the mapping number<->string is unique convert the string to a number
+ * by inverting the value string function.
+ * Otherwise we compile it as a string and map the field value at runtime
+ * to a string for the comparison. */
 static enum mk_result
 mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s, stnode_t *st)
 {
@@ -381,6 +394,8 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 	df_error_free(&dfw->error);
 
 	fvalue_t *fv;
+	uint64_t val = 0, val_max = 0;
+	size_t count = 0;
 
 	if (hfinfo->type == FT_BOOLEAN) {
 		const true_false_string	*tf = (const true_false_string *)hfinfo->strings;
@@ -401,30 +416,65 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 	else if (hfinfo->display & BASE_RANGE_STRING) {
 		const range_string *vals = (const range_string *)hfinfo->strings;
 
-		while (vals->strptr != NULL) {
+		while (vals->strptr != NULL && count <= 1) {
 			if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
+				val = vals->value_min;
+				val_max = vals->value_max;
+				count++;
+			}
+			vals++;
+		}
+		if (count > 1) {
+			// More than one match, use a string.
+			fv = mk_string_fvalue(s);
+			stnode_replace(st, STTYPE_FVALUE, fv);
+			return MK_OK_STRING;
+		}
+		else if (count == 1) {
+			// If the range has a single value use an integer.
+			// Otherwise use a string.
+			if (val == val_max) {
+				fv = mk_uint64_fvalue(val);
+				stnode_replace(st, STTYPE_FVALUE, fv);
+				return MK_OK_NUMBER;
+			}
+			else {
 				fv = mk_string_fvalue(s);
 				stnode_replace(st, STTYPE_FVALUE, fv);
 				return MK_OK_STRING;
 			}
-			vals++;
 		}
-		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
-				s, hfinfo->abbrev);
+		else {
+			dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
+					s, hfinfo->abbrev);
+		}
 	}
 	else if (hfinfo->display & BASE_VAL64_STRING) {
 		const val64_string *vals = (const val64_string *)hfinfo->strings;
 
-		while (vals->strptr != NULL) {
+		while (vals->strptr != NULL && count <= 1) {
 			if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
-				fv = mk_string_fvalue(s);
-				stnode_replace(st, STTYPE_FVALUE, fv);
-				return MK_OK_STRING;
+				val = vals->value;
+				count++;
 			}
 			vals++;
 		}
-		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
-				s, hfinfo->abbrev);
+		if (count > 1) {
+			// More than one match, use a string.
+			fv = mk_string_fvalue(s);
+			stnode_replace(st, STTYPE_FVALUE, fv);
+			return MK_OK_STRING;
+		}
+		else if (count == 1) {
+			// Only one match, convert string to number.
+			fv = mk_uint64_fvalue(val);
+			stnode_replace(st, STTYPE_FVALUE, fv);
+			return MK_OK_NUMBER;
+		}
+		else {
+			dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
+					s, hfinfo->abbrev);
+		}
 	}
 	else if (hfinfo->display == BASE_CUSTOM) {
 		/*  We don't have a string catalog to compare to so just assume
@@ -441,16 +491,29 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 		if (hfinfo->display & BASE_EXT_STRING)
 			vals = VALUE_STRING_EXT_VS_P((const value_string_ext *) vals);
 
-		while (vals->strptr != NULL) {
+		while (vals->strptr != NULL && count <= 1) {
 			if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
-				fv = mk_string_fvalue(s);
-				stnode_replace(st, STTYPE_FVALUE, fv);
-				return MK_OK_STRING;
+				val = vals->value;
+				count++;
 			}
 			vals++;
 		}
-		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
-				s, hfinfo->abbrev);
+		if (count > 1) {
+			// More than one match, use a string.
+			fv = mk_string_fvalue(s);
+			stnode_replace(st, STTYPE_FVALUE, fv);
+			return MK_OK_STRING;
+		}
+		else if (count == 1) {
+			// Only one match, convert string to number.
+			fv = mk_uint64_fvalue(val);
+			stnode_replace(st, STTYPE_FVALUE, fv);
+			return MK_OK_NUMBER;
+		}
+		else {
+			dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
+					s, hfinfo->abbrev);
+		}
 	}
 	return MK_ERROR;
 }
@@ -702,7 +765,9 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 			// Don't try to order them lexicographically, that's not
 			// what users expect.
 			if (!op_is_equality(st_op)) {
-				FAIL(dfw, st_arg2, "Value strings can only be tested for equality.");
+				FAIL(dfw, st_arg2, "Cannot use order comparisons with \"%s\" "
+					"because the value string cannot be uniquely converted to an integer.",
+					stnode_todisplay(st_arg2));
 			}
 		}
 	}
@@ -847,7 +912,9 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op,
 		// Don't try to order them lexicographically, that's not
 		// what users expect.
 		if (!op_is_equality(st_op)) {
-			FAIL(dfw, st_arg1, "Value strings can only be tested for equality.");
+			FAIL(dfw, st_arg1, "Cannot use order comparisons with \"%s\" "
+				"because the value string cannot be uniquely converted to an integer.",
+				stnode_todisplay(st_arg1));
 		}
 	}
 }
