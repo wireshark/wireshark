@@ -264,7 +264,6 @@ static int hf_dns_svcb_param_alpn_length = -1;
 static int hf_dns_svcb_param_alpn = -1;
 static int hf_dns_svcb_param_port = -1;
 static int hf_dns_svcb_param_ipv4hint_ip = -1;
-static int hf_dns_svcb_param_echconfig = -1;
 static int hf_dns_svcb_param_ipv6hint_ip = -1;
 static int hf_dns_svcb_param_dohpath = -1;
 static int hf_dns_svcb_param_odohconfig = -1;
@@ -533,6 +532,9 @@ static guint32 retransmission_timer = 5;
 /* Dissector handle for GSSAPI */
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t ntlmssp_handle;
+
+/* Dissector handle for TLS ECHConfig message */
+static dissector_handle_t tls_echconfig_handle;
 
 /* Transport protocol for DNS. */
 enum DnsTransport {
@@ -1264,7 +1266,7 @@ static const range_string dns_dso_type_rvals[] = {
 #define DNS_SVCB_KEY_NOALPN           2
 #define DNS_SVCB_KEY_PORT             3
 #define DNS_SVCB_KEY_IPV4HINT         4
-#define DNS_SVCB_KEY_ECHCONFIG        5
+#define DNS_SVCB_KEY_ECH              5 /* draft-ietf-tls-svcb-ech-00 */
 #define DNS_SVCB_KEY_IPV6HINT         6
 #define DNS_SVCB_KEY_DOHPATH          7 /* draft-ietf-add-svcb-dns-08 */
 #define DNS_SVCB_KEY_ODOHCONFIG   32769 /* draft-pauly-dprive-oblivious-doh-02 */
@@ -1272,7 +1274,7 @@ static const range_string dns_dso_type_rvals[] = {
 
 /**
  * Service Binding (SVCB) Parameter Registry.
- * https://tools.ietf.org/html/draft-ietf-dnsop-svcb-https-01#section-12.3.2
+ * https://tools.ietf.org/html/draft-ietf-dnsop-svcb-https-12#section-14.3.2
  */
 static const value_string dns_svcb_param_key_vals[] = {
   { DNS_SVCB_KEY_MANDATORY,     "mandatory" },
@@ -1280,7 +1282,7 @@ static const value_string dns_svcb_param_key_vals[] = {
   { DNS_SVCB_KEY_NOALPN,        "no-default-alpn" },
   { DNS_SVCB_KEY_PORT,          "port" },
   { DNS_SVCB_KEY_IPV4HINT,      "ipv4hint" },
-  { DNS_SVCB_KEY_ECHCONFIG,     "echconfig" },
+  { DNS_SVCB_KEY_ECH,           "ech" },
   { DNS_SVCB_KEY_IPV6HINT,      "ipv6hint" },
   { DNS_SVCB_KEY_DOHPATH,       "dohpath" },
   { DNS_SVCB_KEY_ODOHCONFIG,    "odohconfig" },
@@ -2054,7 +2056,6 @@ dissect_dns_svcparam_base64(proto_tree *param_tree, proto_item *param_item, int 
   proto_item_append_text(param_item, "=%s", str);
   g_free(str);
 }
-
 
 static int
 dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
@@ -3719,10 +3720,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                 cur_offset += 4;
               }
               break;
-            case DNS_SVCB_KEY_ECHCONFIG:
-              dissect_dns_svcparam_base64(svcb_param_tree, svcb_param_ti, hf_dns_svcb_param_echconfig, tvb, cur_offset, svc_param_length);
-              cur_offset += svc_param_length;
+            case DNS_SVCB_KEY_ECH:
+            {
+              tvbuff_t *next_tvb = tvb_new_subset_length(tvb, cur_offset, svc_param_length);
+              cur_offset += call_dissector(tls_echconfig_handle, next_tvb, pinfo, svcb_param_tree);
               break;
+            }
             case DNS_SVCB_KEY_IPV6HINT:
               for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 16) {
                 proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_ipv6hint_ip, tvb, cur_offset, 16, ENC_NA);
@@ -4923,6 +4926,7 @@ proto_reg_handoff_dns(void)
   stats_tree_register("dns", "dns", "DNS", 0, dns_stats_tree_packet, dns_stats_tree_init, NULL);
   gssapi_handle  = find_dissector_add_dependency("gssapi", proto_dns);
   ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_dns);
+  tls_echconfig_handle = find_dissector("tls-echconfig");
   ssl_dissector_add(TCP_PORT_DNS_TLS, dns_handle);
   // RFC 7858 - registration via https://mailarchive.ietf.org/arch/msg/dns-privacy/iZ2rDIhFB2ZWsGC3PcdBVLGa8Do
   dissector_add_string("tls.alpn", "dot", dns_handle);
@@ -5482,11 +5486,6 @@ proto_register_dns(void)
       { "IP", "dns.svcb.svcparam.ipv4hint.ip",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         "IPv4 address hints", HFILL }},
-
-    { &hf_dns_svcb_param_echconfig,
-      { "ECHConfig", "dns.svcb.svcparam.echconfig",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Encrypted ClientHello (ECH) infos", HFILL }},
 
     { &hf_dns_svcb_param_ipv6hint_ip,
       { "IP", "dns.svcb.svcparam.ipv6hint.ip",
