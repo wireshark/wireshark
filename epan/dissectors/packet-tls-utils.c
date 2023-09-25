@@ -1359,6 +1359,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_GREASE_FAFA, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS, "quic_transport_parameters (drafts version)" }, /* https://tools.ietf.org/html/draft-ietf-quic-tls */
     { SSL_HND_HELLO_EXT_ENCRYPTED_SERVER_NAME, "encrypted_server_name" }, /* https://tools.ietf.org/html/draft-ietf-tls-esni-01 */
+    { SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO, "encrypted_client_hello" }, /* https://datatracker.ietf.org/doc/draft-ietf-tls-esni/17/ */
     { 0, NULL }
 };
 
@@ -2395,6 +2396,39 @@ const val64_string quic_enable_multipath_vals[] = {
     { 0, "don't support multipath" },
     { 1, "support multipath as defined in this document" },
     { 0, NULL }
+};
+
+/* https://www.ietf.org/archive/id/draft-ietf-tls-esni-16.txt */
+const value_string tls_hello_ext_ech_clienthello_types[] = {
+    { 0, "Outer Client Hello" },
+    { 1, "Inner Client Hello" },
+    { 0, NULL }
+};
+
+/* RFC 9180 */
+const value_string kem_id_type_vals[] = {
+    { 0x0000, "Reserved" },
+    { 0x0010, "DHKEM(P-256, HKDF-SHA256)" },
+    { 0x0011, "DHKEM(P-384, HKDF-SHA384)" },
+    { 0x0012, "DHKEM(P-521, HKDF-SHA512)" },
+    { 0x0020, "DHKEM(X25519, HKDF-SHA256)" },
+    { 0x0021, "DHKEM(X448, HKDF-SHA512)" },
+    { 0,      NULL }
+};
+const value_string kdf_id_type_vals[] = {
+    { 0x0000, "Reserved" },
+    { 0x0001, "HKDF-SHA256" },
+    { 0x0002, "HKDF-SHA384" },
+    { 0x0003, "HKDF-SHA512" },
+    { 0,      NULL }
+};
+const value_string aead_id_type_vals[] = {
+    { 0x0000, "Reserved" },
+    { 0x0001, "AES-128-GCM" },
+    { 0x0002, "AES-256-GCM" },
+    { 0x0003, "ChaCha20Poly1305" },
+    { 0xFFFF, "Export-only" },
+    { 0,      NULL }
 };
 
 /* Lookup tables }}} */
@@ -8789,6 +8823,266 @@ tls_dissect_sct_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo
     return offset;
 }
 
+static int
+dissect_ech_hpke_cipher_suite(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo _U_,
+                              proto_tree *tree, guint32 offset)
+{
+    guint32 kdf_id, aead_id;
+    proto_item *cs_ti;
+    proto_tree *cs_tree;
+
+    cs_ti = proto_tree_add_item(tree, hf->hf.ech_hpke_keyconfig_cipher_suite,
+                                tvb, offset, 4, ENC_NA);
+    cs_tree = proto_item_add_subtree(cs_ti, hf->ett.ech_hpke_cipher_suite);
+
+    proto_tree_add_item_ret_uint(cs_tree, hf->hf.ech_hpke_keyconfig_cipher_suite_kdf_id,
+                                 tvb, offset, 2, ENC_BIG_ENDIAN, &kdf_id);
+    offset += 2;
+    proto_tree_add_item_ret_uint(cs_tree, hf->hf.ech_hpke_keyconfig_cipher_suite_aead_id,
+                                 tvb, offset, 2, ENC_BIG_ENDIAN, &aead_id);
+    offset += 2;
+
+    proto_item_append_text(cs_ti, ": %s/%s",
+                           val_to_str_const(kdf_id, kdf_id_type_vals, "Unknown"),
+                           val_to_str_const(aead_id, aead_id_type_vals, "Unknown"));
+    return offset;
+}
+
+static int
+dissect_ech_hpke_key_config(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                            proto_tree *tree, guint32 offset, guint32 offset_end,
+                            guint32 *config_id)
+{
+    guint32 length, cipher_suite_length;
+    proto_item *kc_ti, *css_ti;
+    proto_tree *kc_tree, *css_tree;
+    guint32 original_offset = offset, next_offset;
+
+    kc_ti = proto_tree_add_item(tree, hf->hf.ech_hpke_keyconfig,
+                                tvb, offset, -1, ENC_NA);
+    kc_tree = proto_item_add_subtree(kc_ti, hf->ett.ech_hpke_keyconfig);
+
+    proto_tree_add_item_ret_uint(kc_tree, hf->hf.ech_hpke_keyconfig_config_id,
+                                 tvb, offset, 1, ENC_BIG_ENDIAN, config_id);
+    offset += 1;
+    proto_tree_add_item(kc_tree, hf->hf.ech_hpke_keyconfig_kem_id,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item_ret_uint(kc_tree, hf->hf.ech_hpke_keyconfig_public_key_length,
+                                 tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+    offset += 2;
+    proto_tree_add_item(kc_tree, hf->hf.ech_hpke_keyconfig_public_key,
+                        tvb, offset, length, ENC_NA);
+    offset += length;
+
+    /* HpkeSymmetricCipherSuite cipher_suites<4..2^16-4> */
+    if (!ssl_add_vector(hf, tvb, pinfo, kc_tree, offset, offset_end, &cipher_suite_length,
+                        hf->hf.ech_hpke_keyconfig_cipher_suites_length, 4, G_MAXUINT16 - 3)) {
+        return offset_end;
+    }
+    offset += 2;
+    next_offset = offset + cipher_suite_length;
+
+    css_ti = proto_tree_add_none_format(kc_tree,
+                                        hf->hf.ech_hpke_keyconfig_cipher_suites,
+                                        tvb, offset, cipher_suite_length,
+                                        "Cipher Suites (%d suite%s)",
+                                        cipher_suite_length / 4,
+                                        plurality(cipher_suite_length / 4, "", "s"));
+    css_tree = proto_item_add_subtree(css_ti, hf->ett.ech_hpke_cipher_suites);
+
+
+    while (offset + 4 <= next_offset) {
+        offset = dissect_ech_hpke_cipher_suite(hf, tvb, pinfo, css_tree, offset);
+    }
+
+    if (!ssl_end_vector(hf, tvb, pinfo, css_tree, offset, next_offset)) {
+        offset = next_offset;
+    }
+
+    proto_item_set_len(kc_ti, offset - original_offset);
+
+    return offset;
+}
+
+static int
+dissect_ech_echconfig_contents(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               const guint8 **public_name, guint32 *config_id)
+{
+    guint32 public_name_length, extensions_length, next_offset;
+
+    offset = dissect_ech_hpke_key_config(hf, tvb, pinfo, tree, offset, offset_end, config_id);
+    proto_tree_add_item(tree, hf->hf.ech_echconfigcontents_maximum_name_length,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item_ret_uint(tree, hf->hf.ech_echconfigcontents_public_name_length,
+                                 tvb, offset, 1, ENC_BIG_ENDIAN, &public_name_length);
+    offset += 1;
+    proto_tree_add_item_ret_string(tree, hf->hf.ech_echconfigcontents_public_name,
+                                   tvb, offset, public_name_length, ENC_ASCII, pinfo->pool, public_name);
+    offset += public_name_length;
+
+    /* Extension extensions<0..2^16-1>; */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &extensions_length,
+                        hf->hf.ech_echconfigcontents_extensions_length, 0, G_MAXUINT16)) {
+        return offset_end;
+    }
+    offset += 2;
+    next_offset = offset + extensions_length;
+
+    if (extensions_length > 0) {
+        proto_tree_add_item(tree, hf->hf.ech_echconfigcontents_extensions,
+                            tvb, offset, extensions_length, ENC_NA);
+    }
+    offset += extensions_length;
+
+    if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, next_offset)) {
+        offset = next_offset;
+    }
+
+    return offset;
+}
+
+static int
+dissect_ech_echconfig(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                      proto_tree *tree, guint32 offset, guint32 offset_end)
+{
+    guint32 version, length;
+    proto_item *ech_ti;
+    proto_tree *ech_tree;
+    const guint8 *public_name = NULL;
+    guint32 config_id = 0;
+
+    ech_ti = proto_tree_add_item(tree, hf->hf.ech_echconfig, tvb, offset, -1, ENC_NA);
+    ech_tree = proto_item_add_subtree(ech_ti, hf->ett.ech_echconfig);
+
+    proto_tree_add_item_ret_uint(ech_tree, hf->hf.ech_echconfig_version,
+                                 tvb, offset, 2, ENC_BIG_ENDIAN, &version);
+    offset += 2;
+    proto_tree_add_item_ret_uint(ech_tree, hf->hf.ech_echconfig_length,
+                                 tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+    offset += 2;
+
+    proto_item_set_len(ech_ti, 4 + length);
+
+    switch(version) {
+      case 0xfe0d:
+        offset = dissect_ech_echconfig_contents(hf, tvb, pinfo, ech_tree, offset, offset_end, &public_name, &config_id);
+        proto_item_append_text(ech_ti, ": id=%d %s", config_id, public_name);
+        break;
+
+      default:
+        expert_add_info_format(pinfo, ech_ti, &hf->ei.ech_echconfig_invalid_version, "Unsupported/unknown ECHConfig version 0x%x", version);
+    }
+
+    return 4 + length;
+}
+
+guint32
+ssl_dissect_ext_ech_echconfiglist(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                  proto_tree *tree, guint32 offset, guint32 offset_end)
+{
+    guint32 echconfiglist_length, next_offset;
+
+    /* ECHConfig ECHConfigList<1..2^16-1>; */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &echconfiglist_length,
+                        hf->hf.ech_echconfiglist_length, 1, G_MAXUINT16)) {
+        return offset_end;
+    }
+    offset += 2;
+    next_offset = offset + echconfiglist_length;
+
+    while (offset < next_offset) {
+        offset += dissect_ech_echconfig(hf, tvb, pinfo, tree, offset, offset_end);
+    }
+
+    if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, next_offset)) {
+        offset = next_offset;
+    }
+
+    return offset;
+}
+
+static guint32
+ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb _U_, packet_info *pinfo,
+                              proto_tree *tree, guint32 offset, guint32 offset_end,
+                              guint8 hnd_type, SslDecryptSession *ssl _U_)
+{
+    guint32 ch_type, length;
+    proto_item *retry_ti;
+    proto_tree *retry_tree;
+
+    switch (hnd_type) {
+    case SSL_HND_CLIENT_HELLO:
+        /*
+         *  enum { outer(0), inner(1) } ECHClientHelloType;
+         *
+         *  struct {
+         *     ECHClientHelloType type;
+         *     select (ECHClientHello.type) {
+         *         case outer:
+         *             HpkeSymmetricCipherSuite cipher_suite;
+         *             uint8 config_id;
+         *             opaque enc<0..2^16-1>;
+         *             opaque payload<1..2^16-1>;
+         *         case inner:
+         *             Empty;
+         *     };
+         *  } ECHClientHello;
+         */
+
+        proto_tree_add_item_ret_uint(tree, hf->hf.ech_clienthello_type, tvb, offset, 1, ENC_BIG_ENDIAN, &ch_type);
+        offset += 1;
+        switch (ch_type) {
+        case 0: /* outer */
+            offset = dissect_ech_hpke_cipher_suite(hf, tvb, pinfo, tree, offset);
+
+            proto_tree_add_item(tree, hf->hf.ech_config_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item_ret_uint(tree, hf->hf.ech_enc_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+            offset += 2;
+            proto_tree_add_item(tree, hf->hf.ech_enc, tvb, offset, length, ENC_NA);
+            offset += length;
+            proto_tree_add_item_ret_uint(tree, hf->hf.ech_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+            offset += 2;
+            proto_tree_add_item(tree, hf->hf.ech_payload, tvb, offset, length, ENC_NA);
+            offset += length;
+            break;
+        case 1: /* inner */
+            /* We will never be here, unless we are going to have support
+               for extracting the ephemeral secrets from endpoints */
+            break; /* Nothing to do, data is encrypted */
+        }
+        break;
+
+    case SSL_HND_ENCRYPTED_EXTENSIONS:
+        /*
+         * struct {
+         *     ECHConfigList retry_configs;
+         * } ECHEncryptedExtensions;
+         */
+
+        retry_ti = proto_tree_add_item(tree, hf->hf.ech_retry_configs, tvb, offset, offset_end - offset, ENC_NA);
+        retry_tree = proto_item_add_subtree(retry_ti, hf->ett.ech_retry_configs);
+        offset = ssl_dissect_ext_ech_echconfiglist(hf, tvb, pinfo, retry_tree, offset, offset_end);
+        break;
+
+    case SSL_HND_HELLO_RETRY_REQUEST:
+        /*
+         * struct {
+         *     opaque confirmation[8];
+         * } ECHHelloRetryRequest;
+         */
+
+        proto_tree_add_item(tree, hf->hf.ech_confirmation, tvb, offset, 8, ENC_NA);
+        offset += 8;
+        break;
+    }
+
+    return offset;
+}
+
 static guint32
 ssl_dissect_hnd_hello_ext_esni(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset, guint32 offset_end,
@@ -10104,6 +10398,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                 // XXX expert info: This extension MUST only be used with DTLS, and not with TLS.
             }
             break;
+	case SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO:
+            offset = ssl_dissect_hnd_hello_ext_ech(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
+	    break;
         case SSL_HND_HELLO_EXT_HEARTBEAT:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_heartbeat_mode,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);

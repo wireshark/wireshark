@@ -151,6 +151,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_GREASE_DADA                   56026
 #define SSL_HND_HELLO_EXT_GREASE_EAEA                   60138
 #define SSL_HND_HELLO_EXT_GREASE_FAFA                   64250
+#define SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO        65037 /* 0xfe0d draft-ietf-tls-esni-16 */
 #define SSL_HND_HELLO_EXT_RENEGOTIATION_INFO            65281 /* 0xFF01 */
 #define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS     65445 /* 0xffa5 draft-ietf-quic-tls-13 */
 #define SSL_HND_HELLO_EXT_ENCRYPTED_SERVER_NAME         65486 /* 0xffce draft-ietf-tls-esni-01 */
@@ -241,6 +242,10 @@ extern const val64_string quic_transport_parameter_id[];
 extern const range_string quic_version_vals[];
 extern const val64_string quic_enable_time_stamp_v2_vals[];
 extern const val64_string quic_enable_multipath_vals[];
+extern const value_string tls_hello_ext_ech_clienthello_types[];
+extern const value_string kem_id_type_vals[];
+extern const value_string kdf_id_type_vals[];
+extern const value_string aead_id_type_vals[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
@@ -1075,6 +1080,36 @@ typedef struct ssl_common_dissect {
         gint esni_encrypted_sni;
         gint esni_nonce;
 
+        gint ech_echconfiglist_length;
+        gint ech_echconfiglist;
+        gint ech_echconfig;
+        gint ech_echconfig_version;
+        gint ech_echconfig_length;
+        gint ech_echconfigcontents_maximum_name_length;
+        gint ech_echconfigcontents_public_name_length;
+        gint ech_echconfigcontents_public_name;
+        gint ech_echconfigcontents_extensions_length;
+        gint ech_echconfigcontents_extensions;
+        gint ech_hpke_keyconfig;
+        gint ech_hpke_keyconfig_config_id;
+        gint ech_hpke_keyconfig_kem_id;
+        gint ech_hpke_keyconfig_public_key_length;
+        gint ech_hpke_keyconfig_public_key;
+        gint ech_hpke_keyconfig_cipher_suites;
+        gint ech_hpke_keyconfig_cipher_suites_length;
+        gint ech_hpke_keyconfig_cipher_suite;
+        gint ech_hpke_keyconfig_cipher_suite_kdf_id;
+        gint ech_hpke_keyconfig_cipher_suite_aead_id;
+        gint ech_clienthello_type;
+        gint ech_cipher_suite;
+        gint ech_config_id;
+        gint ech_enc_length;
+        gint ech_enc;
+        gint ech_payload_length;
+        gint ech_payload;
+        gint ech_confirmation;
+        gint ech_retry_configs;
+
         gint hs_ext_alps_len;
         gint hs_ext_alps_alpn_list;
         gint hs_ext_alps_alpn_str;
@@ -1114,6 +1149,12 @@ typedef struct ssl_common_dissect {
         gint ocsp_response;
         gint uncompressed_certificates;
         gint hs_ext_alps;
+        gint ech_echconfiglist;
+        gint ech_echconfig;
+        gint ech_retry_configs;
+        gint ech_hpke_keyconfig;
+        gint ech_hpke_cipher_suites;
+        gint ech_hpke_cipher_suite;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
@@ -1128,6 +1169,8 @@ typedef struct ssl_common_dissect {
         expert_field resumed;
         expert_field record_length_invalid;
         expert_field decompression_error;
+
+        expert_field ech_echconfig_invalid_version;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
@@ -1308,15 +1351,18 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1                          \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1, -1, -1, -1                                      \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1          \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1                                                  \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,  \
-        EI_INIT                                                         \
+        EI_INIT, EI_INIT                                                \
     },                                                                  \
 }
 /* }}} */
@@ -2470,6 +2516,151 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         "Contents of ClientESNIInner.nonce", HFILL }                    \
     },                                                                  \
+    { & name .hf.ech_echconfiglist_length,                              \
+      { "ECHConfigList length", prefix ".ech.echconfiglist_length",     \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Encrypted ClientHello (ECH) Configurations length", HFILL }    \
+    },                                                                  \
+    { & name .hf.ech_echconfiglist,                                     \
+      { "ECHConfigList", prefix ".ech.echconfiglist",                   \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "Encrypted ClientHello (ECH) Configurations", HFILL }           \
+    },                                                                  \
+    { & name .hf.ech_echconfig,                                         \
+      { "ECHConfig", prefix ".ech.echconfig",                           \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "Encrypted ClientHello (ECH) Configuration", HFILL }            \
+    },                                                                  \
+    { & name .hf.ech_echconfig_version,                                 \
+      { "Version", prefix ".ech.echconfig.version",                     \
+        FT_UINT16, BASE_HEX, NULL, 0x0,                                 \
+        "Encrypted ClientHello: ECHConfig version", HFILL }             \
+    },                                                                  \
+    { & name .hf.ech_echconfig_length,                                  \
+      { "Length", prefix ".ech.echconfig.length",                       \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Encrypted ClientHello: ECHConfig length", HFILL }              \
+    },                                                                  \
+    { & name .hf.ech_echconfigcontents_maximum_name_length,             \
+      { "Maximum Name Length", prefix ".ech.echconfigcontents.maximum_name_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "The longest name of a backend server, if known", HFILL }       \
+    },                                                                  \
+    { & name .hf.ech_echconfigcontents_public_name_length,              \
+      { "Public Name length", prefix ".ech.echconfigcontents.public_name_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of the Public Name field", HFILL }                      \
+    },                                                                  \
+    { & name .hf.ech_echconfigcontents_public_name,                     \
+      { "Public Name", prefix ".ech.echconfigcontents.public_name",     \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        "The DNS name of the client-facing server, i.e., the entity trusted to update the ECH configuration", HFILL } \
+    },                                                                  \
+    { & name .hf.ech_echconfigcontents_extensions_length,               \
+      { "Extensions length", prefix ".ech.echconfigcontents.extensions_length", \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of the Extensions field", HFILL }                       \
+    },                                                                  \
+    { & name .hf.ech_echconfigcontents_extensions,                      \
+      { "Extensions", prefix ".ech.echconfigcontents.extensions",       \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "A list of extensions that the client must take into consideration when generating a ClientHello message", HFILL } \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig,                                    \
+      { "HKPE Key Config", prefix ".ech.hpke.keyconfig",                \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "HPKE Key Config", HFILL }                                      \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig_config_id,                          \
+      { "Config Id", prefix ".ech.hpke.keyconfig.config_id",            \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "HPKE Config Id", HFILL }                                       \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig_kem_id,                             \
+      { "KEM Id", prefix ".ech.hpke.keyconfig.kem_id",                  \
+        FT_UINT16, BASE_DEC, VALS(kem_id_type_vals), 0x0,               \
+        "HPKE KEM Id", HFILL }                                          \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig_public_key_length,                  \
+      { "Public Key length", prefix ".ech.hpke.keyconfig.public_key_length", \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "HPKE Public Key length", HFILL }                               \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig_public_key,                         \
+      { "Public Key", prefix ".ech.hpke.keyconfig.public_key",          \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "HPKE Public Key", HFILL }                                      \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig_cipher_suites,                      \
+      { "Cipher Suites", prefix ".ech.hpke.keyconfig.cipher_suites",    \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "HPKE Cipher Suites", HFILL }                                   \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig_cipher_suites_length,               \
+      { "Cipher Suites length", prefix ".ech.hpke.keyconfig.cipher_suites_length", \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "HPKE Cipher Suites length", HFILL }                            \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig_cipher_suite,                       \
+      { "Cipher Suite", prefix ".ech.hpke.keyconfig.cipher_suite",      \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "HPKE Cipher Suite", HFILL }                                    \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig_cipher_suite_kdf_id,                \
+      { "KDF Id", prefix ".ech.hpke.keyconfig.cipher_suite.kdf_id",     \
+        FT_UINT16, BASE_DEC, VALS(kdf_id_type_vals), 0x0,               \
+        "HKPE KDF Id", HFILL }                                          \
+    },                                                                  \
+    { & name .hf.ech_hpke_keyconfig_cipher_suite_aead_id,               \
+      { "AEAD Id", prefix ".ech.hpke.keyconfig.cipher_suite.aead_id",   \
+        FT_UINT16, BASE_DEC, VALS(aead_id_type_vals), 0x0,              \
+        "HKPE AEAD Id", HFILL }                                         \
+    },                                                                  \
+    { & name .hf.ech_clienthello_type,                                  \
+      { "Client Hello type", prefix ".ech.client_hello_type",           \
+        FT_UINT8, BASE_DEC, VALS(tls_hello_ext_ech_clienthello_types), 0x0, \
+        "Client Hello type", HFILL }                                     \
+    },                                                                  \
+    { & name .hf.ech_cipher_suite,                                      \
+      { "Cipher Suite", prefix ".ech.cipher_suite",                     \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "The cipher suite used to encrypt ClientHelloInner", HFILL }    \
+    },                                                                  \
+    { & name .hf.ech_config_id,                                         \
+      { "Config Id", prefix ".ech.config_id",                           \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "The ECHConfigContents.key_config.config_id for the chosen ECHConfig", HFILL } \
+    },                                                                  \
+    { & name .hf.ech_enc_length,                                        \
+      { "Enc length", prefix ".ech.enc_length",                         \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.ech_enc,                                               \
+      { "Enc", prefix ".ech.enc",                                       \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "The HPKE encapsulated key, used by servers to decrypt the corresponding payload field", HFILL } \
+    },                                                                  \
+    { & name .hf.ech_payload_length,                                    \
+      { "Payload length", prefix ".ech.payload_length",                 \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Payload Length", HFILL }                                       \
+    },                                                                  \
+    { & name .hf.ech_payload,                                           \
+      { "Payload", prefix ".ech.payload",                               \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "The serialized and encrypted ClientHelloInner structure", HFILL } \
+    },                                                                  \
+    { & name .hf.ech_confirmation,                                      \
+      { "Confirmation", prefix ".ech.confirmation",                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Confirmation of ECH acceptance in a HelloRetryRequest", HFILL } \
+    },                                                                  \
+    { & name .hf.ech_retry_configs,                                     \
+      { "Retry Configs", prefix ".ech.retry_configs",                   \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "ECHConfig structures for one-time use by the client in a retry connection", HFILL } \
+    },                                                                  \
     { & name .hf.hs_ext_alps_len,                                       \
       { "ALPS Extension Length", prefix ".handshake.extensions_alps_len", \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
@@ -2529,6 +2720,13 @@ ssl_common_dissect_t name = {   \
         & name .ett.ocsp_response,                  \
         & name .ett.uncompressed_certificates,      \
         & name .ett.hs_ext_alps,                    \
+        & name .ett.ech_echconfiglist,              \
+        & name .ett.ech_echconfig,                  \
+        & name .ett.ech_retry_configs,              \
+        & name .ett.ech_hpke_keyconfig,             \
+        & name .ett.ech_hpke_cipher_suites,         \
+        & name .ett.ech_hpke_cipher_suite,          \
+
 /* }}} */
 
 /* {{{ */
@@ -2564,6 +2762,10 @@ ssl_common_dissect_t name = {   \
     { & name .ei.decompression_error, \
         { prefix ".decompression_error", PI_PROTOCOL, PI_ERROR, \
         "Decompression error", EXPFILL } \
+    }, \
+    { & name .ei.ech_echconfig_invalid_version, \
+        { prefix ".ech_echconfig_invalid_version", PI_PROTOCOL, PI_ERROR, \
+        "Invalid/unknown ECHConfig version", EXPFILL } \
     }
 /* }}} */
 
@@ -2602,6 +2804,11 @@ ssl_debug_printf(const gchar* fmt _U_,...)
 #define ssl_debug_flush()
 
 #endif /* SSL_DECRYPT_DEBUG */
+
+
+guint32
+ssl_dissect_ext_ech_echconfiglist(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                  proto_tree *tree, guint32 offset, guint32 offset_end);
 
 #endif /* __PACKET_TLS_UTILS_H__ */
 
