@@ -212,7 +212,7 @@ capture command using dumpcap, *tcpdump* for a remote capture command using tcpd
 where the remote capture command is to be given with the *--remote-capture-command* option.
 
 Note that selecting dumpcap allows for specifying multiple capture interfaces as a whitespace
-seperated list, while tcpdump does not.
+separated list, while tcpdump does not.
 --
 
 --remote-capture-command=<capture command>::

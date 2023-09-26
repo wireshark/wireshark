@@ -883,7 +883,7 @@ whether the *-V* option was specified.  This is the default.
 +
 --
 Specifies the directory into which temporary files (including capture
-files) are to be written.  The default behavior on UNIX-compatible sytems,
+files) are to be written.  The default behavior on UNIX-compatible systems,
 such as Linux, macOS, \*BSD, Solaris, and AIX, is to use the environment
 variable __$TMPDIR__ if set, and the system default, typically __/tmp__, if it
 is not.  On Windows, the __%TEMP%__ environment variable is used, which
@@ -1441,7 +1441,7 @@ Calculate the distribution of F1AP packets, grouped by packet types.
 *-z* f5_tmm_dist,tree[,__filter__]::
 +
 --
-Calculate the F5 Ethernet trailer Traffic Managment Microkernel distribution.
+Calculate the F5 Ethernet trailer Traffic Management Microkernel distribution.
 Displayed information is the number of packets and bytes, grouped by the TMM
 slot and number, whether packets are ingress or egress, and whether there is
 a flow ID and virtual server name, a flow ID without virtual server name, or
@@ -1627,7 +1627,7 @@ can be one of:
   dtap_mm    DTAP Mobility Management
   dtap_rr    DTAP Radio Resource Management
   dtap_sacch SACCH Radio Resource Management
-  dtap_sm    DTAP GPRS Session Managment
+  dtap_sm    DTAP GPRS Session Management
   dtap_sms   DTAP Short Message Service
   dtap_ss    DTAP Supplementary Services
   dtap_tp    DTAP Special Conformance Testing Functions

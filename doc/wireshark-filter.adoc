@@ -600,7 +600,7 @@ two expressions:
 
 The first filter uses "not ip.dst" to include all non-IP packets and then
 lets "ip.dst ne 224.1.2.3" filter out the unwanted IP packets. The
-second filter also negates the implicit existance test and so is
+second filter also negates the implicit existence test and so is
 a shorter way to write the first.
 
 == FILTER FIELD REFERENCE
