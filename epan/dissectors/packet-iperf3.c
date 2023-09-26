@@ -122,16 +122,6 @@ typedef struct {
     wmem_map_t *out_of_order;
 } udp_conversation_data;
 
-static gint
-udp_info_equals(gconstpointer a, gconstpointer b) {
-  return ((*(const uint64_t *)a) == (*(const uint64_t *)b));
-}
-
-static guint
-udp_info_hash(gconstpointer a) {
-    return g_direct_hash((void *)*((const uint64_t *)a));
-}
-
 static void udp_detect_and_report_out_of_order(packet_info *, proto_item *, uint64_t);
 static udp_conversation_data *udp_set_conversation_data(packet_info *);
 
@@ -420,6 +410,7 @@ dissect_iperf3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     proto_item *ti;
     proto_tree *iperf3_tree, *time_tree;
+    uint32_t offset = 0;
     uint32_t nbytes = tvb_reported_length(tvb);
 
     uint64_t maybe_sequence_num;
@@ -427,7 +418,9 @@ dissect_iperf3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /************** UDP CONTROL *****************/
     if (nbytes == IPERF3_INIT_UDP_MSG_SIZE)
     {
-        uint32_t init_cxn_msg = tvb_get_guint32(tvb, 0, ENC_HOST_ENDIAN);
+        /* Due to the fact that UDP_CONNECT_MSG and UDP_CONNECT_REPLY are each others
+           reverse it does not matter which endianness is used. */
+        uint32_t init_cxn_msg = tvb_get_guint32(tvb, offset, ENC_HOST_ENDIAN);
         if (init_cxn_msg != UDP_CONNECT_MSG &&
                 init_cxn_msg != UDP_CONNECT_REPLY &&
                 init_cxn_msg != LEGACY_UDP_CONNECT_MSG &&
@@ -438,9 +431,9 @@ dissect_iperf3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         col_info_preface_UDP(pinfo);
         col_append_str(pinfo->cinfo, COL_INFO, " Establishing UDP connection...");
 
-        ti = proto_tree_add_item(tree, proto_iperf3, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_iperf3, tvb, offset, -1, ENC_NA);
         iperf3_tree = proto_item_add_subtree(ti, ett_iperf3);
-        proto_tree_add_item(iperf3_tree, hf_iperf3_udp_init_msg, tvb, 0, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(iperf3_tree, hf_iperf3_udp_init_msg, tvb, offset, 4, ENC_BIG_ENDIAN);
 
         return IPERF3_INIT_UDP_MSG_SIZE;
     }
@@ -449,8 +442,6 @@ dissect_iperf3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     if (tvb_reported_length(tvb) < IPERF3_UDP_HDR_SIZE)
         return 0;
-
-    uint32_t offset = 0;
 
     col_info_preface_UDP(pinfo);
     ti = proto_tree_add_item(tree, proto_iperf3, tvb, offset, -1, ENC_NA);
@@ -491,13 +482,12 @@ dissect_iperf3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     call_data_dissector(next_tvb, pinfo, tree); /* deals with payload size = 0
                                  which happens with -l=16 and --udp-64bit-sequence number */
 
-    return offset;
+    return nbytes;
 }
 
 static void
 udp_detect_and_report_out_of_order(packet_info *pinfo, proto_item *ti, uint64_t sequence_num)
 {
-
     /*  Record out of order packets by keeping a per-conversation set of
         lost packets. The first time the packets are dissected we add them to the set
         based on the comparison to the per-conversation "prev_seq_no" variable that gets
@@ -513,18 +503,15 @@ udp_detect_and_report_out_of_order(packet_info *pinfo, proto_item *ti, uint64_t 
 
     /* detect */
     if (!PINFO_FD_VISITED(pinfo)) {
-
         bool is_out_of_order = (sequence_num != conversation->prev_seq_no + 1);
         conversation->prev_seq_no = sequence_num;
 
         if (is_out_of_order) {
-            uint64_t *heap_sequence_num = wmem_new(wmem_file_scope(), uint64_t);
-            *heap_sequence_num = pinfo->num;
-            wmem_map_insert(conversation->out_of_order, heap_sequence_num, NULL);
+            wmem_map_insert(conversation->out_of_order, GUINT_TO_POINTER(pinfo->num), NULL);
         }
     }
     /* report */
-    if (wmem_map_contains(conversation->out_of_order, &pinfo->num)) {
+    if (wmem_map_contains(conversation->out_of_order, GUINT_TO_POINTER(pinfo->num))) {
         col_prepend_fstr(pinfo->cinfo, COL_INFO, "(Loss or out-of-order delivery) ");
         expert_add_info(pinfo, ti, &ei_udp_out_of_order);
     }
@@ -535,7 +522,7 @@ udp_set_conversation_data(packet_info *pinfo)
 {
     udp_conversation_data *conversation;
     conversation = wmem_new0(wmem_file_scope(), udp_conversation_data);
-    conversation->out_of_order = wmem_map_new(wmem_file_scope(), udp_info_hash, udp_info_equals);
+    conversation->out_of_order = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     conversation->prev_seq_no = 0;
     conversation_add_proto_data(find_conversation_pinfo(pinfo, 0), proto_iperf3, conversation);
     return conversation;
