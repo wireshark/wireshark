@@ -140,7 +140,7 @@ extern "C" {
 #endif
 
 /*
- * Suppress complaints about narrowing converstions and about signed vs.
+ * Suppress complaints about narrowing conversations and about signed vs.
  * unsigned comparison.
  *
  * XXX - this is done solely to squelch complaints from code generated

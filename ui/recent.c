@@ -94,14 +94,14 @@ static const value_string ts_type_values[] = {
     { TS_ABSOLUTE,             "ABSOLUTE"           },
     { TS_ABSOLUTE_WITH_YMD,    "ABSOLUTE_WITH_YMD"  },
     { TS_ABSOLUTE_WITH_YDOY,   "ABSOLUTE_WITH_YDOY" },
-    { TS_ABSOLUTE_WITH_YMD,    "ABSOLUTE_WITH_DATE" },  /* Backward compability */
+    { TS_ABSOLUTE_WITH_YMD,    "ABSOLUTE_WITH_DATE" },  /* Backward compatibility */
     { TS_DELTA,                "DELTA"              },
     { TS_DELTA_DIS,            "DELTA_DIS"          },
     { TS_EPOCH,                "EPOCH"              },
     { TS_UTC,                  "UTC"                },
     { TS_UTC_WITH_YMD,         "UTC_WITH_YMD"       },
     { TS_UTC_WITH_YDOY,        "UTC_WITH_YDOY"      },
-    { TS_UTC_WITH_YMD,         "UTC_WITH_DATE"      },  /* Backward compability */
+    { TS_UTC_WITH_YMD,         "UTC_WITH_DATE"      },  /* Backward compatibility */
     { 0, NULL }
 };
 

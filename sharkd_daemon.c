@@ -274,7 +274,7 @@ sharkd_init(int argc, char **argv)
            In Daemon Mode, we will come through here twice; once when we start the Daemon and
            once again after we have forked the session process.  The second time through, the
            session process has already had its stdin and stdout wired up to the TCP or UNIX
-           socket and so in the orignal version of sharkd the session process is invoked with
+           socket and so in the original version of sharkd the session process is invoked with
            the command line: sharkd -
 
            When not using the classic command line, we want to spawn the session process with

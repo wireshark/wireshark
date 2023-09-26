@@ -784,7 +784,7 @@ get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
                        PLATFORM_PERMISSIONS_SUGGESTION;
             } else {
                 /*
-                 * This is not a permissons error, so no need to suggest
+                 * This is not a permissions error, so no need to suggest
                  * checking permissions.
                  */
                 return
@@ -796,7 +796,7 @@ get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
 
     default:
         /*
-         * This is not a permissons error, so no need to suggest
+         * This is not a permissions error, so no need to suggest
          * checking permissions.
          */
         return
@@ -1425,7 +1425,7 @@ dlt_to_linktype(int dlt)
 	   That way, for example, "raw IP" packets will have
 	   LINKTYPE_RAW as the code in all savefiles for
 	   which the code that writes them maps to that
-	   value, regardless of the platform on whih they
+	   value, regardless of the platform on which they
 	   were written, so they should be readable on all
 	   platforms without having to determine on which
 	   platform they were written.
@@ -1971,7 +1971,7 @@ cap_pipe_open_live(char *pipename,
             if (g_strlcpy(sa.sun_path, pipename, sizeof sa.sun_path) > sizeof sa.sun_path) {
                 /* Path name too long */
                 snprintf(errmsg, errmsgl,
-                           "The capture session coud not be initiated "
+                           "The capture session could not be initiated "
                            "due to error on socket connect: Path name too long.");
                 pcap_src->cap_pipe_err = PIPERR;
                 ws_close(fd);
@@ -1980,7 +1980,7 @@ cap_pipe_open_live(char *pipename,
             b = connect(fd, (struct sockaddr *)&sa, sizeof sa);
             if (b == -1) {
                 snprintf(errmsg, errmsgl,
-                           "The capture session coud not be initiated "
+                           "The capture session could not be initiated "
                            "due to error on socket connect: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
                 ws_close(fd);

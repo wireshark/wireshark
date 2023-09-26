@@ -355,7 +355,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
     /*
      * The member attribute structure is key to the syntax checking.  The
      * array contains all of the root level (1) member names, the data
-     * types permissable for the value and a boolean that indicates whether
+     * types permissible for the value and a boolean that indicates whether
      * or not the member is mandatory.
      *
      * Once we get into the next layer (2) of the json tree, we need to check
@@ -1507,7 +1507,7 @@ sharkd_session_process_frames_cb(epan_dissect_t *edt, proto_tree *tree _U_,
  * Process frames request
  *
  * Input:
- *   (o) column0...columnXX - requested columns either number in range [0..NUM_COL_FMTS), or custom (syntax <dfilter>:<occurence>).
+ *   (o) column0...columnXX - requested columns either number in range [0..NUM_COL_FMTS), or custom (syntax <dfilter>:<occurrence>).
  *                            If column0 is not specified default column set will be used.
  *   (o) filter - filter to be used
  *   (o) skip=N   - skip N frames
@@ -2972,7 +2972,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 * Output UDP Multicast streams tap:
 *   (m) tap                     - tap name
 *   (m) type                    - tap output type
-*   (m) bufferThresholdBytes    - byte count for a stream where a buffer alarm shold be reported
+*   (m) bufferThresholdBytes    - byte count for a stream where a buffer alarm should be reported
 *   (m) burstIntervalMs         - analysis interval in milliseconds
 *   (m) burstThresholdPackets   - count of packets in an interval that should trigger an alarm
 *   (m) streams                 - array of streams with metrics:
@@ -5844,7 +5844,7 @@ sharkd_session_main(int mode_setting)
 
     while (fgets(buf, sizeof(buf), stdin))
     {
-        /* every command is line seperated JSON */
+        /* every command is line separated JSON */
         int ret;
 
         ret = json_parse(buf, NULL, 0);

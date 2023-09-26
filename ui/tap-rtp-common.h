@@ -53,7 +53,7 @@ typedef struct _rtpstream_info_calc {
     gchar *all_payload_type_names; /* Name of codec derived from fixed or dynamic codec names */
     guint32 packet_count;
     guint32 total_nr;
-    guint32 packet_expected; /* Count of expected packets, derived from lenght of RTP stream */
+    guint32 packet_expected; /* Count of expected packets, derived from length of RTP stream */
     gint32 lost_num;
     double lost_perc;
     double max_delta;
@@ -75,7 +75,7 @@ typedef struct _rtpstream_info_calc {
 } rtpstream_info_calc_t;
 
 /**
- * Funcions for init and destroy of rtpstream_info_t and attached structures
+ * Functions for init and destroy of rtpstream_info_t and attached structures
  */
 void rtpstream_info_init(rtpstream_info_t* info);
 rtpstream_info_t *rtpstream_info_malloc_and_init(void);

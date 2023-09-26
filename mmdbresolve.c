@@ -4,7 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This progam uses the MaxMind DB library (libmaxminddb) and MUST be
+ * This program uses the MaxMind DB library (libmaxminddb) and MUST be
  * compatible with its license (Apache 2.0).
  *
  * SPDX-License-Identifier: MIT

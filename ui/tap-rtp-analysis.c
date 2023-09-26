@@ -243,7 +243,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
 
     /* Check if time sequence of packets is in order. We check whether
      * timestamp difference is below 1/2 of timestamp range (hours or days).
-     * Packets can be in pure sequence or sequence can be wrapped arround
+     * Packets can be in pure sequence or sequence can be wrapped around
      * 0xFFFFFFFF.
      */
     if ((statinfo->first_timestamp <= rtpinfo->info_timestamp) &&

@@ -73,7 +73,7 @@ int text_import_regex(const text_import_info_t* info) {
         }
         parse_data(f_content + field_start, f_content + field_end, info->regex.encoding);
 
-        /* parse the auxillary information if present */
+        /* parse the auxiliary information if present */
         if (re_time &&
                 g_match_info_fetch_named_pos(match, "time", &field_start, &field_end)) {
             parse_time(f_content + field_start, f_content + field_end, info->timestamp_format);

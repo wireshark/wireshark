@@ -1570,7 +1570,7 @@ if(ENABLE_CCACHE)
 	endif()
 endif()
 
-# The top level checkAPIs target, add before subdirectory calls so it's avaiable to all
+# The top level checkAPIs target, add before subdirectory calls so it's available to all
 add_custom_target(checkAPI)
 set_target_properties(checkAPI
 	PROPERTIES

@@ -555,7 +555,7 @@ cf_read(capture_file *cf, gboolean reloading)
        XXX - do we know this at open time? */
     cf->compression_type = wtap_get_compression_type(cf->provider.wth);
 
-    /* The packet list window will be empty until the file is completly loaded */
+    /* The packet list window will be empty until the file is completely loaded */
     packet_list_freeze();
 
     cf->stop_flag = FALSE;
@@ -2091,7 +2091,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 /*
  * Scan through all frame data and recalculate the ref time
  * without rereading the file.
- * XXX - do we need a progres bar or is this fast enough?
+ * XXX - do we need a progress bar or is this fast enough?
  */
 void
 cf_reftime_packets(capture_file* cf)

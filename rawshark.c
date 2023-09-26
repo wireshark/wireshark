@@ -15,7 +15,7 @@
 /*
  * Rawshark does the following:
  * - Opens a specified file or named pipe
- * - Applies a specfied DLT or "decode as" encapsulation
+ * - Applies a specified DLT or "decode as" encapsulation
  * - Reads frames prepended with a libpcap packet header.
  * - Prints a status line, followed by fields from a specified list.
  */
