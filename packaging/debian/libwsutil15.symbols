@@ -1,4 +1,4 @@
-libwsutil.so.0 libwsutil15 #MINVER#
+libwsutil.so.15 libwsutil15 #MINVER#
  Dot11DecryptWepDecrypt@Base 2.5.0
  EBCDIC_to_ASCII1@Base 4.1.0
  EBCDIC_to_ASCII@Base 4.1.0
