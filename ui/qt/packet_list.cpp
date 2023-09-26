@@ -138,6 +138,28 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
     return FALSE;
 }
 
+/*
+ * Given a field_info, select the field (which will scroll to it in
+ * the main ProtoTree, etc.) This is kind of an odd place for it,
+ * but we call this when performing Find Packet in lieu of changing the
+ * selected frame (the function above), because we found a match in the
+ * same frame as the currently selected one.
+ */
+gboolean
+packet_list_select_finfo(field_info *fi)
+{
+    if (! gbl_cur_packet_list || ! gbl_cur_packet_list->model())
+        return FALSE;
+
+    if (fi) {
+        FieldInformation finfo(fi, gbl_cur_packet_list);
+        emit gbl_cur_packet_list->fieldSelected(&finfo);
+    } else {
+        emit gbl_cur_packet_list->fieldSelected(0);
+    }
+    return TRUE;
+}
+
 void
 packet_list_clear(void)
 {

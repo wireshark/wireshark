@@ -54,6 +54,7 @@ extern void packet_list_thaw(void);
 extern guint packet_list_append(column_info *cinfo, frame_data *fdata);
 extern void packet_list_queue_draw(void);
 extern gboolean packet_list_select_row_from_data(frame_data *fdata_needle);
+extern gboolean packet_list_select_finfo(field_info *fi);
 extern gboolean packet_list_multi_select_active(void);
 
 #ifdef __cplusplus

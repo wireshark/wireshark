@@ -76,8 +76,10 @@ typedef struct {
     const char    *string;
     size_t         string_len;
     capture_file  *cf;
-    gboolean       frame_matched;
     field_info    *finfo;
+    field_info    *prev_finfo;
+    gboolean       frame_matched;
+    gboolean       halt;
 } match_data;
 
 /**
