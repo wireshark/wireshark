@@ -59,7 +59,7 @@ static const value_string r09_ha_vals[] = {
     {0, NULL}
 };
 
-static dgt_set_t Dgt1_9_bcd = {
+static dgt_set_t Dgt0_9_bcd = {
     {
         /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
            '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
@@ -119,19 +119,19 @@ dissect_r09(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (tl >= 3) {
         /* Zusatzbyte 2, 3 */
-        ln_str = tvb_get_bcd_string(pinfo->pool, tvb, 4, 2, &Dgt1_9_bcd, TRUE, FALSE, TRUE);
+        ln_str = tvb_get_bcd_string(pinfo->pool, tvb, 4, 2, &Dgt0_9_bcd, TRUE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_ln, tvb, 4, 2, ln_str);
     }
 
     if (tl >= 4) {
         /* Zusatzbyte 4 */
-        kn_str = tvb_get_bcd_string(pinfo->pool, tvb, 6, 1, &Dgt1_9_bcd, FALSE, FALSE, TRUE);
+        kn_str = tvb_get_bcd_string(pinfo->pool, tvb, 6, 1, &Dgt0_9_bcd, FALSE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_kn, tvb, 6, 1, kn_str);
     }
 
     if (tl >= 6) {
         /* Zusatzbyte 5, 6 */
-        zn_str = tvb_get_bcd_string(pinfo->pool, tvb, 7, 2, &Dgt1_9_bcd, FALSE, TRUE, TRUE);
+        zn_str = tvb_get_bcd_string(pinfo->pool, tvb, 7, 2, &Dgt0_9_bcd, FALSE, TRUE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_zn, tvb, 7, 2, zn_str);
     }
 
@@ -142,9 +142,9 @@ dissect_r09(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (tl == 8) {
         /* Zusatzbyte 6, 7, 8 */
-        fn_str = tvb_get_bcd_string(pinfo->pool, tvb, 8, 2, &Dgt1_9_bcd, TRUE, FALSE, TRUE);
+        fn_str = tvb_get_bcd_string(pinfo->pool, tvb, 8, 2, &Dgt0_9_bcd, TRUE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_fn, tvb, 8, 2, fn_str);
-        un_str = tvb_get_bcd_string(pinfo->pool, tvb, 10, 1, &Dgt1_9_bcd, FALSE, FALSE, TRUE);
+        un_str = tvb_get_bcd_string(pinfo->pool, tvb, 10, 1, &Dgt0_9_bcd, FALSE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_un, tvb, 10, 1, un_str);
     }
 
