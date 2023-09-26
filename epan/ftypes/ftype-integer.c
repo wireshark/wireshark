@@ -1156,11 +1156,22 @@ boolean_from_string(fvalue_t *fv, const char *s, size_t len, char **err_msg _U_)
 }
 
 static char *
-boolean_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+boolean_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
-	if (fv->value.uinteger64)
-		return wmem_strdup(scope, "True");
-	return wmem_strdup(scope, "False");
+	bool val = fv->value.uinteger64;
+	const char *str = NULL;
+
+	switch (rtype) {
+		case FTREPR_DFILTER:
+		case FTREPR_DISPLAY:
+			str = val ? "True" : "False";
+			break;
+		case FTREPR_JSON:
+			str = val ? "1" : "0";
+			break;
+	}
+
+	return wmem_strdup(scope, str);
 }
 
 /* False is less than True (arbitrary):

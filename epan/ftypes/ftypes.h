@@ -165,7 +165,8 @@ typedef bool ft_bool_t;
 /* String representation types. */
 enum ftrepr {
 	FTREPR_DISPLAY,
-	FTREPR_DFILTER
+	FTREPR_DFILTER,
+	FTREPR_JSON,
 };
 
 typedef enum ftrepr ftrepr_t;
