@@ -821,7 +821,7 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *pdata)
         gboolean is_filtered = pdata->filter != NULL && !check_protocolfilter(pdata->filter, json_key, &filter_flags);
 
         field_info *fi = first_value->finfo;
-        char *value_string_repr = fvalue_to_string_repr(NULL, fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+        char *value_string_repr = fvalue_to_string_repr(NULL, fi->value, FTREPR_JSON, fi->hfinfo->display);
         gboolean has_children = any_has_children(node_values_list);
 
         // We assume all values of a json key have roughly the same layout. Thus we can use the first value to derive
@@ -1032,8 +1032,10 @@ write_json_proto_node_value(proto_node *node, write_json_data *pdata)
 {
     field_info *fi = node->finfo;
     // Get the actual value of the node as a string.
-    char *value_string_repr = fvalue_to_string_repr(NULL, fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+    char *value_string_repr = fvalue_to_string_repr(NULL, fi->value, FTREPR_JSON, fi->hfinfo->display);
 
+    //TODO: Have FTREPR_JSON include quotes where appropriate and use json_dumper_value_anyf() here,
+    // so we can output booleans and numbers and not only strings.
     json_dumper_value_string(pdata->dumper, value_string_repr);
 
     wmem_free(NULL, value_string_repr);

@@ -440,6 +440,7 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 
 	switch (rtype) {
 		case FTREPR_DISPLAY:
+		case FTREPR_JSON:
 			rep = abs_time_to_str_ex(scope, &fv->value.time,
 					field_display, ABS_TIME_TO_STR_SHOW_ZONE);
 			break;

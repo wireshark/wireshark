@@ -49,7 +49,7 @@ string_fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value)
 static char *
 string_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	if (rtype == FTREPR_DISPLAY) {
+	if (rtype == FTREPR_DISPLAY || rtype == FTREPR_JSON) {
 		return ws_escape_null(scope, fv->value.strbuf->str, fv->value.strbuf->len, false);
 	}
 	if (rtype == FTREPR_DFILTER) {
