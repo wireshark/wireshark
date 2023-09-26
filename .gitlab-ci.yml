@@ -622,8 +622,8 @@ Ubuntu GCC Build:
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
-    - mv build "🦈 b u i l d 🦈"
-    - cd "🦈 b u i l d 🦈"
+    - mv build "🦈 build 🦈"
+    - cd "🦈 build 🦈"
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # Test release build.
     - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=on ..
