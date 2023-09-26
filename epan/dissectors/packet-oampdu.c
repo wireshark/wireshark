@@ -989,7 +989,7 @@ static const unit_name_string units_pdus_100ms = { " (PDUs/100ms)", NULL };
 static const unit_name_string units_num_100ms = { " (Number of 100ms)", NULL };
 static const unit_name_string units_1k = { " (KB)", NULL };
 
-static dgt_set_t Dgt1_9_bcd = {
+static dgt_set_t Dgt0_9_bcd = {
     {
         /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
            '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
@@ -2057,7 +2057,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
                                 /* Check for a BCD encoded year in the range 2000 - 2599 */
                                 if (year >= 0x2000 && year <= 0x2599) {
-                                    bcd_date = tvb_get_bcd_string(pinfo->pool, tvb, offset, 4, &Dgt1_9_bcd, FALSE, FALSE, TRUE);
+                                    bcd_date = tvb_get_bcd_string(pinfo->pool, tvb, offset, 4, &Dgt0_9_bcd, FALSE, FALSE, TRUE);
                                     date[0] = bcd_date[0];
                                     date[1] = bcd_date[1];
                                     date[2] = bcd_date[2];
