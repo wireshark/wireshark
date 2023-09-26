@@ -400,11 +400,11 @@ void proto_register_mdb(void)
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_mdb_cl_vend_sub,
-            { "Sub-command", "mdb.cashless.vend.sub_cmd",
+            { "Sub-command", "mdb.cashless.vend_sub_cmd",
                 FT_UINT8, BASE_HEX, VALS(mdb_cl_vend_sub_cmd), 0, NULL, HFILL }
         },
         { &hf_mdb_cl_reader_sub,
-            { "Sub-command", "mdb.cashless.reader.sub_cmd",
+            { "Sub-command", "mdb.cashless.reader_sub_cmd",
                 FT_UINT8, BASE_HEX, VALS(mdb_cl_reader_sub_cmd), 0, NULL, HFILL }
         },
         { &hf_mdb_cl_resp,
