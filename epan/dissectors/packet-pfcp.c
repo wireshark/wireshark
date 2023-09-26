@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V18.1.0 (2023-03-28)
+ * Ref 3GPP TS 29.244 V18.3.0 (2023-09-20)
  */
 #include "config.h"
 
@@ -271,6 +271,8 @@ static int hf_pfcp_report_type_b0_dldr = -1;
 static int hf_pfcp_offending_ie = -1;
 static int hf_pfcp_offending_ie_value = -1;
 
+static int hf_pfcp_up_function_features_o13_b2_qmdrm = -1;
+static int hf_pfcp_up_function_features_o13_b1_cntl = -1;
 static int hf_pfcp_up_function_features_o13_b0_pdusm = -1;
 static int hf_pfcp_up_function_features_o12_b7_eml4s = -1;
 static int hf_pfcp_up_function_features_o12_b6_detnet = -1;
@@ -755,12 +757,14 @@ static int hf_pfcp_qos_report_trigger_flags_b0_per = -1;
 static int hf_pfcp_gtp_u_path_interface_type_flags_b1_n3 = -1;
 static int hf_pfcp_gtp_u_path_interface_type_flags_b0_n9 = -1;
 
+static int hf_pfcp_requested_qos_monitoring_flags_b7_ulpr = -1;
+static int hf_pfcp_requested_qos_monitoring_flags_b6_dlpr = -1;
 static int hf_pfcp_requested_qos_monitoring_flags_b5_ulci = -1;
 static int hf_pfcp_requested_qos_monitoring_flags_b4_dlci = -1;
 static int hf_pfcp_requested_qos_monitoring_flags_b3_gtpupm = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b2_rp = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b1_ul = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b0_dl = -1;
+static int hf_pfcp_requested_qos_monitoring_flags_b2_rppd = -1;
+static int hf_pfcp_requested_qos_monitoring_flags_b1_ulpd = -1;
+static int hf_pfcp_requested_qos_monitoring_flags_b0_dlpd = -1;
 
 static int hf_pfcp_reporting_frequency_flags_b2_sesrl = -1;
 static int hf_pfcp_reporting_frequency_flags_b1_perio = -1;
@@ -775,15 +779,19 @@ static int hf_pfcp_packet_delay_thresholds_roundtrip = -1;
 
 static int hf_pfcp_minimum_wait_time_seconds = -1;
 
-static int hf_pfcp_qos_monitoring_measurement_flags_b4_ci = -1;
+static int hf_pfcp_qos_monitoring_measurement_flags_b5_ulci = -1;
+static int hf_pfcp_qos_monitoring_measurement_flags_b4_dlci = -1;
 static int hf_pfcp_qos_monitoring_measurement_flags_b3_plmf = -1;
-static int hf_pfcp_qos_monitoring_measurement_flags_b2_rp = -1;
-static int hf_pfcp_qos_monitoring_measurement_flags_b1_ul = -1;
-static int hf_pfcp_qos_monitoring_measurement_flags_b0_dl = -1;
-static int hf_pfcp_qos_monitoring_measurement_downlink = -1;
-static int hf_pfcp_qos_monitoring_measurement_uplink = -1;
+static int hf_pfcp_qos_monitoring_measurement_flags_b2_rppd = -1;
+static int hf_pfcp_qos_monitoring_measurement_flags_b1_ulpd = -1;
+static int hf_pfcp_qos_monitoring_measurement_flags_b0_dlpd = -1;
+static int hf_pfcp_qos_monitoring_measurement_downlink_packet_delay = -1;
+static int hf_pfcp_qos_monitoring_measurement_uplink_packet_delay = -1;
 static int hf_pfcp_qos_monitoring_measurement_roundtrip = -1;
-static int hf_pfcp_qos_monitoring_measurement_congestion_information = -1;
+static int hf_pfcp_qos_monitoring_measurement_downlink_congestion_information = -1;
+static int hf_pfcp_qos_monitoring_measurement_uplink_congestion_information = -1;
+static int hf_pfcp_qos_monitoring_measurement_downlink_packet_rate = -1;
+static int hf_pfcp_qos_monitoring_measurement_uplink_packet_rate = -1;
 
 static int hf_pfcp_mt_edt_control_information_flags_b0_rdsi = -1;
 
@@ -930,7 +938,7 @@ static int hf_pfcp_pfcpsdrsp_flags_b0_puru = -1;
 
 static int hf_pfcp_qer_indications_flags_b3_pdusm = -1;
 static int hf_pfcp_qer_indications_flags_b2_eml4s = -1;
-static int hf_pfcp_qer_indications_flags_b1_seodbi = -1;
+static int hf_pfcp_qer_indications_flags_b1_edbmi = -1;
 static int hf_pfcp_qer_indications_flags_b0_iqfis = -1;
 
 static int hf_pfcp_configured_time_domain_flags_b0_ctdi = -1;
@@ -969,6 +977,10 @@ static int hf_pfcp_transport_mode_value = -1;
 static int hf_pfcp_protocol_description_flags_b2_srtp = -1;
 static int hf_pfcp_protocol_description_flags_b1_rtp = -1;
 static int hf_pfcp_protocol_description_flags_b0_h264 = -1;
+
+static int hf_pfcp_reporting_suggestion_info_flags_b0_rurg = -1;
+
+static int hf_pfcp_tl_container = -1;
 
 /* Enterprise IEs */
 /* BBF */
@@ -1785,7 +1797,9 @@ static const value_string pfcp_ie_type[] = {
     { 332, "MPQUIC Address Information"},                           /* Extendable / Clause 8.2.226 */
     { 333, "Transport Mode"},                                       /* Extendable / Clause 8.2.227 */
     { 334, "Protocol Description"},                                 /* Extendable / Clause 8.2.228 */
-    //335 to 32767 Spare. For future use.
+    { 335, "Reporting Suggestion Info"},                            /* Extendable / Clause 8.2.289 */
+    { 336, "TL-Container"},                                         /* Variable Length / Clause 8.2.230 */
+    //337 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -3202,11 +3216,13 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static int * const pfcp_up_function_features_o13_flags[] = {
-        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_up_function_features_o13_b2_qmdrm,
+        &hf_pfcp_up_function_features_o13_b1_cntl,
         &hf_pfcp_up_function_features_o13_b0_pdusm,
         NULL
     };
-    /* Octet 13  Spare   PDUSM  */
+    /* Octet 13  Spare  QMDRM   CN-TL   PDUSM  */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o13_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -7826,16 +7842,17 @@ dissect_pfcp_requested_qos_monitoring(tvbuff_t *tvb, packet_info *pinfo, proto_t
     int offset = 0;
 
     static int * const pfcp_requested_qos_monitoring_flags[] = {
-        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_requested_qos_monitoring_flags_b7_ulpr,
+        &hf_pfcp_requested_qos_monitoring_flags_b6_dlpr,
         &hf_pfcp_requested_qos_monitoring_flags_b5_ulci,
         &hf_pfcp_requested_qos_monitoring_flags_b4_dlci,
         &hf_pfcp_requested_qos_monitoring_flags_b3_gtpupm,
-        &hf_pfcp_requested_qos_monitoring_flags_b2_rp,
-        &hf_pfcp_requested_qos_monitoring_flags_b1_ul,
-        &hf_pfcp_requested_qos_monitoring_flags_b0_dl,
+        &hf_pfcp_requested_qos_monitoring_flags_b2_rppd,
+        &hf_pfcp_requested_qos_monitoring_flags_b1_ulpd,
+        &hf_pfcp_requested_qos_monitoring_flags_b0_dlpd,
         NULL
     };
-    /* Octet 5  Spare   ULCI    DLCI    GTPUPM   RP  Ul  DL */
+    /* Octet 5  ULPR    DLPR   ULCI    DLCI    GTPUPM   RPPD  UlPD  DLPD */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_requested_qos_monitoring_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -7939,11 +7956,12 @@ dissect_pfcp_qos_monitoring_measurement(tvbuff_t *tvb, packet_info *pinfo, proto
 
     static int * const pfcp_qos_monitoring_measurement_flags[] = {
         &hf_pfcp_spare_b7_b5,
-        &hf_pfcp_qos_monitoring_measurement_flags_b4_ci,
+        &hf_pfcp_qos_monitoring_measurement_flags_b5_ulci,
+        &hf_pfcp_qos_monitoring_measurement_flags_b4_dlci,
         &hf_pfcp_qos_monitoring_measurement_flags_b3_plmf,
-        &hf_pfcp_qos_monitoring_measurement_flags_b2_rp,
-        &hf_pfcp_qos_monitoring_measurement_flags_b1_ul,
-        &hf_pfcp_qos_monitoring_measurement_flags_b0_dl,
+        &hf_pfcp_qos_monitoring_measurement_flags_b2_rppd,
+        &hf_pfcp_qos_monitoring_measurement_flags_b1_ulpd,
+        &hf_pfcp_qos_monitoring_measurement_flags_b0_dlpd,
         NULL
     };
     /* Octet 5  Spare   CI  PLMF  RP  Ul  DL */
@@ -7952,13 +7970,13 @@ dissect_pfcp_qos_monitoring_measurement(tvbuff_t *tvb, packet_info *pinfo, proto
 
     /* m to (m+3) Downlink packet delay threshold */
     if ((qos_monitoring_measurement_flags & 0x1)) {
-        proto_tree_add_item(tree, hf_pfcp_qos_monitoring_measurement_downlink, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_qos_monitoring_measurement_downlink_packet_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
 
     /* p to (p+3) Uplink packet delay threshold */
     if ((qos_monitoring_measurement_flags & 0x2)) {
-        proto_tree_add_item(tree, hf_pfcp_qos_monitoring_measurement_uplink, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_qos_monitoring_measurement_uplink_packet_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
 
@@ -7968,12 +7986,29 @@ dissect_pfcp_qos_monitoring_measurement(tvbuff_t *tvb, packet_info *pinfo, proto
         offset += 4;
     }
 
-    /* r Congestion information  */
+    /* r Downlink Congestion information  */
     if ((qos_monitoring_measurement_flags & 0x10)) {
-        proto_tree_add_item(tree, hf_pfcp_qos_monitoring_measurement_congestion_information, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_qos_monitoring_measurement_downlink_congestion_information, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
 
+    /* r Uplink Congestion information  */
+    if ((qos_monitoring_measurement_flags & 0x20)) {
+        proto_tree_add_item(tree, hf_pfcp_qos_monitoring_measurement_uplink_congestion_information, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    /* m to (m+3) Downlink packet rate */
+    if ((qos_monitoring_measurement_flags & 0x40)) {
+        proto_tree_add_item(tree, hf_pfcp_qos_monitoring_measurement_downlink_packet_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    /* p to (p+3) Uplink packet rate */
+    if ((qos_monitoring_measurement_flags & 0x80)) {
+        proto_tree_add_item(tree, hf_pfcp_qos_monitoring_measurement_uplink_packet_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
     }
@@ -9054,11 +9089,11 @@ dissect_pfcp_qer_indications(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         &hf_pfcp_spare_b7_b4,
         &hf_pfcp_qer_indications_flags_b3_pdusm,
         &hf_pfcp_qer_indications_flags_b2_eml4s,
-        &hf_pfcp_qer_indications_flags_b1_seodbi,
+        &hf_pfcp_qer_indications_flags_b1_edbmi,
         &hf_pfcp_qer_indications_flags_b0_iqfis,
         NULL
     };
-    /* Octet 5  Spare   PDUSM   EML4s   SEODBI   PURU */
+    /* Octet 5  Spare   PDUSM   EML4s   EDBMI   PURU */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_qer_indications_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -9391,6 +9426,41 @@ dissect_pfcp_protocol_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 }
 
+/*
+ * 8.2.229   Reporting Suggestion Info
+ */
+static void
+dissect_pfcp_reporting_suggestion_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    static int * const pfcp_reporting_suggestion_info_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_reporting_suggestion_info_flags_b0_rurg,
+        NULL
+    };
+    /* Octet 5  Spare    RURG   */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_reporting_suggestion_info_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.230   TL-Container
+ */
+static void
+dissect_pfcp_tl_container(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    /* Octet 5 to (n+4) TL-Container
+    * The TL-Container Information field shall be encoded as an Octet String.
+    * It shall encode a Get or Set Request or Response message defined in 3GPP TS 29.585.
+    */
+    proto_tree_add_item(tree, hf_pfcp_tl_container, tvb, offset, length, ENC_NA);
+}
 
 static pfcp_msg_hash_t *
 pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype, pfcp_conv_info_t *pfcp_info, guint8 last_cause)
@@ -10116,7 +10186,9 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    332 */    { dissect_pfcp_mpquic_address_information },                    /* MPQUIC Address Information                       Extendable / Clause 8.2.226 */
 /*    333 */    { dissect_pfcp_transport_mode },                                /* Transport Mode                                   Extendable / Clause 8.2.227 */
 /*    334 */    { dissect_pfcp_protocol_description },                          /* Protocol Description                             Extendable / Clause 8.2.228 */
-//335 to 32767 Spare. For future use.
+/*    335 */    { dissect_pfcp_reporting_suggestion_info },                     /* Reporting Suggestion Info                        Extendable / Clause 8.2.229 */
+/*    336 */    { dissect_pfcp_tl_container },                                  /* TL-Container                                     Variable Length / Clause 8.2.230 */
+//337 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -13413,6 +13485,16 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             "UP function supports PDU Set Marking", HFILL }
         },
+        { &hf_pfcp_up_function_features_o13_b1_cntl,
+        { "CN-TL", "pfcp.up_function_features.cntl",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "UPF support of the TSN Talker and Listener (TL) functionality", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o13_b2_qmdrm,
+        { "QMDRM", "pfcp.up_function_features.qmdrm",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            "UPF support of QoS monitoring of Data Rate Measurement", HFILL }
+        },
 
         { &hf_pfcp_sequence_number,
         { "Sequence Number", "pfcp.sequence_number",
@@ -15027,18 +15109,18 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
-        { &hf_pfcp_requested_qos_monitoring_flags_b0_dl,
-        { "DL (Downlink)", "pfcp.requested_qos_monitoring.flags.dl",
+        { &hf_pfcp_requested_qos_monitoring_flags_b0_dlpd,
+        { "DLPD (Downlink Packet Delay)", "pfcp.requested_qos_monitoring.flags.dlpd",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
-        { &hf_pfcp_requested_qos_monitoring_flags_b1_ul,
-        { "UL (Uplink)", "pfcp.requested_qos_monitoring.flags.ul",
+        { &hf_pfcp_requested_qos_monitoring_flags_b1_ulpd,
+        { "ULPD (Uplink Packet Delay)", "pfcp.requested_qos_monitoring.flags.ulpd",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
-        { &hf_pfcp_requested_qos_monitoring_flags_b2_rp,
-        { "RP (Round Trip)", "pfcp.requested_qos_monitoring.flags.rp",
+        { &hf_pfcp_requested_qos_monitoring_flags_b2_rppd,
+        { "RPPD (Round Trip Packet Delay)", "pfcp.requested_qos_monitoring.flags.rppd",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
             NULL, HFILL }
         },
@@ -15055,6 +15137,16 @@ proto_register_pfcp(void)
         { &hf_pfcp_requested_qos_monitoring_flags_b5_ulci,
         { "ULCI (Uplink Congestion Information)", "pfcp.requested_qos_monitoring.flags.ulci",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_requested_qos_monitoring_flags_b6_dlpr,
+        { "DLPR (Downlink Packet Rate)", "pfcp.requested_qos_monitoring.flags.dlpr",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_requested_qos_monitoring_flags_b7_ulpr,
+        { "ULPR (Uplink Packet Rate)", "pfcp.requested_qos_monitoring.flags.ulpr",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
             NULL, HFILL }
         },
 
@@ -15111,18 +15203,18 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
-        { &hf_pfcp_qos_monitoring_measurement_flags_b0_dl,
-        { "DL (Downlink)", "pfcp.qos_monitoring_measurement.flags.dl",
+        { &hf_pfcp_qos_monitoring_measurement_flags_b0_dlpd,
+        { "DLPD (Downlink Packet Delay)", "pfcp.qos_monitoring_measurement.flags.dlpd",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
-        { &hf_pfcp_qos_monitoring_measurement_flags_b1_ul,
-        { "UL (Uplink)", "pfcp.qos_monitoring_measurement.flags.ul",
+        { &hf_pfcp_qos_monitoring_measurement_flags_b1_ulpd,
+        { "ULPD (Uplink Packet Delay)", "pfcp.qos_monitoring_measurement.flags.ulpd",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
-        { &hf_pfcp_qos_monitoring_measurement_flags_b2_rp,
-        { "RP (Round Trip)", "pfcp.qos_monitoring_measurement.flags.rp",
+        { &hf_pfcp_qos_monitoring_measurement_flags_b2_rppd,
+        { "RPPD (Round Trip Packet Delay)", "pfcp.qos_monitoring_measurement.flags.rppd",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
             NULL, HFILL }
         },
@@ -15131,19 +15223,24 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
             NULL, HFILL }
         },
-        { &hf_pfcp_qos_monitoring_measurement_flags_b4_ci,
-        { "CI (Congestion Info)", "pfcp.qos_monitoring_measurement.flags.ci",
+        { &hf_pfcp_qos_monitoring_measurement_flags_b4_dlci,
+        { "DLCI (Download Congestion Info)", "pfcp.qos_monitoring_measurement.flags.dlci",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
             NULL, HFILL }
         },
+        { &hf_pfcp_qos_monitoring_measurement_flags_b5_ulci,
+        { "ULCI (Download Congestion Info)", "pfcp.qos_monitoring_measurement.flags.dlci",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+            NULL, HFILL }
+        },
 
-        { &hf_pfcp_qos_monitoring_measurement_downlink,
-        { "Downlink packet delay (milliseconds)", "pfcp.qos_monitoring_measurement.downlink",
+        { &hf_pfcp_qos_monitoring_measurement_downlink_packet_delay,
+        { "Downlink packet delay (milliseconds)", "pfcp.qos_monitoring_measurement.downlink_packet_delay",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_qos_monitoring_measurement_uplink,
-        { "Downlink packet delay (milliseconds)", "pfcp.qos_monitoring_measurement.uplink",
+        { &hf_pfcp_qos_monitoring_measurement_uplink_packet_delay,
+        { "Downlink packet delay (milliseconds)", "pfcp.qos_monitoring_measurement.uplink_packet_delay",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -15152,9 +15249,24 @@ proto_register_pfcp(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_qos_monitoring_measurement_congestion_information,
-        { "Congestion information", "pfcp.qos_monitoring_measurement.congestion_information",
+        { &hf_pfcp_qos_monitoring_measurement_downlink_congestion_information,
+        { "Downlink Congestion information", "pfcp.qos_monitoring_measurement.downlink_congestion_information",
             FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qos_monitoring_measurement_uplink_congestion_information,
+        { "Uplink Congestion information", "pfcp.qos_monitoring_measurement.uplink_congestion_information",
+            FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qos_monitoring_measurement_downlink_packet_rate,
+        { "Downlink packet rate (kilobits per second)", "pfcp.qos_monitoring_measurement.downlink_packet_rate",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qos_monitoring_measurement_uplink_packet_rate,
+        { "Downlink packet rate (kilobits per second)", "pfcp.qos_monitoring_measurement.uplink_packet_delay",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -15724,8 +15836,8 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_pfcp_qer_indications_flags_b1_seodbi,
-        { "SEODBI (Set End Of Data Burst Indication)", "pfcp.qer_indications_flags.seodbi",
+        { &hf_pfcp_qer_indications_flags_b1_edbmi,
+        { "EDBMI (End Of Data Burst Marking Indication)", "pfcp.qer_indications_flags.edbmi",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
@@ -15873,6 +15985,18 @@ proto_register_pfcp(void)
         { &hf_pfcp_protocol_description_flags_b2_srtp,
         { "SRTP", "pfcp.protocol_description.srtp",
             FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_reporting_suggestion_info_flags_b0_rurg,
+        { "RURG", "pfcp.reporting_suggestion_info.rurg",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_tl_container,
+        { "TL-Container", "pfcp.tl_container",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
