@@ -453,7 +453,9 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
         capture_opts->print_file_names = TRUE;
         capture_opts->print_name_to = g_strdup(p);
     }
-
+    else {
+        return FALSE;
+    }
     *colonp = ':';    /* put the colon back */
     return TRUE;
 }
