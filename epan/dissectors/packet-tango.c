@@ -2788,7 +2788,7 @@ decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 /* Struct = IDL:Tango/DevEncoded:1.0 */
 static void
-decode_Tango_DevEncoded_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_DevEncoded_st(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
@@ -2803,9 +2803,9 @@ decode_Tango_DevEncoded_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
     proto_tree_add_uint(tree, hf_Tango_DevEncoded_encoded_data_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevEncoded_encoded_data);
 
     if (u_octet4_loop_Tango_DevEncoded_encoded_data > 0 && tree) {
-        get_CDR_octet_seq(tvb, &binary_seq_Tango_DevEncoded_encoded_data, offset,
+        get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_DevEncoded_encoded_data, offset,
             u_octet4_loop_Tango_DevEncoded_encoded_data);
-        text_seq_Tango_DevEncoded_encoded_data = make_printable_string(binary_seq_Tango_DevEncoded_encoded_data,
+        text_seq_Tango_DevEncoded_encoded_data = make_printable_string(pinfo->pool, binary_seq_Tango_DevEncoded_encoded_data,
             u_octet4_loop_Tango_DevEncoded_encoded_data);
         proto_tree_add_bytes_format_value(tree, hf_Tango_DevEncoded_encoded_data, tvb, *offset - u_octet4_loop_Tango_DevEncoded_encoded_data,
             u_octet4_loop_Tango_DevEncoded_encoded_data, binary_seq_Tango_DevEncoded_encoded_data, "%s", text_seq_Tango_DevEncoded_encoded_data);
@@ -4124,7 +4124,7 @@ decode_Tango_DevCmdHistory_4_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 /* Struct = IDL:Tango/ZmqCallInfo:1.0 */
 static void
-decode_Tango_ZmqCallInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_ZmqCallInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
@@ -4143,9 +4143,9 @@ decode_Tango_ZmqCallInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
     proto_tree_add_uint(tree, hf_Tango_ZmqCallInfo_oid_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ZmqCallInfo_oid);
 
     if (u_octet4_loop_Tango_ZmqCallInfo_oid > 0 && tree) {
-        get_CDR_octet_seq(tvb, &binary_seq_Tango_ZmqCallInfo_oid, offset,
+        get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_ZmqCallInfo_oid, offset,
             u_octet4_loop_Tango_ZmqCallInfo_oid);
-        text_seq_Tango_ZmqCallInfo_oid = make_printable_string(binary_seq_Tango_ZmqCallInfo_oid,
+        text_seq_Tango_ZmqCallInfo_oid = make_printable_string(pinfo->pool, binary_seq_Tango_ZmqCallInfo_oid,
             u_octet4_loop_Tango_ZmqCallInfo_oid);
         proto_tree_add_bytes_format_value(tree, hf_Tango_ZmqCallInfo_oid, tvb, *offset - u_octet4_loop_Tango_ZmqCallInfo_oid,
             u_octet4_loop_Tango_ZmqCallInfo_oid, binary_seq_Tango_ZmqCallInfo_oid, "%s", text_seq_Tango_ZmqCallInfo_oid);
@@ -4198,7 +4198,7 @@ decode_Tango_ClntIdent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
 
 /* Union = IDL:Tango/AttrValUnion:1.0 */
 static void
-decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item* item = NULL;
 
@@ -4337,9 +4337,9 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_uchar_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_uchar_att_value);
 
         if (u_octet4_loop_Tango_AttrValUnion_uchar_att_value > 0 && tree) {
-            get_CDR_octet_seq(tvb, &binary_seq_Tango_AttrValUnion_uchar_att_value, offset,
+            get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_AttrValUnion_uchar_att_value, offset,
                 u_octet4_loop_Tango_AttrValUnion_uchar_att_value);
-            text_seq_Tango_AttrValUnion_uchar_att_value = make_printable_string(binary_seq_Tango_AttrValUnion_uchar_att_value,
+            text_seq_Tango_AttrValUnion_uchar_att_value = make_printable_string(pinfo->pool, binary_seq_Tango_AttrValUnion_uchar_att_value,
                 u_octet4_loop_Tango_AttrValUnion_uchar_att_value);
             proto_tree_add_bytes_format_value(tree, hf_Tango_AttrValUnion_uchar_att_value, tvb, *offset - u_octet4_loop_Tango_AttrValUnion_uchar_att_value,
                 u_octet4_loop_Tango_AttrValUnion_uchar_att_value, binary_seq_Tango_AttrValUnion_uchar_att_value, "%s", text_seq_Tango_AttrValUnion_uchar_att_value);

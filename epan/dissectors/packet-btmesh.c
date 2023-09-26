@@ -8008,7 +8008,7 @@ btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **
             }
 
             guint8 *tag;
-            tag = (guint8 *)wmem_alloc(wmem_packet_scope(), net_mic_size);
+            tag = (guint8 *)wmem_alloc(pinfo->pool, net_mic_size);
             gcrypt_err = gcry_cipher_gettag(cipher_hd, tag, net_mic_size);
 
             if (gcrypt_err == 0 && !memcmp(tag, tvb_get_ptr(tvb, enc_offset + (*enc_data_len), net_mic_size), net_mic_size)) {
@@ -8057,7 +8057,7 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item(sub_tree, hf_btmesh_nid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    dec_ctx = wmem_new(wmem_packet_scope(), network_decryption_ctx_t);
+    dec_ctx = wmem_new(pinfo->pool, network_decryption_ctx_t);
     dec_ctx->net_nonce_type = BTMESH_NONCE_TYPE_NETWORK;
 
     de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, dec_ctx);

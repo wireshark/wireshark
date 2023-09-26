@@ -92,36 +92,36 @@ static const value_string hrd_vals[] = {
         ((ar_pro) == ETHERTYPE_ATALK && (ar_pln) == 4)
 
 static gchar *
-tvb_atalkid_to_str(tvbuff_t *tvb, gint offset)
+tvb_atalkid_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset)
 {
   gint node;
   gchar *cur;
 
-  cur=(gchar *)wmem_alloc(wmem_packet_scope(), 16);
+  cur=(gchar *)wmem_alloc(scope, 16);
   node=tvb_get_guint8(tvb, offset+1)<<8|tvb_get_guint8(tvb, offset+2);
   snprintf(cur, 16, "%d.%d",node,tvb_get_guint8(tvb, offset+3));
   return cur;
 }
 
 static const gchar *
-tvb_aarphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
+tvb_aarphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
 {
   if (AARP_HW_IS_ETHER(type, ad_len)) {
     /* Ethernet address (or Token Ring address, which is the same type
        of address). */
-    return tvb_ether_to_str(wmem_packet_scope(), tvb, offset);
+    return tvb_ether_to_str(scope, tvb, offset);
   }
-  return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
+  return tvb_bytes_to_str(scope, tvb, offset, ad_len);
 }
 
 static gchar *
-tvb_aarpproaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
+tvb_aarpproaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
 {
   if (AARP_PRO_IS_ATALK(type, ad_len)) {
     /* Appletalk address.  */
-    return tvb_atalkid_to_str(tvb, offset);
+    return tvb_atalkid_to_str(scope, tvb, offset);
   }
-  return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
+  return tvb_bytes_to_str(scope, tvb, offset, ad_len);
 }
 
 /* Offsets of fields within an AARP packet. */
@@ -170,10 +170,10 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     tha_str = "Unknown";
 #endif
   } else {
-    sha_str = tvb_aarphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd);
+    sha_str = tvb_aarphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd);
 #if 0
     /* TODO: tha_str is currently not shown nor parsed */
-    tha_str = tvb_aarphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd);
+    tha_str = tvb_aarphrdaddr_to_str(pinfo->pool, tvb, tha_offset, ar_hln, ar_hrd);
 #endif
   }
 
@@ -183,8 +183,8 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     spa_str = "Unknown";
     tpa_str = "Unknown";
   } else {
-    spa_str = tvb_aarpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro);
-    tpa_str = tvb_aarpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro);
+    spa_str = tvb_aarpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro);
+    tpa_str = tvb_aarpproaddr_to_str(pinfo->pool, tvb, tpa_offset, ar_pln, ar_pro);
   }
 
   switch (ar_op) {

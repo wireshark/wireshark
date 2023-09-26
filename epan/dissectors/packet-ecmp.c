@@ -1068,7 +1068,7 @@ static int add_cyclic_frame(int offset, tvbuff_t *tvb, proto_tree* ecmp_tree )
 
 
 /* a function to display cyclic tvb data in byte (8-bit), word (16-bit), and long (32-bit) unsigned formats  */
-static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_size, tvbuff_t *tvb, proto_tree* ecmp_current_tree )
+static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_size, tvbuff_t *tvb, packet_info *pinfo, proto_tree* ecmp_current_tree )
 {
 	/****************************************************************************************/
 	/*                                                                                      */
@@ -1084,6 +1084,8 @@ static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_si
 	/*                   buffer_size = number of bytes to be converted and displayed.       */
 	/*                                                                                      */
 	/*                   tvb  =  buffer structure within Wireshark holding this frame.      */
+	/*                                                                                      */
+	/*                   pinfo  =  packet info for this frame.                              */
 	/*                                                                                      */
 	/*                   ecmp_current_tree  =  the tree where the data is to be displayed.  */
 	/*                                                                                      */
@@ -1148,7 +1150,7 @@ static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_si
 		}
 
 		/* allocate dynamic memory for one line  */
-		pdata = (gchar *)wmem_alloc(wmem_packet_scope(), format_string_size);
+		pdata = (gchar *)wmem_alloc(pinfo->pool, format_string_size);
 
 		/* OK, let's get started */
 		idx = 0;
@@ -3127,21 +3129,21 @@ static int dissect_ecmp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				"Cyclic Data (32-bit hex unsigned format): ");
 
 		/* display the raw hex data for the cyclic data in a 32-bit format  */
-		display_raw_cyclic_data(cyclic_display_long_format, offset, framelen - offset, tvb, ecmp_cyclic_data_32_bit_display_tree);
+		display_raw_cyclic_data(cyclic_display_long_format, offset, framelen - offset, tvb, pinfo, ecmp_cyclic_data_32_bit_display_tree);
 
 		/* create the Cyclic Data Display (guint16 format) sub-tree  */
 		ecmp_cyclic_data_16_bit_display_tree = proto_tree_add_subtree(ecmp_tree, tvb, offset, 2, ett_ecmp_cyclic_data_16_bit_display, NULL,
 				"Cyclic Data (16-bit hex unsigned format): ");
 
 		/* display the raw hex data for the cyclic data in a 16-bit format  */
-		display_raw_cyclic_data(cyclic_display_word_format, offset, framelen - offset, tvb, ecmp_cyclic_data_16_bit_display_tree);
+		display_raw_cyclic_data(cyclic_display_word_format, offset, framelen - offset, tvb, pinfo, ecmp_cyclic_data_16_bit_display_tree);
 
 		/* display the raw hex data for the cyclic data in a guint8 format  */
 		ecmp_cyclic_data_8_bit_display_tree = proto_tree_add_subtree(ecmp_tree, tvb, offset, 2, ett_ecmp_cyclic_data_8_bit_display, NULL,
 				"Cyclic Data (8-bit hex unsigned format): ");
 
 		/* display the raw hex data for the cyclic data in 8-bit format */
-		display_raw_cyclic_data(cyclic_display_byte_format, offset, framelen - offset, tvb, ecmp_cyclic_data_8_bit_display_tree);
+		display_raw_cyclic_data(cyclic_display_byte_format, offset, framelen - offset, tvb, pinfo, ecmp_cyclic_data_8_bit_display_tree);
 	}
 
 	return tvb_reported_length(tvb);

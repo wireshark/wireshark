@@ -5440,7 +5440,7 @@ decode_UCO_SimpleCImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 /* Struct = IDL:UCO/CompressedImage:1.0 */
 static void
-decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
@@ -5459,9 +5459,9 @@ decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     proto_tree_add_uint(tree, hf_UCO_CompressedImage_data_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_CompressedImage_data);
 
     if (u_octet4_loop_UCO_CompressedImage_data > 0 && tree) {
-        get_CDR_octet_seq(tvb, &binary_seq_UCO_CompressedImage_data, offset,
+        get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_UCO_CompressedImage_data, offset,
             u_octet4_loop_UCO_CompressedImage_data);
-        text_seq_UCO_CompressedImage_data = make_printable_string(binary_seq_UCO_CompressedImage_data,
+        text_seq_UCO_CompressedImage_data = make_printable_string(pinfo->pool, binary_seq_UCO_CompressedImage_data,
             u_octet4_loop_UCO_CompressedImage_data);
         proto_tree_add_bytes_format_value(tree, hf_UCO_CompressedImage_data, tvb, *offset - u_octet4_loop_UCO_CompressedImage_data,
             u_octet4_loop_UCO_CompressedImage_data, binary_seq_UCO_CompressedImage_data, "%s", text_seq_UCO_CompressedImage_data);
@@ -6153,7 +6153,7 @@ decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 /* Union = IDL:UCO/Buffer:1.0 */
 static void
-decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
     /* Operation specific Variable declarations Begin */
@@ -6197,9 +6197,9 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_uint(tree, hf_UCO_Buffer_octet_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_octet_buffer);
 
         if (u_octet4_loop_UCO_Buffer_octet_buffer > 0 && tree) {
-            get_CDR_octet_seq(tvb, &binary_seq_UCO_Buffer_octet_buffer, offset,
+            get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_UCO_Buffer_octet_buffer, offset,
                 u_octet4_loop_UCO_Buffer_octet_buffer);
-            text_seq_UCO_Buffer_octet_buffer = make_printable_string(binary_seq_UCO_Buffer_octet_buffer,
+            text_seq_UCO_Buffer_octet_buffer = make_printable_string(pinfo->pool, binary_seq_UCO_Buffer_octet_buffer,
                 u_octet4_loop_UCO_Buffer_octet_buffer);
             proto_tree_add_bytes_format_value(tree, hf_UCO_Buffer_octet_buffer, tvb, *offset - u_octet4_loop_UCO_Buffer_octet_buffer,
                 u_octet4_loop_UCO_Buffer_octet_buffer, binary_seq_UCO_Buffer_octet_buffer, "%s", text_seq_UCO_Buffer_octet_buffer);
@@ -6359,7 +6359,7 @@ decode_GIAS_Destination_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 /* Union = IDL:GIAS/Domain:1.0 */
 static void
-decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item* item = NULL;
 
@@ -6528,9 +6528,9 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
         proto_tree_add_uint(tree, hf_GIAS_Domain_bd_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_bd);
 
         if (u_octet4_loop_GIAS_Domain_bd > 0 && tree) {
-            get_CDR_octet_seq(tvb, &binary_seq_GIAS_Domain_bd, offset,
+            get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_GIAS_Domain_bd, offset,
                 u_octet4_loop_GIAS_Domain_bd);
-            text_seq_GIAS_Domain_bd = make_printable_string(binary_seq_GIAS_Domain_bd,
+            text_seq_GIAS_Domain_bd = make_printable_string(pinfo->pool, binary_seq_GIAS_Domain_bd,
                 u_octet4_loop_GIAS_Domain_bd);
             proto_tree_add_bytes_format_value(tree, hf_GIAS_Domain_bd, tvb, *offset - u_octet4_loop_GIAS_Domain_bd,
                 u_octet4_loop_GIAS_Domain_bd, binary_seq_GIAS_Domain_bd, "%s", text_seq_GIAS_Domain_bd);

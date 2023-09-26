@@ -417,7 +417,7 @@ static void create_5x_analysis_packet_header_subtree(proto_tree *tree, tvbuff_t 
 static void create_5x_hpi_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb);
 
 static int
-create_full_session_id_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, guint8 ver)
+create_full_session_id_subtree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 ver)
 {
     guint64 full_session_id = tvb_get_letoh64(tvb, offset);
     proto_item *packet_item = NULL;
@@ -439,8 +439,8 @@ create_full_session_id_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, guin
             session_int = tvb_get_ntoh40(tvb, offset + 4);
 
         if (session_int != 0)
-            session_ext = wmem_strdup_printf(wmem_packet_scope(), ":%" PRIu64, session_int);
-        str = wmem_strdup_printf(wmem_packet_scope(), "%x:%d%s", board_id, reset_counter, session_ext);
+            session_ext = wmem_strdup_printf(scope, ":%" PRIu64, session_int);
+        str = wmem_strdup_printf(scope, "%x:%d%s", board_id, reset_counter, session_ext);
     }
 
     if ((ver & 0xF) == 7) {
@@ -1124,7 +1124,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
                                 offset, 4, ENC_BIG_ENDIAN);
         } else {
             // Full SessionID (include also BoardID)
-            create_full_session_id_subtree(acdr_tree, tvb, offset, version);
+            create_full_session_id_subtree(pinfo->pool, acdr_tree, tvb, offset, version);
         }
     }
 

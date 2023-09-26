@@ -12097,7 +12097,7 @@ dissect_IsochronousModeData_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_CommunityName_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo _U_, proto_tree *tree, const guint8 *drep _U_, int hfindex)
+    packet_info *pinfo, proto_tree *tree, const guint8 *drep _U_, int hfindex)
 {
     guint8 u8CommunityNameLength;
     proto_item* sub_item;
@@ -12115,7 +12115,7 @@ dissect_CommunityName_block(tvbuff_t *tvb, int offset,
     proto_tree_add_item(sub_tree, hf_pn_io_snmp_community_name, tvb, offset, u8CommunityNameLength, ENC_ASCII | ENC_NA);
 
     proto_item_append_text(sub_item, ": %s",
-        tvb_get_string_enc(wmem_packet_scope(), tvb, offset, u8CommunityNameLength, ENC_ASCII|ENC_NA));
+        tvb_get_string_enc(pinfo->pool, tvb, offset, u8CommunityNameLength, ENC_ASCII|ENC_NA));
 
     offset += u8CommunityNameLength;
     return offset;

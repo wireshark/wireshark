@@ -103,9 +103,9 @@ static ws_mempbrk_pattern pbrk_whitespace;
 
 static guint get_hex_uint(tvbuff_t *tvb, gint offset, gint *next_offset);
 static gboolean skip_space(tvbuff_t *tvb, gint offset, gint *next_offset);
-static const guint8* get_quoted_string(tvbuff_t *tvb, gint offset,
+static const guint8* get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset,
     gint *next_offset, guint *len);
-static const guint8* get_unquoted_string(tvbuff_t *tvb, gint offset,
+static const guint8* get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset,
     gint *next_offset, guint *len);
 
 /**********************************************************************/
@@ -173,7 +173,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return offset;    /* end of packet */
     offset = next_offset;
 
-    str = get_unquoted_string(tvb, offset, &next_offset, &len);
+    str = get_unquoted_string(pinfo->pool, tvb, offset, &next_offset, &len);
     if (str == NULL)
         return offset;    /* separator/terminator not found */
 
@@ -189,7 +189,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return offset;    /* end of packet */
     offset = next_offset;
 
-    str = get_quoted_string(tvb, offset, &next_offset, &len);
+    str = get_quoted_string(pinfo->pool, tvb, offset, &next_offset, &len);
     if (str == NULL)
         return offset;    /* separator/terminator not found */
     proto_tree_add_string(cups_tree, hf_cups_location, tvb, offset+1, len, str);
@@ -199,7 +199,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return offset;    /* end of packet */
     offset = next_offset;
 
-    str = get_quoted_string(tvb, offset, &next_offset, &len);
+    str = get_quoted_string(pinfo->pool, tvb, offset, &next_offset, &len);
     if (str == NULL)
         return offset;    /* separator/terminator not found */
     proto_tree_add_string(cups_tree, hf_cups_information, tvb, offset+1, len, str);
@@ -209,7 +209,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return offset;    /* end of packet */
     offset = next_offset;
 
-    str = get_quoted_string(tvb, offset, &next_offset, &len);
+    str = get_quoted_string(pinfo->pool, tvb, offset, &next_offset, &len);
     if (str == NULL)
         return offset;    /* separator/terminator not found */
     proto_tree_add_string(cups_tree, hf_cups_make_model, tvb, offset+1, len, str);
@@ -250,7 +250,7 @@ skip_space(tvbuff_t *tvb, gint offset, gint *next_offset)
 }
 
 static const guint8*
-get_quoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
+get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
 {
     int c;
     const guint8* s = NULL;
@@ -263,7 +263,7 @@ get_quoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
         if (o != -1) {
             offset++;
             l = o - offset;
-            s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UTF_8);
+            s = tvb_get_string_enc(scope, tvb, offset, l, ENC_UTF_8);
             offset = o + 1;
         }
     }
@@ -275,7 +275,7 @@ get_quoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
 }
 
 static const guint8*
-get_unquoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
+get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
 {
     const guint8* s = NULL;
     guint l = 0;
@@ -284,7 +284,7 @@ get_unquoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
     o = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1, &pbrk_whitespace, NULL);
     if (o != -1) {
         l = o - offset;
-        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UTF_8);
+        s = tvb_get_string_enc(scope, tvb, offset, l, ENC_UTF_8);
         offset = o;
     }
 

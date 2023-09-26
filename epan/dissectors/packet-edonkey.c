@@ -954,7 +954,7 @@ static int dissect_kademlia_address(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
-static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo,
                                     int offset, proto_tree *tree, const gchar** outputTagName, const gchar** outputExtendedTagName)
 {
     /* <String> ::= <String length (guint16)> DATA */
@@ -970,7 +970,7 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
     hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
     proto_item_set_hidden(hidden_item);
 
-    tagname = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
+    tagname = tvb_get_string_enc(pinfo->pool, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
 
     tag_full_name = "UnknownTagName";
 
@@ -1054,23 +1054,23 @@ static int dissect_edonkey_signature(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset + length;
 }
 
-static const char *kademlia_hash(tvbuff_t *tvb, int offset) {
+static const char *kademlia_hash(wmem_allocator_t *scope, tvbuff_t *tvb, int offset) {
     guint32 hash[4];
     int i;
 
     for (i = 0; i < 4; i++)
         hash[i] = tvb_get_letohl(tvb, offset + i*4);
 
-    return wmem_strdup_printf(wmem_packet_scope(),
+    return wmem_strdup_printf(scope,
               "%08X%08X%08X%08X", hash[0], hash[1], hash[2], hash[3]);
 }
 
-static int dissect_kademlia_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int dissect_kademlia_hash_hidden(tvbuff_t *tvb, packet_info *pinfo,
                                         int offset, proto_tree *tree) {
     proto_item *hidden_item;
     const char *hash;
 
-    hash = kademlia_hash(tvb, offset);
+    hash = kademlia_hash(pinfo->pool, tvb, offset);
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
     hidden_item = proto_tree_add_string(tree, hf_kademlia_hash, tvb, offset, 16, hash);
@@ -1084,7 +1084,7 @@ static int dissect_kademlia_hash(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, proto_tree *tree, int *value_ptr) {
     const char *hash;
 
-    hash = kademlia_hash(tvb, offset);
+    hash = kademlia_hash(pinfo->pool, tvb, offset);
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
     proto_tree_add_string(tree, *value_ptr, tvb, offset, 16, hash);
@@ -1092,12 +1092,12 @@ static int dissect_kademlia_hash(tvbuff_t *tvb, packet_info *pinfo,
     return dissect_kademlia_hash_hidden(tvb, pinfo, offset, tree);
 }
 
-static int dissect_kademlia_tag_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int dissect_kademlia_tag_hash_hidden(tvbuff_t *tvb, packet_info *pinfo,
                                         int offset, proto_tree *tree) {
     proto_item *hidden_item;
     const char *hash;
 
-    hash = kademlia_hash(tvb, offset);
+    hash = kademlia_hash(pinfo->pool, tvb, offset);
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
     hidden_item = proto_tree_add_string(tree, hf_kademlia_tag_hash, tvb, offset, 16, hash);
@@ -1110,27 +1110,27 @@ static int dissect_kademlia_tag_hash(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, proto_tree *tree) {
     const char *hash;
 
-    hash = kademlia_hash(tvb, offset);
+    hash = kademlia_hash(pinfo->pool, tvb, offset);
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
     proto_tree_add_string(tree, hf_kademlia_hash, tvb, offset, 16, hash);
     return dissect_kademlia_tag_hash_hidden( tvb, pinfo, offset, tree );
 }
 
-static int dissect_kademlia_tag_bsob(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int dissect_kademlia_tag_bsob(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, proto_tree *tree, const gchar** string_value )
 {
     guint16 bsob_length;
 
     bsob_length = tvb_get_guint8(tvb, offset);
-    *string_value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 1, bsob_length );
+    *string_value = tvb_bytes_to_str(pinfo->pool, tvb, offset + 1, bsob_length );
 
     proto_tree_add_item(tree, hf_kademlia_tag_bsob, tvb, offset + 1, bsob_length, ENC_NA);
     return offset + 1 + bsob_length;
 }
 
 
-static int dissect_kademlia_tag_string(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int dissect_kademlia_tag_string(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, proto_tree *tree, const guint8** string_value)
 {
     proto_item *hidden_item;
@@ -1138,7 +1138,7 @@ static int dissect_kademlia_tag_string(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
     proto_item_set_hidden(hidden_item);
-    hidden_item = proto_tree_add_item_ret_string(tree, hf_edonkey_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), string_value);
+    hidden_item = proto_tree_add_item_ret_string(tree, hf_edonkey_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA, pinfo->pool, string_value);
     proto_item_set_hidden(hidden_item);
 
     proto_tree_add_item(tree, hf_kademlia_tag_string, tvb, offset + 2, string_length, ENC_ASCII);
@@ -2363,7 +2363,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo,
     switch( type )
     {
         case KADEMLIA_TAGTYPE_HASH:
-            proto_item_append_text( tag_node, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 16 ));
+            proto_item_append_text( tag_node, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 16 ));
             offset = dissect_kademlia_tag_hash( tvb, pinfo, offset, subtree );
             break;
         case KADEMLIA_TAGTYPE_STRING:

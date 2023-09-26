@@ -4640,7 +4640,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_
   DISSECTOR_ASSERT(regex != NULL);
   g_regex_match(
     regex,
-    (const gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 64, ENC_ASCII),
+    (const gchar*)tvb_get_string_enc(pinfo->pool, tvb, offset, 64, ENC_ASCII),
     (GRegexMatchFlags) 0,
     &match_info);
 

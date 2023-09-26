@@ -4329,7 +4329,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     tap_data->magic = F5FILEINFO_TAP_MAGIC;
 
     while (tvb_captured_length_remaining(tvb, offset)) {
-        object = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &objlen, ENC_ASCII);
+        object = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &objlen, ENC_ASCII);
 
         if (objlen <= 0 || object == NULL)
             break;

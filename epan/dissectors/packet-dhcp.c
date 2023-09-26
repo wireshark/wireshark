@@ -6327,7 +6327,7 @@ dissect_docsis_cm_cap(packet_info *pinfo, proto_tree *v_tree, tvbuff_t *tvb, int
 	guint8	   *val_other  = NULL;
 	guint	    off	       = voff;
 
-	asc_val = (guint8*)wmem_alloc0(wmem_packet_scope(), 4);
+	asc_val = (guint8*)wmem_alloc0(pinfo->pool, 4);
 
 	if (opt125)
 	{

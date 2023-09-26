@@ -277,7 +277,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             continue;
         }
 
-        if (!ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, field_offset, tag->tag_len, ENC_ASCII),
+        if (!ws_strtou32(tvb_get_string_enc(pinfo->pool, tvb, field_offset, tag->tag_len, ENC_ASCII),
                 NULL, &tag_value)) {
             proto_tree_add_expert(fix_tree, pinfo, &ei_fix_tag_invalid, tvb, field_offset, tag->tag_len);
             break;
@@ -303,7 +303,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             found = 1;
         }
 
-        value = tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len, ENC_ASCII);
+        value = tvb_get_string_enc(pinfo->pool, tvb, tag->value_offset, tag->value_len, ENC_ASCII);
         ivalue_valid = ws_strtoi32(value, NULL, &ivalue);
         if (found) {
             if (fix_fields[i].table) {

@@ -91,7 +91,7 @@ dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
 #define TEXT_INTERFACE_ID_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 interface_id_length;
 
@@ -100,13 +100,13 @@ dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree 
   proto_tree_add_item(parameter_tree, hf_text_interface_id,
                       parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length, ENC_ASCII);
   proto_item_append_text(parameter_item, " (%s)",
-                         tvb_format_text(wmem_packet_scope(), parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length));
+                         tvb_format_text(pinfo->pool, parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length));
 }
 
 #define INFO_STRING_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_info_string_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 info_string_length;
 
@@ -114,7 +114,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   proto_tree_add_item(parameter_tree, hf_info_string,
                       parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII);
   proto_item_append_text(parameter_item, " (%s)",
-                         tvb_format_text(wmem_packet_scope(), parameter_tvb, INFO_STRING_OFFSET, info_string_length));
+                         tvb_format_text(pinfo->pool, parameter_tvb, INFO_STRING_OFFSET, info_string_length));
 }
 
 #define DLCI_LENGTH  2
@@ -472,10 +472,10 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
     dissect_int_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case TEXT_INTERFACE_IDENTIFIER_PARAMETER_TAG:
-    dissect_text_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_text_interface_identifier_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case INFO_PARAMETER_TAG:
-    dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_info_string_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case DLCI_PARAMETER_TAG:
     dissect_dlci_parameter(parameter_tvb, parameter_tree);

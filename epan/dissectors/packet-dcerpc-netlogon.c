@@ -7679,7 +7679,7 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
         int old_offset=offset;
         char *str;
 
-        offset=dissect_mscldap_string(tvb, offset, 255, &str);
+        offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
         proto_tree_add_string(subtree, hf_netlogon_secchan_nl_dns_domain, tvb, old_offset, offset-old_offset, str);
     }
 
@@ -7688,7 +7688,7 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
         int old_offset=offset;
         char *str;
 
-        offset=dissect_mscldap_string(tvb, offset, 255, &str);
+        offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
         proto_tree_add_string(subtree, hf_netlogon_secchan_nl_dns_host, tvb, old_offset, offset-old_offset, str);
     }
 
@@ -7697,7 +7697,7 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
         int old_offset=offset;
         char *str;
 
-        offset=dissect_mscldap_string(tvb, offset, 255, &str);
+        offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
         proto_tree_add_string(subtree, hf_netlogon_secchan_nl_nb_host_utf8, tvb, old_offset, offset-old_offset, str);
     }
 

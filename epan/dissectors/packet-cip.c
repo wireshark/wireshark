@@ -4572,15 +4572,15 @@ static cip_service_info_t* cip_get_service(packet_info *pinfo, guint8 service_id
 }
 
 static const char *
-segment_name_format(const char *segment_name, const char *fmt)
+segment_name_format(wmem_allocator_t *scope, const char *segment_name, const char *fmt)
     G_GNUC_FORMAT(2);
 
 static const char *
-segment_name_format(const char *segment_name, const char *fmt)
+segment_name_format(wmem_allocator_t *scope, const char *segment_name, const char *fmt)
 {
    wmem_strbuf_t *strbuf;
 
-   strbuf = wmem_strbuf_new(wmem_packet_scope(), segment_name);
+   strbuf = wmem_strbuf_new(scope, segment_name);
    wmem_strbuf_append(strbuf, fmt);
    return wmem_strbuf_get_str(strbuf);
 }
@@ -4654,7 +4654,7 @@ dissect_cia(tvbuff_t *tvb, int offset, unsigned char segment_type,
       }
       else
       {
-         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals, segment_name_format( segment_name, ": 0x%02X" ) ) );
+         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals, segment_name_format( pinfo->pool, segment_name, ": 0x%02X" ) ) );
       }
 
       if (value != NULL)
@@ -4710,10 +4710,10 @@ dissect_cia(tvbuff_t *tvb, int offset, unsigned char segment_type,
       }
       else
       {
-         strbuf = wmem_strbuf_new(wmem_packet_scope(), segment_name);
+         strbuf = wmem_strbuf_new(pinfo->pool, segment_name);
          wmem_strbuf_append(strbuf, ": 0x%04X");
 
-         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals, segment_name_format( segment_name, ": 0x%04X" ) ) );
+         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals, segment_name_format( pinfo->pool, segment_name, ": 0x%04X" ) ) );
       }
 
       if (value != NULL)
@@ -4756,10 +4756,10 @@ dissect_cia(tvbuff_t *tvb, int offset, unsigned char segment_type,
       }
       else
       {
-         strbuf = wmem_strbuf_new(wmem_packet_scope(), segment_name);
+         strbuf = wmem_strbuf_new(pinfo->pool, segment_name);
          wmem_strbuf_append(strbuf, ": 0x%08X");
 
-         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals, segment_name_format( segment_name, ": 0x%08X" ) ) );
+         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals, segment_name_format( pinfo->pool, segment_name, ": 0x%08X" ) ) );
       }
 
       if (value != NULL)

@@ -659,7 +659,7 @@ read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
  * Preparse the message for the info column
  */
 static wmem_strbuf_t*
-get_column_info(tvbuff_t *tvb)
+get_column_info(wmem_allocator_t *scope, tvbuff_t *tvb)
 {
   int            byte_length;
   guint8         type_code;
@@ -667,7 +667,7 @@ get_column_info(tvbuff_t *tvb)
   int            my_offset = 0;
 
   /* We've a full PDU: 8 bytes + pdu_packetlen bytes  */
-  result_buf = wmem_strbuf_create(wmem_packet_scope());
+  result_buf = wmem_strbuf_create(scope);
 
   my_offset += (4 + 4 + 1); /* skip Magic, Length, Version */
 
@@ -700,7 +700,7 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   wmem_strbuf_t *colInfo = NULL;
 
   if (pinfo->cinfo || tree) {
-    colInfo = get_column_info(tvb);    /* get current symbol */
+    colInfo = get_column_info(pinfo->pool, tvb);    /* get current symbol */
   }
 
   if (pinfo->cinfo) {

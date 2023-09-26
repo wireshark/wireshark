@@ -1895,7 +1895,7 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
                     hf_id = hf_ber_64bit_uint_as_bytes;
 
                 proto_tree_add_bytes_format(tree, hf_id, tvb, offset, len, NULL,
-                                            "%s: 0x%s", hfinfo->name, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+                                            "%s: 0x%s", hfinfo->name, tvb_bytes_to_str(actx->pinfo->pool, tvb, offset, len));
             }
 
             offset += len;
@@ -1961,7 +1961,7 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
                  * values are handled here.
                  */
                 actx->created_item = proto_tree_add_bytes_format(tree, hf_id, tvb, offset-len, len, NULL,
-                        "%s: 0x%s", hfi->name, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset-len, len));
+                        "%s: 0x%s", hfi->name, tvb_bytes_to_str(actx->pinfo->pool, tvb, offset-len, len));
                 break;
             default:
                 DISSECTOR_ASSERT_NOT_REACHED();
@@ -3250,11 +3250,11 @@ proto_tree_add_debug_text(tree, "OBJECT IDENTIFIER dissect_ber_any_oid(%s) enter
     if ((is_absolute && hfi->type == FT_OID) || (!is_absolute && hfi->type == FT_REL_OID)) {
         actx->created_item = proto_tree_add_item(tree, hf_id, tvb, offset, len, ENC_BIG_ENDIAN);
     } else if (FT_IS_STRING(hfi->type)) {
-        str = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(tvb, offset, len), len);
+        str = oid_encoded2string(actx->pinfo->pool, tvb_get_ptr(tvb, offset, len), len);
         actx->created_item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
         if (actx->created_item) {
             /* see if we know the name of this oid */
-            name = oid_resolved_from_encoded(wmem_packet_scope(), tvb_get_ptr(tvb, offset, len), len);
+            name = oid_resolved_from_encoded(actx->pinfo->pool, tvb_get_ptr(tvb, offset, len), len);
             if (name) {
                 proto_item_append_text(actx->created_item, " (%s)", name);
             }
@@ -3279,7 +3279,7 @@ dissect_ber_any_oid_str(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 
     if (value_stringx) {
         if (value_tvb && (length = tvb_reported_length(value_tvb))) {
-            *value_stringx = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(value_tvb, 0, length), length);
+            *value_stringx = oid_encoded2string(actx->pinfo->pool, tvb_get_ptr(value_tvb, 0, length), length);
         } else {
             *value_stringx = "";
         }
@@ -3681,7 +3681,7 @@ dissect_ber_GeneralizedTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tre
         return end_offset;
     }
 
-    tmpstr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
+    tmpstr = tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_ASCII);
     if (!iso8601_to_nstime(&ts, tmpstr, ISO8601_DATETIME_BASIC)) {
         cause = proto_tree_add_expert_format(
             tree, actx->pinfo, &ei_ber_invalid_format_generalized_time,
@@ -3723,7 +3723,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
     proto_tree   *error_tree;
     const gchar  *error_str = NULL;
 
-    outstrptr = outstr = (char *)wmem_alloc(wmem_packet_scope(), 29);
+    outstrptr = outstr = (char *)wmem_alloc(actx->pinfo->pool, 29);
 
     if (datestrptr) *datestrptr = NULL; /* mark invalid */
     if (tvblen) *tvblen = 0;
@@ -3757,12 +3757,12 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
     }
 
     if ((len < 10) || (len > 19)) {
-        error_str = wmem_strdup_printf(wmem_packet_scope(), "BER Error: UTCTime invalid length: %u", len);
-        instr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len > 19 ? 19 : len, ENC_ASCII);
+        error_str = wmem_strdup_printf(actx->pinfo->pool, "BER Error: UTCTime invalid length: %u", len);
+        instr = tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len > 19 ? 19 : len, ENC_ASCII);
         goto malformed;
     }
 
-    instr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
+    instr = tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_ASCII);
 
     /* YYMMDDhhmm */
     for (i=0; i<10; i++) {
@@ -3821,7 +3821,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
         i+=5;
         break;
     default:
-        error_str = wmem_strdup_printf(wmem_packet_scope(),
+        error_str = wmem_strdup_printf(actx->pinfo->pool,
                                        "BER Error: malformed UTCTime encoding, "
                                        "unexpected character in %dth octet, "
                                        "must be \'Z\', \'+\' or \'-\'", i+1);
@@ -3830,7 +3830,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
     }
 
     if (len != i) {
-        error_str = wmem_strdup_printf(wmem_packet_scope(),
+        error_str = wmem_strdup_printf(actx->pinfo->pool,
             "BER Error: malformed UTCTime encoding, %d unexpected character%s after %dth octet",
             len - i,
             (len == (i - 1) ? "s" : ""),
@@ -3971,7 +3971,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
             item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_NA);
             actx->created_item = item;
             if (named_bits) {
-                guint8 *bitstring = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, len);
+                guint8 *bitstring = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, offset, len);
                 const int named_bits_bytelen = (num_named_bits + 7) / 8;
                 if (show_internal_ber_fields) {
                     if (len < named_bits_bytelen) {
@@ -4016,7 +4016,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
                 for (int i = 0; i < len; i++) {
                     if (bitstring[i]) {
                         expert_add_info_format(actx->pinfo, item, &ei_ber_bits_unknown, "Unknown bit(s): 0x%s",
-                             bytes_to_str(wmem_packet_scope(), bitstring, len));
+                             bytes_to_str(actx->pinfo->pool, bitstring, len));
                         break;
                     }
                 }

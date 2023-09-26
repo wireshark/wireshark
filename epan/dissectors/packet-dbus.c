@@ -565,7 +565,7 @@ add_dbus_string(dbus_packet_t *packet, int hf, gint uint_length) {
 	const guint8 *string;
 	gint start_offset = ptvcursor_current_offset(packet->cursor);
 	proto_item *pi = ptvcursor_add_ret_string(packet->cursor, hf, uint_length,
-			packet->enc | ENC_UTF_8, wmem_packet_scope(), &string);
+			packet->enc | ENC_UTF_8, packet->pinfo->pool, &string);
 	gint item_length = ptvcursor_current_offset(packet->cursor) - start_offset;
 	guint8 term_byte = tvb_get_guint8(ptvcursor_tvbuff(packet->cursor), ptvcursor_current_offset(packet->cursor));
 	proto_item_set_len(pi, item_length + 1);
@@ -751,7 +751,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 			is_single_complete_type = TRUE;
 		} else if (array_len <= DBUS_MAX_ARRAY_LEN) {
 			int end_offset = ptvcursor_current_offset(packet->cursor) + array_len;
-			dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
+			dbus_type_reader_t *child = wmem_new(packet->pinfo->pool, dbus_type_reader_t);
 			*child = (dbus_type_reader_t){
 				.packet = reader->packet,
 				.signature = reader->signature,
@@ -774,7 +774,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 		is_single_complete_type = FALSE;
 		ptvcursor_add_with_subtree(packet->cursor, hf != -1 ? hf : hf_dbus_type_struct,
 				SUBTREE_UNDEFINED_LENGTH, ENC_NA, ett != -1 ? ett : ett_dbus_type_struct);
-		dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
+		dbus_type_reader_t *child = wmem_new(packet->pinfo->pool, dbus_type_reader_t);
 		*child = (dbus_type_reader_t){
 			.packet = reader->packet,
 			.signature = reader->signature,
@@ -794,7 +794,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 		value->string = variant_signature;
 		if (variant_signature && is_dbus_signature_valid(variant_signature)) {
 			if (variant_signature[0] != '\0') {
-				dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
+				dbus_type_reader_t *child = wmem_new(packet->pinfo->pool, dbus_type_reader_t);
 				*child = (dbus_type_reader_t){
 					.packet = reader->packet,
 					.signature = variant_signature,
@@ -824,7 +824,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 		proto_item *dict_entry = ptvcursor_add_with_subtree(packet->cursor,
 				hf != -1 ? hf : hf_dbus_type_dict_entry,
 				SUBTREE_UNDEFINED_LENGTH, ENC_NA, ett != -1 ? ett : ett_dbus_type_dict_entry);
-		dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
+		dbus_type_reader_t *child = wmem_new(packet->pinfo->pool, dbus_type_reader_t);
 		*child = (dbus_type_reader_t){
 			.packet = reader->packet,
 			.signature = reader->signature,
@@ -885,7 +885,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 			} else if (reader->is_in_variant) {
 				if (reader->is_basic_variant) {
 					proto_item_append_text(reader->container, ": %s",
-							proto_item_get_display_repr(wmem_packet_scope(), packet->current_pi));
+							proto_item_get_display_repr(packet->pinfo->pool, packet->current_pi));
 				}
 				ptvcursor_pop_subtree(packet->cursor);
 				reader = reader->parent;
@@ -898,10 +898,10 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 			if (*(reader->signature - 2) == SIG_CODE_DICT_ENTRY_OPEN) { // == key
 				// key is always a basic type
 				proto_item_append_text(reader->container, ", %s",
-						proto_item_get_display_repr(wmem_packet_scope(), packet->current_pi));
+						proto_item_get_display_repr(packet->pinfo->pool, packet->current_pi));
 			} else if (reader->is_basic_dict_entry) { // == value
 				proto_item_append_text(reader->container, ": %s",
-						proto_item_get_display_repr(wmem_packet_scope(), packet->current_pi));
+						proto_item_get_display_repr(packet->pinfo->pool, packet->current_pi));
 			}
 		}
 	}
@@ -1012,7 +1012,7 @@ add_conversation(dbus_packet_t *packet, proto_tree *header_field_tree) {
 	case DBUS_MESSAGE_TYPE_ERROR:
 		is_request = FALSE;
 
-		key = wmem_strdup_printf(wmem_packet_scope(), "%s %u", packet->destination, packet->reply_serial);
+		key = wmem_strdup_printf(packet->pinfo->pool, "%s %u", packet->destination, packet->reply_serial);
 		request_dest = (gchar *)wmem_map_lookup(request_info_map, key);
 		if (request_dest && !g_str_equal(request_dest, packet->sender)) {
 			// Replace the sender address of the response with the destination address of the request, so

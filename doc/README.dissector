@@ -492,7 +492,7 @@ gchar *tvb_bytes_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offse
 Formats a bunch of data from a tvbuff as bytes, returning a pointer
 to the string with the data formatted as two hex digits for each byte.
 The string pointed to is stored in an "wmem_alloc'd" buffer which will be freed
-depending on its scope (typically wmem_packet_scope which is freed after the frame).
+depending on its scope (typically pinfo->pool which is freed after the frame).
 The formatted string will contain the hex digits for at most the first 16 bytes of
 the data. If len is greater than 16 bytes, a trailing "..." will be added to the string.
 
@@ -2793,7 +2793,7 @@ my_entry_t *data_ptr;
 /* look up the conversation */
 
 conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-        conversation_pt_to_conversation_type(pinfo->ptype), 
+        conversation_pt_to_conversation_type(pinfo->ptype),
         pinfo->srcport, pinfo->destport, 0);
 
 /* if conversation found get the data pointer that you stored */

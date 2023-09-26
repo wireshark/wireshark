@@ -733,7 +733,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			name_size = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
-			name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_size, ENC_ASCII | ENC_NA);
+			name = tvb_get_string_enc(pinfo->pool, tvb, offset, name_size, ENC_ASCII | ENC_NA);
 			proto_tree_add_string(tree, hf_gadu_gadu_userdata_attr_name, tvb, offset - 4, 4 + name_size, name);
 			offset += name_size;
 	/* type */
@@ -743,7 +743,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			val_size = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
-			val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, val_size, ENC_ASCII | ENC_NA);
+			val = tvb_get_string_enc(pinfo->pool, tvb, offset, val_size, ENC_ASCII | ENC_NA);
 			proto_tree_add_string(tree, hf_gadu_gadu_userdata_attr_value, tvb, offset - 4, 4 + val_size, val);
 			offset += val_size;
 		}
@@ -1142,7 +1142,7 @@ dissect_gadu_gadu_add_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
-dissect_gadu_gadu_notify105_common(tvbuff_t *tvb, proto_tree *tree, int offset, char **puin)
+dissect_gadu_gadu_notify105_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, char **puin)
 {
 	guint16 uin_len;
 	char *uin;
@@ -1152,7 +1152,7 @@ dissect_gadu_gadu_notify105_common(tvbuff_t *tvb, proto_tree *tree, int offset, 
 
 	uin_len = tvb_get_guint8(tvb, offset);
 	offset += 1;
-	uin = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, uin_len, ENC_ASCII | ENC_NA);
+	uin = tvb_get_string_enc(pinfo->pool, tvb, offset, uin_len, ENC_ASCII | ENC_NA);
 	proto_tree_add_string(tree, hf_gadu_gadu_contact_uin_str, tvb, offset - 1, 1 + uin_len, uin);
 	offset += uin_len;
 	if (puin)
@@ -1169,7 +1169,7 @@ dissect_gadu_gadu_add_notify105(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Notify list add (10.5)");
 
-	return dissect_gadu_gadu_notify105_common(tvb, tree, offset, NULL);
+	return dissect_gadu_gadu_notify105_common(tvb, pinfo, tree, offset, NULL);
 }
 
 static int
@@ -1191,7 +1191,7 @@ dissect_gadu_gadu_remove_notify105(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Notify list remove (10.5)");
 
-	return dissect_gadu_gadu_notify105_common(tvb, tree, offset, NULL);
+	return dissect_gadu_gadu_notify105_common(tvb, pinfo, tree, offset, NULL);
 }
 
 static int
@@ -1246,7 +1246,7 @@ dissect_gadu_gadu_notify105(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		contact_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_gadu_gadu_contact, &ti, "Contact: ");
 
-		offset = dissect_gadu_gadu_notify105_common(tvb, contact_tree, offset, &uin);
+		offset = dissect_gadu_gadu_notify105_common(tvb, pinfo, contact_tree, offset, &uin);
 		proto_item_append_text(ti, "%s", uin);
 
 		proto_item_set_len(ti, offset - org_offset);

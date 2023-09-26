@@ -543,7 +543,7 @@ decode_dataitem_extsupp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, v
 
 /* Section 13.7: MAC Address */
 static int
-decode_dataitem_macaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
+decode_dataitem_macaddr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
   proto_item *pi = proto_tree_get_parent(pt);
   const gint len = tvb_captured_length(tvb);
@@ -551,11 +551,11 @@ decode_dataitem_macaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, v
   switch(len) {
     case FT_ETHER_LEN:
       proto_tree_add_item(pt, hf_dlep_dataitem_macaddr_eui48, tvb, offset, len, ENC_NA);
-      proto_item_append_text(pi, ": %s", tvb_ether_to_str(wmem_packet_scope(), tvb, offset));
+      proto_item_append_text(pi, ": %s", tvb_ether_to_str(pinfo->pool, tvb, offset));
       break;
     case FT_EUI64_LEN:
       proto_tree_add_item(pt, hf_dlep_dataitem_macaddr_eui64, tvb, offset, len, ENC_BIG_ENDIAN);
-      proto_item_append_text(pi, ": %s", tvb_eui64_to_str(wmem_packet_scope(), tvb, offset));
+      proto_item_append_text(pi, ": %s", tvb_eui64_to_str(pinfo->pool, tvb, offset));
       break;
     default:
       proto_tree_add_expert(pt, NULL, &ei_dlep_dataitem_macaddr_unexpected_length, tvb, offset, len);

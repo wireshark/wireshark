@@ -1520,7 +1520,7 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, guint off)
 							  proto_ceph, off);
 		DISSECTOR_ASSERT_HINT(d->convd, "Frame visited, but no saved state.");
 		/* Make a copy and use that so we don't mess up the original. */
-		d->convd = c_conv_data_copy(d->convd, wmem_new(wmem_packet_scope(), c_conv_data));
+		d->convd = c_conv_data_copy(d->convd, wmem_new(pinfo->pool, c_conv_data));
 	}
 	else
 	{

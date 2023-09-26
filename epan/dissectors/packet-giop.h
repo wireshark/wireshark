@@ -342,12 +342,10 @@ WS_DLL_PUBLIC guint8 get_CDR_octet(tvbuff_t *tvb, int *offset);
 
 
 /* Copy a sequence of octets from the tvbuff.
- * Memory is allocated in packet pool and will be
- * automatically freed once the packet dissection is finished.
  * This function also increments offset by len.
  */
 
-WS_DLL_PUBLIC void get_CDR_octet_seq(tvbuff_t *tvb, const guint8 **seq, int *offset, guint32 len);
+WS_DLL_PUBLIC void get_CDR_octet_seq(wmem_allocator_t *scope, tvbuff_t *tvb, const guint8 **seq, int *offset, guint32 len);
 
 /* Copy a 2 octet sequence from the tvbuff
  * which represents a signed short value, and convert
@@ -443,8 +441,6 @@ WS_DLL_PUBLIC guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset,
 
 
 /* Copy a wchar from the tvbuff.
- * Memory is allocated in packet pool and will be
- * automatically freed once the packet dissection is finished.
  * This function also increments offset according to
  * the wchar size.
  *
@@ -472,13 +468,11 @@ WS_DLL_PUBLIC guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset,
  * Wchar is not supported for GIOP 1.0.
  */
 
-WS_DLL_PUBLIC gint get_CDR_wchar(tvbuff_t *tvb, const gchar **seq, int *offset,
-    MessageHeader * header);
+WS_DLL_PUBLIC gint get_CDR_wchar(wmem_allocator_t *scope, tvbuff_t *tvb,
+    const gchar **seq, int *offset, MessageHeader * header);
 
 
 /* Copy a wstring from the tvbuff.
- * Memory is allocated in packet pool and will be
- * automatically freed once the packet dissection is finished.
  * This function also increments offset, according to
  * wstring length. length is returned as guint32
  */
@@ -495,8 +489,9 @@ WS_DLL_PUBLIC gint get_CDR_wchar(tvbuff_t *tvb, const gchar **seq, int *offset,
  * Wstring is not supported for GIOP 1.0.
  */
 
-WS_DLL_PUBLIC guint32 get_CDR_wstring(tvbuff_t *tvb, const gchar **seq, int *offset,
-    gboolean stream_is_big_endian, int boundary, MessageHeader * header);
+WS_DLL_PUBLIC guint32 get_CDR_wstring(wmem_allocator_t *scope, tvbuff_t *tvb,
+    const gchar **seq, int *offset, gboolean stream_is_big_endian, int boundary,
+    MessageHeader * header);
 
 
 
@@ -530,7 +525,7 @@ WS_DLL_PUBLIC guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *
  * the initial sequence.
  */
 
-WS_DLL_PUBLIC gchar * make_printable_string (const guint8 *in, guint32 len);
+WS_DLL_PUBLIC gchar * make_printable_string (wmem_allocator_t *scope, const guint8 *in, guint32 len);
 
 /*
  * Enums for TCkind

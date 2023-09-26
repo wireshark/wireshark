@@ -477,7 +477,7 @@ static const value_string diameter_3gpp2_exp_res_vals[]= {
 };
 
 static int
-dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_item *pi;
 	diam_sub_dis_t *diam_sub_dis;
@@ -489,7 +489,7 @@ dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	if (tree) {
 		pi = proto_tree_add_item(tree, hf_diameter_3gpp2_exp_res, tvb, 0, 4, ENC_BIG_ENDIAN);
-		diam_sub_dis->avp_str = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+		diam_sub_dis->avp_str = (char *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), diam_sub_dis->avp_str);
 		diam_sub_dis->avp_str = strstr(diam_sub_dis->avp_str,": ")+2;
 	}
@@ -498,13 +498,13 @@ dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 static void
-dissect_diameter_other_vendor_exp_res(tvbuff_t *tvb, proto_tree *tree, diam_sub_dis_t *diam_sub_dis)
+dissect_diameter_other_vendor_exp_res(diam_ctx_t *c, tvbuff_t *tvb, proto_tree *tree, diam_sub_dis_t *diam_sub_dis)
 {
 	proto_item *pi;
 
 	if (tree) {
 		pi = proto_tree_add_item(tree, hf_diameter_other_vendor_exp_res, tvb, 0, 4, ENC_BIG_ENDIAN);
-		diam_sub_dis->avp_str = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+		diam_sub_dis->avp_str = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), diam_sub_dis->avp_str);
 		diam_sub_dis->avp_str = strstr(diam_sub_dis->avp_str,": ")+2;
 	}
@@ -542,7 +542,7 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo, prot
 		value.bytes[prefix_len_bytes] = value.bytes[prefix_len_bytes] & (0xff<<(prefix_len % 8));
 		proto_tree_add_ipv6(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, &value);
 		set_address(&addr, AT_IPv6, 16, value.bytes);
-		diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s/%u", address_to_str(wmem_packet_scope(), &addr), prefix_len);
+		diam_sub_dis->avp_str = wmem_strdup_printf(pinfo->pool, "%s/%u", address_to_str(pinfo->pool, &addr), prefix_len);
 	}
 
 	return(prefix_len_bytes+2);
@@ -955,7 +955,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		if (!dissector_try_uint_new(diameter_expr_result_vnd_table, diam_sub_dis_inf->vendor_id,
 					    subtvb, c->pinfo, avp_tree, FALSE, diam_sub_dis_inf)) {
 			/* No subdissector for this vendor ID, use the generic one */
-			dissect_diameter_other_vendor_exp_res(subtvb, avp_tree, diam_sub_dis_inf);
+			dissect_diameter_other_vendor_exp_res(c, subtvb, avp_tree, diam_sub_dis_inf);
 		}
 
 		if (diam_sub_dis_inf->avp_str) {
@@ -1039,7 +1039,7 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 	}
 
 	if (c->tree) {
-		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -1085,7 +1085,7 @@ time_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_d
 	}
 
 	if (c->tree) {
-		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 		pi = proto_tree_add_item(c->tree, (a->hf_value), tvb, 0, 4, ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -1120,7 +1120,7 @@ address_radius_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *
 	}
 
 	if (c->tree) {
-		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -1135,7 +1135,7 @@ simple_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub
 
 	if (c->tree) {
 		proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length(tvb),ENC_BIG_ENDIAN);
-		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -1150,7 +1150,7 @@ utf8_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_d
 
 	if (c->tree) {
 		proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length(tvb),ENC_UTF_8|ENC_BIG_ENDIAN);
-		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -1169,7 +1169,7 @@ integer32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 	if (length == 4) {
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
-			label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 			proto_item_fill_label(PITEM_FINFO(pi), label);
 			label = strstr(label,": ")+2;
 		}
@@ -1197,7 +1197,7 @@ integer64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 	if (length == 8) {
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
-			label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 			proto_item_fill_label(PITEM_FINFO(pi), label);
 			label = strstr(label,": ")+2;
 		}
@@ -1225,7 +1225,7 @@ unsigned32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 	if (length == 4) {
 		if (c->tree) {
 			diam_sub_dis_inf->item = pi = proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
-			label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 			proto_item_fill_label(PITEM_FINFO(pi), label);
 			label = strstr(label,": ")+2;
 		}
@@ -1253,7 +1253,7 @@ unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 	if (length == 8) {
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
-			label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 			proto_item_fill_label(PITEM_FINFO(pi), label);
 			label = strstr(label,": ")+2;
 		}
@@ -1281,7 +1281,7 @@ float32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	if (length == 4) {
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree,a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
-			label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 			proto_item_fill_label(PITEM_FINFO(pi), label);
 			label = strstr(label,": ")+2;
 		}
@@ -1309,7 +1309,7 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	if (length == 8) {
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
-			label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 			proto_item_fill_label(PITEM_FINFO(pi), label);
 			label = strstr(label,": ")+2;
 		}
@@ -1378,7 +1378,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	int packet_len;
 	proto_item *pi, *cmd_item, *app_item, *version_item;
 	proto_tree *diam_tree;
-	diam_ctx_t *c = wmem_new0(wmem_packet_scope(), diam_ctx_t);
+	diam_ctx_t *c = wmem_new0(pinfo->pool, diam_ctx_t);
 	int offset;
 	const char *cmd_str;
 	guint32 cmd;
@@ -1389,7 +1389,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	wmem_tree_t *pdus_tree;
 	proto_item *it;
 	nstime_t ns;
-	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(wmem_packet_scope(), diam_sub_dis_t);
+	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(pinfo->pool, diam_sub_dis_t);
 
 	/* Set default value Subscription-Id-Type and User-Equipment-Info-Type as XXX_UNKNOWN */
 	diam_sub_dis_inf->subscription_id_type = SUBSCRIPTION_ID_TYPE_UNKNOWN;
@@ -1523,7 +1523,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	if (!diameter_pair) {
 		/* create a "fake" diameter_pair structure */
-		diameter_pair = wmem_new(wmem_packet_scope(), diameter_req_ans_pair_t);
+		diameter_pair = wmem_new(pinfo->pool, diameter_req_ans_pair_t);
 		diameter_pair->hop_by_hop_id = hop_by_hop_id;
 		diameter_pair->cmd_code = cmd;
 		diameter_pair->result_code = 0;
@@ -1695,8 +1695,8 @@ dissect_diameter_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	proto_item *pi;
 	proto_tree *diam_tree;
 	int offset = 0;
-	diam_ctx_t *c = wmem_new0(wmem_packet_scope(), diam_ctx_t);
-	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(wmem_packet_scope(), diam_sub_dis_t);
+	diam_ctx_t *c = wmem_new0(pinfo->pool, diam_ctx_t);
+	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(pinfo->pool, diam_sub_dis_t);
 
 	/* Load header fields if not already done */
 	if (hf_diameter_code == -1)

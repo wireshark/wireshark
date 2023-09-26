@@ -1717,7 +1717,7 @@ dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case 0:
         value = get_uint_parameter(parameter_stream, parameter_length);
         proto_tree_add_uint(tree, hf_ciev_indicator_index, tvb, offset, parameter_length, value);
-        *data = wmem_alloc(wmem_packet_scope(), sizeof(guint));
+        *data = wmem_alloc(pinfo->pool, sizeof(guint));
         *((guint *) *data) = value;
         break;
     case 1:
@@ -1814,12 +1814,12 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (!command_number) {
         proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_NA | ENC_ASCII);
-        col_str = (guint8 *) wmem_alloc(wmem_packet_scope(), length + 1);
+        col_str = (guint8 *) wmem_alloc(pinfo->pool, length + 1);
         tvb_memcpy(tvb, col_str, offset, length);
         col_str[length] = '\0';
     }
 
-    at_stream = (guint8 *) wmem_alloc(wmem_packet_scope(), length + 1);
+    at_stream = (guint8 *) wmem_alloc(pinfo->pool, length + 1);
     tvb_memcpy(tvb, at_stream, offset, length);
     at_stream[length] = '\0';
 
@@ -1920,7 +1920,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (i_at_cmd && i_at_cmd->name == NULL) {
             char *name;
 
-            name = format_text(wmem_packet_scope(), at_command, i_char + 1);
+            name = format_text(pinfo->pool, at_command, i_char + 1);
             proto_item_append_text(command_item, ": %s (Unknown)", name);
             proto_item_append_text(pitem, " (Unknown - Non-Standard HFP Command)");
             expert_add_info(pinfo, pitem, &ei_non_mandatory_command);
@@ -2276,7 +2276,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         /* Detect reassemble end character: \r for HS or \n for AG */
         length = tvb_reported_length(tvb);
-        at_stream = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, length, ENC_ASCII);
+        at_stream = tvb_get_string_enc(pinfo->pool, tvb, 0, length, ENC_ASCII);
 
         reassemble_start_offset = 0;
 

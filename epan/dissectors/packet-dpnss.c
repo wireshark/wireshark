@@ -896,7 +896,7 @@ static const value_string dpnss_sup_serv_par_str_vals[] = {
 };
 
 static void
-dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, int par_start_offset, int par_end_offset)
+dissect_dpnns_sup_str_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree, int par_type_num, int par_start_offset, int par_end_offset)
 {
 
     int     par_len;
@@ -1023,7 +1023,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
     case DPNSS_CAUSE:
 */
     default:
-        par_data = tvb_format_text(wmem_packet_scope(), tvb,par_start_offset, par_len);
+        par_data = tvb_format_text(pinfo->pool, tvb,par_start_offset, par_len);
         /* Used to print all pars without any special handling */
         proto_tree_add_string_format(tree, hf_dpnss_parameter, tvb, par_start_offset, par_len, par_data, "Parameter %s: %s",
             val_to_str(par_type_num, dpnss_sup_serv_par_str_vals, "Unknown (%d)" ), par_data);
@@ -1121,19 +1121,19 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                     switch (number_of_found_par) {
                     case 1:
                         par_type_num = dpnns_sup_serv_set[sup_str_num].par1_num;
-                        dissect_dpnns_sup_str_par(tvb,sup_str_tree, par_type_num, par_start_offset, par_end_offset);
+                        dissect_dpnns_sup_str_par(tvb, pinfo, sup_str_tree, par_type_num, par_start_offset, par_end_offset);
                         break;
                     case 2:
                         par_type_num = dpnns_sup_serv_set[sup_str_num].par2_num;
-                        dissect_dpnns_sup_str_par(tvb,sup_str_tree, par_type_num, par_start_offset, par_end_offset);
+                        dissect_dpnns_sup_str_par(tvb, pinfo, sup_str_tree, par_type_num, par_start_offset, par_end_offset);
                         break;
                     case 3:
                         par_type_num = dpnns_sup_serv_set[sup_str_num].par3_num;
-                        dissect_dpnns_sup_str_par(tvb,sup_str_tree, par_type_num, par_start_offset, par_end_offset);
+                        dissect_dpnns_sup_str_par(tvb, pinfo, sup_str_tree, par_type_num, par_start_offset, par_end_offset);
                         break;
                     case 4:
                         par_type_num = dpnns_sup_serv_set[sup_str_num].par4_num;
-                        dissect_dpnns_sup_str_par(tvb,sup_str_tree, par_type_num, par_start_offset, par_end_offset);
+                        dissect_dpnns_sup_str_par(tvb, pinfo, sup_str_tree, par_type_num, par_start_offset, par_end_offset);
                         break;
                     default:
                         break;

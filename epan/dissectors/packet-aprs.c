@@ -410,7 +410,8 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 }
 
 static int
-dissect_aprs_compressed_msg(	tvbuff_t *tvb,
+dissect_aprs_compressed_msg(	wmem_allocator_t *scope,
+				tvbuff_t *tvb,
 				int offset,
 				proto_tree *parent_tree
 				)
@@ -442,20 +443,20 @@ dissect_aprs_compressed_msg(	tvbuff_t *tvb,
 				offset += 1;
 				ch = tvb_get_guint8( tvb, offset );
 				range = exp( log( 1.08 ) * (ch - 33) );
-				info_buffer = wmem_strdup_printf( wmem_packet_scope(), "%7.2f", range );
+				info_buffer = wmem_strdup_printf( scope, "%7.2f", range );
 				proto_tree_add_string( msg_tree, hf_aprs_msg_rng, tvb, offset, 1, info_buffer );
 				}
 			else
 				if ( ch >= '!' && ch <= 'z' )
 					{ /* Course/Speed */
 					course = (ch - 33) * 4;
-					info_buffer = wmem_strdup_printf( wmem_packet_scope(), "%d", course );
+					info_buffer = wmem_strdup_printf( scope, "%d", course );
 					proto_tree_add_string( msg_tree, hf_aprs_msg_cse,
 							       tvb, offset, 1, info_buffer );
 					offset += 1;
 					ch = tvb_get_guint8( tvb, offset );
 					speed = exp( log( 1.08 ) * (ch - 33) );
-					info_buffer = wmem_strdup_printf( wmem_packet_scope(), "%7.2f", speed );
+					info_buffer = wmem_strdup_printf( scope, "%7.2f", speed );
 					proto_tree_add_string( msg_tree, hf_aprs_msg_spd,
 							       tvb, offset, 1, info_buffer );
 					}
@@ -534,7 +535,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 	data_len    = tvb_reported_length_remaining( tvb, offset );
 	new_offset  = offset + data_len;
 
-	info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
+	info_buffer = (char *)wmem_alloc( pinfo->pool, STRLEN );
 
 	msg_a = 0;
 	msg_b = 0;
@@ -700,7 +701,8 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 }
 
 static int
-dissect_aprs_weather(	tvbuff_t   *tvb,
+dissect_aprs_weather(	wmem_allocator_t *scope _U_,
+			tvbuff_t   *tvb,
 			int	    offset,
 			proto_tree *parent_tree
 			)
@@ -807,7 +809,7 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 					 * See http://www.aprs.org/aprs12/utf-8.txt
 					 */
 					if ( ((lr < 3) || (lr > 5)) ||
-						( lr != strspn( tvb_get_string_enc( wmem_packet_scope(), tvb, offset, lr, ENC_ASCII|ENC_NA ), "a-zA-Z0-9-_" ) ) )
+						( lr != strspn( tvb_get_string_enc( scope, tvb, offset, lr, ENC_ASCII|ENC_NA ), "a-zA-Z0-9-_" ) ) )
 						{
 						new_offset = offset;  /* Assume rest is a comment: force exit from while */
 						break;  /* from switch */
@@ -868,14 +870,14 @@ aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 }
 
 static int
-aprs_latitude_compressed( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
+aprs_latitude_compressed( wmem_allocator_t *scope, proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 {
 	if ( aprs_tree )
 		{
 		char *info_buffer;
 		int   temp;
 
-		info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
+		info_buffer = (char *)wmem_alloc( scope, STRLEN );
 
 		temp = ( tvb_get_guint8( tvb, offset + 0 ) - 33 );
 		temp = ( tvb_get_guint8( tvb, offset + 1 ) - 33 ) + ( temp * 91 );
@@ -889,14 +891,14 @@ aprs_latitude_compressed( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 }
 
 static int
-aprs_longitude_compressed( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
+aprs_longitude_compressed( wmem_allocator_t *scope, proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 {
 	if ( aprs_tree )
 		{
 		char *info_buffer;
 		int   temp;
 
-		info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
+		info_buffer = (char *)wmem_alloc( scope, STRLEN );
 
 		temp = ( tvb_get_guint8( tvb, offset + 0 ) - 33 );
 		temp = ( tvb_get_guint8( tvb, offset + 1 ) - 33 ) + ( temp * 91 );
@@ -931,7 +933,7 @@ aprs_status( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 }
 
 static int
-aprs_item( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
+aprs_item( wmem_allocator_t *scope, proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 {
 	char *info_buffer;
 	int   data_len;
@@ -943,7 +945,7 @@ aprs_item( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 	 * XXX - ASCII or UTF-8?
 	 * See http://www.aprs.org/aprs12/utf-8.txt
 	 */
-	info_buffer = tvb_get_string_enc( wmem_packet_scope(), tvb, offset, data_len, ENC_ASCII|ENC_NA );
+	info_buffer = tvb_get_string_enc( scope, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 
 	ch_ptr = strchr( info_buffer, '!' );
 	if ( ch_ptr != NULL )
@@ -1021,7 +1023,7 @@ aprs_default_bytes( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_l
 }
 
 static int
-aprs_position( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, gboolean with_msg )
+aprs_position( packet_info *pinfo, proto_tree *aprs_tree, tvbuff_t *tvb, int offset, gboolean with_msg )
 {
 	guint8	 symbol_table_id    = 0;
 	guint8	 symbol_code	    = 0;
@@ -1059,11 +1061,12 @@ aprs_position( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, gboolean with_m
 		{
 		symbol_table_id = tvb_get_guint8( tvb, offset );
 		offset = aprs_default_string( aprs_tree, tvb, offset, 1, hf_aprs_sym_id );
-		offset = aprs_latitude_compressed( aprs_tree, tvb, offset );
-		offset = aprs_longitude_compressed( aprs_tree, tvb, offset );
+		offset = aprs_latitude_compressed( pinfo->pool, aprs_tree, tvb, offset );
+		offset = aprs_longitude_compressed( pinfo->pool, aprs_tree, tvb, offset );
 		symbol_code = tvb_get_guint8( tvb, offset );
 		offset = aprs_default_string( aprs_tree, tvb, offset, 1, hf_aprs_sym_code );
-		offset = dissect_aprs_compressed_msg(	tvb,
+		offset = dissect_aprs_compressed_msg(	pinfo->pool,
+							tvb,
 							offset,
 							aprs_tree
 							);
@@ -1076,7 +1079,8 @@ aprs_position( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, gboolean with_m
 		}
 
 	if ( symbol_code == '_' )
-		offset = dissect_aprs_weather(	tvb,
+		offset = dissect_aprs_weather(	pinfo->pool,
+						tvb,
 						offset,
 						aprs_tree
 						);
@@ -1106,7 +1110,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 
 	dti	 = tvb_get_guint8( tvb, offset );
 
-	sb = wmem_strbuf_create(wmem_packet_scope());
+	sb = wmem_strbuf_create(pinfo->pool);
 
 	if (dti != '!')
 		wmem_strbuf_append(sb, val_to_str_ext_const(dti, &aprs_description_ext, ""));
@@ -1207,7 +1211,8 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 			break;
 		case '_'	: /* Weather Report (without position) */
 			offset = aprs_timestamp( aprs_tree, tvb, offset );
-			offset = dissect_aprs_weather( tvb,
+			offset = dissect_aprs_weather( pinfo->pool,
+				tvb,
 				offset,
 				aprs_tree
 				);
@@ -1272,14 +1277,14 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 			offset = aprs_default_bytes( aprs_tree, tvb, offset, -1, hf_aprs_space_weather );
 			break;
 		case ')'	: /* Item */
-			offset = aprs_item( aprs_tree, tvb, offset );
-			offset = aprs_position( aprs_tree, tvb, offset, TRUE );
+			offset = aprs_item( pinfo->pool, aprs_tree, tvb, offset );
+			offset = aprs_position( pinfo, aprs_tree, tvb, offset, TRUE );
 			offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_aprs_comment );
 			break;
 		case ';'	: /* Object */
 			offset = aprs_default_string( aprs_tree, tvb, offset, 10, hf_aprs_object );
 			offset = aprs_timestamp( aprs_tree, tvb, offset );
-			offset = aprs_position( aprs_tree, tvb, offset, TRUE );
+			offset = aprs_position( pinfo, aprs_tree, tvb, offset, TRUE );
 			offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_aprs_comment );
 			break;
 		case '!'	: /* Position or Ultimeter 2000 WX Station */
@@ -1287,22 +1292,22 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 				offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_ultimeter_2000 );
 			else
 				{
-				offset = aprs_position( aprs_tree, tvb, offset, FALSE );
+				offset = aprs_position( pinfo, aprs_tree, tvb, offset, FALSE );
 				offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_aprs_comment );
 				}
 			break;
 		case '='	: /* Position + Ext APRS message */
-			offset = aprs_position( aprs_tree, tvb, offset, TRUE );
+			offset = aprs_position( pinfo, aprs_tree, tvb, offset, TRUE );
 			offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_aprs_comment );
 			break;
 		case '/'	: /* Position + timestamp */
 			offset = aprs_timestamp( aprs_tree, tvb, offset );
-			offset = aprs_position( aprs_tree, tvb, offset, FALSE );
+			offset = aprs_position( pinfo, aprs_tree, tvb, offset, FALSE );
 			offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_aprs_comment );
 			break;
 		case '@'	: /* Position + timestamp + Ext APRS message */
 			offset = aprs_timestamp( aprs_tree, tvb, offset );
-			offset = aprs_position( aprs_tree, tvb, offset, TRUE );
+			offset = aprs_position( pinfo, aprs_tree, tvb, offset, TRUE );
 			offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_aprs_comment );
 			break;
 		default	: break;

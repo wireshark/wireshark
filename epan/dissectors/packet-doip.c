@@ -601,7 +601,7 @@ post_update_doip_payload_types(void) {
 }
 
 static const gchar*
-resolve_doip_payload_type(guint16 payload_type, gboolean is_col)
+resolve_doip_payload_type(wmem_allocator_t *scope, guint16 payload_type, gboolean is_col)
 {
     const gchar *tmp = ht_lookup_name(data_doip_payload_types, payload_type);
 
@@ -615,15 +615,15 @@ resolve_doip_payload_type(guint16 payload_type, gboolean is_col)
         if (is_col) {
             return tmp;
         } else {
-            return wmem_strdup_printf(wmem_packet_scope(), "%s (0x%04x)", tmp, payload_type);
+            return wmem_strdup_printf(scope, "%s (0x%04x)", tmp, payload_type);
         }
     }
 
     /* just give back unknown */
     if (is_col) {
-        return wmem_strdup_printf(wmem_packet_scope(), "0x%04x Unknown Payload", payload_type);
+        return wmem_strdup_printf(scope, "0x%04x Unknown Payload", payload_type);
     } else {
-        return wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%04x)", payload_type);
+        return wmem_strdup_printf(scope, "Unknown (0x%04x)", payload_type);
     }
 }
 
@@ -637,7 +637,7 @@ add_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *doip_tree)
     proto_tree_add_item(subtree, hf_doip_version, tvb, DOIP_VERSION_OFFSET, DOIP_VERSION_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_doip_inv_version, tvb, DOIP_INV_VERSION_OFFSET, DOIP_INV_VERSION_LEN, ENC_BIG_ENDIAN);
     payload_type = tvb_get_guint16(tvb, DOIP_TYPE_OFFSET, ENC_BIG_ENDIAN);
-    proto_tree_add_uint_format(subtree, hf_doip_type, tvb, DOIP_TYPE_OFFSET, DOIP_TYPE_LEN, payload_type, "Type: %s", resolve_doip_payload_type(payload_type, false));
+    proto_tree_add_uint_format(subtree, hf_doip_type, tvb, DOIP_TYPE_OFFSET, DOIP_TYPE_LEN, payload_type, "Type: %s", resolve_doip_payload_type(pinfo->pool, payload_type, false));
     proto_tree_add_item_ret_uint(subtree, hf_doip_length, tvb, DOIP_LENGTH_OFFSET, DOIP_LENGTH_LEN, ENC_BIG_ENDIAN, &len);
 
     if (tvb_captured_length(tvb) < len) {
@@ -810,7 +810,7 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         version == ISO13400_2019_AMD1 ||
         (version == DEFAULT_VALUE && (payload_type >= DOIP_VEHICLE_IDENTIFICATION_REQ && payload_type <= DOIP_VEHICLE_IDENTIFICATION_REQ_VIN))
         ) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", resolve_doip_payload_type(payload_type, true));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", resolve_doip_payload_type(pinfo->pool, payload_type, true));
     } else {
         col_set_str(pinfo->cinfo, COL_INFO, "Invalid/unsupported DoIP version");
     }

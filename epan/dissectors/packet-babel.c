@@ -138,7 +138,7 @@ static const unsigned char v4prefix[16] =
    need to call free. */
 
 static const char *
-format_address(const unsigned char *prefix)
+format_address(wmem_allocator_t *scope, const unsigned char *prefix)
 {
     address addr;
 
@@ -150,7 +150,7 @@ format_address(const unsigned char *prefix)
         addr.len  = 4;
         addr.data = prefix + 12;
 
-        return address_to_str(wmem_packet_scope(), &addr);
+        return address_to_str(scope, &addr);
     }
     else
     {
@@ -158,14 +158,14 @@ format_address(const unsigned char *prefix)
         addr.len  = 16;
         addr.data = prefix;
 
-        return address_to_str(wmem_packet_scope(), &addr);
+        return address_to_str(scope, &addr);
     }
 }
 
 static const char *
-format_prefix(const unsigned char *prefix, unsigned char plen)
+format_prefix(wmem_allocator_t *scope, const unsigned char *prefix, unsigned char plen)
 {
-    return wmem_strdup_printf(wmem_packet_scope(), "%s/%u", format_address(prefix), plen);
+    return wmem_strdup_printf(scope, "%s/%u", format_address(scope, prefix), plen);
 }
 
 static int
@@ -419,8 +419,8 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 subtree = proto_tree_add_subtree_format(message_tree,
                                          tvb, message + 4, len - 2,
                                          ett_subtree, NULL, "Address: %s",
-                                         format_address(rc < 0 ?
-                                                        NULL : addr_str));
+                                         format_address(pinfo->pool,
+                                                        rc < 0 ? NULL : addr_str));
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_babel_message_prefix,
@@ -441,7 +441,8 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                          tvb, message + 4, len - 2,
                                          ett_subtree, NULL,
                                          "NH: %s",
-                                         format_address(rc < 0 ? NULL : nh));
+                                         format_address(pinfo->pool,
+                                                        rc < 0 ? NULL : nh));
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_babel_message_prefix,
@@ -477,7 +478,8 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                          tvb, message + 12, len - 10,
                                          ett_subtree, NULL,
                                          "Prefix: %s",
-                                         format_prefix(rc < 0 ? NULL : p,
+                                         format_prefix(pinfo->pool,
+                                                       rc < 0 ? NULL : p,
                                                        plen));
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_BIG_ENDIAN);
@@ -502,7 +504,8 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                          tvb, message + 4, len - 2,
                                          ett_subtree, NULL,
                                          "Prefix: %s",
-                                         format_prefix(rc < 0 ? NULL : p,
+                                         format_prefix(pinfo->pool,
+                                                       rc < 0 ? NULL : p,
                                                        plen));
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_BIG_ENDIAN);
@@ -528,7 +531,8 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                          tvb, message + 16, len - 14,
                                          ett_subtree, NULL,
                                          "Prefix: %s",
-                                         format_prefix(rc < 0 ? NULL : p,
+                                         format_prefix(pinfo->pool,
+                                                       rc < 0 ? NULL : p,
                                                        plen));
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_BIG_ENDIAN);

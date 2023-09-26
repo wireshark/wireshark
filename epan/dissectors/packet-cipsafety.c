@@ -1641,7 +1641,7 @@ static void dissect_base_format_1_or_2_byte_data(packet_info* pinfo, proto_tree*
       guint8 computed_crc_s2 = compute_crc_s2_data(compute_crc_s1_pid(connection_triad),
          ((mode_byte ^ 0xFF) & MODE_BYTE_CRC_S1_MASK),
          /* I/O data is duplicated because it will be complemented inline */
-         (guint8*)tvb_memdup(wmem_packet_scope(), tvb, 0, io_data_size), io_data_size);
+         (guint8*)tvb_memdup(pinfo->pool, tvb, 0, io_data_size), io_data_size);
 
       proto_tree_add_checksum(tree, tvb, io_data_size + 2,
          hf_cipsafety_crc_s2, hf_cipsafety_crc_s2_status, &ei_cipsafety_crc_s2, pinfo,
@@ -1786,7 +1786,7 @@ static void dissect_extended_format_3_to_250_byte_data(packet_info* pinfo, proto
          mode_byte & MODE_BYTE_CRC_S5_EXTENDED_MASK,
          timestamp,
          /* I/O data is duplicated because it will be complemented inline */
-         (guint8*)tvb_memdup(wmem_packet_scope(), tvb, 0, io_data_size),
+         (guint8*)tvb_memdup(pinfo->pool, tvb, 0, io_data_size),
          io_data_size);
    }
    validate_crc_s5(pinfo, tree, tvb, compute_crc, crc_s5_0, crc_s5_1, crc_s5_2, computed_crc_s5);

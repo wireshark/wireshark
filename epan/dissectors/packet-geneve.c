@@ -114,11 +114,11 @@ static const struct true_false_string tfs_geneve_gcp_direction = {
 };
 
 static const char *
-format_option_name(guint16 opt_class, guint8 opt_type)
+format_option_name(wmem_allocator_t *scope, guint16 opt_class, guint8 opt_type)
 {
     const char *name;
 
-    name = wmem_strdup_printf(wmem_packet_scope(),
+    name = wmem_strdup_printf(scope,
                               "%s, Class: %s (0x%04x) Type: 0x%02x",
                               val64_to_str_const(((guint64)opt_class << 8) | opt_type,
                                                  option_names, "Unknown"),
@@ -129,7 +129,7 @@ format_option_name(guint16 opt_class, guint8 opt_type)
 }
 
 static void
-dissect_option(tvbuff_t *tvb, proto_tree *opts_tree, int offset,
+dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, int offset,
                guint16 opt_class, guint8 opt_type, int len)
 {
     proto_item *opt_item, *type_item, *hidden_item, *flag_item;
@@ -142,7 +142,7 @@ dissect_option(tvbuff_t *tvb, proto_tree *opts_tree, int offset,
     opt_item = proto_tree_add_item(opts_tree, hf_geneve_option,
                                    tvb, offset, len, ENC_NA);
     proto_item_set_text(opt_item, "%s (%s)",
-                        format_option_name(opt_class, opt_type),
+                        format_option_name(scope, opt_class, opt_type),
                         critical);
 
     opt_tree = proto_item_add_subtree(opt_item, ett_geneve_opt_data);
@@ -223,12 +223,12 @@ dissect_geneve_options(tvbuff_t *tvb, packet_info *pinfo,
                                          &ei_geneve_opt_len_invalid, tvb,
                                          offset + 3, 1,
                                          "%s (length of %u is past end of options)",
-                                         format_option_name(opt_class, opt_type),
+                                         format_option_name(pinfo->pool, opt_class, opt_type),
                                          opt_len);
             return;
         }
 
-        dissect_option(tvb, opts_tree, offset, opt_class, opt_type, opt_len);
+        dissect_option(pinfo->pool, tvb, opts_tree, offset, opt_class, opt_type, opt_len);
 
         offset += opt_len;
         len -= opt_len;

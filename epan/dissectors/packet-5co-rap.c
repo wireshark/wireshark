@@ -550,8 +550,8 @@ dissect_frame(tvbuff_t *tvb, packet_info* pinfo, proto_tree* fiveco_frame_tree, 
                         fiveco_data_item = proto_tree_add_item(fiveco_data_tree, hf_fiveco_ext_easyip, tvb,
                                                 i, 17, ENC_NA);
 
-                        sz_mac = tvb_ether_to_str(wmem_packet_scope(), tvb, i+3);
-                        sz_new_ip = tvb_ip_to_str(wmem_packet_scope(), tvb, i+9);
+                        sz_mac = tvb_ether_to_str(pinfo->pool, tvb, i+3);
+                        sz_new_ip = tvb_ip_to_str(pinfo->pool, tvb, i+9);
                         proto_item_append_text(fiveco_data_item, ": New IP: %s for %s", sz_new_ip, sz_mac);
                         fiveco_easyip_tree = proto_item_add_subtree(fiveco_data_item, ett_fiveco_easyip[*sub_index_p]);
                         proto_tree_add_item(fiveco_easyip_tree, hf_fiveco_ext_easyip_version, tvb,

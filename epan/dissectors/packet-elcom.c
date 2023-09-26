@@ -157,7 +157,7 @@ static const value_string type_vals[] = {
 };
 
 static gint
-dissect_lower_address(proto_item *ti_arg, gint ett_arg,
+dissect_lower_address(wmem_allocator_t *scope, proto_item *ti_arg, gint ett_arg,
                       tvbuff_t *tvb, gint arg_offset,
                       int hf_endian, int hf_ip, int hf_port, int hf_suff)
 {
@@ -208,7 +208,7 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
         offset += 8;                /* skip the zero bytes */
 
         /* SUFFIX */
-        suffix = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1, len2, ENC_ASCII);
+        suffix = tvb_get_string_enc(scope, tvb, offset+1, len2, ENC_ASCII);
         /* hf_suff FIELDTYPE must be FT_UINT_STRING */
         ti = proto_tree_add_item(tree, hf_suff, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
         offset += len2+1;
@@ -435,7 +435,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                         if (tvb_get_guint8(tvb, 3+1+TOTAL_LEN+LOWADR_LEN) != SUFFIX_LEN) return 2;
 
                         /* finally believe that there is valid suffix */
-                        suffix = tvb_get_string_enc(wmem_packet_scope(), tvb, 3+2+LOWADR_LEN, 2, ENC_ASCII);
+                        suffix = tvb_get_string_enc(pinfo->pool, tvb, 3+2+LOWADR_LEN, 2, ENC_ASCII);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " %s Connect", suffix);
                         break;
 
@@ -498,7 +498,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
                 /* We need the length here, hardcode the LOWADR_LEN = 21 */
                 ti = proto_tree_add_item(elcom_tree, hf_elcom_initiator, tvb, offset, TOTAL_LEN, ENC_NA);
-                offset = dissect_lower_address(ti, ett_elcom_initiator, tvb, offset,
+                offset = dissect_lower_address(pinfo->pool, ti, ett_elcom_initiator, tvb, offset,
                                                hf_elcom_initiator_endian,
                                                hf_elcom_initiator_ip,
                                                hf_elcom_initiator_port,
@@ -507,7 +507,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                         return offset;
 
                 ti = proto_tree_add_item(elcom_tree, hf_elcom_responder, tvb, offset, TOTAL_LEN, ENC_NA);
-                offset = dissect_lower_address(ti, ett_elcom_responder, tvb, offset,
+                offset = dissect_lower_address(pinfo->pool, ti, ett_elcom_responder, tvb, offset,
                                                hf_elcom_responder_endian,
                                                hf_elcom_responder_ip,
                                                hf_elcom_responder_port,

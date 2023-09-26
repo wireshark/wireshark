@@ -1313,7 +1313,7 @@ static void
   }
 }
 
-int dissect_mscldap_string(tvbuff_t *tvb, int offset, int max_len, char **str)
+int dissect_mscldap_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int max_len, char **str)
 {
   int compr_len;
   const gchar *name;
@@ -1321,7 +1321,7 @@ int dissect_mscldap_string(tvbuff_t *tvb, int offset, int max_len, char **str)
 
   /* The name data MUST start at offset 0 of the tvb */
   compr_len = get_dns_name(tvb, offset, max_len, 0, &name, &name_len);
-  *str = get_utf_8_string(wmem_packet_scope(), name, name_len);
+  *str = get_utf_8_string(scope, name, name_len);
   return offset + compr_len;
 }
 
@@ -1417,7 +1417,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
   return offset;
 }
 
-static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int old_offset, offset=0;
   char *str;
@@ -1484,17 +1484,17 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
         /* Forest */
         old_offset=offset;
-        offset=dissect_mscldap_string(tvb, offset, 255, &str);
+        offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
         proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
 
         /* Domain */
         old_offset=offset;
-        offset=dissect_mscldap_string(tvb, offset, 255, &str);
+        offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
         proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
 
         /* Hostname */
         old_offset=offset;
-        offset=dissect_mscldap_string(tvb, offset, 255, &str);
+        offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
         proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
 
         /* DC IP Address */
@@ -1520,42 +1520,42 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
       /* Forest */
       old_offset=offset;
-      offset=dissect_mscldap_string(tvb, offset, 255, &str);
+      offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
       proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
 
       /* Domain */
       old_offset=offset;
-      offset=dissect_mscldap_string(tvb, offset, 255, &str);
+      offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
       proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
 
       /* Hostname */
       old_offset=offset;
-      offset=dissect_mscldap_string(tvb, offset, 255, &str);
+      offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
       proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
 
       /* NetBIOS Domain */
       old_offset=offset;
-      offset=dissect_mscldap_string(tvb, offset, 255, &str);
+      offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
       proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
 
       /* NetBIOS Hostname */
       old_offset=offset;
-      offset=dissect_mscldap_string(tvb, offset, 255, &str);
+      offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
       proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
 
       /* User */
       old_offset=offset;
-      offset=dissect_mscldap_string(tvb, offset, 255, &str);
+      offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
       proto_tree_add_string(tree, hf_mscldap_username, tvb, old_offset, offset-old_offset, str);
 
       /* Server Site */
       old_offset=offset;
-      offset=dissect_mscldap_string(tvb, offset, 255, &str);
+      offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
       proto_tree_add_string(tree, hf_mscldap_sitename, tvb, old_offset, offset-old_offset, str);
 
       /* Client Site */
       old_offset=offset;
-      offset=dissect_mscldap_string(tvb, offset, 255, &str);
+      offset=dissect_mscldap_string(pinfo->pool, tvb, offset, 255, &str);
       proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
 
       /* get the version number from the end of the buffer, as the

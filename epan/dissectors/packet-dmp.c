@@ -1696,7 +1696,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
   gchar      *sic = NULL;
 
   key = tvb_get_guint8 (tvb, offset);
-  sic = (gchar *)wmem_alloc (wmem_packet_scope(), MAX_SIC_LEN);
+  sic = (gchar *)wmem_alloc (pinfo->pool, MAX_SIC_LEN);
 
   if (key <= 0xB6) {
     /* 2 bytes, single 3-character SIC, characters [A-Z0-9] only */
@@ -2662,10 +2662,10 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
   } else if (dmp_nat_decode == NAT_DECODE_THALES) {
     mts_id = dissect_thales_mts_id (tvb, offset, dmp.mts_id_length, &byte_rest);
   } else {
-    mts_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, dmp.mts_id_length);
+    mts_id = tvb_bytes_to_str(pinfo->pool, tvb, offset, dmp.mts_id_length);
   }
   proto_item_append_text (dmp.mts_id_item, " (%zu bytes decompressed)", strlen(mts_id));
-  mts_id = format_text(wmem_packet_scope(), mts_id, strlen(mts_id));
+  mts_id = format_text(pinfo->pool, mts_id, strlen(mts_id));
   if (subject) {
     ti = proto_tree_add_string (tree, hf_message_subj_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
@@ -2718,10 +2718,10 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
   } else if (dmp_nat_decode == NAT_DECODE_THALES) {
     ipm_id = dissect_thales_ipm_id (tvb, offset, ipm_id_length, modifier, &byte_rest);
   } else {
-    ipm_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ipm_id_length);
+    ipm_id = tvb_bytes_to_str(pinfo->pool, tvb, offset, ipm_id_length);
   }
   proto_item_append_text (tf, " (%zu bytes decompressed)", strlen(ipm_id));
-  ipm_id = format_text(wmem_packet_scope(), ipm_id, strlen(ipm_id));
+  ipm_id = format_text(pinfo->pool, ipm_id, strlen(ipm_id));
   if (subject) {
     ti = proto_tree_add_string (tree, hf_message_subj_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
@@ -2937,7 +2937,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
                                    "Submission time: %s",
                                    (subm_time & 0x7FFF) >= 0x7FF8 ?
                                    "Reserved" :
-                                   abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
+                                   abs_time_secs_to_str (pinfo->pool, dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
   field_tree = proto_item_add_subtree (tf, ett_envelope_subm_time);
   proto_tree_add_item (field_tree, hf_envelope_time_diff_present, tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item (field_tree, hf_envelope_subm_time_value, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2955,7 +2955,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     if (secs == DMP_TIME_RESERVED) {
       proto_item_append_text (tf, "Reserved (0x%2.2x)", time_diff);
     } else {
-      proto_item_append_text (tf, "%s", signed_time_secs_to_str(wmem_packet_scope(), secs));
+      proto_item_append_text (tf, "%s", signed_time_secs_to_str(pinfo->pool, secs));
     }
     offset += 1;
   }
@@ -2972,7 +2972,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (field_tree, hf_envelope_dl_expansion_prohib, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   if (envelope & 0xE0) {
-    env_flags = wmem_strdup_printf (wmem_packet_scope(), "%s%s%s",
+    env_flags = wmem_strdup_printf (pinfo->pool, "%s%s%s",
                                     (envelope & 0x80) ? ", ContId discarded" : "",
                                     (envelope & 0x40) ? ", Reass prohibited" : "",
                                     (envelope & 0x20) ? ", DLE prohibited"   : "");
@@ -3225,9 +3225,9 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", report);
       proto_item_append_text (ei, " (Reserved)");
     } else {
-      proto_item_append_text (tf, "%s (%s)", signed_time_secs_to_str(wmem_packet_scope(), secs),
-                              abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
-      proto_item_append_text (ei, " (%s from submission time)", signed_time_secs_to_str(wmem_packet_scope(), secs));
+      proto_item_append_text (tf, "%s (%s)", signed_time_secs_to_str(pinfo->pool, secs),
+                              abs_time_secs_to_str (pinfo->pool, dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_item_append_text (ei, " (%s from submission time)", signed_time_secs_to_str(pinfo->pool, secs));
     }
   } else {
     dmp.ndr = TRUE;
@@ -3300,7 +3300,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /* Ref chapter 6.3.10.1 Notification structure */
-static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
+static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo,
                                       proto_tree *dmp_tree, gint offset)
 {
   proto_tree *notif_tree = NULL;
@@ -3337,9 +3337,9 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", rec_time);
       proto_item_append_text (ei, " (Reserved)");
     } else {
-      proto_item_append_text (tf, "%s (%s)", signed_time_secs_to_str(wmem_packet_scope(), secs),
-                              abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
-      proto_item_append_text (ei, " (%s from submission time)", signed_time_secs_to_str(wmem_packet_scope(), secs));
+      proto_item_append_text (tf, "%s (%s)", signed_time_secs_to_str(pinfo->pool, secs),
+                              abs_time_secs_to_str (pinfo->pool, dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_item_append_text (ei, " (%s from submission time)", signed_time_secs_to_str(pinfo->pool, secs));
     }
     offset += 1;
 
@@ -3442,13 +3442,13 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (message & 0xF0) {
-      sec_cat = wmem_strdup_printf (wmem_packet_scope(), "%s%s%s%s",
+      sec_cat = wmem_strdup_printf (pinfo->pool, "%s%s%s%s",
                                     (message & 0x80) ? ",cl" : "",
                                     (message & 0x40) ? ",cs" : "",
                                     (message & 0x20) ? ",ex" : "",
                                     (message & 0x10) ? ",ne" : "");
       proto_item_append_text (tf, ": %s", &sec_cat[1]);
-      *label_string = wmem_strconcat(wmem_packet_scope(), *label_string, sec_cat, NULL);
+      *label_string = wmem_strconcat(pinfo->pool, *label_string, sec_cat, NULL);
     }
     break;
 
@@ -3461,7 +3461,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
     } else {
       tr = proto_tree_add_item (field_tree, hf_message_sec_cat_permissive, tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_item_append_text (tf, ": rel-to-%s", get_nat_pol_id_short (message >> 2));
-      *label_string = wmem_strdup_printf(wmem_packet_scope(), "%s,rel-to-%s", *label_string, get_nat_pol_id_short (message >> 2));
+      *label_string = wmem_strdup_printf(pinfo->pool, "%s,rel-to-%s", *label_string, get_nat_pol_id_short (message >> 2));
       if ((message >> 2) == 0) {
         expert_add_info(pinfo, tr, &ei_reserved_value);
       }
@@ -3524,7 +3524,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *ei = NULL, *tf = NULL;
   proto_item *hidden_item;
-  const char  *label_string = wmem_strdup (wmem_packet_scope(), "");
+  const char  *label_string = wmem_strdup (pinfo->pool, "");
   const gchar *class_name = NULL;
   guint8      message, dmp_sec_pol, dmp_sec_class, dmp_nation = 0, exp_time, dtg;
   gint32      secs = 0;
@@ -3643,7 +3643,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   tf = proto_tree_add_item (field_tree, hf_message_sec_class_val, tvb, offset, 1, ENC_BIG_ENDIAN);
   if (class_name) {
     proto_item_append_text (tf, " (%s)", class_name);
-    label_string = wmem_strconcat(wmem_packet_scope(), label_string, class_name, NULL);
+    label_string = wmem_strconcat(pinfo->pool, label_string, class_name, NULL);
   }
 
   /* Security Policy */
@@ -3759,9 +3759,9 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", exp_time);
       proto_item_append_text (ei, " (Reserved)");
     } else {
-      proto_item_append_text (tf, "%s (%s)", signed_time_secs_to_str(wmem_packet_scope(), secs),
-                              abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE));
-      proto_item_append_text (ei, " (%s from submission time)", signed_time_secs_to_str(wmem_packet_scope(), secs));
+      proto_item_append_text (tf, "%s (%s)", signed_time_secs_to_str(pinfo->pool, secs),
+                              abs_time_secs_to_str (pinfo->pool, dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_item_append_text (ei, " (%s from submission time)", signed_time_secs_to_str(pinfo->pool, secs));
     }
     offset += 1;
   }
@@ -3780,12 +3780,12 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     } else if (secs == 0) {
       proto_item_append_text (tf, "0 minutes in the %s (%s)",
                               tfs_get_string(dtg & 0x80, &dtg_sign),
-                              abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
+                              abs_time_secs_to_str (pinfo->pool, dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
     } else {
-      proto_item_append_text (tf, "%s in the %s (%s)", signed_time_secs_to_str(wmem_packet_scope(), secs),
+      proto_item_append_text (tf, "%s in the %s (%s)", signed_time_secs_to_str(pinfo->pool, secs),
                               tfs_get_string(dtg & 0x80, &dtg_sign), (dtg & 0x80) ?
-                              abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE) :
-                              abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                              abs_time_secs_to_str (pinfo->pool, dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE) :
+                              abs_time_secs_to_str (pinfo->pool, dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
     }
     offset += 1;
   }

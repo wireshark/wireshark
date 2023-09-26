@@ -720,8 +720,8 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   etxp = tvb_find_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH, -1, CIMD_ETX);
   if (etxp == -1) return 0;
 
-  OC = (guint8)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
-  PN = (guint8)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, CIMD_PN_OFFSET, CIMD_PN_LENGTH, ENC_ASCII), NULL, 10);
+  OC = (guint8)strtoul(tvb_get_string_enc(pinfo->pool, tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
+  PN = (guint8)strtoul(tvb_get_string_enc(pinfo->pool, tvb, CIMD_PN_OFFSET, CIMD_PN_LENGTH, ENC_ASCII), NULL, 10);
 
   last1 = tvb_get_guint8(tvb, etxp - 1);
   last2 = tvb_get_guint8(tvb, etxp - 2);
@@ -732,7 +732,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   } else if (last1 != CIMD_DELIM && last2 != CIMD_DELIM && last3 == CIMD_DELIM) {
     /* looks valid, it would be nice to check that last1 and last2 are HEXA */
     /* CC is present */
-    checksum = (guint16)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, etxp - 2, 2, ENC_ASCII), NULL, 16);
+    checksum = (guint16)strtoul(tvb_get_string_enc(pinfo->pool, tvb, etxp - 2, 2, ENC_ASCII), NULL, 16);
     for (; offset < (etxp - 2); offset++)
     {
       pkt_check += tvb_get_guint8(tvb, offset);
@@ -778,7 +778,7 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   }
 
   /* Try getting the operation-code */
-  opcode = (guint8)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
+  opcode = (guint8)strtoul(tvb_get_string_enc(pinfo->pool, tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
   if (try_val_to_str(opcode, vals_hdr_OC) == NULL)
     return FALSE;
 

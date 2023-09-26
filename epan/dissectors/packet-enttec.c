@@ -159,7 +159,7 @@ dissect_enttec_ack(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 }
 
 static gint
-dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_enttec_dmx_data(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
 	static const char* chan_format[] = {
 		"%2u ",
@@ -171,8 +171,8 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		"%3u: %s"
 	};
 
-	guint8 *dmx_data = (guint8 *)wmem_alloc(wmem_packet_scope(), 512 * sizeof(guint8));
-	guint16 *dmx_data_offset = (guint16 *)wmem_alloc(wmem_packet_scope(), 513 * sizeof(guint16)); /* 1 extra for last offset */
+	guint8 *dmx_data = (guint8 *)wmem_alloc(pinfo->pool, 512 * sizeof(guint8));
+	guint16 *dmx_data_offset = (guint16 *)wmem_alloc(pinfo->pool, 513 * sizeof(guint16)); /* 1 extra for last offset */
 	wmem_strbuf_t *dmx_epstr;
 
 	proto_tree *hi,*si;
@@ -257,7 +257,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		si = proto_item_add_subtree(hi, ett_enttec);
 
 		row_count = (ui/global_disp_col_count) + ((ui%global_disp_col_count) == 0 ? 0 : 1);
-		dmx_epstr = wmem_strbuf_create(wmem_packet_scope());
+		dmx_epstr = wmem_strbuf_create(pinfo->pool);
 		for (r=0; r < row_count;r++) {
 			for (c=0;(c < global_disp_col_count) && (((r*global_disp_col_count)+c) < ui);c++) {
 				if ((global_disp_col_count > 1) && (c % (global_disp_col_count/2)) == 0) {
@@ -372,7 +372,7 @@ dissect_enttec_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 			break;
 
 		case ENTTEC_HEAD_ESDD:
-			offset = dissect_enttec_dmx_data( tvb, offset, enttec_tree);
+			offset = dissect_enttec_dmx_data( tvb, pinfo, offset, enttec_tree);
 			break;
 
 		case ENTTEC_HEAD_ESZZ:

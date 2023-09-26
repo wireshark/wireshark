@@ -381,7 +381,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2, length);
-	proto_tree_add_item_ret_string (pt, type_hf, tvb, *ret_offset, *ret_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), ret_string);
+	proto_tree_add_item_ret_string (pt, type_hf, tvb, *ret_offset, *ret_length, ENC_ASCII|ENC_NA, pinfo->pool, ret_string);
 
 	proto_item_append_text(pt, "\"%s\"", *ret_string);
 
@@ -462,7 +462,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 		gchar *strtime;
 
 		nstime = collectd_time_to_nstime (*ret_value);
-		strtime = abs_time_to_str (wmem_packet_scope(), &nstime, ABSOLUTE_TIME_LOCAL, /* show_zone = */ TRUE);
+		strtime = abs_time_to_str (pinfo->pool, &nstime, ABSOLUTE_TIME_LOCAL, /* show_zone = */ TRUE);
 		pt = proto_tree_add_subtree_format(tree_root, tvb, offset, length,
 					  ett_collectd_integer, &pi, "collectd %s segment: %s",
 					  val_to_str_const (type, part_names, "UNKNOWN"),
@@ -474,7 +474,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 		gchar *strtime;
 
 		nstime = collectd_time_to_nstime (*ret_value);
-		strtime = rel_time_to_str (wmem_packet_scope(), &nstime);
+		strtime = rel_time_to_str (pinfo->pool, &nstime);
 		pt = proto_tree_add_subtree_format(tree_root, tvb, offset, length,
 					  ett_collectd_integer, &pi, "collectd %s segment: %s",
 					  val_to_str_const (type, part_names, "UNKNOWN"),
@@ -870,7 +870,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 } /* int dissect_collectd_encrypted */
 
 static int
-stats_account_string (string_counter_t **ret_list, const gchar *new_value)
+stats_account_string (wmem_allocator_t *scope, string_counter_t **ret_list, const gchar *new_value)
 {
 	string_counter_t *entry;
 
@@ -887,8 +887,8 @@ stats_account_string (string_counter_t **ret_list, const gchar *new_value)
 			return (0);
 		}
 
-	entry = (string_counter_t *)wmem_alloc0 (wmem_packet_scope(), sizeof (*entry));
-	entry->string = wmem_strdup (wmem_packet_scope(), new_value);
+	entry = (string_counter_t *)wmem_alloc0 (scope, sizeof (*entry));
+	entry->string = wmem_strdup (scope, new_value);
 	entry->count = 1;
 	entry->next = *ret_list;
 
@@ -961,7 +961,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 			switch (part_type) {
 			case TYPE_HOST:
-				vdispatch.host = tvb_get_string_enc(wmem_packet_scope(), tvb,
+				vdispatch.host = tvb_get_string_enc(pinfo->pool, tvb,
 						offset + 4, part_length - 4, ENC_ASCII);
 				if (pkt_host == NULL)
 					pkt_host = vdispatch.host;
@@ -970,14 +970,14 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			case TYPE_TIME_HR:
 				break;
 			case TYPE_PLUGIN:
-				vdispatch.plugin = tvb_get_string_enc(wmem_packet_scope(), tvb,
+				vdispatch.plugin = tvb_get_string_enc(pinfo->pool, tvb,
 						offset + 4, part_length - 4, ENC_ASCII);
 				pkt_plugins++;
 				break;
 			case TYPE_PLUGIN_INSTANCE:
 				break;
 			case TYPE_TYPE:
-				vdispatch.type = tvb_get_string_enc(wmem_packet_scope(), tvb,
+				vdispatch.type = tvb_get_string_enc(pinfo->pool, tvb,
 						offset + 4, part_length - 4, ENC_ASCII);
 				break;
 			case TYPE_TYPE_INSTANCE:
@@ -990,11 +990,14 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				pkt_values++;
 
 				tap_data.values_num++;
-				stats_account_string (&tap_data.hosts,
+				stats_account_string (pinfo->pool,
+						      &tap_data.hosts,
 						      vdispatch.host);
-				stats_account_string (&tap_data.plugins,
+				stats_account_string (pinfo->pool,
+						      &tap_data.plugins,
 						      vdispatch.plugin);
-				stats_account_string (&tap_data.types,
+				stats_account_string (pinfo->pool,
+						      &tap_data.types,
 						      vdispatch.type);
 
 				break;
@@ -1192,11 +1195,14 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				pkt_values++;
 
 			tap_data.values_num++;
-			stats_account_string (&tap_data.hosts,
+			stats_account_string (pinfo->pool,
+					      &tap_data.hosts,
 					      vdispatch.host);
-			stats_account_string (&tap_data.plugins,
+			stats_account_string (pinfo->pool,
+					      &tap_data.plugins,
 					      vdispatch.plugin);
-			stats_account_string (&tap_data.types,
+			stats_account_string (pinfo->pool,
+					      &tap_data.types,
 					      vdispatch.type);
 
 			break;
