@@ -73,7 +73,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 
     /* Add address if unique and have space for it */
     if (is_unique && (th->num_hdrs < MAX_SUPPORTED_CHANNELS)) {
-        /* Copy the tap stuct in as next header */
+        /* Copy the tap struct in as next header */
         /* Need to take a deep copy of the tap struct, it may not be valid
            to read after this function returns? */
         th->rlchdrs[th->num_hdrs] = g_new(rlc_lte_tap_info,1);

@@ -65,7 +65,7 @@ find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
     /* None found. Create one. */
     stats = g_new(ph_stats_node_t, 1);
 
-    /* Intialize counters */
+    /* Initialize counters */
     stats->hfinfo = needle_hfinfo;
     stats->num_pkts_total = 0;
     stats->num_pdus_total = 0;

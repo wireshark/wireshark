@@ -1946,7 +1946,7 @@ process_new_extcap(const char *extcap, char *output)
             ws_debug("Interface found %s\n", int_iter->call);
 
         /* Help is not necessarily stored with the interface, but rather with the version string.
-         * As the version string allways comes in front of the interfaces, this ensures, that it get's
+         * As the version string always comes in front of the interfaces, this ensures, that it gets
          * properly stored with the interface */
         if (int_iter->if_type == EXTCAP_SENTENCE_EXTCAP)
         {

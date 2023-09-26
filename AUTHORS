@@ -942,7 +942,7 @@ Motonori Shindo         <motonori[AT]shin.do> {
 	Patches to packet-x11-keysym.h to clean up 8-bit chars
 	Fixes to take the Vendor-Specific attribute into consideration
 	    when dissecting L2TP
-	L2TP Dissconnect Cause Information AVP support
+	L2TP Disconnect Cause Information AVP support
 	PPP CCP support
 	PPP compressed packet support
 	Assorted BGP improvements

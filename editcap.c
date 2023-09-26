@@ -420,7 +420,7 @@ set_strict_time_adj(char *optarg_str_p)
     /*
      * check for a negative adjustment
      * A negative strict adjustment value is a flag
-     * to adjust all frames by the specifed delta time.
+     * to adjust all frames by the specified delta time.
      */
     if (*optarg_str_p == '-') {
         strict_time_adj.is_negative = 1;
@@ -771,7 +771,7 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
              * 1. 'continue' dup checking with the next cached frame.
              * 2. 'break' from looking for a duplicate of the current frame.
              * 3. Take the absolute value of the delta and see if that
-             * falls within the specifed dup time window.
+             * falls within the specified dup time window.
              *
              * Currently this code does option 1.  But it would pretty
              * easy to add yet-another-editcap-option to select one of
@@ -1666,7 +1666,7 @@ main(int argc, char *argv[])
             goto clean_exit;
             break;
         }
-    } /* processing commmand-line options */
+    } /* processing command-line options */
 
 #ifdef DEBUG
     fprintf(stderr, "Optind = %i, argc = %i\n", ws_optind, argc);

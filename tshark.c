@@ -2956,7 +2956,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
     /* if we are in real-time mode, open the new file now */
     if (do_dissection) {
-        /* this is probably unecessary, but better safe than sorry */
+        /* this is probably unnecessary, but better safe than sorry */
         cap_session->cf->open_type = WTAP_TYPE_AUTO;
         /* Attempt to open the capture file and set up to read from it. */
         switch(cf_open(cap_session->cf, capture_opts->save_file, WTAP_TYPE_AUTO, is_tempfile, &err)) {

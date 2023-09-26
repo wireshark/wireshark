@@ -70,7 +70,7 @@
  * Fields are decoded using a leanient parser, but only one attempt is made.
  * Except for in data invalid values will be replaced by default ones.
  * data currently only accepts plain HEX, OCT or BIN encoded data.
- * common field seperators are ignored. Note however that 0x or 0b prefixing is
+ * common field separators are ignored. Note however that 0x or 0b prefixing is
  * not supported and no automatic format detection is attempted.
  */
 
@@ -893,7 +893,7 @@ DIAG_ON_INIT_TWICE
  * The modularized part of this mess, used by the wrapper around the regex
  * engine in text_import_regex.c to hook into this state-machine backend.
  *
- * Should the rest be modularized aswell? Maybe, but then start with pcap2text.c
+ * Should the rest be modularized as well? Maybe, but then start with pcap2text.c
  */
 
  /**
@@ -1480,7 +1480,7 @@ parse_token(token_t token, char *str)
                     tmp_str[0] = pkt_lnstart[i*3];
                     tmp_str[1] = pkt_lnstart[i*3+1];
                     tmp_str[2] = '\0';
-                    /* it is a valid convertable string */
+                    /* it is a valid convertible string */
                     if (!g_ascii_isxdigit(tmp_str[0]) || !g_ascii_isxdigit(tmp_str[1])) {
                         break;
                     }

@@ -373,7 +373,7 @@ static gboolean get_filter_arguments(capture_options* capture_opts, const char* 
     }
 
     if (filter_exp == NULL) {
-        /* No filter expression found yet; fallback to previous implemention
+        /* No filter expression found yet; fallback to previous implementation
            and assume the arg contains a filter expression */
         if (colonp) {
             *colonp = ':';      /* restore colon */

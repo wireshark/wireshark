@@ -317,7 +317,7 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
      *    GMT 15:30:08, Sunday, 4th December, 292,277,026,596.
      *
      * So, if we're displaying the time as YYYY-MM-DD HH:MM:SS.SSSSSSSSS,
-     * we'll have the buffer be large enouth for a date of the format
+     * we'll have the buffer be large enough for a date of the format
      * 292277026596-MM-DD HH:MM:SS.SSSSSSSSS, which is the biggest value
      * you'll get with a 64-bit time_t and a nanosecond-resolution
      * fraction-of-a-second.
@@ -951,7 +951,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
          * comments the last item(s) in each row.  We now have a new -K option to
          * disable cap_comment to more easily manage the potential silliness.
          * Potential silliness includes multiple comments (therefore resulting in
-         * more than one additional column and/or comments with embeded newlines
+         * more than one additional column and/or comments with embedded newlines
          * and/or possible delimiters).
          *
          * To mitigate embedded newlines and other special characters, use -M
