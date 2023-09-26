@@ -1200,9 +1200,10 @@ capture_opts_trim_ring_num_files(capture_options *capture_opts)
         cmdarg_err("%u is a lot of ring buffer files.\n", capture_opts->ring_num_files);
     }
 #if RINGBUFFER_MIN_NUM_FILES > 0
-    else if (capture_opts->ring_num_files < RINGBUFFER_MIN_NUM_FILES)
+    else if (capture_opts->ring_num_files < RINGBUFFER_MIN_NUM_FILES) {
         cmdarg_err("Too few ring buffer files (%u). Increasing to %u.\n", capture_opts->ring_num_files, RINGBUFFER_MIN_NUM_FILES);
         capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
+    }
 #endif
 }
 
