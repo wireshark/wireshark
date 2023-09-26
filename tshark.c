@@ -462,6 +462,8 @@ print_usage(FILE *output)
     fprintf(output, "                            packets:NUM - switch to next file after NUM packets\n");
     fprintf(output, "                           interval:NUM - switch to next file when the time is\n");
     fprintf(output, "                                          an exact multiple of NUM secs\n");
+    fprintf(output, "                         printname:FILE - print filename to FILE when written\n");
+    fprintf(output, "                                          (can use 'stdout' or 'stderr')\n");
 #endif  /* HAVE_LIBPCAP */
 #ifdef HAVE_PCAP_REMOTE
     fprintf(output, "RPCAP options:\n");

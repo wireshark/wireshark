@@ -242,6 +242,10 @@ every hour on the hour.
 *packets*:__value__ switch to the next file after it contains __value__
 packets.
 
+*printname*:__filename__ print the name of the most recently written file
+to __filename__ after the file is closed. __filename__ can be `stdout` or `-`
+for standard output, or `stderr` for standard error.
+
 *nametimenum*:__value__ Choose between two save filename templates.  If
 __value__ is 1, make running file number part before start time part; this is
 the original and default behaviour (e.g. log_00001_20230714164426.pcap).  If
