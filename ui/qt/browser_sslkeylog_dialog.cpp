@@ -108,9 +108,9 @@ void SSLKeylogDialog::on_launchActivated()
 
     QString error = browserProcess.errorString();
     if (!error.isEmpty())
-        report_failure("Error lauching browser: %s", qUtf8Printable(error));
+        report_failure("Error launching browser: %s", qUtf8Printable(error));
     else
-        report_failure("Error lauching browser");
+        report_failure("Error launching browser");
 }
 
 // Restore user preferences

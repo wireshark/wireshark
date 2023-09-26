@@ -27,7 +27,7 @@ interactively browse packet data from a live network or from a
 previously saved capture file.  *Wireshark*'s native capture file
 formats are *pcapng* format and *pcap* format; it can read and write
 both formats..  *pcap* format is also the format used by *tcpdump* and
-various other tools; *tcpdump*, when using newer verions of the
+various other tools; *tcpdump*, when using newer versions of the
 *libpcap* library, can also read some pcapng files, and, on newer
 versions of macOS, can read all pcapng files and can write them as well.
 
@@ -544,7 +544,7 @@ Automatically update the packet display as packets are coming in.
 +
 --
 Specifies the directory into which temporary files (including capture
-files) are to be written.  The default behavior on UNIX-compatible sytems,
+files) are to be written.  The default behavior on UNIX-compatible systems,
 such as Linux, macOS, \*BSD, Solaris, and AIX, is to use the environment
 variable __$TMPDIR__ if set, and the system default, typically __/tmp__, if it
 is not.  On Windows, the __%TEMP%__ environment variable is used, which

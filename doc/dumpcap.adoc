@@ -453,7 +453,7 @@ Use a separate thread per interface.
 +
 --
 Specifies the directory into which temporary files (including capture
-files) are to be written.  The default behavior on UNIX-compatible sytems,
+files) are to be written.  The default behavior on UNIX-compatible systems,
 such as Linux, macOS, \*BSD, Solaris, and AIX, is to use the environment
 variable __$TMPDIR__ if set, and the system default, typically __/tmp__, if it
 is not.  On Windows, the __%TEMP%__ environment variable is used, which
