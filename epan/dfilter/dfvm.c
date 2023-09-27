@@ -106,7 +106,6 @@ dfvm_value_free(dfvm_value_t *v)
 		case REGISTER:
 		case INTEGER:
 		case FUNCTION_DEF:
-		case VALUE_STRING:
 			break;
 	}
 	g_free(v);
@@ -220,20 +219,10 @@ dfvm_value_new_guint(unsigned num)
 	return v;
 }
 
-dfvm_value_t*
-dfvm_value_new_value_string(dfvm_vs_type_t type, const void *strings)
-{
-	dfvm_value_t *v = dfvm_value_new(VALUE_STRING);
-	v->value.value_string.type = type;
-	v->value.value_string.strings = strings;
-	return v;
-}
-
 static char *
 dfvm_value_tostr(dfvm_value_t *v)
 {
 	char *s = NULL;
-	const char *t = NULL;
 
 	if (!v)
 		return NULL;
@@ -262,18 +251,6 @@ dfvm_value_tostr(dfvm_value_t *v)
 			break;
 		case INTEGER:
 			s = ws_strdup_printf("%"G_GUINT32_FORMAT, v->value.numeric);
-			break;
-		case VALUE_STRING:
-			switch (v->value.value_string.type) {
-				case DFVM_VS_NONE: t = "None"; break;
-				case DFVM_VS_RANGE: t = "Range"; break;
-				case DFVM_VS_VALS64: t = "Vals64"; break;
-				case DFVM_VS_VALS: t = "Vals"; break;
-				case DFVM_VS_VALS_EXT: t = "ValsExt"; break;
-				case DFVM_VS_CUSTOM: t = "Custom"; break;
-				case DFVM_VS_CUSTOM64: t = "Custom64"; break;
-			}
-			s = ws_strdup_printf("%s:0x%p", t, v->value.value_string.strings);
 			break;
 		case EMPTY:
 			s = ws_strdup("EMPTY");
@@ -464,7 +441,7 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
 			break;
 
 		case DFVM_VALUE_STRING:
-			wmem_strbuf_append_printf(buf, "%s(%s%s)",
+			wmem_strbuf_append_printf(buf, "%s::VS(%s%s)",
 						arg1_str, arg2_str, arg2_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg3_str);
@@ -1277,32 +1254,36 @@ mk_length(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg)
 }
 
 static const char *
-try_value_string(dfvm_value_string_t *vs, fvalue_t *fv_num, char *buf)
+try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf)
 {
 	uint64_t val;
 
 	if (fvalue_to_uinteger64(fv_num, &val) != FT_OK)
 		return NULL;
 
-	switch (vs->type) {
-		case DFVM_VS_RANGE:
-			return try_rval_to_str((uint32_t)val, vs->strings);
-		case DFVM_VS_VALS64:
-			return try_val64_to_str(val, vs->strings);
-		case DFVM_VS_VALS:
-			return try_val_to_str((uint32_t)val, vs->strings);
-		case DFVM_VS_VALS_EXT:
-			return try_val_to_str_ext((uint32_t)val, (value_string_ext *)vs->strings);
-		case DFVM_VS_CUSTOM:
-			((custom_fmt_func_t)vs->strings)(buf, (uint32_t)val);
-			return buf;
-		case DFVM_VS_CUSTOM64:
-			((custom_fmt_func_64_t)vs->strings)(buf, val);
-			return buf;
-		case DFVM_VS_NONE:
+	/* XXX We should find or create instead a suitable function in proto.h
+	 * to perform this mapping. */
+
+	if (hfinfo->display & BASE_RANGE_STRING) {
+		return try_rval_to_str((uint32_t)val, hfinfo->strings);
+	}
+	else if (hfinfo->display & BASE_VAL64_STRING) {
+		return try_val64_to_str(val, hfinfo->strings);
+	}
+	else if (hfinfo->display == BASE_CUSTOM) {
+		if (FT_IS_INT32(hfinfo->type) || FT_IS_UINT32(hfinfo->type))
+			((custom_fmt_func_t)hfinfo->strings)(buf, (uint32_t)val);
+		else if (FT_IS_INT64(hfinfo->type) || FT_IS_UINT64(hfinfo->type))
+			((custom_fmt_func_64_t)hfinfo->strings)(buf, val);
+		else
 			ws_assert_not_reached();
 	}
-
+	else if (hfinfo->display & BASE_EXT_STRING) {
+		return try_val_to_str_ext((uint32_t)val, (value_string_ext *)hfinfo->strings);
+	}
+	else {
+		return try_val_to_str((uint32_t)val, hfinfo->strings);
+	}
 	ws_assert_not_reached();
 }
 
@@ -1311,13 +1292,13 @@ mk_value_string(dfilter_t *df, dfvm_value_t *vs_arg, dfvm_value_t *from_arg, dfv
 {
 	df_cell_t *from_rp, *to_rp;
 	df_cell_iter_t from_iter;
-	dfvm_value_string_t *vs;
+	const header_field_info *hfinfo;
 	const char *str;
 	fvalue_t *old_fv;
 	fvalue_t *new_fv;
 	char label_buf[ITEM_LABEL_LENGTH];
 
-	vs = &vs_arg->value.value_string;
+	hfinfo = vs_arg->value.hfinfo;
 
 	to_rp = &df->registers[to_arg->value.numeric];
 	df_cell_init(to_rp, true);
@@ -1325,7 +1306,7 @@ mk_value_string(dfilter_t *df, dfvm_value_t *vs_arg, dfvm_value_t *from_arg, dfv
 
 	df_cell_iter_init(from_rp, &from_iter);
 	while ((old_fv = df_cell_iter_next(&from_iter)) != NULL) {
-		str = try_value_string(vs, old_fv, label_buf);
+		str = try_value_string(hfinfo, old_fv, label_buf);
 		if (str) {
 			new_fv = fvalue_new(FT_STRING);
 			fvalue_set_string(new_fv, str);

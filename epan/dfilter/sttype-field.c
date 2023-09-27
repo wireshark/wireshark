@@ -88,8 +88,7 @@ field_tostr(const void *data, bool pretty _U_)
 
 	wmem_strbuf_append(repr, field->hfinfo->abbrev);
 	if (field->value_string) {
-		wmem_strbuf_append_printf(repr, "::value_string(%s)",
-			proto_field_display_to_string(field->hfinfo->display));
+		wmem_strbuf_append(repr, "::value_string");
 	}
 
 	if (field->drange) {
@@ -100,6 +99,9 @@ field_tostr(const void *data, bool pretty _U_)
 
 	if (field->raw) {
 		wmem_strbuf_append(repr, " <FT_BYTES>");
+	}
+	else if (field->value_string) {
+		wmem_strbuf_append(repr, " <FT_STRING>");
 	}
 	else {
 		wmem_strbuf_append_printf(repr, " <%s>",

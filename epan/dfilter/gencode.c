@@ -274,40 +274,16 @@ dfw_append_mk_slice(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	return reg_val;
 }
 
-/* returns register number. We have to attribute a type to the value_string and package it into
- * a DFVM_VALUE_STRING instruction. This applies the value string to the contents of src. */
+/* Returns register number. This applies the value string in hfinfo to the
+ * contents of the src register. */
 static dfvm_value_t *
 dfw_append_mk_value_string(dfwork_t *dfw, stnode_t *node, dfvm_value_t *src)
 {
 	dfvm_insn_t		*insn;
 	dfvm_value_t		*reg_val, *val1;
 
-	dfvm_vs_type_t vs_type;
-	const header_field_info *hfinfo = sttype_field_hfinfo(node);
-
-	if (hfinfo->display & BASE_RANGE_STRING) {
-		vs_type = DFVM_VS_RANGE;
-	}
-	else if (hfinfo->display & BASE_VAL64_STRING) {
-		vs_type = DFVM_VS_RANGE;
-	}
-	else if (hfinfo->display == BASE_CUSTOM) {
-		if (FT_IS_INT32(hfinfo->type) || FT_IS_UINT32(hfinfo->type))
-			vs_type = DFVM_VS_CUSTOM;
-		else if (FT_IS_INT64(hfinfo->type) || FT_IS_UINT64(hfinfo->type))
-			vs_type = DFVM_VS_CUSTOM64;
-		else
-			ws_assert_not_reached();
-	}
-	else if (hfinfo->display & BASE_EXT_STRING) {
-		vs_type = DFVM_VS_VALS_EXT;
-	}
-	else {
-		vs_type = DFVM_VS_VALS;
-	}
-
 	insn = dfvm_insn_new(DFVM_VALUE_STRING);
-	val1 = dfvm_value_new_value_string(vs_type, hfinfo->strings);
+	val1 = dfvm_value_new_hfinfo(sttype_field_hfinfo(node), false);
 	insn->arg1 = dfvm_value_ref(val1);
 	insn->arg2 = dfvm_value_ref(src);
 	reg_val = dfvm_value_new_register(dfw->next_register++);
