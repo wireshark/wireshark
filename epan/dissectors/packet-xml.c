@@ -1512,7 +1512,9 @@ static void init_xml_names(void)
 static void
 xml_init_protocol(void)
 {
-    encoding_pattern = g_regex_new("^<[?]xml\\s+version\\s*=\\s*[\"']\\s*.+\\s*[\"']\\s+encoding\\s*=\\s*[\"']\\s*(.+)\\s*[\"']", G_REGEX_CASELESS, 0, 0);
+    // The longest encoding at https://www.iana.org/assignments/character-sets/character-sets.xml
+    // is 45 characters (Extended_UNIX_Code_Packed_Format_for_Japanese).
+    encoding_pattern = g_regex_new("^<[?]xml\\s+version\\s*=\\s*[\"']\\s*.+\\s*[\"']\\s+encoding\\s*=\\s*[\"']\\s*(.{,50})\\s*[\"']", G_REGEX_CASELESS, 0, 0);
 }
 
 static void
