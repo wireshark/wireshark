@@ -148,6 +148,7 @@ static const value_string mdb_cl_expns_sub_cmd[] = {
 };
 
 #define MDB_CL_RESP_RD_CFG_DATA 0x01
+#define MDB_CL_RESP_PER_ID      0x09
 
 static const value_string mdb_cl_resp[] = {
     { 0x00, "Just Reset" },
@@ -156,7 +157,7 @@ static const value_string mdb_cl_resp[] = {
     { 0x05, "Vend Approved" },
     { 0x06, "Vend Denied" },
     { 0x07, "End Session" },
-    { 0x09, "Peripheral ID" },
+    { MDB_CL_RESP_PER_ID, "Peripheral ID" },
     { 0x0b, "Cmd Out Of Sequence" },
     { 0, NULL }
 };
@@ -363,6 +364,10 @@ static void dissect_mdb_per_mst_cl( tvbuff_t *tvb, gint offset,
     switch (cl_resp) {
         case MDB_CL_RESP_RD_CFG_DATA:
             dissect_mdb_cl_rd_cfg_data(tvb, offset, pinfo, cl_tree);
+            break;
+        case MDB_CL_RESP_PER_ID:
+            dissect_mdb_cl_id_fields(tvb, offset, tree);
+            /* XXX - check if we have Optional Feature Bits */
             break;
     }
 }
