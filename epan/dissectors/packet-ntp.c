@@ -373,7 +373,6 @@ static const value_string ctrl_peer_status_event_types[] = {
 	{ 13,		"popcorn spike suppressor" },
 	{ 14,		"entering interleave mode" },
 	{ 15,		"interleave error (recovered)" },
-	{ 16,		"leapsecond values update from server" },
 	{ 0,		NULL}
 };
 
