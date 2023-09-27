@@ -27,6 +27,7 @@ The following files:
 ../packet-dcerpc-frstrans.h
 ../packet-dcerpc-initshutdown.h
 ../packet-dcerpc-iwbemlevel1login.h
+../packet-dcerpc-iwbemloginclientid.h
 ../packet-dcerpc-lsa.h
 ../packet-dcerpc-mapi.h
 ../packet-dcerpc-misc.h

@@ -1,0 +1,44 @@
+#include "idl_types.h"
+
+/*
+  IWbemLoginClientID interface definitions
+*/
+[ uuid("d4781cd6-e5d3-44df-ad94-930efe48a887"),
+  restricted, 
+  pointer_default(unique)
+]
+interface IWbemLoginClientID
+{
+  /*****************/
+  /* Function 0x00 */
+  [todo] WERROR iwbemloginclientid_opnum0(
+  );
+
+  /*****************/
+  /* Function 0x01 */
+  [todo] WERROR iwbemloginclientid_opnum1(
+  );
+
+  /*****************/
+  /* Function 0x02 */
+  [todo] WERROR iwbemloginclientid_opnum2(
+  );
+
+  typedef [public] struct
+  {
+  } ORPCTHIS;
+
+  typedef [public] struct
+  {
+  } ORPCTHAT;
+
+  /*****************/
+  /* Function 0x03 */
+  WERROR SetClientInfo(
+   [in] ORPCTHIS orpcthis,
+   [in, unique, string, charset(UTF16)] uint16* wszClientMachine,
+   [in] uint32 lClientProcId,
+   [in] uint32 lReserved,
+   [out] ORPCTHAT* orpcthat
+  );
+};
