@@ -126,20 +126,22 @@ nettrace_parse_address(char* curr_pos, char* next_pos, gboolean is_src_addr, exp
 	ws_in6_addr ip6_addr;
 	guint32 ip4_addr;
 	char *ptr; //for strtol function
-	
-	static GRegex* aregex = NULL;
-	static GRegex* pregex = NULL;
-	static GRegex* tregex = NULL;
+
+	static GRegex* aregex = NULL; //For IPv4 or IPv6 address
+	static GRegex* pregex = NULL; //For Port
+	static GRegex* tregex = NULL; //For Transport
 
 	 if (aregex == NULL)
-		aregex = g_regex_new ("^.*address\\s*=*\\s*\\[?((?:\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(?:[0-9a-f:]*))", G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+		//First time will compile regex
+		aregex = g_regex_new ("^.*address\\s*=*\\s*\\[?((?:\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(?:[0-9a-f:]{,39}))", G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
 
 	 if (pregex == NULL)
-		pregex = g_regex_new ("^.*port\\s*=*\\s*(\\d*)", G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+		//First time will compile regex
+		pregex = g_regex_new ("^.*port\\s*=*\\s*(\\d{1,5})", G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
 
 	 if (tregex == NULL)
-		tregex = g_regex_new ("^.*transport\\s*=*\\s*(\\w*)", G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
-
+		//First time will compile regex
+		tregex = g_regex_new ("^.*transport\\s*=*\\s*(\\w{3,4})", G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
 
 	/* curr_pos pointing to first char of address */
 
