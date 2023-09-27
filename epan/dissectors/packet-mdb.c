@@ -64,6 +64,7 @@ static int hf_mdb_cl_expns_sub = -1;
 static int hf_mdb_cl_manuf_code = -1;
 static int hf_mdb_cl_ser_num = -1;
 static int hf_mdb_cl_mod_num = -1;
+static int hf_mdb_cl_opt_feat = -1;
 static int hf_mdb_ack = -1;
 static int hf_mdb_data = -1;
 static int hf_mdb_chk = -1;
@@ -139,11 +140,12 @@ static const value_string mdb_cl_reader_sub_cmd[] = {
     { 0, NULL }
 };
 
-#define MDB_CL_EXPNS_REQ_ID 0x00
+#define MDB_CL_EXPNS_REQ_ID  0x00
+#define MDB_CL_EXPNS_OPT_ENA 0x04
 
 static const value_string mdb_cl_expns_sub_cmd[] = {
     { MDB_CL_EXPNS_REQ_ID, "Request ID" },
-    { 0x04, "Optional Feature Enabled" },
+    { MDB_CL_EXPNS_OPT_ENA, "Optional Feature Enabled" },
     { 0, NULL }
 };
 
@@ -287,6 +289,11 @@ static void dissect_mdb_cl_expns(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     switch (sub_cmd) {
         case MDB_CL_EXPNS_REQ_ID:
             dissect_mdb_cl_id_fields(tvb, offset, tree);
+            break;
+        case MDB_CL_EXPNS_OPT_ENA:
+            /* XXX - add a bitmask for the Optional Feature Bits */
+            proto_tree_add_item(tree, hf_mdb_cl_opt_feat, tvb, offset, 4,
+                    ENC_BIG_ENDIAN);
             break;
     }
 }
@@ -635,6 +642,10 @@ void proto_register_mdb(void)
         { &hf_mdb_cl_mod_num,
             { "Model Number", "mdb.cashless.model_number",
                 FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cl_opt_feat,
+            { "Optional Feature Bits", "mdb.cashless.opt_feature_bits",
+                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_mdb_ack,
             { "Ack byte", "mdb.ack",
