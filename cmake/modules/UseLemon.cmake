@@ -21,7 +21,7 @@ if(LEMON_EXECUTABLE)
 	endmacro()
 	add_custom_target(lemon)
 else()
-	# Compile bundled lemon
+	# Compile bundled lemon with support for -- to end options
 	macro(generate_lemon_file _out _in)
 		add_custom_command(
 			OUTPUT
@@ -32,6 +32,7 @@ else()
 			COMMAND $<TARGET_FILE:lemon>
 				-T${CMAKE_SOURCE_DIR}/tools/lemon/lempar.c
 				-d.
+				--
 				${_in}
 			DEPENDS
 				${_in}
