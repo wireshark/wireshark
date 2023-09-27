@@ -230,6 +230,30 @@ variables:
     - ccache --max-size $( gdu --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
   needs: []
 
+.build-mingw:
+  stage: build
+  image: registry.gitlab.com/wireshark/wireshark-containers/mingw-dev
+  tags:
+    - docker
+  cache:
+    # XXX Use ${CI_JOB_NAME}-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} instead?
+    key: ${CI_JOB_NAME}-master
+    paths:
+      - ccache/
+  before_script:
+    - mkdir -p ccache
+    - ccache --show-stats
+    - mkdir build
+    - cd build
+  script:
+    - mingw64-cmake -G Ninja -DENABLE_CCACHE=Yes -DFETCH_lua=Yes ..
+    - ninja
+  after_script:
+    # The cache should be large enough to be useful but it shouldn't take
+    # too long to restore+save each run.
+    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
+  needs: []
+
 Source Package:
   extends: .build-ubuntu
   stage: .pre
@@ -309,38 +333,6 @@ Fedora RPM Package:
 #     - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
 #     - tshark --version
 #  needs: [ 'Fedora RPM Package' ]
-
-Windows MinGW-w64 Package:
-  stage: build
-  image: registry.gitlab.com/wireshark/wireshark-containers/mingw-dev
-  rules: !reference [.if-merged]
-  tags:
-    - docker
-  cache:
-    # XXX Use ${CI_JOB_NAME}-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} instead?
-    key: ${CI_JOB_NAME}-master
-    paths:
-      - ccache/
-  before_script:
-    - mkdir -p ccache
-    - ccache --show-stats
-    - mkdir build
-    - cd build
-  script:
-    - mingw64-cmake -G Ninja -DENABLE_CCACHE=Yes -DFETCH_lua=Yes ..
-    - ninja
-    - ninja user_guide_html
-    - ninja wireshark_nsis_prep
-    - ninja wireshark_nsis
-  after_script:
-    # The cache should be large enough to be useful but it shouldn't take
-    # too long to restore+save each run.
-    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
-  artifacts:
-    paths:
-      - build/packaging/nsis/wireshark-*.exe
-    expire_in: 3 days
-  needs: []
 
 openSUSE 15.4 RPM Package:
   extends: .build-rpm
@@ -478,6 +470,20 @@ Windows Arm64 Package:
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
     - if (Test-Path env:MC_DESTINATION_WINDOWS_ARM64) { C:\gitlab-builds\bin\mc --quiet cp $packages "$env:MC_DESTINATION_WINDOWS_ARM64/" }
     - C:\Windows\py.exe -m pytest
+
+Windows MinGW-w64 Package:
+  extends: .build-mingw
+  rules: !reference [.if-w-w-only-merged]
+  script:
+    - mingw64-cmake -G Ninja -DENABLE_CCACHE=Yes -DFETCH_lua=Yes ..
+    - ninja
+    - ninja user_guide_html
+    - ninja wireshark_nsis_prep
+    - ninja wireshark_nsis
+  artifacts:
+    paths:
+      - build/packaging/nsis/wireshark-*.exe
+    expire_in: 3 days
 
 macOS Arm Package:
   stage: build
@@ -643,6 +649,11 @@ Ubuntu GCC Build:
   artifacts:
     paths:
       - gcc_report.html
+
+Fedora MinGW Build:
+  extends: .build-mingw
+  rules: !reference [.if-merge-request]
+  needs: [ 'Commit Check' ]
 
 Clang + Code Checks:
   extends: .build-ubuntu
