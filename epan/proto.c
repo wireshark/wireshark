@@ -6158,7 +6158,7 @@ proto_tree_add_mac48_detail(const mac_hf_list_t *list_specific,
 		addr_name = get_ether_name(addr);
 	}
 	if (list_specific->hf_oui_resolved || (list_generic && list_generic->hf_oui_resolved)) {
-		oui_name = get_manuf_name_if_known(addr);
+		oui_name = get_manuf_name_if_known(addr, sizeof(addr));
 	}
 
 	/* Add the item for the specific address type */
