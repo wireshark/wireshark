@@ -220,7 +220,6 @@ private:
     void setForCapturedPackets(bool have_captured_packets);
     void setMenusForFileSet(bool enable_list_files);
     void setWindowIcon(const QIcon &icon);
-    void updateTitlebar();
     QString replaceWindowTitleVariables(QString title);
 
     void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth);
@@ -337,6 +336,7 @@ private slots:
     void addPluginIFStructures();
     QMenu * searchSubMenu(QString objectName);
     void activatePluginIFToolbar(bool);
+    void updateTitlebar();
 
     void startInterfaceCapture(bool valid, const QString capture_filter);
 
