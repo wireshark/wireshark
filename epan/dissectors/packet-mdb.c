@@ -55,11 +55,14 @@ static int hf_mdb_cl_disp_info = -1;
 static int hf_mdb_cl_max_price = -1;
 static int hf_mdb_cl_min_price = -1;
 static int hf_mdb_cl_vend_sub = -1;
+static int hf_mdb_cl_item_price = -1;
+static int hf_mdb_cl_item_num = -1;
 static int hf_mdb_cl_reader_sub = -1;
 static int hf_mdb_cl_resp = -1;
 static int hf_mdb_cl_scale = -1;
 static int hf_mdb_cl_dec_pl = -1;
 static int hf_mdb_cl_max_rsp_time = -1;
+static int hf_mdb_cl_vend_amt = -1;
 static int hf_mdb_cl_expns_sub = -1;
 static int hf_mdb_cl_manuf_code = -1;
 static int hf_mdb_cl_ser_num = -1;
@@ -127,9 +130,12 @@ static const value_string mdb_cl_setup_sub_cmd[] = {
     { 0, NULL }
 };
 
+#define MDB_CL_VEND_REQ 0x00
+#define MDB_CL_VEND_SUC 0x02
+
 static const value_string mdb_cl_vend_sub_cmd[] = {
-    { 0x00, "Vend Request" },
-    { 0x02, "Vend Success" },
+    { MDB_CL_VEND_REQ, "Vend Request" },
+    { MDB_CL_VEND_SUC, "Vend Success" },
     { 0x04, "Session Complete" },
     { 0, NULL }
 };
@@ -150,13 +156,14 @@ static const value_string mdb_cl_expns_sub_cmd[] = {
 };
 
 #define MDB_CL_RESP_RD_CFG_DATA 0x01
+#define MDB_CL_RESP_VEND_APRV   0x05
 #define MDB_CL_RESP_PER_ID      0x09
 
 static const value_string mdb_cl_resp[] = {
     { 0x00, "Just Reset" },
     { MDB_CL_RESP_RD_CFG_DATA, "Reader Config Data" },
     { 0x03, "Begin Session" },
-    { 0x05, "Vend Approved" },
+    { MDB_CL_RESP_VEND_APRV, "Vend Approved" },
     { 0x06, "Vend Denied" },
     { 0x07, "End Session" },
     { MDB_CL_RESP_PER_ID, "Peripheral ID" },
@@ -257,6 +264,40 @@ static void dissect_mdb_cl_setup(tvbuff_t *tvb, gint offset,
     }
 }
 
+static void dissect_mdb_cl_vend(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree)
+{
+    guint32 sub_cmd, price, item;
+    const gchar *s;
+
+    proto_tree_add_item_ret_uint(tree, hf_mdb_cl_vend_sub, tvb, offset, 1,
+            ENC_BIG_ENDIAN, &sub_cmd);
+    s = try_val_to_str(sub_cmd, mdb_cl_vend_sub_cmd);
+    if (s) {
+        col_set_str(pinfo->cinfo, COL_INFO, s);
+    }
+    offset++;
+
+    switch (sub_cmd) {
+        case MDB_CL_VEND_REQ:
+            if (tvb_reported_length_remaining(tvb, offset) == 5) {
+                proto_tree_add_item_ret_uint(tree, hf_mdb_cl_item_price, tvb,
+                        offset, 2, ENC_BIG_ENDIAN, &price);
+                offset += 2;
+                proto_tree_add_item_ret_uint(tree, hf_mdb_cl_item_num, tvb,
+                        offset, 2, ENC_BIG_ENDIAN, &item);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (item %d, price %d)",
+                        item, price);
+            }
+            /* XXX - dissect the longer request in Expanded Currency Mode */
+            break;
+        case MDB_CL_VEND_SUC:
+                proto_tree_add_item(tree, hf_mdb_cl_item_num, tvb, offset, 2,
+                        ENC_BIG_ENDIAN);
+            break;
+    }
+}
+
 static gint
 dissect_mdb_cl_id_fields(tvbuff_t *tvb, gint offset, proto_tree *tree)
 {
@@ -336,9 +377,7 @@ static void dissect_mdb_mst_per_cl( tvbuff_t *tvb, gint offset, gint len _U_,
             dissect_mdb_cl_setup(tvb, offset, pinfo, cl_tree);
             break;
         case MDB_CL_CMD_VEND:
-            proto_tree_add_item_ret_uint(cl_tree, hf_mdb_cl_vend_sub,
-                    tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cmd);
-            s = try_val_to_str(sub_cmd, mdb_cl_vend_sub_cmd);
+            dissect_mdb_cl_vend(tvb, offset, pinfo, cl_tree);
             break;
         case MDB_CL_CMD_READER:
             proto_tree_add_item_ret_uint(cl_tree, hf_mdb_cl_reader_sub,
@@ -371,6 +410,13 @@ static void dissect_mdb_per_mst_cl( tvbuff_t *tvb, gint offset,
     switch (cl_resp) {
         case MDB_CL_RESP_RD_CFG_DATA:
             dissect_mdb_cl_rd_cfg_data(tvb, offset, pinfo, cl_tree);
+            break;
+        case MDB_CL_RESP_VEND_APRV:
+            if (tvb_reported_length_remaining(tvb, offset) == 3) {
+                proto_tree_add_item(cl_tree, hf_mdb_cl_vend_amt, tvb, offset,
+                        2, ENC_BIG_ENDIAN);
+            }
+            /* XXX - dissect the longer response in Expanded Currency Mode */
             break;
         case MDB_CL_RESP_PER_ID:
             dissect_mdb_cl_id_fields(tvb, offset, tree);
@@ -607,6 +653,14 @@ void proto_register_mdb(void)
             { "Sub-command", "mdb.cashless.vend_sub_cmd",
                 FT_UINT8, BASE_HEX, VALS(mdb_cl_vend_sub_cmd), 0, NULL, HFILL }
         },
+        { &hf_mdb_cl_item_price,
+            { "Item Price", "mdb.cashless.item_price",
+                FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cl_item_num,
+            { "Item Number", "mdb.cashless.item_number",
+                FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
         { &hf_mdb_cl_reader_sub,
             { "Sub-command", "mdb.cashless.reader_sub_cmd",
                 FT_UINT8, BASE_HEX, VALS(mdb_cl_reader_sub_cmd), 0, NULL, HFILL }
@@ -626,6 +680,10 @@ void proto_register_mdb(void)
         { &hf_mdb_cl_max_rsp_time,
             { "Application maximum response time", "mdb.cashless.max_rsp_time",
                 FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cl_vend_amt,
+            { "Vend Amount", "mdb.cashless.vend_amount",
+                FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_mdb_cl_expns_sub,
             { "Sub-command", "mdb.cashless.expansion_sub_cmd",
