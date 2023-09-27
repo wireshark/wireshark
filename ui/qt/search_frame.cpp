@@ -80,7 +80,7 @@ void SearchFrame::findNext()
 {
     if (!cap_file_) return;
 
-    cap_file_->dir = SD_FORWARD;
+    sf_ui_->dirCheckBox->setChecked(false);
     if (isHidden()) {
         animatedShow();
         return;
@@ -92,7 +92,7 @@ void SearchFrame::findPrevious()
 {
     if (!cap_file_) return;
 
-    cap_file_->dir = SD_BACKWARD;
+    sf_ui_->dirCheckBox->setChecked(true);
     if (isHidden()) {
         animatedShow();
         return;
@@ -104,7 +104,6 @@ void SearchFrame::setFocus()
 {
     sf_ui_->searchLineEdit->setFocus();
     sf_ui_->searchLineEdit->selectAll();
-    cap_file_->dir = SD_FORWARD;
 }
 
 void SearchFrame::setCaptureFile(capture_file *cf)
@@ -221,6 +220,8 @@ void SearchFrame::applyRecentSearchSettings()
     sf_ui_->charEncodingComboBox->setCurrentIndex(char_encoding_idx);
     sf_ui_->caseCheckBox->setChecked(recent.gui_search_case_sensitive);
     sf_ui_->searchTypeComboBox->setCurrentIndex(search_type_idx);
+    sf_ui_->dirCheckBox->setChecked(recent.gui_search_reverse_dir);
+    sf_ui_->multipleCheckBox->setChecked(recent.gui_search_multiple_occurs);
 }
 
 void SearchFrame::updateWidgets()
@@ -236,6 +237,8 @@ void SearchFrame::updateWidgets()
     sf_ui_->searchInComboBox->setEnabled(search_type == string_search_ || search_type == regex_search_);
     sf_ui_->caseCheckBox->setEnabled(search_type == string_search_ || search_type == regex_search_);
     sf_ui_->charEncodingComboBox->setEnabled(search_type == string_search_);
+
+    sf_ui_->multipleCheckBox->setEnabled(sf_ui_->searchInComboBox->isEnabled() && sf_ui_->searchInComboBox->currentIndex() == in_proto_tree_);
 
     switch (search_type) {
     case df_search_:
@@ -297,6 +300,9 @@ void SearchFrame::on_searchInComboBox_currentIndexChanged(int idx)
     default:
         break;
     }
+
+    // We only search for multiple occurrences in packet list currently.
+    updateWidgets();
 }
 
 void SearchFrame::on_charEncodingComboBox_currentIndexChanged(int idx)
@@ -359,6 +365,16 @@ void SearchFrame::on_searchLineEdit_textChanged(const QString &)
     updateWidgets();
 }
 
+void SearchFrame::on_dirCheckBox_toggled(bool checked)
+{
+    recent.gui_search_reverse_dir = checked;
+}
+
+void SearchFrame::on_multipleCheckBox_toggled(bool checked)
+{
+    recent.gui_search_multiple_occurs = checked;
+}
+
 void SearchFrame::on_findButton_clicked()
 {
     guint8 *bytes = nullptr;
@@ -380,6 +396,8 @@ void SearchFrame::on_findButton_clicked()
     cap_file_->decode_data  = FALSE;
     cap_file_->summary_data = FALSE;
     cap_file_->scs_type = SCS_NARROW_AND_WIDE;
+    cap_file_->dir = sf_ui_->dirCheckBox->isChecked() ? SD_BACKWARD : SD_FORWARD;
+    bool multiple_occurrences = sf_ui_->multipleCheckBox->isChecked();
 
     int search_type = sf_ui_->searchTypeComboBox->currentIndex();
     switch (search_type) {
@@ -476,7 +494,7 @@ void SearchFrame::on_findButton_clicked()
             }
         } else if (cap_file_->decode_data) {
             /* String in the protocol tree headings */
-            found_packet = cf_find_packet_protocol_tree(cap_file_, string, cap_file_->dir);
+            found_packet = cf_find_packet_protocol_tree(cap_file_, string, cap_file_->dir, multiple_occurrences);
             g_free(string);
             if (!found_packet) {
                 err_string = tr("No packet contained that string in its dissected display.");

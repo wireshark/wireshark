@@ -74,6 +74,8 @@
 #define RECENT_GUI_SEARCH_IN                    "gui.search_in"
 #define RECENT_GUI_SEARCH_CHAR_SET              "gui.search_char_set"
 #define RECENT_GUI_SEARCH_CASE_SENSITIVE        "gui.search_case_sensitive"
+#define RECENT_GUI_SEARCH_REVERSE_DIR           "gui.search_reverse_dir"
+#define RECENT_GUI_SEARCH_MULTIPLE_OCCURS       "gui.search_multiple_occurs"
 #define RECENT_GUI_SEARCH_TYPE                  "gui.search_type"
 #define RECENT_GUI_FOLLOW_SHOW                  "gui.follow_show"
 #define RECENT_GUI_SHOW_BYTES_DECODE            "gui.show_bytes_decode"
@@ -794,6 +796,12 @@ write_recent(void)
     write_recent_boolean(rf, "Find packet case sensitive search",
                          RECENT_GUI_SEARCH_CASE_SENSITIVE,
                          recent.gui_search_case_sensitive);
+    write_recent_boolean(rf, "Find packet search reverse direction",
+                         RECENT_GUI_SEARCH_REVERSE_DIR,
+                         recent.gui_search_reverse_dir);
+    write_recent_boolean(rf, "Find packet search multiple occurrences",
+                         RECENT_GUI_SEARCH_MULTIPLE_OCCURS,
+                         recent.gui_search_multiple_occurs);
     write_recent_enum(rf, "Find packet search type", RECENT_GUI_SEARCH_TYPE, search_type_values,
                       recent.gui_search_type);
 
@@ -1123,6 +1131,10 @@ read_set_recent_common_pair_static(gchar *key, const gchar *value,
         recent.gui_search_char_set = (search_char_set_type)str_to_val(value, search_char_set_values, SEARCH_CHAR_SET_NARROW_AND_WIDE);
     } else if (strcmp(key, RECENT_GUI_SEARCH_CASE_SENSITIVE) == 0) {
         parse_recent_boolean(value, &recent.gui_search_case_sensitive);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_REVERSE_DIR) == 0) {
+        parse_recent_boolean(value, &recent.gui_search_reverse_dir);
+    } else if (strcmp(key, RECENT_GUI_SEARCH_MULTIPLE_OCCURS) == 0) {
+        parse_recent_boolean(value, &recent.gui_search_multiple_occurs);
     } else if (strcmp(key, RECENT_GUI_SEARCH_TYPE) == 0) {
         recent.gui_search_type = (search_type_type)str_to_val(value, search_type_values, SEARCH_TYPE_DISPLAY_FILTER);
     } else if (strcmp(key, RECENT_GUI_CUSTOM_COLORS) == 0) {

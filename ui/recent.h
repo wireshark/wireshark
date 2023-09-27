@@ -135,6 +135,8 @@ typedef struct recent_settings_tag {
     search_in_type  gui_search_in;
     search_char_set_type gui_search_char_set;
     gboolean    gui_search_case_sensitive;
+    gboolean    gui_search_reverse_dir;
+    gboolean    gui_search_multiple_occurs;
     search_type_type gui_search_type;
     bytes_show_type gui_follow_show;
     bytes_decode_type gui_show_bytes_decode;

@@ -56,6 +56,8 @@ private slots:
     void on_caseCheckBox_toggled(bool checked);
     void on_searchTypeComboBox_currentIndexChanged(int idx);
     void on_searchLineEdit_textChanged(const QString &);
+    void on_dirCheckBox_toggled(bool checked);
+    void on_multipleCheckBox_toggled(bool checked);
     void on_findButton_clicked();
     void on_cancelButton_clicked();
 };

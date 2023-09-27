@@ -97,8 +97,9 @@ typedef struct _capture_file {
     rescan_type                 redissection_queued;  /* Queued redissection type. */
     /* search */
     gchar                      *sfilter;              /* Filter, hex value, or string being searched */
+    /* XXX: Some of these booleans should be enums; they're exclusive cases */
     gboolean                    hex;                  /* TRUE if "Hex value" search was last selected */
-    gboolean                    string;               /* TRUE if "String" search was last selected */
+    gboolean                    string;               /* TRUE if "String" (or "Regex"?) search was last selected */
     gboolean                    summary_data;         /* TRUE if "String" search in "Packet list" (Info column) was last selected */
     gboolean                    decode_data;          /* TRUE if "String" search in "Packet details" was last selected */
     gboolean                    packet_data;          /* TRUE if "String" search in "Packet data" was last selected */

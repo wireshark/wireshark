@@ -515,10 +515,12 @@ cf_print_status_t cf_write_json_packets(capture_file *cf, print_args_t *print_ar
  * @param cf the capture file
  * @param string the string to find
  * @param dir direction in which to search
+ * @param multiple whether to look for the next occurrence of the same string
+ * in the current packet, or to only match once per frame
  * @return TRUE if a packet was found, FALSE otherwise
  */
 gboolean cf_find_packet_protocol_tree(capture_file *cf, const char *string,
-                                      search_direction dir);
+                                      search_direction dir, bool multiple);
 
 /**
  * Find field with a label that contains the text string cfile->sfilter in

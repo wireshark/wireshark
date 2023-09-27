@@ -3150,7 +3150,7 @@ cf_write_json_packets(capture_file *cf, print_args_t *print_args)
 
 gboolean
 cf_find_packet_protocol_tree(capture_file *cf, const char *string,
-        search_direction dir)
+        search_direction dir, bool multiple)
 {
     match_data mdata;
 
@@ -3160,7 +3160,7 @@ cf_find_packet_protocol_tree(capture_file *cf, const char *string,
     mdata.string_len = strlen(string);
     mdata.cf = cf;
     mdata.prev_finfo = cf->finfo_selected;
-    if (cf->finfo_selected && cf->edt) {
+    if (multiple && cf->finfo_selected && cf->edt) {
         if (dir == SD_FORWARD) {
             proto_tree_children_foreach(cf->edt->tree, match_subtree_text, &mdata);
         } else {

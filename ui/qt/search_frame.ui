@@ -19,7 +19,15 @@
   <property name="frameShadow">
    <enum>QFrame::Plain</enum>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,0,0,0,0,0,0,1,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+  <item>
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,0,0,0,1,0,0">
    <property name="topMargin">
     <number>0</number>
    </property>
@@ -66,48 +74,6 @@
    </item>
    <item>
     <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>10</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QComboBox" name="charEncodingComboBox">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>Narrow &amp; Wide</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Narrow (UTF-8 / ASCII)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Wide (UTF-16)</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="caseCheckBox">
-     <property name="text">
-      <string>Case sensitive</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -185,6 +151,113 @@
      </property>
     </widget>
    </item>
+  </layout>
+  </item>
+  <item>
+  <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="3,0,0,0,0,0,0,1">
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <spacer name="horizontalSpacer_4">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="optionLabel">
+     <property name="text">
+      <string>&lt;b&gt;Options:&lt;/b&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="charEncodingComboBox">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Narrow &amp; Wide</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Narrow (UTF-8 / ASCII)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Wide (UTF-16)</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="caseCheckBox">
+     <property name="text">
+      <string>Case sensitive</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer_5">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="dirCheckBox">
+     <property name="text">
+      <string>Backwards</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer_6">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="multipleCheckBox">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for a subsequent occurrence in the current packet before advancing to the next packet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Multiple occurrences</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  </item>
   </layout>
  </widget>
  <customwidgets>
