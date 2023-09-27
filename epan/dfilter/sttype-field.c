@@ -124,6 +124,8 @@ sttype_field_ftenum(stnode_t *node)
 	ws_assert_magic(field, FIELD_MAGIC);
 	if (field->raw)
 		return FT_BYTES;
+	if (field->value_string)
+		return FT_STRING;
 	return field->hfinfo->type;
 }
 

@@ -720,11 +720,17 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 	hfinfo1 = sttype_field_hfinfo(st_arg1);
 	ftype1 = sttype_field_ftenum(st_arg1);
 	if (!can_func(ftype1)) {
-		FAIL(dfw, st_arg1, "%s (type=%s) cannot participate in %s comparison.",
-				hfinfo1->abbrev, ftype_pretty_name(ftype1),
-				stnode_todisplay(st_node));
+		if (st_op == STNODE_OP_MATCHES && hfinfo1->strings != NULL) {
+			sttype_field_set_value_string(st_arg1, true);
+		}
+		else {
+			FAIL(dfw, st_arg1, "%s (type=%s) cannot participate in %s comparison.",
+					hfinfo1->abbrev, ftype_pretty_name(ftype1),
+					stnode_todisplay(st_node));
+		}
 	}
 
+	ftype1 = sttype_field_ftenum(st_arg1);
 	type2 = stnode_type_id(st_arg2);
 
 	if (IS_FIELD_ENTITY(type2)) {
