@@ -1372,6 +1372,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_item_ret_uint64@Base 2.3.0
  proto_tree_add_item_ret_uint@Base 1.99.6
  proto_tree_add_item_ret_varint@Base 2.5.0
+ proto_tree_add_mac48_detail@Base 4.3.0rc0
  proto_tree_add_none_format@Base 1.9.1
  proto_tree_add_oid@Base 3.1.1
  proto_tree_add_oid_format@Base 3.1.1
