@@ -92,13 +92,6 @@ ieee1609dot2_OneEightyDegreeInt_fmt(gchar *s, guint32 v)
   }
 }
 
-static void
-ieee1609dot2_ElevInt_fmt(gchar *s, guint32 v)
-{
-  // Range is from -4096 to 61439 in units of one-tenth of a meter
-  gint32 alt = (gint32)v - 4096;
-  snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%u)", alt * 0.1, v);
-}
 
 static void
 ieee1609dot2_Time32_fmt(gchar *s, guint32 v)
@@ -151,11 +144,13 @@ void proto_register_ieee1609dot2(void) {
         "ATS-AID/PSID based dissector for Service Specific Permissions (SSP)", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
 }
 
+
 void proto_reg_handoff_ieee1609dot2(void) {
     dissector_add_string("media_type", "application/x-its", proto_ieee1609dot2_handle);
     dissector_add_string("media_type", "application/x-its-request", proto_ieee1609dot2_handle);
     dissector_add_string("media_type", "application/x-its-response", proto_ieee1609dot2_handle);
 
+    dissector_add_uint("ieee1609dot2.psid", psid_certificate_revocation_list_application, create_dissector_handle(dissect_SecuredCrl_PDU, proto_ieee1609dot2));
     //dissector_add_uint_range_with_preference("udp.port", "56000,56001", proto_ieee1609dot2_handle);
 
 }

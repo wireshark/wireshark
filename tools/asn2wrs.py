@@ -849,9 +849,9 @@ class EthCtx:
 
     #--- eth_import_type --------------------------------------------------------
     def eth_import_type(self, ident, mod, proto):
-        #print "eth_import_type(ident='%s', mod='%s', prot='%s')" % (ident, mod, proto)
+        #print ("eth_import_type(ident='%s', mod='%s', prot='%s')" % (ident, mod, proto))
         if ident in self.type:
-            #print "already defined '%s' import=%s, module=%s" % (ident, str(self.type[ident]['import']), self.type[ident].get('module', '-'))
+            #print ("already defined '%s' import=%s, module=%s" % (ident, str(self.type[ident]['import']), self.type[ident].get('module', '-')))
             if not self.type[ident]['import'] and (self.type[ident]['module'] == mod) :
                 return  # OK - already defined
             elif self.type[ident]['import'] and (self.type[ident]['import'] == mod) :
@@ -3960,7 +3960,7 @@ class TaggedType (Type):
                                     par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                          ('%(HF_INDEX)s', '%(TAG_CLS)s', '%(TAG_TAG)s', '%(TAG_IMPL)s', '%(TYPE_REF_FN)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode tagged_type %s' % (tname)
         return body
 
 #--- SqType -----------------------------------------------------------
@@ -4214,7 +4214,7 @@ class SequenceOfType (SeqOfType):
                                          ('%(ETT_INDEX)s', '%(TABLE)s',),
                                          ('%(MIN_VAL)s', '%(MAX_VAL)s','%(EXT)s'),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode SequenceOfType %s' % (tname)
         return body
 
 
@@ -4271,7 +4271,7 @@ class SetOfType (SeqOfType):
                                          ('%(ETT_INDEX)s', '%(TABLE)s',),
                                          ('%(MIN_VAL)s', '%(MAX_VAL)s','%(EXT)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode SetOfType %s' % (tname)
         return body
 
 def mk_tag_str (ctx, cls, typ, num):
@@ -4350,7 +4350,7 @@ class SequenceType (SeqType):
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                          ('%(ETT_INDEX)s', '%(TABLE)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode SequenceType %s' % (tname)
         return body
 
 #--- ExtensionAdditionGroup ---------------------------------------------------
@@ -4384,7 +4384,7 @@ class ExtensionAdditionGroup (SeqType):
             body = ectx.eth_fn_call('dissect_%(ER)s_sequence_eag', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(TABLE)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode ExtensionAdditionGroup %s' % (tname)
         return body
 
 
@@ -4412,7 +4412,7 @@ class SetType (SeqType):
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                          ('%(ETT_INDEX)s', '%(TABLE)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode SetType %s' % (tname)
         return body
 
 #--- ChoiceType ---------------------------------------------------------------
@@ -4678,7 +4678,7 @@ class ChoiceType (Type):
                                          ('%(ETT_INDEX)s', '%(TABLE)s',),
                                          ('%(VAL_PTR)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode ChoiceType %s' % (tname)
         return body
 
 #--- ChoiceValue ----------------------------------------------------
@@ -4813,7 +4813,7 @@ class EnumeratedType (Type):
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                          ('%(ROOT_NUM)s', '%(VAL_PTR)s', '%(EXT)s', '%(EXT_NUM)s', '%(TABLE)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode EnumeratedType %s' % (tname)
         return body
 
 #--- EmbeddedPDVType -----------------------------------------------------------
@@ -4843,7 +4843,7 @@ class EmbeddedPDVType (Type):
             body = ectx.eth_fn_call('dissect_%(ER)s_embedded_pdv', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode EmbeddedPDVType %s' % (tname)
         return body
 
 #--- ExternalType -----------------------------------------------------------
@@ -4873,7 +4873,7 @@ class ExternalType (Type):
             body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode ExternalType %s' % (tname)
         return body
 
 #--- OpenType -----------------------------------------------------------
@@ -4920,11 +4920,11 @@ class OpenType (Type):
         return pars
 
     def eth_type_default_body(self, ectx, tname):
-        if (ectx.Per()):
+        if (ectx.Per() or ectx.Oer()):
             body = ectx.eth_fn_call('dissect_%(ER)s_open_type%(FN_VARIANT)s', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode OpenType %s' % (tname)
         return body
 
 #--- InstanceOfType -----------------------------------------------------------
@@ -5333,6 +5333,9 @@ class ObjectIdentifierType (Type):
         elif (ectx.Per()):
             body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier%(FN_VARIANT)s', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+        elif (ectx.Oer()):
+            body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier%(FN_VARIANT)s', ret='offset',
+                                    par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
         else:
             body = '#error Can not decode %s' % (tname)
         return body
@@ -5418,7 +5421,7 @@ class RelativeOIDType (Type):
             body = ectx.eth_fn_call('dissect_%(ER)s_relative_oid%(FN_VARIANT)s', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = '#error Can not decode relative_oid %s' % (tname)
         return body
 
 

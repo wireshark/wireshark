@@ -37,14 +37,17 @@ static int hf_oer_optional_field_bit = -1;
 static int hf_oer_class = -1;
 static int hf_oer_tag = -1;
 static int hf_oer_length_determinant = -1;
-static int hf_oer_extension_present_bit = -1;
+static int hf_oer_extension_present_bit;
+static int hf_oer_open_type_length = -1;
 
 /* Initialize the subtree pointers */
 static int ett_oer = -1;
 static int ett_oer_sequence_of_item = -1;
+static int ett_oer_open_type = -1;
 
 static expert_field ei_oer_not_decoded_yet = EI_INIT;
 static expert_field ei_oer_undecoded = EI_INIT;
+static expert_field ei_oer_open_type = EI_INIT;
 
 /* whether the OER helpers should put the internal OER fields into the tree or not. */
 static gboolean display_internal_oer_fields = FALSE;
@@ -795,6 +798,54 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
     return offset;
 }
 
+/* 21 Encoding of object identifier values
+ * The encoding of an object identifier value shall consist of a length determinant (see 8.6) followed by a series of octets,
+ * which are the contents octets of BER encoding of the object identifier value (see Rec. ITU-T X.690 | ISO/IEC 8825-1,8.19).
+ */
+static guint32
+dissect_oer_any_oid(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, tvbuff_t** value_tvb,
+    gboolean is_absolute)
+{
+    guint length;
+    const char* str;
+    header_field_info* hfi;
+
+    DEBUG_ENTRY("dissect_oer_any_oid");
+
+    offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
+
+    actx->created_item = NULL;
+    hfi = proto_registrar_get_nth(hf_index);
+    if ((is_absolute && hfi->type == FT_OID) || (!is_absolute && hfi->type == FT_REL_OID)) {
+        actx->created_item = proto_tree_add_item(tree, hf_index, tvb, offset, length, ENC_BIG_ENDIAN);
+    }
+    else if (FT_IS_STRING(hfi->type)) {
+        str = oid_encoded2string(actx->pinfo->pool, tvb_get_ptr(tvb, offset, length), length);
+        actx->created_item = proto_tree_add_string(tree, hf_index, tvb, offset, length, str);
+        if (actx->created_item) {
+            /* see if we know the name of this oid */
+            str = oid_resolved_from_encoded(actx->pinfo->pool, tvb_get_ptr(tvb, offset, length), length);
+            if (str) {
+                proto_item_append_text(actx->created_item, " (%s)", str);
+            }
+        }
+    }
+    else {
+        DISSECTOR_ASSERT_NOT_REACHED();
+    }
+
+    if (value_tvb)
+        *value_tvb = tvb_new_subset_length(tvb, offset, length);
+
+    return offset;
+}
+
+guint32
+dissect_oer_object_identifier(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, tvbuff_t** value_tvb)
+{
+    return dissect_oer_any_oid(tvb, offset, actx, tree, hf_index, value_tvb, TRUE);
+}
+
 /* 27 Encoding of values of the restricted character string types
  * 27.1 The encoding of a restricted character string type depends on whether the type is a known-multiplier character
  * string type or not. The following types are known-multiplier character string types:
@@ -836,6 +887,60 @@ dissect_oer_UTF8String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 
 }
 
+/* 30 Encoding of open type values
+ *NOTE – An open type is an ASN.1 type that can take any abstract value of any ASN.1 type. Each value of an open type consists
+ * of:
+ * a) a contained type; and
+ * b) a value of the contained type.
+ * The encoding of an open type value shall consist of a length determinant (see 8.6) followed by a series of octets, which
+ * are the encoding of the value of the contained type.
+ */
+
+static guint32
+dissect_oer_open_type_internal(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, void* type_cb, asn1_cb_variant variant)
+{
+    int type_length, start_offset;
+    tvbuff_t* val_tvb = NULL;
+    proto_tree* subtree = tree;
+
+    start_offset = offset;
+
+
+    offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_open_type_length, &type_length);
+    val_tvb = tvb_new_subset_length(tvb, offset, type_length);
+
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, type_length, ENC_BIG_ENDIAN);
+    subtree = proto_item_add_subtree(actx->created_item, ett_oer_open_type);
+
+    if (variant == CB_NEW_DISSECTOR) {
+        add_new_data_source(actx->pinfo, val_tvb, "OCTET STRING");
+    }
+
+    if (type_cb) {
+        switch (variant) {
+        case CB_ASN1_ENC:
+            ((oer_type_fn)type_cb)(val_tvb, 0, actx, tree, hf_index);
+            break;
+        case CB_NEW_DISSECTOR:
+            /* Pas actx->private_data as "data" to the called function */
+            ((dissector_t)type_cb)(val_tvb, actx->pinfo, subtree, actx->private_data);
+            break;
+        case CB_DISSECTOR_HANDLE:
+            break;
+        }
+    }
+    else {
+        actx->created_item = proto_tree_add_expert(tree, actx->pinfo, &ei_oer_open_type, tvb, start_offset, offset - start_offset);
+    }
+
+    return offset;
+}
+guint32
+dissect_oer_open_type(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, oer_type_fn type_cb)
+{
+    return dissect_oer_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_ASN1_ENC);
+}
+
 /*--- proto_register_oer ----------------------------------------------*/
 void proto_register_oer(void) {
 
@@ -865,6 +970,11 @@ void proto_register_oer(void) {
         { "Extension Present Bit", "oer.extension_present_bit",
         FT_UINT8, BASE_DEC, VALS(oer_extension_present_bit_vals), 0x00,
         NULL, HFILL } },
+        { &hf_oer_open_type_length,
+        { "Open Type Length", "oer.open_type_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
 
     };
 
@@ -872,6 +982,7 @@ void proto_register_oer(void) {
     static gint *ett[] = {
         &ett_oer,
         &ett_oer_sequence_of_item,
+        &ett_oer_open_type,
     };
 
     module_t *oer_module;
@@ -889,6 +1000,8 @@ void proto_register_oer(void) {
             { "oer.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
         { &ei_oer_undecoded,
             { "oer.error.undecoded", PI_UNDECODED, PI_WARN, "OER: Something unknown here", EXPFILL } },
+        { &ei_oer_open_type,
+            { "oer.open_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Open Type", EXPFILL }},
     };
 
     expert_oer = expert_register_protocol(proto_oer);
