@@ -42,6 +42,7 @@ static int proto_mdb = -1;
 static int ett_mdb = -1;
 static int ett_mdb_hdr = -1;
 static int ett_mdb_cl = -1;
+static int ett_mdb_cgw = -1;
 
 static int hf_mdb_hdr_ver = -1;
 static int hf_mdb_event = -1;
@@ -68,6 +69,7 @@ static int hf_mdb_cl_manuf_code = -1;
 static int hf_mdb_cl_ser_num = -1;
 static int hf_mdb_cl_mod_num = -1;
 static int hf_mdb_cl_opt_feat = -1;
+static int hf_mdb_cgw_resp = -1;
 static int hf_mdb_ack = -1;
 static int hf_mdb_data = -1;
 static int hf_mdb_chk = -1;
@@ -88,11 +90,12 @@ static const value_string mdb_event[] = {
 #define ADDR_VMC "VMC"
 
 #define ADDR_CASHLESS1 0x10
+#define ADDR_COMMS_GW  0x18
 
 static const value_string mdb_addr[] = {
     { 0x08, "Changer" },
     { ADDR_CASHLESS1, "Cashless #1" },
-    { 0x18, "Communication Gateway" },
+    { ADDR_COMMS_GW, "Communications Gateway" },
     { 0x30, "Bill Validator" },
     { 0x60, "Cashless #2" },
     { 0x68, "Age Verification Device" },
@@ -106,6 +109,11 @@ static const value_string mdb_ack[] = {
     { 0, NULL }
 };
 
+/*
+ * These are just the command bits in the address + command byte. MDB supports
+ * two Cashless peripherals (Cashless #1 and #2) with different addresses,
+ * both use the same commands.
+ */
 #define MDB_CL_CMD_SETUP  0x01
 #define MDB_CL_CMD_VEND   0x03
 #define MDB_CL_CMD_READER 0x04
@@ -168,6 +176,23 @@ static const value_string mdb_cl_resp[] = {
     { 0x07, "End Session" },
     { MDB_CL_RESP_PER_ID, "Peripheral ID" },
     { 0x0b, "Cmd Out Of Sequence" },
+    { 0, NULL }
+};
+
+/*
+ * For the Communications Gateway, we use the complete address + command byte
+ * as value for the value string. The values here match those in the MDB
+ * specification.
+ *
+ * There's only one Communications Gateway, the address bits are always the
+ * same. (This is different from the Cashless peripherals, see above.)
+ */
+static const value_string mdb_cgw_addr_cmd[] = {
+    { 0x18, "Reset" },
+    { 0x19, "Setup" },
+    { 0x1A, "Poll" },
+    { 0x1B, "Report" },
+    { 0x1F, "Expansion" },
     { 0, NULL }
 };
 
@@ -425,6 +450,28 @@ static void dissect_mdb_per_mst_cl( tvbuff_t *tvb, gint offset,
     }
 }
 
+static void dissect_mdb_mst_per_cgw( tvbuff_t *tvb _U_, gint offset _U_, gint len _U_,
+        packet_info *pinfo, proto_tree *tree _U_, proto_item *cmd_it,
+        guint8 addr_cmd_byte)
+{
+    const gchar *s;
+
+    s = val_to_str_const(addr_cmd_byte, mdb_cgw_addr_cmd, "Unknown");
+    proto_item_append_text(cmd_it, " (%s)", s);
+    col_set_str(pinfo->cinfo, COL_INFO, s);
+}
+
+static void dissect_mdb_per_mst_cgw( tvbuff_t *tvb, gint offset,
+        gint len, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree *cgw_tree;
+
+    cgw_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_mdb_cgw,
+            NULL, "Communications Gateway");
+
+    proto_tree_add_item(cgw_tree, hf_mdb_cgw_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
+}
+
 static void dissect_mdb_mst_per(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree)
 {
@@ -480,7 +527,10 @@ static void dissect_mdb_mst_per(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             dissect_mdb_mst_per_cl(tvb, offset, data_len, pinfo, tree,
                     cmd_it, addr_byte);
             break;
-
+        case ADDR_COMMS_GW:
+            dissect_mdb_mst_per_cgw(tvb, offset, data_len, pinfo, tree,
+                    cmd_it, addr_byte);
+            break;
         default:
             if (data_len > 0) {
                 proto_tree_add_item(tree, hf_mdb_data,
@@ -521,7 +571,9 @@ static void dissect_mdb_per_mst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         case ADDR_CASHLESS1:
             dissect_mdb_per_mst_cl(tvb, offset, data_len, pinfo, tree);
             break;
-
+        case ADDR_COMMS_GW:
+            dissect_mdb_per_mst_cgw(tvb, offset, data_len, pinfo, tree);
+            break;
         default:
             proto_tree_add_item(tree, hf_mdb_data, tvb, offset, data_len, ENC_NA);
             break;
@@ -601,7 +653,8 @@ void proto_register_mdb(void)
     static gint *ett[] = {
         &ett_mdb,
         &ett_mdb_hdr,
-        &ett_mdb_cl
+        &ett_mdb_cl,
+        &ett_mdb_cgw
     };
 
     static hf_register_info hf[] = {
@@ -704,6 +757,10 @@ void proto_register_mdb(void)
         { &hf_mdb_cl_opt_feat,
             { "Optional Feature Bits", "mdb.cashless.opt_feature_bits",
                 FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_resp,
+            { "Response", "mdb.comms_gw.resp",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_mdb_ack,
             { "Ack byte", "mdb.ack",
