@@ -609,12 +609,36 @@ void ProtoTree::collapseAll()
 
 void ProtoTree::itemClicked(const QModelIndex &index)
 {
+    // selectionChanged() is not issued when some action would select
+    // the same item as currently selected - but we want to make sure
+    // ByteViewText is highlighting that field. The BVT highlighted bytes
+    // might be different, due to hover highlighting or Find Packet "bytes".
+    //
+    // Unfortunately, clicked() is singled after selectionChanged(), so
+    // we emit fieldSelected() twice after clicking on a new frame, once
+    // in selectionChanged(), and once here.
+    //
+    // We can't get rid of the fieldSelected() handling because there are
+    // non-mouse event ways to select a field, such as keyboard navigation.
+    //
+    // All this would be easier if Qt had a signal similar to
+    // selectionChanged() that was triggered even if the new selection
+    // was the same as the old one.
     if (selectionModel()->selectedIndexes().isEmpty()) {
         emit fieldSelected(0);
     } else if (index == selectionModel()->selectedIndexes().first()) {
-        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode(), this);
 
         if (finfo.isValid()) {
+            // Find and highlight the protocol bytes.
+            QModelIndex parent = index;
+            while (parent.isValid() && parent.parent().isValid()) {
+                parent = parent.parent();
+            }
+            if (parent.isValid()) {
+                FieldInformation parent_finfo(proto_tree_model_->protoNodeFromIndex(parent).protoNode());
+                finfo.setParentField(parent_finfo.fieldInfo());
+            }
             emit fieldSelected(&finfo);
         }
     }
