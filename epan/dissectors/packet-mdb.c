@@ -73,6 +73,7 @@ static int hf_mdb_cgw_feat_lvl = -1;
 static int hf_mdb_cgw_scale = -1;
 static int hf_mdb_cgw_dec_pl = -1;
 static int hf_mdb_cgw_resp = -1;
+static int hf_mdb_cgw_max_rsp_time = -1;
 static int hf_mdb_ack = -1;
 static int hf_mdb_data = -1;
 static int hf_mdb_chk = -1;
@@ -201,9 +202,11 @@ static const value_string mdb_cgw_addr_cmd[] = {
     { 0, NULL }
 };
 
+#define MDB_CGW_RESP_CFG 0x01
+
 static const value_string mdb_cgw_resp[] = {
     { 0x00, "Just Reset" },
-    { 0x01, "Comms Gateway Config" },
+    { MDB_CGW_RESP_CFG, "Comms Gateway Config" },
     { 0x05, "DTS Event Acknowledge" },
     { 0x06, "Peripheral ID" },
     { 0, NULL }
@@ -504,7 +507,18 @@ static void dissect_mdb_per_mst_cgw( tvbuff_t *tvb, gint offset,
             ENC_BIG_ENDIAN, &cgw_resp);
     col_set_str(pinfo->cinfo,
             COL_INFO, val_to_str_const(cgw_resp, mdb_cgw_resp, "Unknown"));
- }
+    offset++;
+
+    switch (cgw_resp) {
+        case MDB_CGW_RESP_CFG:
+            proto_tree_add_item(cgw_tree, hf_mdb_cgw_feat_lvl, tvb, offset, 1,
+                    ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(cgw_tree, hf_mdb_cgw_max_rsp_time, tvb, offset,
+                    2, ENC_TIME_SECS | ENC_BIG_ENDIAN);
+            break;
+    }
+}
 
 static void dissect_mdb_mst_per(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree)
@@ -807,6 +821,10 @@ void proto_register_mdb(void)
         { &hf_mdb_cgw_resp,
             { "Response", "mdb.comms_gw.resp",
                 FT_UINT8, BASE_HEX, VALS(mdb_cgw_resp), 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_max_rsp_time,
+            { "Application maximum response time", "mdb.comms_gw.max_rsp_time",
+                FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_mdb_ack,
             { "Ack byte", "mdb.ack",
