@@ -71,7 +71,7 @@ WS_DLL_PUBLIC guint32 dissect_oer_constrained_sequence_of(tvbuff_t *tvb, guint32
 
 //WS_DLL_PUBLIC guint32 dissect_oer_set_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const oer_sequence_t *seq);
 
-//WS_DLL_PUBLIC guint32 dissect_oer_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
+WS_DLL_PUBLIC guint32 dissect_oer_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
 //WS_DLL_PUBLIC guint32 dissect_oer_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx);
 
 //WS_DLL_PUBLIC guint32 dissect_oer_relative_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
@@ -104,7 +104,7 @@ dissect_oer_bit_string(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *actx, prot
 
 WS_DLL_PUBLIC guint32 dissect_oer_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map);
 
-//WS_DLL_PUBLIC guint32 dissect_oer_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, oer_type_fn type_cb);
+WS_DLL_PUBLIC guint32 dissect_oer_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, oer_type_fn type_cb);
 //WS_DLL_PUBLIC guint32 dissect_oer_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, dissector_t type_cb);
 
 //WS_DLL_PUBLIC guint32 dissect_oer_external_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, oer_type_fn type_cb);

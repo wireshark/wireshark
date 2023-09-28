@@ -1,9 +1,10 @@
+-- https://standards.ieee.org/products-programs/regauth/psid/public/
 IEEE1609dot12
 
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 	IMPORTS
 	Psid
-	FROM IEEE1609dot2BaseTypes {iso(1) identified-organization(3) ieee(111)
+	FROM Ieee1609Dot2BaseTypes {iso(1) identified-organization(3) ieee(111)
 	standards-association-numbered-series-standards(2) wave-stds(1609)
 	dot2(2) base(1) base-types(2)}
 	;
@@ -63,12 +64,11 @@ psid-road-and-lane-topology-service                                 Psid ::= 138
 psid-infrastructure-to-vehicle-information-service                  Psid ::= 139           -- ISO-19321-ETSI-TS-103-301
 psid-traffic-light-control-requests-service                         Psid ::= 140           -- ISO-19091-ETSI-TS-103-301
 psid-geonetworking-management-communications                        Psid ::= 141           -- ETSI-EN-302-636-4-1
+psid-certificate-revocation-list-application                        Psid ::= 256           -- IEEEE Std 1609.2 CAMP
 psid-traffic-light-control-status-service                           Psid ::= 637           -- ISO-19091-ETSI-TS-103-301
 psid-collective-perception-service                                  Psid ::= 639           -- ETSI-TS-103-324
 
 -- 0x8e to 0xFF 0p80-09 to 0p80-7F Not allocated
-
-psid-certificate-revocation-list-application                        Psid ::= 256           -- CAMP
 
 -- 0x01-01 to 0x3E-7F 0p80-81 to 0pBD-FF Not allocated
 -- 0x3E-80 to 0x40-1F 0pBE-00 to 0pBF-9F Reserved IEEE P1609 WG 416

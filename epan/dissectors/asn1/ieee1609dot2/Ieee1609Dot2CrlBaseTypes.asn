@@ -1,0 +1,165 @@
+--***************************************************************************--
+--                  IEEE Std 1609.2: CRL Base Data Types                     --
+--***************************************************************************--
+
+Ieee1609Dot2CrlBaseTypes {iso(1) identified-organization(3) ieee(111)
+  standards-association-numbered-series-standards(2) wave-stds(1609) dot2(2)
+  crl(3) base-types(2) major-version-3(3) minor-version-2(2)}
+
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+IMPORTS
+  CrlSeries,
+  Duration,
+  GeographicRegion,
+  HashedId8,
+  HashedId10,
+  IValue,
+  LaId,
+  LinkageSeed,
+  Opaque,
+  Psid,
+  SequenceOfLinkageSeed,
+  Signature,
+  Time32,
+  Uint3,
+  Uint8,
+  Uint16,
+  Uint32,
+  ValidityPeriod
+FROM Ieee1609Dot2BaseTypes {iso(1) identified-organization(3) ieee(111)
+  standards-association-numbered-series-standards(2) wave-stds(1609) dot2(2)
+  base(1) base-types(2) major-version-2(2) minor-version-4(4)}
+--WITH SUCCESSORS
+;
+
+CrlContents ::= SEQUENCE {
+  version      Uint8 (1),
+  crlSeries    CrlSeries,
+  crlCraca     HashedId8,
+  issueDate    Time32,   
+  nextCrl      Time32,  
+  priorityInfo CrlPriorityInfo,
+  typeSpecific TypeSpecificCrlContents
+}
+
+CrlPriorityInfo ::= SEQUENCE {  
+  priority Uint8 OPTIONAL,
+  ...
+}
+
+TypeSpecificCrlContents ::= CHOICE {
+  fullHashCrl           ToBeSignedHashIdCrl,            
+  deltaHashCrl          ToBeSignedHashIdCrl,            
+  fullLinkedCrl         ToBeSignedLinkageValueCrl,
+  deltaLinkedCrl        ToBeSignedLinkageValueCrl,
+  ...,
+  fullLinkedCrlWithAlg  ToBeSignedLinkageValueCrlWithAlgIdentifier,
+  deltaLinkedCrlWithAlg ToBeSignedLinkageValueCrlWithAlgIdentifier
+}
+
+ToBeSignedHashIdCrl ::= SEQUENCE {  
+  crlSerial Uint32,
+  entries   SequenceOfHashBasedRevocationInfo,
+  ...
+}
+
+SequenceOfHashBasedRevocationInfo ::= 
+  SEQUENCE OF HashBasedRevocationInfo 
+
+HashBasedRevocationInfo ::= SEQUENCE {
+  id     HashedId10,
+  expiry Time32,
+  ...
+}
+
+ToBeSignedLinkageValueCrl ::= SEQUENCE {  
+  iRev             IValue,
+  indexWithinI     Uint8,
+  individual       SequenceOfJMaxGroup OPTIONAL,
+  groups           SequenceOfGroupCrlEntry OPTIONAL,
+  ...,
+  groupsSingleSeed SequenceOfGroupSingleSeedCrlEntry OPTIONAL
+} (WITH COMPONENTS {..., individual PRESENT} |
+   WITH COMPONENTS {..., groups PRESENT} |
+   WITH COMPONENTS {..., groupsSingleSeed PRESENT})
+
+SequenceOfJMaxGroup ::= SEQUENCE OF JMaxGroup
+
+JMaxGroup ::= SEQUENCE {
+  jmax     Uint8,
+  contents SequenceOfLAGroup,
+  ...
+}
+
+SequenceOfLAGroup ::= SEQUENCE OF LAGroup
+
+LAGroup ::= SEQUENCE {
+  la1Id    LaId,
+  la2Id    LaId,
+  contents SequenceOfIMaxGroup,
+  ...
+}
+
+SequenceOfIMaxGroup ::= SEQUENCE OF IMaxGroup
+
+IMaxGroup ::= SEQUENCE {
+  iMax       Uint16,
+  contents   SequenceOfIndividualRevocation,
+  ...,
+  singleSeed SequenceOfLinkageSeed OPTIONAL
+}
+
+SequenceOfIndividualRevocation ::= 
+  SEQUENCE (SIZE(0..MAX)) OF IndividualRevocation
+
+IndividualRevocation ::= SEQUENCE { 
+  linkageSeed1 LinkageSeed,
+  linkageSeed2 LinkageSeed,
+  ...
+}
+
+SequenceOfGroupCrlEntry ::= SEQUENCE OF GroupCrlEntry
+
+GroupCrlEntry ::= SEQUENCE {
+  iMax         Uint16,
+  la1Id        LaId,
+  linkageSeed1 LinkageSeed,
+  la2Id        LaId,
+  linkageSeed2 LinkageSeed,
+  ...
+}
+
+ToBeSignedLinkageValueCrlWithAlgIdentifier ::= SEQUENCE {  
+  iRev             IValue,
+  indexWithinI     Uint8,
+  seedEvolution    SeedEvolutionFunctionIdentifier,
+  lvGeneration     LvGenerationFunctionIdentifier,
+  individual       SequenceOfJMaxGroup OPTIONAL,
+  groups           SequenceOfGroupCrlEntry OPTIONAL,
+  groupsSingleSeed SequenceOfGroupSingleSeedCrlEntry OPTIONAL,
+  ...
+} (WITH COMPONENTS {..., individual PRESENT} |
+   WITH COMPONENTS {..., groups PRESENT} |
+   WITH COMPONENTS {..., groupsSingleSeed PRESENT})
+
+SequenceOfGroupSingleSeedCrlEntry ::= 
+  SEQUENCE OF GroupSingleSeedCrlEntry
+
+GroupSingleSeedCrlEntry ::= SEQUENCE {
+  iMax        Uint16,
+  laId        LaId,
+  linkageSeed LinkageSeed
+}
+
+ExpansionAlgorithmIdentifier ::= ENUMERATED {
+  sha256ForI-aesForJ,
+  sm3ForI-sm4ForJ,
+  ...
+}
+
+SeedEvolutionFunctionIdentifier ::= NULL
+
+LvGenerationFunctionIdentifier ::= NULL
+
+END

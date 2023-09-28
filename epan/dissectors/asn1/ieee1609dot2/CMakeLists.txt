@@ -17,7 +17,9 @@ set( EXT_ASN_FILE_LIST
 
 set( ASN_FILE_LIST
 	IEEE1609dot2BaseTypes.asn
-	IEEE1609dot2DataTypes.asn
+	Ieee1609Dot2CrlBaseTypes.asn
+	Ieee1609Dot2Crl.asn
+	Ieee1609Dot2.asn
 	IEEE1609dot12.asn
 )
 
