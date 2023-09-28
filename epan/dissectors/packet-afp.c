@@ -1939,7 +1939,7 @@ get_name(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int type)
 }
 /* -------------------------- */
 static gint
-decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, const gchar *label)
+decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, const gchar *label, gboolean add_info)
 {
 	int len;
 	int header;
@@ -1958,7 +1958,7 @@ decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint off
 	}
 	name = get_name(pinfo->pool, tvb, offset +1, type);
 
-	if (pinfo) {
+	if (add_info) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": Vol=%u Did=%u", Vol, Did);
 		if (len) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " Name=%s", name);
@@ -1994,7 +1994,7 @@ decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint off
 static gint
 decode_name (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset)
 {
-	return decode_name_label(tree, pinfo, tvb, offset, "Path: %s");
+	return decode_name_label(tree, pinfo, tvb, offset, "Path: %s", TRUE);
 }
 
 /* -------------------------- */
@@ -3084,9 +3084,9 @@ dissect_query_afp_move(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest dir:    %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:    %s");
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s", TRUE);
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Dest dir:    %s", FALSE);
+	offset = decode_name_label(tree, pinfo, tvb, offset, "New name:    %s", FALSE);
 
 	return offset;
 }
@@ -3102,8 +3102,8 @@ dissect_query_afp_exchange_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest path:   %s");
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s", TRUE);
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Dest path:   %s", FALSE);
 
 	return offset;
 }
@@ -3122,9 +3122,9 @@ dissect_query_afp_copy_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	offset = decode_vol_did(sub_tree, tvb, offset);
 
-	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest dir:    %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:    %s");
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s", TRUE);
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Dest dir:    %s", FALSE);
+	offset = decode_name_label(tree, pinfo, tvb, offset, "New name:    %s", FALSE);
 
 	return offset;
 }
@@ -3137,8 +3137,8 @@ dissect_query_afp_rename(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	PAD(1);
 	offset = decode_vol_did(tree, tvb, offset);
 
-	offset = decode_name_label(tree, pinfo, tvb, offset, "Old name: %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "New name: %s");
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Old name: %s", TRUE);
+	offset = decode_name_label(tree, pinfo, tvb, offset, "New name: %s", FALSE);
 
 	return offset;
 }
