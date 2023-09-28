@@ -74,6 +74,8 @@ static int hf_mdb_cgw_scale = -1;
 static int hf_mdb_cgw_dec_pl = -1;
 static int hf_mdb_cgw_resp = -1;
 static int hf_mdb_cgw_max_rsp_time = -1;
+static int hf_mdb_cgw_expns_sub = -1;
+static int hf_mdb_cgw_opt_feat = -1;
 static int hf_mdb_ack = -1;
 static int hf_mdb_data = -1;
 static int hf_mdb_chk = -1;
@@ -192,13 +194,23 @@ static const value_string mdb_cl_resp[] = {
  * same. (This is different from the Cashless peripherals, see above.)
  */
 #define MDB_CGW_ADDR_CMD_SETUP 0x19
+#define MDB_CGW_ADDR_CMD_EXPNS 0x1F
 
 static const value_string mdb_cgw_addr_cmd[] = {
     { 0x18, "Reset" },
     { MDB_CGW_ADDR_CMD_SETUP, "Setup" },
     { 0x1A, "Poll" },
     { 0x1B, "Report" },
-    { 0x1F, "Expansion" },
+    { MDB_CGW_ADDR_CMD_EXPNS, "Expansion" },
+    { 0, NULL }
+};
+
+#define MDB_CGW_EXPNS_FEAT_ENA 0x01
+
+static const value_string mdb_cgw_expns_sub_cmd[] = {
+    { 0x00, "Identification" },
+    { MDB_CGW_EXPNS_FEAT_ENA, "Feature enable" },
+    { 0x02, "Time/Date Request" },
     { 0, NULL }
 };
 
@@ -466,6 +478,28 @@ static void dissect_mdb_per_mst_cl( tvbuff_t *tvb, gint offset,
     }
 }
 
+static void dissect_mdb_cgw_expns(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree)
+{
+    guint32 sub_cmd;
+    const gchar *s;
+
+    proto_tree_add_item_ret_uint(tree, hf_mdb_cgw_expns_sub,
+                    tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cmd);
+    s = try_val_to_str(sub_cmd, mdb_cgw_expns_sub_cmd);
+    if (s) {
+        col_set_str(pinfo->cinfo, COL_INFO, s);
+    }
+    offset++;
+
+    switch (sub_cmd) {
+        case MDB_CGW_EXPNS_FEAT_ENA:
+            proto_tree_add_item(tree, hf_mdb_cgw_opt_feat, tvb, offset, 4,
+                    ENC_BIG_ENDIAN);
+            break;
+    }
+}
+
 static void dissect_mdb_mst_per_cgw( tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, proto_tree *tree, proto_item *cmd_it,
         guint8 addr_cmd_byte)
@@ -490,6 +524,9 @@ static void dissect_mdb_mst_per_cgw( tvbuff_t *tvb, gint offset, gint len,
             offset++;
             proto_tree_add_item(cgw_tree, hf_mdb_cgw_dec_pl, tvb, offset, 1,
                     ENC_BIG_ENDIAN);
+            break;
+        case MDB_CGW_ADDR_CMD_EXPNS:
+            dissect_mdb_cgw_expns(tvb, offset, pinfo, cgw_tree);
             break;
     }
 }
@@ -825,6 +862,14 @@ void proto_register_mdb(void)
         { &hf_mdb_cgw_max_rsp_time,
             { "Application maximum response time", "mdb.comms_gw.max_rsp_time",
                 FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_expns_sub,
+            { "Sub-command", "mdb.comms_gw.expansion_sub_cmd", FT_UINT8,
+                BASE_HEX, VALS(mdb_cgw_expns_sub_cmd), 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_opt_feat,
+            { "Optional Feature Bits", "mdb.comms_gw.opt_feature_bits",
+                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_mdb_ack,
             { "Ack byte", "mdb.ack",
