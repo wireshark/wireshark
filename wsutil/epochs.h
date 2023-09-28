@@ -62,6 +62,6 @@
  * (as they lack a leap year), and one leftover year, 1969, that is
  * 365 days long.
  */
-#define EPOCH_DELTA_1601_01_01_00_00_00_UTC G_GUINT64_CONSTANT(11644473600)
+#define EPOCH_DELTA_1601_01_01_00_00_00_UTC UINT64_C(11644473600)
 
 #endif /* __EPOCHS_H__ */

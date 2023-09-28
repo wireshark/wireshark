@@ -62,6 +62,8 @@ definition_map = {
     'G_MININT32': 'INT32_MIN',
     'G_MININT64': 'INT64_MIN',
     'G_MININT': 'INT_MIN',
+    'G_GINT64_CONSTANT': 'INT64_C',
+    'G_GUINT64_CONSTANT': 'UINT64_C',
 }
 
 format_spec_map = {

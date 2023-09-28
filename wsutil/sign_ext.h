@@ -52,8 +52,8 @@ ws_sign_ext64(uint64_t val, int no_of_bits)
 	 * the number of bits in the value - 1, and we might get
 	 * compile-time or run-time complaints about that.
 	 */
-	if (val & (G_GUINT64_CONSTANT(1) << (no_of_bits-1)))
-		val |= (G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF) << no_of_bits);
+	if (val & (UINT64_C(1) << (no_of_bits-1)))
+		val |= (UINT64_C(0xFFFFFFFFFFFFFFFF) << no_of_bits);
 
 	return val;
 }

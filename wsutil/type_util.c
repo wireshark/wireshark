@@ -38,7 +38,7 @@
 double
 type_util_guint64_to_gdouble(uint64_t value)
 {
-  if (value & G_GUINT64_CONSTANT (0x8000000000000000))
+  if (value & UINT64_C (0x8000000000000000))
     return (double) ((int64_t) value) + (double) 18446744073709551616.;
   else
     return (double) ((int64_t) value);

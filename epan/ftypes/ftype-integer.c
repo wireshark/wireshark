@@ -471,19 +471,19 @@ uint64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char 
 static bool
 uint56_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
 {
-	return _uint64_from_literal (fv, s, allow_partial_value, err_msg, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFF));
+	return _uint64_from_literal (fv, s, allow_partial_value, err_msg, UINT64_C(0xFFFFFFFFFFFFFF));
 }
 
 static bool
 uint48_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
 {
-	return _uint64_from_literal (fv, s, allow_partial_value, err_msg, G_GUINT64_CONSTANT(0xFFFFFFFFFFFF));
+	return _uint64_from_literal (fv, s, allow_partial_value, err_msg, UINT64_C(0xFFFFFFFFFFFF));
 }
 
 static bool
 uint40_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
 {
-	return _uint64_from_literal (fv, s, allow_partial_value, err_msg, G_GUINT64_CONSTANT(0xFFFFFFFFFF));
+	return _uint64_from_literal (fv, s, allow_partial_value, err_msg, UINT64_C(0xFFFFFFFFFF));
 }
 
 static bool
@@ -569,19 +569,19 @@ sint64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char 
 static bool
 sint56_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
 {
-	return _sint64_from_literal (fv, s, allow_partial_value, err_msg, G_GINT64_CONSTANT(0x7FFFFFFFFFFFFF), G_GINT64_CONSTANT(-0x80000000000000));
+	return _sint64_from_literal (fv, s, allow_partial_value, err_msg, INT64_C(0x7FFFFFFFFFFFFF), INT64_C(-0x80000000000000));
 }
 
 static bool
 sint48_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
 {
-	return _sint64_from_literal (fv, s, allow_partial_value, err_msg, G_GINT64_CONSTANT(0x7FFFFFFFFFFF), G_GINT64_CONSTANT(-0x800000000000));
+	return _sint64_from_literal (fv, s, allow_partial_value, err_msg, INT64_C(0x7FFFFFFFFFFF), INT64_C(-0x800000000000));
 }
 
 static bool
 sint40_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
 {
-	return _sint64_from_literal (fv, s, allow_partial_value, err_msg, G_GINT64_CONSTANT(0x7FFFFFFFFF), G_GINT64_CONSTANT(-0x8000000000));
+	return _sint64_from_literal (fv, s, allow_partial_value, err_msg, INT64_C(0x7FFFFFFFFF), INT64_C(-0x8000000000));
 }
 
 static bool

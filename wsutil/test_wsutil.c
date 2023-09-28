@@ -284,7 +284,7 @@ static void test_word_to_hex(void)
     g_assert_cmpint(str[-7], ==, '0');
     g_assert_cmpint(str[-8], ==, '0');
 
-    str = qword_to_hex(buf, G_GUINT64_CONSTANT(0xFEDCBA987654321));
+    str = qword_to_hex(buf, UINT64_C(0xFEDCBA987654321));
     g_assert_true(str == buf + 16);
     g_assert_cmpint(str[-1], ==, '1');
     g_assert_cmpint(str[-2], ==, '2');
@@ -448,13 +448,13 @@ static void test_oct64_to_str_back(void)
 {
     char *str;
 
-    str = oct64_to_str_back(BACK_PTR, G_GUINT64_CONSTANT(13873797580070999420));
+    str = oct64_to_str_back(BACK_PTR, UINT64_C(13873797580070999420));
     g_assert_cmpstr(str, ==, "01402115026217563452574");
 
-    str = oct64_to_str_back(BACK_PTR, G_GUINT64_CONSTANT(7072159458371400691));
+    str = oct64_to_str_back(BACK_PTR, UINT64_C(7072159458371400691));
     g_assert_cmpstr(str, ==, "0610452670726711271763");
 
-    str = oct64_to_str_back(BACK_PTR, G_GUINT64_CONSTANT(12453513102400590374));
+    str = oct64_to_str_back(BACK_PTR, UINT64_C(12453513102400590374));
     g_assert_cmpstr(str, ==, "01263236102754220511046");
 }
 
@@ -476,13 +476,13 @@ static void test_hex64_to_str_back_len(void)
 {
     char *str;
 
-    str = hex64_to_str_back_len(BACK_PTR, G_GUINT64_CONSTANT(1), 16);
+    str = hex64_to_str_back_len(BACK_PTR, UINT64_C(1), 16);
     g_assert_cmpstr(str, ==, "0x0000000000000001");
 
-    str = hex64_to_str_back_len(BACK_PTR, G_GUINT64_CONSTANT(4294967295), 16);
+    str = hex64_to_str_back_len(BACK_PTR, UINT64_C(4294967295), 16);
     g_assert_cmpstr(str, ==, "0x00000000ffffffff");
 
-    str = hex64_to_str_back_len(BACK_PTR, G_GUINT64_CONSTANT(18446744073709551615), 16);
+    str = hex64_to_str_back_len(BACK_PTR, UINT64_C(18446744073709551615), 16);
     g_assert_cmpstr(str, ==, "0xffffffffffffffff");
 }
 
@@ -504,13 +504,13 @@ static void test_uint64_to_str_back(void)
 {
     char *str;
 
-    str = uint64_to_str_back(BACK_PTR, G_GUINT64_CONSTANT(585143757104211265));
+    str = uint64_to_str_back(BACK_PTR, UINT64_C(585143757104211265));
     g_assert_cmpstr(str, ==, "585143757104211265");
 
-    str = uint64_to_str_back(BACK_PTR, G_GUINT64_CONSTANT(7191580247919484847));
+    str = uint64_to_str_back(BACK_PTR, UINT64_C(7191580247919484847));
     g_assert_cmpstr(str, ==, "7191580247919484847");
 
-    str = uint64_to_str_back(BACK_PTR, G_GUINT64_CONSTANT(95778573911934485));
+    str = uint64_to_str_back(BACK_PTR, UINT64_C(95778573911934485));
     g_assert_cmpstr(str, ==, "95778573911934485");
 }
 
@@ -532,13 +532,13 @@ static void test_uint64_to_str_back_len(void)
 {
     char *str;
 
-    str = uint64_to_str_back_len(BACK_PTR, G_GUINT64_CONSTANT(1), 16);
+    str = uint64_to_str_back_len(BACK_PTR, UINT64_C(1), 16);
     g_assert_cmpstr(str, ==, "0000000000000001");
 
-    str = uint64_to_str_back_len(BACK_PTR, G_GUINT64_CONSTANT(4294967295), 16);
+    str = uint64_to_str_back_len(BACK_PTR, UINT64_C(4294967295), 16);
     g_assert_cmpstr(str, ==, "0000004294967295");
 
-    str = uint64_to_str_back_len(BACK_PTR, G_GUINT64_CONSTANT(18446744073709551615), 16);
+    str = uint64_to_str_back_len(BACK_PTR, UINT64_C(18446744073709551615), 16);
     g_assert_cmpstr(str, ==, "18446744073709551615");
 }
 
@@ -560,13 +560,13 @@ static void test_int64_to_str_back(void)
 {
     char *str;
 
-    str = int64_to_str_back(BACK_PTR, G_GINT64_CONSTANT(-9223372036854775807));
+    str = int64_to_str_back(BACK_PTR, INT64_C(-9223372036854775807));
     g_assert_cmpstr(str, ==, "-9223372036854775807");
 
-    str = int64_to_str_back(BACK_PTR, G_GINT64_CONSTANT(1));
+    str = int64_to_str_back(BACK_PTR, INT64_C(1));
     g_assert_cmpstr(str, ==, "1");
 
-    str = int64_to_str_back(BACK_PTR, G_GINT64_CONSTANT(9223372036854775807));
+    str = int64_to_str_back(BACK_PTR, INT64_C(9223372036854775807));
     g_assert_cmpstr(str, ==, "9223372036854775807");
 }
 

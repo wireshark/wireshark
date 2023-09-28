@@ -41,11 +41,11 @@ ws_count_ones(const uint64_t x)
 {
 	uint64_t bits = x;
 
-	bits = bits - ((bits >> 1) & G_GUINT64_CONSTANT(0x5555555555555555));
-	bits = (bits & G_GUINT64_CONSTANT(0x3333333333333333)) + ((bits >> 2) & G_GUINT64_CONSTANT(0x3333333333333333));
-	bits = (bits + (bits >> 4)) & G_GUINT64_CONSTANT(0x0F0F0F0F0F0F0F0F);
+	bits = bits - ((bits >> 1) & UINT64_C(0x5555555555555555));
+	bits = (bits & UINT64_C(0x3333333333333333)) + ((bits >> 2) & UINT64_C(0x3333333333333333));
+	bits = (bits + (bits >> 4)) & UINT64_C(0x0F0F0F0F0F0F0F0F);
 
-	return (int)((bits * G_GUINT64_CONSTANT(0x0101010101010101)) >> 56);
+	return (int)((bits * UINT64_C(0x0101010101010101)) >> 56);
 }
 
 #endif /* __WSUTIL_BITS_COUNT_ONES_H__ */
