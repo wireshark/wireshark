@@ -69,6 +69,9 @@ static int hf_mdb_cl_manuf_code = -1;
 static int hf_mdb_cl_ser_num = -1;
 static int hf_mdb_cl_mod_num = -1;
 static int hf_mdb_cl_opt_feat = -1;
+static int hf_mdb_cgw_feat_lvl = -1;
+static int hf_mdb_cgw_scale = -1;
+static int hf_mdb_cgw_dec_pl = -1;
 static int hf_mdb_cgw_resp = -1;
 static int hf_mdb_ack = -1;
 static int hf_mdb_data = -1;
@@ -187,9 +190,11 @@ static const value_string mdb_cl_resp[] = {
  * There's only one Communications Gateway, the address bits are always the
  * same. (This is different from the Cashless peripherals, see above.)
  */
+#define MDB_CGW_ADDR_CMD_SETUP 0x19
+
 static const value_string mdb_cgw_addr_cmd[] = {
     { 0x18, "Reset" },
-    { 0x19, "Setup" },
+    { MDB_CGW_ADDR_CMD_SETUP, "Setup" },
     { 0x1A, "Poll" },
     { 0x1B, "Report" },
     { 0x1F, "Expansion" },
@@ -458,15 +463,32 @@ static void dissect_mdb_per_mst_cl( tvbuff_t *tvb, gint offset,
     }
 }
 
-static void dissect_mdb_mst_per_cgw( tvbuff_t *tvb _U_, gint offset _U_, gint len _U_,
-        packet_info *pinfo, proto_tree *tree _U_, proto_item *cmd_it,
+static void dissect_mdb_mst_per_cgw( tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo, proto_tree *tree, proto_item *cmd_it,
         guint8 addr_cmd_byte)
 {
+    proto_tree *cgw_tree;
     const gchar *s;
 
     s = val_to_str_const(addr_cmd_byte, mdb_cgw_addr_cmd, "Unknown");
     proto_item_append_text(cmd_it, " (%s)", s);
     col_set_str(pinfo->cinfo, COL_INFO, s);
+
+    cgw_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_mdb_cgw,
+            NULL, "Communications Gateway");
+
+    switch (addr_cmd_byte) {
+        case MDB_CGW_ADDR_CMD_SETUP:
+            proto_tree_add_item(cgw_tree, hf_mdb_cgw_feat_lvl, tvb, offset, 1,
+                    ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(cgw_tree, hf_mdb_cgw_scale, tvb, offset, 1,
+                    ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(cgw_tree, hf_mdb_cgw_dec_pl, tvb, offset, 1,
+                    ENC_BIG_ENDIAN);
+            break;
+    }
 }
 
 static void dissect_mdb_per_mst_cgw( tvbuff_t *tvb, gint offset,
@@ -769,6 +791,18 @@ void proto_register_mdb(void)
         { &hf_mdb_cl_opt_feat,
             { "Optional Feature Bits", "mdb.cashless.opt_feature_bits",
                 FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_feat_lvl,
+            { "Feature level", "mdb.comms_gw.feature_level",
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_scale,
+            { "Scale factor", "mdb.comms_gw.scale_factor",
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_dec_pl,
+            { "Decimal places", "mdb.comms_gw.decimal_places",
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_mdb_cgw_resp,
             { "Response", "mdb.comms_gw.resp",
