@@ -196,6 +196,14 @@ static const value_string mdb_cgw_addr_cmd[] = {
     { 0, NULL }
 };
 
+static const value_string mdb_cgw_resp[] = {
+    { 0x00, "Just Reset" },
+    { 0x01, "Comms Gateway Config" },
+    { 0x05, "DTS Event Acknowledge" },
+    { 0x06, "Peripheral ID" },
+    { 0, NULL }
+};
+
 static void dissect_mdb_ack(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)
 {
@@ -465,12 +473,16 @@ static void dissect_mdb_per_mst_cgw( tvbuff_t *tvb, gint offset,
         gint len, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree *cgw_tree;
+    guint32 cgw_resp;
 
     cgw_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_mdb_cgw,
             NULL, "Communications Gateway");
 
-    proto_tree_add_item(cgw_tree, hf_mdb_cgw_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
-}
+    proto_tree_add_item_ret_uint(cgw_tree, hf_mdb_cgw_resp, tvb, offset, 1,
+            ENC_BIG_ENDIAN, &cgw_resp);
+    col_set_str(pinfo->cinfo,
+            COL_INFO, val_to_str_const(cgw_resp, mdb_cgw_resp, "Unknown"));
+ }
 
 static void dissect_mdb_mst_per(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree)
@@ -760,7 +772,7 @@ void proto_register_mdb(void)
         },
         { &hf_mdb_cgw_resp,
             { "Response", "mdb.comms_gw.resp",
-                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+                FT_UINT8, BASE_HEX, VALS(mdb_cgw_resp), 0, NULL, HFILL }
         },
         { &hf_mdb_ack,
             { "Ack byte", "mdb.ack",
