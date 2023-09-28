@@ -38,6 +38,7 @@
 #include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <epan/exported_pdu.h>
+#include <epan/exceptions.h>
 
 #include <wiretap/erf_record.h>
 #include <wsutil/str_util.h>
@@ -3715,7 +3716,24 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     p_add_ipv6_nxt(pinfo, ip6_nxt);
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    ipv6_dissect_next(ip6_nxt, next_tvb, pinfo, tree, iph);
+    TRY {
+        ipv6_dissect_next(ip6_nxt, next_tvb, pinfo, tree, iph);
+    }
+    FINALLY {
+        /* If we need to extend the length due to an ext header and haven't
+         * yet, do so now. This might be due to an exception or unreassembled
+         * fragments.
+         * XXX: What about the tap? We want to tap if we haven't yet, but
+         * if we always tapped here we would send to the tap in reverse order
+         * for IP-in-IP.
+         */
+        if (ipv6_pinfo != NULL && ipv6_pinfo->ipv6_tree != NULL) {
+            /* Set IPv6 Header length */
+            proto_item_set_len(proto_tree_get_parent(ipv6_pinfo->ipv6_tree), ipv6_pinfo->ipv6_item_len);
+            ipv6_pinfo->ipv6_tree = NULL;
+        }
+    }
+    ENDTRY;
 
     pinfo->fragmented = save_fragmented;
     return tvb_captured_length(tvb);
