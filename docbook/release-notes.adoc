@@ -76,7 +76,7 @@ The following features are new (or have been significantly updated) since versio
 
 The following features are new (or have been significantly updated) since version 4.0.0:
 
-* The Windows installers now ship with Qt 6.5.2.
+* The Windows installers now ship with Qt 6.5.3.
   They previously shipped with Qt 6.2.3.
 
 // * The Windows installers now ship with Npcap 1.75.
