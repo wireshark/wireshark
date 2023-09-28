@@ -223,9 +223,9 @@ static const value_string rt_flow_control_vals[] = {
 
 static const value_string rt_services_vals[] = {
     {0x00,  "none"},
-    {0x04,  "segment request count"},
-    {0x08,  "Session control message request count"},
-    {0x0c,  "reserved"},
+    {0x01,  "segment request count"},
+    {0x02,  "Session control message request count"},
+    {0x03,  "reserved"},
     {0x0,   NULL}
 };
 

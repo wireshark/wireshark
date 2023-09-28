@@ -464,9 +464,9 @@ static const value_string bssmap_field_element_ids[] = {
 };
 
 static const value_string bssap_cc_values[] = {
-    { 0x00,     "not further specified" },
-    { 0x80,     "FACCH or SDCCH" },
-    { 0xc0,     "SACCH" },
+    { 0x0,      "not further specified" },
+    { 0x2,      "FACCH or SDCCH" },
+    { 0x3,      "SACCH" },
     { 0,        NULL } };
 
 static const value_string bssap_sapi_values[] = {

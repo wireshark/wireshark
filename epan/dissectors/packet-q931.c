@@ -722,16 +722,16 @@ static const value_string q931_l1_intermediate_rate_vals[] = {
 };
 
 static const value_string q931_l1_stop_bits_vals[] = {
-    { 0x20, "1" },
-    { 0x40, "1.5" },
-    { 0x60, "2" },
+    { 0x01, "1" },
+    { 0x02, "1.5" },
+    { 0x03, "2" },
     { 0,    NULL }
 };
 
 static const value_string q931_l1_data_bits_vals[] = {
-    { 0x08, "5" },
-    { 0x10, "7" },
-    { 0x18, "8" },
+    { 0x1,  "5" },
+    { 0x2,  "7" },
+    { 0x3,  "8" },
     { 0,    NULL }
 };
 
@@ -766,8 +766,8 @@ static const value_string q931_uil2_vals[] = {
 static value_string_ext q931_uil2_vals_ext = VALUE_STRING_EXT_INIT(q931_uil2_vals);
 
 static const value_string q931_mode_vals[] = {
-    { 0x20, "Normal mode" },
-    { 0x40, "Extended mode" },
+    { 0x1,  "Normal mode" },
+    { 0x2,  "Extended mode" },
     { 0,    NULL }
 };
 
@@ -1664,9 +1664,9 @@ dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
  * information element.
  */
 static const value_string q931_netid_type_vals[] = {
-    { 0x00, "User specified" },
-    { 0x20, "National network identification" },
-    { 0x30, "International network identification" },
+    { 0x0,  "User specified" },
+    { 0x2,  "National network identification" },
+    { 0x3,  "International network identification" },
     { 0,    NULL }
 };
 
@@ -1956,10 +1956,10 @@ dissect_q931_td_selection_and_int_ie(tvbuff_t *tvb, packet_info *pinfo, int offs
  * Dissect a Packet layer binary parameters information element.
  */
 static const value_string q931_fast_selected_vals[] = {
-    { 0x00, "Fast select not requested" },
-    { 0x08, "Fast select not requested" },
-    { 0x10, "Fast select requested with no restriction of response" },
-    { 0x18, "Fast select requested with restrictions of response" },
+    { 0x0,  "Fast select not requested" },
+    { 0x1,  "Fast select not requested" },
+    { 0x2,  "Fast select requested with no restriction of response" },
+    { 0x3,  "Fast select requested with restrictions of response" },
     { 0x00, NULL }
 };
 
@@ -2176,14 +2176,14 @@ dissect_q931_number_ie(packet_info *pinfo, tvbuff_t *tvb, int offset, int len,
  * Dissect a party subaddress information element.
  */
 static const value_string q931_subaddress_type_vals[] = {
-    { 0x00, "X.213/ISO 8348 Add.2 NSAP" },
-    { 0x20, "User-specified" },
+    { 0x0,  "X.213/ISO 8348 Add.2 NSAP" },
+    { 0x2,  "User-specified" },
     { 0,    NULL }
 };
 
 static const value_string q931_odd_even_indicator_vals[] = {
-    { 0x00, "Even number of address signals" },
-    { 0x08, "Odd number of address signals" },
+    { 0x0,  "Even number of address signals" },
+    { 0x1,  "Odd number of address signals" },
     { 0,    NULL }
 };
 

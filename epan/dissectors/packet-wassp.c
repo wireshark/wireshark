@@ -3841,9 +3841,9 @@ static const value_string mu_resv0_strings[] =
 
 static const value_string mu_action_field_strings[] =
 {
-	{ 0x0000, "SSID" },
-	{ 0x2000, "Redirect With Vlan ID" },
-	{ 0x3000, "Vlan ID" },
+	{ 0x0, "SSID" },
+	{ 0x2, "Redirect With Vlan ID" },
+	{ 0x3, "Vlan ID" },
 	{ 0, NULL }
 };
 

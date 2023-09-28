@@ -767,22 +767,25 @@ class Item:
             self.mask_value = 0
 
     def check_value_string_range(self, vs_min, vs_max):
-        # N,B, this doesn't reduce bit count when a mask is set!
         item_width = self.get_field_width_in_bits()
-        if self.mask_value > 0:
-            # Have mask, so count number of bits set.
-            item_width = 0
-            for n in range(0,63):
-                item_width += 1 if self.check_bit(self.mask_value, n) else 0
 
         if item_width is None:
             # Type field defined by macro?
             return
-        item_max = (2 ** item_width) - 1
+
+        if self.mask_value > 0:
+            # Distance between first and last '1'
+            bitBools = bin(self.mask_value)[2:]
+            mask_width = bitBools.rfind('1') - bitBools.find('1') + 1
+        else:
+            # No mask is effectively a full mask..
+            mask_width = item_width
+
+        item_max = (2 ** mask_width)
         if vs_max > item_max:
             global warnings_found
             print('Warning:', self.filename, self.hf, 'filter=', self.filter,
-                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", item_width, 'bits',
+                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", mask_width, 'bits',
                   '( mask is', hex(self.mask_value), ')')
             warnings_found += 1
 
