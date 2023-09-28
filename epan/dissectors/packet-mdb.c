@@ -52,6 +52,8 @@ static int hf_mdb_cl_feat_lvl = -1;
 static int hf_mdb_cl_cols = -1;
 static int hf_mdb_cl_rows = -1;
 static int hf_mdb_cl_disp_info = -1;
+static int hf_mdb_cl_max_price = -1;
+static int hf_mdb_cl_min_price = -1;
 static int hf_mdb_cl_vend_sub = -1;
 static int hf_mdb_cl_reader_sub = -1;
 static int hf_mdb_cl_resp = -1;
@@ -173,8 +175,9 @@ static void mdb_set_addrs(guint8 event, guint8 addr, packet_info *pinfo)
 static void dissect_mdb_cl_setup(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint32 sub_cmd;
+    guint32 sub_cmd, price;
     const gchar *s;
+    proto_item *pi;
 
     proto_tree_add_item_ret_uint(tree, hf_mdb_cl_setup_sub,
                     tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cmd);
@@ -197,6 +200,38 @@ static void dissect_mdb_cl_setup(tvbuff_t *tvb, gint offset,
             offset++;
             proto_tree_add_item(tree, hf_mdb_cl_disp_info, tvb, offset, 1,
                     ENC_BIG_ENDIAN);
+            break;
+
+        case MDB_CL_SETUP_MAX_MIN:
+            if (tvb_reported_length_remaining(tvb, offset) == 5) {
+                /* This is the "default version" of Max/Min Prices. */
+
+                /* XXX - convert the scaled prices into actual amounts */
+                price = tvb_get_ntohs(tvb, offset);
+                pi = proto_tree_add_uint_format(tree, hf_mdb_cl_max_price,
+                        tvb, offset, 2, price, "Maximum price: 0x%04x", price);
+                if (price == 0xFFFF) {
+                    proto_item_append_text(pi, " (unknown)");
+                }
+                offset += 2;
+
+                price = tvb_get_ntohs(tvb, offset);
+                pi = proto_tree_add_uint_format(tree, hf_mdb_cl_min_price,
+                        tvb, offset, 2, price, "Minimum price: 0x%04x", price);
+                if (price == 0x0000) {
+                    proto_item_append_text(pi, " (unknown)");
+                }
+            }
+            else if (tvb_reported_length_remaining(tvb, offset) == 11) {
+                /* This is the "expanded currency version" of Max/Min Prices. */
+
+                proto_tree_add_item(tree, hf_mdb_cl_max_price, tvb, offset, 4,
+                        ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(tree, hf_mdb_cl_min_price, tvb, offset, 4,
+                        ENC_BIG_ENDIAN);
+            }
+            /* XXX - expert info for other lengths */
             break;
     }
 }
@@ -467,6 +502,14 @@ void proto_register_mdb(void)
         { &hf_mdb_cl_disp_info,
             { "Display information", "mdb.cashless.disp_info",
                 FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }
+        },
+        { &hf_mdb_cl_max_price,
+            { "Maximum price", "mdb.cashless.max_price",
+                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cl_min_price,
+            { "Minimum price", "mdb.cashless.min_price",
+                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_mdb_cl_vend_sub,
             { "Sub-command", "mdb.cashless.vend_sub_cmd",
