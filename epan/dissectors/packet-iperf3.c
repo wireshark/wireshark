@@ -457,7 +457,7 @@ dissect_iperf3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item_ret_uint(time_tree, hf_iperf3_usec, tvb, offset, 4, ENC_BIG_ENDIAN, &useconds);
     offset += 4;
 
-    proto_item_set_text(ti, "Time Sent: %.7f seconds", (seconds + (useconds / 1000000.0)));
+    proto_item_set_text(ti, "Time Sent: %.7f seconds", seconds + (useconds / 1000000.0));
     /* empirically: no precision below 7 digits */
 
     /* let users choose if they're using 64 bit sequence numbers, but still want sensible
@@ -471,9 +471,9 @@ dissect_iperf3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         proto_tree_add_item(iperf3_tree, hf_iperf3_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
-    // NOTE: What's the relevance of local time here?
-    col_append_fstr(pinfo->cinfo, COL_INFO, " [%"PRIu64"] local time=%.7f length=%"PRIu32" bytes",
-        maybe_sequence_num, nstime_to_sec(&pinfo->rel_ts), nbytes);
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%" PRIu64 "] Time sent=%.7f length=%" PRIu32 " bytes",
+        maybe_sequence_num, seconds + (useconds / 1000000.0), nbytes);
 
     if (iperf3_pref_detect_udp_order)
         udp_detect_and_report_out_of_order(pinfo, ti, maybe_sequence_num);
