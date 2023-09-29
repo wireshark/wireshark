@@ -15635,7 +15635,7 @@ proto_register_pfcp(void)
         },
 
         { &hf_pfcp_reporting_flags_o5_b0_dupl,
-        { "DUPL (Duplocation Notication)", "pfcp.reporting_flags.dupl",
+        { "DUPL (Duplocation Notification)", "pfcp.reporting_flags.dupl",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },

@@ -2146,7 +2146,7 @@ MGCP packets exchanged by the host at IP address 1.2.3.4 .
 *-z* mtp3,msus[,__filter__]::
 +
 --
-Calculate statisics on MTP3 MSUs. For each combination of originating
+Calculate statistics on MTP3 MSUs. For each combination of originating
 point code, destination point code, and service indicator, calculates
 the total number of MSUs, the total bytes, and the average bytes per MSU.
 --

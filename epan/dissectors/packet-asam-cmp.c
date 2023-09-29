@@ -2517,7 +2517,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_iface_feat_canfd_brs_dom,         { "BRS Dom Supported", "asam-cmp.msg.iface.feat_supp.canfd.brs_dom", FT_BOOLEAN, 32, NULL, 0x00001000, NULL, HFILL } },
         { &hf_cmp_iface_feat_canfd_esi_dom,         { "ESI Dom Supported", "asam-cmp.msg.iface.feat_supp.canfd.esi_dom", FT_BOOLEAN, 32, NULL, 0x00002000, NULL, HFILL } },
         { &hf_cmp_iface_feat_lin_sync_err,          { "Sync Error Supported", "asam-cmp.msg.iface.feat_supp.lin.sync_err", FT_BOOLEAN, 32, NULL, 0x00000010, NULL, HFILL } },
-        { &hf_cmp_iface_feat_lin_framing_err,       { "Framing Error Supported", "asam-cmp.msg.iface.feat_supp.lin.frameing_err", FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL } },
+        { &hf_cmp_iface_feat_lin_framing_err,       { "Framing Error Supported", "asam-cmp.msg.iface.feat_supp.lin.framing_err", FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL } },
         { &hf_cmp_iface_feat_lin_short_dom_err,     { "Short Dom Error Supported", "asam-cmp.msg.iface.feat_supp.lin.short_dom_err", FT_BOOLEAN, 32, NULL, 0x00000040, NULL, HFILL } },
         { &hf_cmp_iface_feat_lin_long_dom_err,      { "Long Dom Error Supported", "asam-cmp.msg.iface.feat_supp.lin.long_dom_err", FT_BOOLEAN, 32, NULL, 0x00000080, NULL, HFILL } },
         { &hf_cmp_iface_feat_lin_wup,               { "WUP Supported", "asam-cmp.msg.iface.feat_supp.lin.wup", FT_BOOLEAN, 32, NULL, 0x00000100, NULL, HFILL } },

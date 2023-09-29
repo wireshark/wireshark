@@ -3770,7 +3770,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_ft_sess_flag_c,
           { "C bit", "ldp.msg.tlv.ft_sess.flag_c", FT_BOOLEAN, 16,
-            TFS(&tlv_ft_c), 0x2, "Check-Pointint Flag", HFILL }},
+            TFS(&tlv_ft_c), 0x2, "Check-Pointing Flag", HFILL }},
 
         { &hf_ldp_tlv_ft_sess_flag_l,
           { "L bit", "ldp.msg.tlv.ft_sess.flag_l", FT_BOOLEAN, 16,

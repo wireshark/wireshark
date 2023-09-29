@@ -298,7 +298,7 @@ static const value_string z3950_bib1_at_use[] = {
     { 1108, "DC-Source" },
     { 1109, "DC-Relation" },
     { 1110, "DC-Coverage" },
-    { 1111, "DC-RightsManagment" },
+    { 1111, "DC-RightsManagement" },
     { 1112, "GILS Controlled Subject Index" },
     { 1113, "GILS Subject Thesaurus" },
     { 1114, "GILS Index Terms -- Controlled" },

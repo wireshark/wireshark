@@ -14,7 +14,10 @@ import signal
 from collections import Counter
 
 # Looks for spelling errors among strings found in source or documentation files.
-# N.B. To run this script, you should install pyspellchecker (not spellchecker) using pip.
+# N.B.,
+# - To run this script, you should install pyspellchecker (not spellchecker) using pip.
+# - Because of colouring, you may want to pipe into less -R
+
 
 # TODO: check structured doxygen comments?
 

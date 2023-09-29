@@ -8150,7 +8150,7 @@ proto_register_homeplug_av(void)
             FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_tmi_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_chanqual_tmi_attached,
-          { "TMI of the attached Tone Map", "homeplug_av.st_iotecha.chanqual.tmi_atteched",
+          { "TMI of the attached Tone Map", "homeplug_av.st_iotecha.chanqual.tmi_attached",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_chanqual_fec_type,

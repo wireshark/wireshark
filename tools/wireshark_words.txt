@@ -19,10 +19,13 @@ accuracies
 acked
 acknack
 acknowledgement
+acknowledgements
 acp133
+actioned
 activations
 actuator
 acyclic
+adaption
 addba
 additionals
 additionsr
@@ -30,6 +33,7 @@ addon
 adjacency
 adlink
 administrable
+administratively
 adpclk
 adspec
 advatek
@@ -37,6 +41,7 @@ adwin
 aes128
 aes256
 aethra
+aggregated
 aggregations
 aggregator
 agnss
@@ -48,6 +53,7 @@ alcap
 alcatel
 alljoyn
 alloc
+allocator
 allocators
 alteon
 ampdu
@@ -59,10 +65,12 @@ analyzers
 analyzes
 annexc
 annunc
+annunciation
 anonsvn
 anonymization
 aperiodic
 appdata
+append
 appid
 appkey
 applicability
@@ -71,17 +79,21 @@ arbitrated
 arduino
 arfcn
 arista
+aruba
+ascii
 asciidoc
 ashrae
 asn1
 asn1cnf
 asn2deb
 asn2wrs
+assembler
 assignee
 assignor
 assoc
 assymetric
 async
+asynchronous
 asynchronously
 asyncmap
 atheros
@@ -134,6 +146,7 @@ bidirectionally
 bigint
 binlog
 bitfield
+bitmap
 bitmask
 bitrate
 bitstring
@@ -253,6 +266,7 @@ cmdcontrol
 cmstatus
 codabar
 codebook
+codec
 codecs
 codepoint
 codeset
@@ -280,10 +294,14 @@ computable
 concatenate
 concatenated
 concatenates
+concatenation
+concentrator
 concurrent
 conferenced
+config
 configitem
 configurable
+conformance
 conformant
 congctrl
 connectionless
@@ -296,6 +314,7 @@ contiguity
 contiguously
 coord
 Coord3D
+coords
 copycss
 copyfile
 corba
@@ -351,10 +370,13 @@ deauthentication
 deauthentications
 debian
 debug
+debugger
 decapsulation
 decca
 decentralization
 dechunk
+decnet
+decompressed
 decompressing
 decompressor
 decrement
@@ -385,6 +407,7 @@ denso
 deobfuscated
 deobfuscation
 depassivated
+dependencies
 deprecated
 deprotection
 dequeue
@@ -400,11 +423,13 @@ deregistration
 derivate
 des40
 descr
+descriptor
 descriptors
 desegment
 desegmentation
 desegmenting
 deselect
+designator
 destip
 destport
 deutschland
@@ -431,10 +456,12 @@ directionality
 disambiguate
 disambiguation
 discriminant
+discriminator
 dissection
 dissector
 dissectors
 distinguisher
+distributions
 diversifier
 divisor
 djiuav
@@ -480,6 +507,7 @@ elink
 ellipsoid
 encap
 encaps
+encapsulation
 encapsulations
 encapsulator
 encinfo
@@ -500,7 +528,9 @@ enrollee
 entityid
 entryid
 enttec
+enumerated
 enumerates
+enumeration
 enumerations
 enumerator
 envchange
@@ -510,6 +540,7 @@ eperm
 epsem
 equinf
 equiv
+equivalence
 ericsson
 erldp
 errinf
@@ -545,6 +576,9 @@ extrainformation
 eyesdn
 facch
 failover
+falco
+falcodump
+falcosecurity
 fastcom
 fastip
 fastmsg
@@ -621,6 +655,7 @@ google
 gpointer
 gprscdr
 gprsmeasurementparams3g
+granularity
 gregex
 greyed
 groupa
@@ -640,7 +675,9 @@ hashes
 hazelcast
 hcidump
 headend
+hellman
 heuristic
+heuristics
 hfarr
 hfill,
 HI2Operations
@@ -663,6 +700,8 @@ http2
 https
 huawei
 huffman
+hutchison
+hysteresis
 hytec
 icmpv
 ident
@@ -701,7 +740,9 @@ informationitem
 informationlist
 infos
 inited
+initialisation
 initialise
+initialised
 initialising
 initialization
 initializations
@@ -715,6 +756,7 @@ inline
 inode
 inodes
 inspiron
+installers
 instantiate
 instdir
 instrumented
@@ -723,6 +765,7 @@ interleaving
 interop
 interruptible
 interworking
+intra
 intval
 inuse
 invalidation
@@ -739,6 +782,7 @@ ipcomp
 ipconfig
 iperf
 ipfix
+ipmap
 ipphone
 ipprim
 ipsec
@@ -756,6 +800,7 @@ iscsi
 iseries
 isobus
 isochronous
+issuer
 italia
 iterating
 iterator
@@ -810,10 +855,12 @@ list1
 literals
 lithionics
 lnpdqp
+locamation
 logcat
 loghans
 loglocal
 logoff
+logon
 logout
 logray
 lookups
@@ -827,8 +874,10 @@ lycamobile
 macaddr
 macaddress
 macosx
+macros
 macsec
 mailto
+maintainers
 malloc
 manarg
 mantissa
@@ -849,6 +898,7 @@ mcptt
 mcsset
 measurability
 measurements
+mediaone
 medion
 megabit
 megaco
@@ -874,6 +924,7 @@ mingw
 miniport
 minislot
 minislots
+minizip
 minus1
 mirrorlink
 misconfiguration
@@ -887,6 +938,7 @@ mode01
 mode7
 modepage
 modespecificinfo
+modifier
 modulo
 motorola
 mozilla
@@ -928,6 +980,7 @@ multiplexers
 multiplexing
 multiplicative
 multiplicator
+multiplier
 multirat
 multirate
 multislot
@@ -943,6 +996,7 @@ namelen
 namespace
 naptr
 narrowband
+nasdaq
 nbrar
 ndpsm
 negotiability
@@ -970,6 +1024,7 @@ nghttp
 ngran
 ngsniffer
 niagra
+nikon
 nitnxlate
 nnsvc
 noascii
@@ -1042,6 +1097,7 @@ ontime
 opcode
 opcodes
 opcua
+opengl
 openssh
 openssl
 openstreetmap
@@ -1055,6 +1111,7 @@ optimizer
 optiplex
 optreq
 ordinal
+orthogonal
 oscillatory
 oscore
 osdmap
@@ -1076,6 +1133,7 @@ paramset
 parens
 parlay
 parms
+parsed
 parser
 parses
 passcode
@@ -1097,6 +1155,7 @@ pdustatus
 peeraddr
 peerkey
 periodicities
+periodicity
 peristency
 persistency
 pfname
@@ -1158,6 +1217,7 @@ promisc
 promiscsniff
 promiscuously
 propertykey
+prosody
 protected
 protoabbrev
 protobuf
@@ -1190,6 +1250,7 @@ quadlet
 quadrature
 quadro
 quantifiers
+quantization
 queryhit
 queryset
 quiescing
@@ -1215,6 +1276,7 @@ realloc
 realtek
 realtime
 reassembles
+reassembly
 reassigning
 reassignments
 reassigns
@@ -1246,10 +1308,12 @@ reconfigured
 reconfigures
 reconfirm
 reconfrqst
+reconnection
 recursively
 redelivered
 redelivery
 redir
+redirection
 redirector
 redirects
 redistributable
@@ -1350,6 +1414,7 @@ rtpdump
 rtpevent
 rtpmidi
 rtpmux
+rtpstream
 ruleset
 rxchannel
 rxlen
@@ -1363,11 +1428,13 @@ sanitize
 sapgui
 satisfiable
 scalability
+scalable
 scaleout
 scaler
 scannable
 scdma
 scell
+schema
 scoped
 scrollbar
 sdcch
@@ -1377,6 +1444,7 @@ sectorization
 sectorized
 segmenting
 segno
+semaphores
 semiautomatic
 sendto
 separability
@@ -1386,6 +1454,8 @@ seqnr
 seqnum
 sequenceno
 sercos
+serialised
+serialization
 serialize
 serialized
 servlet
@@ -1405,6 +1475,7 @@ sha256
 sha384
 sha512
 sharkd
+shenzhen
 shomiti
 siapp
 sidelink
@@ -1440,6 +1511,7 @@ spare7
 spare8
 spare9
 spcell
+specifier
 specifiers
 spectrograph
 speex
@@ -1455,6 +1527,7 @@ sshdump
 sshkey
 ssupervisor
 stanag
+standardization
 stateful
 statfs
 statusbar
@@ -1512,6 +1585,7 @@ subtlv
 subtree
 subtrees
 superset
+suppfeat
 sverige
 svhdx
 switchinfo
@@ -1551,12 +1625,15 @@ telenor
 teletex
 telfonica
 telia
+telnet
 teredo
+terminations
 tesla
 text2pcap
 textbox
 thermister
 thermistor
+throughput
 thunderx
 timeout
 timeslot
@@ -1636,6 +1713,7 @@ unallocated
 unallowed
 unassign
 unassoc
+unassociated
 unauthenticated
 unbind
 unbuffered
@@ -1710,9 +1788,11 @@ unmuted
 unnumb
 unoptimized
 unordered
+unpaired
 unparsable
 unparseable
 unparsed
+unprintable
 unprocessable
 unpublish
 unpunctuated
@@ -1720,6 +1800,7 @@ unquoted
 unreach
 unreassembled
 unreceived
+unrecognised
 unrecoverable
 unrecovered
 unregister
@@ -1731,7 +1812,10 @@ unroutable
 unsecure
 unsegmented
 unsequenced
+unset
+unsorted
 unspec
+unspecific
 unsubscribe
 unsubscribed
 unsynchronized
@@ -1751,6 +1835,7 @@ upload
 uploaded
 uploading
 uploads
+uptime
 urlencoded
 urnti
 usability
@@ -1779,6 +1864,7 @@ vcredist
 vcxproj
 vector3d
 venusmngr
+verbose
 verbosity
 verifier
 verizon

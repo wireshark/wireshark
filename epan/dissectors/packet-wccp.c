@@ -3049,7 +3049,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_mask_value_set_element_value_element_num,
-      { "Number of Value Elements", "wccp.mask_value_set_selement.value_element_num", FT_UINT32, BASE_DEC, 0x0, 0x0,
+      { "Number of Value Elements", "wccp.mask_value_set_element.value_element_num", FT_UINT32, BASE_DEC, 0x0, 0x0,
         NULL, HFILL }
     },
     { &hf_assignment_weight,
