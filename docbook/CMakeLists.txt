@@ -474,7 +474,7 @@ set_docbook_target_properties(release_notes_txt)
 # trip on each other
 # add_dependencies ( release_notes_txt release_notes_html )
 
-add_custom_target( release_notes )
+add_custom_target( release_notes ALL )
 set_docbook_target_properties(release_notes)
 add_dependencies ( release_notes release_notes_txt release_notes_html )
 

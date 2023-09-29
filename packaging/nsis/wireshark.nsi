@@ -550,6 +550,7 @@ File "${STAGING_DIR}\dumpcap.exe"
 File "${STAGING_DIR}\dumpcap.html"
 File "${STAGING_DIR}\extcap.html"
 File "${STAGING_DIR}\ipmap.html"
+File "${STAGING_DIR}\release-notes.html"
 
 !ifdef USE_VCREDIST
 ; C-runtime redistributable
@@ -1445,6 +1446,7 @@ Delete "$INSTDIR\browser_sslkeylog.lua"
 Delete "$INSTDIR\console.lua"
 Delete "$INSTDIR\dtd_gen.lua"
 Delete "$INSTDIR\init.lua"
+Delete "$INSTDIR\release-notes.html"
 
 RMDir "$INSTDIR\accessible"
 RMDir "$INSTDIR\audio"

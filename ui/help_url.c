@@ -140,6 +140,11 @@ topic_action_url(topic_action_e action)
         url = doc_file_url("tshark.html");
         break;
 
+    /* Release Notes */
+    case(LOCALPAGE_RELEASE_NOTES):
+        url = doc_file_url("release-notes.html");
+        break;
+
     /* local help pages (User's Guide) */
     case(HELP_CONTENT):
         url = user_guide_url( "index.html");

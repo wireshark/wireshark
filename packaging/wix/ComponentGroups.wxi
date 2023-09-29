@@ -65,6 +65,8 @@
         </Component>
         <Component Id="cmpIpmap_html" Guid="*">
           <File Id="filIpmap_html" KeyPath="yes" Source="$(var.Staging.Dir)\ipmap.html" />
+        <Component Id="cmpReleaseNotes_html" Guid="*">
+          <File Id="filReleaseNotes_html" KeyPath="yes" Source="$(var.Staging.Dir)\release-notes.html" />
         </Component>
       </DirectoryRef>
     </Fragment>
@@ -86,6 +88,7 @@
         <ComponentRef Id="cmpDumpcap_html" />
         <ComponentRef Id="cmpExtcap_html" />
         <ComponentRef Id="cmpIpmap_html" />
+        <ComponentRef Id="cmpReleaseNotes_html" />
       </ComponentGroup>
     </Fragment>
 
