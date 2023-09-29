@@ -74,6 +74,10 @@ static int hf_mdb_cgw_scale = -1;
 static int hf_mdb_cgw_dec_pl = -1;
 static int hf_mdb_cgw_resp = -1;
 static int hf_mdb_cgw_max_rsp_time = -1;
+static int hf_mdb_cgw_report_sub = -1;
+static int hf_mdb_cgw_dts_evt_code = -1;
+static int hf_mdb_cgw_duration = -1;
+static int hf_mdb_cgw_activity = -1;
 static int hf_mdb_cgw_expns_sub = -1;
 static int hf_mdb_cgw_opt_feat = -1;
 static int hf_mdb_cgw_manuf_code = -1;
@@ -196,15 +200,24 @@ static const value_string mdb_cl_resp[] = {
  * There's only one Communications Gateway, the address bits are always the
  * same. (This is different from the Cashless peripherals, see above.)
  */
-#define MDB_CGW_ADDR_CMD_SETUP 0x19
-#define MDB_CGW_ADDR_CMD_EXPNS 0x1F
+#define MDB_CGW_ADDR_CMD_SETUP  0x19
+#define MDB_CGW_ADDR_CMD_REPORT 0x1B
+#define MDB_CGW_ADDR_CMD_EXPNS  0x1F
 
 static const value_string mdb_cgw_addr_cmd[] = {
     { 0x18, "Reset" },
     { MDB_CGW_ADDR_CMD_SETUP, "Setup" },
     { 0x1A, "Poll" },
-    { 0x1B, "Report" },
+    { MDB_CGW_ADDR_CMD_REPORT, "Report" },
     { MDB_CGW_ADDR_CMD_EXPNS, "Expansion" },
+    { 0, NULL }
+};
+
+#define MDB_CGW_REPORT_DTS_EVT 0x02
+
+static const value_string mdb_cgw_report_sub_cmd[] = {
+    { 0x01, "Transaction" },
+    { MDB_CGW_REPORT_DTS_EVT, "DTS Event" },
     { 0, NULL }
 };
 
@@ -482,6 +495,38 @@ static void dissect_mdb_per_mst_cl( tvbuff_t *tvb, gint offset,
     }
 }
 
+static void dissect_mdb_cgw_report(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree)
+{
+    guint32 sub_cmd;
+    const gchar *s;
+
+    proto_tree_add_item_ret_uint(tree, hf_mdb_cgw_report_sub,
+                    tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cmd);
+    s = try_val_to_str(sub_cmd, mdb_cgw_report_sub_cmd);
+    if (s) {
+        col_set_str(pinfo->cinfo, COL_INFO, s);
+    }
+    offset++;
+
+    switch (sub_cmd) {
+        case MDB_CGW_REPORT_DTS_EVT:
+            proto_tree_add_item(tree, hf_mdb_cgw_dts_evt_code, tvb, offset, 10,
+                    ENC_ASCII);
+            offset += 10;
+            /* XXX - dissect Date */
+            offset += 4;
+            /* XXX - dissect Time */
+            offset += 2;
+            proto_tree_add_item(tree, hf_mdb_cgw_duration, tvb, offset, 4,
+                    ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_mdb_cgw_activity, tvb, offset, 1,
+                    ENC_BIG_ENDIAN);
+            break;
+    }
+}
+
 static void dissect_mdb_cgw_expns(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)
 {
@@ -528,6 +573,9 @@ static void dissect_mdb_mst_per_cgw( tvbuff_t *tvb, gint offset, gint len,
             offset++;
             proto_tree_add_item(cgw_tree, hf_mdb_cgw_dec_pl, tvb, offset, 1,
                     ENC_BIG_ENDIAN);
+            break;
+        case MDB_CGW_ADDR_CMD_REPORT:
+            dissect_mdb_cgw_report(tvb, offset, pinfo, cgw_tree);
             break;
         case MDB_CGW_ADDR_CMD_EXPNS:
             dissect_mdb_cgw_expns(tvb, offset, pinfo, cgw_tree);
@@ -881,6 +929,22 @@ void proto_register_mdb(void)
         { &hf_mdb_cgw_max_rsp_time,
             { "Application maximum response time", "mdb.comms_gw.max_rsp_time",
                 FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_report_sub,
+            { "Sub-command", "mdb.comms_gw.report_sub_cmd", FT_UINT8,
+                BASE_HEX, VALS(mdb_cgw_report_sub_cmd), 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_dts_evt_code,
+            { "DTS Event Code", "mdb.comms_gw.dts_event_code",
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_duration,
+            { "Duration", "mdb.comms_gw.duration",
+                FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_activity,
+            { "Activity", "mdb.comms_gw.activity",
+                FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x1, NULL, HFILL }
         },
         { &hf_mdb_cgw_expns_sub,
             { "Sub-command", "mdb.comms_gw.expansion_sub_cmd", FT_UINT8,
