@@ -76,6 +76,9 @@ static int hf_mdb_cgw_resp = -1;
 static int hf_mdb_cgw_max_rsp_time = -1;
 static int hf_mdb_cgw_expns_sub = -1;
 static int hf_mdb_cgw_opt_feat = -1;
+static int hf_mdb_cgw_manuf_code = -1;
+static int hf_mdb_cgw_ser_num = -1;
+static int hf_mdb_cgw_mod_num = -1;
 static int hf_mdb_ack = -1;
 static int hf_mdb_data = -1;
 static int hf_mdb_chk = -1;
@@ -214,13 +217,14 @@ static const value_string mdb_cgw_expns_sub_cmd[] = {
     { 0, NULL }
 };
 
-#define MDB_CGW_RESP_CFG 0x01
+#define MDB_CGW_RESP_CFG    0x01
+#define MDB_CGW_RESP_PER_ID 0x06
 
 static const value_string mdb_cgw_resp[] = {
     { 0x00, "Just Reset" },
     { MDB_CGW_RESP_CFG, "Comms Gateway Config" },
     { 0x05, "DTS Event Acknowledge" },
-    { 0x06, "Peripheral ID" },
+    { MDB_CGW_RESP_PER_ID, "Peripheral ID" },
     { 0, NULL }
 };
 
@@ -554,6 +558,21 @@ static void dissect_mdb_per_mst_cgw( tvbuff_t *tvb, gint offset,
             proto_tree_add_item(cgw_tree, hf_mdb_cgw_max_rsp_time, tvb, offset,
                     2, ENC_TIME_SECS | ENC_BIG_ENDIAN);
             break;
+        case MDB_CGW_RESP_PER_ID:
+            proto_tree_add_item(tree, hf_mdb_cgw_manuf_code, tvb, offset, 3,
+                    ENC_ASCII);
+            offset += 3;
+            proto_tree_add_item(tree, hf_mdb_cgw_ser_num, tvb, offset, 12,
+                    ENC_ASCII);
+            offset += 12;
+            proto_tree_add_item(tree, hf_mdb_cgw_mod_num, tvb, offset, 12,
+                    ENC_ASCII);
+            offset += 12;
+            /* XXX - dissect the Software Version bytes */
+            offset += 2;
+            proto_tree_add_item(tree, hf_mdb_cgw_opt_feat, tvb, offset, 4,
+                    ENC_BIG_ENDIAN);
+            break;
     }
 }
 
@@ -870,6 +889,18 @@ void proto_register_mdb(void)
         { &hf_mdb_cgw_opt_feat,
             { "Optional Feature Bits", "mdb.comms_gw.opt_feature_bits",
                 FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_manuf_code,
+            { "Manufacturer Code", "mdb.comms_gw.manuf_code",
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_ser_num,
+            { "Serial Number", "mdb.comms_gw.serial_number",
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mdb_cgw_mod_num,
+            { "Model Number", "mdb.comms_gw.model_number",
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_mdb_ack,
             { "Ack byte", "mdb.ack",
