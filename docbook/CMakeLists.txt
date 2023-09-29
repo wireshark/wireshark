@@ -463,36 +463,6 @@ if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_EPUB_EXECUTABLE)
 	add_dependencies(developer_guides developer_guide_epub)
 endif()
 
-# release_notes: release-notes.html release-notes.txt
-
-add_custom_target( release_notes_html DEPENDS release-notes.html )
-set_docbook_target_properties(release_notes_html)
-add_custom_target( release_notes_txt DEPENDS release-notes.txt )
-set_docbook_target_properties(release_notes_txt)
-
-# Force serial execution so that separate asciidoctor instances don't
-# trip on each other
-# add_dependencies ( release_notes_txt release_notes_html )
-
-add_custom_target( release_notes )
-set_docbook_target_properties(release_notes)
-add_dependencies ( release_notes release_notes_txt release_notes_html )
-
-add_custom_target(
-	news
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${CMAKE_CURRENT_BINARY_DIR}/release-notes.txt
-		${CMAKE_SOURCE_DIR}/NEWS
-	DEPENDS
-		${CMAKE_CURRENT_BINARY_DIR}/release-notes.txt
-)
-set_docbook_target_properties(news)
-
-if( ASCIIDOCTOR_FOUND )
-	ASCIIDOCTOR2HTML( release-notes.adoc )
-	ASCIIDOCTOR2TXT( release-notes.adoc )
-endif()
-
 # FAQ
 
 add_custom_target( faq_html DEPENDS faq.html )

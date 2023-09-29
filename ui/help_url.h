@@ -50,6 +50,9 @@ typedef enum {
     LOCALPAGE_MAN_TEXT2PCAP,
     LOCALPAGE_MAN_TSHARK,
 
+    /* Release Notes */
+    LOCALPAGE_RELEASE_NOTES,
+
     /* help pages (textfiles or local HTML User's Guide) */
     HELP_CONTENT = 200,
     HELP_GETTING_STARTED,           /* currently unused */

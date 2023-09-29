@@ -249,6 +249,7 @@
     <addaction name="separator"/>
     <addaction name="actionHelpWiki"/>
     <addaction name="actionHelpSampleCaptures"/>
+    <addaction name="actionHelpReleaseNotes"/>
     <addaction name="separator"/>
     <addaction name="actionHelpAbout"/>
    </widget>
@@ -3023,6 +3024,11 @@
   <action name="actionToolsSSLKeylog">
    <property name="text">
     <string>Browser (SSL Keylog)</string>
+   </property>
+  </action>
+  <action name="actionHelpReleaseNotes">
+   <property name="text">
+    <string>Release Notes</string>
    </property>
   </action>
  </widget>
