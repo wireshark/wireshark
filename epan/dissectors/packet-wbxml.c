@@ -7332,7 +7332,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 
 	unsigned     recursion_level = p_get_proto_depth(pinfo, proto_wbxml);
 	unsigned     encoding = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wbxml, 0));
-	if (++recursion_level >= WBXML_MAX_RECURSION_LEVEL) {
+	if (recursion_level >= WBXML_MAX_RECURSION_LEVEL) {
 		proto_tree_add_expert(tree, pinfo, &ei_wbxml_too_much_recursion, tvb, offset, tvb_captured_length_remaining(tvb, offset));
 		return tvb_len;
 	}
@@ -7460,7 +7460,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 				if (map != NULL)
 				{
 					char *tmp_str;
-					if (tag_save_known) { /* Knwon tag */
+					if (tag_save_known) { /* Known tag */
 						if (map->opaque_binary_tag) {
 							tmp_str = map->opaque_binary_tag(tvb, off + 1,
 										     tag_save_known, *codepage_stag, &len, pinfo);
@@ -7550,8 +7550,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 					DebugLog(("STAG: Tag in Tag - RECURSE! (off = %u)\n", off));
 					/* Do not process the attribute list:
 					 * recursion will take care of it */
-					recursion_level++;
-					p_set_proto_depth(pinfo, proto_wbxml, recursion_level);
+					p_set_proto_depth(pinfo, proto_wbxml, recursion_level + 1);
 					len = parse_wbxml_tag_defined (tree, tvb, pinfo, off, str_tbl,
 								       codepage_stag, codepage_attr, map);
 					off += len;
