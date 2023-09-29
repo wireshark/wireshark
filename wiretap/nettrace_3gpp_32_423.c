@@ -50,7 +50,7 @@ static const guchar c_e_msg[] = "</msg>";
 static const guchar c_s_rawmsg[] = "<rawMsg";
 static const guchar c_change_time[] = "changeTime=\"";
 static const guchar c_proto_name[] = "name=\"";
-static const guchar c_address[] = "ddress"; /* omit the 'a' to cater for "Address" */
+//static const guchar c_address[] = "ddress"; /* omit the 'a' to cater for "Address" */
 static const guchar c_s_initiator[] = "<initiator";
 static const guchar c_e_initiator[] = "</initiator>";
 static const guchar c_s_target[] = "<target";
@@ -125,25 +125,13 @@ nettrace_parse_address(char* curr_pos, char* next_pos, gboolean is_src_addr, exp
 	char ip_addr_str[WS_INET6_ADDRSTRLEN];
 	ws_in6_addr ip6_addr;
 	guint32 ip4_addr;
-	char *ptr; //for strtol function
+	char *err; //for strtol function
 
-	static GRegex* aregex = NULL; //For IPv4 or IPv6 address
-	static GRegex* pregex = NULL; //For Port
-	static GRegex* tregex = NULL; //For Transport
-
-	 if (aregex == NULL)
-		//First time will compile regex
-		aregex = g_regex_new ("^.*address\\s*=*\\s*\\[?((?:\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(?:[0-9a-f:]{,39}))", G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
-
-	 if (pregex == NULL)
-		//First time will compile regex
-		pregex = g_regex_new ("^.*port\\s*=*\\s*(\\d{1,5})", G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
-
-	 if (tregex == NULL)
-		//First time will compile regex
-		tregex = g_regex_new ("^.*transport\\s*=*\\s*(\\w{3,4})", G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
-
-	/* curr_pos pointing to first char of address */
+	GMatchInfo *match_info;
+	static GRegex *regex = NULL;
+	char *matched_ipaddress = NULL;
+	char *matched_port = NULL;
+	char *matched_transport = NULL;
 
 	/* Excample from one trace, unsure if it's generic...
 	 * {address == 192.168.73.1, port == 5062, transport == Udp}
@@ -152,28 +140,41 @@ nettrace_parse_address(char* curr_pos, char* next_pos, gboolean is_src_addr, exp
 	 *  Address=198.142.204.199,Port=2123
 	 */
 
-	char **addressMatches = g_regex_split(aregex, curr_pos,  0);
-	char **portMatches = g_regex_split(pregex, curr_pos,  0);
-	char **transportMatches = g_regex_split(tregex, curr_pos,  0);
+	if (regex == NULL) {
+		regex = g_regex_new (
+			"^.*address\\s*=*\\s*" //curr_pos will begin with address
+			"\\[?(?P<ipaddress>(?:" //store ipv4 or ipv6 address in named group "ipaddress"
+				"(?:\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})" //match an IPv4 address
+				"|" // or
+				"(?:[0-9a-f:]*)))\\]?" //match an IPv6 address.
+			"(?:.*port\\s*=*\\s*(?P<port>\\d{1,5}))?" //match a port store it in named group "port"
+			"(?:.*transport\\s*=*\\s*(?P<transport>\\w+))?", //match a transport store it in named group "transport"
+			G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+	 }
 
+	/* curr_pos pointing to first char of "address" */
 
-	if (addressMatches[1] != NULL && addressMatches[2] != NULL) {
-		(void) g_strlcpy(ip_addr_str, addressMatches[1], strlen(addressMatches[1])+1);
+	g_regex_match (regex, curr_pos, 0, &match_info);
+
+	if (g_match_info_matches (match_info)) {
+		matched_ipaddress = g_match_info_fetch_named(match_info, "ipaddress"); //will be empty string if no ipv4 or ipv6
+		matched_port = g_match_info_fetch_named(match_info, "port"); //will be empty string if port not in trace
+		matched_transport = g_match_info_fetch_named(match_info, "transport"); //will be empty string if transport not in trace
+	} else {
+		return next_pos;
 	}
-	if (portMatches[1] != NULL && portMatches[2] != NULL) {
-		port = (guint) strtol(portMatches[1], &ptr, 10);
-	}
-	if (transportMatches[1] != NULL && transportMatches[2] != NULL) {
-		(void) g_strlcpy(transp_str, transportMatches[1], strlen(transportMatches[1])+1);
-	}
 
-	g_free(addressMatches);
-	g_free(portMatches);
-	g_free(transportMatches);
+	g_match_info_free(match_info);
 
-	g_regex_unref(aregex);
-	g_regex_unref(pregex);
-	g_regex_unref(tregex);
+	if (matched_ipaddress != NULL && strlen(matched_ipaddress)) {
+		(void) g_strlcpy(ip_addr_str, matched_ipaddress, strlen(matched_ipaddress)+1);
+	}
+	if (matched_port != NULL && strlen(matched_port)) {
+		port = (guint) strtol(matched_port, &err, 10);
+	}
+	if (matched_transport != NULL && strlen(matched_transport)) {
+		(void) g_strlcpy(transp_str, matched_transport, strlen(matched_transport)+1);
+	}
 
 	if (ws_inet_pton6(ip_addr_str, &ip6_addr)) {
 		if (is_src_addr) {
@@ -348,7 +349,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 		curr_pos += CLEN(c_s_initiator);
 		next_pos = STRNSTR(curr_pos, c_e_initiator);
 		/* Find address */
-		curr_pos = STRNSTR(curr_pos, c_address) - 1;
+		//curr_pos = STRNSTR(curr_pos, c_address) - 1; //Not needed due to regex
 		if (curr_pos != NULL) {
 			nettrace_parse_address(curr_pos, next_pos, TRUE/* SRC */, &exported_pdu_info);
 		}
@@ -363,7 +364,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 		curr_pos += CLEN(c_s_target);
 		next_pos = STRNSTR(curr_pos, c_e_target);
 		/* Find address */
-		curr_pos = STRNSTR(curr_pos, c_address) - 1;
+		//curr_pos = STRNSTR(curr_pos, c_address) - 1; //Not needed due to regex
 		if (curr_pos != NULL) {
 			/* curr_pos set below */
 			nettrace_parse_address(curr_pos, next_pos, FALSE/* DST */, &exported_pdu_info);
