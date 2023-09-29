@@ -864,13 +864,8 @@ void ws_log_init(const char *progname,
     if ((fd = fileno(stderr)) >= 0)
         stderr_color_enabled = g_log_writer_supports_color(fd);
 
-    /* Set the GLib log handler for the default domain. */
-    g_log_set_handler(NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
-                        glib_log_handler, NULL);
-
-    /* Set the GLib log handler for GLib itself. */
-    g_log_set_handler("GLib", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
-                        glib_log_handler, NULL);
+    /* Set ourselves as the default log handler for all GLib domains. */
+    g_log_set_default_handler(glib_log_handler, NULL);
 
 #ifdef _WIN32
     load_registry();
