@@ -2772,12 +2772,12 @@ dissect_timeval(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_time, int hf
 
 /* NFSv2 RFC 1094, Page 16 */
 static const value_string nfs2_mode_names[] = {
-	{	0040000,	"Directory"	},
-	{	0020000,	"Character Special Device"	},
-	{	0060000,	"Block Special Device"	},
-	{	0100000,	"Regular File"	},
-	{	0120000,	"Symbolic Link"	},
-	{	0140000,	"Named Socket"	},
+	{	1,	"Directory"	},
+	{	2,	"Character Special Device"	},
+	{	3,	"Block Special Device"	},
+	{	4,	"Regular File"	},
+	{	5,	"Symbolic Link"	},
+	{	6,	"Named Socket"	},
 	{	0000000,	NULL		}
 };
 
