@@ -4507,7 +4507,7 @@ static int * const artnet_nzs_vlc_flags_fields[] = {
 #define ARTNET_NZS_VLC_MAGIC_SUB_CODE   0x45
 
 static const value_string vals_artnet_nzs_vlc_ieee[] = {
-  { 0x00, "Payload languge" },
+  { 0x00, "Payload language" },
   { 0x01, "IEEE VLC data" },
   { 0x00, NULL }
 };

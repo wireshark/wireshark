@@ -1855,7 +1855,7 @@ void proto_register_zb_direct(void)
     prefs_register_bool_preference(zbd_prefs,
                                    "ignore_late_keys",
                                    "Ignore Late Keys",
-                                   "Wether or not dissector shall ignore keys, "
+                                   "Whether or not dissector shall ignore keys, "
                                    "which were provided after current packet "
                                    "during decryption",
                                    &ignore_late_keys);

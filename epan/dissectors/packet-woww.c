@@ -7650,7 +7650,7 @@ static const value_string e_buy_bank_slot_result_strings[] =  {
 typedef enum {
     BUY_RESULT_CANT_FIND_ITEM = 0x0,
     BUY_RESULT_ITEM_ALREADY_SOLD = 0x1,
-    BUY_RESULT_NOT_ENOUGHT_MONEY = 0x2,
+    BUY_RESULT_NOT_ENOUGH_MONEY = 0x2,
     BUY_RESULT_SELLER_DONT_LIKE_YOU = 0x4,
     BUY_RESULT_DISTANCE_TOO_FAR = 0x5,
     BUY_RESULT_ITEM_SOLD_OUT = 0x7,
@@ -7661,7 +7661,7 @@ typedef enum {
 static const value_string e_buy_result_strings[] =  {
     { BUY_RESULT_CANT_FIND_ITEM, "Cant Find Item" },
     { BUY_RESULT_ITEM_ALREADY_SOLD, "Item Already Sold" },
-    { BUY_RESULT_NOT_ENOUGHT_MONEY, "Not Enought Money" },
+    { BUY_RESULT_NOT_ENOUGH_MONEY, "Not Enough Money" },
     { BUY_RESULT_SELLER_DONT_LIKE_YOU, "Seller Dont Like You" },
     { BUY_RESULT_DISTANCE_TOO_FAR, "Distance Too Far" },
     { BUY_RESULT_ITEM_SOLD_OUT, "Item Sold Out" },

@@ -629,7 +629,7 @@ proto_register_do(void)
               NULL, HFILL }
         },
         { &hf_do_unknown_message,
-            { "Unkown Message, this shouldn't happen", "msdo.UnknownMessage",
+            { "Unknown Message, this shouldn't happen", "msdo.UnknownMessage",
               FT_NONE, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },

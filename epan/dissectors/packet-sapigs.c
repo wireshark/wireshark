@@ -364,7 +364,7 @@ proto_register_sapigs(void)
 	range_convert_str(wmem_epan_scope(), &global_sapigs_port_range, SAPIGS_PORT_RANGE, MAX_TCP_PORT);
 	prefs_register_range_preference(sapigs_module, "tcp_ports", "SAP IGS Protocol TCP port numbers", "Port numbers used for SAP IGS Protocol (default "SAPIGS_PORT_RANGE ")", &global_sapigs_port_range, MAX_TCP_PORT);
 
-	prefs_register_bool_preference(sapigs_module, "highlight_unknow_items", "Highlight unknow SAP IGS messages", "Wether the SAP IGS Protocol dissector should highlight unknown IGS messages", &global_sapigs_highlight_items);
+	prefs_register_bool_preference(sapigs_module, "highlight_unknow_items", "Highlight unknown SAP IGS messages", "Whether the SAP IGS Protocol dissector should highlight unknown IGS messages", &global_sapigs_highlight_items);
 
 }
 

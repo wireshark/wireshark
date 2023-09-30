@@ -6867,7 +6867,7 @@ void proto_register_radiotap(void)
                   FT_UINT32, BASE_HEX, NULL, 0x00000100, NULL, HFILL }},
 
 		{&hf_radiotap_usig_eht_tb_validate1_not_known,
-		 {"Validate not knwon",
+		 {"Validate not known",
 		  "radiotap.u_sig.value.tb_ppdu.validate1_not_known",
 		  FT_UINT32, BASE_HEX, NULL, 0x00000100, NULL, HFILL }},
 
@@ -7244,7 +7244,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_eht_data2_ru_alloc_c2_1_2_not_known,
 		 {"Content Channel 2 RU Allocation 1::2",
-		  "radiotap.eht.data_2.content_channel_2_ru_allocation_1_2_not_knwon",
+		  "radiotap.eht.data_2.content_channel_2_ru_allocation_1_2_not_known",
 		  FT_UINT32, BASE_HEX, NULL, 0x1ff00000, NULL, HFILL }},
 
 		{&hf_radiotap_eht_data2_ru_alloc_c2_1_2_known,
@@ -7297,7 +7297,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_eht_data3_ru_alloc_c1_2_2_not_known,
 		 {"Content Channel 1 RU Allocation 2::2",
-		  "radiotap.eht.data_3.content_channel_1_ru_allocation_2_2_not_knwon",
+		  "radiotap.eht.data_3.content_channel_1_ru_allocation_2_2_not_known",
 		  FT_UINT32, BASE_HEX, NULL, 0x1ff00000, NULL, HFILL }},
 
 		{&hf_radiotap_eht_data3_ru_alloc_c1_2_2_known,

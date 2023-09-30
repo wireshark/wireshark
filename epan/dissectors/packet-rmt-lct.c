@@ -726,12 +726,12 @@ proto_register_rmt_lct(void)
             NULL, HFILL }
         },
         { &hf_ext_tol_48_transfer_len,
-          { "EXT_TOL_48 Tranfer Length", "rmt-lct.ext_tol_tranfer_len",
+          { "EXT_TOL_48 Transfer Length", "rmt-lct.ext_tol_transfer_len",
             FT_UINT48, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ext_tol_24_transfer_len,
-          { "EXT_TOL_24 Tranfer Length", "rmt-lct.ext_tol_tranfer_len",
+          { "EXT_TOL_24 Transfer Length", "rmt-lct.ext_tol_transfer_len",
             FT_UINT24, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
