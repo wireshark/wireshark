@@ -2641,6 +2641,9 @@ uninstall_sparkle() {
     if [ -n "$installed_sparkle_version" ]; then
         echo "Uninstalling Sparkle:"
         sudo rm -rf "/usr/local/Sparkle-$installed_sparkle_version"
+
+        rm sparkle-$installed_sparkle_version-done
+
         if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             rm -f "Sparkle-$installed_sparkle_version.tar.xz"
         fi
