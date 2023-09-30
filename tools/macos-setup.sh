@@ -2577,7 +2577,7 @@ uninstall_brotli() {
 install_minizip() {
     if [ "$ZLIB_VERSION" ] && [ ! -f minizip-$ZLIB_VERSION-done ] ; then
         echo "Downloading, building, and installing zlib for minizip:"
-        [ -f zlib-$ZLIB_VERSION.tar.gz ] || curl -L -o zlib-$ZLIB_VERSION.tar.gz https://zlib.net/zlib-$ZLIB_VERSION.tar.gz || exit 1
+        [ -f zlib-$ZLIB_VERSION.tar.gz ] || curl -L -o zlib-$ZLIB_VERSION.tar.gz https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat zlib-$ZLIB_VERSION.tar.gz | tar xf - || exit 1
         #
