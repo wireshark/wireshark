@@ -515,7 +515,7 @@ macOS Arm Package:
         aws s3 cp Wireshark?[1-9]*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
         aws s3 cp Wireshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
       fi
-    - age --decrypt --identity="$HOME/$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.1.0/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg
+    # - age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.1.0/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg
     - cd ..
     - ninja test-programs
     - python3 -m pytest
@@ -553,7 +553,7 @@ macOS Intel Package:
         aws s3 cp Wireshark?[1-9]*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
         aws s3 cp Wireshark?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
       fi
-    - age --decrypt --identity="$HOME/$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.1.0/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg
+    # - age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.1.0/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg
     - cd ..
     - ninja test-programs
     - python3 -m pytest
