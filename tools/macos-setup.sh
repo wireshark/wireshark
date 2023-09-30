@@ -212,7 +212,7 @@ BROTLI_VERSION=1.0.9
 # minizip
 ZLIB_VERSION=1.3
 # Uncomment to enable automatic updates using Sparkle
-#SPARKLE_VERSION=2.1.0
+#SPARKLE_VERSION=2.2.2
 
 #
 # Asciidoctor is required to build the documentation.
