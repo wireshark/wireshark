@@ -3890,13 +3890,9 @@ match_binary(capture_file *cf, frame_data *fdata,
         wtap_rec *rec, Buffer *buf, void *criterion)
 {
     cbs_t        *info        = (cbs_t *)criterion;
-    const guint8 *binary_data = info->data;
     size_t        datalen     = info->data_len;
     match_result  result;
-    guint32       buf_len;
-    guint8       *pd, *buf_start, *buf_end;
-    guint32       i;
-    size_t        c_match     = 0;
+    const uint8_t *pd, *buf_start;
 
     /* Load the frame's data. */
     if (!cf_read_record(cf, fdata, rec, buf)) {
@@ -3905,34 +3901,16 @@ match_binary(capture_file *cf, frame_data *fdata,
     }
 
     result = MR_NOTMATCHED;
-    buf_len = fdata->cap_len;
     buf_start = ws_buffer_start_ptr(buf);
-    buf_end = buf_start + buf_len;
-    /* Not clear if using memcmp() is faster. memmem() on systems that
-     * have it should be faster, though.
-     */
-    for (pd = buf_start; pd < buf_end; pd++) {
-        pd = (guint8 *)memchr(pd, binary_data[0], buf_end - pd);
-        if (pd == NULL) break;
-        c_match = 0;
-        for (i = 0; pd + i < buf_end; i++) {
-            if (pd[i] == binary_data[c_match]) {
-                c_match++;
-                if (c_match == datalen) {
-                    result = MR_MATCHED;
-                    cf->search_pos = i + (guint32)(pd - buf_start);
-                    /* Save the position of the last character
-                       for highlighting the field. */
-                    cf->search_len = i + 1;
-                    goto done;
-                }
-            } else {
-                break;
-            }
-        }
+    pd = ws_memmem(buf_start, fdata->cap_len, info->data, datalen);
+    if (pd != NULL) {
+        result = MR_MATCHED;
+        cf->search_pos = (uint32_t)(pd - buf_start + datalen - 1);
+        /* Save the position of the last character
+           for highlighting the field. */
+        cf->search_len = (uint32_t)datalen;
     }
 
-done:
     return result;
 }
 
