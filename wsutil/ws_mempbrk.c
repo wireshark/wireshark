@@ -27,10 +27,13 @@
 #include "ws_mempbrk.h"
 #include "ws_mempbrk_int.h"
 
+#include <string.h>
+
 void
 ws_mempbrk_compile(ws_mempbrk_pattern* pattern, const gchar *needles)
 {
     const gchar *n = needles;
+    memset(pattern->patt, 0, 256);
     while (*n) {
         pattern->patt[(int)*n] = 1;
         n++;
