@@ -1,7 +1,6 @@
-Wireshark 4.1.1 Release Notes
+Wireshark 4.2.0 Release Notes
 
- This is an experimental release intended to test new features for
- Wireshark 4.2.
+ This is the first release candidate for Wireshark 4.2.
 
  What is Wireshark?
 
@@ -70,7 +69,7 @@ Wireshark 4.1.1 Release Notes
    The following features are new (or have been significantly updated)
    since version 4.0.0:
 
-     • The Windows installers now ship with Qt 6.5.2. They previously
+     • The Windows installers now ship with Qt 6.5.3. They previously
        shipped with Qt 6.2.3.
 
      • The API has been updated to ensure that the dissection engine
@@ -341,6 +340,9 @@ Wireshark 4.1.1 Release Notes
        been added to provide a simpler way to reassemble the streaming
        data of a high level protocol that is not on top of TCP.
 
+     • Some of the API now uses C99 types instead of GLib types. Issue
+       19116[10]
+
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
@@ -351,7 +353,7 @@ Wireshark 4.1.1 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[10] on the Wireshark web site.
+   be found on the download page[11] on the Wireshark web site.
 
  File Locations
 
@@ -366,24 +368,24 @@ Wireshark 4.1.1 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[11] and on the
+  Community support is available on Wireshark’s Q&A site[12] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[12].
+  for all of Wireshark’s mailing lists can be found on the web site[13].
 
-  Bugs and feature requests can be reported on the issue tracker[13].
+  Bugs and feature requests can be reported on the issue tracker[14].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[14].
+  SharkFest[15].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[15].
+  at wiresharkfoundation.org[16].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[16].
+  A complete FAQ is available on the Wireshark web site[17].
 
  References
 
@@ -396,10 +398,11 @@ Wireshark 4.1.1 Release Notes
    7. https://wiki.wireshark.org/Contrib
    8. https://www.ipv6plus.net/Phase3/apn6/
    9. https://sourceforge.net/projects/opencore-amr/
-  10. https://www.wireshark.org/download.html
-  11. https://ask.wireshark.org/
-  12. https://www.wireshark.org/lists/
-  13. https://gitlab.com/wireshark/wireshark/-/issues
-  14. https://sharkfest.wireshark.org
-  15. https://wiresharkfoundation.org
-  16. https://www.wireshark.org/faq.html
+  10. https://gitlab.com/wireshark/wireshark/-/issues/19116
+  11. https://www.wireshark.org/download.html
+  12. https://ask.wireshark.org/
+  13. https://www.wireshark.org/lists/
+  14. https://gitlab.com/wireshark/wireshark/-/issues
+  15. https://sharkfest.wireshark.org
+  16. https://wiresharkfoundation.org
+  17. https://www.wireshark.org/faq.html

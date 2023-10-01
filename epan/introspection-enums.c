@@ -178,6 +178,7 @@ static ws_enum_t all_enums[] = {
     ENUM(FI_VARINT),
     ENUM(FTREPR_DFILTER),
     ENUM(FTREPR_DISPLAY),
+    ENUM(FTREPR_JSON),
     ENUM(FT_ABSOLUTE_TIME),
     ENUM(FT_AX25),
     ENUM(FT_AX25_ADDR_LEN),
