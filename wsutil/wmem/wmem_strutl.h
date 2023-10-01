@@ -65,8 +65,8 @@ G_GNUC_MALLOC;
  * @param needle The string to look for
  * @param needle_len The length of the search string
  * @return A pointer to the first occurrence of "needle" in
- *         "haystack".  If "needle" isn't found or is NULL, or if
- *         "needle_len" is 0, NULL is returned.
+ *         "haystack".  If "needle" isn't found or is NULL, NULL is returned.
+ *         If "needle_len" is 0, a pointer to "haystack" is returned.
  */
 WS_DLL_PUBLIC
 const uint8_t *ws_memmem(const void *haystack, size_t haystack_len,

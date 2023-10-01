@@ -111,7 +111,8 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const char *fmt, va_list ap)
 
 /* Return the first occurrence of needle in haystack.
  * If not found, return NULL.
- * If either haystack or needle has 0 length, return NULL.*/
+ * If either haystack has 0 length, return NULL.
+ * If needle has 0 length, return pointer to haystack. */
 const uint8_t *
 ws_memmem(const void *_haystack, size_t haystack_len,
                 const void *_needle, size_t needle_len)
@@ -126,7 +127,11 @@ ws_memmem(const void *_haystack, size_t haystack_len,
     const uint8_t *const last_possible = haystack + haystack_len - needle_len;
 
     if (needle_len == 0) {
-        return NULL;
+        return haystack;
+    }
+
+    if (needle_len == 1) {
+        return memchr(haystack, needle[0], haystack_len);
     }
 
     if (needle_len > haystack_len) {
@@ -134,9 +139,9 @@ ws_memmem(const void *_haystack, size_t haystack_len,
     }
 
     for (begin = haystack ; begin <= last_possible; ++begin) {
-        if (begin[0] == needle[0] &&
-                !memcmp(&begin[1], needle + 1,
-                    needle_len - 1)) {
+        begin = memchr(begin, needle[0], last_possible - begin + 1);
+        if (begin == NULL) break;
+        if (!memcmp(&begin[1], needle + 1, needle_len - 1)) {
             return begin;
         }
     }
