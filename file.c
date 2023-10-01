@@ -96,8 +96,6 @@ static match_result match_narrow_and_wide(capture_file *cf, frame_data *fdata,
         wtap_rec *, Buffer *, void *criterion);
 static match_result match_narrow_and_wide_case(capture_file *cf, frame_data *fdata,
         wtap_rec *, Buffer *, void *criterion);
-static match_result match_narrow(capture_file *cf, frame_data *fdata,
-        wtap_rec *, Buffer *, void *criterion);
 static match_result match_narrow_case(capture_file *cf, frame_data *fdata,
         wtap_rec *, Buffer *, void *criterion);
 static match_result match_wide(capture_file *cf, frame_data *fdata,
@@ -3561,7 +3559,9 @@ cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
                     return find_packet(cf, match_narrow_and_wide, &info, dir);
 
                 case SCS_NARROW:
-                    return find_packet(cf, match_narrow, &info, dir);
+                    /* Narrow, case-sensitive match is the same as looking
+                     * for a converted hexstring. */
+                    return find_packet(cf, match_binary, &info, dir);
 
                 case SCS_WIDE:
                     return find_packet(cf, match_wide, &info, dir);
@@ -3713,56 +3713,6 @@ match_narrow_and_wide_case(capture_file *cf, frame_data *fdata,
                 }
                 i++;
                 if (pd + i >= buf_end || pd[i] != '\0') break;
-            } else {
-                break;
-            }
-        }
-    }
-
-done:
-    return result;
-}
-
-static match_result
-match_narrow(capture_file *cf, frame_data *fdata,
-        wtap_rec *rec, Buffer *buf, void *criterion)
-{
-    cbs_t        *info       = (cbs_t *)criterion;
-    const guint8 *ascii_text = info->data;
-    size_t        textlen    = info->data_len;
-    match_result  result;
-    guint32       buf_len;
-    guint8       *pd, *buf_start, *buf_end;
-    guint32       i;
-    guint8        c_char;
-    size_t        c_match    = 0;
-
-    /* Load the frame's data. */
-    if (!cf_read_record(cf, fdata, rec, buf)) {
-        /* Attempt to get the packet failed. */
-        return MR_ERROR;
-    }
-
-    result = MR_NOTMATCHED;
-    buf_len = fdata->cap_len;
-    buf_start = ws_buffer_start_ptr(buf);
-    buf_end = buf_start + buf_len;
-    for (pd = buf_start; pd < buf_end; pd++) {
-        pd = (guint8 *)memchr(pd, ascii_text[0], buf_end - pd);
-        if (pd == NULL) break;
-        c_match = 0;
-        for (i = 0; pd + i < buf_end; i++) {
-            c_char = pd[i];
-            if (c_char == ascii_text[c_match]) {
-                c_match++;
-                if (c_match == textlen) {
-                    result = MR_MATCHED;
-                    cf->search_pos = i + (guint32)(pd - buf_start);
-                    /* Save the position of the last character
-                       for highlighting the field. */
-                    cf->search_len = i + 1;
-                    goto done;
-                }
             } else {
                 break;
             }
