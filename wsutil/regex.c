@@ -60,6 +60,8 @@ compile_pcre2(const char *patt, ssize_t size, char **errmsg, unsigned flags)
         options |= PCRE2_NEVER_UTF;
     if (flags & WS_REGEX_CASELESS)
         options |= PCRE2_CASELESS;
+    if (flags & WS_REGEX_ANCHORED)
+        options |= PCRE2_ANCHORED;
 
     /* By default UTF-8 is off. */
     code = pcre2_compile_8((PCRE2_SPTR)patt,

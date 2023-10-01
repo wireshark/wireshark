@@ -26,6 +26,7 @@ ws_regex_compile(const char *patt, char **errmsg);
 /* By default UTF-8 is off. This option also prevents it from being
  * turned on using a pattern option. */
 #define WS_REGEX_NEVER_UTF      (1U << 1)
+#define WS_REGEX_ANCHORED       (1U << 2)
 
 WS_DLL_PUBLIC ws_regex_t *
 ws_regex_compile_ex(const char *patt, ssize_t size, char **errmsg, unsigned flags);

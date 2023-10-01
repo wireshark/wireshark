@@ -144,6 +144,9 @@ bool SearchFrame::regexCompile()
     if (!sf_ui_->caseCheckBox->isChecked()) {
         flags |= WS_REGEX_CASELESS;
     }
+    if (sf_ui_->dirCheckBox->isChecked()) {
+        flags |= WS_REGEX_ANCHORED;
+    }
 
     if (regex_) {
         ws_regex_free(regex_);
@@ -240,7 +243,11 @@ void SearchFrame::updateWidgets()
     // (otherwise all strings have already been converted to UTF-8)
     sf_ui_->charEncodingComboBox->setEnabled(search_type == string_search_ && sf_ui_->searchInComboBox->currentIndex() == in_bytes_);
 
-    sf_ui_->multipleCheckBox->setEnabled(sf_ui_->searchInComboBox->isEnabled() && sf_ui_->searchInComboBox->currentIndex() == in_proto_tree_);
+    // We can search for multiple matches in the same frame if we're doing
+    // a Proto Tree search or a Frame Bytes search, but not a string/regex
+    // search in the Packet List, or a display filter search (since those
+    // don't highlight what fields / offsets caused the match.)
+    sf_ui_->multipleCheckBox->setEnabled((sf_ui_->searchInComboBox->isEnabled() && sf_ui_->searchInComboBox->currentIndex() != in_packet_list_) || search_type == hex_search_);
 
     switch (search_type) {
     case df_search_:
@@ -303,7 +310,7 @@ void SearchFrame::on_searchInComboBox_currentIndexChanged(int idx)
         break;
     }
 
-    // We only search for multiple occurrences in packet list currently.
+    // We only search for multiple occurrences in packet list and bytes
     updateWidgets();
 }
 
@@ -474,7 +481,7 @@ void SearchFrame::on_findButton_clicked()
 
     if (cap_file_->hex) {
         /* Hex value in packet data */
-        found_packet = cf_find_packet_data(cap_file_, bytes, nbytes, cap_file_->dir);
+        found_packet = cf_find_packet_data(cap_file_, bytes, nbytes, cap_file_->dir, multiple_occurrences);
         g_free(bytes);
         if (!found_packet) {
             /* We didn't find a packet */
@@ -504,7 +511,7 @@ void SearchFrame::on_findButton_clicked()
             }
         } else if (cap_file_->packet_data && string) {
             /* String in the ASCII-converted packet data */
-            found_packet = cf_find_packet_data(cap_file_, (guint8 *) string, strlen(string), cap_file_->dir);
+            found_packet = cf_find_packet_data(cap_file_, (guint8 *) string, strlen(string), cap_file_->dir, multiple_occurrences);
             g_free(string);
             if (!found_packet) {
                 err_string = tr("No packet contained that string in its converted data.");

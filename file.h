@@ -550,10 +550,13 @@ gboolean cf_find_packet_summary_line(capture_file *cf, const char *string,
  * @param string the string to find
  * @param string_size the size of the string to find
  * @param dir direction in which to search
+ * @param multiple whether to look for the next occurrence of the same string
+ * in the current packet, or to only match once per frame
  * @return TRUE if a packet was found, FALSE otherwise
  */
 gboolean cf_find_packet_data(capture_file *cf, const guint8 *string,
-                             size_t string_size, search_direction dir);
+                             size_t string_size, search_direction dir,
+                             bool multiple);
 
 /**
  * Find packet that matches a compiled display filter.
