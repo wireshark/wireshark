@@ -236,7 +236,9 @@ void SearchFrame::updateWidgets()
     int search_type = sf_ui_->searchTypeComboBox->currentIndex();
     sf_ui_->searchInComboBox->setEnabled(search_type == string_search_ || search_type == regex_search_);
     sf_ui_->caseCheckBox->setEnabled(search_type == string_search_ || search_type == regex_search_);
-    sf_ui_->charEncodingComboBox->setEnabled(search_type == string_search_);
+    // The encoding only is used when searching the raw Packet Bytes
+    // (otherwise all strings have already been converted to UTF-8)
+    sf_ui_->charEncodingComboBox->setEnabled(search_type == string_search_ && sf_ui_->searchInComboBox->currentIndex() == in_bytes_);
 
     sf_ui_->multipleCheckBox->setEnabled(sf_ui_->searchInComboBox->isEnabled() && sf_ui_->searchInComboBox->currentIndex() == in_proto_tree_);
 
