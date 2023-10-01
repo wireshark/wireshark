@@ -1,4 +1,4 @@
-TShark (Wireshark) 4.1.1 (v4.1.1rc0-23-g1a4d139953f5)
+TShark (Wireshark) 4.3.0 (v4.3.0rc0-87-g9c90105c365a)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -39,6 +39,8 @@ Capture output:
                             packets:NUM - switch to next file after NUM packets
                            interval:NUM - switch to next file when the time is
                                           an exact multiple of NUM secs
+                         printname:FILE - print filename to FILE when written
+                                          (can use 'stdout' or 'stderr')
 Input file:
   -r <infile>, --read-file <infile>
                            set the filename to read from (or '-' for stdin)
