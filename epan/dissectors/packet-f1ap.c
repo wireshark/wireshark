@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V17.5.0 (2023-06)
+ * References: 3GPP TS 38.473 V17.6.0 (2023-09)
  */
 
 #include "config.h"
@@ -963,7 +963,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_repetitionFactorExtended = 703,
   id_startRBHopping = 704,
   id_startRBIndex = 705,
-  id_transmissionCombn8 = 706
+  id_transmissionCombn8 = 706,
+  id_ServCellInfoList = 707
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
@@ -1373,6 +1374,7 @@ static int hf_f1ap_SDTRLCBearerConfiguration_PDU = -1;  /* SDTRLCBearerConfigura
 static int hf_f1ap_SDT_Termination_Request_PDU = -1;  /* SDT_Termination_Request */
 static int hf_f1ap_SelectedBandCombinationIndex_PDU = -1;  /* SelectedBandCombinationIndex */
 static int hf_f1ap_SelectedFeatureSetEntryIndex_PDU = -1;  /* SelectedFeatureSetEntryIndex */
+static int hf_f1ap_ServCellInfoList_PDU = -1;     /* ServCellInfoList */
 static int hf_f1ap_ServCellIndex_PDU = -1;        /* ServCellIndex */
 static int hf_f1ap_ServingCellMO_PDU = -1;        /* ServingCellMO */
 static int hf_f1ap_ServingCellMO_List_Item_PDU = -1;  /* ServingCellMO_List_Item */
@@ -5504,6 +5506,7 @@ static const value_string f1ap_ProtocolIE_ID_vals[] = {
   { id_startRBHopping, "id-startRBHopping" },
   { id_startRBIndex, "id-startRBIndex" },
   { id_transmissionCombn8, "id-transmissionCombn8" },
+  { id_ServCellInfoList, "id-ServCellInfoList" },
   { 0, NULL }
 };
 
@@ -23987,6 +23990,16 @@ dissect_f1ap_SelectedFeatureSetEntryIndex(tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 static int
+dissect_f1ap_ServCellInfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_f1ap_ServCellIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 31U, NULL, TRUE);
@@ -34574,6 +34587,14 @@ static int dissect_SelectedFeatureSetEntryIndex_PDU(tvbuff_t *tvb _U_, packet_in
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_ServCellInfoList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_f1ap_ServCellInfoList(tvb, offset, &asn1_ctx, tree, hf_f1ap_ServCellInfoList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_ServCellIndex_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -39510,6 +39531,10 @@ void proto_register_f1ap(void) {
         NULL, HFILL }},
     { &hf_f1ap_SelectedFeatureSetEntryIndex_PDU,
       { "SelectedFeatureSetEntryIndex", "f1ap.SelectedFeatureSetEntryIndex",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_f1ap_ServCellInfoList_PDU,
+      { "ServCellInfoList", "f1ap.ServCellInfoList",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_f1ap_ServCellIndex_PDU,
@@ -48251,6 +48276,7 @@ proto_reg_handoff_f1ap(void)
   dissector_add_uint("f1ap.extension", id_repetitionFactorExtended, create_dissector_handle(dissect_RepetitionFactorExtended_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_startRBHopping, create_dissector_handle(dissect_StartRBHopping_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_startRBIndex, create_dissector_handle(dissect_StartRBIndex_PDU, proto_f1ap));
+  dissector_add_uint("f1ap.extension", id_ServCellInfoList, create_dissector_handle(dissect_ServCellInfoList_PDU, proto_f1ap));
   dissector_add_uint("f1ap.proc.imsg", id_Reset, create_dissector_handle(dissect_Reset_PDU, proto_f1ap));
   dissector_add_uint("f1ap.proc.sout", id_Reset, create_dissector_handle(dissect_ResetAcknowledge_PDU, proto_f1ap));
   dissector_add_uint("f1ap.proc.imsg", id_F1Setup, create_dissector_handle(dissect_F1SetupRequest_PDU, proto_f1ap));

@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.5.0 (2023-06)
+-- 3GPP TS 38.473 V17.6.0 (2023-09)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -202,6 +202,7 @@ IMPORTS
 	id-startRBHopping,
 	id-startRBIndex,
 	id-transmissionCombn8,
+	id-ServCellInfoList,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -2130,7 +2131,8 @@ DUtoCURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-UL-GapFR2-Config					CRITICALITY ignore	EXTENSION UL-GapFR2-Config							PRESENCE optional }|
 	{ ID id-TwoPHRModeMCG						CRITICALITY ignore	EXTENSION TwoPHRModeMCG								PRESENCE optional }|
 	{ ID id-TwoPHRModeSCG						CRITICALITY ignore	EXTENSION TwoPHRModeSCG								PRESENCE optional }|
-	{ ID id-ncd-SSB-RedCapInitialBWP-SDT		CRITICALITY ignore	EXTENSION Ncd-SSB-RedCapInitialBWP-SDT			PRESENCE optional },
+	{ ID id-ncd-SSB-RedCapInitialBWP-SDT		CRITICALITY ignore	EXTENSION Ncd-SSB-RedCapInitialBWP-SDT			PRESENCE optional }|
+	{ ID id-ServCellInfoList					CRITICALITY ignore	EXTENSION ServCellInfoList							PRESENCE optional },
 	...
 }
 
@@ -6187,6 +6189,8 @@ SelectedBandCombinationIndex ::= OCTET STRING
 SelectedFeatureSetEntryIndex ::= OCTET STRING
 
 CG-ConfigInfo ::= OCTET STRING
+
+ServCellInfoList ::= OCTET STRING
 
 ServCellIndex ::= INTEGER (0..31, ...)
 

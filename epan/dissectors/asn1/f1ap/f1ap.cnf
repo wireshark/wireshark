@@ -885,6 +885,7 @@ id-repetitionFactorExtended                          ProtocolIE-ID
 id-startRBHopping                                    ProtocolIE-ID
 id-startRBIndex                                      ProtocolIE-ID
 id-transmissionCombn8                                ProtocolIE-ID
+id-ServCellInfoList                                  ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1579,6 +1580,7 @@ NrofSymbolsExtended                               N f1ap.extension id-nrofSymbol
 RepetitionFactorExtended                          N f1ap.extension id-repetitionFactorExtended
 StartRBHopping                                    N f1ap.extension id-startRBHopping
 StartRBIndex                                      N f1ap.extension id-startRBIndex
+ServCellInfoList                                  N f1ap.extension id-ServCellInfoList
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
