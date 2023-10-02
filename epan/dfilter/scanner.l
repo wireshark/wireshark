@@ -91,7 +91,7 @@ WS_WARN_UNUSED static int set_lval_float(dfsyntax_t *dfs, const char *value, con
 static bool append_escaped_char(dfsyntax_t *dfs, GString *str, char c);
 static bool append_universal_character_name(dfsyntax_t *dfs, GString *str, const char *ucn);
 static bool parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep);
-static bool parse_unsigned_long_long(dfsyntax_t *dfs, const char *s, unsigned long long *valuep);
+static bool parse_unsigned_long_long(dfsyntax_t *dfs, const char *s, unsigned long long *valuep, bool set_error);
 static bool parse_double(dfsyntax_t *dfs, const char *s, double *valuep);
 
 static void update_location(dfsyntax_t *dfs, const char *text);
@@ -709,9 +709,13 @@ set_lval_integer(dfsyntax_t *dfs, const char *value, const char *token_value)
 	unsigned long long number;
 	bool ok;
 
-	ok = parse_unsigned_long_long(dfs, value, &number);
+	ok = parse_unsigned_long_long(dfs, value, &number, false);
 	if (!ok) {
-		return SCAN_FAILED;
+		/* Instead of failing assume this is a literal such as
+		  "10f3deccc00d5c8f629fba7a0fff34aa" that can be interpreted
+		  as a literal bytes valid. */
+		dfs->lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), dfs->location);
+		return TOKEN_LITERAL;
 	}
 	dfs->lval = stnode_new(STTYPE_NUMBER, NULL, g_strdup(token_value), dfs->location);
 	sttype_number_set_unsigned(dfs->lval, number);
@@ -1010,7 +1014,7 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 }
 
 static bool
-parse_unsigned_long_long(dfsyntax_t *dfs, const char *s, unsigned long long *valuep)
+parse_unsigned_long_long(dfsyntax_t *dfs, const char *s, unsigned long long *valuep, bool set_error)
 {
 	char *endptr;
 
@@ -1024,16 +1028,19 @@ parse_unsigned_long_long(dfsyntax_t *dfs, const char *s, unsigned long long *val
 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is not a valid number.", s);
+		if (set_error)
+			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is not a valid number.", s);
 		return false;
 	}
 	if (errno == ERANGE) {
-		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is too large to be represented as a 64-bit number.", s);
+		if (set_error)
+			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is too large to be represented as a 64-bit number.", s);
 		return false;
 	}
 	if (errno != 0) {
 		// Should not happen
-		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is not a valid number (%s).", s, g_strerror(errno));
+		if (set_error)
+			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is not a valid number (%s).", s, g_strerror(errno));
 		return false;
 	}
 
