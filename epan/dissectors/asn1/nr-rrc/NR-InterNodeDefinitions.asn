@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.5.0 (2023-06)
+-- 3GPP TS 38.331 V17.6.0 (2023-09)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -389,6 +389,9 @@ ConfigRestrictModReqSCG ::=         SEQUENCE {
     requestedMaxInterFreqMeasIdSCG-r16  INTEGER(1..maxMeasIdentitiesMN)                     OPTIONAL,
     requestedMaxIntraFreqMeasIdSCG-r16  INTEGER(1..maxMeasIdentitiesMN)                     OPTIONAL,
     requestedToffset-r16                T-Offset-r16                                        OPTIONAL
+    ]],
+    [[
+    reservedResourceConfigNRDC-r17      ResourceConfigNRDC-r17                              OPTIONAL
     ]]
 }
 
@@ -594,6 +597,9 @@ ConfigRestrictInfoSCG ::=       SEQUENCE {
     allowedReducedConfigForOverheating-r17      OverheatingAssistance-r17                             OPTIONAL,
     maxNumberUDC-DRB-r17             INTEGER(0..2)                                                    OPTIONAL,
     maxNumberCPCCandidates-r17       INTEGER(0..maxNrofCondCells-1-r17)                               OPTIONAL
+    ]],
+    [[
+    allowedResourceConfigNRDC-r17    ResourceConfigNRDC-r17                                           OPTIONAL
     ]]
 }
 
@@ -830,6 +836,28 @@ UERadioAccessCapabilityInformation-IEs ::= SEQUENCE {
 }
 
 -- TAG-UE-RADIO-ACCESS-CAPABILITY-INFORMATION-STOP
+-- TAG-RESOURCECONFIGNRDC-START
+
+ResourceConfigNRDC-r17 ::= SEQUENCE {
+    fr1-ResourceConfig-r17                   ResourceConfigPerFR-r17                               OPTIONAL,
+    fr2-ResourceConfig-r17                   ResourceConfigPerFR-r17                               OPTIONAL,
+    maxNumberResAcrossCC-AcrossFR-r17        INTEGER (0..256)                                      OPTIONAL,
+    ...
+}
+
+ResourceConfigPerFR-r17 ::= SEQUENCE {
+    bm-MaxNumberCSI-RS-Resource-r17          INTEGER (0..64)                                       OPTIONAL,
+    bm-MaxNumberAperiodicCSI-RS-Resource-r17 INTEGER (0..64)                                       OPTIONAL,
+    cg-MaxNumberConfigsAllCC-r17             INTEGER (0..32)                                       OPTIONAL,
+    maxNumberCSI-RS-BFD-r17                  INTEGER (0..64)                                       OPTIONAL,
+    maxNumberCSI-RS-SSB-CBD-r17              INTEGER (0..256)                                      OPTIONAL,
+    maxNumberSSB-BFD-r17                     INTEGER (0..64)                                       OPTIONAL,
+    sps-MaxNumberConfigsAllCC-r17            INTEGER (0..32)                                       OPTIONAL,
+    trs-MaxConfResourceSetsAllCC-r17         INTEGER (0..256)                                      OPTIONAL,
+    ...
+}
+
+-- TAG-RESOURCECONFIGNRDC-STOP
 -- TAG-NR-MULTIPLICITY-AND-CONSTRAINTS-START
 
 maxMeasFreqsMN              INTEGER ::= 32  -- Maximum number of MN-configured measurement frequencies

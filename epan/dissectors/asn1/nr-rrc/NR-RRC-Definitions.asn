@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.5.0 (2023-06)
+-- 3GPP TS 38.331 V17.6.0 (2023-09)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -2676,6 +2676,10 @@ SIB2 ::=                            SEQUENCE {
         ]],
         [[
         smtc4list-r17                       SSB-MTC4List-r17                                OPTIONAL         -- Need R
+        ]],
+        [[
+        frequencyBandList-v1760             MultiFrequencyBandListNR-SIB-v1760              OPTIONAL,       -- Need R
+        frequencyBandListSUL-v1760          MultiFrequencyBandListNR-SIB-v1760              OPTIONAL        -- Need R
         ]]
     },
     ...,
@@ -2791,6 +2795,9 @@ SIB4 ::=                            SEQUENCE {
     ]],
     [[
     interFreqCarrierFreqList-v1730      InterFreqCarrierFreqList-v1730              OPTIONAL   -- Need R
+    ]],
+    [[
+    interFreqCarrierFreqList-v1760      InterFreqCarrierFreqList-v1760              OPTIONAL   -- Need R
     ]]
 }
 
@@ -2803,6 +2810,8 @@ InterFreqCarrierFreqList-v1700 ::=  SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCar
 InterFreqCarrierFreqList-v1720 ::=  SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v1720
 
 InterFreqCarrierFreqList-v1730 ::=  SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v1730
+
+InterFreqCarrierFreqList-v1760 ::=  SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v1760
 
 InterFreqCarrierFreqInfo ::=        SEQUENCE {
     dl-CarrierFreq                      ARFCN-ValueNR,
@@ -2857,6 +2866,11 @@ InterFreqCarrierFreqInfo-v1720 ::=  SEQUENCE {
 
 InterFreqCarrierFreqInfo-v1730 ::=  SEQUENCE {
     channelAccessMode2-r17              ENUMERATED {enabled}                                        OPTIONAL     -- Need R
+}
+
+InterFreqCarrierFreqInfo-v1760 ::=  SEQUENCE {
+    frequencyBandList-v1760             MultiFrequencyBandListNR-SIB-v1760                          OPTIONAL,    -- Need R
+    frequencyBandListSUL-v1760          MultiFrequencyBandListNR-SIB-v1760                          OPTIONAL     -- Need R
 }
 
 InterFreqNeighHSDN-CellList-r17 ::= SEQUENCE (SIZE (1..maxCellInter)) OF PCI-Range
@@ -3358,7 +3372,7 @@ PosSIB-Type-r16 ::=          SEQUENCE {
 }
 
 GNSS-ID-r16 ::= SEQUENCE {
-    gnss-id-r16              ENUMERATED{gps, sbas, qzss, galileo, glonass, bds, ...},
+    gnss-id-r16              ENUMERATED{gps, sbas, qzss, galileo, glonass, bds, ..., navic-v1760},
     ...
 }
 
@@ -3380,6 +3394,8 @@ SIBpos-r16 ::= SEQUENCE {
 -- TAG-ADDITIONALSPECTRUMEMISSION-START
 
 AdditionalSpectrumEmission ::=              INTEGER (0..7)
+
+AdditionalSpectrumEmission-v1760 ::=        INTEGER (8..39)
 
 -- TAG-ADDITIONALSPECTRUMEMISSION-STOP
 -- TAG-ALPHA-START
@@ -3873,6 +3889,9 @@ CellGroupConfig ::=                        SEQUENCE {
     ]],
     [[
     reportUplinkTxDirectCurrentMoreCarrier-r17 ReportUplinkTxDirectCurrentMoreCarrier-r17                            OPTIONAL  -- Need N
+    ]],
+    [[
+    prioSCellPRACH-OverSP-PeriodicSRS-r17      ENUMERATED {enabled}                                                  OPTIONAL  -- Need R
     ]]
 }
 
@@ -5222,6 +5241,9 @@ DownlinkConfigCommonSIB ::=     SEQUENCE {
     ]]
 }
 
+DownlinkConfigCommonSIB-v1760 ::=   SEQUENCE {
+    frequencyInfoDL-v1760               FrequencyInfoDL-SIB-v1760
+}
 
 BCCH-Config ::=                 SEQUENCE {
     modificationPeriodCoeff         ENUMERATED {n2, n4, n8, n16},
@@ -5527,6 +5549,10 @@ FrequencyInfoDL-SIB ::=             SEQUENCE {
     scs-SpecificCarrierList             SEQUENCE (SIZE (1..maxSCSs)) OF SCS-SpecificCarrier
 }
 
+FrequencyInfoDL-SIB-v1760 ::=       SEQUENCE {
+    frequencyBandList-v1760             MultiFrequencyBandListNR-SIB-v1760
+}
+
 -- TAG-FREQUENCYINFODL-SIB-STOP
 -- TAG-FREQUENCYINFOUL-START
 
@@ -5537,19 +5563,26 @@ FrequencyInfoUL ::=                 SEQUENCE {
     additionalSpectrumEmission          AdditionalSpectrumEmission                              OPTIONAL,   -- Need S
     p-Max                               P-Max                                                   OPTIONAL,   -- Need S
     frequencyShift7p5khz                ENUMERATED {true}                                       OPTIONAL,   -- Cond FDD-TDD-OrSUL-Optional
-    ...
+    ...,
+    [[
+    additionalSpectrumEmission-v1760    AdditionalSpectrumEmission-v1760                        OPTIONAL    -- Need S
+    ]]
 }
 
 -- TAG-FREQUENCYINFOUL-STOP
 -- TAG-FREQUENCYINFOUL-SIB-START
 
-FrequencyInfoUL-SIB ::=                 SEQUENCE {
+FrequencyInfoUL-SIB ::=             SEQUENCE {
     frequencyBandList                   MultiFrequencyBandListNR-SIB                            OPTIONAL,   -- Cond FDD-OrSUL
     absoluteFrequencyPointA             ARFCN-ValueNR                                           OPTIONAL,   -- Cond FDD-OrSUL
     scs-SpecificCarrierList             SEQUENCE (SIZE (1..maxSCSs)) OF SCS-SpecificCarrier,
     p-Max                               P-Max                                                   OPTIONAL,   -- Need S
     frequencyShift7p5khz                ENUMERATED {true}                                       OPTIONAL,   -- Cond FDD-TDD-OrSUL-Optional
     ...
+}
+
+FrequencyInfoUL-SIB-v1760 ::=       SEQUENCE {
+    frequencyBandList-v1760             MultiFrequencyBandListNR-SIB-v1760
 }
 
 -- TAG-FREQUENCYINFOUL-SIB-STOP
@@ -6711,6 +6744,12 @@ NR-MultiBandInfo ::=                        SEQUENCE {
     nr-NS-PmaxList                              NR-NS-PmaxList              OPTIONAL    -- Need S
 }
 
+MultiFrequencyBandListNR-SIB-v1760 ::=      SEQUENCE (SIZE (1.. maxNrofMultiBands)) OF NR-MultiBandInfo-v1760
+
+NR-MultiBandInfo-v1760 ::=                  SEQUENCE {
+    nr-NS-PmaxList-v1760                        NR-NS-PmaxList-v1760        OPTIONAL    -- Need S
+}
+
 -- TAG-MULTIFREQUENCYBANDLISTNR-SIB-STOP
 -- TAG-MUSIM-GAPCONFIG-START
 
@@ -7039,6 +7078,12 @@ NR-NS-PmaxList ::=                      SEQUENCE (SIZE (1..maxNR-NS-Pmax)) OF NR
 NR-NS-PmaxValue ::=                     SEQUENCE {
     additionalPmax                          P-Max                               OPTIONAL,   -- Need N
     additionalSpectrumEmission              AdditionalSpectrumEmission
+}
+
+NR-NS-PmaxList-v1760 ::=                SEQUENCE (SIZE (1.. maxNR-NS-Pmax)) OF NR-NS-PmaxValue-v1760
+
+NR-NS-PmaxValue-v1760 ::=               SEQUENCE {
+    additionalSpectrumEmission-v1760        AdditionalSpectrumEmission-v1760    OPTIONAL   -- Need N
 }
 
 -- TAG-NR-NS-PMAXLIST-STOP
@@ -7642,7 +7687,7 @@ PDSCH-TimeDomainResourceAllocation-r16 ::=  SEQUENCE {
     k0-r16                                     INTEGER(0..32)                                              OPTIONAL,   -- Need S
     mappingType-r16                            ENUMERATED {typeA, typeB},
     startSymbolAndLength-r16                   INTEGER (0..127),
-    repetitionNumber-r16                       ENUMERATED {n2, n3, n4, n5, n6, n7, n8, n16}                OPTIONAL,   -- Cond Formats1-0and1-1
+    repetitionNumber-r16                       ENUMERATED {n2, n3, n4, n5, n6, n7, n8, n16} OPTIONAL, -- Cond Formats1-0_1-1_4-0_4-1_4-2
     ...,
     [[
     k0-v1710                                INTEGER(33..128)                                               OPTIONAL    -- Need S
@@ -10395,6 +10440,10 @@ ServingCellConfigCommonSIB ::=      SEQUENCE {
     ]],
     [[
     ra-ChannelAccess-r17                ENUMERATED {enabled}                                        OPTIONAL  -- Cond SharedSpectrum2
+    ]],
+    [[
+    downlinkConfigCommon-v1760          DownlinkConfigCommonSIB-v1760                               OPTIONAL, -- Need R
+    uplinkConfigCommon-v1760            UplinkConfigCommonSIB-v1760                                 OPTIONAL  -- Need R
     ]]
 }
 
@@ -11479,6 +11528,10 @@ UplinkConfigCommonSIB-v1700 ::=         SEQUENCE {
     initialUplinkBWP-RedCap-r17             BWP-UplinkCommon                                OPTIONAL   -- Need R
 }
 
+UplinkConfigCommonSIB-v1760 ::=         SEQUENCE {
+    frequencyInfoUL-v1760                   FrequencyInfoUL-SIB-v1760
+}
+
 -- TAG-UPLINKCONFIGCOMMONSIB-STOP
 -- TAG-UPLINK-POWERCONTROL-START
 
@@ -11653,6 +11706,8 @@ BandCombinationList-v1590 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandComb
 
 BandCombinationList-v15g0 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v15g0
 
+BandCombinationList-v15n0 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v15n0
+
 BandCombinationList-v1610 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1610
 
 BandCombinationList-v1630 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1630
@@ -11675,6 +11730,8 @@ BandCombinationList-v1730 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandComb
 
 BandCombinationList-v1740 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1740
 
+BandCombinationList-v1760 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1760
+
 BandCombinationList-UplinkTxSwitch-r16 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-r16
 
 BandCombinationList-UplinkTxSwitch-v1630 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1630
@@ -11689,6 +11746,8 @@ BandCombinationList-UplinkTxSwitch-v1690 ::= SEQUENCE (SIZE (1..maxBandComb)) OF
 
 BandCombinationList-UplinkTxSwitch-v16a0 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v16a0
 
+BandCombinationList-UplinkTxSwitch-v16e0 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v16e0
+
 BandCombinationList-UplinkTxSwitch-v1700 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1700
 
 BandCombinationList-UplinkTxSwitch-v1720 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1720
@@ -11696,6 +11755,8 @@ BandCombinationList-UplinkTxSwitch-v1720 ::= SEQUENCE (SIZE (1..maxBandComb)) OF
 BandCombinationList-UplinkTxSwitch-v1730 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1730
 
 BandCombinationList-UplinkTxSwitch-v1740 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1740
+
+BandCombinationList-UplinkTxSwitch-v1760 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1760
 
 BandCombination ::=                 SEQUENCE {
     bandList                            SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParameters,
@@ -11741,7 +11802,11 @@ BandCombination-v15g0::=            SEQUENCE {
     mrdc-Parameters-v15g0               MRDC-Parameters-v15g0                      OPTIONAL
 }
 
-BandCombination-v1610 ::=          SEQUENCE {
+BandCombination-v15n0::=            SEQUENCE {
+    mrdc-Parameters-v15n0               MRDC-Parameters-v15n0
+}
+
+BandCombination-v1610 ::=           SEQUENCE {
     bandList-v1610                      SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParameters-v1610  OPTIONAL,
     ca-ParametersNR-v1610               CA-ParametersNR-v1610                  OPTIONAL,
     ca-ParametersNRDC-v1610             CA-ParametersNRDC-v1610                OPTIONAL,
@@ -11806,6 +11871,11 @@ BandCombination-v1740 ::=          SEQUENCE {
     ca-ParametersNR-v1740              CA-ParametersNR-v1740                    OPTIONAL
 }
 
+BandCombination-v1760 ::=          SEQUENCE {
+    ca-ParametersNR-v1760              CA-ParametersNR-v1760,
+    ca-ParametersNRDC-v1760            CA-ParametersNRDC-v1760
+}
+
 BandCombination-UplinkTxSwitch-r16 ::= SEQUENCE {
     bandCombination-r16                 BandCombination,
     bandCombination-v1540               BandCombination-v1540                      OPTIONAL,
@@ -11848,6 +11918,10 @@ BandCombination-UplinkTxSwitch-v16a0 ::= SEQUENCE {
     bandCombination-v16a0                    BandCombination-v16a0                 OPTIONAL
 }
 
+BandCombination-UplinkTxSwitch-v16e0 ::= SEQUENCE {
+    bandCombination-v15n0                    BandCombination-v15n0                 OPTIONAL
+}
+
 BandCombination-UplinkTxSwitch-v1700 ::= SEQUENCE {
     bandCombination-v1700                    BandCombination-v1700                      OPTIONAL,
     -- R4 16-1/16-2/16-3 Dynamic Tx switching between 2CC/3CC 2Tx-2Tx/1Tx-2Tx switching
@@ -11867,6 +11941,10 @@ BandCombination-UplinkTxSwitch-v1730 ::= SEQUENCE {
 
 BandCombination-UplinkTxSwitch-v1740 ::= SEQUENCE {
     bandCombination-v1740                    BandCombination-v1740                 OPTIONAL
+}
+
+BandCombination-UplinkTxSwitch-v1760 ::= SEQUENCE {
+    bandCombination-v1760                    BandCombination-v1760                 OPTIONAL
 }
 
 ULTxSwitchingBandPair-r16 ::=       SEQUENCE {
@@ -12408,6 +12486,10 @@ CA-ParametersNR-v1740 ::= SEQUENCE {
     singlePUCCH-ConfigForMulticast-r17                     ENUMERATED {supported}                         OPTIONAL
 }
 
+CA-ParametersNR-v1760 ::= SEQUENCE {
+    prioSCellPRACH-OverSP-PeriodicSRS-Support-r17          ENUMERATED {supported}                         OPTIONAL
+}
+
 CrossCarrierSchedulingSCell-SpCell-r17 ::= SEQUENCE {
     supportedSCS-Combinations-r17              SEQUENCE {
         scs15kHz-15kHz-r17                         ENUMERATED {supported}                         OPTIONAL,
@@ -12581,6 +12663,10 @@ CA-ParametersNRDC-v1720 ::=                  SEQUENCE {
 
 CA-ParametersNRDC-v1730 ::=                  SEQUENCE {
     ca-ParametersNR-ForDC-v1730                   CA-ParametersNR-v1730                        OPTIONAL
+}
+
+CA-ParametersNRDC-v1760 ::=                  SEQUENCE {
+    ca-ParametersNR-ForDC-v1760                  CA-ParametersNR-v1760
 }
 
 -- TAG-CA-PARAMETERS-NRDC-STOP
@@ -14848,6 +14934,10 @@ MRDC-Parameters-v15g0 ::=   SEQUENCE {
     simultaneousRxTxInterBandENDCPerBandPair   SimultaneousRxTxPerBandPair  OPTIONAL
 }
 
+MRDC-Parameters-v15n0 ::= SEQUENCE {
+    intraBandENDC-Support-UL            ENUMERATED {non-contiguous, both}   OPTIONAL
+}
+
 MRDC-Parameters-v1620 ::=    SEQUENCE {
     maxUplinkDutyCycle-interBandENDC-TDD-PC2-r16    SEQUENCE{
         eutra-TDD-Config0-r16    ENUMERATED {n20, n40, n50, n60, n70, n80, n90, n100}    OPTIONAL,
@@ -15639,7 +15729,12 @@ RF-Parameters ::=                                   SEQUENCE {
     [[
     supportedBandCombinationList-v1740                  BandCombinationList-v1740                   OPTIONAL,
     supportedBandCombinationList-UplinkTxSwitch-v1740   BandCombinationList-UplinkTxSwitch-v1740    OPTIONAL
+    ]],
+    [[
+    supportedBandCombinationList-v1760                  BandCombinationList-v1760                   OPTIONAL,
+    supportedBandCombinationList-UplinkTxSwitch-v1760   BandCombinationList-UplinkTxSwitch-v1760    OPTIONAL
     ]]
+
 }
 
 RF-Parameters-v15g0 ::=                   SEQUENCE {
@@ -16125,6 +16220,14 @@ RF-ParametersMRDC-v15g0 ::=                    SEQUENCE {
     supportedBandCombinationListNEDC-Only-v15g0    BandCombinationList-v15g0        OPTIONAL
 }
 
+RF-ParametersMRDC-v15n0 ::=                     SEQUENCE {
+supportedBandCombinationList-v15n0                  BandCombinationList-v15n0                       OPTIONAL
+}
+
+RF-ParametersMRDC-v16e0 ::=                     SEQUENCE {
+supportedBandCombinationList-UplinkTxSwitch-v16e0   BandCombinationList-UplinkTxSwitch-v16e0        OPTIONAL
+}
+
 -- TAG-RF-PARAMETERSMRDC-STOP
 -- TAG-RLC-PARAMETERS-START
 
@@ -16575,6 +16678,18 @@ UE-MRDC-Capability-v1730 ::=        SEQUENCE {
 -- Late non-critical extensions:
 UE-MRDC-Capability-v15g0 ::=        SEQUENCE {
     rf-ParametersMRDC-v15g0             RF-ParametersMRDC-v15g0                                                         OPTIONAL,
+    nonCriticalExtension                UE-MRDC-Capability-v15n0                                                        OPTIONAL
+}
+
+UE-MRDC-Capability-v15n0 ::=        SEQUENCE {
+    rf-ParametersMRDC-v15n0             RF-ParametersMRDC-v15n0                                                         OPTIONAL,
+-- Following field is only for REL-15 late non-critical extensions
+    lateNonCriticalExtension            OCTET STRING                                                                    OPTIONAL,
+    nonCriticalExtension                UE-MRDC-Capability-v16e0                                                        OPTIONAL
+}
+
+UE-MRDC-Capability-v16e0 ::=        SEQUENCE {
+    rf-ParametersMRDC-v16e0             RF-ParametersMRDC-v16e0                                                         OPTIONAL,
     nonCriticalExtension                SEQUENCE {}                                                                     OPTIONAL
 }
 
