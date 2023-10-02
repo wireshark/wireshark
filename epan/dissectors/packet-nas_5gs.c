@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.501 17.11.0
+ * References: 3GPP TS 24.501 17.12.0
  */
 
 #include "config.h"
@@ -1046,6 +1046,7 @@ static const value_string nas_5gs_mm_cause_vals[] = {
     { 0x1b, "N1 mode not allowed" },
     { 0x1c, "Restricted service area" },
     { 0x1f, "Redirection to EPC required" },
+    { 0x24, "IAB-node operation not authorized" },
     { 0x2b, "LADN not available" },
     { 0x3e, "No network slices available" },
     { 0x41, "Maximum number of PDU sessions reached" },
@@ -6185,7 +6186,7 @@ de_nas_5gs_cmn_service_level_aa_cont(tvbuff_t *tvb, proto_tree *tree, packet_inf
                 proto_tree_add_bitmask_list(subtree, tvb, curr_offset-1, 1, flags, ENC_BIG_ENDIAN);
             }
             break;
-        case 0xb0:
+        case 0x50:
             {
                 static int * const flags[] = {
                     &hf_nas_5gs_spare_b3,
