@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.5.0 (2023-06)
+-- 3GPP TS 36.331 V17.6.0 (2023-09)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -5286,6 +5286,10 @@ CarrierFreqNR-r15 ::=				SEQUENCE {
 	[[	multiBandNsPmaxListNR-v1550		MultiBandNsPmaxListNR-1-v1550	OPTIONAL,	-- Need OR
 		multiBandNsPmaxListNR-SUL-v1550	MultiBandNsPmaxListNR-v1550		OPTIONAL,	-- Need OR
 		ssb-ToMeasure-r15				SSB-ToMeasure-r15				OPTIONAL		-- Need OR
+	]],
+	[[	ns-PmaxListNR-v1760			NS-PmaxListNR-v1760				OPTIONAL,	-- Need OR
+		multiBandNsPmaxListNR-v1760	MultiBandNsPmaxListNR-1-v1760		OPTIONAL,	-- Need OR
+		multiBandNsPmaxListNR-SUL-v1760	MultiBandNsPmaxListNR-v1760	OPTIONAL	-- Need OR
 	]]
 }
 
@@ -5308,6 +5312,10 @@ CarrierFreqNR-v1720 ::=		SEQUENCE {
 MultiBandNsPmaxListNR-1-v1550	::=	SEQUENCE (SIZE (1.. maxMultiBandsNR-1-r15)) OF NS-PmaxListNR-r15
 
 MultiBandNsPmaxListNR-v1550	::=	SEQUENCE (SIZE (1.. maxMultiBandsNR-r15)) OF NS-PmaxListNR-r15
+
+MultiBandNsPmaxListNR-1-v1760	::=	SEQUENCE (SIZE (1.. maxMultiBandsNR-1-r15)) OF NS-PmaxListNR-v1760
+
+MultiBandNsPmaxListNR-v1760 ::=	SEQUENCE (SIZE (1.. maxMultiBandsNR-r15)) OF NS-PmaxListNR-v1760
 
 AllowedCellListNR-r16 ::=			SEQUENCE (SIZE (1..maxCellAllowedNR-r16)) OF PhysCellIdNR-r15
 
@@ -10228,6 +10236,8 @@ AdditionalSpectrumEmission-v10l0 ::=	INTEGER (33..288)
 
 AdditionalSpectrumEmissionNR-r15 ::=		INTEGER (0..7)
 
+AdditionalSpectrumEmissionNR-v1760 ::=	INTEGER (8..39)
+
 
 ARFCN-ValueCDMA2000 ::=			INTEGER (0..2047)
 
@@ -10610,6 +10620,12 @@ NS-PmaxListNR-r15 ::=				SEQUENCE (SIZE (1..8)) OF NS-PmaxValueNR-r15
 NS-PmaxValueNR-r15 ::=			SEQUENCE {
 	additionalPmaxNR-r15					P-MaxNR-r15					OPTIONAL,	-- Need ON
 	additionalSpectrumEmissionNR-r15		AdditionalSpectrumEmissionNR-r15
+}
+
+NS-PmaxListNR-v1760 ::=			SEQUENCE (SIZE (1..8)) OF NS-PmaxValueNR-v1760
+
+NS-PmaxValueNR-v1760 ::=			SEQUENCE {
+	additionalSpectrumEmissionNR-v1760	AdditionalSpectrumEmissionNR-v1760	OPTIONAL	-- Need OR
 }
 
 
