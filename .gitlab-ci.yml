@@ -519,7 +519,7 @@ macOS Arm Package:
     - DMG_SHA256=$( shasum --algorithm 256 Wireshark?[1-9]*.dmg | awk '{print $1}' )
     - TSHARK_VERSION=$( ./tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)\.*$//' -e 's/-0-g.*//' )
     - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$SPARKLE_SIGNATURE" "$DMG_SHA256" > release-info-${TSHARK_VERSION}-macos-arm64.ini
-    - if [[ -n "$S3_DESTINATION_RELEASE" ]] && [[ $TSHARK_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then aws s3 cp release-info-${TSHARK_VERSION}-macos-arm64.ini "$S3_DESTINATION_RELEASE/" ; fi
+    - if [[ -n "$S3_DESTINATION_RELEASE" ]] ; then aws s3 cp release-info-${TSHARK_VERSION}-macos-arm64.ini "$S3_DESTINATION_RELEASE/" ; fi
     - cd ..
     - ninja test-programs
     - python3 -m pytest
@@ -564,7 +564,7 @@ macOS Intel Package:
     - DMG_SHA256=$( shasum --algorithm 256 Wireshark?[1-9]*.dmg | awk '{print $1}' )
     - TSHARK_VERSION=$( ./tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)\.*$//' -e 's/-0-g.*//' )
     - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$SPARKLE_SIGNATURE" "$DMG_SHA256" > release-info-${TSHARK_VERSION}-macos-intel64.ini
-    - if [[ -n "$S3_DESTINATION_RELEASE" ]] && [[ $TSHARK_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then aws s3 cp release-info-${TSHARK_VERSION}-macos-intel64.ini "$S3_DESTINATION_RELEASE/" ; fi
+    - if [[ -n "$S3_DESTINATION_RELEASE" ]] ; then aws s3 cp release-info-${TSHARK_VERSION}-macos-arm64.ini "$S3_DESTINATION_RELEASE/" ; fi
     - cd ..
     - ninja test-programs
     - python3 -m pytest
