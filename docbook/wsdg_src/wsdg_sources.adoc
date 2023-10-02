@@ -233,14 +233,13 @@ CMake can compile Wireshark for several different build types:
 |Type |Compiler Flags |Description
 
 |`RelWithDebInfo`
-|`-O2 -g`
-|Default, build with default optimizations and generate debug symbols.
-Enables assertions and disables debug level logs
+|`-O2 -g -DNDEBUG`
+|Build with optimizations and generate debug symbols.
+Disables assertions and disables debug level logs
 
 |`Debug`
-|`-O0 -g -DWS_DEBUG -DWS_DEBUG_UTF_8`
-|For development, no optimization. Enables assertions
-and debug level logs
+|`-g -DWS_DEBUG`
+|For development, no optimization. Enables assertions and debug level logs
 
 |`Release`
 |`-O3 -DNDEBUG`
