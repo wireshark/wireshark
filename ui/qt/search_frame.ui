@@ -20,6 +20,9 @@
    <enum>QFrame::Plain</enum>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>4</number>
+   </property>
    <property name="topMargin">
     <number>0</number>
    </property>
