@@ -1,4 +1,4 @@
--- 3GPP TS 37.355 V17.5.0 (2023-06)
+-- 3GPP TS 37.355 V17.6.0 (2023-09)
 
 LPP-PDU-Definitions
 DEFINITIONS AUTOMATIC TAGS ::=
@@ -1564,7 +1564,8 @@ NR-On-Demand-DL-PRS-PerFreqLayer-r17 ::= SEQUENCE {
 	dl-prs-FrequencyRangeReq-r17			ENUMERATED { fr1, fr2, ...},
 	dl-prs-ResourceSetPeriodicityReq-r17	ENUMERATED { p4, p5, p8, p10, p16, p20, p32, p40,
 													p64, p80, p160, p320, p640, p1280, p2560,
-													p5120, p10240, p20480, p40960, p81920, ...}
+													p5120, p10240, p20480, p40960, p81920, ...,
+													p128-v1760, p256-v1760, p512-v1760}
 																					OPTIONAL,
 	dl-prs-ResourceBandwidthReq-r17			INTEGER (1..63)							OPTIONAL,
 	dl-prs-ResourceRepetitionFactorReq-r17	ENUMERATED {n2, n4, n6, n8, n16, n32, ...}
@@ -6677,7 +6678,7 @@ NR-Multi-RTT-ProvideLocationInformation-r16 ::= SEQUENCE {
 	nr-Multi-RTT-SignalMeasurementInstances-r17
 											SEQUENCE (SIZE (1..maxMeasInstances-r17)) OF
 												NR-Multi-RTT-SignalMeasurementInformation-r16
-																					OPTIONAL
+																	OPTIONAL	--Cond batchUEA
 	]]
 }
 

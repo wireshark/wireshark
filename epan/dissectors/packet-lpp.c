@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 17.5.0 Release 17
+ * Ref 3GPP TS 37.355 version 17.6.0 Release 17
  * http://www.3gpp.org
  */
 
@@ -15116,6 +15116,9 @@ static const value_string lpp_T_dl_prs_ResourceSetPeriodicityReq_r17_vals[] = {
   {  17, "p20480" },
   {  18, "p40960" },
   {  19, "p81920" },
+  {  20, "p128-v1760" },
+  {  21, "p256-v1760" },
+  {  22, "p512-v1760" },
   { 0, NULL }
 };
 
@@ -15123,7 +15126,7 @@ static const value_string lpp_T_dl_prs_ResourceSetPeriodicityReq_r17_vals[] = {
 static int
 dissect_lpp_T_dl_prs_ResourceSetPeriodicityReq_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     20, NULL, TRUE, 0, NULL);
+                                     20, NULL, TRUE, 3, NULL);
 
   return offset;
 }
