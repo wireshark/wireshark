@@ -231,7 +231,7 @@ Debian Stable APT Test:
     # Used for https://www.wireshark.org/docs/dfref/
     - TSHARK_VERSION=$( tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)\.$//' -e 's/-0-g.*//' )
     - tshark -G fields > dfilter-list-${TSHARK_VERSION}.txt
-    - if [[ -n "$S3_DESTINATION_DIST" ]] && [[ $TSHARK_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then aws s3 cp dfilter-list-${TSHARK_VERSION}.txt "$S3_DESTINATION_DIST/" ; fi
+    - if [[ -n "$S3_DESTINATION_RELEASE" ]] ; then aws s3 cp dfilter-list-${TSHARK_VERSION}.txt "$S3_DESTINATION_RELEASE/" ; fi
   artifacts:
     paths:
       - dfilter-list-*.txt
