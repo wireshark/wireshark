@@ -1685,6 +1685,7 @@ id-HFCNode-ID-new                                  ProtocolIE-ID
 id-GlobalCable-ID-new                              ProtocolIE-ID
 id-TargetHomeENB-ID                                ProtocolIE-ID
 id-HashedUEIdentityIndexValue                      ProtocolIE-ID
+id-ExtendedMobilityInformation                     ProtocolIE-ID
 
 #.END
 
@@ -2064,6 +2065,7 @@ BeamMeasurementsReportConfiguration                    N ngap.extension id-BeamM
 TAI                                                    N ngap.extension id-TAI
 NR-CGI                                                 N ngap.extension id-NR-CGI
 HashedUEIdentityIndexValue                             N ngap.extension id-HashedUEIdentityIndexValue
+ExtendedMobilityInformation                            N ngap.extension id-ExtendedMobilityInformation
 
 #NGAP-ELEMENTARY-PROCEDURE
 

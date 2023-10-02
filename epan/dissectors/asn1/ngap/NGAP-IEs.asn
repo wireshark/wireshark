@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.5.0 (2023-06)
+-- 3GPP TS 38.413 V17.6.0 (2023-09)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -44,6 +44,7 @@ IMPORTS
 	id-DL-NGU-UP-TNLInformation,
 	id-EndpointIPAddressAndPort,
 	id-EnergySavingIndication,
+	id-ExtendedMobilityInformation,
 	id-ExtendedPacketDelayBudget,
 	id-ExtendedRATRestrictionInformation,
 	id-ExtendedReportIntervalMDT,
@@ -2314,6 +2315,7 @@ HOReport::= SEQUENCE {
 }
 
 HOReport-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ExtendedMobilityInformation				CRITICALITY ignore	EXTENSION ExtendedMobilityInformation				PRESENCE optional		},
 	...
 }
 
@@ -3334,11 +3336,11 @@ MBS-DistributionSetupRequestTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 
 MBS-DistributionSetupResponseTransfer ::= SEQUENCE {
 	mBS-SessionID								MBS-SessionID,
-	mBS-AreaSessionID							MBS-AreaSessionID				OPTIONAL,
-	sharedNGU-MulticastTNLInformation			MBS-SessionTNLInfo5GCItem		OPTIONAL,
+	mBS-AreaSessionID							MBS-AreaSessionID						OPTIONAL,
+	sharedNGU-MulticastTNLInformation			SharedNGU-MulticastTNLInformation		OPTIONAL,
 	mBS-QoSFlowsToBeSetupList					MBS-QoSFlowsToBeSetupList,
 	mBSSessionStatus							MBSSessionStatus,
-	mBS-ServiceArea								MBS-ServiceArea					OPTIONAL,
+	mBS-ServiceArea								MBS-ServiceArea							OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {MBS-DistributionSetupResponseTransfer-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -3422,6 +3424,8 @@ MICOModeIndication ::= ENUMERATED {
 }
 
 MobilityInformation ::= BIT STRING (SIZE(16))
+
+ExtendedMobilityInformation ::= BIT STRING (SIZE(32))
 
 MobilityRestrictionList ::= SEQUENCE {
 	servingPLMN					PLMNIdentity,

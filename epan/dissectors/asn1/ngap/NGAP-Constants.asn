@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.5.0 (2023-06)
+-- 3GPP TS 38.413 V17.6.0 (2023-09)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -561,7 +561,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-M6ReportAmount										ProtocolIE-ID ::= 338
 	id-M7ReportAmount										ProtocolIE-ID ::= 339
 	id-IncludeBeamMeasurementsIndication					ProtocolIE-ID ::= 340
-	id-ExcessPacketDelayThresholdConfiguration			ProtocolIE-ID ::= 341
+	id-ExcessPacketDelayThresholdConfiguration				ProtocolIE-ID ::= 341
 	id-PagingCause											ProtocolIE-ID ::= 342
 	id-PagingCauseIndicationForVoiceService					ProtocolIE-ID ::= 343
 	id-PEIPSassistanceInformation							ProtocolIE-ID ::= 344
@@ -586,6 +586,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-GlobalCable-ID-new									ProtocolIE-ID ::= 363
 	id-TargetHomeENB-ID										ProtocolIE-ID ::= 364
 	id-HashedUEIdentityIndexValue							ProtocolIE-ID ::= 365
+	id-ExtendedMobilityInformation							ProtocolIE-ID ::= 366
 
 
 END
