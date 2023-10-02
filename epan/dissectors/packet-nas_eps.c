@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V17.9.0 (2022-12)
+ * References: 3GPP TS 24.301 V17.11.0 (2023-09)
  */
 
 #include "config.h"
@@ -1287,6 +1287,7 @@ const value_string nas_eps_emm_cause_values[] = {
     { 0x1a, "Non-EPS authentication unacceptable"},
     { 0x1f, "Redirection to 5GCN required"},
     { 0x23, "Requested service option not authorized in this PLMN"},
+    { 0x24, "IAB-node operation not authorized" },
     { 0x27, "CS service temporarily not available"},
     { 0x28, "No EPS bearer context activated"},
     { 0x2a, "Severe network failure"},
