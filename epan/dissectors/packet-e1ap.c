@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 37.483 V17.5.0 (2023-06)
+ * References: 3GPP TS 37.483 V17.6.0 (2023-09)
  */
 
 #include "config.h"
@@ -302,7 +302,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_MCForwardingResourceReleaseIndication = 183,
   id_PDCP_COUNT_Reset = 184,
   id_MBSSessionAssociatedInfoNonSupportToSupport = 185,
-  id_VersionID = 186
+  id_VersionID = 186,
+  id_InactivityInformationRequest = 187,
+  id_UEInactivityInformation = 188,
+  id_MBSAreaSessionID = 189,
+  id_Secondary_PDU_Session_Data_Forwarding_Information = 190
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
@@ -347,6 +351,7 @@ static int hf_e1ap_CommonNetworkInstance_PDU = -1;  /* CommonNetworkInstance */
 static int hf_e1ap_CP_TNL_Information_PDU = -1;   /* CP_TNL_Information */
 static int hf_e1ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
 static int hf_e1ap_DAPSRequestInfo_PDU = -1;      /* DAPSRequestInfo */
+static int hf_e1ap_Data_Forwarding_Information_PDU = -1;  /* Data_Forwarding_Information */
 static int hf_e1ap_DataForwardingtoE_UTRANInformationList_PDU = -1;  /* DataForwardingtoE_UTRANInformationList */
 static int hf_e1ap_Data_Usage_Report_List_PDU = -1;  /* Data_Usage_Report_List */
 static int hf_e1ap_DirectForwardingPathAvailability_PDU = -1;  /* DirectForwardingPathAvailability */
@@ -395,7 +400,9 @@ static int hf_e1ap_GNB_DU_ID_PDU = -1;            /* GNB_DU_ID */
 static int hf_e1ap_HW_CapacityIndicator_PDU = -1;  /* HW_CapacityIndicator */
 static int hf_e1ap_IgnoreMappingRuleIndication_PDU = -1;  /* IgnoreMappingRuleIndication */
 static int hf_e1ap_Inactivity_Timer_PDU = -1;     /* Inactivity_Timer */
+static int hf_e1ap_InactivityInformationRequest_PDU = -1;  /* InactivityInformationRequest */
 static int hf_e1ap_MaxCIDEHCDL_PDU = -1;          /* MaxCIDEHCDL */
+static int hf_e1ap_MBSAreaSessionID_PDU = -1;     /* MBSAreaSessionID */
 static int hf_e1ap_MBSSessionAssociatedInfoNonSupportToSupport_PDU = -1;  /* MBSSessionAssociatedInfoNonSupportToSupport */
 static int hf_e1ap_MCBearerContextToSetup_PDU = -1;  /* MCBearerContextToSetup */
 static int hf_e1ap_MCBearerContextToSetupResponse_PDU = -1;  /* MCBearerContextToSetupResponse */
@@ -481,6 +488,7 @@ static int hf_e1ap_UE_associatedLogicalE1_ConnectionItem_PDU = -1;  /* UE_associ
 static int hf_e1ap_UESliceMaximumBitRateList_PDU = -1;  /* UESliceMaximumBitRateList */
 static int hf_e1ap_UP_TNL_Information_PDU = -1;   /* UP_TNL_Information */
 static int hf_e1ap_URIaddress_PDU = -1;           /* URIaddress */
+static int hf_e1ap_UEInactivityInformation_PDU = -1;  /* UEInactivityInformation */
 static int hf_e1ap_Reset_PDU = -1;                /* Reset */
 static int hf_e1ap_ResetType_PDU = -1;            /* ResetType */
 static int hf_e1ap_ResetAcknowledge_PDU = -1;     /* ResetAcknowledge */
@@ -829,7 +837,7 @@ static int hf_e1ap_unicast = -1;                  /* UP_TNL_Information */
 static int hf_e1ap_ue_Reference_ID = -1;          /* GNB_CU_CP_UE_E1AP_ID */
 static int hf_e1ap_associatedQoSFlowInformationList = -1;  /* MBSSessionAssociatedInformationList */
 static int hf_e1ap_mbsSessionAssociatedInformationList = -1;  /* MBSSessionAssociatedInformationList */
-static int hf_e1ap_mbsSessionForwardingAddress = -1;  /* TransportLayerAddress */
+static int hf_e1ap_mbsSessionForwardingAddress = -1;  /* UP_TNL_Information */
 static int hf_e1ap_MBSSessionAssociatedInformationList_item = -1;  /* MBSSessionAssociatedInformation_Item */
 static int hf_e1ap_mbs_QoS_Flow_Identifier = -1;  /* QoS_Flow_Identifier */
 static int hf_e1ap_associated_unicast_QoS_Flow_Identifier = -1;  /* QoS_Flow_Identifier */
@@ -1897,6 +1905,10 @@ static const value_string e1ap_ProtocolIE_ID_vals[] = {
   { id_PDCP_COUNT_Reset, "id-PDCP-COUNT-Reset" },
   { id_MBSSessionAssociatedInfoNonSupportToSupport, "id-MBSSessionAssociatedInfoNonSupportToSupport" },
   { id_VersionID, "id-VersionID" },
+  { id_InactivityInformationRequest, "id-InactivityInformationRequest" },
+  { id_UEInactivityInformation, "id-UEInactivityInformation" },
+  { id_MBSAreaSessionID, "id-MBSAreaSessionID" },
+  { id_Secondary_PDU_Session_Data_Forwarding_Information, "id-Secondary-PDU-Session-Data-Forwarding-Information" },
   { 0, NULL }
 };
 
@@ -7401,6 +7413,21 @@ dissect_e1ap_IAB_Donor_CU_UPPSKInfo_Item(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const value_string e1ap_InactivityInformationRequest_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_InactivityInformationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 static const value_string e1ap_MaxIPrate_vals[] = {
   {   0, "bitrate64kbs" },
   {   1, "max-UErate" },
@@ -7491,7 +7518,7 @@ dissect_e1ap_MBSSessionAssociatedInfoNonSupportToSupport(tvbuff_t *tvb _U_, int 
 
 static const per_sequence_t MBSSessionAssociatedInformation_sequence[] = {
   { &hf_e1ap_mbsSessionAssociatedInformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MBSSessionAssociatedInformationList },
-  { &hf_e1ap_mbsSessionForwardingAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_TransportLayerAddress },
+  { &hf_e1ap_mbsSessionForwardingAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_UP_TNL_Information },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -10053,6 +10080,16 @@ dissect_e1ap_URIaddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
+
+static int
+dissect_e1ap_UEInactivityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 7200U, NULL, TRUE);
+
+  return offset;
+}
+
+
 static const per_sequence_t Reset_sequence[] = {
   { &hf_e1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_ProtocolIE_Container },
   { NULL, 0, 0, NULL }
@@ -11817,6 +11854,14 @@ static int dissect_DAPSRequestInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Data_Forwarding_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_Data_Forwarding_Information(tvb, offset, &asn1_ctx, tree, hf_e1ap_Data_Forwarding_Information_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DataForwardingtoE_UTRANInformationList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -12201,11 +12246,27 @@ static int dissect_Inactivity_Timer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_InactivityInformationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_InactivityInformationRequest(tvb, offset, &asn1_ctx, tree, hf_e1ap_InactivityInformationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_MaxCIDEHCDL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_e1ap_MaxCIDEHCDL(tvb, offset, &asn1_ctx, tree, hf_e1ap_MaxCIDEHCDL_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MBSAreaSessionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_MBSAreaSessionID(tvb, offset, &asn1_ctx, tree, hf_e1ap_MBSAreaSessionID_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -12886,6 +12947,14 @@ static int dissect_URIaddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_e1ap_URIaddress(tvb, offset, &asn1_ctx, tree, hf_e1ap_URIaddress_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEInactivityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_UEInactivityInformation(tvb, offset, &asn1_ctx, tree, hf_e1ap_UEInactivityInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -13886,6 +13955,10 @@ void proto_register_e1ap(void) {
       { "DAPSRequestInfo", "e1ap.DAPSRequestInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_Data_Forwarding_Information_PDU,
+      { "Data-Forwarding-Information", "e1ap.Data_Forwarding_Information_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_DataForwardingtoE_UTRANInformationList_PDU,
       { "DataForwardingtoE-UTRANInformationList", "e1ap.DataForwardingtoE_UTRANInformationList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -14078,8 +14151,16 @@ void proto_register_e1ap(void) {
       { "Inactivity-Timer", "e1ap.Inactivity_Timer",
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
         NULL, HFILL }},
+    { &hf_e1ap_InactivityInformationRequest_PDU,
+      { "InactivityInformationRequest", "e1ap.InactivityInformationRequest",
+        FT_UINT32, BASE_DEC, VALS(e1ap_InactivityInformationRequest_vals), 0,
+        NULL, HFILL }},
     { &hf_e1ap_MaxCIDEHCDL_PDU,
       { "MaxCIDEHCDL", "e1ap.MaxCIDEHCDL",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_MBSAreaSessionID_PDU,
+      { "MBSAreaSessionID", "e1ap.MBSAreaSessionID",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_MBSSessionAssociatedInfoNonSupportToSupport_PDU,
@@ -14421,6 +14502,10 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_URIaddress_PDU,
       { "URIaddress", "e1ap.URIaddress",
         FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_UEInactivityInformation_PDU,
+      { "UEInactivityInformation", "e1ap.UEInactivityInformation",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
         NULL, HFILL }},
     { &hf_e1ap_Reset_PDU,
       { "Reset", "e1ap.Reset_element",
@@ -15816,8 +15901,8 @@ void proto_register_e1ap(void) {
         NULL, HFILL }},
     { &hf_e1ap_mbsSessionForwardingAddress,
       { "mbsSessionForwardingAddress", "e1ap.mbsSessionForwardingAddress",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "TransportLayerAddress", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(e1ap_UP_TNL_Information_vals), 0,
+        "UP_TNL_Information", HFILL }},
     { &hf_e1ap_MBSSessionAssociatedInformationList_item,
       { "MBSSessionAssociatedInformation-Item", "e1ap.MBSSessionAssociatedInformation_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17450,6 +17535,8 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.ies", id_gNB_CU_UP_MBS_Support_Info, create_dissector_handle(dissect_GNB_CU_UP_MBS_Support_Info_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_SDTContinueROHC, create_dissector_handle(dissect_SDTContinueROHC_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_ManagementBasedMDTPLMNModificationList, create_dissector_handle(dissect_MDTPLMNModificationList_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_InactivityInformationRequest, create_dissector_handle(dissect_InactivityInformationRequest_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_UEInactivityInformation, create_dissector_handle(dissect_UEInactivityInformation_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_SNSSAI, create_dissector_handle(dissect_SNSSAI_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_OldQoSFlowMap_ULendmarkerexpected, create_dissector_handle(dissect_QoS_Flow_List_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_DRB_QoS, create_dissector_handle(dissect_QoSFlowLevelQoSParameters_PDU, proto_e1ap));
@@ -17513,6 +17600,8 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.extension", id_PDCP_COUNT_Reset, create_dissector_handle(dissect_PDCP_COUNT_Reset_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_MBSSessionAssociatedInfoNonSupportToSupport, create_dissector_handle(dissect_MBSSessionAssociatedInfoNonSupportToSupport_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_VersionID, create_dissector_handle(dissect_VersionID_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.extension", id_MBSAreaSessionID, create_dissector_handle(dissect_MBSAreaSessionID_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.extension", id_Secondary_PDU_Session_Data_Forwarding_Information, create_dissector_handle(dissect_Data_Forwarding_Information_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_reset, create_dissector_handle(dissect_Reset_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.sout", id_reset, create_dissector_handle(dissect_ResetAcknowledge_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_errorIndication, create_dissector_handle(dissect_ErrorIndication_PDU, proto_e1ap));

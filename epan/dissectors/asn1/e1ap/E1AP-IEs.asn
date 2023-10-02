@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.5.0 (2023-06)
+-- 3GPP TS 37.483 V17.6.0 (2023-09)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -76,6 +76,8 @@ IMPORTS
 	id-PDCP-COUNT-Reset,
 	id-MBSSessionAssociatedInfoNonSupportToSupport,
 	id-VersionID,
+	id-MBSAreaSessionID,
+	id-Secondary-PDU-Session-Data-Forwarding-Information,
 	maxnoofMBSAreaSessionIDs,
 	maxnoofSharedNG-UTerminations,
 	maxnoofMRBs,
@@ -1700,6 +1702,9 @@ IAB-donor-CU-UPPSKInfoItemExtIEs 	E1AP-PROTOCOL-EXTENSION ::= {
 }
 IAB-donor-CU-UPPSK	::= OCTET STRING
 
+InactivityInformationRequest ::= ENUMERATED {true, ...}
+
+
 -- J
 
 -- K
@@ -1857,7 +1862,7 @@ MBSSessionAssociatedInfoNonSupportToSupport-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 
 MBSSessionAssociatedInformation ::= SEQUENCE {
 	mbsSessionAssociatedInformationList		MBSSessionAssociatedInformationList,
-	mbsSessionForwardingAddress				TransportLayerAddress,
+	mbsSessionForwardingAddress				UP-TNL-Information,
 	iE-Extensions		ProtocolExtensionContainer { {MBSSessionAssociatedInformation-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -1914,7 +1919,8 @@ MCBearerContextToSetup ::= SEQUENCE {
 }
 
 MCBearerContextToSetup-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-MBSSessionAssociatedInfoNonSupportToSupport	CRITICALITY ignore	EXTENSION MBSSessionAssociatedInfoNonSupportToSupport	PRESENCE optional},
+	{ID id-MBSSessionAssociatedInfoNonSupportToSupport	CRITICALITY ignore	EXTENSION MBSSessionAssociatedInfoNonSupportToSupport	PRESENCE optional}|
+	{ID id-MBSAreaSessionID	CRITICALITY ignore	EXTENSION MBSAreaSessionID	PRESENCE optional},
 	...
 }
 
@@ -2863,7 +2869,8 @@ PDU-Session-Resource-To-Modify-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-redundant-nG-UL-UP-TNL-Information			CRITICALITY ignore	EXTENSION 	UP-TNL-Information								PRESENCE optional	}|
 	{ID id-RedundantCommonNetworkInstance				CRITICALITY ignore	EXTENSION 	CommonNetworkInstance							PRESENCE optional	}|
 	{ID id-DataForwardingtoE-UTRANInformationList		CRITICALITY ignore	EXTENSION 	DataForwardingtoE-UTRANInformationList	PRESENCE optional	}|
-	{ID id-SecurityIndicationModify						CRITICALITY ignore	EXTENSION 	SecurityIndication								PRESENCE optional	},
+	{ID id-SecurityIndicationModify						CRITICALITY ignore	EXTENSION 	SecurityIndication								PRESENCE optional	}|
+	{ID id-Secondary-PDU-Session-Data-Forwarding-Information	CRITICALITY ignore	EXTENSION 	Data-Forwarding-Information		PRESENCE optional	},
 	...
 }
 
@@ -3569,6 +3576,8 @@ UplinkOnlyROHC-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 }
 
 URIaddress ::= VisibleString
+
+UEInactivityInformation ::= INTEGER (1..7200, ...)
 
 -- V
 

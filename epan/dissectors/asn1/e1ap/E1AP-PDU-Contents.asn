@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.5.0 (2023-06)
+-- 3GPP TS 37.483 V17.6.0 (2023-09)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -139,7 +139,10 @@ IMPORTS
 	MBSMulticastF1UContextDescriptor,
 	GNB-CU-UP-MBS-Support-Info,
 	SDTContinueROHC,
-	MDTPLMNModificationList
+	MDTPLMNModificationList,
+	InactivityInformationRequest,
+	UEInactivityInformation
+
 
 FROM E1AP-IEs
 
@@ -281,7 +284,8 @@ FROM E1AP-Containers
 	id-gNB-CU-UP-MBS-Support-Info,
 	id-SDTContinueROHC,
 	id-ManagementBasedMDTPLMNModificationList,
-
+	id-InactivityInformationRequest,
+	id-UEInactivityInformation,
 	maxnoofErrors,
 	maxnoofSPLMNs,
 	maxnoofDRBs,
@@ -891,7 +895,8 @@ BearerContextModificationRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-UESliceMaximumBitRateList					CRITICALITY ignore	TYPE UESliceMaximumBitRateList				      PRESENCE optional }|
 	{ ID id-SCGActivationStatus							CRITICALITY ignore	TYPE SCGActivationStatus					PRESENCE optional }|
 	{ ID id-SDTContinueROHC								CRITICALITY reject	TYPE SDTContinueROHC										PRESENCE optional }|
-	{ ID id-ManagementBasedMDTPLMNModificationList			CRITICALITY	ignore	TYPE MDTPLMNModificationList 							PRESENCE optional},
+	{ ID id-ManagementBasedMDTPLMNModificationList			CRITICALITY	ignore	TYPE MDTPLMNModificationList 							PRESENCE optional}|
+	{ ID id-InactivityInformationRequest			CRITICALITY ignore	TYPE InactivityInformationRequest						PRESENCE optional},
 	...
 }
 
@@ -938,7 +943,8 @@ BearerContextModificationResponseIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-CP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID								PRESENCE mandatory }|
 	{ ID id-gNB-CU-UP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID								PRESENCE mandatory }|
 	{ ID id-System-BearerContextModificationResponse	CRITICALITY ignore	TYPE System-BearerContextModificationResponse		PRESENCE optional  }|
-	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional  },
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional  }|
+	{ ID id-UEInactivityInformation						CRITICALITY ignore	TYPE UEInactivityInformation			PRESENCE optional},
 	...
 }
 
