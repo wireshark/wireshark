@@ -15,6 +15,7 @@
 #include <epan/addr_and_mask.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/bits_count_ones.h>
+#include <wsutil/strtoi.h>
 
 static void
 set_uinteger(fvalue_t *fv, uint32_t value)
@@ -33,12 +34,12 @@ static bool
 val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
 {
 	uint32_t	addr;
-	unsigned int nmask_bits;
+	uint32_t nmask_bits;
+	const char *endptr;
 
 	const char *slash, *net_str;
 	const char *addr_str;
 	char *addr_str_to_free = NULL;
-	fvalue_t *nmask_fvalue;
 
 	/* Look for CIDR: Is there a single slash in the string? */
 	slash = strchr(s, '/');
@@ -71,14 +72,12 @@ val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char
 		/* Skip past the slash */
 		net_str = slash + 1;
 
-		/* XXX - this is inefficient */
-		nmask_fvalue = fvalue_from_literal(FT_UINT32, net_str, false, err_msg);
-		if (!nmask_fvalue) {
+		if(!ws_strtou32(net_str, &endptr, &nmask_bits) || *endptr != '\0') {
+			if (err_msg != NULL) {
+				*err_msg = ws_strdup_printf("%s in not a valid mask", slash+1);
+			}
 			return false;
 		}
-		nmask_bits = fvalue_get_uinteger(nmask_fvalue);
-		fvalue_free(nmask_fvalue);
-
 		if (nmask_bits > 32) {
 			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
@@ -187,10 +186,14 @@ ftype_register_ipv4(void)
 		val_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
+		NULL,				/* val_from_uinteger64 */
+		NULL,				/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		val_to_repr,			/* val_to_string_repr */
 
 		NULL,				/* val_to_uinteger64 */
 		NULL,				/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = value_get },	/* union get_value */

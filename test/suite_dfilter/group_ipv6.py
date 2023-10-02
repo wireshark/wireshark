@@ -98,11 +98,12 @@ class TestDfilterIpv6:
         checkDFilterCount(dfilter, 0)
 
     def test_slice_3(self, checkDFilterCount):
-        dfilter = "ipv6.dst[15:1] == 99"
+        dfilter = "ipv6.dst[15:1] == 153"
         checkDFilterCount(dfilter, 1)
 
     def test_slice_4(self, checkDFilterCount):
-        dfilter = "ipv6.dst[15:1] == 00"
+        dfilter = "ipv6.dst[15:1] == 99:"
+        checkDFilterCount(dfilter, 1)
 
     #
     # Test some addresses are parsed correctly

@@ -334,6 +334,7 @@ const char *tokenstr(int token)
 		case TOKEN_IDENTIFIER:	return "IDENTIFIER";
 		case TOKEN_CONSTANT:	return "CONSTANT";
 		case TOKEN_LITERAL:	return "LITERAL";
+		case TOKEN_NUMBER:	return "NUMBER";
 		case TOKEN_FIELD:	return "FIELD";
 		case TOKEN_LBRACKET:	return "LBRACKET";
 		case TOKEN_RBRACKET:	return "RBRACKET";
@@ -348,6 +349,7 @@ const char *tokenstr(int token)
 		case TOKEN_DOLLAR:	return "DOLLAR";
 		case TOKEN_ATSIGN:	return "ATSIGN";
 		case TOKEN_HASH:	return "HASH";
+		case TOKEN_INDEX:	return "INDEX";
 	}
 	return "<unknown>";
 }

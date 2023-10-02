@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include <epan/to_str.h>
 #include <wsutil/time_util.h>
@@ -155,14 +156,33 @@ val_from_unix_time(fvalue_t *fv, const char *s)
 }
 
 static bool
-relative_val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
+relative_val_from_uinteger64(fvalue_t *fv, const char *s _U_, uint64_t value, char **err_msg _U_)
+{
+	fv->value.time.secs = (time_t)value;
+	fv->value.time.nsecs = 0;
+	return true;
+}
+
+static bool
+relative_val_from_sinteger64(fvalue_t *fv, const char *s _U_, int64_t value, char **err_msg _U_)
+{
+	fv->value.time.secs = (time_t)value;
+	fv->value.time.nsecs = 0;
+	return true;
+}
+
+static bool
+relative_val_from_float(fvalue_t *fv, const char *s, double value, char **err_msg _U_)
 {
 	if (val_from_unix_time(fv, s))
 		return true;
 
-	if (err_msg != NULL)
-		*err_msg = ws_strdup_printf("\"%s\" is not a valid time.", s);
-	return false;
+	double whole, fraction;
+
+	fraction = modf(value, &whole);
+	fv->value.time.secs = (time_t)whole;
+	fv->value.time.nsecs = (int)(fraction * 1000000000);
+	return true;
 }
 
 /*
@@ -371,6 +391,24 @@ static bool
 absolute_val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
 {
 	return absolute_val_from_string(fv, s, 0, err_msg);
+}
+
+static bool
+absolute_val_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value _U_, char **err_msg)
+{
+	return absolute_val_from_literal(fv, s, FALSE, err_msg);
+}
+
+static bool
+absolute_val_from_sinteger64(fvalue_t *fv, const char *s, int64_t value _U_, char **err_msg)
+{
+	return absolute_val_from_literal(fv, s, FALSE, err_msg);
+}
+
+static bool
+absolute_val_from_float(fvalue_t *fv, const char *s, double value _U_, char **err_msg)
+{
+	return absolute_val_from_literal(fv, s, FALSE, err_msg);
 }
 
 static void
@@ -623,10 +661,14 @@ ftype_register_time(void)
 		absolute_val_from_literal,	/* val_from_literal */
 		absolute_val_from_string,	/* val_from_string */
 		NULL,				/* val_from_charconst */
+		absolute_val_from_uinteger64,	/* val_from_uinteger64 */
+		absolute_val_from_sinteger64,	/* val_from_sinteger64 */
+		absolute_val_from_float,	/* val_from_double */
 		absolute_val_to_repr,		/* val_to_string_repr */
 
 		NULL,				/* val_to_uinteger64 */
 		NULL,				/* val_to_sinteger64 */
+		NULL,				/* val_from_double */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_time = value_get },	/* union get_value */
@@ -656,13 +698,17 @@ ftype_register_time(void)
 		time_fvalue_new,		/* new_value */
 		time_fvalue_copy,		/* copy_value */
 		NULL,				/* free_value */
-		relative_val_from_literal,	/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
+		relative_val_from_uinteger64,	/* val_from_uinteger64 */
+		relative_val_from_sinteger64,	/* val_from_sinteger64 */
+		relative_val_from_float,	/* val_from_double */
 		relative_val_to_repr,		/* val_to_string_repr */
 
 		NULL,				/* val_to_uinteger64 */
 		NULL,				/* val_to_sinteger64 */
+		NULL,				/* val_from_double */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_time = value_get },	/* union get_value */

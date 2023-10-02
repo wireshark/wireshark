@@ -18,12 +18,6 @@
 #include <wsutil/pint.h>
 #include <wsutil/safe-math.h>
 
-static bool
-binary_strtoll(const char *s, int64_t *ptr, char **err_msg);
-
-static bool
-binary_strtoull(const char *s, uint64_t *ptr, char **err_msg);
-
 static void
 int_fvalue_new(fvalue_t *fv)
 {
@@ -202,51 +196,78 @@ get_sinteger64(fvalue_t *fv)
 }
 
 static bool
-binary_strtoull(const char *s, uint64_t *ptr, char **err_msg)
+_uint64_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg,
+		   uint64_t max)
 {
-	char *endptr;
-
-	errno = 0;
-	if (s[0] == '0' && (s[1] == 'b' || s[1] == 'B')) {
-		*ptr = g_ascii_strtoull(s + 2, &endptr, 2);
-	}
-	else {
-		*ptr = g_ascii_strtoull(s, &endptr, 0);
-	}
-
-	if (errno == EINVAL || endptr == s || *endptr != '\0') {
-		/* This isn't a valid number. */
+	if (value > max) {
 		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
-		return false;
-	}
-	if (errno == ERANGE) {
-		if (*ptr == UINT64_MAX) {
-			if (err_msg != NULL) {
-				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
-			}
-		}
-		else if (err_msg != NULL) {
-			/*
-			 * XXX - can "strtol()" set errno to
-			 * ERANGE without returning LONG_MAX?
-			 */
-			*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
-		}
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %" PRIu64".", s, max);
 		return false;
 	}
 
+	fv->value.uinteger64 = value;
 	return true;
 }
 
 static bool
-_uint64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg,
+uint64_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
+{
+	return _uint64_from_uinteger64(fv, s, value, err_msg, UINT64_MAX);
+}
+
+static bool
+uint56_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
+{
+	return _uint64_from_uinteger64(fv, s, value, err_msg, UINT64_C(0xFFFFFFFFFFFFFF));
+}
+
+static bool
+uint48_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
+{
+	return _uint64_from_uinteger64(fv, s, value, err_msg, UINT64_C(0xFFFFFFFFFFFF));
+}
+
+static bool
+uint40_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
+{
+	return _uint64_from_uinteger64(fv, s, value, err_msg, UINT64_C(0xFFFFFFFFFF));
+}
+
+static bool
+uint32_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
+{
+	return _uint64_from_uinteger64(fv, s, value, err_msg, UINT32_MAX);
+}
+
+static bool
+uint24_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
+{
+	return _uint64_from_uinteger64(fv, s, value, err_msg, 0xFFFFFF);
+}
+
+static bool
+uint16_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
+{
+	return _uint64_from_uinteger64(fv, s, value, err_msg, UINT16_MAX);
+}
+
+static bool
+uint8_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
+{
+	return _uint64_from_uinteger64(fv, s, value, err_msg, UINT8_MAX);
+}
+
+static bool
+_uint64_from_sinteger64(fvalue_t *fv, const char *s, int64_t _value, char **err_msg,
 		   uint64_t max)
 {
-	uint64_t value;
-
-	if (!binary_strtoull(s, &value, err_msg))
+	if (_value < 0) {
+		if (err_msg != NULL)
+			*err_msg = ws_strdup_printf("Unsigned numbers cannot be negative.");
 		return false;
+	}
+
+	uint64_t value = (uint64_t)_value;
 
 	if (value > max) {
 		if (err_msg != NULL)
@@ -259,51 +280,51 @@ _uint64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, 
 }
 
 static bool
-uint64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+uint64_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
 {
-	return _uint64_from_literal(fv, s, allow_partial_value, err_msg, UINT64_MAX);
+	return _uint64_from_sinteger64(fv, s, value, err_msg, UINT64_MAX);
 }
 
 static bool
-uint56_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+uint56_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
 {
-	return _uint64_from_literal(fv, s, allow_partial_value, err_msg, UINT64_C(0xFFFFFFFFFFFFFF));
+	return _uint64_from_sinteger64(fv, s, value, err_msg, UINT64_C(0xFFFFFFFFFFFFFF));
 }
 
 static bool
-uint48_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+uint48_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
 {
-	return _uint64_from_literal(fv, s, allow_partial_value, err_msg, UINT64_C(0xFFFFFFFFFFFF));
+	return _uint64_from_sinteger64(fv, s, value, err_msg, UINT64_C(0xFFFFFFFFFFFF));
 }
 
 static bool
-uint40_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+uint40_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
 {
-	return _uint64_from_literal(fv, s, allow_partial_value, err_msg, UINT64_C(0xFFFFFFFFFF));
+	return _uint64_from_sinteger64(fv, s, value, err_msg, UINT64_C(0xFFFFFFFFFF));
 }
 
 static bool
-uint32_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+uint32_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
 {
-	return _uint64_from_literal(fv, s, allow_partial_value, err_msg, UINT32_MAX);
+	return _uint64_from_sinteger64(fv, s, value, err_msg, UINT32_MAX);
 }
 
 static bool
-uint24_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+uint24_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
 {
-	return _uint64_from_literal(fv, s, allow_partial_value, err_msg, 0xFFFFFF);
+	return _uint64_from_sinteger64(fv, s, value, err_msg, 0xFFFFFF);
 }
 
 static bool
-uint16_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+uint16_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
 {
-	return _uint64_from_literal(fv, s, allow_partial_value, err_msg, UINT16_MAX);
+	return _uint64_from_sinteger64(fv, s, value, err_msg, UINT16_MAX);
 }
 
 static bool
-uint8_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+uint8_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
 {
-	return _uint64_from_literal(fv, s, allow_partial_value, err_msg, UINT8_MAX);
+	return _uint64_from_sinteger64(fv, s, value, err_msg, UINT8_MAX);
 }
 
 static bool
@@ -314,56 +335,17 @@ uint64_from_charconst(fvalue_t *fv, unsigned long num, char **err_msg _U_)
 }
 
 static bool
-binary_strtoll(const char *s, int64_t *ptr, char **err_msg)
+_sint64_from_uinteger64(fvalue_t *fv, const char *s, uint64_t uvalue, char **err_msg,
+			int64_t max, int64_t min)
 {
-	char *endptr;
-
-	errno = 0;
-	if (s[0] == '0' && (s[1] == 'b' || s[1] == 'B')) {
-		*ptr = g_ascii_strtoll(s + 2, &endptr, 2);
-	}
-	else {
-		*ptr = g_ascii_strtoll(s, &endptr, 0);
-	}
-
-	if (errno == EINVAL || endptr == s || *endptr != '\0') {
-		/* This isn't a valid number. */
+	if (uvalue > INT64_MAX) {
 		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
-		return false;
-	}
-	if (errno == ERANGE) {
-		if (*ptr == INT64_MAX) {
-			if (err_msg != NULL) {
-				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
-			}
-		}
-		else if (*ptr == INT64_MIN) {
-			if (err_msg != NULL) {
-				*err_msg = ws_strdup_printf("\"%s\" causes an integer underflow.", s);
-			}
-		}
-		else if (err_msg != NULL) {
-			/*
-			 * XXX - can "strtol()" set errno to
-			 * ERANGE without returning LONG_MAX?
-			 */
-			*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
-		}
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %"PRId64".",
+				s, max);
 		return false;
 	}
 
-	return true;
-}
-
-static bool
-_sint64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg,
-		   int64_t max, int64_t min)
-{
-	int64_t value;
-
-	if (!binary_strtoll(s, &value, err_msg))
-		return false;
+	int64_t value = (int64_t)uvalue;
 
 	if (value > max) {
 		if (err_msg != NULL)
@@ -381,51 +363,120 @@ _sint64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, 
 }
 
 static bool
-sint64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+sint64_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
 {
-	return _sint64_from_literal(fv, s, allow_partial_value, err_msg, INT64_MAX, INT64_MIN);
+	return _sint64_from_uinteger64(fv, s, value, err_msg, INT64_MAX, INT64_MIN);
 }
 
 static bool
-sint56_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+sint56_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
 {
-	return _sint64_from_literal(fv, s, allow_partial_value, err_msg, INT64_C(0x7FFFFFFFFFFFFF), INT64_C(-0x80000000000000));
+	return _sint64_from_uinteger64(fv, s, value, err_msg, INT64_C(0x7FFFFFFFFFFFFF), INT64_C(-0x80000000000000));
 }
 
 static bool
-sint48_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+sint48_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
 {
-	return _sint64_from_literal(fv, s, allow_partial_value, err_msg, INT64_C(0x7FFFFFFFFFFF), INT64_C(-0x800000000000));
+	return _sint64_from_uinteger64(fv, s, value, err_msg, INT64_C(0x7FFFFFFFFFFF), INT64_C(-0x800000000000));
 }
 
 static bool
-sint40_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+sint40_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
 {
-	return _sint64_from_literal(fv, s, allow_partial_value, err_msg, INT64_C(0x7FFFFFFFFF), INT64_C(-0x8000000000));
+	return _sint64_from_uinteger64(fv, s, value, err_msg, INT64_C(0x7FFFFFFFFF), INT64_C(-0x8000000000));
 }
 
 static bool
-sint32_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+sint32_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
 {
-	return _sint64_from_literal(fv, s, allow_partial_value, err_msg, INT32_MAX, INT32_MIN);
+	return _sint64_from_uinteger64(fv, s, value, err_msg, INT32_MAX, INT32_MIN);
 }
 
 static bool
-sint24_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+sint24_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
 {
-	return _sint64_from_literal(fv, s, allow_partial_value, err_msg, 0x7FFFFF, -0x800000);
+	return _sint64_from_uinteger64(fv, s, value, err_msg, 0x7FFFFF, -0x800000);
 }
 
 static bool
-sint16_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+sint16_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
 {
-	return _sint64_from_literal(fv, s, allow_partial_value, err_msg, INT16_MAX, INT16_MIN);
+	return _sint64_from_uinteger64(fv, s, value, err_msg, INT16_MAX, INT16_MIN);
 }
 
 static bool
-sint8_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+sint8_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
 {
-	return _sint64_from_literal(fv, s, allow_partial_value, err_msg, INT8_MAX, INT8_MIN);
+	return _sint64_from_uinteger64(fv, s, value, err_msg, INT8_MAX, INT8_MIN);
+}
+
+ static bool
+_sint64_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg,
+			int64_t max, int64_t min)
+{
+	if (value > max) {
+		if (err_msg != NULL)
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %"PRId64".",
+				s, max);
+		return false;
+	}
+	else if (value < min) {
+		if (err_msg != NULL)
+			*err_msg = ws_strdup_printf("\"%s\" too small for this field, minimum %"PRId64".",
+				s, min);
+		return false;
+	}
+
+	fv->value.sinteger64 = value;
+	return true;
+}
+
+static bool
+sint64_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
+{
+	return _sint64_from_sinteger64(fv, s, value, err_msg, INT64_MAX, INT64_MIN);
+}
+
+static bool
+sint56_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
+{
+	return _sint64_from_sinteger64(fv, s, value, err_msg, INT64_C(0x7FFFFFFFFFFFFF), INT64_C(-0x80000000000000));
+}
+
+static bool
+sint48_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
+{
+	return _sint64_from_sinteger64(fv, s, value, err_msg, INT64_C(0x7FFFFFFFFFFF), INT64_C(-0x800000000000));
+}
+
+static bool
+sint40_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
+{
+	return _sint64_from_sinteger64(fv, s, value, err_msg, INT64_C(0x7FFFFFFFFF), INT64_C(-0x8000000000));
+}
+
+static bool
+sint32_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
+{
+	return _sint64_from_sinteger64(fv, s, value, err_msg, INT32_MAX, INT32_MIN);
+}
+
+static bool
+sint24_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
+{
+	return _sint64_from_sinteger64(fv, s, value, err_msg, 0x7FFFFF, -0x800000);
+}
+
+static bool
+sint16_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
+{
+	return _sint64_from_sinteger64(fv, s, value, err_msg, INT16_MAX, INT16_MIN);
+}
+
+static bool
+sint8_from_sinteger64(fvalue_t *fv, const char *s, int64_t value, char **err_msg)
+{
+	return _sint64_from_sinteger64(fv, s, value, err_msg, INT8_MAX, INT8_MIN);
 }
 
 static bool
@@ -436,7 +487,7 @@ sint64_from_charconst(fvalue_t *fv, unsigned long num, char **err_msg _U_)
 }
 
 static char *
-integer64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+sinteger64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	uint64_t val;
 
@@ -753,17 +804,23 @@ boolean_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, 
 		return true;
 	}
 
-	char *endptr;
-	errno = 0;
-	int64_t val = g_ascii_strtoll(s, &endptr, 0);
-	if (errno == 0 && *endptr == '\0') {
-		/* This is a valid number. */
-		fv->value.uinteger64 = (val != 0);
-		return true;
-	}
 	if (err_msg)
 		*err_msg = ws_strdup_printf("\"%s\" is not a valid boolean", s);
 	return false;
+}
+
+static bool
+boolean_from_uinteger64(fvalue_t *fv, const char *s _U_, uint64_t value, char **err_msg _U_)
+{
+	fv->value.uinteger64 = (value != 0);
+	return true;
+}
+
+static bool
+boolean_from_sinteger64(fvalue_t *fv, const char *s _U_, int64_t value, char **err_msg _U_)
+{
+	fv->value.uinteger64 = (value != 0);
+	return true;
 }
 
 static bool
@@ -851,14 +908,14 @@ boolean_hash(const fvalue_t *fv)
 }
 
 static bool
-ipxnet_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
+ipxnet_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value, char **err_msg)
 {
 	/*
 	 * Don't request an error message if bytes_from_literal fails;
 	 * if it does, we'll report an error specific to this address
 	 * type.
 	 */
-	if (uint32_from_literal(fv, s, true, NULL)) {
+	if (uint32_from_uinteger64(fv, s, value, NULL)) {
 		return true;
 	}
 
@@ -886,15 +943,6 @@ eui64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, ch
 		uint8_t bytes[8];
 	} eui64;
 
-	/*
-	 * Don't request an error message if uint64_from_literal fails;
-	 * if it does, we'll try parsing it as a sequence of bytes, and
-	 * report an error if *that* fails.
-	 */
-	if (uint64_from_literal(fv, s, true, NULL)) {
-		return true;
-	}
-
 	bytes = g_byte_array_new();
 	res = hex_str_to_bytes(s, bytes, true);
 	if (!res || bytes->len != 8) {
@@ -907,6 +955,13 @@ eui64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, ch
 	memcpy(eui64.bytes, bytes->data, 8);
 	g_byte_array_free(bytes, true);
 	fv->value.uinteger64 = GUINT64_FROM_BE(eui64.value);
+	return true;
+}
+
+static bool
+eui64_from_uinteger64(fvalue_t *fv, const char *s _U_, uint64_t value, char **err_msg _U_)
+{
+	fv->value.uinteger64 = value;
 	return true;
 }
 
@@ -937,13 +992,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint8_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint8_from_uinteger64,		/* val_from_uinteger64 */
+		uint8_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		char_to_repr,			/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -973,13 +1032,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint8_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint8_from_uinteger64,		/* val_from_uinteger64 */
+		uint8_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1009,13 +1072,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint16_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint16_from_uinteger64,		/* val_from_uinteger64 */
+		uint16_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1045,13 +1112,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint24_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint24_from_uinteger64,		/* val_from_uinteger64 */
+		uint24_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1081,13 +1152,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint32_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint32_from_uinteger64,		/* val_from_uinteger64 */
+		uint32_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1117,13 +1192,17 @@ ftype_register_integers(void)
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint40_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint40_from_uinteger64,		/* val_from_uinteger64 */
+		uint40_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1153,13 +1232,17 @@ ftype_register_integers(void)
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint48_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint48_from_uinteger64,		/* val_from_uinteger64 */
+		uint48_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1189,13 +1272,17 @@ ftype_register_integers(void)
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint56_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint56_from_uinteger64,		/* val_from_uinteger64 */
+		uint56_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1225,13 +1312,17 @@ ftype_register_integers(void)
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint64_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint64_from_uinteger64,		/* val_from_uinteger64 */
+		uint64_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1261,13 +1352,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		sint8_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		sint64_from_charconst,		/* val_from_charconst */
-		integer64_to_repr,		/* val_to_string_repr */
+		sint8_from_uinteger64,		/* val_from_uinteger64 */
+		sint8_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
+		sinteger64_to_repr,		/* val_to_string_repr */
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1297,13 +1392,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		sint16_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		sint64_from_charconst,		/* val_from_charconst */
-		integer64_to_repr,		/* val_to_string_repr */
+		sint16_from_uinteger64,		/* val_from_uinteger64 */
+		sint16_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
+		sinteger64_to_repr,		/* val_to_string_repr */
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1333,13 +1432,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		sint24_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		sint64_from_charconst,		/* val_from_charconst */
-		integer64_to_repr,		/* val_to_string_repr */
+		sint24_from_uinteger64,		/* val_from_uinteger64 */
+		sint24_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
+		sinteger64_to_repr,		/* val_to_string_repr */
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1369,13 +1472,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		sint32_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		sint64_from_charconst,		/* val_from_charconst */
-		integer64_to_repr,		/* val_to_string_repr */
+		sint32_from_uinteger64,		/* val_from_uinteger64 */
+		sint32_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
+		sinteger64_to_repr,		/* val_to_string_repr */
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1405,13 +1512,17 @@ ftype_register_integers(void)
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		sint40_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		sint64_from_charconst,		/* val_from_charconst */
-		integer64_to_repr,		/* val_to_string_repr */
+		sint40_from_uinteger64,		/* val_from_uinteger64 */
+		sint40_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
+		sinteger64_to_repr,		/* val_to_string_repr */
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1441,13 +1552,17 @@ ftype_register_integers(void)
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		sint48_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		sint64_from_charconst,		/* val_from_charconst */
-		integer64_to_repr,		/* val_to_string_repr */
+		sint48_from_uinteger64,		/* val_from_uinteger64 */
+		sint48_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
+		sinteger64_to_repr,		/* val_to_string_repr */
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1477,13 +1592,17 @@ ftype_register_integers(void)
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		sint56_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		sint64_from_charconst,		/* val_from_charconst */
-		integer64_to_repr,		/* val_to_string_repr */
+		sint56_from_uinteger64,		/* val_from_uinteger64 */
+		sint56_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
+		sinteger64_to_repr,		/* val_to_string_repr */
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1513,13 +1632,17 @@ ftype_register_integers(void)
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		sint64_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		sint64_from_charconst,		/* val_from_charconst */
-		integer64_to_repr,		/* val_to_string_repr */
+		sint64_from_uinteger64,		/* val_from_uinteger64 */
+		sint64_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
+		sinteger64_to_repr,		/* val_to_string_repr */
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1552,10 +1675,14 @@ ftype_register_integers(void)
 		boolean_from_literal,		/* val_from_literal */
 		boolean_from_string,		/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		boolean_from_uinteger64,	/* val_from_uinteger64 */
+		boolean_from_sinteger64,	/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		boolean_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1586,13 +1713,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		ipxnet_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
+		ipxnet_from_uinteger64,		/* val_from_uinteger64 */
+		NULL,				/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		ipxnet_to_repr,			/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1623,13 +1754,17 @@ ftype_register_integers(void)
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		uint32_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
+		uint32_from_uinteger64,		/* val_from_uinteger64 */
+		uint32_from_sinteger64,		/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1663,10 +1798,14 @@ ftype_register_integers(void)
 		eui64_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
+		eui64_from_uinteger64,		/* val_from_uinteger64 */
+		NULL,				/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		eui64_to_repr,			/* val_to_string_repr */
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */

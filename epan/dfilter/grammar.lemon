@@ -146,6 +146,7 @@ atom(A) ::= STRING(S).      { A = S; }
 atom(A) ::= CHARCONST(N).   { A = N; }
 atom(A) ::= LITERAL(S).     { A = S; }
 atom(A) ::= CONSTANT(C).    { A = C; }
+atom(A) ::= NUMBER(N).      { A = N; }
 
 named_field(X) ::= FIELD(F).
 {
@@ -177,7 +178,7 @@ layered_field(X) ::= named_field(F) HASH LBRACKET range_node_list(L) RBRACKET(R)
     stnode_free(R);
 }
 
-layered_field(X) ::= named_field(F) HASH INTEGER(N).
+layered_field(X) ::= named_field(F) HASH INDEX(N).
 {
     X = F;
     char *err_msg = NULL;

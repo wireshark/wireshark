@@ -21,6 +21,7 @@
 #include "sttype-set.h"
 #include "sttype-function.h"
 #include "sttype-pointer.h"
+#include "sttype-number.h"
 
 #include <epan/exceptions.h>
 #include <epan/packet.h>
@@ -274,6 +275,42 @@ dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
 	char *error_message = NULL;
 
 	fv = fvalue_from_charconst(ftype, *nump, &error_message);
+	if (fv != NULL) {
+		g_free(error_message); // error_message is expected to be null
+		stnode_replace(st, STTYPE_FVALUE, fv);
+		return;
+	}
+	SET_ERROR(dfw, error_message);
+
+	// Failure
+	dfw_set_error_location(dfw, stnode_location(st));
+	FAIL_HERE(dfw);
+	ws_assert_not_reached();
+}
+
+void
+dfilter_fvalue_from_number(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
+{
+	fvalue_t *fv;
+	const char *s = stnode_token(st);
+	char *error_message = NULL;
+	stnumber_t num_type;
+
+	num_type = sttype_number_get_type(st);
+
+	if (num_type == STNUM_INTEGER) {
+		fv = fvalue_from_sinteger64(ftype, s, sttype_number_get_integer(st), &error_message);
+	}
+	else if (num_type == STNUM_UNSIGNED) {
+		fv = fvalue_from_uinteger64(ftype, s, sttype_number_get_unsigned(st), &error_message);
+	}
+	else if (num_type == STNUM_FLOAT) {
+		fv = fvalue_from_floating(ftype, s, sttype_number_get_float(st), &error_message);
+	}
+	else {
+		ws_assert_not_reached();
+	}
+
 	if (fv != NULL) {
 		g_free(error_message); // error_message is expected to be null
 		stnode_replace(st, STTYPE_FVALUE, fv);
@@ -621,6 +658,7 @@ get_logical_ftype(stnode_t *st_node)
 		case STTYPE_STRING:
 		case STTYPE_LITERAL:
 		case STTYPE_CHARCONST:
+		case STTYPE_NUMBER:
 			return FT_NONE;
 
 		case STTYPE_FUNCTION:
@@ -674,6 +712,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_STRING:
 		case STTYPE_LITERAL:
 		case STTYPE_CHARCONST:
+		case STTYPE_NUMBER:
 			FAIL(dfw, st_arg1, "%s is neither a field nor a protocol name.",
 					stnode_todisplay(st_arg1));
 			break;
@@ -855,6 +894,9 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 	else if (type2 == STTYPE_CHARCONST) {
 		dfilter_fvalue_from_charconst(dfw, ftype1, st_arg2);
 	}
+	else if (type2 == STTYPE_NUMBER) {
+		dfilter_fvalue_from_number(dfw, ftype1, st_arg2);
+	}
 	else if (type2 == STTYPE_SLICE) {
 		ftype2 = check_slice(dfw, st_arg2, ftype1);
 
@@ -944,6 +986,7 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op,
 	else if (type2 == STTYPE_STRING ||
 				type2 == STTYPE_LITERAL ||
 				type2 == STTYPE_CHARCONST ||
+				type2 == STTYPE_NUMBER ||
 				type2 == STTYPE_PCRE) {
 		FAIL(dfw, st_node, "Constant expression is invalid.");
 	}
@@ -984,6 +1027,9 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op,
 	}
 	else if (type1 == STTYPE_CHARCONST) {
 		dfilter_fvalue_from_charconst(dfw, ftype2, st_arg1);
+	}
+	else if (type1 == STTYPE_NUMBER) {
+		dfilter_fvalue_from_number(dfw, ftype2, st_arg1);
 	}
 	else {
 		ws_assert_not_reached();
@@ -1047,6 +1093,9 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
 	}
 	else if (type2 == STTYPE_CHARCONST) {
 		dfilter_fvalue_from_charconst(dfw, ftype1, st_arg2);
+	}
+	else if (type2 == STTYPE_NUMBER) {
+		dfilter_fvalue_from_number(dfw, ftype1, st_arg2);
 	}
 	else if (type2 == STTYPE_SLICE) {
 		ftype2 = check_slice(dfw, st_arg2, ftype1);
@@ -1142,6 +1191,9 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op _U_,
 	}
 	else if (type2 == STTYPE_CHARCONST) {
 		dfilter_fvalue_from_charconst(dfw, ftype1, st_arg2);
+	}
+	else if (type2 == STTYPE_NUMBER) {
+		dfilter_fvalue_from_number(dfw, ftype1, st_arg2);
 	}
 	else if (type2 == STTYPE_SLICE) {
 		ftype2 = check_slice(dfw, st_arg2, ftype1);
@@ -1246,6 +1298,9 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op _U_,
 	else if (type2 == STTYPE_CHARCONST) {
 		dfilter_fvalue_from_charconst(dfw, ftype1, st_arg2);
 	}
+	else if (type2 == STTYPE_NUMBER) {
+		dfilter_fvalue_from_number(dfw, ftype1, st_arg2);
+	}
 	else if (type2 == STTYPE_SLICE) {
 		ftype2 = check_slice(dfw, st_arg2, ftype1);
 
@@ -1330,13 +1385,17 @@ check_relation(dfwork_t *dfw, stnode_op_t st_op,
 		case STTYPE_LITERAL:
 		case STTYPE_STRING:
 		case STTYPE_CHARCONST:
+		case STTYPE_NUMBER:
 			check_relation_LHS_FVALUE(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2, find_logical_ftype(dfw, st_node));
 			break;
-		default:
-			/* Should not happen. */
-			FAIL(dfw, st_arg1, "(FIXME) Syntax node type \"%s\" is invalid for relation \"%s\".",
-					stnode_type_name(st_arg1), stnode_todisplay(st_node));
+		case STTYPE_UNINITIALIZED:
+		case STTYPE_PCRE:
+		case STTYPE_FVALUE:
+		case STTYPE_TEST:
+		case STTYPE_SET:
+		case STTYPE_NUM_TYPES:
+			ws_assert_not_reached();
 	}
 }
 
@@ -1716,6 +1775,11 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t logical_ftype)
 			ftype = sttype_pointer_ftenum(st_node);
 			break;
 
+		case STTYPE_NUMBER:
+			dfilter_fvalue_from_number(dfw, logical_ftype, st_node);
+			ftype = sttype_pointer_ftenum(st_node);
+			break;
+
 		case STTYPE_FIELD:
 			dfw->field_count++;
 			/* fall-through */
@@ -1732,7 +1796,7 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t logical_ftype)
 			break;
 
 		case STTYPE_FVALUE:
-			ftype = fvalue_type_ftenum(stnode_data(st_node));
+			ftype = sttype_pointer_ftenum(st_node);
 			break;
 
 		case STTYPE_ARITHMETIC:

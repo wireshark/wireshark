@@ -35,35 +35,23 @@ value_get_floating(fvalue_t *fv)
 }
 
 static bool
-val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
+val_from_uinteger64(fvalue_t *fv, const char *s _U_, uint64_t value, char **err_msg _U_)
 {
-	char    *endptr = NULL;
+	fv->value.floating = (double)value;
+	return true;
+}
 
-	fv->value.floating = g_ascii_strtod(s, &endptr);
+static bool
+val_from_sinteger64(fvalue_t *fv, const char *s _U_, int64_t value, char **err_msg _U_)
+{
+	fv->value.floating = (double)value;
+	return true;
+}
 
-	if (endptr == s || *endptr != '\0') {
-		/* This isn't a valid number. */
-		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" is not a valid floating-point number.", s);
-		return false;
-	}
-	if (errno == ERANGE) {
-		if (fv->value.floating == 0) {
-			if (err_msg != NULL)
-				*err_msg = ws_strdup_printf("\"%s\" causes floating-point underflow.", s);
-		}
-		else if (fv->value.floating == HUGE_VAL) {
-			if (err_msg != NULL)
-				*err_msg = ws_strdup_printf("\"%s\" causes floating-point overflow.", s);
-		}
-		else {
-			if (err_msg != NULL)
-				*err_msg = ws_strdup_printf("\"%s\" is not a valid floating-point number.",
-				    s);
-		}
-		return false;
-	}
-
+static bool
+val_from_double(fvalue_t *fv, const char *s _U_, double floating, char **err_msg _U_)
+{
+	fv->value.floating = floating;
 	return true;
 }
 
@@ -87,6 +75,13 @@ double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, 
 	else
 		g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
 	return buf;
+}
+
+enum ft_result
+double_val_to_double(const fvalue_t *fv, double *repr)
+{
+	*repr = fv->value.floating;
+	return FT_OK;
 }
 
 static enum ft_result
@@ -166,13 +161,17 @@ ftype_register_double(void)
 		double_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		val_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
+		val_from_uinteger64,		/* val_from_uinteger64 */
+		val_from_sinteger64,		/* val_from_sinteger64 */
+		val_from_double,		/* val_from_double */
 		float_val_to_repr,		/* val_to_string_repr */
 
 		NULL,				/* val_to_uinteger64 */
 		NULL,				/* val_to_sinteger64 */
+		double_val_to_double,		/* val_to_double */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */
@@ -203,13 +202,17 @@ ftype_register_double(void)
 		double_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
-		val_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
+		val_from_uinteger64,		/* val_from_uinteger64 */
+		val_from_sinteger64,		/* val_from_sinteger64 */
+		val_from_double,		/* val_from_double */
 		double_val_to_repr,		/* val_to_string_repr */
 
 		NULL,				/* val_to_uinteger64 */
 		NULL,				/* val_to_sinteger64 */
+		double_val_to_double,		/* val_to_double */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */

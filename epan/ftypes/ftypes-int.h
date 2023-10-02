@@ -48,10 +48,15 @@ typedef void (*FvalueFreeFunc)(fvalue_t*);
 typedef bool (*FvalueFromLiteral)(fvalue_t*, const char*, bool, char **);
 typedef bool (*FvalueFromString)(fvalue_t*, const char*, size_t, char **);
 typedef bool (*FvalueFromCharConst)(fvalue_t*, unsigned long, char **);
+typedef bool (*FvalueFromUnsignedInt64)(fvalue_t*, const char *, uint64_t, char **);
+typedef bool (*FvalueFromSignedInt64)(fvalue_t*, const char *, int64_t, char **);
+typedef bool (*FvalueFromDouble)(fvalue_t*, const char *, double, char **);
+
 typedef char *(*FvalueToStringRepr)(wmem_allocator_t *, const fvalue_t*, ftrepr_t, int field_display);
 
-typedef enum ft_result (*FvalueToUnsignedInteger64Func)(const fvalue_t*, uint64_t *);
-typedef enum ft_result (*FvalueToSignedInteger64Func)(const fvalue_t*, int64_t *);
+typedef enum ft_result (*FvalueToUnsignedInt64)(const fvalue_t*, uint64_t *);
+typedef enum ft_result (*FvalueToSignedInt64)(const fvalue_t*, int64_t *);
+typedef enum ft_result (*FvalueToDouble)(const fvalue_t*, double *);
 
 typedef void (*FvalueSetBytesFunc)(fvalue_t*, GBytes *);
 typedef void (*FvalueSetGuidFunc)(fvalue_t*, const e_guid_t *);
@@ -96,13 +101,19 @@ struct _ftype_t {
 	FvalueNewFunc		new_value;
 	FvalueCopyFunc		copy_value;
 	FvalueFreeFunc		free_value;
+
 	FvalueFromLiteral	val_from_literal;
 	FvalueFromString	val_from_string;
 	FvalueFromCharConst	val_from_charconst;
+	FvalueFromUnsignedInt64	val_from_uinteger64;
+	FvalueFromSignedInt64	val_from_sinteger64;
+	FvalueFromDouble	val_from_double;
+
 	FvalueToStringRepr	val_to_string_repr;
 
-	FvalueToUnsignedInteger64Func		val_to_uinteger64;
-	FvalueToSignedInteger64Func		val_to_sinteger64;
+	FvalueToUnsignedInt64	val_to_uinteger64;
+	FvalueToSignedInt64	val_to_sinteger64;
+	FvalueToDouble		val_to_double;
 
 	union {
 		FvalueSetBytesFunc		set_value_bytes;

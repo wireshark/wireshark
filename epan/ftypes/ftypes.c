@@ -501,6 +501,78 @@ fvalue_from_charconst(ftenum_t ftype, unsigned long num, char **err_msg)
 	return NULL;
 }
 
+fvalue_t*
+fvalue_from_sinteger64(ftenum_t ftype, const char *s, int64_t num, char **err_msg)
+{
+	fvalue_t	*fv;
+
+	fv = fvalue_new(ftype);
+	if (fv->ftype->val_from_sinteger64) {
+		if (fv->ftype->val_from_sinteger64(fv, s, num, err_msg)) {
+			/* Success */
+			if (err_msg != NULL)
+				*err_msg = NULL;
+			return fv;
+		}
+	}
+	else {
+		if (err_msg != NULL) {
+			*err_msg = ws_strdup_printf("Integer %"PRId64" cannot be converted to %s.",
+						num, ftype_pretty_name(ftype));
+		}
+	}
+	fvalue_free(fv);
+	return NULL;
+}
+
+fvalue_t*
+fvalue_from_uinteger64(ftenum_t ftype, const char *s, uint64_t num, char **err_msg)
+{
+	fvalue_t	*fv;
+
+	fv = fvalue_new(ftype);
+	if (fv->ftype->val_from_uinteger64) {
+		if (fv->ftype->val_from_uinteger64(fv, s, num, err_msg)) {
+			/* Success */
+			if (err_msg != NULL)
+				*err_msg = NULL;
+			return fv;
+		}
+	}
+	else {
+		if (err_msg != NULL) {
+			*err_msg = ws_strdup_printf("Unsigned integer 0x%"PRIu64" cannot be converted to %s.",
+						num, ftype_pretty_name(ftype));
+		}
+	}
+	fvalue_free(fv);
+	return NULL;
+}
+
+fvalue_t*
+fvalue_from_floating(ftenum_t ftype, const char *s, double num, char **err_msg)
+{
+	fvalue_t	*fv;
+
+	fv = fvalue_new(ftype);
+	if (fv->ftype->val_from_double) {
+		if (fv->ftype->val_from_double(fv, s, num, err_msg)) {
+			/* Success */
+			if (err_msg != NULL)
+				*err_msg = NULL;
+			return fv;
+		}
+	}
+	else {
+		if (err_msg != NULL) {
+			*err_msg = ws_strdup_printf("Double %g cannot be converted to %s.",
+						num, ftype_pretty_name(ftype));
+		}
+	}
+	fvalue_free(fv);
+	return NULL;
+}
+
 ftenum_t
 fvalue_type_ftenum(fvalue_t *fv)
 {
@@ -566,13 +638,22 @@ fvalue_to_sinteger(const fvalue_t *fv, int32_t *repr)
 enum ft_result
 fvalue_to_uinteger64(const fvalue_t *fv, uint64_t *repr)
 {
+	ws_assert(fv->ftype->val_to_uinteger64);
 	return fv->ftype->val_to_uinteger64(fv, repr);
 }
 
 enum ft_result
 fvalue_to_sinteger64(const fvalue_t *fv, int64_t *repr)
 {
+	ws_assert(fv->ftype->val_to_sinteger64);
 	return fv->ftype->val_to_sinteger64(fv, repr);
+}
+
+enum ft_result
+fvalue_to_double(const fvalue_t *fv, double *repr)
+{
+	ws_assert(fv->ftype->val_to_double);
+	return fv->ftype->val_to_double(fv, repr);
 }
 
 typedef struct {

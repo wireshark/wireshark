@@ -200,6 +200,24 @@ sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_parti
     return true;
 }
 
+static bool
+sfloat_ieee_11073_val_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value _U_, char **err_msg)
+{
+    return sfloat_ieee_11073_val_from_literal(fv, s, FALSE, err_msg);
+}
+
+static bool
+sfloat_ieee_11073_val_from_sinteger64(fvalue_t *fv, const char *s, int64_t value _U_, char **err_msg)
+{
+    return sfloat_ieee_11073_val_from_literal(fv, s, FALSE, err_msg);
+}
+
+static bool
+sfloat_ieee_11073_val_from_double(fvalue_t *fv, const char *s, double value _U_, char **err_msg)
+{
+    return sfloat_ieee_11073_val_from_literal(fv, s, FALSE, err_msg);
+}
+
 static char *
 sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
@@ -635,6 +653,24 @@ float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_partia
     return true;
 }
 
+static bool
+float_ieee_11073_val_from_uinteger64(fvalue_t *fv, const char *s, uint64_t value _U_, char **err_msg)
+{
+    return float_ieee_11073_val_from_literal(fv, s, FALSE, err_msg);
+}
+
+static bool
+float_ieee_11073_val_from_sinteger64(fvalue_t *fv, const char *s, int64_t value _U_, char **err_msg)
+{
+    return float_ieee_11073_val_from_literal(fv, s, FALSE, err_msg);
+}
+
+static bool
+float_ieee_11073_val_from_double(fvalue_t *fv, const char *s, double value _U_, char **err_msg)
+{
+    return float_ieee_11073_val_from_literal(fv, s, FALSE, err_msg);
+}
+
 static char *
 float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
@@ -928,10 +964,14 @@ Example: 114 is 0x0072
         sfloat_ieee_11073_val_from_literal,   /* val_from_literal */
         NULL,                                 /* val_from_string */
         NULL,                                 /* val_from_charconst */
+        sfloat_ieee_11073_val_from_uinteger64, /* val_from_uinteger64 */
+        sfloat_ieee_11073_val_from_sinteger64, /* val_from_sinteger64 */
+        sfloat_ieee_11073_val_from_double,    /* val_from_double */
         sfloat_ieee_11073_val_to_repr,        /* val_to_string_repr */
 
         NULL,                                 /* val_to_uinteger64 */
         NULL,                                 /* val_to_sinteger64 */
+        NULL,                                 /* val_to_double */
 
         { .set_value_uinteger = sfloat_ieee_11073_value_set }, /* union set_value */
         { .get_value_uinteger = sfloat_ieee_11073_value_get }, /* union get_value */
@@ -992,10 +1032,14 @@ Example: 36.4 is 0xFF00016C
         float_ieee_11073_val_from_literal,   /* val_from_literal */
         NULL,                                /* val_from_string */
         NULL,                                /* val_from_charconst */
+        float_ieee_11073_val_from_uinteger64, /* val_from_uinteger64 */
+        float_ieee_11073_val_from_sinteger64, /* val_from_sinteger64 */
+        float_ieee_11073_val_from_double,    /* val_from_double */
         float_ieee_11073_val_to_repr,        /* val_to_string_repr */
 
         NULL,                                 /* val_to_uinteger64 */
         NULL,                                 /* val_to_sinteger64 */
+        NULL,                                 /* val_to_double */
 
         { .set_value_uinteger = float_ieee_11073_value_set }, /* union set_value */
         { .get_value_uinteger = float_ieee_11073_value_get }, /* union get_value */

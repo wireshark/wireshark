@@ -28,6 +28,7 @@ typedef enum {
 	STTYPE_REFERENCE,
 	STTYPE_STRING,
 	STTYPE_CHARCONST,
+	STTYPE_NUMBER,
 	STTYPE_FIELD,
 	STTYPE_FVALUE,
 	STTYPE_SLICE,
@@ -54,6 +55,12 @@ typedef struct {
 	STTypeToStrFunc		func_tostr;
 } sttype_t;
 
+typedef enum {
+	STNUM_NONE = 0,
+	STNUM_INTEGER,
+	STNUM_UNSIGNED,
+	STNUM_FLOAT,
+} stnumber_t;
 
 /* Lexical value is ambiguous (can be a protocol field or a literal). */
 #define STFLAG_UNPARSED		(1 << 0)
@@ -104,6 +111,7 @@ typedef enum {
 /* These are the sttype_t registration function prototypes. */
 void sttype_register_field(void);
 void sttype_register_function(void);
+void sttype_register_number(void);
 void sttype_register_pointer(void);
 void sttype_register_set(void);
 void sttype_register_slice(void);

@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <errno.h>
+#include <math.h>
 
 #include <wsutil/str_util.h>
 
@@ -13,6 +14,7 @@
 #include "syntax-tree.h"
 #include "grammar.h"
 #include "dfunctions.h"
+#include "sttype-number.h"
 }
 
 /*
@@ -83,10 +85,14 @@ WS_WARN_UNUSED static int set_lval_unparsed(dfsyntax_t *dfs, const char *value, 
 WS_WARN_UNUSED static int set_lval_field(dfsyntax_t *dfs, const header_field_info *hfinfo, const char *token_value);
 WS_WARN_UNUSED static int set_lval_quoted_string(dfsyntax_t *dfs, GString *quoted_string);
 WS_WARN_UNUSED static int set_lval_charconst(dfsyntax_t *dfs, GString *quoted_string);
+WS_WARN_UNUSED static int set_lval_integer(dfsyntax_t *dfs, const char *value, const char *token_value);
+WS_WARN_UNUSED static int set_lval_float(dfsyntax_t *dfs, const char *value, const char *token_value);
 
 static bool append_escaped_char(dfsyntax_t *dfs, GString *str, char c);
 static bool append_universal_character_name(dfsyntax_t *dfs, GString *str, const char *ucn);
 static bool parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep);
+static bool parse_unsigned_long_long(dfsyntax_t *dfs, const char *s, unsigned long long *valuep);
+static bool parse_double(dfsyntax_t *dfs, const char *s, double *valuep);
 
 static void update_location(dfsyntax_t *dfs, const char *text);
 static void update_string_loc(dfsyntax_t *dfs, const char *text);
@@ -210,7 +216,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 <LAYER>[[:digit:]]+		{
 	BEGIN(INITIAL);
 	update_location(yyextra, yytext);
-	return set_lval_simple(yyextra, TOKEN_INTEGER, yytext, STTYPE_UNINITIALIZED);
+	return set_lval_simple(yyextra, TOKEN_INDEX, yytext, STTYPE_UNINITIALIZED);
 }
 
 <LAYER>[^[:digit:][]			{
@@ -460,16 +466,22 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	if (hfinfo != NULL) {
 		return set_lval_field(yyextra, hfinfo, yytext);
 	}
-	return set_lval_literal(yyextra, yytext, yytext);
+	return set_lval_integer(yyextra, yytext, yytext);
 }
 
 0[bBxX]?[[:xdigit:]]+	{
 	/* Binary or octal or hexadecimal. */
 	update_location(yyextra, yytext);
-	return set_lval_literal(yyextra, yytext, yytext);
+	return set_lval_integer(yyextra, yytext, yytext);
 }
 
 	/* Floating point. */
+
+[[:digit:]]+\.[[:digit:]]+	{
+	/* Decimal float. */
+	update_location(yyextra, yytext);
+	return set_lval_float(yyextra, yytext, yytext);
+}
 
 [[:digit:]]+{Exponent}|[[:digit:]]+\.[[:digit:]]+{Exponent}?	{
 	/* Decimal float with optional exponent. */
@@ -483,7 +495,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	if (hfinfo != NULL) {
 		return set_lval_field(yyextra, hfinfo, yytext);
 	}
-	return set_lval_literal(yyextra, yytext, yytext);
+	return set_lval_float(yyextra, yytext, yytext);
 }
 
 0[xX][[:xdigit:]]+{HexExponent}|0[xX][[:xdigit:]]+\.[[:xdigit:]]+{HexExponent}?	{
@@ -491,7 +503,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	 * field cannot beging with 0x. */
 	/* Significand cannot have any side omitted. */
 	update_location(yyextra, yytext);
-	return set_lval_literal(yyextra,  yytext, yytext);
+	return set_lval_float(yyextra, yytext, yytext);
 }
 
 :[[:xdigit:]]+	{
@@ -689,6 +701,36 @@ set_lval_charconst(dfsyntax_t *dfs, GString *quoted_string)
 	}
 	dfs->lval = stnode_new(STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token_value, dfs->string_loc);
 	return TOKEN_CHARCONST;
+}
+
+static int
+set_lval_integer(dfsyntax_t *dfs, const char *value, const char *token_value)
+{
+	unsigned long long number;
+	bool ok;
+
+	ok = parse_unsigned_long_long(dfs, value, &number);
+	if (!ok) {
+		return SCAN_FAILED;
+	}
+	dfs->lval = stnode_new(STTYPE_NUMBER, NULL, g_strdup(token_value), dfs->location);
+	sttype_number_set_unsigned(dfs->lval, number);
+	return TOKEN_NUMBER;
+}
+
+static int
+set_lval_float(dfsyntax_t *dfs, const char *value, const char *token_value)
+{
+	double number;
+	bool ok;
+
+	ok = parse_double(dfs, value, &number);
+	if (!ok) {
+		return SCAN_FAILED;
+	}
+	dfs->lval = stnode_new(STTYPE_NUMBER, NULL, g_strdup(token_value), dfs->location);
+	sttype_number_set_float(dfs->lval, number);
+	return TOKEN_NUMBER;
 }
 
 static bool
@@ -964,5 +1006,68 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 	}
 
 	*valuep = value;
+	return true;
+}
+
+static bool
+parse_unsigned_long_long(dfsyntax_t *dfs, const char *s, unsigned long long *valuep)
+{
+	char *endptr;
+
+	errno = 0;
+	if (s[0] == '0' && (s[1] == 'b' || s[1] == 'B')) {
+		*valuep = g_ascii_strtoull(s + 2, &endptr, 2);
+	}
+	else {
+		*valuep = g_ascii_strtoull(s, &endptr, 0);
+	}
+
+	if (errno == EINVAL || endptr == s || *endptr != '\0') {
+		/* This isn't a valid number. */
+		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is not a valid number.", s);
+		return false;
+	}
+	if (errno == ERANGE) {
+		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is too large to be represented as a 64-bit number.", s);
+		return false;
+	}
+	if (errno != 0) {
+		// Should not happen
+		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is not a valid number (%s).", s, g_strerror(errno));
+		return false;
+	}
+
+	return true;
+}
+
+static bool
+parse_double(dfsyntax_t *dfs, const char *s, double *valuep)
+{
+	char *endptr = NULL;
+
+	errno = 0;
+	*valuep = g_ascii_strtod(s, &endptr);
+
+	if (endptr == s || *endptr != '\0') {
+		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" is not a valid floating-point number.", s);
+		return false;
+	}
+	if (errno == ERANGE) {
+		if (*valuep == HUGE_VAL) {
+			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" causes floating-point overflow.", s);
+		}
+		else {
+			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "\"%s\" causes floating-point underflow.", s);
+		}
+		return false;
+	}
+	if (errno != 0) {
+		// Should not happen
+		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc,
+				"\"%s\" is not a valid floating-point number (%s).",
+				s, g_strerror(errno));
+		return false;
+	}
+
 	return true;
 }

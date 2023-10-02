@@ -363,6 +363,10 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype
             dfilter_fvalue_from_literal(dfw, logical_ftype, arg, false, NULL);
             ft_arg = sttype_pointer_ftenum(arg);
         }
+        else if (type == STTYPE_NUMBER) {
+            dfilter_fvalue_from_number(dfw, logical_ftype, arg);
+            ft_arg = sttype_pointer_ftenum(arg);
+        }
         else if (type == STTYPE_FUNCTION) {
             ft_arg = check_function(dfw, arg, logical_ftype);
         }

@@ -24,6 +24,7 @@ set(DFILTER_HEADER_FILES
 	semcheck.h
 	sttype-field.h
 	sttype-function.h
+	sttype-number.h
 	sttype-pointer.h
 	sttype-set.h
 	sttype-slice.h
@@ -41,6 +42,7 @@ set(DFILTER_NONGENERATED_FILES
 	semcheck.c
 	sttype-field.c
 	sttype-function.c
+	sttype-number.c
 	sttype-pointer.c
 	sttype-set.c
 	sttype-slice.c

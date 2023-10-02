@@ -14,6 +14,7 @@
 #include <epan/ipv6.h>
 #include <epan/addr_resolv.h>
 #include <epan/to_str.h>
+#include <wsutil/strtoi.h>
 
 static bool
 ipv6_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)
@@ -21,8 +22,8 @@ ipv6_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, cha
 	const char *slash;
 	const char *addr_str;
 	char *addr_str_to_free = NULL;
-	unsigned int nmask_bits;
-	fvalue_t *nmask_fvalue;
+	uint32_t nmask_bits;
+	const char *endptr;
 
 	/* Look for prefix: Is there a single slash in the string? */
 	slash = strchr(s, '/');
@@ -48,14 +49,12 @@ ipv6_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, cha
 
 	/* If prefix */
 	if (slash) {
-		/* XXX - this is inefficient */
-		nmask_fvalue = fvalue_from_literal(FT_UINT32, slash+1, false, err_msg);
-		if (!nmask_fvalue) {
+		if(!ws_strtou32(slash+1, &endptr, &nmask_bits) || *endptr != '\0') {
+			if (err_msg != NULL) {
+				*err_msg = ws_strdup_printf("%s in not a valid mask", slash+1);
+			}
 			return false;
 		}
-		nmask_bits = fvalue_get_uinteger(nmask_fvalue);
-		fvalue_free(nmask_fvalue);
-
 		if (nmask_bits > 128) {
 			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("Prefix in a IPv6 address should be <= 128, not %u",
@@ -214,10 +213,14 @@ ftype_register_ipv6(void)
 		ipv6_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
+		NULL,				/* val_from_uinteger64 */
+		NULL,				/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
 		ipv6_to_repr,			/* val_to_string_repr */
 
 		NULL,				/* val_to_uinteger64 */
 		NULL,				/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
 
 		{ .set_value_ipv6 = ipv6_set },	/* union set_value */
 		{ .get_value_ipv6 = ipv6_get },	/* union get_value */

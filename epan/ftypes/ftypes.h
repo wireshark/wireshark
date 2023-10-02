@@ -315,6 +315,15 @@ fvalue_from_string(ftenum_t ftype, const char *s, size_t len, char **err_msg);
 fvalue_t*
 fvalue_from_charconst(ftenum_t ftype, unsigned long number, char **err_msg);
 
+fvalue_t*
+fvalue_from_sinteger64(ftenum_t ftype, const char *s, int64_t number, char **err_msg);
+
+fvalue_t*
+fvalue_from_uinteger64(ftenum_t ftype, const char *s, uint64_t number, char **err_msg);
+
+fvalue_t*
+fvalue_from_floating(ftenum_t ftype, const char *s, double number, char **err_msg);
+
 /* Creates the string representation of the field value.
  * Memory for the buffer is allocated based on wmem allocator
  * provided.
@@ -340,6 +349,9 @@ fvalue_to_uinteger64(const fvalue_t *fv, uint64_t *repr);
 
 WS_DLL_PUBLIC enum ft_result
 fvalue_to_sinteger64(const fvalue_t *fv, int64_t *repr);
+
+WS_DLL_PUBLIC enum ft_result
+fvalue_to_double(const fvalue_t *fv, double *repr);
 
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(fvalue_t *fv);

@@ -148,6 +148,9 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 void
 dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st);
 
+void
+dfilter_fvalue_from_number(dfwork_t *dfw, ftenum_t ftype, stnode_t *st);
+
 const char *tokenstr(int token);
 
 df_reference_t *

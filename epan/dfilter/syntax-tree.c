@@ -27,6 +27,7 @@ sttype_init(void)
 {
 	sttype_register_field();
 	sttype_register_function();
+	sttype_register_number();
 	sttype_register_pointer();
 	sttype_register_set();
 	sttype_register_slice();
