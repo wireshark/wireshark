@@ -337,8 +337,9 @@ sttype_oper_set_op(stnode_t *node, stnode_op_t op)
 stnode_op_t
 sttype_oper_get_op(stnode_t *node)
 {
-	ws_assert_magic(node, OPER_MAGIC);
-	return ((oper_t *)node)->op;
+	oper_t *oper = stnode_data(node);
+	ws_assert_magic(oper, OPER_MAGIC);
+	return oper->op;
 }
 
 void

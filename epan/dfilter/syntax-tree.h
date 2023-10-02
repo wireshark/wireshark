@@ -60,9 +60,8 @@ typedef struct {
 
 /** Node (type instance) information */
 typedef struct {
-	uint32_t	magic;
 	sttype_t	*type;
-	void *	data;
+	void 		*data;
 	char 		*repr_token;
 	char 		*repr_display;
 	char 		*repr_debug;
