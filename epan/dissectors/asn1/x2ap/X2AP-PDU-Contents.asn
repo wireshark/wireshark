@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.5.0 (2023-06)
+-- 3GPP TS 36.423 V17.6.0 (2023-09)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -696,7 +696,7 @@ HandoverRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-UE-ContextReferenceAtSgNB					CRITICALITY ignore	TYPE UE-ContextReferenceAtSgNB							PRESENCE optional}|
 	{ ID id-AerialUEsubscriptionInformation				CRITICALITY ignore	TYPE AerialUEsubscriptionInformation					PRESENCE optional}|
 	{ ID id-Subscription-Based-UE-DifferentiationInfo	CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo	PRESENCE optional}|
-	{ ID id-CHOinformation-REQ							CRITICALITY ignore	TYPE CHOinformation-REQ									PRESENCE optional}|
+	{ ID id-CHOinformation-REQ							CRITICALITY reject	TYPE CHOinformation-REQ									PRESENCE optional}|
 	{ ID id-NRV2XServicesAuthorized						CRITICALITY ignore	TYPE NRV2XServicesAuthorized							PRESENCE optional}|
 	{ ID id-PC5QoSParameters							CRITICALITY ignore	TYPE PC5QoSParameters										PRESENCE optional }|
 	{ ID id-IABNodeIndication							CRITICALITY reject	TYPE IABNodeIndication									PRESENCE optional},
