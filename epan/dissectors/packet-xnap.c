@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V17.5.0 (2023-06)
+ * 3GPP TS 38.423 V17.6.0 (2023-09)
  */
 
 #include "config.h"
@@ -590,7 +590,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated = 369,
   id_UERLFReportContainerLTEExtension = 370,
   id_ExcessPacketDelayThresholdConfiguration = 371,
-  id_HashedUEIdentityIndexValue = 372
+  id_HashedUEIdentityIndexValue = 372,
+  id_QosFlowMappingIndication = 373,
+  id_Full_and_Short_I_RNTI_Profile_List = 374
 } ProtocolIE_ID_enum;
 
 typedef enum _GlobalNG_RANNode_ID_enum {
@@ -720,6 +722,7 @@ static int hf_xnap_InitiatingCondition_FailureIndication_PDU = -1;  /* Initiatin
 static int hf_xnap_xnap_IntendedTDD_DL_ULConfiguration_NR_PDU = -1;  /* IntendedTDD_DL_ULConfiguration_NR */
 static int hf_xnap_InterfaceInstanceIndication_PDU = -1;  /* InterfaceInstanceIndication */
 static int hf_xnap_Local_NG_RAN_Node_Identifier_PDU = -1;  /* Local_NG_RAN_Node_Identifier */
+static int hf_xnap_Full_and_Short_I_RNTI_Profile_List_PDU = -1;  /* Full_and_Short_I_RNTI_Profile_List */
 static int hf_xnap_SCGUEHistoryInformation_PDU = -1;  /* SCGUEHistoryInformation */
 static int hf_xnap_LocationInformationSNReporting_PDU = -1;  /* LocationInformationSNReporting */
 static int hf_xnap_LocationReportingInformation_PDU = -1;  /* LocationReportingInformation */
@@ -796,6 +799,7 @@ static int hf_xnap_PrivacyIndicator_PDU = -1;     /* PrivacyIndicator */
 static int hf_xnap_PSCellChangeHistory_PDU = -1;  /* PSCellChangeHistory */
 static int hf_xnap_PSCellHistoryInformationRetrieve_PDU = -1;  /* PSCellHistoryInformationRetrieve */
 static int hf_xnap_QMCConfigInfo_PDU = -1;        /* QMCConfigInfo */
+static int hf_xnap_QoSFlowMappingIndication_PDU = -1;  /* QoSFlowMappingIndication */
 static int hf_xnap_QoSFlows_List_PDU = -1;        /* QoSFlows_List */
 static int hf_xnap_QoS_Mapping_Information_PDU = -1;  /* QoS_Mapping_Information */
 static int hf_xnap_QoSParaSetNotifyIndex_PDU = -1;  /* QoSParaSetNotifyIndex */
@@ -2615,6 +2619,7 @@ static gint ett_xnap_InitiatingCondition_FailureIndication = -1;
 static gint ett_xnap_IntendedTDD_DL_ULConfiguration_NR = -1;
 static gint ett_xnap_I_RNTI = -1;
 static gint ett_xnap_Local_NG_RAN_Node_Identifier = -1;
+static gint ett_xnap_Full_and_Short_I_RNTI_Profile_List = -1;
 static gint ett_xnap_Full_I_RNTI_Profile_List = -1;
 static gint ett_xnap_Short_I_RNTI_Profile_List = -1;
 static gint ett_xnap_LastVisitedCell_Item = -1;
@@ -3877,6 +3882,8 @@ static const value_string xnap_ProtocolIE_ID_vals[] = {
   { id_UERLFReportContainerLTEExtension, "id-UERLFReportContainerLTEExtension" },
   { id_ExcessPacketDelayThresholdConfiguration, "id-ExcessPacketDelayThresholdConfiguration" },
   { id_HashedUEIdentityIndexValue, "id-HashedUEIdentityIndexValue" },
+  { id_QosFlowMappingIndication, "id-QosFlowMappingIndication" },
+  { id_Full_and_Short_I_RNTI_Profile_List, "id-Full-and-Short-I-RNTI-Profile-List" },
   { 0, NULL }
 };
 
@@ -13771,6 +13778,22 @@ dissect_xnap_Local_NG_RAN_Node_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_xnap_Local_NG_RAN_Node_Identifier, Local_NG_RAN_Node_Identifier_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Full_and_Short_I_RNTI_Profile_List_sequence[] = {
+  { &hf_xnap_full_I_RNTI_Profile_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_Full_I_RNTI_Profile_List },
+  { &hf_xnap_short_I_RNTI_Profile_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_Short_I_RNTI_Profile_List },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_xnap_Full_and_Short_I_RNTI_Profile_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_Full_and_Short_I_RNTI_Profile_List, Full_and_Short_I_RNTI_Profile_List_sequence);
 
   return offset;
 }
@@ -25684,6 +25707,14 @@ static int dissect_Local_NG_RAN_Node_Identifier_PDU(tvbuff_t *tvb _U_, packet_in
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Full_and_Short_I_RNTI_Profile_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_xnap_Full_and_Short_I_RNTI_Profile_List(tvb, offset, &asn1_ctx, tree, hf_xnap_Full_and_Short_I_RNTI_Profile_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_SCGUEHistoryInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -26289,6 +26320,14 @@ static int dissect_QMCConfigInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_xnap_QMCConfigInfo(tvb, offset, &asn1_ctx, tree, hf_xnap_QMCConfigInfo_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_QoSFlowMappingIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_xnap_QoSFlowMappingIndication(tvb, offset, &asn1_ctx, tree, hf_xnap_QoSFlowMappingIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28706,6 +28745,10 @@ void proto_register_xnap(void) {
       { "Local-NG-RAN-Node-Identifier", "xnap.Local_NG_RAN_Node_Identifier",
         FT_UINT32, BASE_DEC, VALS(xnap_Local_NG_RAN_Node_Identifier_vals), 0,
         NULL, HFILL }},
+    { &hf_xnap_Full_and_Short_I_RNTI_Profile_List_PDU,
+      { "Full-and-Short-I-RNTI-Profile-List", "xnap.Full_and_Short_I_RNTI_Profile_List_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_SCGUEHistoryInformation_PDU,
       { "SCGUEHistoryInformation", "xnap.SCGUEHistoryInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -29009,6 +29052,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_QMCConfigInfo_PDU,
       { "QMCConfigInfo", "xnap.QMCConfigInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_QoSFlowMappingIndication_PDU,
+      { "QoSFlowMappingIndication", "xnap.QoSFlowMappingIndication",
+        FT_UINT32, BASE_DEC, VALS(xnap_QoSFlowMappingIndication_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_QoSFlows_List_PDU,
       { "QoSFlows-List", "xnap.QoSFlows_List",
@@ -35408,6 +35455,7 @@ void proto_register_xnap(void) {
     &ett_xnap_IntendedTDD_DL_ULConfiguration_NR,
     &ett_xnap_I_RNTI,
     &ett_xnap_Local_NG_RAN_Node_Identifier,
+    &ett_xnap_Full_and_Short_I_RNTI_Profile_List,
     &ett_xnap_Full_I_RNTI_Profile_List,
     &ett_xnap_Short_I_RNTI_Profile_List,
     &ett_xnap_LastVisitedCell_Item,
@@ -36314,6 +36362,7 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.ies", id_SCGreconfigNotification, create_dissector_handle(dissect_SCGreconfigNotification_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_UERLFReportContainerLTEExtension, create_dissector_handle(dissect_UERLFReportContainerLTEExtension_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_HashedUEIdentityIndexValue, create_dissector_handle(dissect_HashedUEIdentityIndexValue_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_Full_and_Short_I_RNTI_Profile_List, create_dissector_handle(dissect_Full_and_Short_I_RNTI_Profile_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_Additional_UL_NG_U_TNLatUPF_List, create_dissector_handle(dissect_Additional_UL_NG_U_TNLatUPF_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_SecondarydataForwardingInfoFromTarget_List, create_dissector_handle(dissect_SecondarydataForwardingInfoFromTarget_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_LastE_UTRANPLMNIdentity, create_dissector_handle(dissect_PLMN_Identity_PDU, proto_xnap));
@@ -36430,6 +36479,7 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.extension", id_CoverageModificationCause, create_dissector_handle(dissect_CoverageModificationCause_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated, create_dissector_handle(dissect_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_ExcessPacketDelayThresholdConfiguration, create_dissector_handle(dissect_ExcessPacketDelayThresholdConfiguration_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_QosFlowMappingIndication, create_dissector_handle(dissect_QoSFlowMappingIndication_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_xnap));

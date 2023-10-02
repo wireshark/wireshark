@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.5.0 (2023-06)
+-- 3GPP TS 38.423 V17.6.0 (2023-09)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -575,6 +575,9 @@ id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated									Prot
 id-UERLFReportContainerLTEExtension																ProtocolIE-ID ::= 370
 id-ExcessPacketDelayThresholdConfiguration															ProtocolIE-ID ::= 371
 id-HashedUEIdentityIndexValue																		ProtocolIE-ID ::= 372
+id-QosFlowMappingIndication																			ProtocolIE-ID ::= 373
+id-Full-and-Short-I-RNTI-Profile-List																ProtocolIE-ID ::= 374
+
 
 
 END

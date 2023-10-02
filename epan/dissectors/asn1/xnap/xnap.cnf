@@ -1527,6 +1527,9 @@ id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated ProtocolIE-I
 id-UERLFReportContainerLTEExtension                                 ProtocolIE-ID
 id-ExcessPacketDelayThresholdConfiguration                          ProtocolIE-ID
 id-HashedUEIdentityIndexValue                                       ProtocolIE-ID
+id-QosFlowMappingIndication                                         ProtocolIE-ID
+id-Full-and-Short-I-RNTI-Profile-List                               ProtocolIE-ID
+
 
 #.REGISTER
 
@@ -1789,6 +1792,7 @@ F1-terminatingIAB-donorIndicator                  N xnap.ies id-F1-terminatingIA
 SCGreconfigNotification                           N xnap.ies id-SCGreconfigNotification
 UERLFReportContainerLTEExtension                  N xnap.ies id-UERLFReportContainerLTEExtension
 HashedUEIdentityIndexValue                        N xnap.ies id-HashedUEIdentityIndexValue
+Full-and-Short-I-RNTI-Profile-List                N xnap.ies id-Full-and-Short-I-RNTI-Profile-List
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                                 N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -1907,6 +1911,7 @@ BeamMeasurementsReportConfiguration                              N xnap.extensio
 CoverageModificationCause                                        N xnap.extension id-CoverageModificationCause
 AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated N xnap.extension id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated
 ExcessPacketDelayThresholdConfiguration                          N xnap.extension id-ExcessPacketDelayThresholdConfiguration
+QoSFlowMappingIndication                                         N xnap.extension id-QosFlowMappingIndication
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

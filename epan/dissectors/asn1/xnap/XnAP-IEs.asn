@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.5.0 (2023-06)
+-- 3GPP TS 38.423 V17.6.0 (2023-09)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -135,6 +135,8 @@ IMPORTS
 	id-CoverageModificationCause,
 	id-UERLFReportContainerLTEExtension,
 	id-ExcessPacketDelayThresholdConfiguration,
+	id-Full-and-Short-I-RNTI-Profile-List,
+	id-QosFlowMappingIndication,
 	maxEARFCN,
 	maxnoofAllowedAreas,
 	maxnoofAMFRegions,
@@ -745,7 +747,7 @@ CapacityValue ::= INTEGER (0..100)
 CapacityValueInfo ::= SEQUENCE {
 	capacityValue				CapacityValue,
 	ssbAreaCapacityValueList 	SSBAreaCapacityValue-List 	OPTIONAL,
-iE-Extension 				ProtocolExtensionContainer { {CapacityValueInfo-ExtIEs} } OPTIONAL,
+	iE-Extension 				ProtocolExtensionContainer { {CapacityValueInfo-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -958,12 +960,12 @@ CellMeasurementResult ::= SEQUENCE (SIZE(1..maxnoofCellsinNG-RANnode)) OF CellMe
 
 CellMeasurementResult-Item	::= SEQUENCE {
 	cell-ID								GlobalNG-RANCell-ID,
-radioResourceStatus					RadioResourceStatus				OPTIONAL,
-tNLCapacityIndicator				TNLCapacityIndicator			OPTIONAL,
-compositeAvailableCapacityGroup		CompositeAvailableCapacityGroup	OPTIONAL,
-sliceAvailableCapacity				SliceAvailableCapacity			OPTIONAL,
-numberofActiveUEs					NumberofActiveUEs				OPTIONAL,
-rRCConnections						RRCConnections					OPTIONAL,
+	radioResourceStatus					RadioResourceStatus				OPTIONAL,
+	tNLCapacityIndicator				TNLCapacityIndicator			OPTIONAL,
+	compositeAvailableCapacityGroup		CompositeAvailableCapacityGroup	OPTIONAL,
+	sliceAvailableCapacity				SliceAvailableCapacity			OPTIONAL,
+	numberofActiveUEs					NumberofActiveUEs				OPTIONAL,
+	rRCConnections						RRCConnections					OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { CellMeasurementResult-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -990,8 +992,8 @@ CellToReport ::= SEQUENCE (SIZE(1..maxnoofCellsinNG-RANnode)) OF CellToReport-It
 
 CellToReport-Item	::= SEQUENCE {
 	cell-ID									GlobalNG-RANCell-ID,
-sSBToReport-List                        SSBToReport-List			OPTIONAL,
-sliceToReport-List                      SliceToReport-List			OPTIONAL,
+	sSBToReport-List                        SSBToReport-List			OPTIONAL,
+	sliceToReport-List                      SliceToReport-List			OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { CellToReport-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2811,8 +2813,22 @@ Local-NG-RAN-Node-Identifier ::= CHOICE {
 }
 
 Local-NG-RAN-Node-Identifier-ExtIEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-Full-and-Short-I-RNTI-Profile-List		CRITICALITY ignore	TYPE Full-and-Short-I-RNTI-Profile-List	PRESENCE mandatory},
 	...
 }
+
+Full-and-Short-I-RNTI-Profile-List::= SEQUENCE {
+
+	full-I-RNTI-Profile-List					Full-I-RNTI-Profile-List,
+	short-I-RNTI-Profile-List					Short-I-RNTI-Profile-List,
+	iE-Extensions								ProtocolExtensionContainer { { Full-and-Short-I-RNTI-Profile-List-ExtIEs} }	OPTIONAL,
+	...
+}
+
+Full-and-Short-I-RNTI-Profile-List-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 Full-I-RNTI-Profile-List ::= CHOICE {
 	full-I-RNTI-Profile-0	BIT STRING (SIZE (21)),
@@ -4271,7 +4287,7 @@ NonGBRResources-Offered ::= ENUMERATED {true, ...}
 
 NRV2XServicesAuthorized ::= SEQUENCE {
 	vehicleUE			VehicleUE											OPTIONAL,
-pedestrianUE 		PedestrianUE						OPTIONAL,
+	pedestrianUE 		PedestrianUE						OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {NRV2XServicesAuthorized-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -5177,6 +5193,7 @@ QoSFlowsSetupMappedtoDRB-ModRqd-SNterminated-Item ::= SEQUENCE {
 }
 
 QoSFlowsSetupMappedtoDRB-ModRqd-SNterminated-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ID id-QosFlowMappingIndication	CRITICALITY ignore	EXTENSION QoSFlowMappingIndication		PRESENCE optional},
 	...
 }
 
@@ -5212,6 +5229,7 @@ QoSFlowsModifiedMappedtoDRB-ModRqd-SNterminated-Item ::= SEQUENCE {
 }
 
 QoSFlowsModifiedMappedtoDRB-ModRqd-SNterminated-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ID id-QosFlowMappingIndication	CRITICALITY ignore	EXTENSION QoSFlowMappingIndication		PRESENCE optional},
 	...
 }
 
@@ -5579,10 +5597,10 @@ QoSFlowwithCause-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 QoS-Mapping-Information ::= SEQUENCE {
-dscp							BIT STRING (SIZE(6))			OPTIONAL,
-flow-label						BIT STRING (SIZE(20))		OPTIONAL,
-iE-Extensions					ProtocolExtensionContainer { {QoS-Mapping-Information-ExtIEs} }	OPTIONAL,
-...
+	dscp							BIT STRING (SIZE(6))			OPTIONAL,
+	flow-label						BIT STRING (SIZE(20))		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {QoS-Mapping-Information-ExtIEs} }	OPTIONAL,
+	...
 }
 
 QoS-Mapping-Information-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
@@ -5818,7 +5836,7 @@ ReportCharacteristics ::=  BIT STRING(SIZE(32))
 
 ReportingPeriodicity ::= ENUMERATED {
 	half-thousand-ms,
-one-thousand-ms,
+	one-thousand-ms,
 	two-thousand-ms,
 	five-thousand-ms,
 	ten-thousand-ms,
@@ -6702,8 +6720,8 @@ SNMobilityInformation ::= BIT STRING (SIZE(32))
 
 
 SNTriggered ::=ENUMERATED{
-true,
-...
+	true,
+	...
 }
 
 SpecialSubframeInfo-E-UTRA ::= SEQUENCE {
@@ -6747,8 +6765,8 @@ SplitSRBsTypes ::= ENUMERATED {srb1, srb2, srb1and2, ...}
 SSBAreaCapacityValue-List ::= SEQUENCE (SIZE(1..maxnoofSSBAreas)) OF SSBAreaCapacityValue-List-Item
 
 SSBAreaCapacityValue-List-Item	::= SEQUENCE {
-sSBIndex				INTEGER(0..63),
-ssbAreaCapacityValue	INTEGER (0..100),
+	sSBIndex				INTEGER(0..63),
+	ssbAreaCapacityValue	INTEGER (0..100),
 	iE-Extensions						ProtocolExtensionContainer { { SSBAreaCapacityValue-List-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -6763,9 +6781,9 @@ SSBAreaRadioResourceStatus-List ::= SEQUENCE (SIZE(1..maxnoofSSBAreas)) OF SSBAr
 
 SSBAreaRadioResourceStatus-List-Item	::= SEQUENCE {
 	sSBIndex								INTEGER(0..63),
-ssb-Area-DL-GBR-PRB-usage	DL-GBR-PRB-usage,
-ssb-Area-UL-GBR-PRB-usage	UL-GBR-PRB-usage,
-ssb-Area-dL-non-GBR-PRB-usage		DL-non-GBR-PRB-usage,
+	ssb-Area-DL-GBR-PRB-usage	DL-GBR-PRB-usage,
+	ssb-Area-UL-GBR-PRB-usage	UL-GBR-PRB-usage,
+	ssb-Area-dL-non-GBR-PRB-usage		DL-non-GBR-PRB-usage,
 	ssb-Area-uL-non-GBR-PRB-usage		UL-non-GBR-PRB-usage,
 	ssb-Area-dL-Total-PRB-usage			DL-Total-PRB-usage,
 	ssb-Area-uL-Total-PRB-usage			UL-Total-PRB-usage,

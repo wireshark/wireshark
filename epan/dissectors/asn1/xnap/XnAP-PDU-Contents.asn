@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.5.0 (2023-06)
+-- 3GPP TS 38.423 V17.6.0 (2023-09)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -2791,7 +2791,7 @@ CellTrafficTraceIEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NG-RANTraceID					CRITICALITY ignore	TYPE NG-RANTraceID				PRESENCE mandatory	}|
 	{ ID id-TraceCollectionEntityIPAddress	CRITICALITY ignore	TYPE TransportLayerAddress			PRESENCE mandatory	}|
 	{ ID id-PrivacyIndicator				CRITICALITY ignore	TYPE PrivacyIndicator				PRESENCE optional	}|
-{ ID id-TraceCollectionEntityURI		CRITICALITY ignore	TYPE URIaddress						PRESENCE optional},
+	{ ID id-TraceCollectionEntityURI		CRITICALITY ignore	TYPE URIaddress						PRESENCE optional},
 	...
 }
 
