@@ -276,6 +276,11 @@ static bool http_dechunk_body = true;
 static bool http_decompress_body = true;
 #endif
 
+/*
+ * Extra checks for valid ASCII data in HTTP headers.
+ */
+static bool http_check_ascii_headers = false;
+
 /* Simple Service Discovery Protocol
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
  * SSDP is the discovery protocol of Universal Plug and Play
@@ -360,7 +365,7 @@ static int is_http_request_or_reply(packet_info *pinfo, const gchar *data, int l
 static guint chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					proto_tree *tree, int offset);
 static gboolean valid_header_name(const guchar *line, int header_len);
-static void process_header(tvbuff_t *tvb, int offset, int next_offset,
+static gboolean process_header(tvbuff_t *tvb, int offset, int next_offset,
 			   const guchar *line, int linelen, int colon_offset,
 			   packet_info *pinfo, proto_tree *tree,
 			   headers_t *eh_ptr, http_conv_t *conv_data,
@@ -1613,6 +1618,19 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			if (saw_req_resp_or_header || valid_header_name(line, (int)(linep - line))) {
 				colon_offset += (int)(linep - line);
+				if (http_check_ascii_headers) {
+					int i;
+					for (i = 0; i < linelen; i++) {
+						if (line[i] & 0x80) {
+							/*
+							 * Non-ASCII! Return -2 for invalid
+							 * HTTP, distinct from -1 for possible
+							 * reassembly required.
+							 */
+							return -2;
+						}
+					}
+				}
 				goto is_http;
 			}
 		}
@@ -1713,9 +1731,18 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * Header.
 			 */
-			process_header(tvb, offset, next_offset, line, linelen,
+			gboolean good_header = process_header(tvb, offset, next_offset, line, linelen,
 			    colon_offset, pinfo, http_tree, headers, conv_data,
 			    http_type, header_value_map, streaming_chunk_mode);
+			if (http_check_ascii_headers && !good_header) {
+				/*
+				 * Line is not a good HTTP header.
+				 * Return -2 to mark as invalid HTTP;
+				 * this is distinct from returning -1 when
+				 * it may be HTTP but in need of reassembly.
+				 */
+				return -2;
+			}
 		}
 		offset = next_offset;
 	}
@@ -3197,7 +3224,7 @@ valid_header_name(const guchar *line, int header_len)
 	return TRUE;
 }
 
-static void
+static gboolean
 process_header(tvbuff_t *tvb, int offset, int next_offset,
 	       const guchar *line, int linelen, int colon_offset,
 	       packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
@@ -3233,6 +3260,12 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * Not a valid header name? Just add a line plus expert info.
 	 */
 	if (!valid_header_name(line, header_len)) {
+		if (http_check_ascii_headers) {
+			/* If we're offering the chance for other dissectors to parse,
+			 * we shouldn't add any tree items ourselves.
+			 */
+			return FALSE;
+		}
 		if (http_type == MEDIA_CONTAINER_HTTP_REQUEST) {
 			hf_index = hf_http_request_line;
 		} else if (http_type == MEDIA_CONTAINER_HTTP_RESPONSE) {
@@ -3243,7 +3276,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		it = proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA|ENC_ASCII);
 		proto_item_set_text(it, "%s", format_text(pinfo->pool, line, len));
 		expert_add_info(pinfo, it, &ei_http_bad_header_name);
-		return;
+		return FALSE;
 	}
 
 	/*
@@ -3610,6 +3643,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		}
 		}
 	}
+	return TRUE;
 }
 
 /* Returns index of header tag in headers */
@@ -3904,7 +3938,7 @@ check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, con
 	return FALSE;
 }
 
-static void
+static int
 dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     http_conv_t *conv_data, gboolean end_of_stream, const guint32 *seq)
 {
@@ -3937,7 +3971,7 @@ dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 		}
 		len = dissect_http_message(tvb, offset, pinfo, tree, conv_data, "HTTP", proto_http, end_of_stream, seq);
-		if (len == -1)
+		if (len < 0)
 			break;
 		offset += len;
 
@@ -3948,6 +3982,10 @@ dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		col_set_fence(pinfo->cinfo, COL_INFO);
 	}
+	/* dissect_http_message() returns -2 if message is not valid HTTP */
+	return (len == -2)
+		? 0
+		: (int)tvb_captured_length(tvb);
 }
 
 static int
@@ -3993,13 +4031,7 @@ dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 	/* XXX - how to detect end-of-stream without tcpinfo */
 	end_of_stream = (tcpinfo && IS_TH_FIN(tcpinfo->flags));
-	dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream, tcpinfo ? &tcpinfo->seq : NULL);
-
-	/* XXX - If we haven't seen any HTTP yet even after dissecting above,
-	 * should we return 0 here so that heuristic dissectors can get a
-	 * chance?
-	 */
-	return tvb_captured_length(tvb);
+	return dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream, tcpinfo ? &tcpinfo->seq : NULL);
 }
 
 static gboolean
@@ -4042,8 +4074,7 @@ dissect_http_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 	struct tlsinfo *tlsinfo = (struct tlsinfo *)data;
 	end_of_stream = (tlsinfo && tlsinfo->end_of_stream);
-	dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream, tlsinfo ? &tlsinfo->seq : NULL);
-	return tvb_captured_length(tvb);
+	return dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream, tlsinfo ? &tlsinfo->seq : NULL);
 }
 
 static gboolean
@@ -4093,8 +4124,7 @@ dissect_http_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	/*
 	 * XXX - we need to provide an end-of-stream indication.
 	 */
-	dissect_http_on_stream(tvb, pinfo, tree, conv_data, FALSE, NULL);
-	return tvb_captured_length(tvb);
+	return dissect_http_on_stream(tvb, pinfo, tree, conv_data, FALSE, NULL);
 }
 
 static int
@@ -4109,8 +4139,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	 * XXX - what should be done about reassembly, pipelining, etc.
 	 * here?
 	 */
-	dissect_http_on_stream(tvb, pinfo, tree, conv_data, FALSE, NULL);
-	return tvb_captured_length(tvb);
+	return dissect_http_on_stream(tvb, pinfo, tree, conv_data, FALSE, NULL);
 }
 
 static int
@@ -4534,6 +4563,11 @@ proto_register_http(void)
 	    "using \"Content-Encoding: \"",
 	    &http_decompress_body);
 #endif
+	prefs_register_bool_preference(http_module, "check_ascii_headers",
+	    "Reject non-ASCII headers as invalid HTTP",
+	    "Whether to treat non-ASCII in headers as non-HTTP data "
+	    "and allow other dissectors to process it",
+	    &http_check_ascii_headers);
 	prefs_register_obsolete_preference(http_module, "tcp_alternate_port");
 
 	range_convert_str(wmem_epan_scope(), &global_http_tls_range, TLS_DEFAULT_RANGE, 65535);
