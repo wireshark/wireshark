@@ -3610,10 +3610,9 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata,
                 c_match++;
                 if (c_match == textlen) {
                     result = MR_MATCHED;
-                    cf->search_pos = i + (guint32)(pd - buf_start);
-                    /* Save the position of the last character
-                       for highlighting the field. */
-                    cf->search_len = i + 1;
+                    /* Save position and length for highlighting the field. */
+                    cf->search_pos = (guint32)(pd - buf_start);
+                    cf->search_len = (guint32)(textlen);
                     goto done;
                 }
             } else {
@@ -3629,10 +3628,9 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata,
                 c_match++;
                 if (c_match == textlen) {
                     result = MR_MATCHED;
-                    cf->search_pos = i + (guint32)(pd - buf_start);
-                    /* Save the position of the last character
-                       for highlighting the field. */
-                    cf->search_len = i + 1;
+                    /* Save position and length for highlighting the field. */
+                    cf->search_pos = (guint32)(pd - buf_start);
+                    cf->search_len = (guint32)(textlen);
                     goto done;
                 }
                 i++;
@@ -3686,10 +3684,9 @@ match_narrow_and_wide_case(capture_file *cf, frame_data *fdata,
                 c_match++;
                 if (c_match == textlen) {
                     result = MR_MATCHED;
-                    cf->search_pos = i + (guint32)(pd - buf_start);
-                    /* Save the position of the last character
-                       for highlighting the field. */
-                    cf->search_len = i + 1;
+                    /* Save position and length for highlighting the field. */
+                    cf->search_pos = (guint32)(pd - buf_start);
+                    cf->search_len = (guint32)(textlen);
                     goto done;
                 }
             } else {
@@ -3705,10 +3702,9 @@ match_narrow_and_wide_case(capture_file *cf, frame_data *fdata,
                 c_match++;
                 if (c_match == textlen) {
                     result = MR_MATCHED;
-                    cf->search_pos = i + (guint32)(pd - buf_start);
-                    /* Save the position of the last character
-                       for highlighting the field. */
-                    cf->search_len = i + 1;
+                    /* Save position and length for highlighting the field. */
+                    cf->search_pos = (guint32)(pd - buf_start);
+                    cf->search_len = (guint32)(textlen);
                     goto done;
                 }
                 i++;
@@ -3760,11 +3756,10 @@ match_narrow_case(capture_file *cf, frame_data *fdata,
             if (c_char == ascii_text[c_match]) {
                 c_match++;
                 if (c_match == textlen) {
+                    /* Save position and length for highlighting the field. */
                     result = MR_MATCHED;
-                    cf->search_pos = i + (guint32)(pd - buf_start);
-                    /* Save the position of the last character
-                       for highlighting the field. */
-                    cf->search_len = i + 1;
+                    cf->search_pos = (guint32)(pd - buf_start);
+                    cf->search_len = (guint32)(textlen);
                     goto done;
                 }
             } else {
@@ -3811,10 +3806,9 @@ match_wide(capture_file *cf, frame_data *fdata,
                 c_match++;
                 if (c_match == textlen) {
                     result = MR_MATCHED;
-                    cf->search_pos = i + (guint32)(pd - buf_start);
-                    /* Save the position of the last character
-                       for highlighting the field. */
-                    cf->search_len = i + 1;
+                    /* Save position and length for highlighting the field. */
+                    cf->search_pos = (guint32)(pd - buf_start);
+                    cf->search_len = (guint32)(textlen);
                     goto done;
                 }
                 i++;
@@ -3867,10 +3861,9 @@ match_wide_case(capture_file *cf, frame_data *fdata,
                 c_match++;
                 if (c_match == textlen) {
                     result = MR_MATCHED;
-                    cf->search_pos = i + (guint32)(pd - buf_start);
-                    /* Save the position of the last character
-                       for highlighting the field. */
-                    cf->search_len = i + 1;
+                    /* Save position and length for highlighting the field. */
+                    cf->search_pos = (guint32)(pd - buf_start);
+                    cf->search_len = (guint32)(textlen);
                     goto done;
                 }
                 i++;
@@ -3905,9 +3898,8 @@ match_binary(capture_file *cf, frame_data *fdata,
     pd = ws_memmem(buf_start, fdata->cap_len, info->data, datalen);
     if (pd != NULL) {
         result = MR_MATCHED;
-        cf->search_pos = (uint32_t)(pd - buf_start + datalen - 1);
-        /* Save the position of the last character
-           for highlighting the field. */
+        /* Save position and length for highlighting the field. */
+        cf->search_pos = (uint32_t)(pd - buf_start);
         cf->search_len = (uint32_t)datalen;
     }
 
@@ -3931,8 +3923,12 @@ match_regex(capture_file *cf, frame_data *fdata,
                                 (const gchar *)ws_buffer_start_ptr(buf),
                                 fdata->cap_len,
                                 result_pos)) {
+        //TODO: A chosen regex can match the empty string (zero length)
+        // which doesn't make a lot of sense for searching the packet bytes.
+        // Should we search with the PCRE2_NOTEMPTY option?
         //TODO: Fix cast.
-        cf->search_pos = (guint32)(result_pos[1] - 1); /* last byte = end position - 1 */
+        /* Save position and length for highlighting the field. */
+        cf->search_pos = (guint32)(result_pos[0]);
         cf->search_len = (guint32)(result_pos[1] - result_pos[0]);
         result = MR_MATCHED;
     }

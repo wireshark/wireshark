@@ -307,7 +307,7 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
         if (cap_file_->search_in_progress && (cap_file_->hex || (cap_file_->string && cap_file_->packet_data))) {
             // In the hex view, only highlight the target bytes or string. The entire
             // field can then be displayed by clicking on any of the bytes in the field.
-            f_start = cap_file_->search_pos - cap_file_->search_len + 1;
+            f_start = (int)cap_file_->search_pos;
             f_length = (int) cap_file_->search_len;
         } else {
             f_start = selected->position().start;

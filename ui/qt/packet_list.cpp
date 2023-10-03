@@ -586,9 +586,17 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
             // The tree where the target string matched one of the labels was discarded in
             // match_protocol_tree() so we have to search again in the latest tree.
             fi = cf_find_string_protocol_tree(cap_file_, cap_file_->edt->tree);
-        } else if (cap_file_->search_pos != 0) {
+        } else if (cap_file_->search_len != 0) {
             // Find the finfo that corresponds to our byte.
-            fi = proto_find_field_from_offset(cap_file_->edt->tree, cap_file_->search_pos,
+            // The match can span multiple fields (and a single byte can
+            // match more than one field.) Our behavior is to find the last
+            // field in the tree (so hopefully spanning fewer bytes) that
+            // matches the last byte in the search match.
+            // (regex search can find a zero length match not at the
+            // start of the frame if lookbehind is used, but
+            // proto_find_field_from_offset doesn't match such a field
+            // and it's not clear which field we would want to match.)
+            fi = proto_find_field_from_offset(cap_file_->edt->tree, cap_file_->search_pos + cap_file_->search_len - 1,
                                               cap_file_->edt->tvb);
         }
 
