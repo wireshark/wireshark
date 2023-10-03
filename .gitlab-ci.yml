@@ -750,7 +750,13 @@ Windows Build:
 
 Windows Qt5 Build:
   extends: .build-windows
-  rules: !reference [.if-w-w-only-merge-request]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+      changes:
+        - "ui/**/*"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
   tags:
     - wireshark-windows-merge-req
   needs: [ 'Commit Check' ]
