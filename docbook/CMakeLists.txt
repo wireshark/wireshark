@@ -476,7 +476,9 @@ set_docbook_target_properties(release_notes_txt)
 
 add_custom_target( release_notes ALL )
 set_docbook_target_properties(release_notes)
-add_dependencies ( release_notes release_notes_txt release_notes_html )
+if (ASCIIDOCTOR_FOUND)
+	add_dependencies ( release_notes release_notes_txt release_notes_html )
+endif()
 
 add_custom_target(
 	news

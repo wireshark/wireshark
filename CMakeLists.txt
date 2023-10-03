@@ -2379,6 +2379,7 @@ foreach(_install_file ${INSTALL_FILES} ${DOC_FILES})
 			"${_output_file}"
 		DEPENDS
 			docs
+			release_notes
 			"${_install_file}"
 	)
 	list(APPEND copy_data_files_depends "${_output_file}")
