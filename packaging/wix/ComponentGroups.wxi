@@ -65,6 +65,7 @@
         </Component>
         <Component Id="cmpIpmap_html" Guid="*">
           <File Id="filIpmap_html" KeyPath="yes" Source="$(var.Staging.Dir)\ipmap.html" />
+        </Component>
         <Component Id="cmpReleaseNotes_html" Guid="*">
           <File Id="filReleaseNotes_html" KeyPath="yes" Source="$(var.Staging.Dir)\release-notes.html" />
         </Component>
