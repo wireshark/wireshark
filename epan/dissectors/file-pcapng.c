@@ -1816,6 +1816,8 @@ dissect_cb_data(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb,
      */
 }
 
+#define BLOCK_BAD_SHB_SIZE 12
+
 gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct info *info)
 {
     proto_tree      *block_tree, *block_type_tree;
@@ -1830,6 +1832,7 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
     tvbuff_t        *volatile next_tvb = NULL;
     block_data_arg   arg;
     volatile gboolean stop_dissecting = FALSE;
+    volatile gboolean byte_order_magic_bad = FALSE;
 
     block_type = tvb_get_guint32(tvb, offset + 0, info->encoding);
     length     = tvb_get_guint32(tvb, offset + 4, info->encoding);
@@ -1869,73 +1872,24 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
     arg.block_tree = block_tree;
     arg.info = info;
 
-    if (block_type == BLOCK_TYPE_SHB) {
-        /* Section Header Block - this needs special byte-order handling */
-        volatile gboolean byte_order_magic_bad = FALSE;
-
-        proto_item_append_text(block_item, " %u", info->section_number);
-        info->section_number += 1;
-        info->interface_number = 0;
-        info->darwin_process_event_number = 0;
-        info->frame_number = 1;
-        if (info->interfaces != NULL) {
-            wmem_free(pinfo->pool, info->interfaces);
-        }
-        info->interfaces = wmem_array_new(pinfo->pool, sizeof(struct interface_description));
-
-        if (tvb_memeql(tvb, 8, pcapng_big_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
-            info->encoding = ENC_BIG_ENDIAN;
-        } else if (tvb_memeql(tvb, 8, pcapng_little_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
-            info->encoding = ENC_LITTLE_ENDIAN;
-        } else {
-            byte_order_magic_bad = TRUE;
-        }
-
-        next_tvb = process_block_length(block_tree, pinfo, tvb, offset, &block_data_tree, &block_length_item, &block_length, info->encoding);
-        if (next_tvb == NULL) {
-            /* The length was invalid, so we can't dissect any further */
-            return -1;
-        }
-        offset += 4;
-
-	/*
-	 * Dissect the block data as an SHB's content.
-	 * Catch exceptions; ReportedBoundsError means that the body
-	 * doesn't fit in the block.
-	 */
-	TRY {
-            if (!dissect_shb_data(block_data_tree, pinfo, next_tvb,
-                                  byte_order_magic_bad, &arg)) {
-                /*
-                 * We can't dissect any further.
-                 */
-                stop_dissecting = TRUE;
-            }
-	}
-	CATCH(ReportedBoundsError) {
-            /*
-             * The body didn't fit in the block.
-             * Mark the length as being too small.
-             */
-            expert_add_info(pinfo, block_length_item, &ei_block_length_below_block_content_length);
-        }
-        CATCH_ALL {
-            /*
-             * Just rethrow other exceptions to the ultimate handler.
-             */
-            RETHROW;
-	}
-	ENDTRY;
-    } else {
+    if (block_type == BLOCK_TYPE_SHB && tvb_captured_length(tvb) == BLOCK_BAD_SHB_SIZE) {
         /*
-         * Not an SHB, so we know the byte order.
+         * dissect_pcapng() gave us a short SHB because its byte-order magic is bad.
+         * process_block_length() would fail, so generate an abbreviated TVB
+         * to pass to dissect_shb_data() which will flag up the bad magic.
          */
+        byte_order_magic_bad = TRUE;
+        next_tvb = tvb_new_subset_length(tvb, 8, 4);
+        block_data_tree = block_tree;
+    }
+    else {
         next_tvb = process_block_length(block_tree, pinfo, tvb, offset, &block_data_tree, &block_length_item, &block_length, info->encoding);
         if (next_tvb == NULL) {
             /* The length was invalid, so we can't dissect any further */
             return -1;
         }
-        offset += 4;
+    }
+    offset += 4;
 
     /*
      * Dissect the block data.
@@ -1943,59 +1897,64 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
      * doesn't fit in the block.
      */
     TRY {
-            switch (block_type) {
-            case BLOCK_TYPE_IDB:
-                dissect_idb_data(block_data_tree, pinfo, next_tvb, &arg);
-                break;
-            case BLOCK_TYPE_PB:
-                dissect_pb_data(block_data_tree, pinfo, next_tvb, &arg);
-                break;
-            case BLOCK_TYPE_SPB:
-                dissect_spb_data(block_data_tree, pinfo, next_tvb, &arg);
-                break;
-            case BLOCK_TYPE_NRB:
-                dissect_nrb_data(block_data_tree, pinfo, next_tvb, &arg);
-                break;
-            case BLOCK_TYPE_ISB:
-                dissect_isb_data(block_data_tree, pinfo, next_tvb, &arg);
-                break;
-            case BLOCK_TYPE_EPB:
-                dissect_epb_data(block_data_tree, pinfo, next_tvb, &arg);
-                break;
-            case BLOCK_TYPE_DSB:
-                dissect_dsb_data(block_data_tree, pinfo, next_tvb, &arg);
-                break;
-            case BLOCK_TYPE_CB_COPY:
-            case BLOCK_TYPE_CB_NO_COPY:
-                dissect_cb_data(block_data_tree, pinfo, next_tvb, &arg);
-                break;
-            case BLOCK_TYPE_IRIG_TS:
-            case BLOCK_TYPE_ARINC_429:
-                break;
-
-            default:
-                /* Use local block type handling if available */
-                if (p_local_block_callback) {
-                    p_local_block_callback->dissector(block_data_tree, pinfo, next_tvb, &arg);
-                }
-                break;
+        switch (block_type) {
+        case BLOCK_TYPE_SHB:
+            proto_item_append_text(block_item, " %u", info->section_number);
+            if (!dissect_shb_data(block_data_tree, pinfo, next_tvb, byte_order_magic_bad, &arg)) {
+                stop_dissecting = TRUE;
             }
+            break;
+        case BLOCK_TYPE_IDB:
+            dissect_idb_data(block_data_tree, pinfo, next_tvb, &arg);
+            break;
+        case BLOCK_TYPE_PB:
+            dissect_pb_data(block_data_tree, pinfo, next_tvb, &arg);
+            break;
+        case BLOCK_TYPE_SPB:
+            dissect_spb_data(block_data_tree, pinfo, next_tvb, &arg);
+            break;
+        case BLOCK_TYPE_NRB:
+            dissect_nrb_data(block_data_tree, pinfo, next_tvb, &arg);
+            break;
+        case BLOCK_TYPE_ISB:
+            dissect_isb_data(block_data_tree, pinfo, next_tvb, &arg);
+            break;
+        case BLOCK_TYPE_EPB:
+            dissect_epb_data(block_data_tree, pinfo, next_tvb, &arg);
+            break;
+        case BLOCK_TYPE_DSB:
+            dissect_dsb_data(block_data_tree, pinfo, next_tvb, &arg);
+            break;
+        case BLOCK_TYPE_CB_COPY:
+        case BLOCK_TYPE_CB_NO_COPY:
+            dissect_cb_data(block_data_tree, pinfo, next_tvb, &arg);
+            break;
+        case BLOCK_TYPE_IRIG_TS:
+        case BLOCK_TYPE_ARINC_429:
+            break;
+
+        default:
+            /* Use local block type handling if available */
+            if (p_local_block_callback) {
+                p_local_block_callback->dissector(block_data_tree, pinfo, next_tvb, &arg);
+            }
+            break;
         }
-	CATCH(ReportedBoundsError) {
-            /*
-             * The body didn't fit in the block.
-             * Mark the length as being too small.
-             */
-            expert_add_info(pinfo, block_length_item, &ei_block_length_below_block_content_length);
-        }
-        CATCH_ALL {
-            /*
-             * Just rethrow other exceptions to the ultimate handler.
-             */
-            RETHROW;
-	}
-	ENDTRY;
     }
+    CATCH(ReportedBoundsError) {
+        /*
+            * The body didn't fit in the block.
+            * Mark the length as being too small.
+            */
+        expert_add_info(pinfo, block_length_item, &ei_block_length_below_block_content_length);
+    }
+    CATCH_ALL {
+        /*
+            * Just rethrow other exceptions to the ultimate handler.
+            */
+        RETHROW;
+    }
+    ENDTRY;
 
     if (stop_dissecting) {
         /* We found a fatal problem with the file. */
@@ -2025,39 +1984,64 @@ dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     };
     gint             offset = 0;
     guint32          length;
-    guint32          encoding;
+    guint32          block_type;
     proto_tree      *main_tree;
     proto_item      *main_item;
     struct info      info;
+    volatile gboolean byte_order_magic_bad = FALSE;
 
     if (tvb_memeql(tvb, 0, pcapng_premagic, BLOCK_TYPE_SIZE) != 0)
         return 0;
 
-    if (tvb_memeql(tvb, 8, pcapng_big_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
-        encoding = ENC_BIG_ENDIAN;
-    } else if (tvb_memeql(tvb, 8, pcapng_little_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
-        encoding = ENC_LITTLE_ENDIAN;
-    } else {
-        return 0;
-    }
-
+    info.encoding = ENC_BIG_ENDIAN;
     info.block_number = 1;
-    info.section_number = 1;
+    info.section_number = 0;
     info.interface_number = 0;
     info.darwin_process_event_number = 0;
     info.frame_number = 1;
-    info.encoding = encoding;
-    info.interfaces = wmem_array_new(pinfo->pool, sizeof(struct interface_description));
+    info.interfaces = NULL;
     info.darwin_process_events = wmem_array_new(pinfo->pool, sizeof(struct darwin_process_event_description));
 
     main_item = proto_tree_add_item(tree, proto_pcapng, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_pcapng);
 
-    while (tvb_captured_length_remaining(tvb, offset)) {
+    while (tvb_captured_length_remaining(tvb, offset) > 8) {
         tvbuff_t  *next_tvb;
         int       block_length;
 
-        length = tvb_get_guint32(tvb, offset + 4, encoding);
+        block_type = tvb_get_guint32(tvb, offset, info.encoding);
+        if (block_type == BLOCK_TYPE_SHB) {
+            info.section_number += 1;
+            info.interface_number = 0;
+            info.darwin_process_event_number = 0;
+            info.frame_number = 1;
+            if (info.interfaces != NULL) {
+                wmem_free(pinfo->pool, info.interfaces);
+            }
+            info.interfaces = wmem_array_new(pinfo->pool, sizeof(struct interface_description));
+
+            /* Byte order may change from that of previous SHB [#19371] */
+            if (tvb_memeql(tvb, offset + 8, pcapng_big_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
+                info.encoding = ENC_BIG_ENDIAN;
+            } else if (tvb_memeql(tvb, offset + 8, pcapng_little_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
+                info.encoding = ENC_LITTLE_ENDIAN;
+            } else {
+                byte_order_magic_bad = TRUE;
+                if (offset == 0) {
+                    return 0;
+                }
+            }
+        }
+
+        if (G_UNLIKELY(byte_order_magic_bad)) {
+            /* Pass a shortened TVB that's just big enough to let
+             * dissect_block() mark the SHB's byte order magic as bad.
+             */
+            length = BLOCK_BAD_SHB_SIZE;
+        }
+        else {
+            length = tvb_get_guint32(tvb, offset + 4, info.encoding);
+        }
         next_tvb = tvb_new_subset_length(tvb, offset, length);
 
         block_length = dissect_block(main_tree, pinfo, next_tvb, &info);
