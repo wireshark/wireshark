@@ -3921,7 +3921,7 @@ match_regex(capture_file *cf, frame_data *fdata,
 
     if (ws_regex_matches_pos(cf->regex,
                                 (const gchar *)ws_buffer_start_ptr(buf),
-                                fdata->cap_len,
+                                fdata->cap_len, 0,
                                 result_pos)) {
         //TODO: A chosen regex can match the empty string (zero length)
         // which doesn't make a lot of sense for searching the packet bytes.

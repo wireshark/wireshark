@@ -103,7 +103,7 @@ ws_regex_compile(const char *patt, char **errmsg)
 
 static bool
 match_pcre2(pcre2_code *code, const char *subject, ssize_t subj_length,
-                pcre2_match_data *match_data)
+                size_t subj_offset, pcre2_match_data *match_data)
 {
     PCRE2_SIZE length;
     int rc;
@@ -116,7 +116,7 @@ match_pcre2(pcre2_code *code, const char *subject, ssize_t subj_length,
     rc = pcre2_match(code,
                     subject,
                     length,
-                    0,          /* start at offset zero of the subject */
+                    (PCRE2_SIZE)subj_offset,
                     0,          /* default options */
                     match_data,
                     NULL);
@@ -158,7 +158,7 @@ ws_regex_matches_length(const ws_regex_t *re,
     /* We don't use the matched substring but pcre2_match requires
      * at least one pair of offsets. */
     match_data = pcre2_match_data_create(1, NULL);
-    matched = match_pcre2(re->code, subj, subj_length, match_data);
+    matched = match_pcre2(re->code, subj, subj_length, 0, match_data);
     pcre2_match_data_free(match_data);
     return matched;
 }
@@ -167,7 +167,7 @@ ws_regex_matches_length(const ws_regex_t *re,
 bool
 ws_regex_matches_pos(const ws_regex_t *re,
                         const char *subj, ssize_t subj_length,
-                        size_t pos_vect[2])
+                        size_t subj_offset, size_t pos_vect[2])
 {
     bool matched;
     pcre2_match_data *match_data;
@@ -176,7 +176,7 @@ ws_regex_matches_pos(const ws_regex_t *re,
     ws_return_val_if(!subj, false);
 
     match_data = pcre2_match_data_create(1, NULL);
-    matched = match_pcre2(re->code, subj, subj_length, match_data);
+    matched = match_pcre2(re->code, subj, subj_length, subj_offset, match_data);
     if (matched && pos_vect) {
         PCRE2_SIZE *ovect = pcre2_get_ovector_pointer(match_data);
         pos_vect[0] = ovect[0];

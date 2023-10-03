@@ -41,14 +41,19 @@ ws_regex_matches_length(const ws_regex_t *re,
 
 /** Returns start and end position of the matched substring.
  *
+ * @note Using a nonzero subj_offset produces different results than
+ * passing a pointer to the later offset as subj when the pattern
+ * begins with a lookbehind.
+ *
  *  pos_vect[0] is first codepoint in the matched substring.
- *  pos_vect[1] is the next to last codepoint in the matched substring.
+ *  pos_vect[1] is first codepoint past the matched substring.
  *  pos_vect[1] - pos_vect[0] is the matched substring length.
+ *
  */
 WS_DLL_PUBLIC bool
 ws_regex_matches_pos(const ws_regex_t *re,
                         const char *subj, ssize_t subj_length,
-                        size_t pos_vect[2]);
+                        size_t subj_offset, size_t pos_vect[2]);
 
 WS_DLL_PUBLIC void
 ws_regex_free(ws_regex_t *re);
