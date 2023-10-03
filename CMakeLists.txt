@@ -2106,7 +2106,7 @@ if (ASCIIDOCTOR_FOUND)
 		${CMAKE_BINARY_DIR}/doc/tshark.html
 		${CMAKE_BINARY_DIR}/doc/wireshark.html
 		${CMAKE_BINARY_DIR}/doc/wireshark-filter.html
-		${CMAKE_BINARY_DIR}/docbook/release-notes.html
+		${CMAKE_BINARY_DIR}/doc/release-notes.html
 	)
 	if(MAXMINDDB_FOUND)
 		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/mmdbresolve.html)
@@ -2379,7 +2379,6 @@ foreach(_install_file ${INSTALL_FILES} ${DOC_FILES})
 			"${_output_file}"
 		DEPENDS
 			docs
-			release_notes
 			"${_install_file}"
 	)
 	list(APPEND copy_data_files_depends "${_output_file}")
