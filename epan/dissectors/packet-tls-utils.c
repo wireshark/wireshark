@@ -127,6 +127,17 @@ const value_string ssl_versions[] = {
     { 0x00, NULL }
 };
 
+const value_string ssl_version_ja4_names[] = {
+    { 0x0100,               "s1" },
+    { SSLV2_VERSION,        "s2" },
+    { SSLV3_VERSION,        "s3" },
+    { TLSV1_VERSION,        "10" },
+    { TLSV1DOT1_VERSION,    "11" },
+    { TLSV1DOT2_VERSION,    "12" },
+    { TLSV1DOT3_VERSION,    "13" },
+    { 0x00, NULL }
+};
+
 const value_string ssl_20_msg_types[] = {
     { SSL2_HND_ERROR,               "Error" },
     { SSL2_HND_CLIENT_HELLO,        "Client Hello" },
@@ -6987,7 +6998,7 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 /* Dissects a SignatureScheme (TLS 1.3) or SignatureAndHashAlgorithm (TLS 1.2).
  * {{{ */
 static void
-tls_dissect_signature_algorithm(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+tls_dissect_signature_algorithm(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset, ja4_data_t *ja4_data)
 {
     guint32     sighash, hashalg, sigalg;
     proto_item *ti_sigalg;
@@ -6995,6 +7006,10 @@ tls_dissect_signature_algorithm(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_t
 
     ti_sigalg = proto_tree_add_item_ret_uint(tree, hf->hf.hs_sig_hash_alg, tvb,
                                              offset, 2, ENC_BIG_ENDIAN, &sighash);
+    if (ja4_data) {
+        wmem_list_append(ja4_data->sighash_list, GUINT_TO_POINTER(sighash));
+    }
+
     sigalg_tree = proto_item_add_subtree(ti_sigalg, hf->ett.hs_sig_hash_alg);
 
     /* TLS 1.2: SignatureAndHashAlgorithm { hash, signature } */
@@ -7017,7 +7032,7 @@ tls_dissect_signature_algorithm(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_t
    TLS1.2 certificate request. {{{ */
 static gint
 ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          packet_info* pinfo, guint32 offset, guint32 offset_end)
+                          packet_info* pinfo, guint32 offset, guint32 offset_end, ja4_data_t *ja4_data)
 {
     /* https://tools.ietf.org/html/rfc5246#section-7.4.1.4.1
      *  struct {
@@ -7045,7 +7060,7 @@ ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     subtree = proto_item_add_subtree(ti, hf->ett.hs_sig_hash_algs);
 
     while (offset + 2 <= next_offset) {
-        tls_dissect_signature_algorithm(hf, tvb, subtree, offset);
+        tls_dissect_signature_algorithm(hf, tvb, subtree, offset, ja4_data);
         offset += 2;
     }
 
@@ -7123,9 +7138,9 @@ tls_dissect_certificate_authorities(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
 /** TLS Extensions (in Client Hello and Server Hello). {{{ */
 static gint
 ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                        proto_tree *tree, packet_info* pinfo, guint32 offset, guint32 offset_end)
+                                        proto_tree *tree, packet_info* pinfo, guint32 offset, guint32 offset_end, ja4_data_t *ja4_data)
 {
-    return ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end);
+    return ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end, ja4_data);
 }
 
 static gint
@@ -7139,7 +7154,7 @@ ssl_dissect_hnd_ext_delegated_credentials(ssl_common_dissect_t *hf, tvbuff_t *tv
          *  } SignatureSchemeList;
          */
 
-        return ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end);
+        return ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end, NULL);
     } else {
         asn1_ctx_t asn1_ctx;
         guint pubkey_length, sign_length;
@@ -7163,7 +7178,7 @@ ssl_dissect_hnd_ext_delegated_credentials(ssl_common_dissect_t *hf, tvbuff_t *tv
         proto_tree_add_item(tree, hf->hf.hs_cred_valid_time, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        tls_dissect_signature_algorithm(hf, tvb, tree, offset);
+        tls_dissect_signature_algorithm(hf, tvb, tree, offset, NULL);
         offset += 2;
 
         if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &pubkey_length,
@@ -7174,7 +7189,7 @@ ssl_dissect_hnd_ext_delegated_credentials(ssl_common_dissect_t *hf, tvbuff_t *tv
         dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, tree, hf->hf.hs_cred_pubkey);
         offset += pubkey_length;
 
-        tls_dissect_signature_algorithm(hf, tvb, tree, offset);
+        tls_dissect_signature_algorithm(hf, tvb, tree, offset, NULL);
         offset += 2;
 
         if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &sign_length,
@@ -7254,7 +7269,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                packet_info *pinfo, proto_tree *tree,
                                guint32 offset, guint32 offset_end,
                                guint8 hnd_type, SslSession *session,
-                               gboolean is_dtls)
+                               gboolean is_dtls, ja4_data_t *ja4_data)
 {
 
     /* https://tools.ietf.org/html/rfc7301#section-3.1
@@ -7292,6 +7307,10 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
         proto_tree_add_item(alpn_tree, hf->hf.hs_ext_alpn_str,
                             tvb, offset, name_length, ENC_ASCII|ENC_NA);
+        if (ja4_data && wmem_strbuf_get_len(ja4_data->alpn) == 0) {
+            wmem_strbuf_append_c(ja4_data->alpn, (char)tvb_get_guint8(tvb,offset));
+            wmem_strbuf_append_c(ja4_data->alpn, (char)tvb_get_guint8(tvb,offset + name_length - 1));
+        }
         /* Remember first ALPN ProtocolName entry for server. */
         if (hnd_type == SSL_HND_SERVER_HELLO || hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS) {
             /* '\0'-terminated string for dissector table match and prefix
@@ -7616,7 +7635,7 @@ ssl_dissect_hnd_hello_ext_early_data(ssl_common_dissect_t *hf, tvbuff_t *tvb, pa
 static gint
 ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                              proto_tree *tree, guint32 offset, guint32 offset_end,
-                                             SslSession *session)
+                                             SslSession *session, ja4_data_t *ja4_data)
 {
 
    /* RFC 8446 Section 4.2.1
@@ -7642,6 +7661,9 @@ ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t 
 
         draft_version = extract_tls13_draft_version(version);
         max_draft_version = MAX(draft_version, max_draft_version);
+        if (ja4_data && !IS_GREASE_TLS(version)) {
+            ja4_data->max_version = MAX(version, ja4_data->max_version);
+        }
     }
     if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, next_offset)) {
         offset = next_offset;
@@ -9430,7 +9452,7 @@ static gint
 ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 offset_end, guint8 hnd_type,
                           SslSession *session, SslDecryptSession *ssl,
-                          gboolean is_dtls, wmem_strbuf_t *ja3);
+                          gboolean is_dtls, wmem_strbuf_t *ja3, ja4_data_t *ja4_data);
 void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, guint32 offset,
@@ -9457,6 +9479,21 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
     gchar      *ja3_hash;
     gchar      *ja3_dash = "";
+    gchar      *ja4, *ja4_r, *ja4_hash, *ja4_b, *ja4_c;
+    ja4_data_t  ja4_data;
+    wmem_strbuf_t *ja4_a  = wmem_strbuf_new(pinfo->pool, "");
+    wmem_strbuf_t *ja4_br = wmem_strbuf_new(pinfo->pool, "");
+    wmem_strbuf_t *ja4_cr = wmem_strbuf_new(pinfo->pool, "");
+    wmem_list_frame_t *curr_entry;
+
+    ja4_data.max_version = 0;
+    ja4_data.server_name_present = FALSE;
+    ja4_data.num_cipher_suites = 0;
+    ja4_data.num_extensions = 0;
+    ja4_data.alpn = wmem_strbuf_new(pinfo->pool, "");
+    ja4_data.cipher_list = wmem_list_new(pinfo->pool);
+    ja4_data.extension_list = wmem_list_new(pinfo->pool);
+    ja4_data.sighash_list = wmem_list_new(pinfo->pool);
 
     /* show the client version */
     ti = proto_tree_add_item_ret_uint(tree, hf->hf.hs_client_version, tvb,
@@ -9526,6 +9563,8 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         if (!IS_GREASE_TLS(cipher_suite)) {
             wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, cipher_suite);
             ja3_dash = "-";
+            ja4_data.num_cipher_suites += 1;
+            wmem_list_insert_sorted(ja4_data.cipher_list, GUINT_TO_POINTER(cipher_suite), wmem_compare_uint);
         }
     }
     wmem_strbuf_append_c(ja3, ',');
@@ -9569,10 +9608,80 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (offset < offset_end) {
         ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end, SSL_HND_CLIENT_HELLO,
-                                  session, ssl, dtls_hfs != NULL, ja3);
+                                  session, ssl, dtls_hfs != NULL, ja3, &ja4_data);
+        if (ja4_data.max_version > 0) {
+            client_version = ja4_data.max_version;
+        }
     } else {
         wmem_strbuf_append_printf(ja3, ",,");
     }
+
+    if (proto_is_frame_protocol(pinfo->layers,"tcp")) {
+        wmem_strbuf_append(ja4_a, "t");
+    } else if (proto_is_frame_protocol(pinfo->layers,"udp")) {
+        wmem_strbuf_append(ja4_a, "u");
+    }
+    wmem_strbuf_append_printf(ja4_a, "%s", val_to_str_const(client_version, ssl_version_ja4_names, "00"));
+    wmem_strbuf_append_printf(ja4_a, "%s", ja4_data.server_name_present ? "d" : "i");
+    if (ja4_data.num_cipher_suites > 99) {
+        wmem_strbuf_append(ja4_a, "99");
+    } else {
+        wmem_strbuf_append_printf(ja4_a, "%02d", ja4_data.num_cipher_suites);
+    }
+    if (ja4_data.num_extensions > 99) {
+        wmem_strbuf_append(ja4_a, "99");
+    } else {
+        wmem_strbuf_append_printf(ja4_a, "%02d", ja4_data.num_extensions);
+    }
+    if (wmem_strbuf_get_len(ja4_data.alpn) > 0 ) {
+        wmem_strbuf_append_printf(ja4_a, "%s", wmem_strbuf_get_str(ja4_data.alpn));
+    } else {
+        wmem_strbuf_append(ja4_a, "00");
+    }
+
+    curr_entry = wmem_list_head(ja4_data.cipher_list);
+    for (unsigned i = 0; i < wmem_list_count(ja4_data.cipher_list); i++) {
+        wmem_strbuf_append_printf(ja4_br, "%04x", GPOINTER_TO_UINT(wmem_list_frame_data(curr_entry)));
+        if (i < wmem_list_count(ja4_data.cipher_list) - 1) {
+            wmem_strbuf_append(ja4_br, ",");
+        }
+        curr_entry = wmem_list_frame_next(curr_entry);
+    }
+
+    curr_entry = wmem_list_head(ja4_data.extension_list);
+    for (unsigned i = 0; i < wmem_list_count(ja4_data.extension_list); i++) {
+        wmem_strbuf_append_printf(ja4_cr, "%04x", GPOINTER_TO_UINT(wmem_list_frame_data(curr_entry)));
+        if (i < wmem_list_count(ja4_data.extension_list) - 1) {
+            wmem_strbuf_append(ja4_cr, ",");
+        }
+        curr_entry = wmem_list_frame_next(curr_entry);
+    }
+
+    if (wmem_list_count(ja4_data.sighash_list) > 0) {
+        wmem_strbuf_append(ja4_cr, "_");
+        curr_entry = wmem_list_head(ja4_data.sighash_list);
+        for (unsigned i = 0; i < wmem_list_count(ja4_data.sighash_list); i++) {
+            wmem_strbuf_append_printf(ja4_cr, "%04x", GPOINTER_TO_UINT(wmem_list_frame_data(curr_entry)));
+            if (i < wmem_list_count(ja4_data.sighash_list) - 1) {
+                wmem_strbuf_append(ja4_cr, ",");
+            }
+            curr_entry = wmem_list_frame_next(curr_entry);
+        }
+    }
+    ja4_hash = g_compute_checksum_for_string(G_CHECKSUM_SHA256, wmem_strbuf_get_str(ja4_br),-1);
+    ja4_b = wmem_strndup(pinfo->pool, ja4_hash, 12);
+    g_free(ja4_hash);
+    ja4_hash = g_compute_checksum_for_string(G_CHECKSUM_SHA256, wmem_strbuf_get_str(ja4_cr),-1);
+    ja4_c = wmem_strndup(pinfo->pool, ja4_hash, 12);
+    g_free(ja4_hash);
+
+    ja4 = wmem_strdup_printf(pinfo->pool, "%s_%s_%s", wmem_strbuf_get_str(ja4_a), ja4_b, ja4_c);
+    ja4_r = wmem_strdup_printf(pinfo->pool, "%s_%s_%s", wmem_strbuf_get_str(ja4_a), wmem_strbuf_get_str(ja4_br), wmem_strbuf_get_str(ja4_cr));
+
+    ti = proto_tree_add_string(tree, hf->hf.hs_ja4, tvb, offset, 0, ja4);
+    proto_item_set_generated(ti);
+    ti = proto_tree_add_string(tree, hf->hf.hs_ja4_r, tvb, offset, 0, ja4_r);
+    proto_item_set_generated(ti);
 
     ja3_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, wmem_strbuf_get_str(ja3),
             wmem_strbuf_get_len(ja3));
@@ -9650,7 +9759,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end,
                                   is_hrr ? SSL_HND_HELLO_RETRY_REQUEST : SSL_HND_SERVER_HELLO,
-                                  session, ssl, is_dtls, ja3);
+                                  session, ssl, is_dtls, ja3, NULL);
     }
 
     ja3_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, wmem_strbuf_get_str(ja3),
@@ -9760,7 +9869,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
     if (is_tls13) {
         ssl_dissect_hnd_extension(hf, tvb, subtree, pinfo, offset,
                                   offset_end, SSL_HND_NEWSESSION_TICKET,
-                                  session, ssl, is_dtls, NULL);
+                                  session, ssl, is_dtls, NULL, NULL);
     }
 } /* }}} */
 
@@ -9794,7 +9903,7 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                               offset_end, SSL_HND_HELLO_RETRY_REQUEST,
-                              session, ssl, is_dtls, NULL);
+                              session, ssl, is_dtls, NULL, NULL);
 }
 
 void
@@ -9810,7 +9919,7 @@ ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      */
     ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                               offset_end, SSL_HND_ENCRYPTED_EXTENSIONS,
-                              session, ssl, is_dtls, NULL);
+                              session, ssl, is_dtls, NULL, NULL);
 }
 
 /* Certificate and Certificate Request dissections. {{{ */
@@ -9959,7 +10068,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
         if (session->version == TLSV1DOT3_VERSION) {
             offset = ssl_dissect_hnd_extension(hf, tvb, subtree, pinfo, offset,
                                                next_offset, SSL_HND_CERTIFICATE,
-                                               session, ssl, is_dtls, NULL);
+                                               session, ssl, is_dtls, NULL, NULL);
         }
 
 #if defined(HAVE_LIBGNUTLS)
@@ -10086,7 +10195,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
 
     if (session->version == TLSV1DOT2_VERSION || session->version == DTLSV1DOT2_VERSION ||
             (is_tls13 && (draft_version > 0 && draft_version < 19))) {
-        offset = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end);
+        offset = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end, NULL);
     }
 
     if (is_tls13 && (draft_version == 0 || draft_version >= 19)) {
@@ -10097,7 +10206,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
          */
         ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end, SSL_HND_CERT_REQUEST,
-                                  session, NULL, is_dtls, NULL);
+                                  session, NULL, is_dtls, NULL, NULL);
     } else if (is_tls13 && draft_version <= 18) {
         /*
          * TLS 1.3 draft 18 and older: certificate_authorities and
@@ -10293,7 +10402,7 @@ static gint
 ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 offset_end, guint8 hnd_type,
                           SslSession *session, SslDecryptSession *ssl,
-                          gboolean is_dtls, wmem_strbuf_t *ja3)
+                          gboolean is_dtls, wmem_strbuf_t *ja3, ja4_data_t *ja4_data)
 {
     guint32     exts_len;
     guint16     ext_type;
@@ -10313,10 +10422,21 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     offset += 2;
     offset_end = offset + exts_len;
 
+    if (ja4_data) {
+        ja4_data->num_extensions = 0;
+    }
     while (offset_end - offset >= 4)
     {
         ext_type = tvb_get_ntohs(tvb, offset);
         ext_len  = tvb_get_ntohs(tvb, offset + 2);
+
+        if (ja4_data && !IS_GREASE_TLS(ext_type)) {
+            ja4_data->num_extensions += 1;
+            if (ext_type != SSL_HND_HELLO_EXT_SERVER_NAME &&
+                ext_type != SSL_HND_HELLO_EXT_ALPN) {
+                wmem_list_insert_sorted(ja4_data->extension_list, GUINT_TO_POINTER(ext_type), wmem_compare_uint);
+            }
+        }
 
         ext_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + ext_len, hf->ett.hs_ext, NULL,
                                   "Extension: %s (len=%u)", val_to_str(ext_type,
@@ -10342,6 +10462,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         switch (ext_type) {
         case SSL_HND_HELLO_EXT_SERVER_NAME:
             offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            if (ja4_data) {
+                ja4_data->server_name_present = TRUE;
+            }
             break;
         case SSL_HND_HELLO_EXT_MAX_FRAGMENT_LENGTH:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_max_fragment_length, tvb, offset, 1, ENC_NA);
@@ -10381,8 +10504,10 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_srp(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS:
+            offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, next_offset, ja4_data);
+            break;
         case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT: /* since TLS 1.3 draft -23 */
-            offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, next_offset);
+            offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, next_offset, NULL);
             break;
         case SSL_HND_HELLO_EXT_DELEGATED_CREDENTIALS:
             offset = ssl_dissect_hnd_ext_delegated_credentials(hf, tvb, ext_tree, pinfo, offset, next_offset, hnd_type);
@@ -10407,7 +10532,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset++;
             break;
         case SSL_HND_HELLO_EXT_ALPN:
-            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, session, is_dtls);
+            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, session, is_dtls, ja4_data);
             break;
         case SSL_HND_HELLO_EXT_STATUS_REQUEST_V2:
             if (hnd_type == SSL_HND_CLIENT_HELLO)
@@ -10478,7 +10603,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS:
             switch (hnd_type) {
             case SSL_HND_CLIENT_HELLO:
-                offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset, session);
+                offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset, session, ja4_data);
                 break;
             case SSL_HND_SERVER_HELLO:
             case SSL_HND_HELLO_RETRY_REQUEST:
@@ -10767,7 +10892,7 @@ ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_inf
     case TLSV1DOT2_VERSION:
     case DTLSV1DOT2_VERSION:
     case TLSV1DOT3_VERSION:
-        tls_dissect_signature_algorithm(hf, tvb, tree, offset);
+        tls_dissect_signature_algorithm(hf, tvb, tree, offset, NULL);
         offset += 2;
         break;
 

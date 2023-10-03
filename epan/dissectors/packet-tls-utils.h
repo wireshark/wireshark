@@ -987,6 +987,8 @@ typedef struct ssl_common_dissect {
         gint hs_ja3_hash;
         gint hs_ja3s_full;
         gint hs_ja3s_hash;
+        gint hs_ja4;
+        gint hs_ja4_r;
 
         /* TLS 1.3 */
         gint hs_ext_psk_ke_modes_length;
@@ -1192,6 +1194,17 @@ typedef struct {
     /* Do not forget to initialize ssl_hfs to -1 in packet-tls.c! */
 } ssl_hfs_t;
 
+typedef struct {
+    guint32        max_version;
+    gboolean       server_name_present;
+    gint           num_cipher_suites;
+    gint           num_extensions;
+    wmem_strbuf_t *alpn;
+    wmem_list_t   *cipher_list;
+    wmem_list_t   *extension_list;
+    wmem_list_t   *sighash_list;
+} ja4_data_t;
+
 
 /* Helpers for dissecting Variable-Length Vectors. {{{ */
 /* Largest value that fits in a 24-bit number (2^24-1). */
@@ -1353,7 +1366,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1                                      \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1                              \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -2083,6 +2096,16 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ja3s_hash,                                          \
       { "JA3S", prefix ".handshake.ja3s",                               \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ja4,                                                \
+      { "JA4", prefix ".handshake.ja4",                                 \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ja4_r,                                              \
+      { "JA4_r", prefix ".handshake.ja4_r",                             \
         FT_STRING, BASE_NONE, NULL, 0x0,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
