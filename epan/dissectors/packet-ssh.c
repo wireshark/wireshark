@@ -2759,7 +2759,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
         }
     } else if (CIPHER_AES128_CBC == peer_data->cipher_id  || CIPHER_AES192_CBC == peer_data->cipher_id || CIPHER_AES256_CBC == peer_data->cipher_id) {
         gint iKeyLen = CIPHER_AES128_CBC == peer_data->cipher_id?16:CIPHER_AES192_CBC == peer_data->cipher_id?24:32;
-        if (gcry_cipher_open(hd1, CIPHER_AES128_CBC == peer_data->cipher_id?GCRY_CIPHER_AES128:CIPHER_AES192_CBC == peer_data->cipher_id?GCRY_CIPHER_AES192:GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_CBC_CTS)) {
+        if (gcry_cipher_open(hd1, CIPHER_AES128_CBC == peer_data->cipher_id?GCRY_CIPHER_AES128:CIPHER_AES192_CBC == peer_data->cipher_id?GCRY_CIPHER_AES192:GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC, 0)) {
             gcry_cipher_close(*hd1);
             ws_debug("ssh: can't open aes%d cipher handle", iKeyLen*8);
             return;
@@ -3036,6 +3036,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         *pmessage = message;
     }
 
+    gcry_error_t err;
     guint message_length = 0, seqnr;
     gchar *plain = NULL, *mac;
     guint mac_len;
@@ -3104,21 +3105,40 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
         mac_len = peer_data->mac_length;
 
-        const gchar *plain_buf = (const gchar *)tvb_get_ptr(tvb, offset, 4);
-        message_length = pntoh32(plain_buf);
+        /* AES GCM for Secure Shell [RFC 5647] */
+        /* The message length is Additional Authenticated Data */
+        /* XXX: If there are fewer than 4 octets available, we need to
+         * ask the TCP dissector for DESEGMENT_ONE_MORE_SEGMENT instead
+         * of throwing an exception here, if we're desegmenting.
+         */
+        message_length = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
         guint remaining = tvb_reported_length_remaining(tvb, offset);
         ssh_debug_printf("length: %d, remaining: %d\n", message_length, remaining);
+        /* The minimum size of a packet (not counting mac) is 16. */
+        if (message_length < 16) {
+            ws_debug("ssh: unreasonable message length %u", message_length);
+            return tvb_captured_length(tvb);
+        }
+
+        /* SSH requires that the data to be encrypted (not including the AAD,
+         * so message_length) be a multiple of the block size, 16 octets */
+        if (message_length % 16 != 0) {
+            ssh_debug_printf("length not a multiple of block length (16)!\n");
+        }
 
         if(message->plain_data && message->data_len){
         }else{
 
-            const gchar *ctl = (const gchar *)tvb_get_ptr(tvb, offset,
-                    message_length+4);
-            const gchar *ctext = ctl + 4;
+            /* If tvb_reported_length_remaining(tvb, offset + 4) is less
+             * than message_length + mac_len, then we should ask the TCP
+             * dissector for more data if we're desegmenting. That is
+             * simpler than trying to handle fragmentation ourselves.
+             */
+            const gchar *ctext = (const gchar *)tvb_get_ptr(tvb, offset + 4,
+                    message_length);
             plain = (gchar *)wmem_alloc(wmem_file_scope(), message_length+4);
-            plain[0] = message_length >> 24; plain[1] = message_length >> 16; plain[2] = message_length >>  8; plain[3] = message_length >>  0;
+            phton32(plain, message_length);
 
-            gcry_error_t err;
             /* gcry_cipher_setiv(peer_data->cipher, iv, 12); */
             if ((err = gcry_cipher_setiv(peer_data->cipher, peer_data->iv, 12))) {
                 gcry_cipher_close(peer_data->cipher);
@@ -3127,7 +3147,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
                 ws_debug("ssh: can't set aes128 cipher iv");
                 ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
 #endif	//ndef _WIN32
-                return offset;
+                return tvb_captured_length(tvb);
             }
             int idx = 12;
             do{
@@ -3140,22 +3160,17 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 #ifndef _WIN32
                 ws_debug("can't authenticate using aes128-gcm: %s\n", gpg_strerror(err));
 #endif	//ndef _WIN32
-                return offset;
+                return tvb_captured_length(tvb);
             }
 
-            guint offs = 0;
-            if(remaining>message_length+4){remaining=message_length;}
-            while(offs<remaining){
-                if (gcry_cipher_decrypt(peer_data->cipher, plain+4+offs, 16,
-                        ctext+offs, 16))
-                {
+            if ((err = gcry_cipher_decrypt(peer_data->cipher, plain+4, message_length,
+                    ctext, message_length))) {
 // TODO: temporary work-around as long as a Windows python bug is triggered by automated tests
 #ifndef _WIN32
-                    ws_debug("can\'t decrypt aes128");
+                ws_debug("can't decrypt aes-gcm %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
+
 #endif	//ndef _WIN32
-                    return offset;
-                }
-                offs += 16;
+                return tvb_captured_length(tvb);
             }
 
             if (gcry_cipher_gettag (peer_data->cipher, message->calc_mac, 16)) {
@@ -3163,7 +3178,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 #ifndef _WIN32
                 ws_debug ("aes128-gcm, gcry_cipher_gettag() failed\n");
 #endif	//ndef _WIN32
-                return offset;
+                return tvb_captured_length(tvb);
             }
 
             if ((err = gcry_cipher_reset(peer_data->cipher))) {
@@ -3171,7 +3186,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 #ifndef _WIN32
                 ws_debug("aes-gcm, gcry_cipher_reset failed: %s\n", gpg_strerror (err));
 #endif	//ndef _WIN32
-                return offset;
+                return tvb_captured_length(tvb);
             }
 
             message->plain_data = plain;
@@ -3198,40 +3213,62 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 // TODO: see how to handle fragmentation...
 //            const gchar *ctext = NULL;
             ws_noisy("Getting raw bytes of length %d", tvb_reported_length_remaining(tvb, offset));
-            const gchar *cypher_buf0 = (const gchar *)tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset));
+            /* In CBC and CTR mode, the message length is encrypted as well.
+             * We need to decrypt one block to get the length.
+             * If we have fewer than 16 octets, and we're doing desegmentation,
+             * we should tell the TCP dissector we need ONE_MORE_SEGMENT.
+             */
+            const gchar *cypher_buf0 = (const gchar *)tvb_get_ptr(tvb, offset, 16);
 
             gchar   plain0[16];
             if (gcry_cipher_decrypt(peer_data->cipher, plain0, 16, cypher_buf0, 16))
             {
                 ws_debug("can\'t decrypt aes128");
-                return offset;
+                return tvb_captured_length(tvb);
             }
-//            ctext = cypher_buf0;
+
             guint message_length_decrypted = pntoh32(plain0);
             guint remaining = tvb_reported_length_remaining(tvb, offset);
 
-            if(message_length_decrypted>32768){
+            /* The message_length value doesn't include the length of the
+             * message_length field itself, so it must be at least 12 bytes.
+             */
+            if(message_length_decrypted>32768 || message_length_decrypted < 12){
                 ws_debug("ssh: unreasonable message length %u/%u", message_length_decrypted, message_length);
                 return tvb_captured_length(tvb);
             }else{
 
                 message_length = message_length_decrypted;
+                /* SSH requires that the data to be encrypted (message_length+4)
+                 * be a multiple of the block size, 16 octets. */
+                if (message_length % 16 != 12) {
+                    ssh_debug_printf("total length not a multiple of block length (16)!\n");
+                }
                 message->plain_data = (gchar *)wmem_alloc(wmem_file_scope(), message_length+4);
                 memcpy(message->plain_data, plain0, 16);
                 plain = message->plain_data;
 
-                guint offs = 16;
-                if(remaining>message_length+4){remaining=message_length+4;}
-                while(offs<remaining){
-                    gchar *ct = (gchar *)tvb_get_ptr(tvb, offset+offs, 16);
-                    if (gcry_cipher_decrypt(peer_data->cipher, plain+offs, 16, ct, 16))
+                /* If we're desegmenting, we want to test if we have enough
+                 * remaining bytes here. It's easier to have the TCP
+                 * dissector put together a PDU based on our length.
+                 */
+
+                if (message_length - 12 > 0) {
+                    /* All of these functions actually do handle the case where
+                     * there is no data left, so the check is unnecessary.
+                     */
+                    gchar *ct = (gchar *)tvb_get_ptr(tvb, offset + 16, message_length - 12);
+                    if ((err = gcry_cipher_decrypt(peer_data->cipher, plain + 16, message_length - 12, ct, message_length - 12)))
                     {
-                        ws_debug("can\'t decrypt aes128");
-                        return offset;
+                        ws_debug("can't decrypt aes-cbc/ctr %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
+                        return tvb_captured_length(tvb);
                     }
-                    offs += 16;
                 }
 
+                /* XXX: Need to test if we have enough data above if we're
+                 * doing desegmentation; the tvb_get_ptr() calls will throw
+                 * exceptions if there's not enough data before we get here.
+                 */
                 if(message_length_decrypted>remaining){
                     // Need desegmentation
                     ws_noisy("  need_desegmentation: offset = %d, reported_length_remaining = %d\n",
@@ -3255,6 +3292,10 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         message_length = message->data_len - 4;
         mac = (gchar *)tvb_get_ptr(tvb, offset + 4 + message_length, mac_len);
         if(!memcmp(mac, message->calc_mac, mac_len)){ws_noisy("MAC OK");}else{ws_debug("MAC ERR");}
+        /* XXX: The TLS dissector, by default, when the MAC is invalid regards
+         * the packet as having failed decryption, and does not display it
+         * as here. (There is a preference to disable that for testing.)
+         */
     }
 
     if(plain){
@@ -3263,6 +3304,10 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
                                                PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
         proto_tree_add_uint(tree, hf_ssh_seq_num, tvb, offset + 4 + message_length, mac_len, message->sequence_number);
     }
+    /* If decryption fails, we should present it as a still encrypted packet.
+     * We also should not try to decrypt on future passes if it failed the
+     * first pass, because the cipher state will be wrong anyway.
+     */
 
     offset += message_length + peer_data->mac_length + 4;
     return offset;
