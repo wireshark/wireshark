@@ -195,13 +195,16 @@ while $endl; do
 	#
 	#    replace "@rpath/libpcre2" with "/usr/local/lib/libpcre2" so that
 	#    it isn't excluded from subsequent filtering;
-
+	#
 	#    replace "\tlibbrotli" with "\t/usr/local/lib/libbrotli" so that
 	#    it isn't excluded from subsequent filtering.
 	#    libbrotli, for some reason, doesn't have a path prefix in its
 	#    "install name" when built by tools/macos-setup.sh;
 	#
 	#    replace "@loader_path/libbrotli" with "/usr/local/lib/libbrotli" so that
+	#    it isn't excluded from subsequent filtering;
+	#
+	#    replace "@rpath/libbcg729" with "/usr/local/lib/libbcg729" so that
 	#    it isn't excluded from subsequent filtering;
 	#
 	#    strip out system libraries, as we don't bundle them with
@@ -226,6 +229,7 @@ while $endl; do
 		| sed '1,$s;^	@rpath/libssh;	/usr/local/lib/libssh;' \
 		| sed '1,$s;^	libbrotli;	/usr/local/lib/libbrotli;' \
 		| sed '1,$s;^	@loader_path/libbrotli;	/usr/local/lib/libbrotli;' \
+		| sed '1,$s;^	@rpath/libbcg729;	/usr/local/lib/libbcg729;' \
 		| grep -E -v "$exclude_prefixes" \
 		| sort \
 		| uniq \
