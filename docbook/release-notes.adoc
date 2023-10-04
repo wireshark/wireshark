@@ -28,16 +28,15 @@ wsbuglink:18734[].
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2023-27[]
-RTPS dissector memory leak.
-wsbuglink:19322[].
-cveidlink:2023-5371[].
-// Fixed in master: 0de07f8fe4
-// Fixed in release-4.0: 5fe1d08979
-// Fixed in release-3.6: 1921740b0b
+// * wssalink:2023-28[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2023-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.0: xxx
+// Fixed in release-3.6: xxx
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-789
-// * Fuzz job crash output: fuzz-2023-09-04-10873.pcap. wsbuglink:19322[].
 
 The following bugs have been fixed:
 
@@ -45,18 +44,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
-
-* Updating from within Wireshark if a file is open fails because it can't close Wireshark. wsbuglink:17658[].
-* ESL timestamp provided by ET2000 not displayed. wsbuglink:18308[].
-* Kafka: dissect_kafka_sync_group_request missing version check for instance_id. wsbuglink:19290[].
-* Start Capture via context menu crashes on macOS with an older Qt version. wsbuglink:19299[].
-* Delta time displayed is incorrect after unsetting time reference. wsbuglink:19324[].
-* Fuzz job crash output: randpkt-2023-09-09-7060.pcap. wsbuglink:19332[].
-* Missing one bit in SCCP::sequencing/segmenting. wsbuglink:19336[].
-* Protobuf field malformed packet for last byte of 'repeated fixed32' wsbuglink:19342[].
-* RTP/RFC 4571: Wrong desegmentation/reassembly in RTP over TCP packets. wsbuglink:19345[].
-* Sparklines not working on macOS Sonoma with both native OS and Homebrew pcap. wsbuglink:19349[].
-* Incorrect bit values and namings in BSS Configuration Report TLV. wsbuglink:19352[].
 
 === New and Updated Features
 
@@ -74,19 +61,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.9.. | ag packet- | sort -u)
 [commaize]
 --
-ESL
-GNW
-IDN
-IEEE 1722
-IEEE 1905.1a
-ITS
-Kafka
-ProtoBuf
-RTP
-RTPS
-SCCP
-TACACS
-Tibia
 --
 
 === New and Updated Capture File Support
