@@ -1,4 +1,4 @@
- Wireshark 3.6.17 Release Notes
+ Wireshark 3.6.18 Release Notes
 
  What is Wireshark?
 
@@ -18,22 +18,10 @@
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed:
-
-     • wnpa-sec-2023-27[3] RTPS dissector memory leak. Issue 19322[4].
-       CVE-2023-5371[5].
-
    The following bugs have been fixed:
 
-     • ESL timestamp provided by ET2000 not displayed Issue 18308[6].
-
-     • Kafka: dissect_kafka_sync_group_request missing version check for
-       instance_id Issue 19290[7].
-
-     • Missing one bit in SCCP::sequencing/segmenting Issue 19336[8].
-
-     • RTP/RFC 4571: Wrong desegmentation/reassembly in RTP over TCP
-       packets Issue 19345[9].
+     • Error loading g729.so plugin with Wireshark 4.0.9 and 3.6.17 on
+       macOS. Issue 19374[3].
 
   New and Updated Features
 
@@ -45,7 +33,7 @@
 
   Updated Protocol Support
 
-   ESL, IEEE 1905.1a, ITS, Kafka, RTP, RTPS, SCCP, and Tibia
+   There are no updated protocols in this release.
 
   New and Updated Capture File Support
 
@@ -65,7 +53,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[10] on the Wireshark web site.
+   be found on the download page[4] on the Wireshark web site.
 
  File Locations
 
@@ -80,36 +68,30 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[11] and on the
+  Community support is available on Wireshark’s Q&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[12].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the issue tracker[13].
+  Bugs and feature requests can be reported on the issue tracker[7].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[14].
+  at wiresharkfoundation.org[8].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[15].
+  A complete FAQ is available on the Wireshark web site[9].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
    2. https://gitlab.com/wireshark/wireshark/-/issues/18734
-   3. https://www.wireshark.org/security/wnpa-sec-2023-27
-   4. https://gitlab.com/wireshark/wireshark/-/issues/19322
-   5. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-5371
-   6. https://gitlab.com/wireshark/wireshark/-/issues/18308
-   7. https://gitlab.com/wireshark/wireshark/-/issues/19290
-   8. https://gitlab.com/wireshark/wireshark/-/issues/19336
-   9. https://gitlab.com/wireshark/wireshark/-/issues/19345
-  10. https://www.wireshark.org/download.html
-  11. https://ask.wireshark.org/
-  12. https://www.wireshark.org/lists/
-  13. https://gitlab.com/wireshark/wireshark/-/issues
-  14. https://wiresharkfoundation.org
-  15. https://www.wireshark.org/faq.html
+   3. https://gitlab.com/wireshark/wireshark/-/issues/19374
+   4. https://www.wireshark.org/download.html
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://gitlab.com/wireshark/wireshark/-/issues
+   8. https://wiresharkfoundation.org
+   9. https://www.wireshark.org/faq.html

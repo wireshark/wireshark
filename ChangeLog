@@ -1,0 +1,23 @@
+commit 3bb8632d0f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Oct 4 13:41:21 2023 -0700
+
+    macOS: Add a workaround for libbcg729.
+
+    Work around an issue with libbcg729 similar to what we do for libpcre
+    and other libraries. Blind attempt at fixing #19374.
+
+    [skip ci]
+
+    (cherry picked from commit b1ad11874be69cec30521f7b7af09311f93dc128)
+
+    Conflicts:
+            packaging/macosx/osx-app.sh.in
+
+commit ddc30b3e0f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Oct 4 11:29:34 2023 -0700
+
+    Version: 3.6.17 → 3.6.18
+
+    [skip ci]
