@@ -34,15 +34,17 @@ wsbuglink:18734[].
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2023-27[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2023-27[]
+RTPS dissector memory leak.
+wsbuglink:19322[].
 // cveidlink:2023-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
+// Fixed in master: 0de07f8fe4
+// Fixed in release-4.0: 5fe1d08979
+// Fixed in release-3.6: 1921740b0b
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-674
+
+// * Fuzz job crash output: fuzz-2023-09-04-10873.pcap. wsbuglink:19322[].
 
 The following bugs have been fixed:
 
@@ -50,6 +52,15 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
+
+* ESL timestamp provided by ET2000 not displayed wsbuglink:18308[].
+
+* Kafka: dissect_kafka_sync_group_request missing version check for instance_id wsbuglink:19290[].
+
+* Missing one bit in SCCP::sequencing/segmenting wsbuglink:19336[].
+
+* RTP/RFC 4571: Wrong desegmentation/reassembly in RTP over TCP packets wsbuglink:19345[].
+
 
 === New and Updated Features
 
@@ -69,6 +80,14 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.16.. | ag packet- | sort -u)
 [commaize]
 --
+IEEE 1905.1a
+ITS
+Kafka
+RTP
+RTPS
+SCCP
+Tibia
+ESL
 --
 
 === New and Updated Capture File Support
