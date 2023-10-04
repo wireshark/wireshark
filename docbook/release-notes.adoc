@@ -37,13 +37,12 @@ The following vulnerabilities have been fixed:
 * wssalink:2023-27[]
 RTPS dissector memory leak.
 wsbuglink:19322[].
-// cveidlink:2023-xxx[].
+cveidlink:2023-5371[].
 // Fixed in master: 0de07f8fe4
 // Fixed in release-4.0: 5fe1d08979
 // Fixed in release-3.6: 1921740b0b
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-674
-
 // * Fuzz job crash output: fuzz-2023-09-04-10873.pcap. wsbuglink:19322[].
 
 The following bugs have been fixed:
