@@ -114,6 +114,8 @@ static int hf_erf_ehdr_signature_flow_hash = -1;
 /* Flow ID extension header */
 static int hf_erf_ehdr_flow_id_source_id = -1;
 static int hf_erf_ehdr_flow_id_hash_type = -1;
+static int hf_erf_ehdr_flow_id_hash_type_type = -1;
+static int hf_erf_ehdr_flow_id_hash_type_inner = -1;
 static int hf_erf_ehdr_flow_id_stack_type = -1;
 static int hf_erf_ehdr_flow_id_flow_hash = -1;
 
@@ -240,6 +242,7 @@ static int hf_erf_meta_tag_unknown  = -1;
 static gint ett_erf            = -1;
 static gint ett_erf_pseudo_hdr = -1;
 static gint ett_erf_rectype    = -1;
+static gint ett_erf_hash_type  = -1;
 static gint ett_erf_flags      = -1;
 static gint ett_erf_mc_hdlc    = -1;
 static gint ett_erf_mc_raw     = -1;
@@ -300,6 +303,10 @@ static dissector_handle_t sdh_handle;
 #define ERF_HDR_RXE_MASK 0x10
 #define ERF_HDR_DSE_MASK 0x20
 #define ERF_HDR_RES_MASK 0xC0
+
+/* ERF Extension Header */
+#define ERF_EHDR_FLOW_ID_HASH_TYPE_TYPE_MASK 0x7f
+#define ERF_EHDR_FLOW_ID_HASH_TYPE_INNER_MASK 0x80
 
 /* Classification */
 #define EHDR_CLASS_FLAGS_MASK 0x00ffffff
@@ -1833,9 +1840,25 @@ dissect_flow_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 {
   if(tree) {
     guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+    guint8      hash_type = (guint8)((hdr >> 40) & 0xFF);
+    proto_item *hash_type_item;
+    proto_tree *hash_type_tree;
 
     proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_source_id,  tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_hash_type,  tvb, 0, 0, (guint8)((hdr >> 40) & 0xFF));
+
+    hash_type_item = proto_tree_add_uint_format_value(tree, hf_erf_ehdr_flow_id_hash_type, tvb, 0, 0, hash_type,
+                                                    "0x%02x (%s%s)",
+                                                    hash_type,
+                                                    (hash_type & ERF_EHDR_FLOW_ID_HASH_TYPE_INNER_MASK) ? "Inner " : "",
+                                                    val_to_str_const(
+                                                      (hash_type & ERF_EHDR_FLOW_ID_HASH_TYPE_TYPE_MASK),
+                                                      erf_hash_type,
+                                                      "Unknown Type"));
+
+    hash_type_tree = proto_item_add_subtree(hash_type_item, ett_erf_hash_type);
+    proto_tree_add_uint(hash_type_tree, hf_erf_ehdr_flow_id_hash_type_type,  tvb, 0, 0, hash_type);
+    proto_tree_add_uint(hash_type_tree, hf_erf_ehdr_flow_id_hash_type_inner, tvb, 0, 0, hash_type);
+
     proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_stack_type, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
     proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_flow_hash,  tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
   }
@@ -3522,7 +3545,13 @@ proto_register_erf(void)
         FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_erf_ehdr_flow_id_hash_type,
       { "Hash Type", "erf.ehdr.flowid.hashtype",
-        FT_UINT8, BASE_HEX, VALS(erf_hash_type), 0, NULL, HFILL } },
+        FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_flow_id_hash_type_type,
+      { "Type", "erf.ehdr.flowid.hashtype.type",
+        FT_UINT8, BASE_DEC, VALS(erf_hash_type), ERF_EHDR_FLOW_ID_HASH_TYPE_TYPE_MASK, NULL, HFILL } },
+    { &hf_erf_ehdr_flow_id_hash_type_inner,
+      { "Hash is for Tunnel Inner", "erf.ehdr.flowid.hashtype.inner",
+        FT_UINT8, BASE_DEC, NULL, ERF_EHDR_FLOW_ID_HASH_TYPE_INNER_MASK, NULL, HFILL } },
     { &hf_erf_ehdr_flow_id_stack_type,
       { "Stack Type", "erf.ehdr.flowid.stacktype",
         FT_UINT8, BASE_HEX, VALS(erf_stack_type), 0, NULL, HFILL } },
@@ -3835,6 +3864,7 @@ proto_register_erf(void)
     &ett_erf,
     &ett_erf_pseudo_hdr,
     &ett_erf_rectype,
+    &ett_erf_hash_type,
     &ett_erf_flags,
     &ett_erf_mc_hdlc,
     &ett_erf_mc_raw,
