@@ -3183,7 +3183,8 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
             gcry_error_t err;
             /* gcry_cipher_setiv(peer_data->cipher, iv, 12); */
             if ((err = gcry_cipher_setiv(peer_data->cipher, peer_data->iv, 12))) {
-                gcry_cipher_close(peer_data->cipher);
+                //gcry_cipher_close(peer_data->cipher);
+                //Don't close this unless we also remove the wmem callback
 // TODO: temporary work-around as long as a Windows python bug is triggered by automated tests
 #ifndef _WIN32
                 ws_debug("ssh: can't set aes128 cipher iv");
