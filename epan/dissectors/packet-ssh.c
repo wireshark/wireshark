@@ -3156,6 +3156,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         }
         size_t buflen = DIGEST_MAX_SIZE;
         gcry_mac_read(mac_hd, message->calc_mac, &buflen);
+        gcry_mac_close(mac_hd);
 
         message->plain_data = plain;
         message->data_len   = message_length + 4;
