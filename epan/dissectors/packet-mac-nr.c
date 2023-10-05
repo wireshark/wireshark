@@ -288,6 +288,8 @@ static int hf_mac_nr_control_bsr_long_bs_lcg4 = -1;
 static int hf_mac_nr_control_bsr_long_bs_lcg5 = -1;
 static int hf_mac_nr_control_bsr_long_bs_lcg6 = -1;
 static int hf_mac_nr_control_bsr_long_bs_lcg7 = -1;
+static int hf_mac_nr_control_timing_advance_report_reserved = -1;
+static int hf_mac_nr_control_timing_advance_report_ta = -1;
 
 static int hf_mac_nr_rar = -1;
 static int hf_mac_nr_rar_subheader = -1;
@@ -572,6 +574,11 @@ static const value_string dlsch_lcid_vals[] =
 };
 static value_string_ext dlsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_lcid_vals);
 
+/* TODO: more LCIDs to add, and not all handled yet */
+#define TRUNCATED_ENHANCED_BFR_LCID          0x2b
+#define TIMING_ADVANCE_REPORT_LCID           0x2c
+#define TRUNCATED_SIDELINK_BSR_LCID          0x2d
+#define SIDELINK_BSR_LCID                    0x2e
 #define CCCH_48_BITS_LCID                    0x34
 #define RECOMMENDED_BIT_RATE_QUERY_LCID      0x35
 #define MULTIPLE_ENTRY_PHR_4_LCID            0x36
@@ -620,6 +627,7 @@ static const value_string ulsch_lcid_vals[] =
     { 30,                                   "30"},
     { 31,                                   "31"},
     { 32,                                   "32"},
+    { TIMING_ADVANCE_REPORT_LCID,           "Timing Advance Report"},
     { CCCH_48_BITS_LCID,                    "CCCH (48 bits)"},
     { RECOMMENDED_BIT_RATE_QUERY_LCID,      "Recommended Bit Rate Query"},
     { MULTIPLE_ENTRY_PHR_4_LCID,            "Multiple Entry PHR (4 octet C)"},
@@ -1331,6 +1339,7 @@ static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
         switch (lcid) {
             case CCCH_LCID:
             case CCCH_48_BITS_LCID:
+            case TIMING_ADVANCE_REPORT_LCID:
             case RECOMMENDED_BIT_RATE_QUERY_LCID:
             case CONFIGURED_GRANT_CONFIGURATION_LCID:
             case SINGLE_ENTRY_PHR_LCID:
@@ -1744,7 +1753,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             data_seen = TRUE;
         }
         else {
-            /* Control Elements */
+            /* UL Control Elements */
 
             /* Add some space to info column between entries */
             if (data_seen || ces_seen) {
@@ -1760,6 +1769,20 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 gboolean dir;
 
                 switch (lcid) {
+                    case TIMING_ADVANCE_REPORT_LCID:
+                    {
+                        /* Reserved (2 bits) */
+                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_timing_advance_report_reserved,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* Timing  Advance */
+                        guint32 ta;
+                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_timing_advance_report_ta,
+                                                     tvb, offset, 2, ENC_BIG_ENDIAN, &ta);
+                        write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Timing Advance Report TA=%u) ", ta);
+
+                        offset += 2;
+                        break;
+                    }
                     case RECOMMENDED_BIT_RATE_QUERY_LCID:
                         proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_recommended_bit_rate_query_lcid,
                                             tvb, offset, 1, ENC_BIG_ENDIAN, &br_lcid);
@@ -4507,7 +4530,18 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-
+        { &hf_mac_nr_control_timing_advance_report_reserved,
+            { "Reserved",
+              "mac-nr.control.ta-command.reserved", FT_UINT8, BASE_HEX, NULL, 0xc0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_timing_advance_report_ta,
+            { "Timing Advance",
+              "mac-nr.control.ta-command.ta", FT_UINT16, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
     };
 
     static gint *ett[] =
