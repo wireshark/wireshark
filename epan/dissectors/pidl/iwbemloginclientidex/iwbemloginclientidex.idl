@@ -1,0 +1,51 @@
+#include "idl_types.h"
+
+/*
+  IWbemLoginClientIDEx interface definitions
+*/
+[ uuid("9f6c78ef-fce5-42fa-abea-3e7df91921dc"),
+  restricted, 
+  pointer_default(unique)
+]
+interface IWbemLoginClientIDEx
+{
+  /*****************/
+  /* Function 0x00 */
+  [todo] WERROR iwbemloginclientidex_opnum0(
+  );
+
+  /*****************/
+  /* Function 0x01 */
+  [todo] WERROR iwbemloginclientidex_opnum1(
+  );
+
+  /*****************/
+  /* Function 0x02 */
+  [todo] WERROR iwbemloginclientidex_opnum2(
+  );
+
+  typedef [public] struct
+  {
+  } ORPCTHIS;
+
+  typedef [public] struct
+  {
+  } ORPCTHAT;
+
+  typedef struct {
+    uint32 dwLowDateTime;
+    uint32 dwHighDateTime;
+  } FILETIME;
+
+  /*****************/
+  /* Function 0x03 */
+  WERROR SetClientInfoEx(
+   [in] ORPCTHIS orpcthis,
+   [in, unique, string, charset(UTF16)] uint16* ClientMachine,
+   [in, unique, string, charset(UTF16)] uint16* ClientMachineFQDN,
+   [in] uint32 ClientProcId,
+   [in] FILETIME ClientProcessCreationTime,
+   [in] uint32 Reserved,
+   [out] ORPCTHAT* orpcthat
+  );
+};
