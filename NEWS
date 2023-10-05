@@ -13,10 +13,10 @@ Wireshark 4.2.0 Release Notes
 
   A Windows installer for Arm64 has been added.
 
-  Windows installer file names now have the format
-  Wireshark-<version>-<architecture>.exe.
+  Packet list sorting has been improved.
 
-  Wireshark is now better about generating valid UTF-8 output.
+  Wireshark and TShark are now better about generating valid UTF-8
+  output.
 
   A new display filter feature for filtering raw bytes has been added.
 
@@ -41,10 +41,11 @@ Wireshark 4.2.0 Release Notes
   Wireshark can be cross-compiled for Windows using Linux. Check the
   Developer’s guide for instructions.
 
-  Packet list sorting has been improved.
-
   "Tools › Browser (SSL Keylog)" can launch your web browser with the
   SSLKEYLOGFILE environment variable set to the appropriate value.
+
+  Windows installer file names now have the format
+  Wireshark-<version>-<architecture>.exe.
 
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
@@ -86,7 +87,7 @@ Wireshark 4.2.0 Release Notes
      • The -n option also now disables IP address geolocation
        information lookup in configured MaxMind databases (and
        geolocation lookup can be enabled with -Ng.) This is most
-       relevant for tshark, where geolocation lookups are synchronous.
+       relevant for TShark, where geolocation lookups are synchronous.
 
      • The display filter drop-down list is now sorted by "most recently
        used" instead of "most recently created".
@@ -150,7 +151,7 @@ Wireshark 4.2.0 Release Notes
      • The text of any configured column (displayed or hidden) can be
        filtered anywhere that filters are used - in display filters,
        filters in taps, coloring rules, Wireshark read filters, and the
-       -Y, -R, and -e options to tshark, the "Apply as Filter" GUI
+       -Y, -R, and -e options to TShark, the "Apply as Filter" GUI
        option, etc.
 
         • The filter field names are prefixed by "_ws.col", followed by
@@ -225,20 +226,20 @@ Wireshark 4.2.0 Release Notes
        (https://www.speex.org). The speex code that was previously
        bundled has been removed.
 
-     • New `--print-timers` option added to tshark.
+     • New `--print-timers` option added to TShark.
 
   Removed Features and Support
 
      • With the addition of the universal and consistent filtering
        support for column text, the previous support in the -e option to
-       tshark for displaying column text via the column title has been
+       TShark for displaying column text via the column title has been
        removed in general. Those field names cannot be used elsewhere
        (as they may not be legal filter names) and create confusion if
        more than one column has the same title or if a column is
        renamed. Prefer the column format instead, e.g. "_ws.col.info"
        for "_ws.col.Info". However, for backwards compatibility with
        existing tools and scripts, the titles of the default columns can
-       continue to be used with "tshark -e" (but not elsewhere.)
+       continue to be used with `tshark -e` (but not elsewhere.)
 
      • The bundled script "dtd_gen.lua" that was disabled by default has
        been removed from the installation. It can be found in the

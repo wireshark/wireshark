@@ -1,3 +1,429 @@
+9bb2f610ed ssh: Fix some invalid reads and writes, infinite loops
+7e7114f308 mdb: start dissecting Expansion messages
+d12ea77a43 ssh: Don't close a cipher twice
+02da91b83a Windows packaging: Close a tag
+e2944b9d80 GUI: Add release notes to Help menu
+74f25c22ab SAToP: Add optional RTP header handling
+cfe9bd8df5 GitLab CI: Generate Sparkle signatures on macOS
+6cde788920 Debian: Fix a couple of symbol versions
+6032ee6fba Debian: Add missing symbols
+e600e11968 GitLab CI: Display filter reference workflow updates
+9d7aa6983b [Automatic update for 2023-10-01]
+fc4dc545fc IEEE 1609.2: Update asn1 descriptions and add CAMP
+05ef0349f8 ITS: Update Collective Perception Service (CPS) to ETSI TR 103 562 V2.1.1
+1c085dbd40 DHCP: Add preference for seconds elapsed field endianness
+45c783f376 wsutil: memset mempbrk pattern when compiling
+cc75141a64 GitLab CI: Generate our display filter reference
+20f8f0ffed mdb: dissect reader config data
+e626777656 vmware-hb: add value_string for build number
+f712616485 mdb: dissect max/min prices
+b0405c4e9c mdb: start dissecting the cashless setup command
+6d366467d4 ieee1905: Sync Message and TLV with EasyMesh SPEC v5.0
+1005790ae2 iperf3: replace info column local time by time sent
+7d02715af0 GitLab CI: Switch the Windows builds to Qt 6.5.3
+1c32e4b252 mdb: simpler approach for filter stings
+0a3ca53bc2 NTP: remove wrong value from peer event code vs
+53483c1819 pcapng: Add Sysdig meta event types
+f642622398 Qt: Fix highlighting of protocol bytes when clicking proto tree item
+cf25de5133 rtp-events: fix id conflict
+8dfa52ebf2 Revert changes to JSON boolean format
+3845e48c2a oampdu: give the dgt_set_t a better name.
+d1dfc2406b Docs: Fix a few spelling issues
+02d9eb140c dumpcap: `RINGBUFFER_MIN_NUM_FILES` logic error
+4cb78cad7b debian: Update so versions on symbols and overrides
+0fd4377b2b r09: give the dgt_set_t a better name.
+9cdbb5fe8e iperf3: Rework UDP loss/out-of-order detection
+bf868af1dd Fix misppellings in root and ui directories
+3cbf22ab03 Initialize the release-4.2 branch
+eb539196a9 CMake: Allow spaces in build dir
+a8c9a4b976 wsutil: Clean up some includes
+4d03e061ee merge: Try to raise the soft limit of open files on UN*X
+c207041da6 merge: Allow unlimited number of files
+a6c406d718 check_tfs: ignore #if 0 ... #endif region as comment
+f5d5aa419f wtap_opttypes.h: remove an unnecessary incomplete structure declaration.
+0b1a6a1c9b iperf3: dup the cookie before putting it in the jar
+1fcd5e3b4b [Automatic update for 2023-09-24]
+8285a9775f Convert wsutil to C99 types
+c8a725e54e epan: Convert the UAT API to C99 types
+6738a873b3 Qt: Store Show Packet Bytes settings in recent
+25aaafc336 ansi-map: fix check_tfs errors
+43fd777dcd Fixup "void *" pointer declaration style
+2704f1b334 Tests: Fix default option argument
+768c03df06 x75: Add dissector for X.75 SLP/MLP
+4c3660798e UCI: Fix dead code, or rather, handle specific notification (CID 1524689)
+babd5d9505 CI+Tests: Don't block on failed assertions
+49b2039e09 GitLab CI: Use debug build type with merge requests
+eb19d08413 Improve a comment.
+dd78c2f08a ftypes: Fix hash calculation to use 128 bits of the address (CID 1524736)
+b550f82167 ieee1905: Fix wrong tfs for BSS Configuration Report TLV
+1db39f8775 Stats: uninit class members (CID 1541110)
+54e729fe6c Convert epan/dfilter to C99 types
+ed78778eda VMware: Add HeartBeat protocol
+af66f07bed x509ce: value string for CI+ scrambler capabilities extension
+dc47e15873 iperf3: add dissector support
+6a4350a1b5 GitLab CI: Enable color output in pytest
+ba18ad9bb7 Logray: Add recent software update changes
+71d1a90dec IEEE80211: fix dead code ext_request expert (CID 1541037)
+e583814f0f SOME/IP: SOME/IP-TP shows wrong flag value (BUGFIX)
+ad140e5e14 Qt: uninit class member in constructor (CID 1530129)
+e57c34d845 DCERPC: Add dissector for IWbemLevel1Login Interface
+fb18a7ada1 SMPP: Add dissection over TLS
+1839374fc8 tshark: Add UTF-8 output mode to the follow tap
+1fb90793f5 Work around stub routines in macOS 14 (Sonoma) libpcap.
+0b04002294 dfilter: Add warning for value strings without double quotes
+4405e99c09 Docs: Tweak a sentence to follow from the previous paragraph
+03fc873a5e Docs: Add XOR to filter manpage
+a2af3537f3 DHCPv6: Fix failed dissector name assertion
+eeddad8f58 epan: Rewrite an assertion on dissector handle names
+b732578455 wsutil: Convert string modules to C99 types
+bc3d35cef4 Convert epan/ftypes to C99 types
+74222933f7 Debian: Add a missing symbol
+4585479ab0 sharkd: add hosts tap
+c7c58ea4f8 Tools: Add a comment about aqtinstall to macos-setup
+989ce0f733 GitLab CI: Collapse a couple of multiline commands.
+a319fd57d3 GSM RLC MAC: fix UL Pkt Ctrl Ack 11 bit message type length
+cdc8e2f511 dfilter: Change default boolean representation to True/False
+0ba19bd641 Remove tfs_true_false
+78547a149f Make tfs_true_false the default for booleans
+fad2c1e3be GSM CBCH: fix some value_string arrays
+9b83efb8e1 DHCPv6: adding Option 17 Vendor Opts custom dissector
+80a4dc55f4 BGP: Optlen must be a 16 bit integer now
+cf5a2bba0d GitLab CI: Fix a path
+f81a863ed4 GitLab CI: Use Minio mc to upload Windows packages
+15bf019dfc Update Wi-SUN LBC-IE ID
+fa75afe5dd smb2: fix Dead inscrement
+35e6db0e06 strptime(wsutil): fix Dead increment
+4ddf3f11b8 capture_sync(capture): fix Dead Assignment
+d1971158a7 dfilter: Fix parsing booleans as value strings
+beff5df00d ZigBee Direct: Try to fix build with MinGW
+69e639a036 macos-setup: have CMake set the dylib install_path to the full path. [skip ci]
+fabc1b2e2d macos-setup: update zlib version to the current version. [skip ci]
+2e8aae86d7 Revert "GitLab CI: Add temporary debugging"
+cd1c799228 check_typed_item_calls: take mask into account for value_string width
+8be3f913e0 PFCP: value_string values were shifted by one byte
+7f64c6fa1a GitLab CI: Add temporary debugging
+cb4dcaef59 Check range of value_string fits into width of hf
+9f0880c4f1 ZigBee: Add ZB Direct dissectors
+e88efe8232 Call tzset() fewer times
+4af7a8071c CMake: Rework assertions and add dependency on NDEBUG
+b7aa23bb3f Qt: Remove empty sub menus when Reload Lua Plugins
+fb1a59c658 Signal-PDU: Cleanup error message for empty PDU configuration
+41a4772f23 ZBNCP: "preambule" -> "preamble"
+8c1a6ffae3 Add hmac-md5 to packet-isis-clv algorithm_vals
+d4046d59a5 CMake: Remove an unneeded definition
+533f4ac472 Tools: Add format specifiers to convert-glib-types
+9c27eeb5ec GitLab CI: More macOS code signing updates
+3d8aa5fb16 macos-setup: remove out-of-date libffi.pc files. [skip ci]
+7d0b4344f9 gsmtap: Support PPP and V.120 in GSMTAP
+05be253a4d tools/checkAPIs.py: match padding/width in forbidden %ll formats
+64b102dd82 asterix: UAP selector fix for cat001
+a37d5dde14 asterix: Sync with asterix-specs #8364980e5e
+eea242244f asterix: update for extended item upstream change
+8b5d0433fa Use `register_dissector()` for more protocols
+e9695cd264 GitLab CI: Update our macOS code signing identity
+88436985a5 macos-setup: work around Sonoma's new libiconv. [skip ci]
+e7ed0aa9ae HTTP: File data is bytes, not a string
+fb9d01556d Use `register_dissector()` for more protocols
+d4f47c60b7 recent: fix test that the timestamp precision is in range.
+f9756066c0 Z21: Another fix for 64-bit format specifier
+41f3167714 Z21: Fix format specifiers for 64-bit integers
+409745e13f Add Z21 LAN protocol dissector
+cb27f699a3 802.1cb: Add a dissector for the 802.1cb R-TAG protocol
+d18193d7f2 cfm: fix typo for tlv senter_id mgmt IPv6 address
+a43a1645e5 GitLab CI+macOS: Update code signing
+a00771d9c2 GitLab CI+macOS: Move notarization to GitLab CI
+cb49bb4d05 Fix repeated field32 protobuf dissection
+02a5bc0e8c x509ce: value string for CI+ security level extension
+35fb3c94e5 Qt+Windows: Allow updating with an open file with no unsaved changes
+ccc62f6b95 Qt: Fix width of "show up to..." prefs in some styles
+a489239848 More fussing with item mask values
+842d5cf17c WSDG: Update Windows Qt installation steps
+dee63a79d3 recent: treat tsprecision as either being a number of a name.
+9f67d5fd5f IEEE1722: Add missing reserved field for PCM Audio (BUGFIX)
+054b5a2cde [Automatic update for 2023-09-17]
+a79ee2be5d reassemble: Set overlap flags instead of throwing exception
+28dcebdc5e dumpcap: Change optional log cals to new API refactoring
+35f1383857 Fix some spelling errors
+a9a62ff576 BGP: add support of RFC9072
+e6639fcf53 WSDG: use Bourne-shell commands to set variables in UN*X.
+173e520730 WSDG: note environment variables that must, or can, be set on UN*Xes.
+a3fc8c2a7a WSDG: use a fixed-width font the names of the setup scripts.
+396ace7972 Capture: Fix second and future stats open (sparklines) on Windows
+872dcee562 WSDG: AsciiDoc headings need a space between the ='s and the text.
+0440604ddf WSDG: put setup information for various UN*X families in subsections.
+8d0e46eee6 E2AP: clean up a couple of TODOs
+21d4aa37e6 E2AP: Timestamp fields in KPM are RFC 5905 section 6
+a8f7cf2e70 tacacs: Make expert info appear in dialog
+108217f4bb addr_resolv: Fix a heap buffer overflow
+cfee53e49a Move ws_return macros to ws_assert.h
+3516d3a181 wsutil: Rewrite ws_return macros
+58c9ac243f BGP: fix notification error code 7 dissection
+9f608b0fa0 RTP: Allow desegmenting on top of TCP desegmenting (RFC 4751)
+87e8ad4473 Convert Windows utility code to C99 types
+a93d49c33a wsutil: Convert our cryptograpy code to C99 types
+684f3bf979 Check whether value_string labels spuriously differ in capitalisation
+ada90ffcdf GitLab CI: Add ENABLE_DEBUG to MR pipelines
+756d0f99e2 WSDG: Update documentation for CMake build type
+81ce9d89e8 Enable UTF-8 validation with ENABLE_DEBUG
+fee3901261 Fix indentation settings for "exceptions.h"
+6d5496f192 E2AP: moving towards a better design
+d11826a051 Prevent fvalue leaks
+676ce398aa Update the Release Notes
+be844792f4 Build our releases without debug code
+7475d1e3f7 BGP: add bfd strict-mode capability
+cffced7c6d SDP: Handle incomplete session attributes
+d2c40ad6df UDS: Dissect Certificate in Service 0x29 messages
+4890b6899e Doc: Fix PIDL documentation on WKSSVC code generation
+a7cf7fd561 test: Skip global name resolution tests on macOS
+d6f2b30be1 pcapng: improve handling of time stamp resolutions.
+870d78ac05 macOS: Fix our dSYM dmgbuild configs
+6f6a412a94 GNW: Change an assert to an expert info
+61c0d09582 macOS: Fix our dmgbuild configs
+935e791aaa Add a personal configuration "manuf" file
+0f736a3975 tshark: Fix --print-timers unit
+2b851033a5 LTP: Report the data length actually consumed
+b532bf4b62 Use INT_MIN instead of -2147483648.
+7f57bc0ee6 .gitlab-ci.yml: Add --check-value-strings to tools/check_tfs.py call
+691184af71 macos-setup: fix building opus
+8d8e57c5e4 macos-setup: fix building bcg729
+77592f6bbc macos-setup: fix building libssh
+fa8daa4cf4 macos-setup: fix builing libxml2
+6e2ba73b6c macos-setup: fix builing snappy
+b8fc4cf2a3 macos-setup: fix building gnutls
+0e33c37c84 macos-setup: fix building nettle
+17f273b6d8 macos-setup: fix building p11_kit
+41421662cc Cast away some warnings from Visual Studio, at least with some compiler flags.
+cc3625ba00 Websocket: Fix leaks of decompressed tvbs
+0aa5f41b91 tap-httpstat: Free upon finishing
+d3686940b1 capinfos: Fix leak of packet comment data
+1f0f38fed6 ieee80211: Use expert_add_info_format() when adding an expert info to an item
+94460fd5f0 blf: make the timestamp resolution per-record.
+2bb6137b0e Docs: Update the release notes
+2ffe40c2cc Add support for the new timestamp precisions to NetMon.
+b2bb2f2be9 Handle all time stamp precisions in the View menu and recent file.
+79842931ab ORAN FH CUS: Add a proper field for BFW bundle subtrees, and an Id field
+ac6041ffad 802.11: Fix OUI lookups
+fb845cc4c4 SCCP: Fix double-shifting/masking of RSN
+35916f6531 tshark: let ws_strtou32() do the full check for a valid number.
+7d61b6eb16 Handle all valid time stamp resolutions with the -t flag.
+ece8fad93b PCEP: delete an include and fix a filter name
+151b85c45e Get rid of some places that handled specific timestamp resolutions.
+e1c5a055f9 Tools: Install cmake-rpm-macros in mingw-rpm-setup
+7d9ecce65e DLT: Use common conventions to define the protocol names
+cc87288b6f Use common routines to handle converting time information to strings.
+2805d9618b epan: Free field info values that don't get added to the tree
+2f87dc1ba1 PCEP: Add PCEP Extensions for SRv6 (draft-ietf-pce-segment-routing-ipv6-17)
+bf220c14d4 wslog: Minor log_write_do_work() rewrite
+962eafafaf [Bugfix] Dissector MessagePack: dissect all integer formats
+b987483436 GUI: Add XDG session and QPA plugin to About dialog
+e4a660f066 packet-smb2: add dissection for FSCTL_GET_NTFS_VOLUME_DATA
+7a0e7c3c00 epan: Fix leaks in proto_tree_add_bytes_item
+54d53868c1 Doc: update dissector README conversation text on conversation_type
+c3720cff15 Various enhancements and fixes to format_fractional_part_nsecs().
+852ef4871c wslua_gui.c: Fix typo in TextWindow_new docs
+53ec634ac2 Add a routine to format the fractional part of a time stamp.
+ff36310c46 addr_resolv: Fix use-after-free of g_ipxnet_path
+18f47c1988 NGAP: add dissection of EIA7 bit
+1827d3d6ef X2AP: add dissection of EIA7 (EPS-UPIP) bit
+d2ca5b4633 S1AP: add dissection of EIA7 (EPS-UPIP) bit
+f566d4984c LUA custom packet callback: unreverse table of fields
+0a3b940089 ST2110-20: add dissector for SMPTE ST2110-20
+e5f9636964 ieee80211: Add new fields in ML and TWT element. Also update some elements.
+e4e5a1a1f0 [rdp_drdynvc] simplify the dissecting of softsync packets and fixed a typo
+bb7f379ab1 [rdp] add new formats for nego cookies
+143533dfe0 Add a routine to format an nstime as an ISO 8601-style date/time.
+4b528c8ba7 PCEP: Fix mask warnings
+d3ec353e0d Have diaplay_epoch_time() take an nstime_t as an argument.
+e40bc0d100 Have diaplay_signed_time() take an nstime_t as an argument.
+273e93f37c Tests: Add tests for follow websocket stream
+97c3133f06 Websocket: Fix potential crash on invalid proto data key lookup
+aa2b43b745 Websocket: Fix decompression on fragmented packets
+d51cfff590 Websocket: Fix follow websocket stream on compressed data
+33d64577bd GitLab CI: Don't define CMAKE_OSX_SYSROOT
+a5ce5b298f CMake: Add a MIN_MACOS_VERSION entry for Qt 6.5
+9243189bd5 x509ce: dissect CI+ security level extension
+023592c402 [Automatic update for 2023-09-10]
+865bbfd498 wslog: Clean up timestamp code
+f84eafc5f8 strptime: Try to make "%s" code portable
+9efeb51ba6 RTP: Allow more than 4 RTP packets in a frame to be tapped
+48edbe1ed5 Test: Change the capture used for expert info testing
+d186a42ed4 GitLab CI: Fix a Qt version
+123759ebeb ALC/LCT: fix null pointer dereferences (atsc3 specific)
+fe835ae95c capture child: send an errno message if exec of dumpcap fails.
+656f00ef29 Change what iso8601_to_nstime() and unix_epoch_to_nstime() return.
+e1b885728a GitLab CI+Tests: Add a --disable-gui option
+4317a1dca2 Revert "Packaging: Increase our NSIS compressor dictionary size"
+fdc6854761 Qt: Style our overlay scroll bar
+3a6848c901 Packaging: Increase our NSIS compressor dictionary size
+6aa22b952d dfilter: Extend support for timezones in filter expressions
+360c68e6f4 Frame: Always print frame arrival time in Local/UTC/Unix
+5999884267 RTP: Don't include padding in the payload length for the tap
+0573bbaed6 Qt: Dark mode updates
+6083bdbad9 SCCP: Add Data field to DT2
+3736cad841 Remove a no-longer correct test of errno.
+06d5cd3e66 When parsing IMF dates and times, allow space and tabs as separators.
+e947e9e038 PCEP: Fix PCEP IPV6-LSP-IDENTIFIERS TLV (rfc8231)
+c7886837f7 Give ENC_RFC_1123 the same value as ENC_IMF_DATE_TIME.
+5dbe4ee8a8 Clean up handling of string encodings for byte arrays and absolute times.
+79ff594439 Tools: Update a bunch of macOS library versions
+f21e1ea28f BTATT: fix some label vs filter issues
+a0e8986338 Qt: Don't apply the old filter when selecting from the completer
+f752d85716 tacacs: Warn about unencrypted payload option
+98a99f616f GitLab CI: Fix a file search
+1e662a7aa4 Wiretap: add WTAP_ENCAP_MDB to the introspection enums.
+25cb16412b wiretap: define the WTAP_TSPREC values numerically.
+0de07f8fe4 RTPS: Check for signed overflow
+f58b451bae dfilter: Fix printing of nanosecond fractions of time.
+ba7cf62b2e Debian: Add missing symbols
+1e451b30d8 file: Fix leaks in Save As
+499a67b1ff stats_tree plugin: Add a TTL/Hop Limit stats tree
+e690abae1d FlexRay: Revert faulty bugfix
+c599c0c347 Clean up some hf blurbs
+57d1d4d0aa FlexRay: Fix NFI flag inversed (BUGFIX)
+4f03b9bb59 mktime_utc(): handle 1969-12-31 23:59:59.
+0ddea7d1e1 mktime_utc(): save and restore errno when using timegm().
+9e8d63f71e GitLab CI: Make sure our fuzz jobs fail correctly
+953802760a DOCSIS: improve MDD TLVs dissection
+b13af00f13 ieee80211: Fix typos in EHT IE names
+9ad2f8ee52 Fix storing first previously displayed packet in cf_reftime_packets
+2aaab8f88f Revert "dfilter: Clean up absolute_val_to_repr()"
+c9ec96b195 Fix some more label vs filter issues
+15c80eebd9 Fix a couple of value_string issues
+7d27e6e462 funnel_statistics: Fix menu nesting for register_packet_menu()
+82eadadd77 wslua_gui.c: Clarify register_packet_menu() arguments
+3185df2a8c wslua_gui.c: new_dialog() - update docs grammar
+2c3c5448c8 check_tfs.py: fix remaining cases where case matches exactly
+d1c730c483 Fix Clang analyzer issues with thrift_field_header_t
+8ed45385dd TLS: Add support ClientKeyExchange for 0xe013 and 0xe053 ciphersuite
+8c113b9db9 dfilter: Clean up absolute_val_to_repr()
+d72f620202 CMake: Add missing configure check for timegm()
+c87c073219 Remove non-existent EditorConfig entry
+e165e649df Fix mixed indentation in wsutil/to_str.c
+33adf427aa dfilter: Cleanup parsing of some time literals
+2819d02af8 PTP: add reserved bitfields to the dissection of L1Sync frames
+51d16ae6b3 dfilter: Fix parsing a time format with "UTC"
+a60c493194 dfilter: Add more error locations to semcheck logs
+fdbaf99676 TLS: Add support serverkeyexchange for 0xe013 and 0xe053 ciphersuite
+71a1519827 ieee80211: Add/update some elements and fix some warnings
+8fc63ff8bf E2AP: Fix copy/paste error for new ranFunction methods
+fdd047b656 PTP: delete an include, and make a variable static
+9dbed18fc8 HTTP3: Fix an initialization
+d6f38c2031 Fix a couple of spelling errors
+a0db76b4cc tibia: don't use string encodings for non-string items.
+7771524558 GitLab CI: Switch to clang 16
+399ae5a0b4 CMake: Fix NGHTTP3_FOUND endif
+f16ca1799d [Automatic update for 2023-09-03]
+7690b147de ciscodump: Keep strptime() behavior unchanged
+fe802272a2 Build with NetBSD's strptime()
+718d852ed0 strptime: Replace prohibited APIs
+b49c2853ea strptime: Replace BSD C types with standard types
+fdb0dad4e2 Add the source for NetBSDs strptime()
+fc16c74e42 check_typed_item_calls.py: some updates
+93a4164b50 PTP: Fix a printf format
+3089eb7561 Add support for expert info on exceptions in sub-dissectors.
+2b3dd31ad8 PTP: fix warning for hf_ptp_v2_fu_preciseorigintimestamp_32bit
+ffdbc992ea PTP: add dissection of L1Sync frames (defined in IEEE1588-2019, Annex L)
+77d7338abf PTP: add definitions from revision 2.1 of the standard (IEEE1588-2019)
+1acc3ae5ad Qt: Call EditResolvedName from the PacketList
+cc83f62a4d add support 0xe003 0xe013 and 0xe053 in ssl_get_keyex_alg
+4f03747b9d Telnet: Support SSL in AUTHENTICATION option.
+549d76b931 wslog: Refactor the API with a msg manifest
+46f6febd47 Add portability wrapper for localtime_r()
+f475a6d7f2 Tests: Prevent empty log messages
+524910488e editcap: improve -A and -B documentation.
+9af86689dd nstime: fix unix_epoch_to_nstime().
+d6dfd89740 Tests: Add some logging to dfilter suite
+932c385907 Tests: Modernize dfilter assertions
+c6fe72e8d7 check_tfs.py: Fix an error message.
+a45fa15524 QUIC: Handle separate max packet number spaces in multipath
+9691dcdbf7 HTTP3: Fix duplicate filter name
+f2f7c7bf1c Remove some uses of tvb_new_subset_length_caplen()
+3679783182 HTTP3: Fix illegal memory use
+dafbcd0270 manuf: Minor cleanup when formatting output
+7e3ab14f45 dfilter: Add "nan" and "inf" as reserved keywords
+ddbf244df6 Wi-Fi NAN: Rename filter name to "wifi_nan"
+4b6268c01e dfilter: Do not parse booleans as a value string
+eddb364b43 doc: Update entry for Resolve Name
+d145a4db92 Remove extension lists for magic-number open routines.
+d5766b857b log3gpp: remove #if 0'ed and commented-out stub and unmaintained code.
+6fb3907a93 More comment expansion and fixing. [skip ci]
+04ec5dcaee ITS: Accept RTCMEM v1 and v2
+1f18cf2269 Cleanup comments about file extensions.
+9919f6c500 HTTP3: Fix clang analyzer warnings
+e49d8cd682 ORAN FH CUS: When no udCompHdr, show pref values used instead
+de2b0e56c0 M3UA: Give a hint to look at the MTP3 preferences
+b70949914e MTP3: Add column filter string for SS7 point codes
+38cef79052 WSDG: Add admonition about the AUR
+eaf4dcd43b WSDG: Fix formatting for one sentence
+17ef4b5802 manuf: Change struct ws_manuf block size
+76f29a9b79 manuf: Optimize iteration
+6508a27de9 docsis-macmgmt: fix mask odd number
+a574843e27 HTTP3: use val_to_str_const() where no format specifier was given
+8d19ba4d8d WSDG: call the UN*X build instructions section just "UN*X".
+249f19ddc1 DOCSIS: add D4.0 CM registration TLVs support
+cf25c91532 tshark: Omit some diagnostic messages
+8ac05fcdc3 Add some benchmarking timers to tshark
+395e3b6cb5 manuf: Small optimization for ws_manuf_lookup()
+3a20aa1863 TCP: Add expert infos on SACK PERM option
+b803412730 Fix IEEE 802.15.4 MAC command OUI byte order
+70e255f74b QUIC: Support multipath extension decryption
+17ca30f5c0 manuf: change ws_manuf_lookup return type to bool
+9b39d6880e manuf: simplify ws_manuf_iter_next API
+a1c7e84f07 manuf: constify API, improve internal documentation
+be521e23fa HTTP3: make a function static
+b73342ba70 wiretap: Add the .scap extension
+b3431a0504 Windows: Update our nghttp2 and nghttp3 packages
+04e48f938a PAPI: it is not unknown but on header (2 IPv6 Address)
+c4249a08d2 PAPI(aruba): use papi.port for handle papi license manager
+0c4dcc164b epan: Don't create tvbuff subsets that contain more than reported
+c604822cdf DOCSIS: add D4.0 MDD Diplexer Band Edge Override TLVs support
+0b0ac66fd7 addr_resolv: Don't leak tables on every init dissection
+8d57826f58 Update keysight netflow fields support
+8564c8d525 HTTP3: Use NG-HTTP3 to dissect headers.
+80f9a28921 Adding HTTP/3 dissection to Wireshark.
+963c73b987 Give even more explanation of the extensions for an open routine. [skip ci]
+df05b8f2b4 wiretap: correction of Destination Address typo
+2f2db6c43a Expand some comments for some libwiretap tables. [skip ci]
+5db16ad0fc iperf: fix Dead Store found by Clang Analyzer
+6dc63bfd41 ieee80211: fix Dead Store found by Clang Analyzer
+01e8d7c820 cql: fix Dead Store found by Clang Analyzer
+8d6398a763 ORAN FH CUS: look at rb field to show PRB numbers correctly
+f4e2f493f8 Fix some more value_string errors
+1081255e24 FlexRay: Optimizations and fixing malformed handling
+b7e0ed1ee0 Debian: Add missing symbols
+0e4ecd22a6 WSDG: Note that VS requires extra components for Arm64
+74fcfafe10 GitHub: Update MSYS2 action to build an NSIS installer
+085adfc957 For capture options, provide a callback to use to fetch an interface list.
+2d55e5672b Qt: Fix ManageInterfacesDialog cleanup
+320e6ccedc Fix some spelling errors
+6396860fb9 With -D, always let the user know if capture_interface_list() fails.
+30bbee5910 [Automatic update for 2023-08-27]
+1a4d139953 NSIS: Update the donation page
+d437d4c5b9 manuf: Handle backslashes in company names
+97823acfd6 Move filling in interface info in one case.
+42d27f6152 WSUG: Fix TCP Fast Retransmission
+7befb323aa MSYS2: Add globs to DLL dependency list
+79b97ddc6f wsutil: Fix JSON indentation when ending nested element
+6719e6a491 Add and expand comments on capture_interface_list(). [skip ci]
+ef7f48923d Don't pretend to return an error string from append_extcap_interface_list().
+6ad78bcc44 Clean up sync pipe write routines.
+385e37ce0e Aruba UDT: misc trivial changes
+14491e49cb Readme: Escape the underscore character in "_ws.col"
+05e811694e CAMEL: Separate time and timezone, check for truncation
+e9526984f1 Move E2AP to v3
+85eccebe54 DOCSIS 4.0 TLVs
+e87bb4e396 MKA: Adding some name resolution to CKNs
+9daa66abf7 CAN: Cleanup, consistency, typos
+3990c64346 FlexRay: Cleanup and consistency
+07448c57b3 ssh: Plug leak of gcrypt cipher context
+c1aa4a64c1 hci_mon: Fix dissection of User Logging
+b6ab8c5f5c Adding Aruba UBT Protocol
+8e5929818f proto: Add a comment to proto_deregister_protocol
+4a2078af6b dftest: Use g_get_monotonic_time() instead of GTimer
+29ba4fbbcf GitLab CI: Allow the source package to be built manually
+1641c28d3b Version: 4.1.0 → 4.1.1
+383234cef2 hci_usb: Use endpoint transfer type instead of id
+e08da591ee Build: 4.1.0
 66a4fa24b6 Qt: Make Lua console output read-only
 50e1e9abd0 wslua: Print syntax errors during compilation
 a623da0050 DHCP: fix indent
