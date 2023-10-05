@@ -41,7 +41,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
     endfunction(set_asciidoctor_target_properties)
 
     set (_asciidoctor_common_args
-        # Doesn't work with AsciidoctorJ?
+        # AsciidoctorJ added --failure-level in version 2.5.6
         # --failure-level=WARN
         # --trace
         --quiet
