@@ -2930,6 +2930,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                     p_mac_nr_info->length = length;
 
+                    /* Always present. TODO: miss out if both zero? */
+                    p_mac_nr_info->sfnSlotInfoPresent = TRUE;
+                    p_mac_nr_info->sysframeNumber = sfn;
+                    p_mac_nr_info->slotNumber = sn;  /* only right if mu==0, but don't know SCS */
+
                     /* Store info in packet */
                     set_mac_nr_proto_data(pinfo, p_mac_nr_info);
 
