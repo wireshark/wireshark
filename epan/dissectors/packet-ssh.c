@@ -3006,7 +3006,13 @@ ssh_hmac_init(SSH_HMAC* md, const void * key, gint len, gint algo)
         ssh_debug_printf("ssh_hmac_init(): gcry_md_open failed %s/%s", err_str, err_src);
         return -1;
     }
-    gcry_md_setkey (*(md), key, len);
+    err = gcry_md_setkey(*(md), key, len);
+    if (err != 0) {
+        err_str = gcry_strerror(err);
+        err_src = gcry_strsource(err);
+        ssh_debug_printf("ssh_hmac_init(): gcry_md_setkey(..., ..., %d) failed %s/%s", len, err_str, err_src);
+        return -1;
+    }
     return 0;
 }
 
