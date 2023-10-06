@@ -262,6 +262,7 @@ Source Package:
     - !reference [.if-2x-daily-schedule]
   script:
     - ../tools/make-version.py --set-release ..
+    - ../tools/update-appdata.py
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja $CMAKE_ARGS ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
