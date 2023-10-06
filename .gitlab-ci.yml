@@ -168,6 +168,7 @@ Source Package:
   rules: !reference [.if-merged]
   script:
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
+    - ../tools/update-appdata.py
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
