@@ -74,13 +74,11 @@ fi
 
 STASH_ID=$(git stash create || echo "")
 
-if [[ -n "${CI_COMMIT_SHA-}" ]] ; then
-    echo "Setting commit from CI_COMMIT_SHA"
-    COMMIT="$CI_COMMIT_SHA"
-elif [[ -n "$STASH_ID" ]] ; then
-    echo "Setting commit from stash"
+if [[ -n "$STASH_ID" ]] ; then
+    echo "Setting commit from stash $STASH_ID"
     COMMIT="$STASH_ID"
 else
+    echo "Setting commit from HEAD"
     COMMIT="HEAD"
 fi
 
