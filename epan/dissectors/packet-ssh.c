@@ -117,13 +117,6 @@ typedef struct {
     ssh_message_info_t * messages;
 } ssh_packet_info_t;
 
-typedef struct _ssh_channel_info_t {
-    guint  client_channel_number;
-    guint  server_channel_number;
-    dissector_handle_t subdissector_handle;
-    struct _ssh_channel_info_t* next;
-} ssh_channel_info_t;
-
 struct ssh_peer_data {
     guint   counter;
 
@@ -177,6 +170,9 @@ struct ssh_peer_data {
     guint8           iv[12];
     guint8           hmac_iv[DIGEST_MAX_SIZE];
     guint            hmac_iv_len;
+
+    wmem_map_t      *channel_info; /**< Map of sender channel numbers to recipient numbers. */
+    wmem_map_t      *channel_handles; /**< Map of recipient channel numbers to subdissector handles. */
     struct ssh_flow_data * global_data;
 };
 
@@ -211,7 +207,6 @@ struct ssh_flow_data {
     wmem_array_t    *kex_shared_secret;
     gboolean        do_decrypt;
     ssh_bignum      new_keys[6];
-    ssh_channel_info_t *channel_info;
 };
 
 typedef struct {
@@ -390,6 +385,7 @@ static gint ett_ssh2 = -1;
 
 static expert_field ei_ssh_packet_length = EI_INIT;
 static expert_field ei_ssh_packet_decode = EI_INIT;
+static expert_field ei_ssh_channel_number = EI_INIT;
 static expert_field ei_ssh_invalid_keylen = EI_INIT;
 static expert_field ei_ssh_mac_bad = EI_INIT;
 
@@ -646,8 +642,9 @@ static int ssh_dissect_public_key_blob(tvbuff_t *packet_tvb, packet_info *pinfo,
 static int ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree);
 
-static dissector_handle_t get_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel);
-static void set_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel, guint8* subsystem_name);
+static void create_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, uint32_t sender_channel);
+static dissector_handle_t get_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel);
+static void set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, const guint8* subsystem_name);
 
 #define SSH_DEBUG_USE_STDERR "-"
 
@@ -726,7 +723,6 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         global_data->peer_data[SERVER_PEER_DATA].bn_cookie = NULL;
         global_data->peer_data[CLIENT_PEER_DATA].global_data = global_data;
         global_data->peer_data[SERVER_PEER_DATA].global_data = global_data;
-        global_data->channel_info = NULL;
         global_data->kex_client_version = wmem_array_new(wmem_file_scope(), 1);
         global_data->kex_server_version = wmem_array_new(wmem_file_scope(), 1);
         global_data->kex_client_key_exchange_init = wmem_array_new(wmem_file_scope(), 1);
@@ -3840,10 +3836,11 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
         guint msg_code)
 {
+        uint32_t recipient_channel, sender_channel;
+
         if(msg_code==SSH_MSG_CHANNEL_OPEN){
-                guint   slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_connection_type_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                uint32_t slen;
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_connection_type_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_connection_type_name, packet_tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
@@ -3854,10 +3851,11 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
                 proto_tree_add_item(msg_type_tree, hf_ssh_connection_maximum_packet_size, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
         }else if(msg_code==SSH_MSG_CHANNEL_OPEN_CONFIRMATION){
-                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &recipient_channel);
                 offset += 4;
-                proto_tree_add_item(msg_type_tree, hf_ssh_connection_sender_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_connection_sender_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &sender_channel);
                 offset += 4;
+                create_channel(peer_data, recipient_channel, sender_channel);
                 proto_tree_add_item(msg_type_tree, hf_ssh_connection_initial_window, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_connection_maximum_packet_size, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3868,19 +3866,18 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
                 proto_tree_add_item(msg_type_tree, hf_ssh_channel_window_adjust, packet_tvb, offset, 4, ENC_BIG_ENDIAN);         // TODO: maintain count of transfered bytes and window size
                 offset += 4;
         }else if(msg_code==SSH_MSG_CHANNEL_DATA){
-                guint   uiNumChannel;
-                uiNumChannel = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_item *ti = proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &recipient_channel);
                 offset += 4;
 // TODO: process according to the type of channel
-                guint   slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_channel_data_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                uint32_t slen;
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_channel_data_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
                 tvbuff_t *next_tvb = tvb_new_subset_remaining(packet_tvb, offset);
-                dissector_handle_t subdissector_handle = get_subdissector_for_channel(peer_data, uiNumChannel);
+                dissector_handle_t subdissector_handle = get_subdissector_for_channel(peer_data, recipient_channel);
                 if(subdissector_handle){
                         call_dissector(subdissector_handle, next_tvb, pinfo, msg_type_tree);
+                } else {
+                        expert_add_info_format(pinfo, ti, &ei_ssh_channel_number, "Unable to find dissector for channel %d", recipient_channel);
                 }
                 offset += slen;
         }else if(msg_code==SSH_MSG_CHANNEL_EOF){
@@ -3890,27 +3887,27 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
                 proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
         }else if(msg_code==SSH_MSG_CHANNEL_REQUEST){
-                guint   uiNumChannel;
-                uiNumChannel = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &recipient_channel);
                 offset += 4;
-                guint8* request_name;
-                guint   slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_channel_request_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                const guint8* request_name;
+                uint32_t slen;
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_channel_request_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
-                request_name = tvb_get_string_enc(wmem_packet_scope(), packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
-                proto_tree_add_item(msg_type_tree, hf_ssh_channel_request_name, packet_tvb, offset, slen, ENC_UTF_8);
+                proto_tree_add_item_ret_string(msg_type_tree, hf_ssh_channel_request_name, packet_tvb, offset, slen, ENC_UTF_8, pinfo->pool, &request_name);
                 offset += slen;
                 proto_tree_add_item(msg_type_tree, hf_ssh_channel_request_want_reply, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
+                /* RFC 4254 6.5: "Only one of these requests ["shell", "exec",
+                 * or "subsystem"] can succeed per channel." Set up the
+                 * appropriate handler for future CHANNEL_DATA and
+                 * CHANNEL_EXTENDED_DATA messages on the channel.
+                 */
                 if (0 == strcmp(request_name, "subsystem")) {
-                        slen = tvb_get_ntohl(packet_tvb, offset) ;
-                        proto_tree_add_item(msg_type_tree, hf_ssh_subsystem_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_subsystem_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                         offset += 4;
-                        guint8* subsystem_name = tvb_get_string_enc(wmem_packet_scope(), packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
-                        set_subdissector_for_channel(peer_data, uiNumChannel, subsystem_name);
-                        proto_tree_add_item(msg_type_tree, hf_ssh_subsystem_name, packet_tvb, offset, slen, ENC_UTF_8);
+                        const guint8* subsystem_name;
+                        proto_tree_add_item_ret_string(msg_type_tree, hf_ssh_subsystem_name, packet_tvb, offset, slen, ENC_UTF_8, pinfo->pool, &subsystem_name);
+                        set_subdissector_for_channel(peer_data, recipient_channel, subsystem_name);
                         offset += slen;
                 }else if (0 == strcmp(request_name, "exit-status")) {
                         proto_tree_add_item(msg_type_tree, hf_ssh_exit_status, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3923,43 +3920,118 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
 	return offset;
 }
 
-static dissector_handle_t
-get_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel)
+/* Channel mapping {{{ */
+
+/* The usual flow:
+ * 1. client sends SSH_MSG_CHANNEL_OPEN with its (sender) channel number
+ * 2. server responds with SSH_MSG_CHANNEL_OPEN_CONFIRMATION with
+ *    its channel number and echoing the client's number, creating
+ *    a bijective map
+ * 3. client sends SSH_MSG_CHANNEL_REQUEST which has the name of
+ *    the shell, command, or subsystem to start. This has the recipient's
+ *    channel number (i.e. the server's)
+ * 4. server may send back a SSG_MSG_CHANNEL_SUCCESS (or _FAILURE) with
+ *    the the recipient (i.e., client) channel number, but this does not
+ *    contain the subsystem name or anything identifying the request to
+ *    which it responds. It MUST be sent in the same order as the
+ *    corresponding request message (RFC 4254 4 Global Requests), so we
+ *    could track it that way, but for our purposes we just treat all
+ *    requests as successes. (If not, either there won't be data or another
+ *    request will supercede it later.)
+ *
+ * Either side can open a channel (RFC 4254 5 Channel Mechanism). The
+ * typical flow is the client opening a channel, but in the case of
+ * remote port forwarding (7 TCP/IP Port Forwarding) the directions are
+ * swapped. For port forwarding, all the information is contained in the
+ * SSH_MSG_CHANNEL_OPEN, there is no SSH_MSG_CHANNEL_REQUEST.
+*
+ * XXX: Channel numbers can be re-used after being closed (5.3 Closing a
+ * Channel), but not necessarily mapped to the same channel number on the
+ * other side. If that actually happens, the right way to handle this is
+ * to track the state changes over time for random packet access (e.g.,
+ * using a multimap with the packet number instead of maps.)
+ */
+
+static struct ssh_peer_data*
+get_other_peer_data(struct ssh_peer_data *peer_data)
 {
-        ssh_channel_info_t *ci = peer_data->global_data->channel_info;
-        while(ci){
-            guint channel_number = &peer_data->global_data->peer_data[SERVER_PEER_DATA]==peer_data?ci->client_channel_number:ci->server_channel_number;
-            if(channel_number==uiNumChannel){return ci->subdissector_handle;}
-            ci = ci->next;
+    bool is_server = &peer_data->global_data->peer_data[SERVER_PEER_DATA]==peer_data;
+    if (is_server) {
+        return &peer_data->global_data->peer_data[CLIENT_PEER_DATA];
+    } else {
+        return &peer_data->global_data->peer_data[SERVER_PEER_DATA];
+    }
+}
+
+/* Create pairings between a recipient channel and the sender's channel,
+ * from a SSH_MSG_CHANNEL_OPEN_CONFIRMATION. */
+static void
+create_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, uint32_t sender_channel)
+{
+    if (peer_data->channel_info == NULL) {
+        peer_data->channel_info = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    }
+    wmem_map_insert(peer_data->channel_info, GUINT_TO_POINTER(sender_channel), GUINT_TO_POINTER(recipient_channel));
+
+    /* If the recipient channel is already configured in the other direction,
+     * set the handle. We need this if we eventually handle port forwarding,
+     * where all the information to handle the traffic is sent in the
+     * SSH_MSG_CHANNEL_OPEN message before the CONFIRMATION. It might also
+     * help if the packets are out of order (i.e. we get the client
+     * CHANNEL_REQUEST before the CHANNEL_OPEN_CONFIRMATION.)
+     */
+    struct ssh_peer_data *other_peer_data = get_other_peer_data(peer_data);
+    if (other_peer_data->channel_handles) {
+        dissector_handle_t handle = wmem_map_lookup(other_peer_data->channel_handles, GUINT_TO_POINTER(sender_channel));
+        if (handle) {
+            wmem_map_insert(peer_data->channel_handles, GUINT_TO_POINTER(recipient_channel), handle);
         }
-        ws_debug("Error lookin up channel %d", uiNumChannel);
+    }
+}
+
+static dissector_handle_t
+get_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t uiNumChannel)
+{
+    if (peer_data->channel_handles == NULL) {
         return NULL;
+    }
+    return wmem_map_lookup(peer_data->channel_handles, GUINT_TO_POINTER(uiNumChannel));
 }
 
 static void
-set_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel, guint8* subsystem_name)
+set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, const guint8* subsystem_name)
 {
-        ssh_channel_info_t *ci = NULL;
-        ssh_channel_info_t **pci = &peer_data->global_data->channel_info;
-        int is_server = &peer_data->global_data->peer_data[SERVER_PEER_DATA]==peer_data;
-        while(*pci){
-            guint channel_number = is_server?(*pci)->client_channel_number:(*pci)->server_channel_number;
-            if (channel_number == uiNumChannel) {
-                ci = *pci;
-                break;
+    dissector_handle_t handle = NULL;
+    if(0 == strcmp(subsystem_name, "sftp")) {
+        handle = sftp_handle;
+    }
+
+    if (handle) {
+        /* Map this handle to the recipient channel */
+        if (peer_data->channel_handles == NULL) {
+            peer_data->channel_handles = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        }
+        wmem_map_insert(peer_data->channel_handles, GUINT_TO_POINTER(recipient_channel), handle);
+
+        /* This recipient channel is the sender channel for the other side.
+         * Do we know what the recipient channel on the other side is?  */
+        struct ssh_peer_data *other_peer_data = get_other_peer_data(peer_data);
+
+        wmem_map_t *channel_info = other_peer_data->channel_info;
+        if (channel_info) {
+            uint32_t sender_channel;
+            if (wmem_map_lookup_extended(channel_info, GUINT_TO_POINTER(recipient_channel), NULL, (void**)&sender_channel)) {
+                /* Yes. See the handle for the other side too. */
+                if (other_peer_data->channel_handles == NULL) {
+                    other_peer_data->channel_handles = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+                }
+                wmem_map_insert(other_peer_data->channel_handles, GUINT_TO_POINTER(sender_channel), handle);
             }
-            pci = &(*pci)->next;
         }
-        if(!ci){
-            ci = wmem_new(wmem_file_scope(), ssh_channel_info_t);
-            *pci = ci;
-        }
-        if(0 == strcmp(subsystem_name, "sftp")) {
-            ci->subdissector_handle = sftp_handle;
-        } else {
-            ci->subdissector_handle = NULL;
-        }
+    }
 }
+
+/* Channel mapping. }}} */
 
 static int
 ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
@@ -4912,6 +4984,7 @@ proto_register_ssh(void)
     static ei_register_info ei[] = {
         { &ei_ssh_packet_length,  { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Overly large number", EXPFILL }},
         { &ei_ssh_packet_decode,  { "ssh.packet_decode.error", PI_PROTOCOL, PI_WARN, "Packet decoded length not equal to packet length", EXPFILL }},
+        { &ei_ssh_channel_number, { "ssh.channel_number.error", PI_PROTOCOL, PI_WARN, "Coud not find channel", EXPFILL }},
         { &ei_ssh_invalid_keylen, { "ssh.key_length.error", PI_PROTOCOL, PI_ERROR, "Invalid key length", EXPFILL }},
         { &ei_ssh_mac_bad,        { "ssh.mac_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad MAC", EXPFILL }},
     };
