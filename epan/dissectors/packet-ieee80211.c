@@ -4571,8 +4571,10 @@ static int hf_ieee80211_eht_multi_link_control_basic_mld_id_present = -1;
 static int hf_ieee80211_eht_multi_link_control_ext_mld_capa = -1;
 static int hf_ieee80211_eht_multi_link_control_bitmap_reserved = -1;
 static int hf_ieee80211_eht_multi_link_control_probe_mld_id_present = -1;
-static int hf_ieee80211_eht_multi_link_control_probe_bm_reserved = -1;
+static int hf_ieee80211_eht_multi_link_control_probe_reserved = -1;
 static int hf_ieee80211_eht_multi_link_control_reconfig_mld_mac = -1;
+static int hf_ieee80211_eht_multi_link_control_reconfig_eml_capa = -1;
+static int hf_ieee80211_eht_multi_link_control_reconfig_mld_capa_oper = -1;
 static int hf_ieee80211_eht_multi_link_control_reconfig_reserved = -1;
 static int hf_ieee80211_eht_multi_link_control_tdls_reserved = -1;
 static int hf_ieee80211_eht_multi_link_control_prio_access_reserved = -1;
@@ -4603,7 +4605,6 @@ static int hf_ieee80211_eht_common_info_mld_aar_support = -1;
 static int hf_ieee80211_eht_common_info_mld_link_reconf_op_support = -1;
 static int hf_ieee80211_eht_common_info_mld_aligned_twt_support = -1;
 static int hf_ieee80211_eht_common_info_mld_reserved = -1;
-static int hf_ieee80211_eht_common_info_ap_mld_mac_addr = -1;
 static int hf_ieee80211_eht_common_field_mld_id = -1;
 static int hf_ieee80211_eht_common_field_ap_mld_mac = -1;
 static int hf_ieee80211_eht_common_field_ext_mld_capabilities = -1;
@@ -27954,13 +27955,19 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         hf_ieee80211_eht_multi_link_control_probe_mld_id_present,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ctl_tree,
-                        hf_ieee80211_eht_multi_link_control_probe_bm_reserved,
+                        hf_ieee80211_eht_multi_link_control_probe_reserved,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
     hf_index = hf_ieee80211_eht_multi_link_type_1_link_count;
   } else if (multi_link_type == RECONFIGURATION_MULTI_LINK) {
     proto_item_append_text(control, " Reconfiguration");
     proto_tree_add_item(ctl_tree,
                         hf_ieee80211_eht_multi_link_control_reconfig_mld_mac,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_reconfig_eml_capa,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_reconfig_mld_capa_oper,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ctl_tree,
                         hf_ieee80211_eht_multi_link_control_reconfig_reserved,
@@ -28124,7 +28131,7 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     offset += 1;
 
     proto_tree_add_item(common_tree,
-                        hf_ieee80211_eht_common_info_ap_mld_mac_addr, tvb,
+                        hf_ieee80211_eht_common_field_ap_mld_mac, tvb,
                         offset, 6, ENC_NA);
     offset += 6;
     break;
@@ -57737,7 +57744,7 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0xc0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control,
-     {"Multi-Link Control", "wlan.eht.multi_link_control",
+     {"Multi-Link Control", "wlan.eht.multi_link.control",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_type,
@@ -57750,47 +57757,51 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_multi_link_control_link_id_present,
      {"Link ID Info Present",
-      "wlan.eht.multi_link.control.presence_bitmap.link_id_info_present",
+      "wlan.eht.multi_link.control.basic.link_id_info_present",
       FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_bss_parms_ch_count,
      {"BSS Parameters Change Count Present",
-      "wlan.eht.multi_link.control.presence_bitmap.bss_parameters_change_count_present",
+      "wlan.eht.multi_link.control.basic.bss_parameters_change_count_present",
       FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_medium_sync_delay,
      {"Medium Synchronization Delay Info Present",
-      "wlan.eht.multi_link.control.presence_bitmap.medium_sync_delayinfo_present",
+      "wlan.eht.multi_link.control.basic.medium_sync_delayinfo_present",
       FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_eml_capa,
      {"EML Capabilities Present",
-      "wlan.eht.multi_link.control.presence_bitmap.eml_capabilities_present",
+      "wlan.eht.multi_link.control.basic.eml_capabilities_present",
       FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_mld_capa,
      {"MDL Capabilities Present",
-      "wlan.eht.multi_link.control.presence_bitmap.mld_capabilities_present",
+      "wlan.eht.multi_link.control.basic.mld_capabilities_present",
       FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_basic_mld_id_present,
      {"AP MLD ID Present",
-      "wlan.eht.multi_link_control.control.basic.mld_id_present",
+      "wlan.eht.multi_link.control.basic.mld_id_present",
       FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_ext_mld_capa,
      {"Extended MLD Capabilities and Operations Present",
-      "wlan.eht.multi_link_control.control.basic.ext_mld_capabilities_present",
+      "wlan.eht.multi_link.control.basic.ext_mld_capabilities_present",
       FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_bitmap_reserved,
-     {"Reserved", "wlan.eht.multi_link.control.presence_bitmap.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0xFE00, NULL, HFILL }},
+     {"Reserved", "wlan.eht.multi_link.control.basic.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xF800, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_probe_mld_id_present,
-     {"MLD ID Present",
+     {"AP MLD ID Present",
       "wlan.eht.multi_link.control.probe.mld_id_present",
       FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_probe_reserved,
+     {"Reserved", "wlan.eht.multi_link.control.probe.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFFE0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_tdls_reserved,
      {"Reserved", "wlan.eht.multi_link.control.tdls.reserved",
@@ -57800,19 +57811,25 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.eht.multi_link.control.prio_access.reserved",
       FT_UINT16, BASE_HEX, NULL, 0xFFF0, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_multi_link_control_probe_bm_reserved,
-     {"Reserved", "wlan.eht.multi_link.control.probe.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0xFFE0, NULL, HFILL }},
-
     {&hf_ieee80211_eht_multi_link_control_reconfig_mld_mac,
      {"MLD MAC Address Present",
-      "wlan.eht.multi_link.control.reconfiguration.mld_mac_addr_present",
+      "wlan.eht.multi_link.control.reconfig.mld_mac_addr_present",
       FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_reconfig_eml_capa,
+     {"EML Capabilities Present",
+      "wlan.eht.multi_link.control.reconfig.eml_capabilities_present",
+      FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_reconfig_mld_capa_oper,
+     {"MLD Capabilities And Operations Present",
+      "wlan.eht.multi_link.control.reconfig.mld_capabilities_present",
+      FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_reconfig_reserved,
      {"Reserved",
-      "wlan.eht.multi_link.control.reconfiguration.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0xFFE0, NULL, HFILL }},
+      "wlan.eht.multi_link.control.reconfig.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFF80, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_field_length,
      {"Common Info Length", "wlan.eht.multi_link.common_info.length",
@@ -57869,12 +57886,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_common_info_eml_capa_emlsr_padding_delay,
      {"EMLSR Padding Delay",
-      "wlan.eht.multi_linl.common_info.eml_capabilities.emlsr_padding_delay",
+      "wlan.eht.multi_link.common_info.eml_capabilities.emlsr_padding_delay",
       FT_UINT16, BASE_DEC, NULL, 0x000E, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_eml_capa_emlsr_transition_delay,
      {"EMLSR Transition Delay",
-      "wlan.eht.multi_linl.common_info.eml_capabilities.emlsr_transition_delay",
+      "wlan.eht.multi_link.common_info.eml_capabilities.emlsr_transition_delay",
       FT_UINT16, BASE_DEC, NULL, 0x0070, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_eml_capa_emlmr_support,
@@ -57894,7 +57911,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_common_info_eml_capa_reserved,
      {"Reserved",
-      "wlan.eht.multi_link.common_info.eml_capabilities.cap_reserved",
+      "wlan.eht.multi_link.common_info.eml_capabilities.capa_reserved",
       FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_field_mld_capabilities,
@@ -57946,13 +57963,8 @@ proto_register_ieee80211(void)
       FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_field_mld_id,
-     {"MLD ID", "wlan.eht.multi_link.common_info.mld_id",
+     {"AP MLD ID", "wlan.eht.multi_link.common_info.mld_id",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-    {&hf_ieee80211_eht_common_info_ap_mld_mac_addr,
-     {"AP MLD MAC Address",
-      "wlan.eht.multi_link.common_info.ap_mld_mac_address",
-      FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_field_ext_mld_capabilities,
      {"Extended MLD Capabilities and Operations",
@@ -58059,81 +58071,82 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, NULL, STA_CTRL_RESERVED, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_probe_reserved,
-     {"Reserved", "wlan.eht.multi_link.sta_control.probe_reserved",
+     {"Reserved", "wlan.eht.multi_link.sta_profile.sta_control.probe_reserved",
       FT_UINT16, BASE_HEX, NULL, 0xFFE0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_removal_timer_present,
      {"AP Removal Timer Present",
-      "wlan.eht.multi_link.sta_control.ap_removal_timer_present",
+      "wlan.eht.multi_link.sta_profile.sta_control.ap_removal_timer_present",
       FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_reconfig_operation_type,
      {"Reconfiguration Operation Type",
-      "wlan.eht.multi_link.sta_control.reconfig_operation_type",
+      "wlan.eht.multi_link.sta_profile.sta_control.reconfig_operation_type",
       FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(eht_reconfig_op_type_rvals),
       0x0780, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_operation_para_present,
      {"Operation Parameters Present",
-      "wlan.eht.multi_link.sta_control.operation_parameters_present",
+      "wlan.eht.multi_link.sta_profile.sta_control.operation_parameters_present",
       FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_reconfig_nstr_bitmap_size,
      {"NSTR Bitmap Size",
-      "wlan.eht.multi_link.sta_control.reconfig_nstr_bitmap_size",
+      "wlan.eht.multi_link.sta_profile.sta_control.reconfig_nstr_bitmap_size",
       FT_UINT16, BASE_DEC, NULL, 0x1000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_reconfig_reserved,
-     {"Reserved", "wlan.eht.multi_link.sta_control.reconfiguration_reserved",
+     {"Reserved", "wlan.eht.multi_link.sta_profile.sta_control.reconfig_reserved",
       FT_UINT16, BASE_HEX, NULL, 0xE000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_prio_acc_reserved,
-     {"Reserved", "wlan.eht.multi_link.sta_control.priority_access_reserved",
+     {"Reserved",
+      "wlan.eht.multi_link.sta_profile.sta_control.priority_access_reserved",
       FT_UINT16, BASE_HEX, NULL, 0xFFF0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_len,
      {"STA Info Length",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.len",
+      "wlan.eht.multi_link.sta_profile.sta_info.len",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_mac,
      {"STA MAC Address",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.sta_mac_addr",
+      "wlan.eht.multi_link.sta_profile.sta_info.sta_mac_addr",
       FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_beacon,
      {"Beacon Interval",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.beacon_interval",
+      "wlan.eht.multi_link.sta_profile.sta_info.beacon_interval",
       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_tsf_offset,
      {"TSF Offset",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.tsf_offset",
+      "wlan.eht.multi_link.sta_profile.sta_info.tsf_offset",
       FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_dtim_count,
      {"DTIM Count",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.dtim_count",
+      "wlan.eht.multi_link.sta_profile.sta_info.dtim_count",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_dtim_period,
      {"DTIM Period",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.dtim_period",
+      "wlan.eht.multi_link.sta_profile.sta_info.dtim_period",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_bitmap,
      {"NSTR Indication Bitmap",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.nstr_bitmap",
+      "wlan.eht.multi_link.sta_profile.sta_info.nstr_bitmap",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_bss_params_change_count,
      {"BSS Parameters Change Count",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.bss_params_change_count",
+      "wlan.eht.multi_link.sta_profile.sta_info.bss_params_change_count",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_removal_timer,
      {"AP Removal Timer",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.ap_removal_timer",
+      "wlan.eht.multi_link.sta_profile.sta_info.ap_removal_timer",
       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_presence_indi,
@@ -58162,12 +58175,14 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_operation_para_info_max_mpdu_length,
-     {"Maximum MPDU Length", "wlan.eht.multi_link.sta_profile.sta_info.operation_parameter_info.max_mpdu_length",
+     {"Maximum MPDU Length",
+      "wlan.eht.multi_link.sta_profile.sta_info.operation_parameter_info.max_mpdu_length",
       FT_UINT16, BASE_HEX, VALS(vht_max_mpdu_length_flag), 0x0003,
       "In Octets unit", HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_operation_para_info_amsdu_length,
-     {"A-MSDU length", "wlan.eht.multi_link.sta_profile.sta_info.operation_parameter_info.amsdu_length",
+     {"A-MSDU length",
+      "wlan.eht.multi_link.sta_profile.sta_info.operation_parameter_info.amsdu_length",
       FT_BOOLEAN, 16, TFS(&ht_max_amsdu_flag), 0x0004,
       NULL, HFILL }},
 
@@ -58248,7 +58263,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_mac_capa_epcs_prio_access_support,
      {"EPCS Priority Access Support",
-      "wlan.eht.mac_capabilities.nsep_priority_access_support",
+      "wlan.eht.mac_capabilities.epcs_priority_access_support",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0001, NULL, HFILL }},
 
     {&hf_ieee80211_eht_mac_capa_eht_om_control_support,
