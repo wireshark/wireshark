@@ -62,38 +62,6 @@
     </screenshots>
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
-        <release version="4.0.10" date="2023-10-04">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.10.html</url>
-        </release>
-        <release version="4.0.9" date="2023-10-04">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.9.html</url>
-        </release>
-        <release version="4.0.8" date="2023-08-23">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.8.html</url>
-        </release>
-        <release version="4.0.7" date="2023-07-12">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.7.html</url>
-        </release>
-        <release version="4.0.6" date="2023-05-24">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.6.html</url>
-        </release>
-        <release version="4.0.5" date="2023-04-12">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.5.html</url>
-        </release>
-        <release version="4.0.4" date="2023-03-02">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.4.html</url>
-        </release>
-        <release version="4.0.3" date="2023-01-18">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.3.html</url>
-        </release>
-        <release version="4.0.2" date="2022-12-07">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.2.html</url>
-        </release>
-        <release version="4.0.1" date="2022-10-26">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.1.html</url>
-        </release>
-        <release version="4.0.0" date="2022-10-04">
-            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.0.html</url>
-        </release>
+        <!-- release tags should be added using tools/update-appdata.py -->
     </releases>
 </application>
