@@ -36,24 +36,8 @@ import sys
 import time
 
 def main():
-    if sys.version_info[0] < 3:
-        print("This requires Python 3")
-        sys.exit(2)
-
     this_dir = os.path.dirname(__file__)
     appdata_xml = os.path.join(this_dir, '..', 'org.wireshark.Wireshark.metainfo.xml')
-
-    try:
-        tag_cp = subprocess.run(
-            ['git', 'tag', '-l', 'wireshark-*'],
-            encoding='UTF-8',
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if not 'wireshark-' in tag_cp.stdout:
-            print('Wireshark release tag not found')
-            sys.exit(1)
-    except Exception:
-        print('`git tag` returned {}:'.format(tag_cp.returncode))
-        raise
 
     try:
         cur_rc0 = subprocess.run(
