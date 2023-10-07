@@ -44,16 +44,14 @@ if [ -f "${DESTDIR}/wireshark-$VERSION.tar.xz" ] ; then
     exit 0
 fi
 
-COMMIT="HEAD"
-if [ -n "${CI_COMMIT_SHA-}" ] ; then
-    COMMIT=$CI_COMMIT_SHA
-fi
+STASH_ID=$(git stash create || echo "")
 
-STASH_POP=false
-if ! git diff-index "$COMMIT" ; then
-    git stash --keep-index
-    COMMIT="stash@{0}"
-    STASH_POP=true
+if [[ -n "$STASH_ID" ]] ; then
+    echo "Setting commit from stash $STASH_ID"
+    COMMIT="$STASH_ID"
+else
+    echo "Setting commit from HEAD"
+    COMMIT="HEAD"
 fi
 
 echo "Creating ${DESTDIR}/wireshark-$VERSION.tar.xz from $COMMIT"
@@ -62,7 +60,3 @@ XZ_OPTS=
 echo . | xz --threads=0 > /dev/null 2>&1 && XZ_OPTS=--threads=0
 
 git archive --prefix="wireshark-${VERSION}/" "$COMMIT" | xz $XZ_OPTS > "${DESTDIR}/wireshark-${VERSION}.tar.xz"
-
-if $STASH_POP ; then
-    git stash pop
-fi
