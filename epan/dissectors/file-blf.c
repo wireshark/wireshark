@@ -804,7 +804,6 @@ dissect_blf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 static int
 dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
-
     proto_item *ti;
     proto_tree* blf_tree;
     int offset = 0;
@@ -842,28 +841,30 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
     ti = proto_tree_add_item_ret_uint(blf_tree, hf_blf_eth_status_linkstatus, tvb, offset, 1, ENC_BIG_ENDIAN, &linkstatus);
     if ((flags & BLF_ETH_STATUS_LINKSTATUS) == 0) {
         proto_item_append_text(ti, " - Invalid");
-    } else {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "ETH-%u %s",channel, val_to_str_const(linkstatus, blf_eth_status_linkstatus_vals, "Unknown"));
     }
     offset += 1;
+
     /* uint8_t ethernetPhy {};*/
     ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_ethernetphy, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((flags & BLF_ETH_STATUS_ETHERNETPHY) == 0) {
         proto_item_append_text(ti, " - Invalid");
     }
     offset += 1;
+
     /* uint8_t duplex {}; */
     ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_duplex, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((flags & BLF_ETH_STATUS_DUPLEX) == 0) {
         proto_item_append_text(ti, " - Invalid");
     }
     offset += 1;
+
     /* uint8_t mdi {}; */
     ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_mdi, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((flags & BLF_ETH_STATUS_MDITYPE) == 0) {
         proto_item_append_text(ti, " - Invalid");
     }
     offset += 1;
+
     /* uint8_t connector {};*/
     ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_connector, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(blf_tree, hf_blf_eth_status_mdi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -871,32 +872,43 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
         proto_item_append_text(ti, " - Invalid");
     }
     offset += 1;
+
     /* uint8_t clockMode {}; */
     ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_clockmode, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((flags & BLF_ETH_STATUS_CLOCKMODE) == 0) {
         proto_item_append_text(ti, " - Invalid");
     }
     offset += 1;
+
     /* uint8_t pairs {}; */
     ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_pairs, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((flags & BLF_ETH_STATUS_BRPAIR) == 0) {
         proto_item_append_text(ti, " - Invalid");
     }
     offset += 1;
+
     /* uint8_t hardwareChannel {};*/
     uint32_t hardwarechannel;
     ti = proto_tree_add_item_ret_uint(blf_tree, hf_blf_eth_status_hardwarechannel, tvb, offset, 1, ENC_BIG_ENDIAN, &hardwarechannel);
     if ((flags & BLF_ETH_STATUS_HARDWARECHANNEL) == 0) {
         proto_item_append_text(ti, " - Invalid");
-    } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Hwchannel %u", hardwarechannel);
     }
     offset += 1;
+
     /* uint32_t bitrate {}; */
     ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_bitrate, tvb, offset, 4, ENC_BIG_ENDIAN);
     if ((flags & BLF_ETH_STATUS_BITRATE) == 0) {
         proto_item_append_text(ti, " - Invalid");
     }
+
+    if ((flags & BLF_ETH_STATUS_LINKSTATUS) != 0) {
+        if ((flags & BLF_ETH_STATUS_HARDWARECHANNEL) == 0) {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "ETH-%u %s", channel, val_to_str_const(linkstatus, blf_eth_status_linkstatus_vals, "Unknown"));
+        } else {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "ETH-%u-%u %s", channel, hardwarechannel, val_to_str_const(linkstatus, blf_eth_status_linkstatus_vals, "Unknown"));
+        }
+    }
+
     return tvb_reported_length(tvb);
 }
 
