@@ -825,7 +825,7 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLF Ethernet Status");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_blf, tvb, offset, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_blf_ethernetstatus_obj, tvb, offset, -1, ENC_NA);
     blf_tree = proto_item_add_subtree(ti, ett_blf);
 
     /* uint16_t channel {}; */
