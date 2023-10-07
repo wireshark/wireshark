@@ -564,6 +564,7 @@ dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	case DIAM_APPID_3GPP_S6A_S6D:
 	case DIAM_APPID_3GPP_SLH:
 	case DIAM_APPID_3GPP_S7A:
+	case DIAM_APPID_3GPP_S13:
 		str_len = tvb_reported_length(tvb);
 		dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
 		return str_len;
