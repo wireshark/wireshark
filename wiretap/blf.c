@@ -2102,7 +2102,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
     case BLF_APPTEXT_METADATA:
     case BLF_APPTEXT_COMMENT:
         if (apptextheader.textLength < 5) {
-            /* Arbitary lengt chosen */
+            /* Arbitrary length chosen */
             g_free(text);
             return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */
         }
