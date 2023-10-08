@@ -194,7 +194,7 @@ calc_checksum(const struct _sctp_info *check_data, sctp_assoc_info_t *data)
         if ((float)(data->n_adler32_correct*1.0/data->n_adler32_calculated) > 0.5)
         {
             char str[] = "ADLER32";
-            (void) g_strlcpy(data->checksum_type, str, strlen(str));
+            (void) g_strlcpy(data->checksum_type, str, 8);
             data->n_checksum_errors=(data->n_adler32_calculated-data->n_adler32_correct);
             ok = TRUE;
         }
@@ -205,7 +205,7 @@ calc_checksum(const struct _sctp_info *check_data, sctp_assoc_info_t *data)
         if ((float)(data->n_crc32c_correct*1.0/data->n_crc32c_calculated) > 0.5)
         {
             char str[] = "CRC32C";
-            (void) g_strlcpy(data->checksum_type, str, strlen(str));
+            (void) g_strlcpy(data->checksum_type, str, 8);
             data->n_checksum_errors=data->n_crc32c_calculated-data->n_crc32c_correct;
             ok = TRUE;
         }
@@ -214,7 +214,7 @@ calc_checksum(const struct _sctp_info *check_data, sctp_assoc_info_t *data)
     if (!ok)
     {
         char str[] = "UNKNOWN";
-        (void) g_strlcpy(data->checksum_type, str, strlen(str));
+        (void) g_strlcpy(data->checksum_type, str, 8);
         data->n_checksum_errors=0;
     }
 
