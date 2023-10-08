@@ -246,7 +246,6 @@
     <addaction name="actionHelpFAQ"/>
     <addaction name="actionHelpAsk"/>
     <addaction name="actionHelpDownloads"/>
-    <addaction name="separator"/>
     <addaction name="actionHelpWiki"/>
     <addaction name="actionHelpSampleCaptures"/>
     <addaction name="actionHelpReleaseNotes"/>
