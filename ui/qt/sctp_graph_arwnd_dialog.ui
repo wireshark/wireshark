@@ -29,7 +29,7 @@
      <item>
       <widget class="QLabel" name="hintLabel">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string></string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
