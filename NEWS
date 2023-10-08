@@ -1,4 +1,4 @@
-Wireshark 4.0.10 Release Notes
+Wireshark 4.0.11 Release Notes
 
  What is Wireshark?
 
@@ -18,10 +18,9 @@ Wireshark 4.0.10 Release Notes
 
   Bug Fixes
 
-   The following bugs have been fixed:
+   The following vulnerabilities have been fixed:
 
-     • Error loading g729.so plugin with Wireshark 4.0.9 and 3.6.17 on
-       macOS. Issue 19374[3].
+   The following bugs have been fixed:
 
   New and Updated Features
 
@@ -32,8 +31,6 @@ Wireshark 4.0.10 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   There are no updated protocols in this release.
 
   New and Updated Capture File Support
 
@@ -53,7 +50,7 @@ Wireshark 4.0.10 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[4] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -68,34 +65,33 @@ Wireshark 4.0.10 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[5] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[6].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the issue tracker[7].
+  Bugs and feature requests can be reported on the issue tracker[6].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[8].
+  SharkFest[7].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[9].
+  at wiresharkfoundation.org[8].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[10].
+  A complete FAQ is available on the Wireshark web site[9].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
    2. https://gitlab.com/wireshark/wireshark/-/issues/18734
-   3. https://gitlab.com/wireshark/wireshark/-/issues/19374
-   4. https://www.wireshark.org/download.html
-   5. https://ask.wireshark.org/
-   6. https://www.wireshark.org/lists/
-   7. https://gitlab.com/wireshark/wireshark/-/issues
-   8. https://sharkfest.wireshark.org
-   9. https://wiresharkfoundation.org
-  10. https://www.wireshark.org/faq.html
+   3. https://www.wireshark.org/download.html
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://gitlab.com/wireshark/wireshark/-/issues
+   7. https://sharkfest.wireshark.org
+   8. https://wiresharkfoundation.org
+   9. https://www.wireshark.org/faq.html
