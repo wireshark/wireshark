@@ -595,9 +595,7 @@ static gboolean ssh_read_e(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data);
 static gboolean ssh_read_f(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data);
-#ifdef SSH_DECRYPTION_SUPPORTED
 static ssh_bignum * ssh_read_mpint(tvbuff_t *tvb, int offset);
-#endif
 static void ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data);
 static ssh_bignum *ssh_kex_shared_secret(gint kex_type, ssh_bignum *pub, ssh_bignum *priv, ssh_bignum *modulo);
 static void ssh_hash_buffer_put_string(wmem_array_t *buffer, const gchar *string,
@@ -1380,15 +1378,11 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         break;
 
     case SSH_MSG_KEX_DH_GEX_GROUP:
-#ifdef SSH_DECRYPTION_SUPPORTED
         // p (Group modulo)
         global_data->kex_gex_p = ssh_read_mpint(tvb, offset);
-#endif
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_gex_p);
-#ifdef SSH_DECRYPTION_SUPPORTED
         // g (Group generator)
         global_data->kex_gex_g = ssh_read_mpint(tvb, offset);
-#endif
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_gex_g);
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_grp == 0){
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
@@ -1399,13 +1393,11 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         break;
 
     case SSH_MSG_KEX_DH_GEX_INIT:
-#ifdef SSH_DECRYPTION_SUPPORTED
         // e (Client public key)
         if (!ssh_read_e(tvb, offset, global_data)) {
             proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
                 "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
         }
-#endif
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_e);
         if(global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_ini == 0){
             global_data->peer_data[CLIENT_PEER_DATA].sequence_number++;
@@ -1418,15 +1410,12 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
     case SSH_MSG_KEX_DH_GEX_REPLY:
         offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX host key",
                 ett_key_exchange_host_key, global_data);
-#ifdef SSH_DECRYPTION_SUPPORTED
         if (!PINFO_FD_VISITED(pinfo)) {
             ssh_read_f(tvb, offset, global_data);
             // f (server ephemeral key public part), K_S (host key)
+            ssh_choose_enc_mac(global_data);
             ssh_keylog_hash_write_secret(global_data);
         }
-        ssh_choose_enc_mac(global_data);
-        ssh_keylog_hash_write_secret(global_data);
-#endif
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
         offset += ssh_tree_add_hostsignature(tvb, pinfo, offset, tree, "KEX host signature",
                 ett_key_exchange_host_sig, global_data);
@@ -2226,7 +2215,6 @@ ssh_read_f(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
     return true;
 }
 
-#ifdef SSH_DECRYPTION_SUPPORTED
 static ssh_bignum *
 ssh_read_mpint(tvbuff_t *tvb, int offset)
 {
@@ -2240,7 +2228,6 @@ ssh_read_mpint(tvbuff_t *tvb, int offset)
     tvb_memcpy(tvb, bn->data, offset + 4, length);
     return bn;
 }
-#endif	//def SSH_DECRYPTION_SUPPORTED
 
 static void
 ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data)
