@@ -9942,251 +9942,251 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation>复位图形</translation>
+        <translation type="vanished">复位图形</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation>复位图形到初始状态。</translation>
+        <translation type="vanished">复位图形到初始状态。</translation>
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation>放大</translation>
+        <translation type="vanished">放大</translation>
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>缩小</translation>
+        <translation type="vanished">缩小</translation>
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation>上移10像素</translation>
+        <translation type="vanished">上移10像素</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation>上键</translation>
+        <translation type="vanished">上键</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation>左移10像素</translation>
+        <translation type="vanished">左移10像素</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>左键</translation>
+        <translation type="vanished">左键</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation>右移10像素</translation>
+        <translation type="vanished">右移10像素</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>右键</translation>
+        <translation type="vanished">右键</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation>下移10像素</translation>
+        <translation type="vanished">下移10像素</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation>下键</translation>
+        <translation type="vanished">下键</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation>上移1像素</translation>
+        <translation type="vanished">上移1像素</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation>Shift+上键</translation>
+        <translation type="vanished">Shift+上键</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation>左移1像素</translation>
+        <translation type="vanished">左移1像素</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Shift+右键</translation>
+        <translation type="vanished">Shift+右键</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation>右移1像素</translation>
+        <translation type="vanished">右移1像素</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Shift+右键</translation>
+        <translation type="vanished">Shift+右键</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation>下移1像素</translation>
+        <translation type="vanished">下移1像素</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation>Shift+下键</translation>
+        <translation type="vanished">Shift+下键</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation>下一个流</translation>
+        <translation type="vanished">下一个流</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation>跳转到捕获的下一条流</translation>
+        <translation type="vanished">跳转到捕获的下一条流</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation>PgUp</translation>
+        <translation type="vanished">PgUp</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation>前一条流</translation>
+        <translation type="vanished">前一条流</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation>跳转到捕获的前一条流</translation>
+        <translation type="vanished">跳转到捕获的前一条流</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation>PgDown</translation>
+        <translation type="vanished">PgDown</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation>切换方向</translation>
+        <translation type="vanished">切换方向</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation>切换方向（交换TCP端点）</translation>
+        <translation type="vanished">切换方向（交换TCP端点）</translation>
     </message>
     <message>
         <source>D</source>
-        <translation>D</translation>
+        <translation type="vanished">D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation>跳转到光标所在的分组</translation>
+        <translation type="vanished">跳转到光标所在的分组</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation>跳转到当前光标所在的分组</translation>
+        <translation type="vanished">跳转到当前光标所在的分组</translation>
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>拖拽/缩放</translation>
+        <translation type="vanished">拖拽/缩放</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>触发鼠标拖拽/缩放行为</translation>
+        <translation type="vanished">触发鼠标拖拽/缩放行为</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation>相对/绝对 序列号</translation>
+        <translation type="vanished">相对/绝对 序列号</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation>触发相对/绝对序列号</translation>
+        <translation type="vanished">触发相对/绝对序列号</translation>
     </message>
     <message>
         <source>S</source>
-        <translation>S</translation>
+        <translation type="vanished">S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>捕获/会话时间起源</translation>
+        <translation type="vanished">捕获/会话时间起源</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>触发捕获/会话时间起源</translation>
+        <translation type="vanished">触发捕获/会话时间起源</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>十字线</translation>
+        <translation type="vanished">十字线</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>切换十字线</translation>
+        <translation type="vanished">切换十字线</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>空格键</translation>
+        <translation type="vanished">空格键</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation>往返时间</translation>
+        <translation type="vanished">往返时间</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation>切换到往返时间图</translation>
+        <translation type="vanished">切换到往返时间图</translation>
     </message>
     <message>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="vanished">1</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation>吞吐量</translation>
+        <translation type="vanished">吞吐量</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation>切换到吞吐量图</translation>
+        <translation type="vanished">切换到吞吐量图</translation>
     </message>
     <message>
         <source>2</source>
-        <translation>2</translation>
+        <translation type="vanished">2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation>时间/序列 (Stevens)</translation>
+        <translation type="vanished">时间/序列 (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation>切换到Stevens样式的时间/序列图</translation>
+        <translation type="vanished">切换到Stevens样式的时间/序列图</translation>
     </message>
     <message>
         <source>3</source>
-        <translation>3</translation>
+        <translation type="vanished">3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation>窗口尺寸</translation>
+        <translation type="vanished">窗口尺寸</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation>切换到窗口尺寸图</translation>
+        <translation type="vanished">切换到窗口尺寸图</translation>
     </message>
     <message>
         <source>5</source>
-        <translation>5</translation>
+        <translation type="vanished">5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation>时间/序列 (tcptrace)</translation>
+        <translation type="vanished">时间/序列 (tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation>切换到 tcptrace 样式的时间/序列图</translation>
+        <translation type="vanished">切换到 tcptrace 样式的时间/序列图</translation>
     </message>
     <message>
         <source>4</source>
-        <translation>4</translation>
+        <translation type="vanished">4</translation>
     </message>
 </context>
 <context>
@@ -10213,7 +10213,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Close</source>
-        <translation>关闭</translation>
+        <translation type="vanished">关闭</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
@@ -10237,7 +10237,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TextLabel</source>
-        <translation> 文本标签 </translation>
+        <translation type="vanished"> 文本标签 </translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -10266,6 +10266,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Minimum Number of Inbound Streams:</source>
         <translation>输入流的最小数量:</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished">-</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
@@ -10391,7 +10399,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10442,7 +10450,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -13532,6 +13540,10 @@ a:hover {
     <message>
         <source>TCP window scaling</source>
         <translation>TCP 窗口尺寸</translation>
+    </message>
+    <message>
+        <source>Release Notes</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TLS Stream</source>

@@ -10006,251 +10006,251 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation>Ripristina il grafico</translation>
+        <translation type="vanished">Ripristina il grafico</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation>Ripristina il grafico al suo stato iniziale.</translation>
+        <translation type="vanished">Ripristina il grafico al suo stato iniziale.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation>Ingrandisci</translation>
+        <translation type="vanished">Ingrandisci</translation>
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>Rimpicciolisci</translation>
+        <translation type="vanished">Rimpicciolisci</translation>
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation>Sposta in su di 10 pixel</translation>
+        <translation type="vanished">Sposta in su di 10 pixel</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation>Su</translation>
+        <translation type="vanished">Su</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation>Sposta a sinistra di 10 pixel</translation>
+        <translation type="vanished">Sposta a sinistra di 10 pixel</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>Sinistra</translation>
+        <translation type="vanished">Sinistra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation>Sposta a destra di 10 pixel</translation>
+        <translation type="vanished">Sposta a destra di 10 pixel</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>Destra</translation>
+        <translation type="vanished">Destra</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation>Sposta in giù di 10 pixel</translation>
+        <translation type="vanished">Sposta in giù di 10 pixel</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation>Giù</translation>
+        <translation type="vanished">Giù</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation>Sposta in su di 1 pixel</translation>
+        <translation type="vanished">Sposta in su di 1 pixel</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation>Shift+Su</translation>
+        <translation type="vanished">Shift+Su</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation>Sposta a sinistra di 1 pixel</translation>
+        <translation type="vanished">Sposta a sinistra di 1 pixel</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Shift+Sinistra</translation>
+        <translation type="vanished">Shift+Sinistra</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation>Sposta a sinistra di 1 pixel</translation>
+        <translation type="vanished">Sposta a sinistra di 1 pixel</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Shift+Destra</translation>
+        <translation type="vanished">Shift+Destra</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation>Sposta in giù di 1 pixel</translation>
+        <translation type="vanished">Sposta in giù di 1 pixel</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation>Shift+Giù</translation>
+        <translation type="vanished">Shift+Giù</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation>Flusso successivo</translation>
+        <translation type="vanished">Flusso successivo</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation>Vai al prossimo flusso nella cattura</translation>
+        <translation type="vanished">Vai al prossimo flusso nella cattura</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation>PgSu</translation>
+        <translation type="vanished">PgSu</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation>Flusso precedente</translation>
+        <translation type="vanished">Flusso precedente</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation>Vai al flusso precedente nella cattura</translation>
+        <translation type="vanished">Vai al flusso precedente nella cattura</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation>PgGiù</translation>
+        <translation type="vanished">PgGiù</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation>Inverti direzione</translation>
+        <translation type="vanished">Inverti direzione</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation>Inverti direzione (scambia i terminatori TCP)</translation>
+        <translation type="vanished">Inverti direzione (scambia i terminatori TCP)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation>D</translation>
+        <translation type="vanished">D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation>Vai al pacchetto sotto il cursore</translation>
+        <translation type="vanished">Vai al pacchetto sotto il cursore</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation>Vai al pacchetto attualmente sotto il cursore</translation>
+        <translation type="vanished">Vai al pacchetto attualmente sotto il cursore</translation>
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>Trascina/Zoom</translation>
+        <translation type="vanished">Trascina/Zoom</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Inverti il comportamento di trascina/zoom del mouse</translation>
+        <translation type="vanished">Inverti il comportamento di trascina/zoom del mouse</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation>Numeri di sequenza relativi/assoluti</translation>
+        <translation type="vanished">Numeri di sequenza relativi/assoluti</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation>Inverti i numeri di sequenza relativi/assoluti</translation>
+        <translation type="vanished">Inverti i numeri di sequenza relativi/assoluti</translation>
     </message>
     <message>
         <source>S</source>
-        <translation>S</translation>
+        <translation type="vanished">S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>Origine dell&apos;orario della cattura/sessione</translation>
+        <translation type="vanished">Origine dell&apos;orario della cattura/sessione</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>Inverti l&apos;origine del tempo della cattura/sessione</translation>
+        <translation type="vanished">Inverti l&apos;origine del tempo della cattura/sessione</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Reticoli</translation>
+        <translation type="vanished">Reticoli</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Inverti reticolo</translation>
+        <translation type="vanished">Inverti reticolo</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>Spazio</translation>
+        <translation type="vanished">Spazio</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation>Round Trip Time</translation>
+        <translation type="vanished">Round Trip Time</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation>Passa al grafico Round Trip Time</translation>
+        <translation type="vanished">Passa al grafico Round Trip Time</translation>
     </message>
     <message>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="vanished">1</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation>Capacità trasmissiva</translation>
+        <translation type="vanished">Capacità trasmissiva</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation>Passa al grafico della capacità trasmissiva</translation>
+        <translation type="vanished">Passa al grafico della capacità trasmissiva</translation>
     </message>
     <message>
         <source>2</source>
-        <translation>2</translation>
+        <translation type="vanished">2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation>Tempo/Sequenza (Stevens)</translation>
+        <translation type="vanished">Tempo/Sequenza (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation>Passa allo stile Stevens per il grafico Tempo/Sequenza</translation>
+        <translation type="vanished">Passa allo stile Stevens per il grafico Tempo/Sequenza</translation>
     </message>
     <message>
         <source>3</source>
-        <translation>3</translation>
+        <translation type="vanished">3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation>Ridimensionamento finestra</translation>
+        <translation type="vanished">Ridimensionamento finestra</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation>Passa al grafico del ridimensionamento finestra</translation>
+        <translation type="vanished">Passa al grafico del ridimensionamento finestra</translation>
     </message>
     <message>
         <source>5</source>
-        <translation>5</translation>
+        <translation type="vanished">5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation>Tempo/Sequenza (tcptrace)</translation>
+        <translation type="vanished">Tempo/Sequenza (tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation>Passa allo stile tcptrace per il grafico Tempo/Sequenza</translation>
+        <translation type="vanished">Passa allo stile tcptrace per il grafico Tempo/Sequenza</translation>
     </message>
     <message>
         <source>4</source>
-        <translation>4</translation>
+        <translation type="vanished">4</translation>
     </message>
 </context>
 <context>
@@ -10277,7 +10277,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Close</source>
-        <translation>Chiudi</translation>
+        <translation type="vanished">Chiudi</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
@@ -10301,7 +10301,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>TextLabel</source>
-        <translation>EtichettaTesto</translation>
+        <translation type="vanished">EtichettaTesto</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -10330,6 +10330,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Minimum Number of Inbound Streams:</source>
         <translation>Numero minimo di flussi in ingresso:</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished">-</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
@@ -10455,7 +10463,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10506,7 +10514,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -13642,6 +13650,10 @@ a:hover {
     <message>
         <source>TCP window scaling</source>
         <translation>Ridimensionamento della finestra TCP</translation>
+    </message>
+    <message>
+        <source>Release Notes</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>DCCP Stream</source>
