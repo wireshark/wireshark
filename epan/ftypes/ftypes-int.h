@@ -18,8 +18,6 @@ struct _fvalue_t {
 	ftype_t	*ftype;
 	union {
 		/* Put a few basic types in here */
-		uint32_t		uinteger;
-		int32_t			sinteger;
 		uint64_t		uinteger64;
 		int64_t			sinteger64;
 		double			floating;
