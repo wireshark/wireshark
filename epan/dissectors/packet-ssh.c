@@ -57,6 +57,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
 #include <wsutil/pint.h>
+#include <wsutil/str_util.h>
 #include <wsutil/wslog.h>
 #include <epan/secrets.h>
 #include <wiretap/secrets-types.h>
@@ -108,6 +109,8 @@ typedef struct _ssh_message_info_t {
     guint   data_len;       /**< Length of decrypted data. */
     gint    id;             /**< Identifies the exact message within a frame
                                  (there can be multiple records in a frame). */
+    uint32_t byte_seq;
+    uint32_t next_byte_seq;
     struct _ssh_message_info_t* next;
     guint8  calc_mac[DIGEST_MAX_SIZE];
 } ssh_message_info_t;
@@ -116,6 +119,13 @@ typedef struct {
     gboolean from_server;
     ssh_message_info_t * messages;
 } ssh_packet_info_t;
+
+typedef struct _ssh_channel_info_t {
+    uint32_t byte_seq;
+    uint16_t flags;
+    wmem_tree_t *multisegment_pdus;
+    dissector_handle_t handle;
+} ssh_channel_info_t;
 
 struct ssh_peer_data {
     guint   counter;
@@ -373,6 +383,19 @@ static int hf_ssh_blob_e = -1;
 static int hf_ssh_pk_sig_s_length = -1;
 static int hf_ssh_pk_sig_s = -1;
 
+static int hf_ssh_reassembled_in              = -1;
+static int hf_ssh_reassembled_length          = -1;
+static int hf_ssh_reassembled_data            = -1;
+static int hf_ssh_segments                    = -1;
+static int hf_ssh_segment                     = -1;
+static int hf_ssh_segment_overlap             = -1;
+static int hf_ssh_segment_overlap_conflict    = -1;
+static int hf_ssh_segment_multiple_tails      = -1;
+static int hf_ssh_segment_too_long_fragment   = -1;
+static int hf_ssh_segment_error               = -1;
+static int hf_ssh_segment_count               = -1;
+static int hf_ssh_segment_data                = -1;
+
 static gint ett_ssh = -1;
 static gint ett_key_exchange = -1;
 static gint ett_key_exchange_host_key = -1;
@@ -382,6 +405,8 @@ static gint ett_userauth_pk_signautre = -1;
 static gint ett_key_init = -1;
 static gint ett_ssh1 = -1;
 static gint ett_ssh2 = -1;
+static gint ett_ssh_segments = -1;
+static gint ett_ssh_segment = -1;
 
 static expert_field ei_ssh_packet_length = EI_INIT;
 static expert_field ei_ssh_packet_decode = EI_INIT;
@@ -396,6 +421,25 @@ static dissector_handle_t sftp_handle=NULL;
 
 static const char   *pref_keylog_file;
 static FILE         *ssh_keylog_file;
+
+static reassembly_table ssh_reassembly_table;
+
+static const fragment_items ssh_segment_items = {
+    &ett_ssh_segment,
+    &ett_ssh_segments,
+    &hf_ssh_segments,
+    &hf_ssh_segment,
+    &hf_ssh_segment_overlap,
+    &hf_ssh_segment_overlap_conflict,
+    &hf_ssh_segment_multiple_tails,
+    &hf_ssh_segment_too_long_fragment,
+    &hf_ssh_segment_error,
+    &hf_ssh_segment_count,
+    &hf_ssh_reassembled_in,
+    &hf_ssh_reassembled_length,
+    &hf_ssh_reassembled_data,
+    "Segments"
+};
 
 #define SSH_DECRYPT_DEBUG
 
@@ -625,7 +669,7 @@ static proto_item * ssh_tree_add_mac(proto_tree *tree, tvbuff_t *tvb, const guin
 
 static int ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, proto_tree *tree,
-        gchar *plaintext, guint plaintext_len);
+        ssh_message_info_t *message);
 static int ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code);
 static int ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
@@ -634,7 +678,7 @@ static int ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinf
         int offset, proto_item *msg_type_tree, guint msg_code);
 static int ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
-        guint msg_code);
+        guint msg_code, ssh_message_info_t *message);
 static int ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code);
 static int ssh_dissect_public_key_blob(tvbuff_t *packet_tvb, packet_info *pinfo,
@@ -643,7 +687,7 @@ static int ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *p
         int offset, proto_item *msg_type_tree);
 
 static void create_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, uint32_t sender_channel);
-static dissector_handle_t get_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel);
+static ssh_channel_info_t* get_channel_info_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel);
 static void set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, const guint8* subsystem_name);
 
 #define SSH_DEBUG_USE_STDERR "-"
@@ -1535,7 +1579,6 @@ static int
 ssh_try_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_tree *tree)
 {
-    proto_item *ti;
     gboolean can_decrypt = peer_data->cipher != NULL;
     ssh_message_info_t *message = NULL;
 
@@ -1548,15 +1591,7 @@ ssh_try_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         message = ssh_get_message(pinfo, record_id);
 
         if (message) {
-            ssh_dissect_decrypted_packet(tvb, pinfo, peer_data, tree, message->plain_data, message->data_len);
-            offset += message->data_len;
-            if (peer_data->mac_length) {
-                ssh_tree_add_mac(tree, tvb, offset, peer_data->mac_length, hf_ssh_mac_string, hf_ssh_mac_status, &ei_ssh_mac_bad, pinfo, message->calc_mac,
-                                                       PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
-                offset += peer_data->mac_length;
-            }
-            ti = proto_tree_add_uint(tree, hf_ssh_seq_num, tvb, offset, 0, message->sequence_number);
-            proto_item_set_generated(ti);
+            offset += ssh_dissect_decrypted_packet(tvb_new_subset_remaining(tvb, offset), pinfo, peer_data, tree, message);
             return offset;
         }
     }
@@ -3492,10 +3527,13 @@ ssh_decrypt_chacha20(gcry_cipher_hd_t hd,
 static int
 ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, proto_tree *tree,
-        gchar *plaintext, guint plaintext_len)
+        ssh_message_info_t *message)
 {
     int offset = 0;      // TODO:
     int dissected_len = 0;
+
+    char* plaintext = message->plain_data;
+    unsigned plaintext_len = message->data_len;
 
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Encrypted packet (plaintext_len=%d)", plaintext_len);
 
@@ -3623,7 +3661,7 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Connection: (channel related message)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
         // TODO: offset = ssh_dissect_connection_channel(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
-        dissected_len = ssh_dissect_connection_specific(packet_tvb, pinfo, peer_data, offset+1, msg_type_tree, msg_code) - offset;
+        dissected_len = ssh_dissect_connection_specific(packet_tvb, pinfo, peer_data, offset+1, msg_type_tree, msg_code, message) - offset;
     }
 
     /* Reserved for client protocols (128-191) */
@@ -3658,6 +3696,13 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(tree, hf_ssh_padding_string, packet_tvb, offset, padding_length, ENC_NA);
     offset+= padding_length;
 
+    if (peer_data->mac_length) {
+        ssh_tree_add_mac(tree, tvb, offset, peer_data->mac_length, hf_ssh_mac_string, hf_ssh_mac_status, &ei_ssh_mac_bad, pinfo, message->calc_mac,
+                                               PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+        offset += peer_data->mac_length;
+    }
+    ti = proto_tree_add_uint(tree, hf_ssh_seq_num, tvb, offset, 0, message->sequence_number);
+    proto_item_set_generated(ti);
     return offset;
 }
 
@@ -3831,10 +3876,558 @@ ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         return offset;
 }
 
+static void
+ssh_process_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, ssh_channel_info_t *channel)
+{
+    tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (channel->handle) {
+        call_dissector(channel->handle, next_tvb, pinfo, proto_tree_get_root(tree));
+    } else {
+        call_data_dissector(next_tvb, pinfo, proto_tree_get_root(tree));
+    }
+}
+
+static void
+print_ssh_fragment_tree(fragment_head *ipfd_head, proto_tree *tree, proto_tree *ssh_tree, packet_info *pinfo, tvbuff_t *next_tvb)
+{
+    proto_item *ssh_tree_item, *frag_tree_item;
+
+    /*
+     * The subdissector thought it was completely
+     * desegmented (although the stuff at the
+     * end may, in turn, require desegmentation),
+     * so we show a tree with all segments.
+     */
+    show_fragment_tree(ipfd_head, &ssh_segment_items,
+                       tree, pinfo, next_tvb, &frag_tree_item);
+    /*
+     * The toplevel fragment subtree is now
+     * behind all desegmented data; move it
+     * right behind the SSH tree.
+     */
+    ssh_tree_item = proto_tree_get_parent(ssh_tree);
+    /* The SSH protocol item is up a few levels from the message tree */
+    ssh_tree_item = proto_item_get_parent_nth(ssh_tree_item, 2);
+    if (frag_tree_item && ssh_tree_item) {
+        proto_tree_move_item(tree, ssh_tree_item, frag_tree_item);
+    }
+}
+
+static uint32_t
+ssh_msp_fragment_id(struct tcp_multisegment_pdu *msp)
+{
+    /*
+     * If a frame contains multiple PDUs, then "first_frame" is not
+     * sufficient to uniquely identify groups of fragments. Therefore we use
+     * the tcp reassembly functions that also test msp->seq (the position of
+     * the initial fragment in the SSH channel).
+     */
+    return msp->first_frame;
+}
+
+static void
+ssh_proto_tree_add_segment_data(
+    proto_tree  *tree,
+    tvbuff_t    *tvb,
+    gint         offset,
+    gint         length,
+    const gchar *prefix)
+{
+    proto_tree_add_bytes_format(
+        tree,
+        hf_ssh_segment_data,
+        tvb,
+        offset,
+        length,
+        NULL,
+        "%sSSH segment data (%u %s)",
+        prefix != NULL ? prefix : "",
+        length == -1 ? tvb_reported_length_remaining(tvb, offset) : length,
+        plurality(length, "byte", "bytes"));
+}
+
+static void
+desegment_ssh(tvbuff_t *tvb, packet_info *pinfo, uint32_t seq,
+        uint32_t nxtseq, proto_tree *tree, ssh_channel_info_t *channel)
+{
+    fragment_head *ipfd_head;
+    gboolean       must_desegment;
+    gboolean       called_dissector;
+    int            another_pdu_follows;
+    gboolean       another_segment_in_frame = FALSE;
+    int            deseg_offset, offset = 0;
+    guint32        deseg_seq;
+    gint           nbytes;
+    proto_item    *item;
+    struct tcp_multisegment_pdu *msp;
+    gboolean       first_pdu = TRUE;
+
+again:
+    ipfd_head = NULL;
+    must_desegment = FALSE;
+    called_dissector = FALSE;
+    another_pdu_follows = 0;
+    msp = NULL;
+
+    /*
+     * Initialize these to assume no desegmentation.
+     * If that's not the case, these will be set appropriately
+     * by the subdissector.
+     */
+    pinfo->desegment_offset = 0;
+    pinfo->desegment_len = 0;
+
+   /*
+     * Initialize this to assume that this segment will just be
+     * added to the middle of a desegmented chunk of data, so
+     * that we should show it all as data.
+     * If that's not the case, it will be set appropriately.
+     */
+    deseg_offset = offset;
+
+    /* If we've seen this segment before (e.g., it's a retransmission),
+     * there's nothing for us to do.  Certainly, don't add it to the list
+     * of multisegment_pdus (that would cause subsequent lookups to find
+     * the retransmission instead of the original transmission, breaking
+     * dissection of the desegmented pdu if we'd already seen the end of
+     * the pdu).
+     */
+    if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(channel->multisegment_pdus, seq))) {
+        const char *prefix;
+        gboolean is_retransmission = FALSE;
+
+        if (msp->first_frame == pinfo->num) {
+            /* This must be after the first pass. */
+            prefix = "";
+            if (msp->last_frame == pinfo->num) {
+                col_clear(pinfo->cinfo, COL_INFO);
+            } else {
+                if (first_pdu) {
+                    col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[SSH segment of a reassembled PDU]");
+                }
+            }
+        } else {
+            prefix = "Retransmitted ";
+            is_retransmission = TRUE;
+        }
+
+        if (!is_retransmission) {
+            ipfd_head = fragment_get(&ssh_reassembly_table, pinfo, msp->first_frame, msp);
+            if (ipfd_head != NULL && ipfd_head->reassembled_in !=0 &&
+                ipfd_head->reassembled_in != pinfo->num) {
+                /* Show what frame this was reassembled in if not this one. */
+                item=proto_tree_add_uint(tree, *ssh_segment_items.hf_reassembled_in,
+                                         tvb, 0, 0, ipfd_head->reassembled_in);
+                proto_item_set_generated(item);
+            }
+        }
+        nbytes = tvb_reported_length_remaining(tvb, offset);
+        ssh_proto_tree_add_segment_data(tree, tvb, offset, nbytes, prefix);
+        return;
+    }
+
+    /* Else, find the most previous PDU starting before this sequence number */
+    msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(channel->multisegment_pdus, seq-1);
+    if (msp && msp->seq <= seq && msp->nxtpdu > seq) {
+        int len;
+
+        if (!PINFO_FD_VISITED(pinfo)) {
+            msp->last_frame = pinfo->num;
+            msp->last_frame_time = pinfo->abs_ts;
+        }
+
+        /* OK, this PDU was found, which means the segment continues
+         * a higher-level PDU and that we must desegment it.
+         */
+        if (msp->flags & MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
+            /* The dissector asked for the entire segment */
+            len = MAX(0, tvb_reported_length_remaining(tvb, offset));
+        } else {
+            len = MIN(nxtseq, msp->nxtpdu) - seq;
+        }
+
+        ipfd_head = fragment_add(&ssh_reassembly_table, tvb, offset,
+                                 pinfo, ssh_msp_fragment_id(msp), msp,
+                                 seq - msp->seq,
+                                 len, (LT_SEQ (nxtseq,msp->nxtpdu)));
+
+        if (!PINFO_FD_VISITED(pinfo)
+        && msp->flags & MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
+            msp->flags &= (~MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT);
+
+            /* If we consumed the entire segment there is no
+             * other pdu starting anywhere inside this segment.
+             * So update nxtpdu to point at least to the start
+             * of the next segment.
+             * (If the subdissector asks for even more data we
+             * will advance nxtpdu even further later down in
+             * the code.)
+             */
+            msp->nxtpdu = nxtseq;
+        }
+
+        if ( (msp->nxtpdu < nxtseq)
+        &&  (msp->nxtpdu >= seq)
+        &&  (len > 0)) {
+            another_pdu_follows = msp->nxtpdu - seq;
+        }
+    } else {
+        /* This segment was not found in our table, so it doesn't
+         * contain a continuation of a higher-level PDU.
+         * Call the normal subdissector.
+         */
+        ssh_process_payload(tvb, offset, pinfo, tree, channel);
+        called_dissector = TRUE;
+
+        /* Did the subdissector ask us to desegment some more data
+         * before it could handle the packet?
+         * If so we have to create some structures in our table but
+         * this is something we only do the first time we see this
+         * packet.
+         */
+        if (pinfo->desegment_len) {
+            if (!PINFO_FD_VISITED(pinfo))
+                must_desegment = TRUE;
+
+            /*
+             * Set "deseg_offset" to the offset in "tvb"
+             * of the first byte of data that the
+             * subdissector didn't process.
+             */
+            deseg_offset = offset + pinfo->desegment_offset;
+        }
+
+        /* Either no desegmentation is necessary, or this is
+         * segment contains the beginning but not the end of
+         * a higher-level PDU and thus isn't completely
+         * desegmented.
+         */
+        ipfd_head = NULL;
+    }
+
+    /* is it completely desegmented? */
+    if (ipfd_head && ipfd_head->reassembled_in == pinfo->num) {
+        /*
+         * Yes, we think it is.
+         * We only call subdissector for the last segment.
+         * Note that the last segment may include more than what
+         * we needed.
+         */
+        if (nxtseq < msp->nxtpdu) {
+            /*
+             * This is *not* the last segment. It is part of a PDU in the same
+             * frame, so no another PDU can follow this one.
+             * Do not reassemble SSH yet, it will be done in the final segment.
+             * (If we are reassembling at FIN, we will do that in dissect_ssl()
+             * after iterating through all the records.)
+             * Clear the Info column and avoid displaying [SSH segment of a
+             * reassembled PDU], the payload dissector will typically set it.
+             * (This is needed here for the second pass.)
+             */
+            another_pdu_follows = 0;
+            col_clear(pinfo->cinfo, COL_INFO);
+            another_segment_in_frame = TRUE;
+        } else {
+            /*
+             * OK, this is the last segment of the PDU and also the
+             * last segment in this frame.
+             * Let's call the subdissector with the desegmented
+             * data.
+             */
+            tvbuff_t *next_tvb;
+            int old_len;
+
+            /*
+             * Reset column in case multiple SSH segments form the PDU
+             * and this last SSH segment is not in the first TCP segment of
+             * this frame.
+             * XXX prevent clearing the column if the last layer is not SSH?
+             */
+            /* Clear column during the first pass. */
+            col_clear(pinfo->cinfo, COL_INFO);
+
+            /* create a new TVB structure for desegmented data */
+            next_tvb = tvb_new_chain(tvb, ipfd_head->tvb_data);
+
+            /* add desegmented data to the data source list */
+            add_new_data_source(pinfo, next_tvb, "Reassembled SSH");
+
+            /* call subdissector */
+            ssh_process_payload(next_tvb, 0, pinfo, tree, channel);
+            called_dissector = TRUE;
+
+            /*
+             * OK, did the subdissector think it was completely
+             * desegmented, or does it think we need even more
+             * data?
+             */
+            old_len = (int)(tvb_reported_length(next_tvb) - tvb_reported_length_remaining(tvb, offset));
+            if (pinfo->desegment_len && pinfo->desegment_offset <= old_len) {
+                /*
+                 * "desegment_len" isn't 0, so it needs more
+                 * data for something - and "desegment_offset"
+                 * is before "old_len", so it needs more data
+                 * to dissect the stuff we thought was
+                 * completely desegmented (as opposed to the
+                 * stuff at the beginning being completely
+                 * desegmented, but the stuff at the end
+                 * being a new higher-level PDU that also
+                 * needs desegmentation).
+                 */
+                fragment_set_partial_reassembly(&ssh_reassembly_table,
+                                                pinfo, ssh_msp_fragment_id(msp), msp);
+                /* Update msp->nxtpdu to point to the new next
+                 * pdu boundary.
+                 */
+                if (pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+                    /* We want reassembly of at least one
+                     * more segment so set the nxtpdu
+                     * boundary to one byte into the next
+                     * segment.
+                     * This means that the next segment
+                     * will complete reassembly even if it
+                     * is only one single byte in length.
+                     */
+                    msp->nxtpdu = seq + tvb_reported_length_remaining(tvb, offset) + 1;
+                    msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+                } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                    /* This is not the first segment, and we thought reassembly
+                     * would be done now, but now we know we desegment at FIN.
+                     * E.g., a HTTP response where the headers were split
+                     * across segments (so previous ONE_MORE_SEGMENT) and
+                     * also no Content-Length (so now DESEGMENT_UNTIL_FIN).
+                     */
+                    channel->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
+                    msp->nxtpdu = nxtseq + 0x40000000;
+                } else {
+                    msp->nxtpdu = seq + tvb_reported_length_remaining(tvb, offset) + pinfo->desegment_len;
+                }
+                /* Since we need at least some more data
+                 * there can be no pdu following in the
+                 * tail of this segment.
+                 */
+                another_pdu_follows = 0;
+            } else {
+                /*
+                 * Show the stuff in this TCP segment as
+                 * just raw TCP segment data.
+                 */
+                nbytes = another_pdu_follows > 0
+                    ? another_pdu_follows
+                    : tvb_reported_length_remaining(tvb, offset);
+                ssh_proto_tree_add_segment_data(tree, tvb, offset, nbytes, NULL);
+
+                /* Show details of the reassembly */
+                print_ssh_fragment_tree(ipfd_head, proto_tree_get_root(tree), tree, pinfo, next_tvb);
+
+                /* Did the subdissector ask us to desegment
+                 * some more data?  This means that the data
+                 * at the beginning of this segment completed
+                 * a higher-level PDU, but the data at the
+                 * end of this segment started a higher-level
+                 * PDU but didn't complete it.
+                 *
+                 * If so, we have to create some structures
+                 * in our table, but this is something we
+                 * only do the first time we see this packet.
+                 */
+                if (pinfo->desegment_len) {
+                    if (!PINFO_FD_VISITED(pinfo))
+                        must_desegment = TRUE;
+
+                    /* The stuff we couldn't dissect
+                     * must have come from this segment,
+                     * so it's all in "tvb".
+                     *
+                     * "pinfo->desegment_offset" is
+                     * relative to the beginning of
+                     * "next_tvb"; we want an offset
+                     * relative to the beginning of "tvb".
+                     *
+                     * First, compute the offset relative
+                     * to the *end* of "next_tvb" - i.e.,
+                     * the number of bytes before the end
+                     * of "next_tvb" at which the
+                     * subdissector stopped.  That's the
+                     * length of "next_tvb" minus the
+                     * offset, relative to the beginning
+                     * of "next_tvb, at which the
+                     * subdissector stopped.
+                     */
+                    deseg_offset = ipfd_head->datalen - pinfo->desegment_offset;
+
+                    /* "tvb" and "next_tvb" end at the
+                     * same byte of data, so the offset
+                     * relative to the end of "next_tvb"
+                     * of the byte at which we stopped
+                     * is also the offset relative to
+                     * the end of "tvb" of the byte at
+                     * which we stopped.
+                     *
+                     * Convert that back into an offset
+                     * relative to the beginning of
+                     * "tvb", by taking the length of
+                     * "tvb" and subtracting the offset
+                     * relative to the end.
+                     */
+                    deseg_offset = tvb_reported_length(tvb) - deseg_offset;
+                }
+            }
+        }
+    }
+
+    if (must_desegment) {
+        /* If the dissector requested "reassemble until FIN"
+         * just set this flag for the flow and let reassembly
+         * proceed at normal.  We will check/pick up these
+         * reassembled PDUs later down in dissect_tcp() when checking
+         * for the FIN flag.
+         */
+        if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+            channel->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
+        }
+        /*
+         * The sequence number at which the stuff to be desegmented
+         * starts is the sequence number of the byte at an offset
+         * of "deseg_offset" into "tvb".
+         *
+         * The sequence number of the byte at an offset of "offset"
+         * is "seq", i.e. the starting sequence number of this
+         * segment, so the sequence number of the byte at
+         * "deseg_offset" is "seq + (deseg_offset - offset)".
+         */
+        deseg_seq = seq + (deseg_offset - offset);
+
+        if (((nxtseq - deseg_seq) <= 1024*1024)
+            &&  (!PINFO_FD_VISITED(pinfo))) {
+            if (pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+                /* The subdissector asked to reassemble using the
+                 * entire next segment.
+                 * Just ask reassembly for one more byte
+                 * but set this msp flag so we can pick it up
+                 * above.
+                 */
+                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                    deseg_seq, nxtseq+1, channel->multisegment_pdus);
+                msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+            } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                /* Set nxtseq very large so that reassembly won't happen
+                 * until we force it at the end of the stream in dissect_ssl()
+                 * outside this function.
+                 */
+                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                    deseg_seq, nxtseq+0x40000000, channel->multisegment_pdus);
+            } else {
+                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                    deseg_seq, nxtseq+pinfo->desegment_len, channel->multisegment_pdus);
+            }
+
+            /* add this segment as the first one for this new pdu */
+            fragment_add(&ssh_reassembly_table, tvb, deseg_offset,
+                         pinfo, ssh_msp_fragment_id(msp), msp,
+                         0, nxtseq - deseg_seq,
+                         LT_SEQ(nxtseq, msp->nxtpdu));
+        }
+    }
+
+    if (!called_dissector || pinfo->desegment_len != 0) {
+        if (ipfd_head != NULL && ipfd_head->reassembled_in != 0 &&
+            ipfd_head->reassembled_in != pinfo->num &&
+            !(ipfd_head->flags & FD_PARTIAL_REASSEMBLY)) {
+            /*
+             * We know what other frame this PDU is reassembled in;
+             * let the user know.
+             */
+            item=proto_tree_add_uint(tree, *ssh_segment_items.hf_reassembled_in,
+                                     tvb, 0, 0, ipfd_head->reassembled_in);
+            proto_item_set_generated(item);
+        }
+
+        /*
+         * Either we didn't call the subdissector at all (i.e.,
+         * this is a segment that contains the middle of a
+         * higher-level PDU, but contains neither the beginning
+         * nor the end), or the subdissector couldn't dissect it
+         * all, as some data was missing (i.e., it set
+         * "pinfo->desegment_len" to the amount of additional
+         * data it needs).
+         */
+        if (!another_segment_in_frame && pinfo->desegment_offset == 0) {
+            /*
+             * It couldn't, in fact, dissect any of it (the
+             * first byte it couldn't dissect is at an offset
+             * of "pinfo->desegment_offset" from the beginning
+             * of the payload, and that's 0).
+             * Just mark this as SSH.
+             */
+
+            /* SFTP checks the length before setting the protocol column.
+             * If other subdissectors don't do this, we'd want to set the
+             * protocol column back - but we want to get the SSH version
+             */
+            //col_set_str(pinfo->cinfo, COL_PROTOCOL,
+            //        val_to_str_const(session->version, ssl_version_short_names, "SSH"));
+            if (first_pdu) {
+                col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[SSH segment of a reassembled PDU]");
+            }
+        }
+
+        /*
+         * Show what's left in the packet as just raw SSH segment data.
+         * XXX - remember what protocol the last subdissector
+         * was, and report it as a continuation of that, instead?
+         */
+        nbytes = tvb_reported_length_remaining(tvb, deseg_offset);
+        ssh_proto_tree_add_segment_data(tree, tvb, deseg_offset, nbytes, NULL);
+    }
+    pinfo->can_desegment = 0;
+    pinfo->desegment_offset = 0;
+    pinfo->desegment_len = 0;
+
+    if (another_pdu_follows) {
+        /* there was another pdu following this one. */
+        pinfo->can_desegment=2;
+        /* we also have to prevent the dissector from changing the
+         * PROTOCOL and INFO colums since what follows may be an
+         * incomplete PDU and we don't want it be changed back from
+         *  <Protocol>   to <SSH>
+         */
+        col_set_fence(pinfo->cinfo, COL_INFO);
+        col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
+        first_pdu = FALSE;
+        offset += another_pdu_follows;
+        seq += another_pdu_follows;
+        goto again;
+    }
+}
+
+static void
+ssh_dissect_channel_data(tvbuff_t *tvb, packet_info *pinfo,
+        struct ssh_peer_data *peer_data _U_, proto_tree *tree,
+        ssh_message_info_t *message _U_, ssh_channel_info_t *channel)
+{
+
+    uint16_t save_can_desegment = pinfo->can_desegment;
+
+    if (ssh_desegment) {
+        pinfo->can_desegment = 2;
+        desegment_ssh(tvb, pinfo, message->byte_seq, message->next_byte_seq, tree, channel);
+    } else {
+        pinfo->can_desegment = 0;
+        gboolean save_fragmented = pinfo->fragmented;
+        pinfo->fragmented = TRUE;
+
+        ssh_process_payload(tvb, 0, pinfo, tree, channel);
+        pinfo->fragmented = save_fragmented;
+    }
+
+    pinfo->can_desegment = save_can_desegment;
+}
+
 static int
 ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
-        struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
-        guint msg_code)
+        struct ssh_peer_data *peer_data, int offset, proto_tree *msg_type_tree,
+        guint msg_code, ssh_message_info_t *message)
 {
         uint32_t recipient_channel, sender_channel;
 
@@ -3855,7 +4448,9 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
                 offset += 4;
                 proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_connection_sender_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &sender_channel);
                 offset += 4;
-                create_channel(peer_data, recipient_channel, sender_channel);
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    create_channel(peer_data, recipient_channel, sender_channel);
+                }
                 proto_tree_add_item(msg_type_tree, hf_ssh_connection_initial_window, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_connection_maximum_packet_size, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3872,12 +4467,18 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
                 uint32_t slen;
                 proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_channel_data_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
-                tvbuff_t *next_tvb = tvb_new_subset_remaining(packet_tvb, offset);
-                dissector_handle_t subdissector_handle = get_subdissector_for_channel(peer_data, recipient_channel);
-                if(subdissector_handle){
-                        call_dissector(subdissector_handle, next_tvb, pinfo, msg_type_tree);
+                tvbuff_t *next_tvb = tvb_new_subset_length(packet_tvb, offset, slen);
+
+                ssh_channel_info_t *channel = get_channel_info_for_channel(peer_data, recipient_channel);
+                if (channel) {
+                        if (!PINFO_FD_VISITED(pinfo)) {
+                            message->byte_seq = channel->byte_seq;
+                            channel->byte_seq += slen;
+                            message->next_byte_seq = channel->byte_seq;
+                        }
+                        ssh_dissect_channel_data(next_tvb, pinfo, peer_data, msg_type_tree, message, channel);
                 } else {
-                        expert_add_info_format(pinfo, ti, &ei_ssh_channel_number, "Unable to find dissector for channel %d", recipient_channel);
+                        expert_add_info_format(pinfo, ti, &ei_ssh_channel_number, "Could not find configuration for channel %d", recipient_channel);
                 }
                 offset += slen;
         }else if(msg_code==SSH_MSG_CHANNEL_EOF){
@@ -3973,6 +4574,14 @@ create_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, uint
     }
     wmem_map_insert(peer_data->channel_info, GUINT_TO_POINTER(sender_channel), GUINT_TO_POINTER(recipient_channel));
 
+    if (peer_data->channel_handles == NULL) {
+        peer_data->channel_handles = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    }
+
+    ssh_channel_info_t *new_channel = wmem_new0(wmem_file_scope(), ssh_channel_info_t);
+    new_channel->multisegment_pdus = wmem_tree_new(wmem_file_scope());
+    wmem_map_insert(peer_data->channel_handles, GUINT_TO_POINTER(recipient_channel), new_channel);
+
     /* If the recipient channel is already configured in the other direction,
      * set the handle. We need this if we eventually handle port forwarding,
      * where all the information to handle the traffic is sent in the
@@ -3982,20 +4591,22 @@ create_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, uint
      */
     struct ssh_peer_data *other_peer_data = get_other_peer_data(peer_data);
     if (other_peer_data->channel_handles) {
-        dissector_handle_t handle = wmem_map_lookup(other_peer_data->channel_handles, GUINT_TO_POINTER(sender_channel));
-        if (handle) {
-            wmem_map_insert(peer_data->channel_handles, GUINT_TO_POINTER(recipient_channel), handle);
+        ssh_channel_info_t *peer_channel = wmem_map_lookup(other_peer_data->channel_handles, GUINT_TO_POINTER(sender_channel));
+        if (peer_channel) {
+            new_channel->handle = peer_channel->handle;
         }
     }
 }
 
-static dissector_handle_t
-get_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t uiNumChannel)
+static ssh_channel_info_t*
+get_channel_info_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel)
 {
     if (peer_data->channel_handles == NULL) {
         return NULL;
     }
-    return wmem_map_lookup(peer_data->channel_handles, GUINT_TO_POINTER(uiNumChannel));
+    ssh_channel_info_t *channel = wmem_map_lookup(peer_data->channel_handles, GUINT_TO_POINTER(recipient_channel));
+
+    return channel;
 }
 
 static void
@@ -4008,10 +4619,18 @@ set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient
 
     if (handle) {
         /* Map this handle to the recipient channel */
+        ssh_channel_info_t *channel = NULL;
         if (peer_data->channel_handles == NULL) {
             peer_data->channel_handles = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        } else {
+            channel = wmem_map_lookup(peer_data->channel_handles, GUINT_TO_POINTER(recipient_channel));
         }
-        wmem_map_insert(peer_data->channel_handles, GUINT_TO_POINTER(recipient_channel), handle);
+        if (channel == NULL) {
+            channel = wmem_new0(wmem_file_scope(), ssh_channel_info_t);
+            channel->multisegment_pdus = wmem_tree_new(wmem_file_scope());
+            wmem_map_insert(peer_data->channel_handles, GUINT_TO_POINTER(recipient_channel), channel);
+        }
+        channel->handle = handle;
 
         /* This recipient channel is the sender channel for the other side.
          * Do we know what the recipient channel on the other side is?  */
@@ -4024,8 +4643,16 @@ set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient
                 /* Yes. See the handle for the other side too. */
                 if (other_peer_data->channel_handles == NULL) {
                     other_peer_data->channel_handles = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+                    channel = NULL;
+                } else {
+                    channel = wmem_map_lookup(other_peer_data->channel_handles, GUINT_TO_POINTER(sender_channel));
                 }
-                wmem_map_insert(other_peer_data->channel_handles, GUINT_TO_POINTER(sender_channel), handle);
+                if (channel == NULL) {
+                    channel = wmem_new0(wmem_file_scope(), ssh_channel_info_t);
+                    channel->multisegment_pdus = wmem_tree_new(wmem_file_scope());
+                    wmem_map_insert(other_peer_data->channel_handles, GUINT_TO_POINTER(sender_channel), channel);
+                }
+                channel->handle = handle;
             }
         }
     }
@@ -4967,6 +5594,67 @@ proto_register_ssh(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ssh_reassembled_in,
+          { "Reassembled PDU in frame", "ssh.reassembled_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "The PDU that doesn't end in this segment is reassembled in this frame", HFILL }},
+
+        { &hf_ssh_reassembled_length,
+          { "Reassembled PDU length", "ssh.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The total length of the reassembled payload", HFILL }},
+
+        { &hf_ssh_reassembled_data,
+          { "Reassembled PDU data", "ssh.reassembled.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            "The payload of multiple reassembled SSH segments", HFILL }},
+
+        { &hf_ssh_segments,
+          { "Reassembled SSH segments", "ssh.segments",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "SSH Segments", HFILL }},
+
+        { &hf_ssh_segment,
+          { "SSH segment", "ssh.segment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_segment_overlap,
+          { "Segment overlap", "ssh.segment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Segment overlaps with other segments", HFILL }},
+
+        { &hf_ssh_segment_overlap_conflict,
+          { "Conflicting data in segment overlap", "ssh.segment.overlap.conflict",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Overlapping segments contained conflicting data", HFILL }},
+
+        { &hf_ssh_segment_multiple_tails,
+          { "Multiple tail segments found", "ssh.segment.multipletails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Several tails were found when reassembling the pdu", HFILL }},
+
+        { &hf_ssh_segment_too_long_fragment,
+          { "Segment too long", "ssh.segment.toolongfragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Segment contained data past end of the pdu", HFILL }},
+
+        { &hf_ssh_segment_error,
+          { "Reassembling error", "ssh.segment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "Reassembling error due to illegal segments", HFILL }},
+
+        { &hf_ssh_segment_count,
+          { "Segment count", "ssh.segment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_segment_data,
+          { "SSH segment data", "ssh.segment.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            "The payload of a single SSH segment", HFILL }
+        },
+
     };
 
     static gint *ett[] = {
@@ -4978,7 +5666,9 @@ proto_register_ssh(void)
         &ett_userauth_pk_signautre,
         &ett_ssh1,
         &ett_ssh2,
-        &ett_key_init
+        &ett_key_init,
+        &ett_ssh_segments,
+        &ett_ssh_segment
     };
 
     static ei_register_info ei[] = {
@@ -5023,6 +5713,7 @@ proto_register_ssh(void)
     secrets_register_type(SECRETS_TYPE_SSH, ssh_secrets_block_callback);
 
     ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
+    reassembly_table_register(&ssh_reassembly_table, &tcp_reassembly_table_functions);
     register_shutdown_routine(ssh_shutdown);
 }
 

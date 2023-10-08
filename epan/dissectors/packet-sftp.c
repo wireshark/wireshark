@@ -146,16 +146,32 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static int dissect_sftp_attrs(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree);
 
-//static int dissect_sftp(tvbuff_t *packet_tvb, packet_info *pinfo,
-//        int offset, proto_item *msg_type_tree)
 static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         int offset = 0;
         guint   plen;
         guint   slen;
-        plen = tvb_get_ntohl(tvb, offset) ;
-        wmem_strbuf_t *title = wmem_strbuf_new(wmem_packet_scope(), "SFTP");
-        proto_item * sftp_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_sftp, NULL, NULL);
+        if (pinfo->can_desegment) {
+                if (tvb_captured_length_remaining(tvb, offset) < 4) {
+                        pinfo->desegment_offset = offset;
+                        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+                        return tvb_captured_length(tvb);
+                }
+        }
+
+        plen = tvb_get_ntohl(tvb, offset);
+        if (pinfo->can_desegment) {
+                unsigned length_remaining = tvb_captured_length_remaining(tvb, offset + 4);
+                if (length_remaining < plen) {
+                        pinfo->desegment_offset = offset;
+                        pinfo->desegment_len = plen - length_remaining;
+                        return tvb_captured_length(tvb);
+                }
+        }
+
+        wmem_strbuf_t *title = wmem_strbuf_new(pinfo->pool, "");
+        proto_item *ti = proto_tree_add_item(tree, proto_sftp, tvb, offset, -1, ENC_NA);
+        proto_tree *sftp_tree = proto_item_add_subtree(ti, ett_sftp);
         proto_tree_add_item(sftp_tree, hf_ssh_sftp_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         guint8  typ;
@@ -479,7 +495,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 break;
                 }
         }
-        proto_item_set_text(sftp_tree, "%s", wmem_strbuf_get_str(title));
+        proto_item_append_text(ti, ",%s", wmem_strbuf_get_str(title));
         proto_item_set_len(sftp_tree, plen+4);
         return offset;
 }
