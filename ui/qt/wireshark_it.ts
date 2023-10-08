@@ -14136,6 +14136,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Release Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Options…</source>
         <translation>&amp;Opzioni...</translation>
     </message>

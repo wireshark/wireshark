@@ -14109,6 +14109,10 @@ a:üzerine gelin{
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Release Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Options…</source>
         <translation>&amp;Seçenekler…</translation>
     </message>
