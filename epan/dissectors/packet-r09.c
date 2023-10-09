@@ -53,9 +53,9 @@ static const value_string r09_zv_vals[] = {
 
 static const value_string r09_ha_vals[] = {
     { 0x00, "Ohne Bedeutung" },
-    { 0x01, "Taste 'gerade' betätig" },
-    { 0x02, "Taste 'links' betätig" },
-    { 0x03, "Taste 'rechts' betätig" },
+    { 0x01, "Taste 'gerade' betätigt" },
+    { 0x02, "Taste 'links' betätigt" },
+    { 0x03, "Taste 'rechts' betätigt" },
     {0, NULL}
 };
 
@@ -178,7 +178,7 @@ proto_register_r09(void)
             FT_STRING, BASE_NONE, NULL, 0x00, "Liniennummer", HFILL}
         },
         { &hf_r09_kn, { "KN", "r09.kn",
-            FT_STRING, BASE_NONE, NULL, 0x00, "Kuzrsnummer", HFILL}
+            FT_STRING, BASE_NONE, NULL, 0x00, "Kursnummer", HFILL}
         },
         { &hf_r09_zn, { "ZN", "r09.zn",
             FT_STRING, BASE_NONE, NULL, 0x00, "Zielnummer", HFILL}
