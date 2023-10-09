@@ -8841,67 +8841,67 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         if (flags & 0x08) {
-            proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_basal_metabolism, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_btatt_body_composition_measurement_basal_metabolism, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
 
         if (flags & 0x10) {
-            proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_muscle_percentage, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_btatt_body_composition_measurement_muscle_percentage, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
 
         if (flags & 0x20) {
             if (flags & 0x01)
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_muscle_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_muscle_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             else
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_muscle_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_muscle_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
         }
 
         if (flags & 0x40) {
             if (flags & 0x01)
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_fat_free_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_fat_free_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             else
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_fat_free_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_fat_free_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
         }
 
         if (flags & 0x80) {
             if (flags & 0x01)
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_soft_lean_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_soft_lean_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             else
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_soft_lean_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_soft_lean_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
 
         if (flags & 0x100) {
             if (flags & 0x01)
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_body_water_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_body_water_mass_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             else
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_body_water_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_body_water_mass_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
 
         if (flags & 0x200) {
-            proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_impedance, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_btatt_body_composition_measurement_impedance, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
 
         if (flags & 0x400) {
             if (flags & 0x01)
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_weight_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_weight_lb, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             else
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_weight_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_weight_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
 
         if (flags & 0x800) {
             if (flags & 0x01)
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_height_inches, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_height_inches, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             else
-                proto_tree_add_item(sub_tree, hf_btatt_body_composition_measurement_height_meter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_body_composition_measurement_height_meter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
 
@@ -8957,13 +8957,13 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         if (flags & 0x08) {
-            proto_tree_add_item(sub_tree, hf_btatt_weight_measurement_bmi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_btatt_weight_measurement_bmi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             if (flags & 0x01)
-                proto_tree_add_item(sub_tree, hf_btatt_weight_measurement_height_in, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_weight_measurement_height_in, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             else
-                proto_tree_add_item(sub_tree, hf_btatt_weight_measurement_height_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_btatt_weight_measurement_height_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
 
