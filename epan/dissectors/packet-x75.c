@@ -156,11 +156,7 @@ dissect_x75(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (len > 128)
             len = 128;
 
-        char *tmp = (char*)wmem_alloc(pinfo->pool, len + 1);
-        tmp[len] = 0x00;
-        tvb_memcpy(next_tvb, tmp, 0, len);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tmp);
-        wmem_free(pinfo->pool, tmp);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(pinfo->pool, next_tvb, 0, len));
 
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }
