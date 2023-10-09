@@ -1085,6 +1085,12 @@ instead of
 https://1.na.dl.wireshark.org/download/src/wireshark-{wireshark-version}.tar.xz
 
 [discrete]
+===== Staying Current
+
+Wireshark releases are announced on the link:{wireshark-mailing-lists-url}[wireshark-announce] mailing list.
+A https://appvisor.com/pad/[PAD] file is also published at https://www.wireshark.org/wireshark-pad.xml which contains the current stable version and release date.
+
+[discrete]
 ===== Artwork
 
 Logo and icon artwork can be found in the _image_ directory in the
