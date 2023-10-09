@@ -1554,7 +1554,7 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
     return offset;
 }
 
-ssh_message_info_t*
+static ssh_message_info_t*
 ssh_get_message(packet_info *pinfo, gint record_id)
 {
     ssh_packet_info_t *packet = (ssh_packet_info_t *)p_get_proto_data(
