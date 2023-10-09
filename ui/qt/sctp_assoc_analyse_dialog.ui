@@ -64,7 +64,7 @@
       <item row="3" column="1">
        <widget class="QLabel" name="data21Label">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
@@ -85,21 +85,21 @@
       <item row="2" column="1">
        <widget class="QLabel" name="bytes12Label">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
       <item row="4" column="1">
        <widget class="QLabel" name="bytes21Label">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
        <widget class="QLabel" name="data12Label">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
@@ -113,7 +113,7 @@
       <item row="0" column="1">
        <widget class="QLabel" name="checksumLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
@@ -157,16 +157,29 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+       <widget class="QDialogButtonBox" name="buttonBox">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-        <property name="text">
-         <string>Close</string>
+        <property name="standardButtons">
+         <set>QDialogButtonBox::Close</set>
         </property>
        </widget>
       </item>
      </layout>
+    </widget>
+    <widget class="QLabel" name="hintLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>510</y>
+       <width>791</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="Endpoint_1">
@@ -199,21 +212,21 @@
       <item row="5" column="1">
        <widget class="QLabel" name="label_226">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
        <widget class="QLabel" name="label_224">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
        <widget class="QLabel" name="label_222">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
@@ -248,7 +261,7 @@
       <item row="4" column="1">
        <widget class="QLabel" name="label_225">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
@@ -262,14 +275,14 @@
       <item row="2" column="1">
        <widget class="QLabel" name="label_223">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="QLabel" name="label_221">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
@@ -330,16 +343,29 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+       <widget class="QDialogButtonBox" name="buttonBox_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-        <property name="text">
-         <string>Close</string>
+        <property name="standardButtons">
+         <set>QDialogButtonBox::Close</set>
         </property>
        </widget>
       </item>
      </layout>
+    </widget>
+    <widget class="QLabel" name="hintLabel_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>520</y>
+       <width>791</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="Endpoint_2">
@@ -366,14 +392,14 @@
       <item row="3" column="1">
        <widget class="QLabel" name="label_324">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="QLabel" name="label_321">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
@@ -408,21 +434,21 @@
       <item row="1" column="1">
        <widget class="QLabel" name="label_322">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
        <widget class="QLabel" name="label_323">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
       <item row="5" column="1">
        <widget class="QLabel" name="label_326">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
@@ -436,7 +462,7 @@
       <item row="4" column="1">
        <widget class="QLabel" name="label_325">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
@@ -503,16 +529,29 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+       <widget class="QDialogButtonBox" name="buttonBox_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-        <property name="text">
-         <string>Close</string>
+        <property name="standardButtons">
+         <set>QDialogButtonBox::Close</set>
         </property>
        </widget>
       </item>
      </layout>
+    </widget>
+    <widget class="QLabel" name="hintLabel_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>520</y>
+       <width>791</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</string>
+     </property>
     </widget>
    </widget>
   </widget>
@@ -520,23 +559,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>SCTPAssocAnalyseDialog</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>471</x>
-     <y>365</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>475</x>
-     <y>384</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
+   <sender>buttonBox</sender>
    <signal>clicked()</signal>
    <receiver>SCTPAssocAnalyseDialog</receiver>
    <slot>close()</slot>
@@ -552,7 +575,23 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_3</sender>
+   <sender>buttonBox_2</sender>
+   <signal>clicked()</signal>
+   <receiver>SCTPAssocAnalyseDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>471</x>
+     <y>365</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>475</x>
+     <y>384</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox_3</sender>
    <signal>clicked()</signal>
    <receiver>SCTPAssocAnalyseDialog</receiver>
    <slot>close()</slot>

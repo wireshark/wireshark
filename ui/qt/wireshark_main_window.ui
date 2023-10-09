@@ -592,6 +592,7 @@
      </property>
      <addaction name="actionSCTPAnalyseThisAssociation"/>
      <addaction name="actionSCTPShowAllAssociations"/>
+     <addaction name="actionSCTPFilterThisAssociation"/>
     </widget>
     <widget class="QMenu" name="menuANSI">
      <property name="title">
@@ -1748,6 +1749,11 @@
     <string>Show All Associations</string>
    </property>
   </action>
+  <action name="actionSCTPFilterThisAssociation">
+   <property name="text">
+    <string>Filter this Association</string>
+   </property>
+  </action>
   <action name="actionStatisticsFlowGraph">
    <property name="text">
     <string>Flow Graph</string>
@@ -2059,14 +2065,6 @@
   <action name="actionStatistics29WestLBTRU">
    <property name="text">
     <string>LBT-RU</string>
-   </property>
-  </action>
-  <action name="actionSCTPFilterThisAssociation">
-   <property name="text">
-    <string>Filter this Association</string>
-   </property>
-   <property name="toolTip">
-    <string>Filter this Association</string>
    </property>
   </action>
   <action name="actionFileExportPDU">
