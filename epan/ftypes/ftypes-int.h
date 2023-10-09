@@ -77,7 +77,7 @@ typedef int64_t (*FvalueGetSignedInteger64Func)(fvalue_t*);
 typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
 typedef const ws_in6_addr *(*FvalueGetIpv6)(fvalue_t*);
 
-typedef enum ft_result (*FvalueCmp)(const fvalue_t*, const fvalue_t*, int*);
+typedef enum ft_result (*FvalueCompare)(const fvalue_t*, const fvalue_t*, int*);
 typedef enum ft_result (*FvalueContains)(const fvalue_t*, const fvalue_t*, bool*);
 typedef enum ft_result (*FvalueMatches)(const fvalue_t*, const ws_regex_t*, bool*);
 
@@ -132,9 +132,9 @@ struct _ftype_t {
 		FvalueGetIpv6			get_value_ipv6;
 	} get_value;
 
-	FvalueCmp		cmp_order;
-	FvalueContains		cmp_contains;
-	FvalueMatches		cmp_matches;
+	FvalueCompare		compare;
+	FvalueContains		contains;
+	FvalueMatches		matches;
 
 	FvalueHashFunc		hash;
 	FvalueIs		is_zero;
