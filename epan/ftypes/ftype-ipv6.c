@@ -89,17 +89,15 @@ ipv6_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, in
 }
 
 static void
-ipv6_set(fvalue_t *fv, const ws_in6_addr *value)
+ipv6_set(fvalue_t *fv, const ipv6_addr_and_prefix *value)
 {
-	memcpy(&fv->value.ipv6.addr, value, FT_IPv6_LEN);
-	fv->value.ipv6.prefix = 128;
+	fv->value.ipv6 = *value;
 }
 
-
-static const ws_in6_addr *
+static const ipv6_addr_and_prefix *
 ipv6_get(fvalue_t *fv)
 {
-	return &fv->value.ipv6.addr;
+	return &fv->value.ipv6;
 }
 
 static const uint8_t bitmasks[9] =

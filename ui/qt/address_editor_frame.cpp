@@ -55,7 +55,7 @@ QString AddressEditorFrame::addressToString(const FieldInformation& finfo)
 {
     address addr;
     ws_in4_addr ipv4;
-    const ws_in6_addr* ipv6;
+    const ipv6_addr_and_prefix *ipv6;
 
     if (!finfo.isValid()) {
         return QString();
@@ -73,7 +73,7 @@ QString AddressEditorFrame::addressToString(const FieldInformation& finfo)
         return gchar_free_to_qstring(address_to_str(NULL, &addr));
     case FT_IPv6:
         ipv6 = fvalue_get_ipv6(finfo.fieldInfo()->value);
-        set_address(&addr, AT_IPv6, sizeof(ws_in6_addr), ipv6);
+        set_address(&addr, AT_IPv6, sizeof(ws_in6_addr), &ipv6->addr);
         return gchar_free_to_qstring(address_to_str(NULL, &addr));
     default:
         return QString();

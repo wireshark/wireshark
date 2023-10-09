@@ -63,7 +63,7 @@ typedef void (*FvalueSetSignedIntegerFunc)(fvalue_t*, int32_t);
 typedef void (*FvalueSetUnsignedInteger64Func)(fvalue_t*, uint64_t);
 typedef void (*FvalueSetSignedInteger64Func)(fvalue_t*, int64_t);
 typedef void (*FvalueSetFloatingFunc)(fvalue_t*, double);
-typedef void (*FvalueSetIpv6)(fvalue_t*, const ws_in6_addr *);
+typedef void (*FvalueSetIpv6Func)(fvalue_t*, const ipv6_addr_and_prefix *);
 
 typedef GBytes *(*FvalueGetBytesFunc)(fvalue_t*);
 typedef const e_guid_t *(*FvalueGetGuidFunc)(fvalue_t*);
@@ -75,7 +75,7 @@ typedef int32_t (*FvalueGetSignedIntegerFunc)(fvalue_t*);
 typedef uint64_t (*FvalueGetUnsignedInteger64Func)(fvalue_t*);
 typedef int64_t (*FvalueGetSignedInteger64Func)(fvalue_t*);
 typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
-typedef const ws_in6_addr *(*FvalueGetIpv6)(fvalue_t*);
+typedef const ipv6_addr_and_prefix *(*FvalueGetIpv6Func)(fvalue_t*);
 
 typedef enum ft_result (*FvalueCompare)(const fvalue_t*, const fvalue_t*, int*);
 typedef enum ft_result (*FvalueContains)(const fvalue_t*, const fvalue_t*, bool*);
@@ -115,7 +115,7 @@ struct _ftype_t {
 		FvalueSetUnsignedInteger64Func	set_value_uinteger64;
 		FvalueSetSignedInteger64Func	set_value_sinteger64;
 		FvalueSetFloatingFunc		set_value_floating;
-		FvalueSetIpv6			set_value_ipv6;
+		FvalueSetIpv6Func		set_value_ipv6;
 	} set_value;
 
 	union {
@@ -129,7 +129,7 @@ struct _ftype_t {
 		FvalueGetUnsignedInteger64Func	get_value_uinteger64;
 		FvalueGetSignedInteger64Func	get_value_sinteger64;
 		FvalueGetFloatingFunc		get_value_floating;
-		FvalueGetIpv6			get_value_ipv6;
+		FvalueGetIpv6Func		get_value_ipv6;
 	} get_value;
 
 	FvalueCompare		compare;

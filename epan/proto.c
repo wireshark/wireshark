@@ -4986,7 +4986,10 @@ static void
 proto_tree_set_ipv6(field_info *fi, const ws_in6_addr *value)
 {
 	DISSECTOR_ASSERT(value != NULL);
-	fvalue_set_ipv6(fi->value, value);
+	ipv6_addr_and_prefix ipv6;
+	ipv6.addr = *value;
+	ipv6.prefix = 128;
+	fvalue_set_ipv6(fi->value, &ipv6);
 }
 
 static void
@@ -6791,7 +6794,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 	const char *number_out;
 	address addr;
 	ws_in4_addr ipv4;
-	const ws_in6_addr *ipv6;
+	const ipv6_addr_and_prefix *ipv6;
 
 	switch (hfinfo->type) {
 
@@ -6962,7 +6965,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 
 		case FT_IPv6:
 			ipv6 = fvalue_get_ipv6(finfo->value);
-			set_address (&addr, AT_IPv6, sizeof(ws_in6_addr), ipv6);
+			set_address (&addr, AT_IPv6, sizeof(ws_in6_addr), &ipv6->addr);
 			tmp_str = address_to_display(NULL, &addr);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
@@ -9554,7 +9557,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint32		    integer;
 	guint64		    integer64;
 	ws_in4_addr         ipv4;
-	const ws_in6_addr  *ipv6;
+	const ipv6_addr_and_prefix *ipv6;
 	const e_guid_t	   *guid;
 	gchar		   *name;
 	address		    addr;
@@ -9739,7 +9742,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 			addr.type = AT_IPv6;
 			addr.len  = 16;
-			addr.data = ipv6;
+			addr.data = &ipv6->addr;
 
 			addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
 			snprintf(label_str, ITEM_LABEL_LENGTH,

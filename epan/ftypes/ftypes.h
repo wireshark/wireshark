@@ -400,7 +400,7 @@ void
 fvalue_set_floating(fvalue_t *fv, double value);
 
 void
-fvalue_set_ipv6(fvalue_t *fv, const ws_in6_addr *value);
+fvalue_set_ipv6(fvalue_t *fv, const ipv6_addr_and_prefix *value);
 
 /* GBytes reference count is automatically incremented. */
 WS_DLL_PUBLIC
@@ -453,7 +453,7 @@ fvalue_get_sinteger64(fvalue_t *fv);
 WS_DLL_PUBLIC double
 fvalue_get_floating(fvalue_t *fv);
 
-WS_DLL_PUBLIC const ws_in6_addr *
+WS_DLL_PUBLIC const ipv6_addr_and_prefix *
 fvalue_get_ipv6(fvalue_t *fv);
 
 ft_bool_t
