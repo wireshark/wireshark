@@ -7986,6 +7986,51 @@ def eth_usage():
                     o - list of output files
   """)
 
+
+## Used to preparse C style comments
+## https://github.com/eerimoq/asn1tools/blob/master/asn1tools/parser.py#L231
+##
+def ignore_comments(string):
+    """Ignore comments in given string by replacing them with spaces. This
+    reduces the parsing time by roughly a factor of two.
+
+    """
+
+    comments = [
+        (mo.start(), mo.group(0))
+        for mo in re.finditer(r'(/\*|\*/|\n)', string)
+    ]
+
+    comments.sort()
+
+    multi_line_comment_depth = 0
+    start_offset = 0
+    non_comment_offset = 0
+    chunks = []
+
+    for offset, kind in comments:
+        if multi_line_comment_depth > 0:
+            if kind == '/*':
+                multi_line_comment_depth += 1
+            elif kind == '*/':
+                multi_line_comment_depth -= 1
+
+                if multi_line_comment_depth == 0:
+                    offset += 2
+                    chunks.append(' ' * (offset - start_offset))
+                    non_comment_offset = offset
+            elif kind == '\n':
+                chunks.append('\n')
+                non_comment_offset = offset
+        elif kind == '/*':
+            multi_line_comment_depth = 1
+            start_offset = offset
+            chunks.append(string[non_comment_offset:start_offset])
+
+    chunks.append(string[non_comment_offset:])
+
+    return ''.join(chunks)
+
 def eth_main():
     global input_file
     global g_conform
@@ -8075,6 +8120,7 @@ def eth_main():
         # Py2 compat, name.translate in eth_output_hf_arr fails with unicode
         if not isinstance(data, str):
             data = data.encode('utf-8')
+        data = ignore_comments(data)
         ast.extend(yacc.parse(data, lexer=lexer, debug=pd))
     ectx.eth_clean()
     if (ectx.merge_modules):  # common output for all module
