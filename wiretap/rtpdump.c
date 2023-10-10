@@ -53,7 +53,6 @@
 #include <wsutil/inet_addr.h>
 #include <wsutil/nstime.h>
 #include <wsutil/strtoi.h>
-#include <wsutil/wslog.h>
 #include "rtpdump.h"
 #include <string.h>
 

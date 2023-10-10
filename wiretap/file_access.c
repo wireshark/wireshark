@@ -20,7 +20,6 @@
 #include <wsutil/plugins.h>
 #endif
 #include <wsutil/ws_assert.h>
-#include <wsutil/wslog.h>
 
 #include "wtap-int.h"
 #include "wtap_modules.h"
