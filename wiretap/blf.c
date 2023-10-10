@@ -17,6 +17,8 @@
   */
 
 #include <config.h>
+#define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+
 #include "blf.h"
 
 #include <epan/dissectors/packet-socketcan.h>
