@@ -37,7 +37,6 @@ ALLOWED_LICENSES = [
     'BSD (2 clause) GPL (v2 or later)',
     'BSD (3 clause)',
     'GPL (v2 or later)',
-    'GPL (v3 or later) (with Bison parser exception)',
     'ISC',
     'ISC GPL (v2 or later)',
     'LGPL (v2 or later)',
