@@ -169,7 +169,7 @@ blf_add_interface(blf_params_t *params, int pkt_encap, guint32 channel, guint16 
     if_descr_mand->interface_statistics = NULL;
     wtap_add_idb(params->wth, int_data);
 
-    if (params->wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+    if (params->wth->file_encap == WTAP_ENCAP_NONE) {
         params->wth->file_encap = if_descr_mand->wtap_encap;
     } else {
         if (params->wth->file_encap != if_descr_mand->wtap_encap) {
@@ -983,7 +983,7 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
 }
 
 static void
-blf_init_rec(blf_params_t *params, guint32 flags, guint64 object_timestamp, int pkt_encap, int pkt_encap_iface, guint16 channel, guint16 hwchannel, guint caplen, guint len) {
+blf_init_rec(blf_params_t *params, guint32 flags, guint64 object_timestamp, int pkt_encap, guint16 channel, guint16 hwchannel, guint caplen, guint len) {
     params->rec->rec_type = REC_TYPE_PACKET;
     params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
@@ -1024,7 +1024,7 @@ blf_init_rec(blf_params_t *params, guint32 flags, guint64 object_timestamp, int 
     params->rec->ts_rel_cap_valid = true;
 
     params->rec->rec_header.packet_header.pkt_encap = pkt_encap;
-    params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap_iface, channel, hwchannel, NULL);
+    params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap, channel, hwchannel, NULL);
 
     /* TODO: before we had to remove comments and verdict here to not leak memory but APIs have changed ... */
 }
@@ -1163,7 +1163,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
     }
     params->buf->first_free += ethheader.payloadlength;
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, caplen, len);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, ethheader.direction);
 
     return TRUE;
@@ -1200,7 +1200,7 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
         return FALSE;
     }
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
     wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
     blf_add_direction_option(params, ethheader.direction);
 
@@ -1241,7 +1241,7 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
         return FALSE;
     }
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_IEEE_802_11, WTAP_ENCAP_IEEE_802_11, wlanheader.channel, UINT16_MAX, wlanheader.frame_length, wlanheader.frame_length);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_IEEE_802_11, wlanheader.channel, UINT16_MAX, wlanheader.frame_length, wlanheader.frame_length);
     blf_add_direction_option(params, wlanheader.direction);
 
     return TRUE;
@@ -1276,7 +1276,7 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, gchar **err_info, guint
     }
     params->buf->first_free += payload_length_valid;
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, WTAP_ENCAP_SOCKETCAN, channel, UINT16_MAX, caplen, len);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, channel, UINT16_MAX, caplen, len);
 
     return TRUE;
 }
@@ -1516,7 +1516,7 @@ blf_read_canerror(blf_params_t *params, int *err, gchar **err_info, gint64 block
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, WTAP_ENCAP_SOCKETCAN, canheader.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canheader.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
     return TRUE;
 }
 
@@ -1601,7 +1601,7 @@ blf_read_canerrorext(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, WTAP_ENCAP_SOCKETCAN, canheader.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canheader.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
     if (canheader.flags & BLF_CANERROREXT_FLAG_CANCORE) {
         direction_tx = (canheader.errorCodeExt & BLF_CANERROREXT_EXTECC_TX) == BLF_CANERROREXT_EXTECC_TX;
         blf_add_direction_option(params, direction_tx ? BLF_DIR_TX: BLF_DIR_RX);
@@ -1690,7 +1690,7 @@ blf_read_canfderror64(blf_params_t *params, int *err, gchar **err_info, gint64 b
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, WTAP_ENCAP_SOCKETCAN, canheader.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canheader.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
     if (canheader.flags & BLF_CANERROREXT_FLAG_CANCORE) {
         direction_tx = (canheader.errorCodeExt & BLF_CANERROREXT_EXTECC_TX) == BLF_CANERROREXT_EXTECC_TX;
         blf_add_direction_option(params, direction_tx ? BLF_DIR_TX: BLF_DIR_RX);
@@ -1764,7 +1764,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     }
     params->buf->first_free += payload_length_valid;
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
 
     return TRUE;
@@ -1853,7 +1853,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     }
     params->buf->first_free += payload_length_valid;
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
 
     return TRUE;
@@ -1950,7 +1950,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     }
     params->buf->first_free += payload_length_valid;
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, WTAP_ENCAP_FLEXRAY, frheader.channelMask, UINT16_MAX, caplen, len);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channelMask, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
 
     return TRUE;
@@ -2024,7 +2024,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     fix_endianness_blf_linmessage_trailer(&lintrailer);
     /* we are not using it right now since the CRC is too big to convert */
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, WTAP_ENCAP_LIN, linheader.channel, UINT16_MAX, caplen, len);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, lintrailer.dir);
 
     return TRUE;
@@ -2129,7 +2129,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         ws_buffer_append(params->buf, text, apptextheader.textLength + 1);
 
         /* We'll write this as a WS UPPER PDU packet with a text blob */
-        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_ENCAP_ETHERNET, 0, UINT16_MAX, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
         g_free(text);
         return apptextheader.source;
     default:
@@ -2182,8 +2182,15 @@ blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint6
     ws_buffer_append(params->buf, tmpbuf, (gsize)16);
 
     /* We'll write this as a WS UPPER PDU packet with a data blob */
-    blf_lookup_interface(params, WTAP_ENCAP_ETHERNET, ethernet_status_header.channel, ethernet_status_header.hardwareChannel, ws_strdup_printf("ETH-%u-%u", ethernet_status_header.channel, ethernet_status_header.hardwareChannel));
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_ENCAP_ETHERNET, ethernet_status_header.channel, ethernet_status_header.hardwareChannel, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
+    /* This will create an interface with the "name" of the matching
+     * WTAP_ENCAP_ETHERNET interface with the same channel and hardware
+     * channel prefixedwith "STATUS" and with a different interface ID,
+     * because IDBs in pcapng can only have one linktype.
+     * The other option would be to write everything as UPPER_PDU, including
+     * the Ethernet data (with one of the "eth_" dissectors.)
+     */
+    blf_lookup_interface(params, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_status_header.channel, ethernet_status_header.hardwareChannel, ws_strdup_printf("STATUS-ETH-%u-%u", ethernet_status_header.channel, ethernet_status_header.hardwareChannel));
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_status_header.channel, ethernet_status_header.hardwareChannel, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
 
     if ((ethernet_status_header.flags & BLF_ETH_STATUS_HARDWARECHANNEL) == BLF_ETH_STATUS_HARDWARECHANNEL) {
         /* If HW channel valid */
@@ -2491,7 +2498,7 @@ blf_open(wtap *wth, int *err, gchar **err_info) {
     blf_scan_file_for_logcontainers(&params);
 
     wth->priv = (void *)blf;
-    wth->file_encap = WTAP_ENCAP_UNKNOWN;
+    wth->file_encap = WTAP_ENCAP_NONE;
     wth->snapshot_length = 0;
     wth->file_tsprec = WTAP_TSPREC_UNKNOWN;
     wth->subtype_read = blf_read;
