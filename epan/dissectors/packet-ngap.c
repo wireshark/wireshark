@@ -7506,9 +7506,13 @@ static const per_choice_t Cause_choice[] = {
 
 static int
 dissect_ngap_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ngap_Cause, Cause_choice,
-                                 NULL);
+                                 &value);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause=%s]", val_to_str_const(value, ngap_Cause_vals, "Unknown"));
+
 
   return offset;
 }
@@ -10623,6 +10627,7 @@ dissect_ngap_HandoverType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, &ngap_data->handover_type_value, TRUE, 1, NULL);
+
 
 
 
@@ -15242,8 +15247,12 @@ static const value_string ngap_PagingCause_vals[] = {
 
 static int
 dissect_ngap_PagingCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, &value, TRUE, 0, NULL);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [PagingCause=%s]", val_to_str_const(value, ngap_PagingCause_vals, "Unknown"));
+
 
   return offset;
 }
@@ -15257,8 +15266,12 @@ static const value_string ngap_PagingCauseIndicationForVoiceService_vals[] = {
 
 static int
 dissect_ngap_PagingCauseIndicationForVoiceService(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, &value, TRUE, 0, NULL);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [PagingCauseIndicationForVoiceService=%s]", val_to_str_const(value, ngap_PagingCauseIndicationForVoiceService_vals, "Unknown"));
+
 
   return offset;
 }
@@ -18421,8 +18434,12 @@ static const value_string ngap_RRCEstablishmentCause_vals[] = {
 
 static int
 dissect_ngap_RRCEstablishmentCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     10, NULL, TRUE, 2, NULL);
+                                     10, &value, TRUE, 2, NULL);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RRCEstablishmentCause=%s]", val_to_str_const(value, ngap_RRCEstablishmentCause_vals, "Unknown"));
+
 
   return offset;
 }
@@ -21585,7 +21602,6 @@ dissect_ngap_NGAP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NGAP_Message);
-  col_set_fence(actx->pinfo->cinfo, COL_INFO);
   call_dissector(ngap_handle, parameter_tvb, actx->pinfo, subtree);
 
 

@@ -298,6 +298,28 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
 
+# Whenever a Cause appears, look up the reason and show it in the Info column
+
+#.FN_BODY Cause VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause=%%s]", val_to_str_const(value, ngap_Cause_vals, "Unknown"));
+
+#.FN_BODY RRCEstablishmentCause VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RRCEstablishmentCause=%%s]", val_to_str_const(value, ngap_RRCEstablishmentCause_vals, "Unknown"));
+
+#.FN_BODY PagingCause VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [PagingCause=%%s]", val_to_str_const(value, ngap_PagingCause_vals, "Unknown"));
+
+#.FN_BODY PagingCauseIndicationForVoiceService VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [PagingCauseIndicationForVoiceService=%%s]", val_to_str_const(value, ngap_PagingCauseIndicationForVoiceService_vals, "Unknown"));
+
 #.FN_BODY SourceToTarget-TransparentContainer VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
@@ -600,7 +622,6 @@ TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLA
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NGAP_Message);
-  col_set_fence(actx->pinfo->cinfo, COL_INFO);
   call_dissector(ngap_handle, parameter_tvb, actx->pinfo, subtree);
 
 #.FN_BODY NGRANTraceID VAL_PTR = &parameter_tvb
