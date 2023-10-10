@@ -54,6 +54,10 @@ static int hf_mac_nr_subheader_length_2_bytes = -1;
 static int hf_mac_nr_lcid = -1;
 static int hf_mac_nr_ulsch_lcid = -1;
 static int hf_mac_nr_dlsch_lcid = -1;
+static int hf_mac_nr_dlsch_elcid_2oct = -1;
+static int hf_mac_nr_ulsch_elcid_2oct = -1;
+static int hf_mac_nr_dlsch_elcid_1oct = -1;
+static int hf_mac_nr_ulsch_elcid_1oct = -1;
 static int hf_mac_nr_dlsch_sdu = -1;
 static int hf_mac_nr_ulsch_sdu = -1;
 static int hf_mac_nr_bcch_pdu = -1;
@@ -313,6 +317,8 @@ static int hf_mac_nr_rar_temp_crnti = -1;
 
 static int hf_mac_nr_padding = -1;
 
+static int hf_mac_nr_differential_koffset = -1;
+static int hf_mac_nr_differential_koffset_reserved = -1;
 /* Subtrees. */
 static int ett_mac_nr = -1;
 static int ett_mac_nr_context = -1;
@@ -500,23 +506,25 @@ static const value_string bcch_transport_channel_vals[] =
 };
 
 #define CCCH_LCID                                   0x00
-#define RECOMMENDED_BIT_RATE_LCID                   0x2f
-#define SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID    0x30
-#define PUCCH_SPATIAL_REL_ACT_DEACT_LCID            0x31
-#define SP_SRS_ACT_DEACT_LCID                       0x32
-#define SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID       0x33
-#define TCI_STATE_IND_FOR_UE_SPEC_PDCCH_LCID        0x34
-#define TCI_STATES_ACT_DEACT_FOR_UE_SPEC_PDSCH_LCID 0x35
-#define APER_CSI_TRIGGER_STATE_SUBSELECT_LCID       0x36
-#define SP_CSI_RS_CSI_IM_RES_SET_ACT_DEACT_LCID     0x37
-#define DUPLICATION_ACTIVATION_DEACTIVATION_LCID    0x38
-#define SCELL_ACTIVATION_DEACTIVATION_4_LCID        0x39
-#define SCELL_ACTIVATION_DEACTIVATION_1_LCID        0x3a
-#define LONG_DRX_COMMAND_LCID                       0x3b
-#define DRX_COMMAND_LCID                            0x3c
-#define TIMING_ADVANCE_COMMAND_LCID                 0x3d
-#define UE_CONTENTION_RESOLUTION_IDENTITY_LCID      0x3e
-#define PADDING_LCID                                0x3f
+#define TWO_OCTET_ELCID_FIELD                       33
+#define ONE_OCTET_ELCID_FIELD                       34
+#define RECOMMENDED_BIT_RATE_LCID                   47
+#define SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID    48
+#define PUCCH_SPATIAL_REL_ACT_DEACT_LCID            49
+#define SP_SRS_ACT_DEACT_LCID                       50
+#define SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID       51
+#define TCI_STATE_IND_FOR_UE_SPEC_PDCCH_LCID        52
+#define TCI_STATES_ACT_DEACT_FOR_UE_SPEC_PDSCH_LCID 53
+#define APER_CSI_TRIGGER_STATE_SUBSELECT_LCID       54
+#define SP_CSI_RS_CSI_IM_RES_SET_ACT_DEACT_LCID     55
+#define DUPLICATION_ACTIVATION_DEACTIVATION_LCID    56
+#define SCELL_ACTIVATION_DEACTIVATION_4_LCID        57
+#define SCELL_ACTIVATION_DEACTIVATION_1_LCID        58
+#define LONG_DRX_COMMAND_LCID                       59
+#define DRX_COMMAND_LCID                            60
+#define TIMING_ADVANCE_COMMAND_LCID                 61
+#define UE_CONTENTION_RESOLUTION_IDENTITY_LCID      62
+#define PADDING_LCID                                63
 
 static const value_string dlsch_lcid_vals[] =
 {
@@ -553,7 +561,21 @@ static const value_string dlsch_lcid_vals[] =
     { 30,                                          "30"},
     { 31,                                          "31"},
     { 32,                                          "32"},
-    { RECOMMENDED_BIT_RATE_LCID,                   "Recommended Bit Rate"},
+    { 33,                                          "Extended logical channel ID field(two octet eLCID field)"},
+    { 34,                                          "Extended logical channel ID field(one octet eLCID field)"},
+    { 35,                                          "Reserved"},
+    { 36,                                          "Reserved"},
+    { 37,                                          "Reserved"},
+    { 38,                                          "Reserved"},
+    { 39,                                          "Reserved"},
+    { 40,                                          "Reserved"},
+    { 41,                                          "Reserved"},
+    { 42,                                          "Reserved"},
+    { 43,                                          "Reserved"},
+    { 44,                                          "Reserved"},
+    { 45,                                          "Reserved"},
+    { 46,                                          "Reserved"},
+    { RECOMMENDED_BIT_RATE_LCID,                   "Recommended Bit Rate"}, // 47
     { SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID,    "SP ZP CSI-RS Resource Set Activation/Deactivation"},
     { PUCCH_SPATIAL_REL_ACT_DEACT_LCID,            "PUCCH spatial relation Activation/Deactivation"},
     { SP_SRS_ACT_DEACT_LCID,                       "SP SRS Activation/Deactivation"},
@@ -574,23 +596,95 @@ static const value_string dlsch_lcid_vals[] =
 };
 static value_string_ext dlsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_lcid_vals);
 
-/* TODO: more LCIDs to add, and not all handled yet */
-#define TRUNCATED_ENHANCED_BFR_LCID          0x2b
-#define TIMING_ADVANCE_REPORT_LCID           0x2c
-#define TRUNCATED_SIDELINK_BSR_LCID          0x2d
-#define SIDELINK_BSR_LCID                    0x2e
-#define CCCH_48_BITS_LCID                    0x34
-#define RECOMMENDED_BIT_RATE_QUERY_LCID      0x35
-#define MULTIPLE_ENTRY_PHR_4_LCID            0x36
-#define CONFIGURED_GRANT_CONFIGURATION_LCID  0x37
-#define MULTIPLE_ENTRY_PHR_1_LCID            0x38
-#define SINGLE_ENTRY_PHR_LCID                0x39
-#define C_RNTI_LCID                          0x3a
-#define SHORT_TRUNCATED_BSR_LCID             0x3b
-#define LONG_TRUNCATED_BSR_LCID              0x3c
-#define SHORT_BSR_LCID                       0x3d
-#define LONG_BSR_LCID                        0x3e
-#define PADDING_LCID                         0x3f
+/* TODO: not all LCIDs handled yet */
+#define TRUNCATED_ENHANCED_BFR_LCID          0x2b  // 43
+#define TIMING_ADVANCE_REPORT_LCID           0x2c  // 44
+#define TRUNCATED_SIDELINK_BSR_LCID          0x2d  // 45
+#define SIDELINK_BSR_LCID                    0x2e  // 46
+#define RESERVED_47_LCID                     0x2f  // 47
+#define LBT_FAILURE_4_OCTETS_LCID            0x30  // 48
+#define LBT_FAILURE_1_OCTET_LCID             0x31  // 49
+#define BFR_LCID                             0x32  // 50
+#define TRUNCATED_BFR_LCID                   0x33  // 51
+#define CCCH_48_BITS_LCID                    0x34  // 52
+#define RECOMMENDED_BIT_RATE_QUERY_LCID      0x35  // 53
+#define MULTIPLE_ENTRY_PHR_4_LCID            0x36  // 54
+#define CONFIGURED_GRANT_CONFIGURATION_LCID  0x37  // 55
+#define MULTIPLE_ENTRY_PHR_1_LCID            0x38  // 56
+#define SINGLE_ENTRY_PHR_LCID                0x39  // 57
+#define C_RNTI_LCID                          0x3a  // 58
+#define SHORT_TRUNCATED_BSR_LCID             0x3b  // 59
+#define LONG_TRUNCATED_BSR_LCID              0x3c  // 60
+#define SHORT_BSR_LCID                       0x3d  // 61
+#define LONG_BSR_LCID                        0x3e  // 62
+
+/* Table 6.2.1-1b Values of one-octet eLCID for DL-SCH */
+
+#define SERVING_CELL_SET_BASED_SRS_TCI_STATE_INDICATIONS_ELCD                                       227
+#define SP_AP_SRS_TCI_STATE_INDICATION_ELCD                                                         228
+#define BFD_RS_INDICATION_ELCD                                                                      229
+#define DIFFERENTIAL_KOFFSET_ELCD                                                                   230
+#define ENHANCED_SCELL_ACTIVATION_DEACTIVATION_MAC_CE_WITH_ONE_OCTET_CI_FIELD_ELCD                  231
+#define ENHANCED_SCELL_ACTIVATION_DEACTIVATION_MAC_CE_WITH_FOUR_OCTET_CI_FIELD_ELCD                 232
+#define UNIFIED_TCI_STATES_ACTIVATION_DEACTIVATION_ELCD                                             233
+#define PUCCH_POWER_CONTROL_SET_UPDATE_FOR_MULTIPLE_TRP_PUCCH_REPETITION__ELCD                      234
+#define PUCCH_SPATIAL_RELATION_ACTIVATION_DEACTIVATION_FOR_MULTIPLE_TRP_PUCCH_REPETITION_ELCD       235
+#define ENHANCED_TCI_STATES_INDICATION_FOR_UE_SPECIFIC_PDCCH_ELCD                                   236
+#define POSITIONING_MEASUREMENT_GAP_ACTIVATION_DEACTIVATION_COMMAND_ELCD                            237
+#define PPW_ACTIVATION_DEACTIVATION_COMMAND_ELCD                                                    238
+#define DL_TX_POWER_ADJUSTMENT_ELCD                                                                 239
+#define TIMING_CASE_INDICATION_ELCD                                                                 240
+#define CHILD_IAB_DU_RESTRICTED_BEAM_INDICATION_ELCD                                                241
+#define CASE_7_TIMING_ADVANCE_OFFSET_ELCD                                                           242
+#define PROVIDED_GUARD_SYMBOLS_FOR_CASE_6_TIMING_ELCD                                               243
+#define PROVIDED_GUARD_SYMBOLS_FOR_CASE_7_TIMING_ELCD                                               244
+#define SERVING_CELL_SET_BASED_SRS_SPATIAL_RELATION_INDICATION_ELCD                                 245
+#define PUSCH_PATHLOSS_REFERENCE_RS_UPDATE_ELCD                                                     246
+#define SRS_PATHLOSS_REFERENCE_RS_UPDATE_ELCD                                                       247
+#define ENHANCED_SP_AP_SRS_SPATIAL_RELATION_INDICATION_ELCD                                         248
+#define ENHANCED_PUCCH_SPATIAL_RELATION_ACTIVATION_DEACTIVATION_ELCD                                249
+#define ENHANCED_TCI_STATES_ACTIVATION_DEACTIVATION_FOR_UE_SPECIFIC_PDSCH_ELCD                      250
+#define DUPLICATION_RLC_ACTIVATION_DEACTIVATION_ELCD                                                251
+#define ABSOLUTE_TIMING_ADVANCE_COMMAND_ELCD                                                        252
+#define SP_POSITIONING_SRS_ACTIVATION_DEACTIVATION_ELCD                                             253
+#define PROVIDED_GUARD_SYMBOLS_ELCD                                                                 254
+#define TIMING_DELTA_ELCD                                                                           255
+
+static const value_string dlsch_elcid_vals[] =
+{
+//0 to 226	64 to 290	Reserved
+    { 227,                                          "Serving Cell Set based SRS TCI State Indication"},
+    { 228,                                          "SP/AP SRS TCI State Indication"},
+    { 229,                                          "BFD-RS Indication"},
+    { 230,                                          "Differential Koffset"},
+    { 231,                                          "Enhanced SCell Activation/Deactivation with one octet Ci field"},
+    { 232,                                          "Enhanced SCell Activation/Deactivation with four octet Ci field"},
+    { 233,                                          "Unified TCI States Activation/Deactivation"},
+    { 234,                                          "PUCCH Power Control Set Update for multiple TRP PUCCH repetition"},
+    { 235,                                          "PUCCH spatial relation Activation/Deactivation for multiple TRP PUCCH repetition"},
+    { 236,                                          "Enhanced TCI States Indication for UE-specific PDCCH"},
+    { 237,                                          "Positioning Measurement Gap Activation/Deactivation Command"},
+    { 238,                                          "PPW Activation/Deactivation Command"},
+    { 239,                                          "DL Tx Power Adjustment"},
+    { 240,                                          "Timing Case Indication"},
+    { 241,                                          "Child IAB-DU Restricted Beam Indication"},
+    { 242,                                          "Case-7 Timing advance offset"},
+    { 243,                                          "Provided Guard Symbols for Case-6 timing"},
+    { 244,                                          "Provided Guard Symbols for Case-7 timing"},
+    { 245,                                          "Serving Cell Set based SRS Spatial Relation Indication"},
+    { 246,                                          "PUSCH Pathloss Reference RS Update"},
+    { 247,                                          "SRS Pathloss Reference RS Update"},
+    { 248,                                          "Enhanced SP/AP SRS Spatial Relation Indication"},
+    { 249,                                          "Enhanced PUCCH Spatial Relation Activation/Deactivation"},
+    { 250,                                          "Enhanced TCI States Activation/Deactivation for UE-specific PDSCH"},
+    { 251,                                          "Duplication RLC Activation/Deactivation"},
+    { 252,                                          "Absolute Timing Advance Command"},
+    { 253,                                          "SP Positioning SRS Activation/Deactivation"},
+    { 254,                                          "Provided Guard Symbols"},
+    { 255,                                          "Timing Delta"},
+    { 0, NULL }
+};
+static value_string_ext dlsch_elcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_elcid_vals);
 
 static const value_string ulsch_lcid_vals[] =
 {
@@ -627,22 +721,104 @@ static const value_string ulsch_lcid_vals[] =
     { 30,                                   "30"},
     { 31,                                   "31"},
     { 32,                                   "32"},
-    { TIMING_ADVANCE_REPORT_LCID,           "Timing Advance Report"},
-    { CCCH_48_BITS_LCID,                    "CCCH (48 bits)"},
-    { RECOMMENDED_BIT_RATE_QUERY_LCID,      "Recommended Bit Rate Query"},
-    { MULTIPLE_ENTRY_PHR_4_LCID,            "Multiple Entry PHR (4 octet C)"},
-    { CONFIGURED_GRANT_CONFIGURATION_LCID,  "Configured Grant Confirmation"},
-    { MULTIPLE_ENTRY_PHR_1_LCID,            "Multiple Entry PHR (1 octet C)"},
-    { SINGLE_ENTRY_PHR_LCID,                "Single Entry PHR"},
-    { C_RNTI_LCID,                          "C-RNTI"},
-    { SHORT_TRUNCATED_BSR_LCID,             "Short Truncated BSR"},
-    { LONG_TRUNCATED_BSR_LCID,              "Long Truncated BSR"},
-    { SHORT_BSR_LCID,                       "Short BSR"},
-    { LONG_BSR_LCID,                        "Long BSR"},
-    { PADDING_LCID,                         "Padding"},
+    { 33,                                   "Extended logical channel ID field(two-octet eLCID field)"},
+    { 34,                                   "Extended logical channel ID field(one-octet eLCID field)"},
+    { 35,                                   "CCCH of size 48 bits(referred to as 'CCCH' in TS 38.331[5]) for a RedCap UE"},
+    { 36,                                   "CCCH of size 64 bits(referred to as 'CCCH1' in TS 38.331[5]) for a RedCap UE"},
+    { 37,                                   "Reserved"},
+    { 38,                                   "Reserved"},
+    { 39,                                   "Reserved"},
+    { 40,                                   "Reserved"},
+    { 41,                                   "Reserved"},
+    { 42,                                   "Reserved"},
+    { TRUNCATED_ENHANCED_BFR_LCID,          "Truncated Enhanced BFR"},              // 43
+    { TIMING_ADVANCE_REPORT_LCID,           "Timing Advance Report"},               // 44
+    { TRUNCATED_SIDELINK_BSR_LCID,          "Truncated Sidelink BSR"},              // 45
+    { SIDELINK_BSR_LCID,                    "Sidelink BSR"},                        // 46
+    { RESERVED_47_LCID,                     "Reserved"},                            // 47
+    { LBT_FAILURE_4_OCTETS_LCID,            "LBT Failure 4 octets"},                // 48
+    { LBT_FAILURE_1_OCTET_LCID,             "LBT Failure 1 octet"},                 // 49
+    { BFR_LCID,                             "BFR"},                                 // 50
+    { TRUNCATED_BFR_LCID,                   "Truncated BFR"},                       // 51
+    { CCCH_48_BITS_LCID,                    "CCCH (48 bits)"},                      // 52
+    { RECOMMENDED_BIT_RATE_QUERY_LCID,      "Recommended Bit Rate Query"},          // 53
+    { MULTIPLE_ENTRY_PHR_4_LCID,            "Multiple Entry PHR (4 octet C)"},      // 54
+    { CONFIGURED_GRANT_CONFIGURATION_LCID,  "Configured Grant Confirmation"},       // 55
+    { MULTIPLE_ENTRY_PHR_1_LCID,            "Multiple Entry PHR (1 octet C)"},      // 56
+    { SINGLE_ENTRY_PHR_LCID,                "Single Entry PHR"},                    // 57
+    { C_RNTI_LCID,                          "C-RNTI"},                              // 58
+    { SHORT_TRUNCATED_BSR_LCID,             "Short Truncated BSR"},                 // 59
+    { LONG_TRUNCATED_BSR_LCID,              "Long Truncated BSR"},                  // 60
+    { SHORT_BSR_LCID,                       "Short BSR"},                           // 61
+    { LONG_BSR_LCID,                        "Long BSR"},                            // 62
+    { PADDING_LCID,                         "Padding"},                             // 63
     { 0, NULL }
 };
 static value_string_ext ulsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(ulsch_lcid_vals);
+
+#define ENHANCED_MULTIPLE_ENTRY_PHR_FOR_MULTIPLE_TRP_FOUR_OCTETS_CI      229
+#define ENHANCED_MULTIPLE_ENTRY_PHR_FOR_MULTIPLE_TRP_ONE_OCTETS_CI       230
+#define ENHANCED_SINGLE_ENTRY_PHR_FOR_MULTIPLE_TRP                       231
+#define ENHANCED_MULTIPLE_ENTRY_PHR_FOUR_OCTETS_CI                       232
+#define ENHANCED_MULTIPLE_ENTRY_PHR_ONE_OCTETS_CI                        233
+#define ENHANCED_SINGLE_ENTRY_PHR                                        234
+#define ENHANCED_BFR_ONE_OCTET_CI                                        235
+#define ENHANCED_BFR_FOUR_OCTET_CI                                       236
+#define TRUNCATED_ENHANCED_BFR_FOUR_OCTET_CI                             237
+#define POSITIONING_MEASUREMENT_GAP_ACTIVATION_DEACTIVATION_REQUEST      238
+#define IAB_MT_RECOMMENDED_BEAM_INDICATION                               239
+#define DESIRED_IAB_MT_PSD_RANGE                                         240
+#define DESIRED_DL_TX_POWER_ADJUSTMENT                                   241
+#define CASE_6_TIMING_REQUEST                                            242
+#define DESIRED_GUARD_SYMBOLS_FOR_CASE_6_TIMING                          243
+#define DESIRED_GUARD_SYMBOLS_FOR_CASE_7_TIMING                          244
+#define EXTENDED_SHORT_TRUNCATED_BSR                                     245
+#define EXTENDED_LONG_TRUNCATED_BSR                                      246
+#define EXTENDED_SHORT_BSR                                               247
+#define EXTENDED_LONG_BSR                                                248
+#define EXTENDED_PRE_EMPTIVE_BSR                                         249
+#define BFR_FOUR_OCTETS_CI                                               250
+#define TRUNCATED_BFR_FOUR_OCTETS_CI                                     251
+#define MULTIPLE_ENTRY_CONFIGURED_GRANT_CONFIRMATION                     252
+#define SIDELINK_CONFIGURED_GRANT_CONFIRMATION                           253
+#define DESIRED_GUARD_SYMBOLS                                            254
+#define PRE_EMPTIVE_BSR                                                  255
+
+static const value_string ulsch_elcid_vals[] =
+{
+//Table 6.2.1-2b Values of one-octet eLCID for UL-SCH
+//Codepoint	Index	LCID values
+//0 to 228	64 to 292	Reserved
+    { 229,                                   "Enhanced Multiple Entry PHR for multiple TRP(four octets Ci)"},
+    { 230,                                   "Enhanced Multiple Entry PHR for multiple TRP(one octets Ci)"},
+    { 231,                                   "Enhanced Single Entry PHR for multiple TRP"},
+    { 232,                                   "Enhanced Multiple Entry PHR(four octets Ci)"},
+    { 233,                                   "Enhanced Multiple Entry PHR(one octets Ci)"},
+    { 234,                                   "Enhanced Single Entry PHR"},
+    { 235,                                   "Enhanced BFR(one octet Ci)"},
+    { 236,                                   "Enhanced BFR(four octet Ci)"},
+    { 237,                                   "Truncated Enhanced BFR(four octet Ci)"},
+    { 238,                                   "Positioning Measurement Gap Activation/Deactivation Request"},
+    { 239,                                   "IAB-MT Recommended Beam Indication"},
+    { 240,                                   "Desired IAB-MT PSD range"},
+    { 241,                                   "Desired DL Tx Power Adjustment"},
+    { 242,                                   "Case-6 Timing Request"},
+    { 243,                                   "Desired Guard Symbols for Case 6 timing"},
+    { 244,                                   "Desired Guard Symbols for Case 7 timing"},
+    { 245,                                   "Extended Short Truncated BSR"},
+    { 246,                                   "Extended Long Truncated BSR"},
+    { 247,                                   "Extended Short BSR"},
+    { 248,                                   "Extended Long BSR"},
+    { 249,                                   "Extended Pre-emptive BSR"},
+    { 250,                                   "BFR(four octets Ci)"},
+    { 251,                                   "Truncated BFR(four octets Ci)"},
+    { 252,                                   "Multiple Entry Configured Grant Confirmation"},
+    { 253,                                   "Sidelink Configured Grant Confirmation"},
+    { 254,                                   "Desired Guard Symbols"},
+    { 255,                                   "Pre-emptive BSR"},
+    { 0, NULL }
+};
+static value_string_ext ulsch_elcid_vals_ext = VALUE_STRING_EXT_INIT(ulsch_elcid_vals);
 
 static const true_false_string rar_ext_vals =
 {
@@ -1354,6 +1530,8 @@ static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
     }
     else {
         switch (lcid) {
+            case TWO_OCTET_ELCID_FIELD:
+            case ONE_OCTET_ELCID_FIELD:
             case RECOMMENDED_BIT_RATE_LCID:
             case SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID:
             case PUCCH_SPATIAL_REL_ACT_DEACT_LCID:
@@ -1374,6 +1552,97 @@ static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
     }
 }
 
+static gboolean is_fixed_sized_elcid(guint8 elcid, guint8 direction)
+{
+    if (direction == DIRECTION_UPLINK) {
+        switch (elcid) {
+        case ENHANCED_SINGLE_ENTRY_PHR_FOR_MULTIPLE_TRP:
+            /* Enhanced Single Entry PHR for multiple TRP */
+        case POSITIONING_MEASUREMENT_GAP_ACTIVATION_DEACTIVATION_REQUEST:
+            /* Positioning Measurement Gap Activation/Deactivation Request */
+        case CASE_6_TIMING_REQUEST:
+            /* Case-6 Timing Request */
+        case DESIRED_GUARD_SYMBOLS_FOR_CASE_6_TIMING:
+            /* Desired Guard Symbols for Case 6 timing */
+        case DESIRED_GUARD_SYMBOLS_FOR_CASE_7_TIMING:
+            /* Desired Guard Symbols for Case 7 timing*/
+        case EXTENDED_SHORT_TRUNCATED_BSR:
+            /* Extended Short Truncated BSR */
+        case EXTENDED_SHORT_BSR:
+            /* Extended Short BSR */
+        case MULTIPLE_ENTRY_CONFIGURED_GRANT_CONFIRMATION:
+            /* Multiple Entry Configured Grant Confirmation 4 octets*/
+        case SIDELINK_CONFIGURED_GRANT_CONFIRMATION:
+            /* Sidelink Configured Grant Confirmation 1 oct*/
+        case DESIRED_GUARD_SYMBOLS:
+            /* Desired Guard Symbols 3 oct*/
+            return TRUE;
+        default:
+            /* Enhanced Multiple Entry PHR for multiple TRP (one octets Ci) */
+            /* 234 Enhanced Single Entry PHR*/
+            /* 235 Enhanced BFR (one octet Ci) */
+            /* 236 Enhanced BFR (four octet Ci) */
+            /* 237 Truncated Enhanced BFR(four octet Ci) */
+            /* 239 IAB-MT Recommended Beam Indication */
+            /* 240 Desired IAB-MT PSD range */
+            /* 241 Desired DL Tx Power Adjustment */
+            /* 246 Extended Long Truncated BSR */
+            /* 248 Extended Long BSR */
+            /* 249 Extended Pre-emptive BSR */
+            /* 250 BFR (four octets Ci) */
+            /* 251 Truncated BFR (four octets Ci)*/
+            /* 255 Pre-emptive BSR */
+            return FALSE;
+        }
+    }
+    else {
+        switch (elcid) {
+        case DIFFERENTIAL_KOFFSET_ELCD:
+            /* Differential Koffset, 6bits(1 oct)*/
+        case ENHANCED_TCI_STATES_INDICATION_FOR_UE_SPECIFIC_PDCCH_ELCD:
+            /* Enhanced TCI States Indication for UE-specific PDCCH 3 oct*/
+        case POSITIONING_MEASUREMENT_GAP_ACTIVATION_DEACTIVATION_COMMAND_ELCD:
+            /* Positioning Measurement Gap Activation/Deactivation Command 1 oct*/
+        case CASE_7_TIMING_ADVANCE_OFFSET_ELCD:
+            /* Case-7 Timing advance offset 2 oct*/
+        case PROVIDED_GUARD_SYMBOLS_FOR_CASE_6_TIMING_ELCD:
+            /* Provided Guard Symbols for Case-6 timing 3 oct*/
+        case PROVIDED_GUARD_SYMBOLS_FOR_CASE_7_TIMING_ELCD:
+            /* Provided Guard Symbols for Case-7 timing 3 oct*/
+        case SRS_PATHLOSS_REFERENCE_RS_UPDATE_ELCD:
+            /* SRS Pathloss Reference RS Update 3 oct*/
+        case DUPLICATION_RLC_ACTIVATION_DEACTIVATION_ELCD:
+            /* Duplication RLC Activation/Deactivation 1 oct*/
+        case ABSOLUTE_TIMING_ADVANCE_COMMAND_ELCD:
+            /* Absolute Timing Advance Command 2 oct*/
+        case PROVIDED_GUARD_SYMBOLS_ELCD:
+            /* Provided Guard Symbols 4 oct*/
+        case TIMING_DELTA_ELCD:
+            /* Timing Delta 2 oct*/
+            return TRUE;
+        default:
+            /* 227 Serving Cell Set based SRS TCI State Indication */
+            /* 228 SP/AP SRS TCI State Indication */
+            /* 229 BFD-RS Indication */
+            /* 231 Enhanced SCell Activation/Deactivation with one octet Ci field */
+            /* 232 Enhanced SCell Activation/Deactivation with four octet Ci field */
+            /* 233 Unified TCI States Activation/Deactivation */
+            /* 234 PUCCH Power Control Set Update for multiple TRP PUCCH repetition*/
+            /* 235 PUCCH spatial relation Activation/Deactivation for multiple TRP PUCCH repetition */
+            /* 238 PPW Activation/Deactivation Command */
+            /* 239 DL Tx Power Adjustment */
+            /* 240 Timing Case Indication*/
+            /* 241 Child IAB-DU Restricted Beam Indication*/
+            /* 245 Serving Cell Set based SRS Spatial Relation Indication */
+            /* 246 PUSCH Pathloss Reference RS Update */
+            /* 248 Enhanced SP/AP SRS Spatial Relation Indication */
+            /* 249 Enhanced PUCCH Spatial Relation Activation/Deactivation */
+            /* 250 Enhanced TCI States Activation/Deactivation for UE-specific PDSCH */
+            /* 253 SP Positioning SRS Activation/Deactivation */
+            return FALSE;
+        }
+    }
+}
 static true_false_string subheader_f_vals = {
     "16 bits",
     "8 bits"
@@ -1613,7 +1882,22 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* 1st bit is always reserved */
         /* 2nd bit depends upon LCID */
         guint8 lcid = tvb_get_guint8(tvb, offset) & 0x3f;
-        fixed_len = is_fixed_sized_lcid(lcid, p_mac_nr_info->direction);
+        gint32 elcid= -1;
+        switch (lcid) {
+        case TWO_OCTET_ELCID_FIELD:
+            elcid = tvb_get_guint16(tvb, offset+1, ENC_BIG_ENDIAN);
+            fixed_len = TRUE;
+            break;
+        case ONE_OCTET_ELCID_FIELD:
+            elcid = tvb_get_guint8(tvb, offset+1);
+            fixed_len = is_fixed_sized_elcid(elcid, p_mac_nr_info->direction);
+        default:
+            break;
+        }
+        if (elcid == -1) {
+            /* No elcid present */
+            fixed_len = is_fixed_sized_lcid(lcid, p_mac_nr_info->direction);
+        }
         if (fixed_len) {
             proto_tree_add_bits_item(subheader_tree, hf_mac_nr_subheader_reserved, tvb, offset<<3, 2, ENC_BIG_ENDIAN);
         }
@@ -1632,6 +1916,28 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item *bi_di_lcid = proto_tree_add_uint(subheader_tree, hf_mac_nr_lcid, tvb, offset, 1, lcid);
         proto_item_set_hidden(bi_di_lcid);
         offset++;
+
+        switch (lcid) {
+        case TWO_OCTET_ELCID_FIELD:
+            elcid = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            proto_tree_add_uint(subheader_tree,
+                (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
+                hf_mac_nr_ulsch_elcid_2oct : hf_mac_nr_dlsch_elcid_2oct,
+                tvb, offset, 2, elcid);
+            offset += 2;
+            break;
+        case ONE_OCTET_ELCID_FIELD:
+            elcid = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(subheader_tree,
+                (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
+                hf_mac_nr_ulsch_elcid_1oct : hf_mac_nr_dlsch_elcid_1oct,
+                tvb, offset, 1, elcid);
+            offset += 1;
+            break;
+
+        default:
+            break;
+        }
 
         if (!fixed_len) {
             if (F) {
@@ -1769,6 +2075,89 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 gboolean dir;
 
                 switch (lcid) {
+                case TWO_OCTET_ELCID_FIELD:
+                    write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Identity of the logical channel %u) ", elcid);
+                    break;
+                case ONE_OCTET_ELCID_FIELD:
+                    switch (elcid) {
+                    case ENHANCED_MULTIPLE_ENTRY_PHR_FOR_MULTIPLE_TRP_FOUR_OCTETS_CI:
+                        /* It has a variable size, */
+                        offset += SDU_length;
+                        break;
+                    case ENHANCED_MULTIPLE_ENTRY_PHR_FOR_MULTIPLE_TRP_ONE_OCTETS_CI:
+                        /* It has a variable size, */
+                        offset += SDU_length;
+                        break;
+                    case ENHANCED_SINGLE_ENTRY_PHR_FOR_MULTIPLE_TRP:
+                        /* It has a fixed size and consists of three octets */
+                        offset += 3;
+                        break;
+                    case ENHANCED_MULTIPLE_ENTRY_PHR_FOUR_OCTETS_CI:
+                        /* has a variable size */
+                        offset += SDU_length;
+                        break;
+                    case ENHANCED_MULTIPLE_ENTRY_PHR_ONE_OCTETS_CI:
+                        offset += SDU_length;
+                        break;
+                    case ENHANCED_SINGLE_ENTRY_PHR:
+                        /* has a variable size */
+                        offset += SDU_length;
+                        break;
+                    case ENHANCED_BFR_ONE_OCTET_CI:
+                        /* have a variable size */
+                        offset += SDU_length;
+                        break;
+                    case ENHANCED_BFR_FOUR_OCTET_CI:
+                        /* have a variable size*/
+                        offset += SDU_length;
+                        break;
+                    case TRUNCATED_ENHANCED_BFR_FOUR_OCTET_CI:
+                        /* have a variable size*/
+                        offset += SDU_length;
+                        break;
+                    case POSITIONING_MEASUREMENT_GAP_ACTIVATION_DEACTIVATION_REQUEST:
+                        /* It has a fixed size of zero bits */
+                        break;
+                    case IAB_MT_RECOMMENDED_BEAM_INDICATION:
+                        /* It has a variable size */
+                        offset += SDU_length;
+                        break;
+                    case DESIRED_IAB_MT_PSD_RANGE:
+                        break;
+                    case DESIRED_DL_TX_POWER_ADJUSTMENT:
+                        break;
+                    case CASE_6_TIMING_REQUEST:
+                        break;
+                    case DESIRED_GUARD_SYMBOLS_FOR_CASE_6_TIMING:
+                        break;
+                    case DESIRED_GUARD_SYMBOLS_FOR_CASE_7_TIMING:
+                        break;
+                    case EXTENDED_SHORT_TRUNCATED_BSR:
+                        break;
+                    case EXTENDED_LONG_TRUNCATED_BSR:
+                        break;
+                    case EXTENDED_SHORT_BSR:
+                        break;
+                    case EXTENDED_LONG_BSR:
+                        break;
+                    case EXTENDED_PRE_EMPTIVE_BSR:
+                        break;
+                    case BFR_FOUR_OCTETS_CI:
+                        break;
+                    case TRUNCATED_BFR_FOUR_OCTETS_CI:
+                        break;
+                    case MULTIPLE_ENTRY_CONFIGURED_GRANT_CONFIRMATION:
+                        break;
+                    case SIDELINK_CONFIGURED_GRANT_CONFIRMATION:
+                        break;
+                    case DESIRED_GUARD_SYMBOLS:
+                        break;
+                    case PRE_EMPTIVE_BSR:
+                        break;
+                    default:
+                        break;
+                    }
+                    break;
                     case TIMING_ADVANCE_REPORT_LCID:
                     {
                         /* Reserved (2 bits) */
@@ -2095,8 +2484,85 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                "DL-SCH: should not have Control Elements after Data SDUs");
                     }
                 }
-
                 switch (lcid) {
+                    case TWO_OCTET_ELCID_FIELD:
+                        /* Error */
+                        break;
+                    case ONE_OCTET_ELCID_FIELD:
+                        switch (elcid) {
+                        case SERVING_CELL_SET_BASED_SRS_TCI_STATE_INDICATIONS_ELCD:
+                            break;
+                        case SP_AP_SRS_TCI_STATE_INDICATION_ELCD:
+                            break;
+                        case BFD_RS_INDICATION_ELCD:
+                            break;
+                        case DIFFERENTIAL_KOFFSET_ELCD:
+                        {
+                            guint32 koffset;
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_differential_koffset_reserved,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_differential_koffset,
+                                tvb, offset, 1, ENC_BIG_ENDIAN, &koffset);
+                            offset += 1;
+                            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
+                                "(Differential Koffset %u) ", koffset);
+                        }
+                            break;
+                        case ENHANCED_SCELL_ACTIVATION_DEACTIVATION_MAC_CE_WITH_ONE_OCTET_CI_FIELD_ELCD:
+                            break;
+                        case ENHANCED_SCELL_ACTIVATION_DEACTIVATION_MAC_CE_WITH_FOUR_OCTET_CI_FIELD_ELCD:
+                            break;
+                        case UNIFIED_TCI_STATES_ACTIVATION_DEACTIVATION_ELCD:
+                            break;
+                        case PUCCH_POWER_CONTROL_SET_UPDATE_FOR_MULTIPLE_TRP_PUCCH_REPETITION__ELCD:
+                            break;
+                        case PUCCH_SPATIAL_RELATION_ACTIVATION_DEACTIVATION_FOR_MULTIPLE_TRP_PUCCH_REPETITION_ELCD:
+                            break;
+                        case ENHANCED_TCI_STATES_INDICATION_FOR_UE_SPECIFIC_PDCCH_ELCD:
+                            break;
+                        case POSITIONING_MEASUREMENT_GAP_ACTIVATION_DEACTIVATION_COMMAND_ELCD:
+                            break;
+                        case PPW_ACTIVATION_DEACTIVATION_COMMAND_ELCD:
+                            break;
+                        case DL_TX_POWER_ADJUSTMENT_ELCD:
+                            break;
+                        case TIMING_CASE_INDICATION_ELCD:
+                            break;
+                        case CHILD_IAB_DU_RESTRICTED_BEAM_INDICATION_ELCD:
+                            break;
+                        case CASE_7_TIMING_ADVANCE_OFFSET_ELCD:
+                            break;
+                        case PROVIDED_GUARD_SYMBOLS_FOR_CASE_6_TIMING_ELCD:
+                            break;
+                        case PROVIDED_GUARD_SYMBOLS_FOR_CASE_7_TIMING_ELCD:
+                            break;
+                        case SERVING_CELL_SET_BASED_SRS_SPATIAL_RELATION_INDICATION_ELCD:
+                            break;
+                        case PUSCH_PATHLOSS_REFERENCE_RS_UPDATE_ELCD:
+                            break;
+                        case SRS_PATHLOSS_REFERENCE_RS_UPDATE_ELCD:
+                            break;
+                        case ENHANCED_SP_AP_SRS_SPATIAL_RELATION_INDICATION_ELCD:
+                            break;
+                        case ENHANCED_PUCCH_SPATIAL_RELATION_ACTIVATION_DEACTIVATION_ELCD:
+                            break;
+                        case ENHANCED_TCI_STATES_ACTIVATION_DEACTIVATION_FOR_UE_SPECIFIC_PDSCH_ELCD:
+                            break;
+                        case DUPLICATION_RLC_ACTIVATION_DEACTIVATION_ELCD:
+                            /* 251 */
+                            break;
+                        case ABSOLUTE_TIMING_ADVANCE_COMMAND_ELCD:
+                            break;
+                        case SP_POSITIONING_SRS_ACTIVATION_DEACTIVATION_ELCD:
+                            break;
+                        case PROVIDED_GUARD_SYMBOLS_ELCD:
+                            break;
+                        case TIMING_DELTA_ELCD:
+                            break;
+                        default:
+                            break;
+                        }
+                        break;
                     case RECOMMENDED_BIT_RATE_LCID:
                         proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_recommended_bit_rate_lcid,
                                             tvb, offset, 1, ENC_BIG_ENDIAN, &br_lcid);
@@ -3005,14 +3471,38 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_ulsch_lcid,
             { "LCID",
-              "mac-nr.ulsch.lcid", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &ulsch_lcid_vals_ext, 0x3f,
+              "mac-nr.ulsch.lcid", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ulsch_lcid_vals_ext, 0x3f,
               "UL-SCH Logical Channel Identifier", HFILL
             }
         },
         { &hf_mac_nr_dlsch_lcid,
             { "LCID",
-              "mac-nr.dlsch.lcid", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &dlsch_lcid_vals_ext, 0x3f,
+              "mac-nr.dlsch.lcid", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dlsch_lcid_vals_ext, 0x3f,
               "DL-SCH Logical Channel Identifier", HFILL
+            }
+        },
+        { &hf_mac_nr_dlsch_elcid_2oct,
+            { "eLCID2oct",
+              "mac-nr.dlsch.elcid-2oct", FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_ulsch_elcid_2oct,
+            { "eLCID2oct",
+              "mac-nr.dlsch.elcid-2oct", FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_dlsch_elcid_1oct,
+            { "eLCID",
+              "mac-nr.dlsch.elcid-1oct", FT_UINT8,BASE_DEC|BASE_EXT_STRING,&dlsch_elcid_vals_ext, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_ulsch_elcid_1oct,
+            { "eLCID",
+              "mac-nr.dlsch.elcid-1oct", FT_UINT8,BASE_DEC|BASE_EXT_STRING,&ulsch_elcid_vals_ext, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_mac_nr_ulsch_sdu,
@@ -4542,7 +5032,18 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-    };
+        { &hf_mac_nr_differential_koffset,
+            { "Differential Koffset",
+              "mac-nr.differential_koffset", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_differential_koffset_reserved,
+            { "Reserved",
+              "mac-nr.differential_koffset.reserved", FT_UINT8, BASE_DEC, NULL, 0xc0,
+              NULL, HFILL
+            }
+        }, };
 
     static gint *ett[] =
     {
