@@ -64,6 +64,7 @@ anacap
 analyzers
 analyzes
 annexc
+annotation
 annunc
 annunciation
 anonsvn
@@ -106,6 +107,7 @@ audigy
 authcitrix
 authen
 authenticates
+authentications
 authenticator
 authenticators
 authgss
@@ -227,6 +229,7 @@ chan2
 changelog
 channelisation
 channelized
+chars
 charset
 charsets
 chauvet
@@ -312,12 +315,14 @@ contactless
 contextp
 contiguity
 contiguously
+convolutional
 coord
 Coord3D
 coords
 copycss
 copyfile
 corba
+corosync
 corrigendum
 couchbase
 coverity
@@ -507,6 +512,7 @@ elink
 ellipsoid
 encap
 encaps
+encapsulating
 encapsulation
 encapsulations
 encapsulator
@@ -537,6 +543,7 @@ envchange
 epasv
 epdcch
 eperm
+epoll
 epsem
 equinf
 equiv
@@ -551,6 +558,7 @@ errorportinfo
 erspan
 España
 esperanto
+essar
 etheraddr
 ethercat
 ethers
@@ -572,6 +580,7 @@ extensible
 extern
 exthdr
 extlen
+extpfx
 extrainformation
 eyesdn
 facch
@@ -664,6 +673,7 @@ groupb
 groupcast
 groupmod
 gssapi
+gtalk
 guint
 gzipped
 handoff
@@ -706,6 +716,7 @@ hytec
 icmpv
 ident
 identifier
+ideographic
 idiographic
 idl2deb
 idl2wrs
@@ -876,6 +887,7 @@ macaddress
 macosx
 macros
 macsec
+magnitudes
 mailto
 maintainers
 malloc
@@ -986,6 +998,7 @@ multirate
 multislot
 multistate
 mumbai
+myanmar
 mycapture
 mycaptures
 mydns
@@ -1194,6 +1207,7 @@ powercontrol
 pppdump
 pppoe
 prach
+preambles
 preauth
 preconfiguration
 preconfigured
@@ -1434,6 +1448,7 @@ scaler
 scannable
 scdma
 scell
+sched
 schema
 scoped
 scrollbar
@@ -1616,6 +1631,7 @@ tdd384
 tdd768
 technica
 Tektronix
+telco
 Telecomunicaciones
 telefonica
 Telefónica
@@ -1626,6 +1642,7 @@ teletex
 telfonica
 telia
 telnet
+telstra
 teredo
 terminations
 tesla
@@ -1698,6 +1715,7 @@ udpcp
 udpdump
 udphdr
 udrei
+uganda
 uievent
 uint16
 uint32
@@ -1887,6 +1905,7 @@ vocoder
 vodafone
 voipmetrics
 volerr
+vserver
 vxlan
 wakeup
 wapforum

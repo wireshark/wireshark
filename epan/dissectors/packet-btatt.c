@@ -14797,7 +14797,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_cycling_power_measurement_extreme_angles_minimum,
-            {"Miminum", "btatt.cycling_power_measurement.extreme_angles.minimum",
+            {"Minimum", "btatt.cycling_power_measurement.extreme_angles.minimum",
             FT_UINT24, BASE_DEC, NULL, 0x000FFF,
             NULL, HFILL}
         },

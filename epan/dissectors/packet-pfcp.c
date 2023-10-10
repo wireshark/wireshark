@@ -13353,7 +13353,7 @@ proto_register_pfcp(void)
         { &hf_pfcp_up_function_features_o9_b6_ddds,
         { "DDDS", "pfcp.up_function_features.ddds",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
-            "UPF support of reporting of the first buffred / discarded data for downlink", HFILL }
+            "UPF support of reporting of the first buffered / discarded data for downlink", HFILL }
         },
         { &hf_pfcp_up_function_features_o9_b7_rds,
         { "RDS", "pfcp.up_function_features.rds",
@@ -15635,7 +15635,7 @@ proto_register_pfcp(void)
         },
 
         { &hf_pfcp_reporting_flags_o5_b0_dupl,
-        { "DUPL (Duplocation Notification)", "pfcp.reporting_flags.dupl",
+        { "DUPL (Duplication Notification)", "pfcp.reporting_flags.dupl",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
@@ -15697,7 +15697,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_multicast_transport_information_distribution_address_length,
-        { "Distribution Adress Length", "pfcp.multicast_transport_information.distribution_address.length",
+        { "Distribution Address Length", "pfcp.multicast_transport_information.distribution_address.length",
             FT_UINT8, BASE_DEC, NULL, 0x3F,
             NULL, HFILL }
         },
