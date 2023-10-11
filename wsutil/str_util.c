@@ -339,6 +339,36 @@ ws_ascii_strcasestr(const char *haystack, const char *needle)
     return NULL;
 }
 
+/* Return the last occurrence of ch in the n bytes of haystack.
+ * If not found or n is 0, return NULL. */
+const uint8_t *
+ws_memrchr(const void *_haystack, int ch, size_t n)
+{
+#ifdef HAVE_MEMRCHR
+    return memrchr(_haystack, ch, n);
+#else
+    /* A generic implementation. This could be optimized considerably,
+     * e.g. by fetching a word at a time.
+     */
+    if (n == 0) {
+        return NULL;
+    }
+    const uint8_t *haystack = _haystack;
+    const uint8_t *p;
+    uint8_t c = (uint8_t)ch;
+
+    const uint8_t *const end = haystack + n - 1;
+
+    for (p = end; p >= haystack; --p) {
+        if (*p == c) {
+            return p;
+        }
+    }
+
+    return NULL;
+#endif /* HAVE_MEMRCHR */
+}
+
 #define FORMAT_SIZE_UNIT_MASK 0x00ff
 #define FORMAT_SIZE_PFX_MASK 0xff00
 

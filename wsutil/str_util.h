@@ -182,6 +182,17 @@ bool isdigit_string(const unsigned char *str);
 WS_DLL_PUBLIC
 const char *ws_ascii_strcasestr(const char *haystack, const char *needle);
 
+/** Like the memchr() function, except it scans backwards from the end.
+ *
+ * @param haystack Pointer to the bytes of memory to search
+ * @param ch The character to search
+ * @param n The length of bytes to search from the end
+ * @return A pointer to the last occurrence of "ch" in "haystack".
+ * If "ch" isn't found or "n" is 0, returns NULL.
+ */
+WS_DLL_PUBLIC
+const uint8_t *ws_memrchr(const void *haystack, int ch, size_t n);
+
 WS_DLL_PUBLIC
 char *ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes);
 
