@@ -12,6 +12,8 @@
 
 #include "config.h"
 
+#define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
