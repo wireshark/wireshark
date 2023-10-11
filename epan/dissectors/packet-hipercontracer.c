@@ -34,6 +34,7 @@ static gint hf_magic_number   = -1;
 static gint hf_send_ttl       = -1;
 static gint hf_round          = -1;
 static gint hf_checksum_tweak = -1;
+static gint hf_seq_number     = -1;
 static gint hf_send_timestamp = -1;
 
 /* Setup list of header fields */
@@ -42,6 +43,7 @@ static hf_register_info hf[] = {
   { &hf_send_ttl,       { "Send TTL",        "hipercontracer.send_ttl",       FT_UINT8,  BASE_DEC, NULL,                 0x0, "The IP TTL/IPv6 Hop Count used by the sender",                          HFILL } },
   { &hf_round,          { "Round",           "hipercontracer.round",          FT_UINT8,  BASE_DEC, NULL,                 0x0, "The round number the packet belongs to",                                HFILL } },
   { &hf_checksum_tweak, { "Checksum Tweak",  "hipercontracer.checksum_tweak", FT_UINT16, BASE_HEX, NULL,                 0x0, "A 16-bit value to ensure a given checksum for the ICMP/ICMPv6 message", HFILL } },
+  { &hf_seq_number,     { "Sequence Number", "hipercontracer.seq_number",     FT_UINT16, BASE_DEC, NULL,                 0x0, "A 16-bit sequence number",                                              HFILL } },
   { &hf_send_timestamp, { "Send Time Stamp", "hipercontracer.send_timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, "The send time stamp (microseconds since September 29, 1976, 00:00:00)", HFILL } }
 };
 
@@ -75,7 +77,7 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
 
   col_append_sep_fstr(pinfo->cinfo, COL_PROTOCOL, NULL, "HiPerConTracer");
 
-  // Create the hipercontracer protocol tree
+  // Create the HiPerConTracer protocol tree
   hipercontracer_item = proto_tree_add_item(tree, proto_hipercontracer, message_tvb, 0, -1, ENC_NA);
   hipercontracer_tree = proto_item_add_subtree(hipercontracer_item, ett_hipercontracer);
 
@@ -83,7 +85,14 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
   proto_tree_add_item(hipercontracer_tree, hf_magic_number,   message_tvb, 0, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(hipercontracer_tree, hf_send_ttl,       message_tvb, 4, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(hipercontracer_tree, hf_round,          message_tvb, 5, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(hipercontracer_tree, hf_checksum_tweak, message_tvb, 6, 2, ENC_BIG_ENDIAN);
+  if (pinfo->ptype == PT_NONE) {
+     // ICMP or ICMPv6 do not have ports -> Checksum Tweak field
+     proto_tree_add_item(hipercontracer_tree, hf_checksum_tweak, message_tvb, 6, 2, ENC_BIG_ENDIAN);
+  }
+  else {
+     // Otherwise, there are ports -> Sequence Number field
+     proto_tree_add_item(hipercontracer_tree, hf_seq_number, message_tvb, 6, 2, ENC_BIG_ENDIAN);
+  }
 
   // Time stamp is microseconds since 29.09.1976 00:00:00.000000.
   timestamp = tvb_get_ntoh64(message_tvb, 8) + G_GUINT64_CONSTANT(212803200000000);
@@ -124,6 +133,8 @@ proto_reg_handoff_hipercontracer(void)
   /* Heuristic dissector for ICMP/ICMPv6 */
   heur_dissector_add("icmp",   heur_dissect_hipercontracer, "HiPerConTracer over ICMP",   "hipercontracer_icmp",   proto_hipercontracer, HEURISTIC_ENABLE);
   heur_dissector_add("icmpv6", heur_dissect_hipercontracer, "HiPerConTracer over ICMPv6", "hipercontracer_icmpv6", proto_hipercontracer, HEURISTIC_ENABLE);
+  heur_dissector_add("udp",    heur_dissect_hipercontracer, "HiPerConTracer over UDP",    "hipercontracer_udp",    proto_hipercontracer, HEURISTIC_ENABLE);
+  heur_dissector_add("tcp",    heur_dissect_hipercontracer, "HiPerConTracer over TCP",    "hipercontracer_tcp",    proto_hipercontracer, HEURISTIC_ENABLE);
 }
 
 /*
