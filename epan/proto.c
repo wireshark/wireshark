@@ -9087,7 +9087,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_UINT_STRING:
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
-			switch (hfinfo->display) {
+			switch (FIELD_DISPLAY(hfinfo->display)) {
 				case BASE_NONE:
 				case BASE_STR_WSP:
 					break;

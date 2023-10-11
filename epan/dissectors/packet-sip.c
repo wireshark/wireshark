@@ -3665,7 +3665,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
     th = proto_tree_add_item(sip_tree, hf_sip_msg_hdr, tvb, offset,
                                  body_offset - offset, ENC_UTF_8);
-    proto_item_set_text(th, "Message Header");
     hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 
     if (have_tap_listener(sip_follow_tap))
@@ -6190,7 +6189,7 @@ void proto_register_sip(void)
 
         { &hf_sip_msg_hdr,
           { "Message Header",           "sip.msg_hdr",
-            FT_STRING, BASE_NONE, NULL, 0,
+            FT_STRING, BASE_NONE|BASE_NO_DISPLAY_VALUE, NULL, 0,
             "Message Header in SIP message", HFILL }
         },
         { &hf_sip_Method,
