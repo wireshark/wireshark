@@ -623,6 +623,26 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       if ( http_conv->websocket_extensions) {
         websocket_parse_extensions(websocket_conv, http_conv->websocket_extensions);
       }
+    } else if (pinfo->match_uint == pinfo->srcport || pinfo->match_uint == pinfo->destport) {
+      /* The session was not set up by HTTP upgrade, but by Decode As.
+       * Assume the matched port is the server port. */
+      websocket_conv->server_port = (uint16_t)pinfo->match_uint;
+    } else {
+      /* match_uint is not one of the ports, which means the session was
+       * set up by the heuristic Websocket dissector. */
+      uint32_t low_port, high_port;
+      if (pinfo->srcport > pinfo->destport) {
+        low_port = pinfo->destport;
+        high_port = pinfo->srcport;
+      } else {
+        low_port = pinfo->srcport;
+        high_port = pinfo->destport;
+      }
+      if (dissector_get_uint_handle(port_subdissector_table, low_port)) {
+        websocket_conv->server_port = (uint16_t)low_port;
+      } else if (dissector_get_uint_handle(port_subdissector_table, high_port)) {
+        websocket_conv->server_port = (uint16_t)high_port;
+      }
     }
 
     conversation_add_proto_data(conv, proto_websocket, websocket_conv);
