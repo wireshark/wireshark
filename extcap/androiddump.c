@@ -2311,8 +2311,9 @@ static int capture_android_logcat(char *interface, char *fifo,
 /* need to unpack the pcap and then send the packet data to the dumper.       */
 /*----------------------------------------------------------------------------*/
 static int capture_android_tcpdump(char *interface, char *fifo,
-        const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
-    static const char                       *const adb_shell_tcpdump_format = "exec:tcpdump -U -n -s 0 -u -i %s -w - 2>/dev/null";
+        char *capture_filter, const char *adb_server_ip,
+        unsigned short *adb_server_tcp_port) {
+    static const char                       *const adb_shell_tcpdump_format = "exec:tcpdump -U -n -s 0 -u -i %s -w - %s 2>/dev/null";
     static const char                       *const regex_interface = INTERFACE_ANDROID_TCPDUMP "-(?<iface>.*?)-(?<serial>.*)";
     struct extcap_dumper                     extcap_dumper;
     static char                              data[PACKET_LENGTH];
@@ -2330,7 +2331,8 @@ static int capture_android_tcpdump(char *interface, char *fifo,
     GRegex                                  *regex = NULL;
     GError                                  *err = NULL;
     GMatchInfo                              *match = NULL;
-    char                                     tcpdump_cmd[80];
+    char                                    *tcpdump_cmd = NULL;
+    char                                    *quoted_filter = NULL;
 
     regex = g_regex_new(regex_interface, G_REGEX_RAW, (GRegexMatchFlags)0, &err);
     if (!regex) {
@@ -2358,9 +2360,12 @@ static int capture_android_tcpdump(char *interface, char *fifo,
         return EXIT_CODE_INVALID_SOCKET_11;
     }
 
-    snprintf(tcpdump_cmd, sizeof(tcpdump_cmd), adb_shell_tcpdump_format, iface);
+    quoted_filter = g_shell_quote(capture_filter ? capture_filter : "");
+    tcpdump_cmd = ws_strdup_printf(adb_shell_tcpdump_format, iface, quoted_filter);
     g_free(iface);
+    g_free(quoted_filter);
     result = adb_send(sock, tcpdump_cmd);
+    g_free(tcpdump_cmd);
     if (result) {
         ws_warning("Error while setting adb transport");
         closesocket(sock);
@@ -2764,7 +2769,7 @@ int main(int argc, char *argv[]) {
         else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)))
             ret = capture_android_bluetooth_btsnoop_net(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
         else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface,INTERFACE_ANDROID_TCPDUMP)))
-            ret = capture_android_tcpdump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+            ret = capture_android_tcpdump(extcap_conf->interface, extcap_conf->fifo, extcap_conf->capture_filter, adb_server_ip, adb_server_tcp_port);
 
         goto end;
     }
