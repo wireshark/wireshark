@@ -174,21 +174,6 @@ scan_plugins_dir(GHashTable *plugins_module, const char *plugin_folder, plugin_t
             continue;
         }
 
-        if (!g_module_symbol(handle, "plugin_version", &symbol)) {
-            report_failure("The plugin '%s' has no \"plugin_version\" symbol", name);
-            g_module_close(handle);
-            g_free(plugin_file);
-            continue;
-        }
-        plug_version = (const char *)symbol;
-
-        if (!pass_plugin_version_compatibility(handle, name)) {
-            /* pass_plugin_version_compatibility() reports failures */
-            g_module_close(handle);
-            g_free(plugin_file);
-            continue;
-        }
-
         if (!g_module_symbol(handle, "plugin_type", &symbol)) {
             report_failure("The plugin '%s' has no \"plugin_type\" symbol", name);
             g_module_close(handle);
@@ -199,6 +184,21 @@ scan_plugins_dir(GHashTable *plugins_module, const char *plugin_folder, plugin_t
         if (strcmp(type_signature, type_to_signature(type)) != 0) {
             /* Skip wrong type */
             ws_noisy("%s: skip type %s", name, type_signature);
+            g_module_close(handle);
+            g_free(plugin_file);
+            continue;
+        }
+
+        if (!g_module_symbol(handle, "plugin_version", &symbol)) {
+            report_failure("The plugin '%s' has no \"plugin_version\" symbol", name);
+            g_module_close(handle);
+            g_free(plugin_file);
+            continue;
+        }
+        plug_version = (const char *)symbol;
+
+        if (!pass_plugin_version_compatibility(handle, name)) {
+            /* pass_plugin_version_compatibility() reports failures */
             g_module_close(handle);
             g_free(plugin_file);
             continue;

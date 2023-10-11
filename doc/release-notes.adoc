@@ -88,8 +88,12 @@ Too many protocol updates have been made to list them all here.
 
 //_Non-empty section placeholder._
 
-//=== Major API Changes
+=== Major API Changes
 
+* The API for loading binary plugins has changed and all plugins are now required
+  to include a new public symbol named "plugin_type". The possible values are
+  defined in `wireshark.h` and correspond to the three major supported plugin
+  types (epan/wiretap/codec).
 
 == Getting Wireshark
 
