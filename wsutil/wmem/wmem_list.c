@@ -183,6 +183,8 @@ wmem_list_insert_sorted(wmem_list_t *list, void* data, GCompareFunc func)
     new_frame->next = NULL;
     new_frame->prev = NULL;
 
+    list->count++;
+
     if (!list->head) {
         list->head = new_frame;
         list->tail = new_frame;
