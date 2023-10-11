@@ -277,8 +277,8 @@ static void load_plugins(sinsp &inspector) {
     WS_DIR *dir;
     WS_DIRENT *file;
     char *plugin_paths[] = {
-        g_build_filename(get_plugins_dir_with_version(), "falco", NULL),
-        g_build_filename(get_plugins_pers_dir_with_version(), "falco", NULL)
+        g_build_filename(get_plugins_dir(), "falco", NULL),
+        g_build_filename(get_plugins_pers_dir(), "falco", NULL)
     };
 
     for (size_t idx = 0; idx < 2; idx++) {

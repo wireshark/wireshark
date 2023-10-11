@@ -400,8 +400,8 @@ proto_register_falcoplugin(void)
     WS_DIR *dir;
     WS_DIRENT *file;
     char *filename;
-    char *spdname = g_build_filename(get_plugins_dir_with_version(), "falco", NULL);
-    char *ppdname = g_build_filename(get_plugins_pers_dir_with_version(), "falco", NULL);
+    char *spdname = g_build_filename(get_plugins_dir(), "falco", NULL);
+    char *ppdname = g_build_filename(get_plugins_pers_dir(), "falco", NULL);
 
     /*
      * We scan the plugins directory twice. The first time we count how many

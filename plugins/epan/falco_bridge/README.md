@@ -20,7 +20,7 @@ cmake \
 
 ## Quick Start
 
-1. Create a directory named "falco" at the same level as the "epan" plugin folder.
+1. Create a directory named "falco" one level above the "epan" plugin folder.
 You can find the global and per-user plugin folder locations on your system in About → Folders or in the [User's Guide](https://www.wireshark.org/docs/wsug_html_chunked/ChPluginFolders.html).
 
 1. Build your desired [Falco plugin](https://github.com/falcosecurity/plugins/) and place it in the "falco" plugin directory.
