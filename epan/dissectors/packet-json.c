@@ -641,7 +641,7 @@ before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 	proto_tree *subtree;
 	proto_item *ti;
 
-	ti = proto_tree_add_item(tree, hf_json_object, tok->tvb, tok->offset, tok->len, ENC_NA);
+	ti = proto_tree_add_item(tree, hf_json_object, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
 	if (json_hide_original_tree() && wmem_stack_count(data->stack) == 1) {
 		proto_item_set_hidden(ti);
 	}
@@ -1267,7 +1267,7 @@ proto_register_json(void)
 		},
 		{ &hf_json_object,
 			{ "Object", "json.object",
-			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  FT_STRING, BASE_NONE|BASE_NO_DISPLAY_VALUE, NULL, 0x00,
 			  "JSON object", HFILL }
 		},
 		{ &hf_json_member,
