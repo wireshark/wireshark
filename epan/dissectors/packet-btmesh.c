@@ -4794,7 +4794,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (opcode & 0x40) {
             /* Vendor opcode */
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor_opcode, tvb, offset, 1, ENC_NA);
-            vendor = tvb_get_guint16(tvb, offset + 1, ENC_BIG_ENDIAN);
+            vendor = tvb_get_guint16(tvb, offset + 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
             payload_tvb = tvb_new_subset_remaining(tvb, offset);
             col_set_str(pinfo->cinfo, COL_INFO, "Access Message - Vendor Opcode");
