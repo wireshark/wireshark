@@ -4779,6 +4779,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree *manufacturer_property_ids_tree;
     proto_tree *generic_client_property_ids_tree;
     proto_tree *sensor_setting_property_ids_tree;
+    proto_tree *root_tree = proto_tree_get_parent_tree(tree);
 
     guint32 netkeyindexes, appkeyindexes;
     guint32 nums, numv, element;
@@ -4797,8 +4798,8 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             vendor = tvb_get_guint16(tvb, offset + 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
             payload_tvb = tvb_new_subset_remaining(tvb, offset);
+            dissector_try_uint_new(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, root_tree, TRUE, GUINT_TO_POINTER(vendor));
             col_set_str(pinfo->cinfo, COL_INFO, "Access Message - Vendor Opcode");
-            dissector_try_uint_new(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(vendor));
             offset+=3;
         } else {
         /* Two octet opcode */
