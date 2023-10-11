@@ -323,9 +323,10 @@ isdigit_string(const unsigned char *str)
 const char *
 ws_strcasestr(const char *haystack, const char *needle)
 {
-#ifdef HAVE_STRCASESTR
-    return strcasestr(haystack, needle);
-#else
+    /* Do not use strcasestr() here, even if a system has it, as it is
+     * locale-dependent (and has different results for e.g. Turkic languages.)
+     * FreeBSD, NetBSD, macOS have a strcasestr_l() that could be used.
+     */
     size_t hlen = strlen(haystack);
     size_t nlen = strlen(needle);
 
@@ -335,7 +336,6 @@ ws_strcasestr(const char *haystack, const char *needle)
         haystack++;
     }
     return NULL;
-#endif /* HAVE_STRCASESTR */
 }
 
 #define FORMAT_SIZE_UNIT_MASK 0x00ff
