@@ -639,7 +639,7 @@ dfilter_compile_full(const char *text, dfilter_t **dfp,
 	}
 
 	*dfp = dfcode;
-	ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "Compiled display filter: %s", text);
+	ws_info("Compiled display filter: %s", text);
 	return true;
 }
 

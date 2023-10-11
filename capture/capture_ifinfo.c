@@ -112,7 +112,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
          * Add the extcap interfaces that can exist; they may exist
          * even if no native interfaces have been found.
          */
-        ws_info("Loading External Capture Interface List ...");
+        ws_debug("Loading External Capture Interface List ...");
         if_list = append_extcap_interface_list(if_list);
         return if_list;
     }
@@ -182,7 +182,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 #endif
 
     /* Add the extcap interfaces after the native and remote interfaces */
-    ws_info("Loading External Capture Interface List ...");
+    ws_debug("Loading External Capture Interface List ...");
     if_list = append_extcap_interface_list(if_list);
 
     return if_list;

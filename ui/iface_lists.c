@@ -468,7 +468,6 @@ fill_in_local_interfaces_filtered(GList * filter_list, void(*update_cb)(void))
 
     /* record the time we started, so we can log total time later */
     start_time = g_get_monotonic_time();
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "fill_in_local_interfaces() starts");
 
     if (!initialized) {
         /* do the actual work */
@@ -478,7 +477,7 @@ fill_in_local_interfaces_filtered(GList * filter_list, void(*update_cb)(void))
     /* log how long it took */
     elapsed = (g_get_monotonic_time() - start_time) / 1e6;
 
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "fill_in_local_interfaces() ends, taking %.3fs", elapsed);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Finished getting the global interface list, taking %.3fs", elapsed);
 }
 
 void
