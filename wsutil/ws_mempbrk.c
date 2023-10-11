@@ -72,6 +72,21 @@ ws_mempbrk_exec(const uint8_t* haystack, size_t haystacklen, const ws_mempbrk_pa
     return ws_mempbrk_portable_exec(haystack, haystacklen, pattern, found_needle);
 }
 
+WS_DLL_PUBLIC const uint8_t *
+ws_memrpbrk_exec(const uint8_t* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
+{
+    const uint8_t *haystack_end = haystack + haystacklen;
+
+    while (haystack_end > haystack) {
+        if (pattern->patt[*(--haystack_end)]) {
+            if (found_needle)
+                *found_needle = *haystack_end;
+            return haystack_end;
+        }
+    }
+
+    return NULL;
+}
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

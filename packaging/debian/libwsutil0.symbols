@@ -491,6 +491,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
  ws_memrchr@Base 4.3.0rc0
+ ws_memrpbrk_exec@Base 4.3.0rc0
  ws_optarg@Base 3.5.1
  ws_opterr@Base 3.5.1
  ws_optind@Base 3.5.1

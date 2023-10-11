@@ -34,4 +34,9 @@ WS_DLL_PUBLIC void ws_mempbrk_compile(ws_mempbrk_pattern* pattern, const char *n
  */
 WS_DLL_PUBLIC const uint8_t *ws_mempbrk_exec(const uint8_t* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, unsigned char *found_needle);
 
+/** Scan for the needles specified by the compiled pattern, starting at the
+ * end of the haystack and working backwards.
+ */
+WS_DLL_PUBLIC const uint8_t *ws_memrpbrk_exec(const uint8_t* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, unsigned char *found_needle);
+
 #endif /* __WS_MEMPBRK_H__ */
