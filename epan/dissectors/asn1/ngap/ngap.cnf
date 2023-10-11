@@ -300,10 +300,30 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
 
 # Whenever a Cause appears, look up the reason and show it in the Info column
 
-#.FN_BODY Cause VAL_PTR=&value
+#.FN_BODY CauseRadioNetwork VAL_PTR=&value
   guint32 value;
 %(DEFAULT_BODY)s
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause=%%s]", val_to_str_const(value, ngap_Cause_vals, "Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: RadioNetwork=%%s]", val_to_str_const(value, ngap_CauseRadioNetwork_vals, "Unknown"));
+
+#.FN_BODY CauseTransport VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Transport=%%s]", val_to_str_const(value, ngap_CauseTransport_vals, "Unknown"));
+
+#.FN_BODY CauseNas VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Nas=%%s]", val_to_str_const(value, ngap_CauseNas_vals, "Unknown"));
+
+#.FN_BODY CauseProtocol VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Protocol=%%s]", val_to_str_const(value, ngap_CauseProtocol_vals, "Unknown"));
+
+#.FN_BODY CauseMisc VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Misc=%%s]", val_to_str_const(value, ngap_CauseMisc_vals, "Unknown"));
 
 #.FN_BODY RRCEstablishmentCause VAL_PTR=&value
   guint32 value;

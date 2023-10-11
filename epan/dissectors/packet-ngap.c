@@ -7401,8 +7401,12 @@ static value_string_ext ngap_CauseRadioNetwork_vals_ext = VALUE_STRING_EXT_INIT(
 
 static int
 dissect_ngap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     45, NULL, TRUE, 12, NULL);
+                                     45, &value, TRUE, 12, NULL);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: RadioNetwork=%s]", val_to_str_const(value, ngap_CauseRadioNetwork_vals, "Unknown"));
+
 
   return offset;
 }
@@ -7417,8 +7421,12 @@ static const value_string ngap_CauseTransport_vals[] = {
 
 static int
 dissect_ngap_CauseTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, &value, TRUE, 0, NULL);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Transport=%s]", val_to_str_const(value, ngap_CauseTransport_vals, "Unknown"));
+
 
   return offset;
 }
@@ -7436,8 +7444,12 @@ static const value_string ngap_CauseNas_vals[] = {
 
 static int
 dissect_ngap_CauseNas(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 1, NULL);
+                                     4, &value, TRUE, 1, NULL);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Nas=%s]", val_to_str_const(value, ngap_CauseNas_vals, "Unknown"));
+
 
   return offset;
 }
@@ -7457,8 +7469,12 @@ static const value_string ngap_CauseProtocol_vals[] = {
 
 static int
 dissect_ngap_CauseProtocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, TRUE, 0, NULL);
+                                     7, &value, TRUE, 0, NULL);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Protocol=%s]", val_to_str_const(value, ngap_CauseProtocol_vals, "Unknown"));
+
 
   return offset;
 }
@@ -7477,8 +7493,12 @@ static const value_string ngap_CauseMisc_vals[] = {
 
 static int
 dissect_ngap_CauseMisc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
+                                     6, &value, TRUE, 0, NULL);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause: Misc=%s]", val_to_str_const(value, ngap_CauseMisc_vals, "Unknown"));
+
 
   return offset;
 }
@@ -7506,13 +7526,9 @@ static const per_choice_t Cause_choice[] = {
 
 static int
 dissect_ngap_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ngap_Cause, Cause_choice,
-                                 &value);
-
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Cause=%s]", val_to_str_const(value, ngap_Cause_vals, "Unknown"));
-
+                                 NULL);
 
   return offset;
 }
