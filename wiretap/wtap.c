@@ -8,6 +8,8 @@
 
 #include <config.h>
 
+#define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+
 #include <string.h>
 
 #include <sys/types.h>
