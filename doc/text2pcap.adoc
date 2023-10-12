@@ -19,7 +19,6 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 [ *-e* <l3pid> ]
 [ *-E* <encapsulation type> ]
 [ *-F* <file format> ]
-[ *-h* ]
 [ *-i* <proto> ]
 [ *-l* <typenum> ]
 [ *-N* <intf-name> ]
@@ -32,11 +31,18 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 [ *-t* <timefmt> ]
 [ *-T* <srcport>,<destport> ]
 [ *-u* <srcport>,<destport> ]
-[ *-v* ]
 [ *-4* <srcip>,<destip> ]
 [ *-6* <srcip>,<destip> ]
 <__infile__>|-
 <__outfile__>|-
+
+[manarg]
+*text2pcap*
+*-h|--help*
+
+[manarg]
+*text2pcap*
+*-v|--version*
 
 == DESCRIPTION
 
@@ -233,8 +239,8 @@ the file in several formats; *text2pcap -F* provides a list of the
 available output formats.  The default is the *pcapng* format.
 --
 
--h::
-Displays a help message.
+-h|--help::
+Print the version number and options and exit.
 
 -i <proto>::
 +
@@ -373,8 +379,8 @@ are automatically also included with each packet.
 Example: __-u1000,69__ to make the packets look like TFTP/UDP packets.
 --
 
--v::
-Print the version and exit.
+-v|--version::
+Print the full version information and exit.
 
 -4 <srcip>,<destip>::
 +

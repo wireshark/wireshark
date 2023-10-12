@@ -268,8 +268,8 @@ print_usage (FILE *output)
 
     fprintf(output, "\n"
             "Miscellaneous:\n"
-            "  -h                     display this help and exit\n"
-            "  -v                     print version information and exit\n"
+            "  -h, --help             display this help and exit\n"
+            "  -v, --version          print version information and exit\n"
             "  -q                     don't report processed packet counts\n"
             "");
 }

@@ -49,9 +49,9 @@ print_usage(FILE *output)
     fprintf(output, "Usage: reordercap [options] <infile> <outfile>\n");
     fprintf(output, "\n");
     fprintf(output, "Options:\n");
-    fprintf(output, "  -n        don't write to output file if the input file is ordered.\n");
-    fprintf(output, "  -h        display this help and exit.\n");
-    fprintf(output, "  -v        print version information and exit.\n");
+    fprintf(output, "  -n                don't write to output file if the input file is ordered.\n");
+    fprintf(output, "  -h, --help        display this help and exit.\n");
+    fprintf(output, "  -v, --version     print version information and exit.\n");
 }
 
 /* Remember where this frame was in the file */

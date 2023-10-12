@@ -55,6 +55,14 @@ capinfos - Prints information about capture files
 <__infile__>
 __...__
 
+[manarg]
+*capinfos*
+*-h|--help*
+
+[manarg]
+*capinfos*
+*-v|--version*
+
 == DESCRIPTION
 
 *Capinfos* is a program that reads one or more capture files and
@@ -196,7 +204,7 @@ Displays additional capture file information.
 -h|--help::
 +
 --
-Prints the help listing and exits.
+Print the version number and options and exit.
 --
 
 -H::
@@ -397,7 +405,7 @@ latest packet seen.
 -v|--version::
 +
 --
-Displays the tool's version and exits.
+Print the full version information and exit.
 --
 
 -x::

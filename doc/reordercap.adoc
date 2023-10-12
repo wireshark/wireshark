@@ -14,8 +14,15 @@ reordercap - Reorder input file by timestamp into output file
 [manarg]
 *reordercap*
 [ *-n* ]
-[ *-v* ]
 <__infile__> <__outfile__>
+
+[manarg]
+*reordercap*
+*-h|--help*
+
+[manarg]
+*reordercap*
+*-v|--version*
 
 == DESCRIPTION
 
@@ -41,6 +48,12 @@ the same way *reordercap* handles this.
 
 == OPTIONS
 
+-h|--help::
++
+--
+Print the version number and options and exit.
+--
+
 -n::
 +
 --
@@ -48,10 +61,10 @@ When the *-n* option is used, *reordercap* will not write out the output
 file if it finds that the input file is already in order.
 --
 
--v::
+-v|--version::
 +
 --
-Print the version and exit.
+Print the full version information and exit.
 --
 
 include::diagnostic-options.adoc[]

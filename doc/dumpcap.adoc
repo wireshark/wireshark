@@ -22,7 +22,6 @@ dumpcap - Dump network traffic
 [ *-D*|*--list-interfaces* ]
 [ *-f* <capture filter> ]
 [ *-g* ]
-[ *-h*|*--help* ]
 [ *-i*|*--interface* <capture interface>|rpcap://<host>:<port>/<capture interface>|TCP@<host>:<port>|- ]
 [ *-I*|*--monitor-mode* ]
 [ *-k* <freq>,[<type>],[<center_freq1>],[<center_freq2>] ]
@@ -39,13 +38,20 @@ dumpcap - Dump network traffic
 [ *-S* ]
 [ *-t* ]
 [ *--temp-dir* <directory> ]
-[ *-v*|*--version* ]
 [ *-w* <outfile> ]
 [ *-y*|*--linktype* <capture link type> ]
 [ *--capture-comment* <comment> ]
 [ *--list-time-stamp-types* ]
 [ *--time-stamp-type* <type> ]
 [ *--update-interval* <interval> ]
+
+[manarg]
+*dumpcap*
+*-h|--help*
+
+[manarg]
+*dumpcap*
+*-v|--version*
 
 == DESCRIPTION
 
@@ -231,7 +237,7 @@ user's group).
 -h|--help::
 +
 --
-Print the version and options and exits.
+Print the version number and options and exit.
 --
 
 -i|--interface  <capture interface>|rpcap://<host>:<port>/<capture interface>|TCP@<host>:<port>|-::
@@ -463,7 +469,7 @@ typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 -v|--version::
 +
 --
-Print the version and exit.
+Print the full version information and exit.
 --
 
 -w  <outfile>::

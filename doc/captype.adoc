@@ -13,10 +13,16 @@ captype - Prints the types of capture files
 
 [manarg]
 *captype*
-[ *-h* ]
-[ *-v* ]
 <__infile__>
 __...__
+
+[manarg]
+*captype*
+*-h|--help*
+
+[manarg]
+*captype*
+*-v|--version*
 
 == DESCRIPTION
 
