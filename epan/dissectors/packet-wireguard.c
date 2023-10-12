@@ -928,7 +928,7 @@ wg_process_response(tvbuff_t *tvb, wg_handshake_state_t *hs)
     // XXX when multiple responses are linkable to a single handshake state,
     // they should probably fork into a new state or be discarded when equal.
     if (hs->initiator_recv_cipher || hs->responder_recv_cipher) {
-        ws_warning("%s FIXME multiple responses linked to a single session", G_STRFUNC);
+        ws_warning("FIXME multiple responses linked to a single session");
         return;
     }
     DISSECTOR_ASSERT(!hs->initiator_recv_cipher);
@@ -1897,7 +1897,7 @@ proto_register_wg(void)
             &pref_keylog_file, FALSE);
 
     if (!wg_decrypt_init()) {
-        ws_warning("%s: decryption will not be possible due to lack of algorithms support", G_STRFUNC);
+        ws_warning("decryption will not be possible due to lack of algorithms support");
     }
 
     secrets_register_type(SECRETS_TYPE_WIREGUARD, wg_keylog_process_lines);
