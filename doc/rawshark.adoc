@@ -15,7 +15,6 @@ rawshark - Dump and analyze raw pcap data
 *rawshark*
 [ *-d* <encap:linktype>|<proto:protoname> ]
 [ *-F* <field to display> ]
-[ *-h* ]
 [ *-l* ]
 [ *-m* <bytes> ]
 [ *-o* <preference setting> ] ...
@@ -24,8 +23,15 @@ rawshark - Dump and analyze raw pcap data
 [ *-R* <read (display) filter> ]
 [ *-s* ]
 [ *-S* <field format> ]
-[ *-v* ]
 [ *options* ]
+
+[manarg]
+*rawshark*
+*-h|--help*
+
+[manarg]
+*rawshark*
+*-v|--version*
 
 == DESCRIPTION
 
@@ -132,10 +138,10 @@ multiple times in a given packet. A single field may be specified per *-F*
 flag. If you want to apply a display filter, use the *-R* flag.
 --
 
--h::
+-h|--help::
 +
 --
-Print the version and options and exits.
+Print the version number and options and exit.
 --
 
 -l::
@@ -226,10 +232,10 @@ For something similar to Wireshark's standard display ("Type: A (1)") you
 could use *%D: %S (%N)*.
 --
 
--v::
+-v|--version::
 +
 --
-Print the version and exit.
+Print the full version information and exit.
 --
 
 include::dissection-options.adoc[tags=!tshark;!decode_as]

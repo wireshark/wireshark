@@ -20,6 +20,14 @@ wireshark - Interactively dump and analyze network traffic
 [ *options* ]
 [ <infile> ]
 
+[manarg]
+*wireshark*
+*-h|--help*
+
+[manarg]
+*wireshark*
+*-v|--version*
+
 == DESCRIPTION
 
 *Wireshark* is a GUI network protocol analyzer.  It lets you

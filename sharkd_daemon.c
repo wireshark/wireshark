@@ -312,6 +312,7 @@ sharkd_init(int argc, char **argv)
                     break;
 
                 case 'h':
+                    show_help_header("Daemon variant of Wireshark");
                     print_usage(stderr);
                     exit(0);
                     break;

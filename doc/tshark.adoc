@@ -25,6 +25,14 @@ tshark - Dump and analyze network traffic
 *tshark*
 *-G* [ <report type> ] [ --elastic-mapping-filter <protocols> ]
 
+[manarg]
+*tshark*
+*-h|--help*
+
+[manarg]
+*tshark*
+*-v|--version*
+
 == DESCRIPTION
 
 *TShark* is a network protocol analyzer.  It lets you capture packet
@@ -570,7 +578,7 @@ Field 4:: False String
 -h|--help::
 +
 --
-Print the version and options and exit.
+Print the version number and options and exit.
 --
 
 -H  <input hosts file>::
@@ -903,7 +911,7 @@ names.
 -v|--version::
 +
 --
-Print the version and exit.
+Print the full version information and exit.
 --
 
 -V::

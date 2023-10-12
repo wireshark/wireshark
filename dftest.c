@@ -303,7 +303,7 @@ main(int argc, char **argv)
                 opt_dump_refs = 1;
                 break;
             case 'v':
-                show_help_header(NULL);
+                show_version();
                 exit(EXIT_SUCCESS);
                 break;
             case 'h':
