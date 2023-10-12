@@ -432,16 +432,16 @@ static const value_string q933_l1_user_rate_vals[] = {
 };
 
 static const value_string q933_l1_stop_bits_vals[] = {
-	{ 0x20, "1" },
-	{ 0x40, "1.5" },
-	{ 0x60, "2" },
+	{ 1,    "1" },
+	{ 2,    "1.5" },
+	{ 3,    "2" },
 	{ 0,    NULL }
 };
 
 static const value_string q933_l1_data_bits_vals[] = {
-	{ 0x08, "5" },
-	{ 0x10, "7" },
-	{ 0x18, "8" },
+	{ 1,    "5" },
+	{ 2,    "7" },
+	{ 3,    "8" },
 	{ 0,    NULL }
 };
 
@@ -480,8 +480,8 @@ static const value_string q933_address_inclusion_vals[] = {
 };
 
 static const value_string q933_mode_vals[] = {
-	{ 0x20, "Normal mode" },
-	{ 0x40, "Extended mode" },
+	{ 1,    "Normal mode" },
+	{ 2,    "Extended mode" },
 	{ 0,    NULL }
 };
 
@@ -1306,9 +1306,9 @@ dissect_q933_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
  * information element.
  */
 static const value_string q933_netid_type_vals[] = {
-	{ 0x00, "User specified" },
-	{ 0x20, "National network identification" },
-	{ 0x30, "International network identification" },
+	{ 0,    "User specified" },
+	{ 2,    "National network identification" },
+	{ 3,    "International network identification" },
 	{ 0,    NULL }
 };
 
@@ -1607,14 +1607,14 @@ dissect_q933_number_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a party subaddress information element.
  */
 static const value_string q933_subaddress_type_vals[] = {
-	{ 0x00, "X.213/ISO 8348 Add.2 NSAP" },
-	{ 0x20, "User-specified" },
+	{ 0,    "X.213/ISO 8348 Add.2 NSAP" },
+	{ 2,    "User-specified" },
 	{ 0,    NULL }
 };
 
 static const value_string q933_odd_even_indicator_vals[] = {
-	{ 0x00, "Even number of address signals" },
-	{ 0x10, "Odd number of address signals" },
+	{ 0,    "Even number of address signals" },
+	{ 1,    "Odd number of address signals" },
 	{ 0,    NULL }
 };
 
