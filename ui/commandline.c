@@ -203,17 +203,15 @@ commandline_print_usage(gboolean for_help_option) {
 #define LONGOPT_FULL_SCREEN     LONGOPT_BASE_GUI+1
 #define LONGOPT_CAPTURE_COMMENT LONGOPT_BASE_GUI+2
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:HhjJ:klm:o:P:r:R:Svw:X:Y:z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON OPTSTRING_READ_CAPTURE_COMMON "C:g:HhjJ:klm:o:P:Svw:X:z:"
 static const struct ws_option long_options[] = {
         {"help", ws_no_argument, NULL, 'h'},
-        {"read-file", ws_required_argument, NULL, 'r' },
-        {"read-filter", ws_required_argument, NULL, 'R' },
-        {"display-filter", ws_required_argument, NULL, 'Y' },
         {"version", ws_no_argument, NULL, 'v'},
         {"fullscreen", ws_no_argument, NULL, LONGOPT_FULL_SCREEN },
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         LONGOPT_CAPTURE_COMMON
         LONGOPT_DISSECT_COMMON
+        LONGOPT_READ_CAPTURE_COMMON
         {0, 0, 0, 0 }
     };
 static const char optstring[] = OPTSTRING;

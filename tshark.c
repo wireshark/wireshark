@@ -937,6 +937,7 @@ main(int argc, char *argv[])
         {"version", ws_no_argument, NULL, 'v'},
         LONGOPT_CAPTURE_COMMON
         LONGOPT_DISSECT_COMMON
+        LONGOPT_READ_CAPTURE_COMMON
         {"print", ws_no_argument, NULL, 'P'},
         {"export-objects", ws_required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
         {"export-tls-session-keys", ws_required_argument, NULL, LONGOPT_EXPORT_TLS_SESSION_KEYS},
@@ -1002,7 +1003,7 @@ main(int argc, char *argv[])
      * We do *not* use a leading - because the behavior of a leading - is
      * platform-dependent.
      */
-#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "M:C:e:E:F:gG:hH:j:J:lo:O:PqQr:R:S:T:U:vVw:W:xX:Y:z:"
+#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON OPTSTRING_READ_CAPTURE_COMMON "M:C:e:E:F:gG:hH:j:J:lo:O:PqQS:T:U:vVw:W:xX:z:"
 
     static const char    optstring[] = OPTSTRING;
 

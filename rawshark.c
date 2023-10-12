@@ -169,7 +169,8 @@ print_usage(FILE *output)
     fprintf(output, "\n");
 
     fprintf(output, "Input file:\n");
-    fprintf(output, "  -r <infile>              set the pipe or file name to read from\n");
+    fprintf(output, "  -r <infile>, --read-file <infile>\n");
+    fprintf(output,"                            set the pipe or file name to read from\n");
 
     fprintf(output, "\n");
     fprintf(output, "Processing:\n");
@@ -184,8 +185,11 @@ print_usage(FILE *output)
     fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
     fprintf(output, "  -p                       use the system's packet header format\n");
     fprintf(output, "                           (which may have 64-bit timestamps)\n");
-    fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
+    fprintf(output, "  -R <read filter>, --read-filter <read filter>\n");
+    fprintf(output, "                           packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -s                       skip PCAP header on input\n");
+    fprintf(output, "  -Y <display filter>, --display-filter <display filter>\n");
+    fprintf(output, "                           packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  --enable-protocol <proto_name>\n");
     fprintf(output, "                           enable dissection of proto_name\n");
     fprintf(output, "  --disable-protocol <proto_name>\n");
@@ -432,10 +436,11 @@ main(int argc, char *argv[])
       {"help", ws_no_argument, NULL, 'h'},
       {"version", ws_no_argument, NULL, 'v'},
       LONGOPT_DISSECT_COMMON
+      LONGOPT_READ_CAPTURE_COMMON
       {0, 0, 0, 0 }
     };
 
-#define OPTSTRING_INIT OPTSTRING_DISSECT_COMMON "F:hlm:o:pr:R:sS:v"
+#define OPTSTRING_INIT OPTSTRING_DISSECT_COMMON OPTSTRING_READ_CAPTURE_COMMON "F:hlm:o:psS:v"
 
     static const char    optstring[] = OPTSTRING_INIT;
     static const struct report_message_routines rawshark_report_routines = {
@@ -640,6 +645,8 @@ main(int argc, char *argv[])
                 pipe_name = g_strdup(ws_optarg);
                 break;
             case 'R':        /* Read file filter */
+            case 'Y':        /* Read file filter */
+                /* Read and display filters are the same for rawshark */
                 if(n_rfilters < (int) sizeof(rfilters) / (int) sizeof(rfilters[0])) {
                     rfilters[n_rfilters++] = ws_optarg;
                 }

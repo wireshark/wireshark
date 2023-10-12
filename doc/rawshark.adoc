@@ -202,11 +202,12 @@ should not close rawshark's standard input handle prematurely, otherwise
 the C runtime might trigger an exception.
 --
 
--R  <read (display) filter>::
+-R|--read-filter <read (display) filter>::
 +
 --
 Cause the specified filter (which uses the syntax of read/display filters,
 rather than that of capture filters) to be applied before printing the output.
+Read filters and display filters are synonymous in *rawshark*.
 --
 
 -s::
@@ -236,6 +237,14 @@ could use *%D: %S (%N)*.
 +
 --
 Print the full version information and exit.
+--
+
+-Y|--display-filter <read (display) filter>::
++
+--
+Cause the specified filter (which uses the syntax of read/display filters,
+rather than that of capture filters) to be applied before printing the output.
+Read filters and display filters are synonymous in *rawshark*.
 --
 
 include::dissection-options.adoc[tags=!tshark;!decode_as]

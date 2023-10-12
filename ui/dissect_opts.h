@@ -46,9 +46,11 @@ extern "C" {
     {"enable-protocol", ws_required_argument, NULL, LONGOPT_ENABLE_PROTOCOL }, \
     {"only-protocols", ws_required_argument, NULL, LONGOPT_ONLY_PROTOCOLS }, \
     {"disable-all-protocols", ws_no_argument, NULL, LONGOPT_DISABLE_ALL_PROTOCOLS }, \
+    {"read-filter", ws_required_argument, NULL, 'R' }, \
+    {"display-filter", ws_required_argument, NULL, 'Y' }, \
 
 #define OPTSTRING_DISSECT_COMMON \
-    "d:K:nN:t:u:"
+    "d:K:nN:R:t:u:Y:"
 
 /** Capture options coming from user interface */
 typedef struct dissect_options_tag {

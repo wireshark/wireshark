@@ -79,6 +79,12 @@ class TestBasicClopts:
         process = subprocesstest.run((cmd_tshark, '-r', capture_file('dhcp.pcap')), env=test_env)
         assert process.returncode == ExitCodes.OK
 
+    def test_existing_file_longopt(self, cmd_tshark, capture_file, test_env):
+        # $TSHARK -r "${CAPTURE_DIR}dhcp.pcap" > ./testout.txt 2>&1
+        process = subprocesstest.run((cmd_tshark, '--read-file', capture_file('dhcp.pcap'),
+            '--display-filter', 'dhcp'), env=test_env)
+        assert process.returncode == ExitCodes.OK
+
     def test_nonexistent_file(self, cmd_tshark, capture_file, test_env):
         # $TSHARK - r ThisFileDontExist.pcap > ./testout.txt 2 > &1
         process = subprocesstest.run((cmd_tshark, '-r', capture_file('__ceci_nest_pas_une.pcap')), env=test_env)
