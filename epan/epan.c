@@ -279,6 +279,15 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 	}
 
 	/* initialize libgcrypt (beware, it won't be thread-safe) */
+#if GCRYPT_VERSION_NUMBER >= 0x010a00
+	/* Ensure FIPS mode is disabled; it makes it impossible to decrypt
+	 * non-NIST approved algorithms. We're decrypting, not promising
+	 * security. This overrides any file or environment variables that
+	 * would normally turn on FIPS mode, and has to be done prior to
+	 * gcry_check_version().
+	 */
+	gcry_control (GCRYCTL_NO_FIPS_MODE);
+#endif
 	gcry_check_version(NULL);
 #if defined(_WIN32)
 	gcry_set_log_handler (quiet_gcrypt_logger, NULL);
