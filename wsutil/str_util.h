@@ -167,7 +167,7 @@ bool isdigit_string(const unsigned char *str);
  *   Otherwise it returns NULL.
  */
 WS_DLL_PUBLIC
-const char *ws_strcasestr(const char *haystack, const char *needle);
+const char *ws_ascii_strcasestr(const char *haystack, const char *needle);
 
 WS_DLL_PUBLIC
 char *ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes);
