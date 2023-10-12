@@ -780,7 +780,7 @@ passes. Only makes sense with multiple passes, see *-2*. For regular filtering
 on single-pass dissect see *-Y* instead.
 
 Note that forward-looking fields such as 'response in frame #' cannot be used
-with this filter, since they will not have been calculate when this filter is
+with this filter, since they will not have been calculated when this filter is
 applied.
 --
 
