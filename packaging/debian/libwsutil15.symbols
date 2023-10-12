@@ -417,6 +417,7 @@ libwsutil.so.15 libwsutil15 #MINVER#
  word_to_hex_punct@Base 3.5.1
  write_file_binary_mode@Base 3.5.0
  ws_add_crash_info@Base 1.10.0
+ ws_ascii_strcasestr@Base 4.2.0rc1
  ws_ascii_strnatcasecmp@Base 1.99.1
  ws_ascii_strnatcmp@Base 1.99.1
  ws_base32_decode@Base 2.3.0
@@ -507,7 +508,6 @@ libwsutil.so.15 libwsutil15 #MINVER#
  ws_regex_matches_pos@Base 3.7.2
  ws_regex_pattern@Base 3.7.0
  ws_socket_ptoa@Base 3.1.1
- ws_strcasestr@Base 3.7.0
  ws_strdup_underline@Base 3.7.0
  ws_strerrorname_r@Base 3.7.0
  ws_strptime@Base 3.7.0

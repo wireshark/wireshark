@@ -321,7 +321,7 @@ isdigit_string(const unsigned char *str)
 }
 
 const char *
-ws_strcasestr(const char *haystack, const char *needle)
+ws_ascii_strcasestr(const char *haystack, const char *needle)
 {
     /* Do not use strcasestr() here, even if a system has it, as it is
      * locale-dependent (and has different results for e.g. Turkic languages.)
