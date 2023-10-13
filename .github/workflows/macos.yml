@@ -13,18 +13,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
-      - name: Install dmgbuild
-        run: pip3 install dmgbuild
-      - name: Install pytest
-        run: pip install pytest pytest-xdist
-      - name: Install biplist
-        run: pip install biplist
-      - name: Set up Ruby 2.6
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.6'
       - name: Install deps
-        run: ./tools/macos-setup-brew.sh --install-optional --install-doc-deps
+        run: ./tools/macos-setup-brew.sh --install-optional --install-doc-deps --install-dmg-deps --install-test-deps
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
       - name: Mkdir
