@@ -25,6 +25,8 @@ jobs:
           ruby-version: '2.6'
       - name: Install deps
         run: ./tools/macos-setup-brew.sh
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
       - name: Install asciidoctor
         run: gem install asciidoctor
       - name: Mkdir
