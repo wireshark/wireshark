@@ -75,36 +75,42 @@ then
 	exit 1
 fi
 
-BASIC_LIST="gcc \
-	g++\
-	libglib2.0-dev \
-	libc-ares-dev \
-	libpcap-dev \
-	libpcre2-dev \
-	flex \
-	make \
-	python3 \
-	libgcrypt-dev \
-	libspeexdsp-dev"
+BASIC_LIST="
+	flex
+	g++
+	gcc
+	libc-ares-dev
+	libgcrypt-dev
+	libglib2.0-dev
+	libpcap-dev
+	libpcre2-dev
+	libspeexdsp-dev
+	make
+	python3
+	"
 
-QT5_LIST="qttools5-dev \
-	qttools5-dev-tools \
-	libqt5svg5-dev \
-	qtmultimedia5-dev \
-	qtbase5-dev \
-	qtchooser \
-	qt5-qmake \
-	qtbase5-dev-tools"
+QT5_LIST="
+	libqt5svg5-dev
+	qt5-qmake
+	qtbase5-dev
+	qtbase5-dev-tools
+	qtchooser
+	qtmultimedia5-dev
+	qttools5-dev
+	qttools5-dev-tools
+	"
 
-QT6_LIST="qt6-base-dev \
-	qt6-multimedia-dev \
-	qt6-tools-dev \
-	qt6-tools-dev-tools \
-	qt6-l10n-tools \
-	libqt6core5compat6-dev \
-	freeglut3-dev \
-	libvulkan-dev \
-	libxkbcommon-dev"
+QT6_LIST="
+	freeglut3-dev
+	libqt6core5compat6-dev
+	libvulkan-dev
+	libxkbcommon-dev
+	qt6-base-dev
+	qt6-l10n-tools
+	qt6-multimedia-dev
+	qt6-tools-dev
+	qt6-tools-dev-tools
+	"
 
 if [ $ADD_QT5 -ne 0 ]
 then
@@ -136,47 +142,55 @@ then
 	fi
 fi
 
-ADDITIONAL_LIST="libnl-3-dev \
-	libkrb5-dev \
-	libsmi2-dev \
-	libsbc-dev \
-	liblua5.2-dev \
-	libnl-cli-3-dev \
-	libparse-yapp-perl \
-	libcap-dev \
-	liblz4-dev \
-	libsnappy-dev \
-	libzstd-dev \
-	libspandsp-dev \
-	libxml2-dev \
-	libminizip-dev \
-	git \
-	ninja-build \
-	perl \
-	xsltproc \
-	ccache \
-	doxygen"
+ADDITIONAL_LIST="
+	ccache
+	doxygen
+	git
+	libcap-dev
+	libkrb5-dev
+	liblua5.2-dev
+	liblz4-dev
+	libminizip-dev
+	libnl-3-dev
+	libnl-cli-3-dev
+	libparse-yapp-perl
+	libsbc-dev
+	libsmi2-dev
+	libsnappy-dev
+	libspandsp-dev
+	libxml2-dev
+	libzstd-dev
+	ninja-build
+	perl
+	xsltproc
+	"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
-# ADDITIONAL_LIST="$ADDITIONAL_LIST \
-#	advancecomp \
-#	optipng \
-#	pngcrush"
+# ADDITIONAL_LIST="
+#	$ADDITIONAL_LIST
+#	advancecomp
+#	optipng
+#	pngcrush
+#	"
 
-DEBDEPS_LIST="debhelper \
-	dh-python \
-	asciidoctor \
-	docbook-xml \
-	docbook-xsl \
-	libxml2-utils \
-	lintian \
-	lsb-release \
-	po-debconf \
-	python3-ply \
-	quilt"
+DEBDEPS_LIST="
+	asciidoctor
+	debhelper
+	dh-python
+	docbook-xml
+	docbook-xsl
+	libxml2-utils
+	lintian
+	lsb-release
+	po-debconf
+	python3-ply
+	quilt
+	"
 
-TESTDEPS_LIST="python3-pytest \
-	python3-pytest-xdist"
+TESTDEPS_LIST="
+	python3-pytest
+	python3-pytest-xdist
+	"
 
 # Adds package $2 to list variable $1 if the package is found.
 # If $3 is given, then this version requirement must be satisfied.
