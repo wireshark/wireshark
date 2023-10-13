@@ -2215,12 +2215,12 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_lfnverie,
-          { "PAN Version IE", "wisun.lfnverie", FT_NONE, BASE_NONE, NULL, 0x0,
+          { "LFN Version IE", "wisun.lfnverie", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
         { &hf_wisun_lfnverie_version,
-          { "PAN Version", "wisun.lfnverie.version", FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "LFN Version", "wisun.lfnverie.version", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
