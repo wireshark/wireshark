@@ -45,6 +45,7 @@ INSTALL_OPTIONAL=0
 INSTALL_DOC_DEPS=0
 INSTALL_DMG_DEPS=0
 INSTALL_SPARKLE_DEPS=0
+INSTALL_TEST_DEPS=0
 OPTIONS=()
 for arg; do
     case $arg in
@@ -64,11 +65,15 @@ for arg; do
         --install-sparkle-deps)
             INSTALL_SPARKLE_DEPS=1
             ;;
+        --install-test-deps)
+            INSTALL_TEST_DEPS=1
+            ;;
         --install-all)
             INSTALL_OPTIONAL=1
             INSTALL_DOC_DEPS=1
             INSTALL_DMG_DEPS=1
             INSTALL_SPARKLE_DEPS=1
+            INSTALL_TEST_DEPS=1
             ;;
         *)
             OPTIONS+=("$arg")
@@ -134,15 +139,16 @@ fi
 
 install_formulae "${ACTUAL_LIST[@]}"
 
-# Install python modules
-pip3 install pytest pytest-xdist
-
 if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
     pip3 install dmgbuild
 fi
 
 if [ $INSTALL_SPARKLE_DEPS -ne 0 ] ; then
     brew cask install sparkle
+fi
+
+if [ $INSTALL_TEST_DEPS -ne 0 ] ; then
+    pip3 install pytest pytest-xdist
 fi
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
