@@ -4806,7 +4806,15 @@ add_item_btatt_timestamp(proto_tree *tree, int hf_index, tvbuff_t *tvb, guint of
     sub_item = proto_tree_add_item(tree, hf_index, tvb, offset, 7, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
-    return add_item_btatt_time(sub_tree, tvb, offset);
+    proto_item_append_text(sub_item, ": %04u-%02u-%02u %02u:%02u:%02u",
+        tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN),
+        tvb_get_guint8(tvb, offset + 2),
+        tvb_get_guint8(tvb, offset + 3),
+        tvb_get_guint8(tvb, offset + 4),
+        tvb_get_guint8(tvb, offset + 5),
+        tvb_get_guint8(tvb, offset + 6));
+
+   return add_item_btatt_time(sub_tree, tvb, offset);
 }
 
 static gint
