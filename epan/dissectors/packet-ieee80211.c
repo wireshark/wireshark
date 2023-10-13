@@ -6580,16 +6580,35 @@ static int hf_ieee80211_wfa_ie_wme_qos_info_ap_reserved = -1;
 static int hf_ieee80211_wfa_ie_wme_reserved = -1;
 static int hf_ieee80211_wfa_ie_wme_ac_parameters = -1;
 static int hf_ieee80211_wfa_ie_wme_acp_aci_aifsn = -1;
-static int hf_ieee80211_wfa_ie_wme_acp_aci = -1;
-static int hf_ieee80211_wfa_ie_wme_acp_acm = -1;
-static int hf_ieee80211_wfa_ie_wme_acp_aifsn = -1;
-static int hf_ieee80211_wfa_ie_wme_acp_reserved = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_aci_be = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_acm_be = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_aifsn_be = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_reserved_be = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_aci_bk = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_acm_bk = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_aifsn_bk = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_reserved_bk = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_aci_vi = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_acm_vi = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_aifsn_vi = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_reserved_vi = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_aci_vo = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_acm_vo = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_aifsn_vo = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_reserved_vo = -1;
 static int hf_ieee80211_wfa_ie_wme_acp_ecw = -1;
-static int hf_ieee80211_wfa_ie_wme_acp_ecw_max = -1;
-static int hf_ieee80211_wfa_ie_wme_acp_ecw_min = -1;
-static int hf_ieee80211_wfa_ie_wme_acp_cw_max = -1;
-static int hf_ieee80211_wfa_ie_wme_acp_cw_min = -1;
-static int hf_ieee80211_wfa_ie_wme_acp_txop_limit = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_ecw_max_be = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_ecw_max_bk = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_ecw_max_vo = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_ecw_max_vi = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_ecw_min_be = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_ecw_min_bk = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_ecw_min_vo = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_ecw_min_vi = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_txop_limit_be = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_txop_limit_bk = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_txop_limit_vo = -1;
+static int hf_ieee80211_wfa_ie_wme_acp_txop_limit_vi = -1;
 static int hf_ieee80211_wfa_ie_wme_tspec_tsinfo = -1;
 static int hf_ieee80211_wfa_ie_wme_tspec_tsinfo_tid = -1;
 static int hf_ieee80211_wfa_ie_wme_tspec_tsinfo_direction = -1;
@@ -18994,16 +19013,68 @@ decode_qos_parameter_set(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
   /* AC Parameters */
   for (i = 0; i < 4; i++)
   {
-    proto_item *ac_item, *aci_aifsn_item, *ecw_item;
+    proto_item *ac_item, *aci_aifsn_item, *ecw_item, *cw_item;
     proto_tree *ac_tree, *ecw_tree;
     guint8 aci_aifsn, ecw, ecwmin, ecwmax;
     guint16 cwmin, cwmax;
-    static int * const ieee80211_wfa_ie_wme[] = {
-        &hf_ieee80211_wfa_ie_wme_acp_aifsn,
-        &hf_ieee80211_wfa_ie_wme_acp_acm,
-        &hf_ieee80211_wfa_ie_wme_acp_aci,
-        &hf_ieee80211_wfa_ie_wme_acp_reserved,
+    static int * const ieee80211_wfa_ie_wme_be[] = {
+        &hf_ieee80211_wfa_ie_wme_acp_aci_be,
+        &hf_ieee80211_wfa_ie_wme_acp_acm_be,
+        &hf_ieee80211_wfa_ie_wme_acp_aifsn_be,
+        &hf_ieee80211_wfa_ie_wme_acp_reserved_be,
         NULL
+    };
+
+    static int * const ieee80211_wfa_ie_wme_bk[] = {
+        &hf_ieee80211_wfa_ie_wme_acp_aci_bk,
+        &hf_ieee80211_wfa_ie_wme_acp_acm_bk,
+        &hf_ieee80211_wfa_ie_wme_acp_aifsn_bk,
+        &hf_ieee80211_wfa_ie_wme_acp_reserved_bk,
+        NULL
+    };
+
+    static int * const ieee80211_wfa_ie_wme_vi[] = {
+        &hf_ieee80211_wfa_ie_wme_acp_aci_vi,
+        &hf_ieee80211_wfa_ie_wme_acp_acm_vi,
+        &hf_ieee80211_wfa_ie_wme_acp_aifsn_vi,
+        &hf_ieee80211_wfa_ie_wme_acp_reserved_vi,
+        NULL
+    };
+
+    static int * const ieee80211_wfa_ie_wme_vo[] = {
+        &hf_ieee80211_wfa_ie_wme_acp_aci_vo,
+        &hf_ieee80211_wfa_ie_wme_acp_acm_vo,
+        &hf_ieee80211_wfa_ie_wme_acp_aifsn_vo,
+        &hf_ieee80211_wfa_ie_wme_acp_reserved_vo,
+        NULL
+    };
+
+    static int * const * ie_wme_hdrs[] = {
+       ieee80211_wfa_ie_wme_be,
+       ieee80211_wfa_ie_wme_bk,
+       ieee80211_wfa_ie_wme_vi,
+       ieee80211_wfa_ie_wme_vo
+    };
+
+    static int * const ecw_max_hf[] = {
+      &hf_ieee80211_wfa_ie_wme_acp_ecw_max_be,
+      &hf_ieee80211_wfa_ie_wme_acp_ecw_max_bk,
+      &hf_ieee80211_wfa_ie_wme_acp_ecw_max_vi,
+      &hf_ieee80211_wfa_ie_wme_acp_ecw_max_vo
+    };
+
+    static int * const ecw_min_hf[] = {
+      &hf_ieee80211_wfa_ie_wme_acp_ecw_min_be,
+      &hf_ieee80211_wfa_ie_wme_acp_ecw_min_bk,
+      &hf_ieee80211_wfa_ie_wme_acp_ecw_min_vi,
+      &hf_ieee80211_wfa_ie_wme_acp_ecw_min_vo
+    };
+
+    static int * const txop_limit_hf[] = {
+      &hf_ieee80211_wfa_ie_wme_acp_txop_limit_be,
+      &hf_ieee80211_wfa_ie_wme_acp_txop_limit_bk,
+      &hf_ieee80211_wfa_ie_wme_acp_txop_limit_vi,
+      &hf_ieee80211_wfa_ie_wme_acp_txop_limit_vo
     };
 
     ac_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_ac_parameters, tvb, offset, 4, ENC_NA);
@@ -19011,7 +19082,7 @@ decode_qos_parameter_set(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
 
     /* ACI/AIFSN Field */
     aci_aifsn_item = proto_tree_add_bitmask_with_flags(ac_tree, tvb, offset, hf_ieee80211_wfa_ie_wme_acp_aci_aifsn,
-                            ett_wme_aci_aifsn, ieee80211_wfa_ie_wme,
+                            ett_wme_aci_aifsn, ie_wme_hdrs[i],
                             ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
     aci_aifsn = tvb_get_guint8(tvb, offset);
     /* 802.11-2012, 8.4.2.31 EDCA Parameter Set element */
@@ -19032,15 +19103,15 @@ decode_qos_parameter_set(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
     ecwmax = (ecw & 0xf0) >> 4;
     cwmin= (1 << ecwmin) - 1;
     cwmax= (1 << ecwmax) - 1;
-    proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_max, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_min, tvb, offset, 1, ENC_NA);
-    proto_tree_add_uint(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_max, tvb, offset, 1, cwmax);
-    proto_tree_add_uint(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_min, tvb, offset, 1, cwmin);
+    cw_item = proto_tree_add_item(ecw_tree, *ecw_max_hf[i], tvb, offset, 1, ENC_NA);
+    proto_item_append_text(cw_item, " (CW Max: %u)", cwmax);
+    cw_item = proto_tree_add_item(ecw_tree, *ecw_min_hf[i], tvb, offset, 1, ENC_NA);
+    proto_item_append_text(cw_item, " (CW Min: %u)", cwmin);
     proto_item_append_text(ac_item, ", ECWmin/max %u/%u (CWmin/max %u/%u)", ecwmin, ecwmax, cwmin, cwmax);
     offset += 1;
 
     /* TXOP Limit */
-    proto_tree_add_item(ac_tree, hf_ieee80211_wfa_ie_wme_acp_txop_limit, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ac_tree, *txop_limit_hf[i], tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_item_append_text(ac_item, ", TXOP %u", tvb_get_letohs(tvb, offset));
     offset += 2;
   }
@@ -52475,23 +52546,83 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_wme_acp_aci,
-     {"ACI", "wlan.wfa.ie.wme.acp.aci",
+    {&hf_ieee80211_wfa_ie_wme_acp_aci_be,
+     {"ACI", "wlan.wfa.ie.wme.acp.aci_be",
       FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wme_acs_vals), 0x60,
       NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_wme_acp_acm,
-     {"Admission Control Mandatory", "wlan.wfa.ie.wme.acp.acm",
+    {&hf_ieee80211_wfa_ie_wme_acp_aci_bk,
+     {"ACI", "wlan.wfa.ie.wme.acp.aci_bk",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wme_acs_vals), 0x60,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_aci_vi,
+     {"ACI", "wlan.wfa.ie.wme.acp.aci_vi",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wme_acs_vals), 0x60,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_aci_vo,
+     {"ACI", "wlan.wfa.ie.wme.acp.aci_vo",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wme_acs_vals), 0x60,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_acm_be,
+     {"Admission Control Mandatory", "wlan.wfa.ie.wme.acp.acm_be",
       FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
       NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_wme_acp_aifsn,
-     {"AIFSN", "wlan.wfa.ie.wme.acp.aifsn",
+    {&hf_ieee80211_wfa_ie_wme_acp_acm_bk,
+     {"Admission Control Mandatory", "wlan.wfa.ie.wme.acp.acm_bk",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_acm_vi,
+     {"Admission Control Mandatory", "wlan.wfa.ie.wme.acp.acm_vi",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_acm_vo,
+     {"Admission Control Mandatory", "wlan.wfa.ie.wme.acp.acm_vo",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_aifsn_be,
+     {"AIFSN", "wlan.wfa.ie.wme.acp.aifsn_be",
       FT_UINT8, BASE_DEC, NULL, 0x0F,
       NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_wme_acp_reserved,
-     {"Reserved", "wlan.wfa.ie.wme.acp.reserved",
+    {&hf_ieee80211_wfa_ie_wme_acp_aifsn_bk,
+     {"AIFSN", "wlan.wfa.ie.wme.acp.aifsn_bk",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_aifsn_vi,
+     {"AIFSN", "wlan.wfa.ie.wme.acp.aifsn_vi",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_aifsn_vo,
+     {"AIFSN", "wlan.wfa.ie.wme.acp.aifsn_vo",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_reserved_be,
+     {"Reserved", "wlan.wfa.ie.wme.acp.reserved_be",
+      FT_UINT8, BASE_DEC, NULL, 0x80,
+      "Must be Zero", HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_reserved_bk,
+     {"Reserved", "wlan.wfa.ie.wme.acp.reserved_bk",
+      FT_UINT8, BASE_DEC, NULL, 0x80,
+      "Must be Zero", HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_reserved_vi,
+     {"Reserved", "wlan.wfa.ie.wme.acp.reserved_vi",
+      FT_UINT8, BASE_DEC, NULL, 0x80,
+      "Must be Zero", HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_reserved_vo,
+     {"Reserved", "wlan.wfa.ie.wme.acp.reserved_vo",
       FT_UINT8, BASE_DEC, NULL, 0x80,
       "Must be Zero", HFILL }},
 
@@ -52500,28 +52631,63 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0x00,
       NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_wme_acp_ecw_max,
-     {"ECW Max", "wlan.wfa.ie.wme.acp.ecw.max",
+    {&hf_ieee80211_wfa_ie_wme_acp_ecw_max_be,
+     {"ECW Max", "wlan.wfa.ie.wme.acp.ecw.max_be",
       FT_UINT8, BASE_DEC, NULL, 0xF0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_wme_acp_ecw_min,
-     {"ECW Min", "wlan.wfa.ie.wme.acp.ecw.min",
+    {&hf_ieee80211_wfa_ie_wme_acp_ecw_max_bk,
+     {"ECW Max", "wlan.wfa.ie.wme.acp.ecw.max_bk",
+      FT_UINT8, BASE_DEC, NULL, 0xF0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_ecw_max_vo,
+     {"ECW Max", "wlan.wfa.ie.wme.acp.ecw.max_vo",
+      FT_UINT8, BASE_DEC, NULL, 0xF0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_ecw_max_vi,
+     {"ECW Max", "wlan.wfa.ie.wme.acp.ecw.max_vi",
+      FT_UINT8, BASE_DEC, NULL, 0xF0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_ecw_min_be,
+     {"ECW Min", "wlan.wfa.ie.wme.acp.ecw.min_be",
       FT_UINT8, BASE_DEC, NULL, 0x0F,
       NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_wme_acp_cw_max,
-     {"CW Max", "wlan.wfa.ie.wme.acp.cw.max",
-      FT_UINT8, BASE_DEC, NULL, 0,
+    {&hf_ieee80211_wfa_ie_wme_acp_ecw_min_bk,
+     {"ECW Min", "wlan.wfa.ie.wme.acp.ecw.min_bk",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
       NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_wme_acp_cw_min,
-     {"CW Min", "wlan.wfa.ie.wme.acp.cw.min",
-      FT_UINT8, BASE_DEC, NULL, 0,
+    {&hf_ieee80211_wfa_ie_wme_acp_ecw_min_vo,
+     {"ECW Min", "wlan.wfa.ie.wme.acp.ecw.min_vo",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
       NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_wme_acp_txop_limit,
-     {"TXOP Limit", "wlan.wfa.ie.wme.acp.txop_limit",
+    {&hf_ieee80211_wfa_ie_wme_acp_ecw_min_vi,
+     {"ECW Min", "wlan.wfa.ie.wme.acp.ecw.min_vi",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_txop_limit_be,
+     {"TXOP Limit", "wlan.wfa.ie.wme.acp.txop_limit_be",
+      FT_UINT16, BASE_DEC, NULL, 0x00,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_txop_limit_bk,
+     {"TXOP Limit", "wlan.wfa.ie.wme.acp.txop_limit_bk",
+      FT_UINT16, BASE_DEC, NULL, 0x00,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_txop_limit_vo,
+     {"TXOP Limit", "wlan.wfa.ie.wme.acp.txop_limit_vo",
+      FT_UINT16, BASE_DEC, NULL, 0x00,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_wme_acp_txop_limit_vi,
+     {"TXOP Limit", "wlan.wfa.ie.wme.acp.txop_limit_vi",
       FT_UINT16, BASE_DEC, NULL, 0x00,
       NULL, HFILL }},
 
