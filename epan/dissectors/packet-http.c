@@ -2325,7 +2325,7 @@ dissecting_body:
 			server_acked = TRUE;
 		}
 
-		if (server_acked) {
+		if (server_acked && !PINFO_FD_VISITED(pinfo)) {
 			conv_data->startframe = pinfo->num;
 			conv_data->startoffset = offset;
 			conv_data->next_handle = next_handle;
