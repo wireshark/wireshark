@@ -172,6 +172,7 @@ static int hf_tcp_srcport;
 static int hf_tcp_dstport;
 static int hf_tcp_port;
 static int hf_tcp_stream;
+static int hf_tcp_stream_pnum;
 static int hf_tcp_completeness;
 static int hf_tcp_completeness_syn;
 static int hf_tcp_completeness_syn_ack;
@@ -1960,6 +1961,9 @@ tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
 
     if (!tcpd)
         return;
+
+    /* pre-increment so packet numbers start at 1 */
+    tcppd->pnum = ++tcpd->pnum;
 
     nstime_delta(&tcppd->ts_del, &pinfo->abs_ts, &tcpd->ts_prev);
 
@@ -7965,9 +7969,26 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                           ((tcph->th_flags & (TH_AE|TH_ECE)) == TH_AE);
     }
 
+    /* Do we need to calculate timestamps relative to the tcp-stream? */
+    if (tcp_calculate_ts) {
+        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
+
+        /*
+         * Calculate the timestamps relative to this conversation (but only on
+         * the first run when frames are accessed sequentially)
+         */
+        if (!(pinfo->fd->visited))
+            tcp_calculate_timestamps(pinfo, tcpd, tcppd);
+    }
+
     if (tcpd) {
         item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, tcpd->stream);
         proto_item_set_generated(item);
+
+        if (tcppd) {
+            item = proto_tree_add_uint(tcp_tree, hf_tcp_stream_pnum, tvb, offset, 0, tcppd->pnum);
+            proto_item_set_generated(item);
+        }
 
         /* Display the completeness of this TCP conversation */
         static int* const completeness_fields[] = {
@@ -7998,18 +8019,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if(tcp_analyze_seq && tcpd->fwd->tcp_analyze_seq_info) {
             tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
         }
-    }
-
-    /* Do we need to calculate timestamps relative to the tcp-stream? */
-    if (tcp_calculate_ts) {
-        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
-
-        /*
-         * Calculate the timestamps relative to this conversation (but only on the
-         * first run when frames are accessed sequentially)
-         */
-        if (!(pinfo->fd->visited))
-            tcp_calculate_timestamps(pinfo, tcpd, tcppd);
     }
 
     /* is there any manual analysis waiting ? */
@@ -8862,6 +8871,11 @@ proto_register_tcp(void)
         { &hf_tcp_stream,
         { "Stream index",       "tcp.stream", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_tcp_stream_pnum,
+        { "Stream Packet Number",       "tcp.stream.pnum", FT_UINT32, BASE_DEC,
+            NULL, 0x0,
+            "Relative packet number in this TCP stream", HFILL }},
 
         { &hf_tcp_completeness,
         { "Conversation completeness",       "tcp.completeness", FT_UINT8,
@@ -10025,8 +10039,8 @@ proto_register_tcp(void)
         "This option has no effect if not used with \"Track number of bytes in flight\". ",
         &tcp_bif_seq_based);
     prefs_register_bool_preference(tcp_module, "calculate_timestamps",
-        "Calculate conversation timestamps",
-        "Calculate timestamps relative to the first frame and the previous frame in the tcp conversation",
+        "Calculate stream packet number and timestamps",
+        "Calculate relative packet number and timestamps relative to the first frame and the previous frame in the tcp conversation",
         &tcp_calculate_ts);
     prefs_register_bool_preference(tcp_module, "try_heuristic_first",
         "Try heuristic sub-dissectors first",

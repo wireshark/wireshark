@@ -91,6 +91,7 @@
           "udp.checksum": "0x591f",
           "udp.checksum.status": "2",
           "udp.stream": "0",
+          "udp.stream.pnum": "1",
           "Timestamps": {
             "udp.time_relative": "0.000000000",
             "udp.time_delta": "0.000000000"
@@ -249,6 +250,7 @@
           "udp.checksum": "0x2233",
           "udp.checksum.status": "2",
           "udp.stream": "1",
+          "udp.stream.pnum": "1",
           "Timestamps": {
             "udp.time_relative": "0.000000000",
             "udp.time_delta": "0.000000000"
@@ -413,6 +415,7 @@
           "udp.checksum": "0x9fbd",
           "udp.checksum.status": "2",
           "udp.stream": "0",
+          "udp.stream.pnum": "2",
           "Timestamps": {
             "udp.time_relative": "0.070031000",
             "udp.time_delta": "0.070031000"
@@ -577,6 +580,7 @@
           "udp.checksum": "0xdfdb",
           "udp.checksum.status": "2",
           "udp.stream": "1",
+          "udp.stream.pnum": "2",
           "Timestamps": {
             "udp.time_relative": "0.070050000",
             "udp.time_delta": "0.070050000"

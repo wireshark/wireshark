@@ -70,6 +70,9 @@ struct udp_analysis {
      */
     guint32     stream;
 
+    /* Keep track of packet number within the UDP stream */
+    uint32_t    pnum;
+
     /* Remember the timestamp of the first frame seen in this udp
      * conversation to be able to calculate a relative time compared
      * to the start of this conversation

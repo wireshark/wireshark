@@ -68,6 +68,7 @@ static int hf_udp_proc_src_uid;
 static int hf_udp_proc_src_uname;
 static int hf_udp_srcport;
 static int hf_udp_stream;
+static int hf_udp_stream_pnum;
 static int hf_udp_ts_delta;
 static int hf_udp_ts_relative;
 static int hf_udplite_checksum_coverage;
@@ -123,6 +124,7 @@ typedef struct {
     heur_dtbl_entry_t *heur_dtbl_entry;
     nstime_t ts_delta;
     gboolean ts_delta_valid;
+    uint32_t pnum;
 } udp_p_info_t;
 
 static void
@@ -903,6 +905,9 @@ udp_compute_timestamps(packet_info *pinfo, struct udp_analysis *udp_data, int pr
         p_add_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num, udp_per_packet_data);
     }
 
+    /* pre-increment so packet numbers start at 1 */
+    udp_per_packet_data->pnum = ++udp_data->pnum;
+
     nstime_delta(&udp_per_packet_data->ts_delta, &pinfo->abs_ts, &udp_data->ts_prev);
     udp_per_packet_data->ts_delta_valid = TRUE;
 
@@ -922,6 +927,12 @@ udp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
 
     /* get per packet date for UDP/UDP-Lite based on protocol id */
     udp_p_info_t *udp_per_packet_data = (udp_p_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
+
+    if (udp_per_packet_data) {
+        item = proto_tree_add_uint(parent_tree, hf_udp_stream_pnum, tvb, 0, 0,
+                    udp_per_packet_data->pnum);
+        proto_item_set_generated(item);
+    }
 
     tree = proto_tree_add_subtree(parent_tree, tvb, 0, 0, ett_udp_timestamps, &item, "Timestamps");
     proto_item_set_generated(item);
@@ -1250,11 +1261,6 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         }
     }
 
-    if (udph->uh_ulen == 8) {
-        /* Empty UDP payload, nothing left to do. */
-        return;
-    }
-
     /* Do we need to calculate timestamps relative to the udp-stream? */
     /* Different boolean preferences have to be checked. */
     /* If the protocol is UDP then the UDP preference */
@@ -1263,6 +1269,11 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
              /* Otherwise the UDP-Lite preference */
              || (ip_proto == IP_PROTO_UDPLITE && udplite_calculate_ts))) {
         udp_handle_timestamps(pinfo, tvb, udp_tree, udpd, ip_proto);
+    }
+
+    if (udph->uh_ulen == 8) {
+        /* Empty UDP payload, nothing left to do. */
+        return;
     }
 
     /*
@@ -1324,6 +1335,11 @@ proto_register_udp(void)
             { "Stream index", "udp.stream",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
+        },
+        { &hf_udp_stream_pnum,
+            { "Stream Packet Number", "udp.stream.pnum",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              "Relative packet number in this UDP stream", HFILL }
         },
         { &hf_udp_length,
             { "Length", "udp.length",
@@ -1487,8 +1503,8 @@ proto_register_udp(void)
                          "Collect process flow information from IPFIX",
                          &udp_process_info);
     prefs_register_bool_preference(udp_module, "calculate_timestamps",
-                         "Calculate conversation timestamps",
-                         "Calculate timestamps relative to the first frame and the previous frame in the udp conversation",
+                         "Calculate stream packet number and timestamps",
+                         "Calculate relative packet number and timestamps relative to the first frame and the previous frame in the udp conversation",
                          &udp_calculate_ts);
 
     udplite_module = prefs_register_protocol(proto_udplite, NULL);
@@ -1501,8 +1517,8 @@ proto_register_udp(void)
                          "Whether to validate the UDP-Lite checksum",
                          &udplite_check_checksum);
     prefs_register_bool_preference(udplite_module, "calculate_timestamps",
-                         "Calculate conversation timestamps",
-                         "Calculate timestamps relative to the first frame and the previous frame in the udp-lite conversation",
+                         "Calculate stream packet number and timestamps",
+                         "Calculate relative packet number and timestamps relative to the first frame and the previous frame in the udp-lite conversation",
                          &udplite_calculate_ts);
 
     register_decode_as(&udp_da);
