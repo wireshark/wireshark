@@ -72,6 +72,7 @@ static gint ett_key_info = -1;
 static expert_field ei_wg_bad_packet_length = EI_INIT;
 static expert_field ei_wg_keepalive  = EI_INIT;
 static expert_field ei_wg_decryption_error = EI_INIT;
+static expert_field ei_wg_decryption_unsupported = EI_INIT;
 
 static gboolean     pref_dissect_packet = TRUE;
 static const char  *pref_keylog_file;
@@ -79,6 +80,7 @@ static const char  *pref_keylog_file;
 static dissector_handle_t ip_handle;
 static dissector_handle_t wg_handle;
 
+static bool wg_decryption_supported;
 
 // Length of AEAD authentication tag
 #define AUTH_TAG_LENGTH 16
@@ -518,6 +520,10 @@ aead_decrypt(const wg_qqword *key, guint64 counter, const guchar *ctext, guint c
 static void
 wg_add_static_key(const wg_qqword *tmp_key, gboolean is_private)
 {
+    if (!wg_decryption_supported) {
+        return;
+    }
+
     wg_skey_t *key = g_new0(wg_skey_t, 1);
     if (is_private) {
         set_private_key(&key->priv_key, tmp_key);
@@ -549,6 +555,10 @@ wg_add_static_key(const wg_qqword *tmp_key, gboolean is_private)
 static wg_ekey_t *
 wg_add_ephemeral_privkey(const wg_qqword *priv_key)
 {
+    if (!wg_decryption_supported) {
+        return NULL;
+    }
+
     wg_qqword pub_key;
     priv_to_pub(&pub_key, priv_key);
     wg_ekey_t *key = (wg_ekey_t *)wmem_map_lookup(wg_ephemeral_keys, &pub_key);
@@ -626,6 +636,10 @@ static void wg_keylog_process_lines(const void *data, guint datalen);
 static void
 wg_keylog_read(void)
 {
+    if (!wg_decryption_supported) {
+        return;
+    }
+
     if (!pref_keylog_file || !*pref_keylog_file) {
         return;
     }
@@ -790,6 +804,10 @@ wg_key_uat_record_free_cb(void *r)
 static void
 wg_key_uat_apply(void)
 {
+    if (!wg_decryption_supported) {
+        return;
+    }
+
     if (!wg_static_keys) {
         // The first field of "wg_skey_t" is the pubkey (and the table key),
         // its initial four bytes should be good enough as key hash.
@@ -1127,7 +1145,7 @@ wg_mac1_key_probe(tvbuff_t *tvb, gboolean is_initiation)
     const int mac1_offset = is_initiation ? 116 : 60;
 
     // Shortcut: skip MAC1 validation if no pubkeys are configured.
-    if (g_hash_table_size(wg_static_keys) == 0) {
+    if (!wg_static_keys || g_hash_table_size(wg_static_keys) == 0) {
         return NULL;
     }
 
@@ -1246,8 +1264,12 @@ wg_dissect_pubkey(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_ephem
 
     int hf_id = is_ephemeral ? hf_wg_ephemeral : hf_wg_static;
     proto_item *ti = proto_tree_add_string(tree, hf_id, tvb, offset, 32, key_str);
-    proto_tree *key_tree = proto_item_add_subtree(ti, ett_key_info);
-    wg_dissect_key_extra(key_tree, tvb, (const wg_qqword *)pubkey, is_ephemeral);
+    if (wg_decryption_supported) {
+        proto_tree *key_tree = proto_item_add_subtree(ti, ett_key_info);
+        wg_dissect_key_extra(key_tree, tvb, (const wg_qqword *)pubkey, is_ephemeral);
+    } else {
+        expert_add_info(NULL, ti, &ei_wg_decryption_unsupported);
+    }
 }
 
 static void
@@ -1843,6 +1865,10 @@ proto_register_wg(void)
           { "wg.decryption_error", PI_DECRYPTION, PI_WARN,
             "Packet data decryption failed", EXPFILL }
         },
+        { &ei_wg_decryption_unsupported,
+          { "wg.decryption_unsupported", PI_DECRYPTION, PI_WARN,
+            "Decryption unsupported (disable FIPS mode or upgrade Libgcrypt to 1.10.0 or higher)", EXPFILL }
+        },
     };
 
     /* UAT for header fields */
@@ -1896,11 +1922,16 @@ proto_register_wg(void)
             "LOCAL_EPHEMERAL_PRIVATE_KEY or PRESHARED_KEY.",
             &pref_keylog_file, FALSE);
 
-    if (!wg_decrypt_init()) {
-        ws_warning("decryption will not be possible due to lack of algorithms support");
-    }
+    wg_decryption_supported = wg_decrypt_init();
+    /* We require libgcrypt 1.8.0, so if the algorithms aren't supported
+     * that's almost surely because FIPS mode is on. For libgcrypt 1.10.0
+     * and higher we turn it off in epan_init() when initializing gcrypt.
+     * We could verify that's the reason by calling gcry_fips_mode_active()
+     */
 
-    secrets_register_type(SECRETS_TYPE_WIREGUARD, wg_keylog_process_lines);
+    if (wg_decryption_supported) {
+        secrets_register_type(SECRETS_TYPE_WIREGUARD, wg_keylog_process_lines);
+    }
 
     wg_ephemeral_keys = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int_hash, wg_pubkey_equal);
 
