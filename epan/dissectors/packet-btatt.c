@@ -4797,6 +4797,18 @@ add_item_btatt_time(proto_tree *tree, tvbuff_t *tvb, guint offset)
     return offset;
 }
 
+static guint
+add_item_btatt_timestamp(proto_tree *tree, int hf_index, tvbuff_t *tvb, guint offset)
+{
+    proto_item  *sub_item;
+    proto_tree  *sub_tree;
+
+    sub_item = proto_tree_add_item(tree, hf_index, tvb, offset, 7, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+    return add_item_btatt_time(sub_tree, tvb, offset);
+}
+
 static gint
 dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *pinfo, tvbuff_t *old_tvb,
         gint old_offset, gint length, guint16 handle, bluetooth_uuid_t uuid, btatt_data_t *att_data)
@@ -5831,10 +5843,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         proto_tree_add_item(tree, hf_btatt_glucose_measurement_sequence_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        sub_item = proto_tree_add_item(tree, hf_btatt_glucose_measurement_base_time, tvb, offset, 7, ENC_NA);
-        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
-
-        offset = add_item_btatt_time(sub_tree, tvb, offset);
+        offset = add_item_btatt_timestamp(tree, hf_btatt_glucose_measurement_base_time, tvb, offset);
 
         if (flags & 0x01) {
             proto_tree_add_item(tree, hf_btatt_glucose_measurement_time_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5939,10 +5948,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 4;
 
         if (flags & 0x02) {
-            sub_item = proto_tree_add_item(tree, hf_btatt_temperature_measurement_timestamp, tvb, offset, 7, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
-
-            offset = add_item_btatt_time(sub_tree, tvb, offset);
+            offset = add_item_btatt_timestamp(tree, hf_btatt_temperature_measurement_timestamp, tvb, offset);
         }
 
         if (flags & 0x04) {
@@ -6436,10 +6442,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         if (flags & 0x02) {
-            sub_item = proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_timestamp, tvb, offset, 7, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
-
-            offset = add_item_btatt_time(sub_tree, tvb, offset);
+            offset = add_item_btatt_timestamp(tree, hf_btatt_blood_pressure_measurement_timestamp, tvb, offset);
         }
 
         if (flags & 0x04) {
@@ -7616,10 +7619,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
                 break;
             case 15: /* Request Factory Calibration Date */
                 if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
-                    sub_item = proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_factory_calibration_date, tvb, offset, 7, ENC_NA);
-                    sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
-
-                    offset = add_item_btatt_time(sub_tree, tvb, offset);
+                    offset = add_item_btatt_timestamp(tree, hf_btatt_cycling_power_control_point_factory_calibration_date, tvb, offset);
                 }
 
                 break;
@@ -7675,10 +7675,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         if (flags & 0x40) {
-            sub_item = proto_tree_add_item(tree, hf_btatt_location_and_speed_utc_time, tvb, offset, 7, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
-
-            offset = add_item_btatt_time(sub_tree, tvb, offset);
+            offset = add_item_btatt_timestamp(tree, hf_btatt_location_and_speed_utc_time, tvb, offset);
         }
 
         break;
@@ -7712,10 +7709,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         if (flags & 0x04) {
-            sub_item = proto_tree_add_item(tree, hf_btatt_navigation_estimated_time_of_arrival, tvb, offset, 7, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
-
-            offset = add_item_btatt_time(sub_tree, tvb, offset);
+            offset = add_item_btatt_timestamp(tree, hf_btatt_navigation_estimated_time_of_arrival, tvb, offset);
         }
 
         break;
@@ -8693,10 +8687,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 2;
 
         if (flags & 0x02) {
-            sub_item = proto_tree_add_item(tree, hf_btatt_body_composition_measurement_timestamp, tvb, offset, 7, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
-
-            offset = add_item_btatt_time(sub_tree, tvb, offset);
+            offset = add_item_btatt_timestamp(tree, hf_btatt_body_composition_measurement_timestamp, tvb, offset);
         }
 
         if (flags & 0x04) {
@@ -8793,10 +8784,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 2;
 
         if (flags & 0x02) {
-            sub_item = proto_tree_add_item(tree, hf_btatt_weight_measurement_timestamp, tvb, offset, 7, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
-
-            offset = add_item_btatt_time(sub_tree, tvb, offset);
+            offset = add_item_btatt_timestamp(tree, hf_btatt_weight_measurement_timestamp, tvb, offset);
         }
 
         if (flags & 0x04) {
@@ -9144,10 +9132,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        sub_item = proto_tree_add_item(tree, hf_btatt_cgm_session_start_time, tvb, offset, 7, ENC_NA);
-        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
-
-        offset = add_item_btatt_time(sub_tree, tvb, offset);
+        offset = add_item_btatt_timestamp(tree, hf_btatt_cgm_session_start_time, tvb, offset);
 
         proto_tree_add_item(tree, hf_btatt_timezone, tvb, offset, 1, ENC_NA);
         offset += 1;
