@@ -200,7 +200,7 @@ static const value_string evs_d_bits_t4_values[] = {
 
 static const value_string evs_d_bits_t5_values[] = {
     { 0x0, "WB 13.2 kbps CA-L-O2" },
-    { 0x1, "WB 13.2 kbps CA-L-O2" },
+    { 0x1, "WB 13.2 kbps CA-L-O3" },
     { 0x2, "WB 13.2 kbps CA-L-O5" },
     { 0x3, "WB 13.2 kbps CA-L-O7" },
     { 0x4, "WB 13.2 kbps CA-H-O2" },
@@ -220,7 +220,7 @@ static const value_string evs_d_bits_t5_values[] = {
 
 static const value_string evs_d_bits_t6_values[] = {
     { 0x0, "SWB 13.2 kbps CA-L-O2" },
-    { 0x1, "SWB 13.2 kbps CA-L-O2" },
+    { 0x1, "SWB 13.2 kbps CA-L-O3" },
     { 0x2, "SWB 13.2 kbps CA-L-O5" },
     { 0x3, "SWB 13.2 kbps CA-L-O7" },
     { 0x4, "SWB 13.2 kbps CA-H-O2" },
