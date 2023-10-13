@@ -1667,6 +1667,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pagp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-paltalk.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pana.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcaplog.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcap_pktdata.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcapng_block.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcep.c

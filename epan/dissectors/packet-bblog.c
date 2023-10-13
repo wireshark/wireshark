@@ -13,11 +13,16 @@
 
 #include "config.h"
 
+#include <wiretap/wtap.h>
 #include <epan/packet.h>
 #include "packet-bblog.h"
 
+#define PEN_NFLX 10949
+
 void proto_register_bblog(void);
 void proto_reg_handoff_bblog(void);
+
+static dissector_handle_t bblog_handle;
 
 static int proto_bblog                      = -1;
 
@@ -277,7 +282,7 @@ static const value_string tcp_timer_event_values[] = {
  */
 
 static int
-dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_bblog_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *bblog_item;
     proto_tree *bblog_tree;
@@ -288,7 +293,6 @@ dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     guint8 pru;
     guint8 timer_type, timer_event;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
     event_identifier = tvb_get_guint8(tvb, 25);
     flex1 = tvb_get_letohl(tvb, 140);
     flex2 = tvb_get_letohl(tvb, 144);
@@ -373,6 +377,26 @@ dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         /* stack specific data */
     }
     proto_tree_add_item(bblog_tree, hf_payload_len,    tvb, 264, 4, ENC_LITTLE_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
+    switch (pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type) {
+    case BBLOG_TYPE_SKIPPED_BLOCK:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Number of skipped events: %u",
+                     pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
+        break;
+    case BBLOG_TYPE_EVENT_BLOCK:
+        dissect_bblog_event(tvb, pinfo, tree, data);
+        break;
+    default:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown type: %u",
+                     pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
+        break;
+    }
     return tvb_captured_length(tvb);
 }
 
@@ -487,12 +511,13 @@ proto_register_bblog(void)
     proto_register_field_array(proto_bblog, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("bblog", dissect_bblog, proto_bblog);
+    bblog_handle = register_dissector("bblog", dissect_bblog, proto_bblog);
 }
 
 void
 proto_reg_handoff_bblog(void)
 {
+    dissector_add_uint("pcapng_custom_block", PEN_NFLX, bblog_handle);
 }
 
 /*
