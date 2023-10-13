@@ -71,7 +71,6 @@ set(PIDL_DISSECTOR_SRC
 )
 
 set(CLEAN_ASN1_DISSECTOR_SRC
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-lix2.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ansi_map.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-acp133.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-acse.c
@@ -127,6 +126,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kpm-v2.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lcsap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ldap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-lix2.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lnpdqp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-log3gpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-logotypecertextn.c
@@ -680,7 +680,6 @@ set(DISSECTOR_HEADER_FILES
 )
 
 set(DISSECTOR_SRC
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-li5g.c
 	${CMAKE_CURRENT_SOURCE_DIR}/file-blf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/file-btsnoop.c
 	${CMAKE_CURRENT_SOURCE_DIR}/file-dlt.c
@@ -1428,6 +1427,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ldss.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lg8979.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lge_monitor.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-li5g.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-link16.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lin.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-linx.c
