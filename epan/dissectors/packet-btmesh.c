@@ -4798,14 +4798,14 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             vendor = tvb_get_guint16(tvb, offset + 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
             payload_tvb = tvb_new_subset_remaining(tvb, offset);
-            dissector_try_uint_new(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, root_tree, TRUE, GUINT_TO_POINTER(vendor));
             col_set_str(pinfo->cinfo, COL_INFO, "Access Message - Vendor Opcode");
+            dissector_try_uint_new(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, root_tree, TRUE, GUINT_TO_POINTER(vendor));
             offset+=3;
         } else {
-        /* Two octet opcode */
-        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 2, ENC_NA, &opcode);
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, btmesh_models_opcode_vals, "Access Message Unknown"));
-        offset+=2;
+            /* Two octet opcode */
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 2, ENC_NA, &opcode);
+            col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, btmesh_models_opcode_vals, "Access Message Unknown"));
+            offset+=2;
         }
     } else {
         /* One octet opcode */
