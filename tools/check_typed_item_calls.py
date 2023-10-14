@@ -303,7 +303,9 @@ class ProtoTreeAddItemCheck(APICheck):
                                             '(skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
                                             'pdu_info->sbc', 'pdu_info->mbc',
                                             'seq_info->txt_enc | ENC_NA',
-                                            'BASE_SHOW_UTF_8_PRINTABLE'
+                                            'BASE_SHOW_UTF_8_PRINTABLE',
+                                            'dhcp_secs_endian',
+                                            'is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA'
                                           }:
                                 global warnings_found
 

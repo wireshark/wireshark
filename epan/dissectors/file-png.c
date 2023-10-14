@@ -408,7 +408,7 @@ proto_register_png(void)
               NULL, HFILL }
         },
         { &hf_png_chunk_type_str,
-            { "Chunk", "png.chunk.type",
+            { "Type", "png.chunk.type",
               FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },

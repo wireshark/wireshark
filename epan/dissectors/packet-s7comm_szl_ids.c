@@ -22,10 +22,10 @@ static gint hf_s7comm_userdata_szl_partial_list = -1;           /* Partial list 
 static gint hf_s7comm_userdata_szl_id = -1;                     /* SZL id */
 
 static const value_string szl_module_type_names[] = {
-    { 0x0000,                               "CPU" },            /* Binary: 0000 */
-    { 0x0100,                               "IM" },             /* Binary: 0100 */
-    { 0xC000,                               "CP" },             /* Binary: 1100 */
-    { 0x8000,                               "FM" },             /* Binary: 1000 */
+    { 0x0,                                  "CPU" },            /* Binary: 0000 */
+    { 0x4,                                  "IM" },             /* Binary: 0100 */
+    { 0xc,                                  "CP" },             /* Binary: 1100 */
+    { 0x8,                                  "FM" },             /* Binary: 1000 */
     { 0,                                    NULL }
 };
 static gint hf_s7comm_userdata_szl_id_type = -1;
@@ -5766,7 +5766,7 @@ s7comm_register_szl_types(int proto)
         { "Diagnostic type", "s7comm.data.userdata.szl_id.diag_type", FT_UINT16, BASE_HEX, VALS(szl_module_type_names), 0xf000,
           NULL, HFILL }},
         { &hf_s7comm_userdata_szl_id_partlist_ex,
-        { "Number of the partial list extract", "s7comm.data.userdata.szl_id.partlist_ex", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &szl_id_partlist_ex_names_ext, 0xffff,
+        { "Number of the partial list extract", "s7comm.data.userdata.szl_id.partlist_ex", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &szl_id_partlist_ex_names_ext, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_userdata_szl_id_partlist_num,
         { "Number of the partial list", "s7comm.data.userdata.szl_id.partlist_num", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &szl_partial_list_names_ext, 0x00ff,

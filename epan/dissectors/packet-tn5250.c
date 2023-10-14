@@ -601,11 +601,11 @@ static const struct true_false_string tn5250_field_wdsf_cw_bp_flag1_1 = {
 #define WTF_BITS         0xC0
 
 static const value_string vals_tn5250_wdsf_cw_tf_flag_orientation[] = {
-  { 0x00,  "Window Title or Footer is Centered"},
-  { 0x40,  "Window Title or Footer is Right Justified"},
-  { 0x80,  "Window Title or Footer is Left Justified"},
-  { 0xC0,  "Reserved (Window Title or Footer is Centered)"},
-  { 0x00, NULL }
+  { 0,   "Window Title or Footer is Centered"},
+  { 1,   "Window Title or Footer is Right Justified"},
+  { 2,   "Window Title or Footer is Left Justified"},
+  { 3,   "Reserved (Window Title or Footer is Centered)"},
+  { 0, NULL }
 };
 
 static const struct true_false_string tn5250_field_wdsf_cw_tf_flag_1 = {
@@ -651,11 +651,11 @@ static const value_string vals_tn5250_wdsf_ds_flag1_mouse_characteristics[] = {
 #define DS_AUTO_ENTER_BITS         0x30
 
 static const value_string vals_tn5250_wdsf_ds_flag1_auto_enter[] = {
-  { 0x00,  "Selection field is not auto-enter"},
-  { 0x20,  "Selection field is auto-enter on selection except if double-digit numeric selection is used."},
-  { 0x10,  "Selection field is auto-enter on selection or deselection except if double-digit numeric selection is used. "},
-  { 0x30,  "Selection field is auto-enter on selection except if single-digit or double-digit numeric selection is used."},
-  { 0x00, NULL }
+  { 0,   "Selection field is not auto-enter"},
+  { 2,   "Selection field is auto-enter on selection except if double-digit numeric selection is used."},
+  { 1,   "Selection field is auto-enter on selection or deselection except if double-digit numeric selection is used. "},
+  { 3,   "Selection field is auto-enter on selection except if single-digit or double-digit numeric selection is used."},
+  { 0, NULL }
 };
 
 static const struct true_false_string tn5250_field_wdsf_ds_flag1_1 = {
@@ -752,9 +752,9 @@ static const value_string vals_tn5250_wdsf_ds_gdc_indicators[] = {
   { 0x00, NULL }
 };
 
-#define DS_SELECTION_TECHNIQUES1             0x20
-#define DS_SELECTION_TECHNIQUES2             0x40
-#define DS_SELECTION_TECHNIQUES3             0xE0
+#define DS_SELECTION_TECHNIQUES1             0x1
+#define DS_SELECTION_TECHNIQUES2             0x2
+#define DS_SELECTION_TECHNIQUES3             0x7
 #define DS_SELECTION_TECHNIQUES_BITS         0xE0
 
 static const value_string vals_tn5250_wdsf_ds_gdc_selection_techniques[] = {
@@ -784,11 +784,11 @@ static const value_string vals_tn5250_wdsf_ds_nws_indicators[] = {
   { 0x00, NULL }
 };
 
-#define DS_NWS_SELECTION_TECHNIQUES1             0x20
-#define DS_NWS_SELECTION_TECHNIQUES2             0x40
-#define DS_NWS_SELECTION_TECHNIQUES3             0x80
-#define DS_NWS_SELECTION_TECHNIQUES4             0xA0
-#define DS_NWS_SELECTION_TECHNIQUES5             0xE0
+#define DS_NWS_SELECTION_TECHNIQUES1             0x1
+#define DS_NWS_SELECTION_TECHNIQUES2             0x2
+#define DS_NWS_SELECTION_TECHNIQUES3             0x4
+#define DS_NWS_SELECTION_TECHNIQUES4             0x5
+#define DS_NWS_SELECTION_TECHNIQUES5             0x7
 #define DS_NWS_SELECTION_TECHNIQUES_BITS         0xE0
 
 static const value_string vals_tn5250_wdsf_ds_nws_selection_techniques[] = {
@@ -835,9 +835,9 @@ static const struct true_false_string tn5250_field_wdsf_ds_ct_flag1_5 = {
   "No Action"
 };
 
-#define DS_NUMERIC_SELECTION_NOT_INCLUDED             0x00
-#define DS_NUMERIC_SELECTION_SINGLE_DIGIT             0x40
-#define DS_NUMERIC_SELECTION_DOUBLE_DIGIT             0x80
+#define DS_NUMERIC_SELECTION_NOT_INCLUDED             0x0
+#define DS_NUMERIC_SELECTION_SINGLE_DIGIT             0x1
+#define DS_NUMERIC_SELECTION_DOUBLE_DIGIT             0x2
 #define DS_NUMERIC_SELECTION_BITS                     0xC0
 
 static const value_string vals_tn5250_wdsf_ds_ct_flag1_numeric_selection[] = {
@@ -2071,9 +2071,9 @@ static const struct true_false_string tn5250_field_qr_flag1_7 = {
 };
 
 static const value_string vals_tn5250_qr_flag2_0to3[] = {
-  { 0x10,  "24 x 80 Screen Size"},
-  { 0x30,  "Capable of 24 x 80 and 27 x 132"},
-  { 0x00, NULL }
+  { 0x1,  "24 x 80 Screen Size"},
+  { 0x3,  "Capable of 24 x 80 and 27 x 132"},
+  { 0, NULL }
 };
 
 static const struct true_false_string tn5250_field_qr_flag2_4 = {

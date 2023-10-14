@@ -231,7 +231,7 @@ proto_register_userlog(void)
 		},
 
 		{ &hf_userlog_header_reserved,
-			{ "Reserved", "userlog.header_reserved",
+			{ "Reserved", "userlog.reserved",
 			FT_BYTES, BASE_NONE,
 			NULL, 0x0,
 			NULL, HFILL }

@@ -713,9 +713,9 @@ static const value_string q2931_transfer_capability_vals[] = {
 };
 
 static const value_string q2931_susc_clip_vals[] = {
-	{ 0x00, "Not susceptible to clipping" },
-	{ 0x20, "Susceptible to clipping" },
-	{ 0x00, NULL }
+	{ 0,  "Not susceptible to clipping" },
+	{ 1,  "Susceptible to clipping" },
+	{ 0, NULL }
 };
 
 static const value_string q2931_up_conn_config_vals[] = {
@@ -797,8 +797,8 @@ static const value_string q2931_uil2_vals[] = {
 };
 
 static const value_string q2931_mode_vals[] = {
-	{ 0x20, "Normal mode" },
-	{ 0x40, "Extended mode" },
+	{ 1,  "Normal mode" },
+	{ 2,  "Extended mode" },
 	{ 0,    NULL }
 };
 
@@ -1292,12 +1292,12 @@ dissect_q2931_call_state_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a (phone) number information element.
  */
 static const value_string q2931_number_type_vals[] = {
-	{ 0x00, "Unknown" },
-	{ 0x10, "International number" },
-	{ 0x20, "National number" },
-	{ 0x30, "Network specific number" },
-	{ 0x40, "Subscriber number" },
-	{ 0x60, "Abbreviated number" },
+	{ 0x0, "Unknown" },
+	{ 0x1, "International number" },
+	{ 0x2, "National number" },
+	{ 0x3, "Network specific number" },
+	{ 0x4, "Subscriber number" },
+	{ 0x6, "Abbreviated number" },
 	{ 0,    NULL }
 };
 
@@ -1313,9 +1313,9 @@ static const value_string q2931_numbering_plan_vals[] = {
 };
 
 static const value_string q2931_presentation_indicator_vals[] = {
-	{ 0x00, "Presentation allowed" },
-	{ 0x20, "Presentation restricted" },
-	{ 0x40, "Number not available" },
+	{ 0,  "Presentation allowed" },
+	{ 1,  "Presentation restricted" },
+	{ 2,  "Number not available" },
 	{ 0,    NULL }
 };
 
@@ -1381,15 +1381,15 @@ dissect_q2931_number_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
  * Dissect a party subaddress information element.
  */
 static const value_string q2931_subaddress_type_vals[] = {
-	{ 0x00, "X.213/ISO 8348 NSAP" },
-	{ 0x10, "User-specified ATM endsystem address" },
-	{ 0x20, "User-specified" },
+	{ 0,  "X.213/ISO 8348 NSAP" },
+	{ 1,  "User-specified ATM endsystem address" },
+	{ 2,  "User-specified" },
 	{ 0,    NULL }
 };
 
 static const value_string q2931_odd_even_indicator_vals[] = {
-	{ 0x00, "Even number of address signals" },
-	{ 0x10, "Odd number of address signals" },
+	{ 0,  "Even number of address signals" },
+	{ 1,  "Odd number of address signals" },
 	{ 0,    NULL }
 };
 
@@ -1414,9 +1414,9 @@ dissect_q2931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a connection identifier information element.
  */
 static const value_string q2931_vp_associated_signalling_vals[] = {
-	{ 0x00, "Yes" },
-	{ 0x08, "No - explicit indication of VPCI" },
-	{ 0x00, NULL }
+	{ 0,  "Yes" },
+	{ 1,  "No - explicit indication of VPCI" },
+	{ 0, NULL }
 };
 
 static const value_string q2931_preferred_exclusive_vals[] = {
@@ -1582,9 +1582,9 @@ dissect_q2931_bband_sending_compl_ie(tvbuff_t *tvb, packet_info* pinfo, int offs
  * Dissect a Transit network selection information element.
  */
 static const value_string q2931_netid_type_vals[] = {
-	{ 0x00, "User specified" },
-	{ 0x20, "National network identification" },
-	{ 0x30, "International network identification" },
+	{ 0,  "User specified" },
+	{ 2,  "National network identification" },
+	{ 3,  "International network identification" },
 	{ 0,    NULL }
 };
 
@@ -1616,14 +1616,14 @@ dissect_q2931_transit_network_sel_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect an OAM traffic descriptor information element.
  */
 static const value_string q2931_shaping_indicator_vals[] = {
-	{ 0x00, "No user specified requirement" },
-	{ 0x20, "Aggregate shaping of user and OAM cells not allowed" },
+	{ 0,  "No user specified requirement" },
+	{ 1,  "Aggregate shaping of user and OAM cells not allowed" },
 	{ 0,    NULL }
 };
 
 static const value_string q2931_user_net_fault_mgmt_vals[] = {
-	{ 0x00, "No user-originated fault management indications" },
-	{ 0x01, "User-originated fault management indications, cell rate 1 cell/s" },
+	{ 0,  "No user-originated fault management indications" },
+	{ 1,  "User-originated fault management indications, cell rate 1 cell/s" },
 	{ 0,    NULL }
 };
 
