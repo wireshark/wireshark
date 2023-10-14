@@ -1421,16 +1421,16 @@ show_print_file_io_error(int err)
 static const nstime_t *
 raw_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
 {
-    if (prov->ref && prov->ref->num == frame_num)
-        return &prov->ref->abs_ts;
+    const frame_data *ts_fd = NULL;
+    if (prov->ref && prov->ref->num == frame_num) {
+        ts_fd = prov->ref;
+    } else if (prov->prev_dis && prov->prev_dis->num == frame_num) {
+        ts_fd = prov->prev_dis;
+    } else if (prov->prev_cap && prov->prev_cap->num == frame_num) {
+        ts_fd = prov->prev_cap;
+    }
 
-    if (prov->prev_dis && prov->prev_dis->num == frame_num)
-        return &prov->prev_dis->abs_ts;
-
-    if (prov->prev_cap && prov->prev_cap->num == frame_num)
-        return &prov->prev_cap->abs_ts;
-
-    return NULL;
+    return (ts_fd && ts_fd->has_ts) ? &ts_fd->abs_ts : NULL;
 }
 
 static epan_t *

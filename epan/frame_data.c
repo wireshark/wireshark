@@ -246,6 +246,22 @@ frame_data_set_before_dissect(frame_data *fdata,
 {
   nstime_t rel_ts;
 
+  /* If this frame doesn't have a time stamp, don't set it as the
+   * reference frame used for calculating time deltas, set elapsed
+   * time, etc. We also won't need to calculate the delta of this
+   * frame's timestamp to any other frame.
+   */
+  if (!fdata->has_ts) {
+    /* If it was marked as a reference time frame anyway (should we
+     * allow that?), clear the existing reference frame so that the
+     * next frame with a time stamp will become the reference frame.
+     */
+    if(fdata->ref_time) {
+      *frame_ref = NULL;
+    }
+    return;
+  }
+
   /* Don't have the reference frame, set to current */
   if (*frame_ref == NULL)
     *frame_ref = fdata;

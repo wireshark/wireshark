@@ -2731,22 +2731,18 @@ guint32 packet_count = 0;
 static const nstime_t *
 tshark_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
 {
-    if (prov->ref && prov->ref->num == frame_num)
-        return &prov->ref->abs_ts;
-
-    if (prov->prev_dis && prov->prev_dis->num == frame_num)
-        return &prov->prev_dis->abs_ts;
-
-    if (prov->prev_cap && prov->prev_cap->num == frame_num)
-        return &prov->prev_cap->abs_ts;
-
-    if (prov->frames) {
-        frame_data *fd = frame_data_sequence_find(prov->frames, frame_num);
-
-        return (fd) ? &fd->abs_ts : NULL;
+    const frame_data *fd = NULL;
+    if (prov->ref && prov->ref->num == frame_num) {
+        fd = prov->ref;
+    } else if (prov->prev_dis && prov->prev_dis->num == frame_num) {
+        fd = prov->prev_dis;
+    } else if (prov->prev_cap && prov->prev_cap->num == frame_num) {
+        fd = prov->prev_cap;
+    } else if (prov->frames) {
+        fd = frame_data_sequence_find(prov->frames, frame_num);
     }
 
-    return NULL;
+    return (fd && fd->has_ts) ? &fd->abs_ts : NULL;
 }
 
 static epan_t *
