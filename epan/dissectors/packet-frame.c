@@ -1018,6 +1018,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			if (proto_field_is_referenced(tree, hf_frame_time_delta)) {
 				nstime_t     del_cap_ts;
 
+				/* XXX: pinfo->num - 1 might not *have* a
+			         * timestamp, even if this frame does. Would
+			         * the user prefer to see "delta from previous
+			         * captured frame that has a timestamp"?
+			         */
 				frame_delta_abs_time(pinfo->epan, pinfo->fd, pinfo->num - 1, &del_cap_ts);
 
 				item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,

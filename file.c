@@ -216,19 +216,16 @@ compute_elapsed(capture_file *cf, gint64 start_time)
 static const nstime_t *
 ws_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
 {
-    if (prov->prev_dis && prov->prev_dis->num == frame_num)
-        return &prov->prev_dis->abs_ts;
-
-    if (prov->prev_cap && prov->prev_cap->num == frame_num)
-        return &prov->prev_cap->abs_ts;
-
-    if (prov->frames) {
-        frame_data *fd = frame_data_sequence_find(prov->frames, frame_num);
-
-        return (fd) ? &fd->abs_ts : NULL;
+    const frame_data *fd = NULL;
+    if (prov->prev_dis && prov->prev_dis->num == frame_num) {
+        fd = prov->prev_dis;
+    } else if (prov->prev_cap && prov->prev_cap->num == frame_num) {
+        fd = prov->prev_cap;
+    } else if (prov->frames) {
+        fd = frame_data_sequence_find(prov->frames, frame_num);
     }
 
-    return NULL;
+    return (fd && fd->has_ts) ? &fd->abs_ts : NULL;
 }
 
 static epan_t *
@@ -1252,7 +1249,16 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     if (fdata->passed_dfilter || fdata->ref_time)
     {
         frame_data_set_after_dissect(fdata, &cf->cum_bytes);
-        cf->provider.prev_dis = fdata;
+        /* The only way we use prev_dis is to get the time stamp of
+         * the previous displayed frame, so ignore it if it doesn't
+         * have a time stamp, because we're presumably interested in
+         * the timestamp of the previously displayed frame with a
+         * time. XXX: What if in the future we want to use the previously
+         * displayed frame for something else, too?
+         */
+        if (fdata->has_ts) {
+            cf->provider.prev_dis = fdata;
+        }
 
         /* If we haven't yet seen the first frame, this is it. */
         if (cf->first_displayed == 0)
@@ -2110,44 +2116,59 @@ cf_reftime_packets(capture_file* cf)
         fdata->cum_bytes = cf->cum_bytes + fdata->pkt_len;
 
         /*
-         *Timestamps
+         * Timestamps
          */
 
-        /* If we don't have the time stamp of the first packet in the
-           capture, it's because this is the first packet.  Save the time
-           stamp of this packet as the time stamp of the first packet. */
-        if (cf->provider.ref == NULL)
-            cf->provider.ref = fdata;
-        /* if this frames is marked as a reference time frame, reset
-           firstsec and firstusec to this frame */
-        if (fdata->ref_time)
-            cf->provider.ref = fdata;
+        if (fdata->has_ts) {
+            /* If we don't have the time stamp of the first packet in the
+               capture, it's because this is the first packet.  Save the time
+               stamp of this packet as the time stamp of the first packet. */
+            if (cf->provider.ref == NULL)
+                cf->provider.ref = fdata;
+            /* if this frames is marked as a reference time frame, reset
+               firstsec and firstusec to this frame */
+            if (fdata->ref_time)
+                cf->provider.ref = fdata;
 
-        /* Get the time elapsed between the first packet and this packet. */
-        fdata->frame_ref_num = (fdata != cf->provider.ref) ? cf->provider.ref->num : 0;
-        nstime_delta(&rel_ts, &fdata->abs_ts, &cf->provider.ref->abs_ts);
+            /* Get the time elapsed between the first packet and this one. */
+            fdata->frame_ref_num = (fdata != cf->provider.ref) ? cf->provider.ref->num : 0;
+            nstime_delta(&rel_ts, &fdata->abs_ts, &cf->provider.ref->abs_ts);
 
-        /* If it's greater than the current elapsed time, set the elapsed time
-           to it (we check for "greater than" so as not to be confused by
-           time moving backwards). */
-        if ((gint32)cf->elapsed_time.secs < rel_ts.secs
-                || ((gint32)cf->elapsed_time.secs == rel_ts.secs && (gint32)cf->elapsed_time.nsecs < rel_ts.nsecs)) {
-            cf->elapsed_time = rel_ts;
-        }
-
-        /* If this frame is displayed, get the time elapsed between the
-           previous displayed packet and this packet. */
-        if ( fdata->passed_dfilter ) {
-            /* If we don't have the time stamp of the previous displayed packet,
-               it's because this is the first displayed packet.  Save the time
-               stamp of this packet as the time stamp of the previous displayed
-               packet. */
-            if (cf->provider.prev_dis == NULL) {
-                cf->provider.prev_dis = fdata;
+            /* If it's greater than the current elapsed time, set the elapsed
+               time to it (we check for "greater than" so as not to be
+               confused by time moving backwards). */
+            if ((gint32)cf->elapsed_time.secs < rel_ts.secs
+                    || ((gint32)cf->elapsed_time.secs == rel_ts.secs && (gint32)cf->elapsed_time.nsecs < rel_ts.nsecs)) {
+                cf->elapsed_time = rel_ts;
             }
 
-            fdata->prev_dis_num = cf->provider.prev_dis->num;
-            cf->provider.prev_dis = fdata;
+            /* If this frame is displayed, get the time elapsed between the
+               previous displayed packet and this packet. */
+            /* XXX: What if in the future we want to use the previously
+             * displayed frame for something else, too? Then we'd want
+             * to store this frame as prev_dis even if it doesn't have a
+             * timestamp. */
+            if ( fdata->passed_dfilter ) {
+                /* If we don't have the time stamp of the previous displayed
+                   packet, it's because this is the first displayed packet.
+                   Save the time stamp of this packet as the time stamp of
+                   the previous displayed packet. */
+                if (cf->provider.prev_dis == NULL) {
+                    cf->provider.prev_dis = fdata;
+                }
+
+                fdata->prev_dis_num = cf->provider.prev_dis->num;
+                cf->provider.prev_dis = fdata;
+            }
+        } else {
+            /* If this frame doesn't have a timestamp, don't calculate
+               anything with relative times. */
+            /* However, if this frame is marked as a reference time frame,
+               clear the reference frame so that the next frame with a
+               timestamp becomes the reference frame. */
+            if (fdata->ref_time) {
+                cf->provider.ref = NULL;
+            }
         }
 
         /*

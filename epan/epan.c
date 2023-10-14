@@ -507,8 +507,10 @@ epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 	if (session && session->funcs.get_frame_ts)
 		abs_ts = session->funcs.get_frame_ts(session->prov, frame_num);
 
-	if (!abs_ts)
-		ws_warning("!!! couldn't get frame ts for %u !!!\n", frame_num);
+	if (!abs_ts) {
+		/* This can happen if frame_num doesn't have a ts */
+		ws_debug("!!! couldn't get frame ts for %u !!!\n", frame_num);
+	}
 
 	return abs_ts;
 }
