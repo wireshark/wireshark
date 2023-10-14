@@ -127,7 +127,7 @@ const value_string ssl_versions[] = {
     { 0x00, NULL }
 };
 
-const value_string ssl_version_ja4_names[] = {
+static const value_string ssl_version_ja4_names[] = {
     { 0x0100,               "s1" },
     { SSLV2_VERSION,        "s2" },
     { SSLV3_VERSION,        "s3" },
