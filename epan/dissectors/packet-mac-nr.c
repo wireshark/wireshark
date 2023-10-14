@@ -505,7 +505,7 @@ static const value_string bcch_transport_channel_vals[] =
     { 0, NULL }
 };
 
-#define CCCH_LCID                                   0x00
+#define CCCH_LCID                                   0
 #define TWO_OCTET_ELCID_FIELD                       33
 #define ONE_OCTET_ELCID_FIELD                       34
 #define RECOMMENDED_BIT_RATE_LCID                   47
@@ -575,7 +575,7 @@ static const value_string dlsch_lcid_vals[] =
     { 44,                                          "Reserved"},
     { 45,                                          "Reserved"},
     { 46,                                          "Reserved"},
-    { RECOMMENDED_BIT_RATE_LCID,                   "Recommended Bit Rate"}, // 47
+    { RECOMMENDED_BIT_RATE_LCID,                   "Recommended Bit Rate"},
     { SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID,    "SP ZP CSI-RS Resource Set Activation/Deactivation"},
     { PUCCH_SPATIAL_REL_ACT_DEACT_LCID,            "PUCCH spatial relation Activation/Deactivation"},
     { SP_SRS_ACT_DEACT_LCID,                       "SP SRS Activation/Deactivation"},
@@ -1514,6 +1514,8 @@ static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
     if (direction == DIRECTION_UPLINK) {
         switch (lcid) {
             case CCCH_LCID:
+            case 35:   /* RedCap CCCH (48 bits) */
+            case 36:   /* RedCap CCCH1 (64 bits) */
             case CCCH_48_BITS_LCID:
             case TIMING_ADVANCE_REPORT_LCID:
             case RECOMMENDED_BIT_RATE_QUERY_LCID:
@@ -1952,7 +1954,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
 
-        if (lcid <= 32 || (p_mac_nr_info->direction == DIRECTION_UPLINK && lcid == CCCH_48_BITS_LCID)) {
+        if (lcid <= 32 || (p_mac_nr_info->direction == DIRECTION_UPLINK &&
+                           (lcid == 35 || lcid == 36 || lcid == CCCH_48_BITS_LCID))) {
             proto_item *sch_pdu_ti;
 
             /* Note whether this sub-pdu gets dissected by RLC/RRC */
@@ -2030,7 +2033,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
             } else if (global_mac_nr_attempt_rrc_decode) {
                 dissector_handle_t protocol_handle;
-                tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
+                tvbuff_t *rrc_tvb = tvb_new_subset_length(tvb, offset, SDU_length);
 
                 if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
                     protocol_handle = ((lcid == CCCH_LCID) || (lcid == 36)) ?
