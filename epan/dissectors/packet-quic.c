@@ -1461,6 +1461,8 @@ process_quic_stream(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         // Traverse the STREAM frame tree.
         proto_tree *top_tree = proto_tree_get_parent_tree(tree);
         top_tree = proto_tree_get_parent_tree(top_tree);
+        // Subdissectors MUST NOT assume that 'stream_info' remains valid after
+        // returning. Copying the pointer will result in illegal memory access.
         call_dissector_with_data(quic_info->app_handle, next_tvb, pinfo, top_tree, stream_info);
     }
 }
