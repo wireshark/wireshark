@@ -1780,7 +1780,7 @@ usbll_construct_urb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static gint
 dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-                   guint8 pid, usbll_data_t *data)
+                   guint8 pid, usbll_data_t *data, gint *payload_size)
 {
     /* TODO: How to determine the expected DATA size? */
     guint16                computed_crc, actual_crc;
@@ -2060,7 +2060,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
         }
     }
 
-    usbll_construct_urb(tvb, pinfo, tree, data_offset, data_size, data);
+    *payload_size = data_size;
 
     return offset;
 }
@@ -2293,8 +2293,6 @@ dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
         }
     }
 
-    usbll_construct_urb(tvb, pinfo, tree, offset, 0, data);
-
     return offset;
 }
 
@@ -2381,6 +2379,8 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_item       *item;
     proto_tree       *tree;
     gint              offset = 0;
+    gint              data_offset;
+    gint              data_size;
     guint8            pid;
     gboolean          is_subpid;
     const gchar      *str;
@@ -2419,6 +2419,12 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         expert_add_info(pinfo, item, &ei_invalid_pid);
     }
 
+    /* If handler updates data size, then it means we should process with data
+     * reassembly at data offset with the provided data size.
+     */
+    data_offset = offset;
+    data_size = -1;
+
     if (is_subpid) {
         switch (pid)
         {
@@ -2444,7 +2450,7 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             case USB_PID_DATA_DATA1:
             case USB_PID_DATA_DATA2:
             case USB_PID_DATA_MDATA:
-                offset = dissect_usbll_data(tvb, pinfo, tree, offset, pid, data);
+                offset = dissect_usbll_data(tvb, pinfo, tree, offset, pid, data, &data_size);
                 break;
 
             case USB_PID_HANDSHAKE_ACK:
@@ -2452,6 +2458,7 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             case USB_PID_HANDSHAKE_NYET:
             case USB_PID_HANDSHAKE_STALL:
                 offset = dissect_usbll_handshake(tvb, pinfo, tree, offset, pid, data);
+                data_size = 0;
                 break;
 
             case USB_PID_TOKEN_SOF:
@@ -2478,6 +2485,10 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset, -1);
         offset += tvb_captured_length_remaining(tvb, offset);
+    }
+
+    if (data_size >= 0) {
+        usbll_construct_urb(tvb, pinfo, tree, data_offset, data_size, data);
     }
 
     return offset;
