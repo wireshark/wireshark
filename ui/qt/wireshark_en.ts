@@ -1072,6 +1072,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Comment %1: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Statistics</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1117,10 +1125,6 @@
     </message>
     <message>
         <source>Average bits/s</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Section Comment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

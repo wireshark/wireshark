@@ -1076,6 +1076,14 @@
         <translation>%1 byte</translation>
     </message>
     <message>
+        <source>Comments</source>
+        <translation type="unfinished">Commenti</translation>
+    </message>
+    <message>
+        <source>Comment %1: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Statistics</source>
         <translation>Statistiche</translation>
     </message>
@@ -1125,7 +1133,7 @@
     </message>
     <message>
         <source>Section Comment</source>
-        <translation>Commento sezione</translation>
+        <translation type="vanished">Commento sezione</translation>
     </message>
     <message>
         <source>Packet Comments</source>

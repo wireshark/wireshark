@@ -1083,6 +1083,14 @@
         <translation>%1 Б</translation>
     </message>
     <message>
+        <source>Comments</source>
+        <translation type="unfinished">Комментарии</translation>
+    </message>
+    <message>
+        <source>Comment %1: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Statistics</source>
         <translation>Статистика</translation>
     </message>
@@ -1132,7 +1140,7 @@
     </message>
     <message>
         <source>Section Comment</source>
-        <translation>Комментарий к разделу</translation>
+        <translation type="vanished">Комментарий к разделу</translation>
     </message>
     <message>
         <source>Packet Comments</source>

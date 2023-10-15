@@ -1,11 +1,12 @@
-Rawshark (Wireshark) 4.3.0 (v4.3.0rc0-87-g9c90105c365a)
+Rawshark (Wireshark) 4.3.0 (v4.3.0rc0-215-gf1f6c1369d12)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
 Usage: rawshark [options] ...
 
 Input file:
-  -r <infile>              set the pipe or file name to read from
+  -r <infile>, --read-file <infile>
+                            set the pipe or file name to read from
 
 Processing:
   -d <encap:linktype>|<proto:protoname>
@@ -17,8 +18,11 @@ Processing:
   -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
   -p                       use the system's packet header format
                            (which may have 64-bit timestamps)
-  -R <read filter>         packet filter in Wireshark display filter syntax
+  -R <read filter>, --read-filter <read filter>
+                           packet filter in Wireshark display filter syntax
   -s                       skip PCAP header on input
+  -Y <display filter>, --display-filter <display filter>
+                           packet filter in Wireshark display filter syntax
   --enable-protocol <proto_name>
                            enable dissection of proto_name
   --disable-protocol <proto_name>

@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 4.3.0 (v4.3.0rc0-87-g9c90105c365a)
+Text2pcap (Wireshark) 4.3.0 (v4.3.0rc0-215-gf1f6c1369d12)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -103,6 +103,6 @@ Diagnostic output:
   --log-file <path>        file to output messages to (in addition to stderr)
 
 Miscellaneous:
-  -h                     display this help and exit
-  -v                     print version information and exit
+  -h, --help             display this help and exit
+  -v, --version          print version information and exit
   -q                     don't report processed packet counts

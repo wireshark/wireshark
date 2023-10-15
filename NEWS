@@ -28,6 +28,11 @@ Wireshark 4.3.0 Release Notes
         • Fields with value strings now support regular expression
        matching.
 
+     • Binary plugins can be placed on the root of the versioned
+       personal plugins folder or any subfolder one level below that.
+       The global and personal binary plugins folder no longer have to
+       obey to any particular hierarchical structure.
+
   New Protocol Support
 
   Updated Protocol Support

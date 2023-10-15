@@ -1069,6 +1069,14 @@
         <translation>%1 字节</translation>
     </message>
     <message>
+        <source>Comments</source>
+        <translation type="unfinished">注释</translation>
+    </message>
+    <message>
+        <source>Comment %1: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Statistics</source>
         <translation>统计</translation>
     </message>
@@ -1115,10 +1123,6 @@
     <message>
         <source>Average bits/s</source>
         <translation>平均 比特/秒</translation>
-    </message>
-    <message>
-        <source>Section Comment</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet Comments</source>

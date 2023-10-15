@@ -1069,6 +1069,14 @@
         <translation>%1 バイト</translation>
     </message>
     <message>
+        <source>Comments</source>
+        <translation type="unfinished">コメント</translation>
+    </message>
+    <message>
+        <source>Comment %1: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Statistics</source>
         <translation>統計</translation>
     </message>
@@ -1118,7 +1126,7 @@
     </message>
     <message>
         <source>Section Comment</source>
-        <translation>セクション コメント</translation>
+        <translation type="vanished">セクション コメント</translation>
     </message>
     <message>
         <source>Packet Comments</source>
