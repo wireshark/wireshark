@@ -33,70 +33,37 @@ It is only used to display event trace on Windows that includes readable text me
 == OPTIONS
 
 --help::
-+
---
 Print program arguments.
---
 
 --version::
-+
---
 Print program version.
---
 
 --extcap-interfaces::
-+
---
 List available interfaces.
---
 
 --extcap-interface=<interface>::
-+
---
 Use specified interfaces.
---
 
 --extcap-dlts::
-+
---
 List DLTs of specified interface.
---
 
 --extcap-config::
-+
---
 List configuration options of specified interface.
---
 
 --capture::
-+
---
 Start capturing from specified interface save saved it in place specified by --fifo.
---
 
 --fifo=<path to file or pipe>::
-+
---
 Save captured packet to file or send it through pipe.
---
 
 --iue=<Should undecidable events be included>::
-+
---
 Choose if the undecidable event is included.
---
 
 --etlfile=<Etl file>::
-+
---
 Select etl file to display in Wireshark.
---
 
 --params=<filter parameters>::
-+
---
 Input providers, keyword and level filters for the etl file and live session.
---
 
 == EXAMPLES
 

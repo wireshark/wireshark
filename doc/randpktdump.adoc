@@ -37,88 +37,46 @@ educational purpose.
 == OPTIONS
 
 --help::
-+
---
 Print program arguments.
---
 
 --version::
-+
---
 Print program version.
---
 
 --extcap-interfaces::
-+
---
 List available interfaces.
---
 
 --extcap-interface=<interface>::
-+
---
 Use specified interfaces.
---
 
 --extcap-dlts::
-+
---
 List DLTs of specified interface.
---
 
 --extcap-config::
-+
---
 List configuration options of specified interface.
---
 
 --capture::
-+
---
 Start capturing from specified interface save saved it in place specified by --fifo.
---
 
 --fifo=<path to file or pipe>::
-+
---
 Save captured packet to file or send it through pipe.
---
 
 --maxbytes=<bytes>::
-+
---
 Set the max number of bytes per packet.
---
 
 --count=<num>::
-+
---
 Number of packets to generate (-1 for infinite).
---
 
 --delay=<ms>::
-+
---
 Wait a number of milliseconds after writing each packet.
---
 
 --random-type::
-+
---
 Choose a random packet type for all packets if set to true.
---
 
 --all-random::
-+
---
 Choose a different random packet type for each packet if set to true.
---
 
 --type=<packet type>::
-+
---
 Use the selected packet type. To list all the available packet type, run randpktdump --help.
---
 
 == EXAMPLES
 

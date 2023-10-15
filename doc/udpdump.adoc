@@ -36,64 +36,34 @@ https://gitlab.com/wireshark/wireshark/-/raw/master/epan/exported_pdu.h
 == OPTIONS
 
 --help::
-+
---
 Print program arguments.
---
 
 --version::
-+
---
 Print program version.
---
 
 --extcap-interfaces::
-+
---
 List available interfaces.
---
 
 --extcap-interface=<interface>::
-+
---
 Use specified interfaces.
---
 
 --extcap-dlts::
-+
---
 List DLTs of specified interface.
---
 
 --extcap-config::
-+
---
 List configuration options of specified interface.
---
 
 --capture::
-+
---
 Start capturing from specified interface save saved it in place specified by --fifo.
---
 
 --fifo=<path to file or pipe>::
-+
---
 Save captured packet to file or send it through pipe.
---
 
 --port=<port>::
-+
---
 Set the listener port. Port 5555 is the default.
---
 
 --payload=<type>::
-+
---
 Set the payload of the exported PDU. Default: data.
---
 
 == EXAMPLES
 

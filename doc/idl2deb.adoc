@@ -37,46 +37,25 @@ package contains a loadable module for the Wireshark network analyzer.
 == OPTIONS
 
 -d <opts> --dbopts=<opts>::
-+
---
 options for dpkg-buildpackage.
---
 
 -e <address> --email=<address>::
-+
---
 use e-mail address.
---
 
 -h --help::
-+
---
 print help and exit.
---
 
 -i <idlfile> --idl=<idlfile>::
-+
---
 IDL file to use (mandatory)
---
 
 -n <name> --name=<name>::
-+
---
 use user name.
---
 
 -p --preserve::
-+
---
 do not overwrite files.
---
 
 -v --version::
-+
---
 print version and exit.
---
 
 == EXAMPLES
 

@@ -30,10 +30,7 @@ itself.
 == OPTIONS
 
 -f::
-+
---
 Path to a MaxMind Database file. Multiple databases may be specified.
---
 
 == EXAMPLES
 

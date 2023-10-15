@@ -45,25 +45,16 @@ See the xref:tshark.html#decode_as[tshark](1) manual page for more examples.
 // end::decode_as[]
 
 --disable-all-protocols::
-+
---
 Disable dissection of all protocols.
---
 
 --disable-protocol <proto_name>[,<proto_name>,...]::
-+
---
 Disable dissection of proto_name.
 Use a proto_name of *ALL* to override
 your chosen profile's default enabled protocol list and temporarily
 disable all protocols.
---
 
 --disable-heuristic <short_name>::
-+
---
 Disable dissection of heuristic protocol.
---
 
 --enable-protocol <proto_name>[,<proto_name>,...]::
 +
@@ -80,10 +71,7 @@ Example: *--disable-protocol ALL --enable-protocol eth,ip*
 --
 
 --enable-heuristic <short_name>::
-+
---
 Enable dissection of heuristic protocol.
---
 
 -K  <keytab>::
 +
@@ -95,11 +83,8 @@ Example: *-K krb5.keytab*
 --
 
 -n::
-+
---
 Disable network object name resolution (such as hostname, TCP and UDP port
 names); the *-N* option might override this one.
---
 
 -N  <name resolving flags>::
 +
@@ -140,10 +125,7 @@ network, possibly leading to dropped packets.
 --
 
 --only-protocols <protocols>::
-+
---
 Only enable dissection of these protocols, comma separated. Disable everything else.
---
 
 -t  (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]::
 +
