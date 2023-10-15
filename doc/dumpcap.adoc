@@ -163,7 +163,7 @@ system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
 
 This is available on UNIX-compatible systems, such as Linux, macOS,
-\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows. 
+\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows.
 It is not available on UNIX-compatible systems with earlier versions of
 libpcap.
 
@@ -176,39 +176,27 @@ the default capture buffer size is used instead.
 --
 
 -c  <capture packet count>::
-+
---
 Set the maximum number of packets to read when capturing live
 data. Acts the same as *-a packets:*<capture packet count>.
---
 
 -C  <byte limit>::
-+
---
 Limit the amount of memory in bytes used for storing captured packets
 in memory while processing it.
 If used in combination with the *-N* option, both limits will apply.
 Setting this limit will enable the usage of the separate thread per interface.
---
 
 -d::
-+
---
 Dump the code generated for the capture filter in a human-readable form,
 and exit.
---
 
 -D|--list-interfaces::
-+
---
 Print a list of the interfaces on which *Dumpcap* can capture, and
 exit.  For each network interface, a number and an interface name,
-possibly followed by a text description of the interface, is printed. 
+possibly followed by a text description of the interface, is printed.
 The interface name or the number can be supplied to the *-i* flag to
 specify an interface on which to capture.  The number can be useful on
 Windows systems, where the interfaces have long names that usually
 contain a GUID.
---
 
 -f  <capture filter>::
 +
@@ -227,18 +215,12 @@ the default capture filter expression is used if provided.
 --
 
 -g::
-+
---
 This option causes the output file(s) to be created with group-read permission
 (meaning that the output file(s) can be read by other members of the calling
 user's group).
---
 
 -h|--help::
-+
---
 Print the version number and options and exit.
---
 
 -i|--interface  <capture interface>|rpcap://<host>:<port>/<capture interface>|TCP@<host>:<port>|-::
 +
@@ -271,18 +253,12 @@ interfaces, the capture file will be saved in pcapng format, even if
 --
 
 --ifdescr> <description>::
-+
---
 Use __description__ as the description in the capture file for the
 interface or pipe specified before it with *-i*.
---
 
 --ifname> <name>::
-+
---
 Use __name__ as the name in the capture file for the interface or
 pipe specified before it with *-i*.
---
 
 -I|--monitor-mode::
 +
@@ -314,55 +290,25 @@ __freq__ is the frequency of the channel.  __type__ is the type of the
 channel, for 802.11n and 802.11ac.  The values for __type__ are
 --
 
-NOHT::
-+
---
-Used for non-802.11n/non-802.1ac channels
---
+NOHT:: Used for non-802.11n/non-802.1ac channels
 
-HT20::
-+
---
-20 MHz channel
---
+HT20:: 20 MHz channel
 
-HT40-::
-+
---
-40 MHz primary channel and a lower secondary channel
---
+HT40-:: 40 MHz primary channel and a lower secondary channel
 
-HT40+::
-+
---
-40 MHz primary channel and a higher secondary channel
---
+HT40+:: 40 MHz primary channel and a higher secondary channel
 
-HT80::
-+
---
-80 MHz channel, with __centerfreq1__ as its center frequency
---
+HT80:: 80 MHz channel, with __centerfreq1__ as its center frequency
 
 VHT80+80::
-+
---
-two 80 MHz channels combined, with __centerfreq1__ and __centerfreq2__ as
+Two 80 MHz channels combined, with __centerfreq1__ and __centerfreq2__ as
 the center frequencies of the two channels
---
 
-VHT160::
-+
---
-160 MHz channel, with __centerfreq1__ as its center frequency
---
+VHT160:: 160 MHz channel, with __centerfreq1__ as its center frequency
 
 -L|--list-data-link-types::
-+
---
 List the data link types supported by the interface and exit. The reported
 link types can be used for the *-y* option.
---
 
 -M::
 +
@@ -374,10 +320,7 @@ The machine-readable output is intended to be read by *Wireshark* and
 --
 
 -n::
-+
---
 Save files as pcapng. This is the default.
---
 
 -N  <packet limit>::
 +
@@ -407,12 +350,9 @@ promiscuous mode.
 --
 
 -P::
-+
---
 Save files as pcap instead of the default pcapng. In situations that require
 pcapng, such as capturing from multiple interfaces, this option will be
 overridden.
---
 
 -q::
 +
@@ -444,16 +384,10 @@ the default snapshot length is used if provided.
 --
 
 -S::
-+
---
 Print statistics for each interface once every second.
---
 
 -t::
-+
---
 Use a separate thread per interface.
---
 
 --temp-dir <directory>::
 +
@@ -467,16 +401,10 @@ typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 --
 
 -v|--version::
-+
---
 Print the full version information and exit.
---
 
 -w  <outfile>::
-+
---
 Write raw packet data to __outfile__. Use "-" for stdout.
---
 
 -y|--linktype  <capture link type>::
 +
@@ -506,25 +434,16 @@ currently only displays the first comment of a capture file.
 --
 
 --list-time-stamp-types::
-+
---
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
---
 
 --time-stamp-type  <type>::
-+
---
 Change the interface's timestamp method.
---
 
 --update-interval  <interval>::
-+
---
 Set the length of time in milliseconds between new packet reports during
 a capture. Also sets the granularity of file duration conditions.
 The default value is 100ms.
---
 
 include::diagnostic-options.adoc[]
 

@@ -81,10 +81,7 @@ all packet types.
 --
 
 -h|--help::
-+
---
 Print the version number and options and exit.
---
 
 -r::
 +
@@ -127,10 +124,7 @@ Defines the type of packet to generate:
 --
 
 -v|--version::
-+
---
 Print the full version information and exit.
---
 
 include::diagnostic-options.adoc[]
 

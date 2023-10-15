@@ -49,23 +49,14 @@ the same way *reordercap* handles this.
 == OPTIONS
 
 -h|--help::
-+
---
 Print the version number and options and exit.
---
 
 -n::
-+
---
 When the *-n* option is used, *reordercap* will not write out the output
 file if it finds that the input file is already in order.
---
 
 -v|--version::
-+
---
 Print the full version information and exit.
---
 
 include::diagnostic-options.adoc[]
 

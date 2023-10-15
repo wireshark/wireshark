@@ -41,16 +41,10 @@ the same way *Captype* handles this.
 == OPTIONS
 
 -h|--help::
-+
---
 Print the version number and options and exit.
---
 
 -v|--version::
-+
---
 Print the full version information and exit.
---
 
 include::diagnostic-options.adoc[]
 

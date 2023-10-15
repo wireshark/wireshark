@@ -139,10 +139,7 @@ flag. If you want to apply a display filter, use the *-R* flag.
 --
 
 -h|--help::
-+
---
 Print the version number and options and exit.
---
 
 -l::
 +
@@ -165,11 +162,8 @@ standard output buffer containing that data fills up.
 --
 
 -m  <memory limit bytes>::
-+
---
 Limit rawshark's memory usage to the specified number of bytes. POSIX
 (non-Windows) only.
---
 
 -o  <preference>:<value>::
 +
@@ -211,11 +205,8 @@ Read filters and display filters are synonymous in *rawshark*.
 --
 
 -s::
-+
---
 Allows standard pcap files to be used as input, by skipping over the 24
 byte pcap file header.
---
 
 -S::
 +
@@ -234,10 +225,7 @@ could use *%D: %S (%N)*.
 --
 
 -v|--version::
-+
---
 Print the full version information and exit.
---
 
 -Y|--display-filter <read (display) filter>::
 +

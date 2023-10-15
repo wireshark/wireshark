@@ -247,10 +247,7 @@ is the *pcapng* format.
 --
 
 -h|--help::
-+
---
 Print the version number and options and exit.
---
 
 -i  <seconds per file>::
 +
@@ -410,10 +407,7 @@ packet, you will need od(1)/xref:text2pcap.html[text2pcap](1).
 --
 
 -v|--version::
-+
---
 Print the full version information and exit.
---
 
 -V::
 +

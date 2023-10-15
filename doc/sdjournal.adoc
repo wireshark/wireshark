@@ -36,52 +36,28 @@ Supported interfaces:
 == OPTIONS
 
 --help::
-+
---
 Print program arguments.
---
 
 --version::
-+
---
 Print program version.
---
 
 --extcap-interfaces::
-+
---
 List available interfaces.
---
 
 --extcap-interface=<interface>::
-+
---
 Use specified interfaces.
---
 
 --extcap-dlts::
-+
---
 List DLTs of specified interface.
---
 
 --extcap-config::
-+
---
 List configuration options of specified interface.
---
 
 --capture::
-+
---
 Start capturing from specified interface and write raw packet data to the location specified by --fifo.
---
 
 --fifo=<path to file or pipe>::
-+
---
 Save captured packet to file or send it through pipe.
---
 
 --start-from=<entry count>::
 +

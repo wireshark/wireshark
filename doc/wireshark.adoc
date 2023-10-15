@@ -259,7 +259,7 @@ system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
 
 This is available on UNIX-compatible systems, such as Linux, macOS,
-\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows. 
+\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows.
 It is not available on UNIX-compatible systems with earlier versions of
 libpcap.
 
@@ -300,7 +300,7 @@ currently only displays the first comment of a capture file.
 --
 Print a list of the interfaces on which *Wireshark* can capture, and
 exit.  For each network interface, a number and an interface name,
-possibly followed by a text description of the interface, is printed. 
+possibly followed by a text description of the interface, is printed.
 The interface name or the number can be supplied to the *-i* flag to
 specify an interface on which to capture.  The number can be useful on
 Windows systems, where the interfaces have long names that usually
@@ -341,22 +341,13 @@ F11 key (or Ctrl + Cmd + F for macOS).
 --
 
 -g  <packet number>::
-+
---
 After reading in a capture file using the *-r* flag, go to the given __packet number__.
---
 
 -h|--help::
-+
---
 Print the version number and options and exit.
---
 
 -H::
-+
---
 Hide the capture info dialog during live packet capture.
---
 
 -i|--interface  <capture interface>|-::
 +
@@ -408,11 +399,8 @@ this option.
 --
 
 -j::
-+
---
 Use after *-J* to change the behavior when no exact match is found for
 the filter.  With this option select the first packet before.
---
 
 -J  <jump filter>::
 +
@@ -435,25 +423,16 @@ doesn't start the capture.
 --
 
 -l::
-+
---
 Turn on automatic scrolling if the packet display is being updated
 automatically as packets arrive during a capture (as specified by the
 *-S* flag).
---
 
 -L|--list-data-link-types::
-+
---
 List the data link types supported by the interface and exit.
---
 
 --list-time-stamp-types::
-+
---
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
---
 
 -o  <preference/recent setting>::
 +
@@ -543,10 +522,7 @@ the default snapshot length is used if provided.
 --
 
 -S::
-+
---
 Automatically update the packet display as packets are coming in.
---
 
 --temp-dir <directory>::
 +
@@ -560,30 +536,18 @@ typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 --
 
 --time-stamp-type <type>::
-+
---
 Change the interface's timestamp method. See --list-time-stamp-types.
---
 
 --update-interval  <interval>::
-+
---
 Set the length of time in milliseconds between new packet reports during
 a capture. Also sets the granularity of file duration conditions.
 The default value is 100ms.
---
 
 -v|--version::
-+
---
 Print the full version information and exit.
---
 
 -w  <outfile>::
-+
---
 Set the default capture file name, or '-' for standard output.
---
 
 -X <eXtension options>::
 +
@@ -624,10 +588,7 @@ the default capture link type is used if provided.
 --
 
 -Y|--display-filter  <displaY filter>::
-+
---
 Start with the given display filter.
---
 
 -z  <statistics>::
 +
@@ -639,10 +600,7 @@ Some of the currently implemented statistics are:
 --
 
 *-z help*::
-+
---
 Display all possible values for *-z*.
---
 
 *-z* afp,srt[,__filter__]::
 +
@@ -700,16 +658,10 @@ SRT statistics for a specific host.
 --
 
 *-z* dhcp,stat[,__filter__]::
-+
---
 Show DHCP (BOOTP) statistics.
---
 
 *-z* expert::
-+
---
 Show expert information.
---
 
 *-z* fc,srt[,__filter__]::
 +
@@ -857,16 +809,10 @@ MGCP packets exchanged by the host at IP address 1.2.3.4 .
 --
 
 *-z* mtp3,msus[,<filter>]::
-+
---
 Show MTP3 MSU statistics.
---
 
 *-z* multicast,stat[,<filter>]::
-+
---
 Show UDP multicast stream statistics.
---
 
 *-z* rpc,programs::
 +
@@ -972,16 +918,10 @@ Example: *-z voip,calls*
 --
 
 *-z* wlan,stat[,<filter>]::
-+
---
 Show IEEE 802.11 network and station statistics.
---
 
 *-z* wsp,stat[,<filter>]::
-+
---
 Show WSP packet counters.
---
 
 include::dissection-options.adoc[tag=!tshark]
 
@@ -996,28 +936,20 @@ menu:File[Open]::
 menu:File[Open Recent]::
 
 menu:File[Merge]::
-+
---
 Merge another capture file to the currently loaded one.  The __File:Merge__
 dialog box allows the merge "Prepended", "Chronologically" or "Appended",
 relative to the already loaded one.
---
 
 menu:File[Close]::
-+
---
 Open or close a capture file.  The __File:Open__ dialog box
 allows a filter to be specified; when the capture file is read, the
 filter is applied to all packets read from the file, and packets not
 matching the filter are discarded.  The __File:Open Recent__ is a submenu
 and will show a list of previously opened files.
---
 
 menu:File[Save]::
 
 menu:File[Save As]::
-+
---
 Save the current capture, or the packets currently displayed from that
 capture, to a file.  Check boxes let you select whether to save all
 packets, or just those that have passed the current display filter and/or
@@ -1025,42 +957,29 @@ those that are currently marked, and an option menu lets you select (from
 a list of file formats in which at particular capture, or the packets
 currently displayed from that capture, can be saved), a file format in
 which to save it.
---
 
 menu:File[File Set,List Files]::
-+
---
 Show a dialog box that lists all files of the file set matching the currently
 loaded file.  A file set is a compound of files resulting from a capture using
 the "multiple files" / "ringbuffer" mode, recognizable by the filename pattern,
 e.g.: Filename_00001_20230714101530.pcap.
---
 
 menu:File[File Set,Next File]::
 
 menu:File[File Set,Previous File]::
-+
---
 If the currently loaded file is part of a file set (see above), open the
 next / previous file in that set.
---
 
 menu:File[Export]::
-+
---
 Export captured data into an external format.  Note: the data cannot be
 imported back into Wireshark, so be sure to keep the capture file.
---
 
 menu:File[Print]::
-+
---
 Print packet data from the current capture.  You can select the range of
 packets to be printed (which packets are printed), and the output format of
 each packet (how each packet is printed).  The output format will be similar
 to the displayed values, so a summary line, the packet details view, and/or
 the hex dump of the packet can be printed.
---
 
 menu:File[Quit]::
 Exit the application.
@@ -1107,22 +1026,16 @@ case insensitive.
 menu:Edit[Find Next]::
 
 menu:Edit[Find Previous]::
-+
---
 Search forward / backward for a packet matching the filter from the previous
 search, starting with the currently selected packet (or the most recently
 selected packet, if no packet is selected).
---
 
 menu:Edit[Mark Packet (toggle)]::
-+
---
 Mark (or unmark if currently marked) the selected packet.  The field
 "frame.marked" is set for packets that are marked, so that, for example,
 a display filters can be used to display only marked packets, and so that
 the /"Edit:Find Packet" dialog can be used to find the next or previous
 marked packet.
---
 
 menu:Edit[Find Next Mark]::
 
@@ -1219,8 +1132,6 @@ menu:View[Reset Coloring 1-10]::
 Reset a color for a conversation.
 
 menu:View[Coloring Rules]::
-+
---
 Change the foreground and background colors of the packet information in
 the list of packets, based upon display filters.  The list of display
 filters is applied to each packet sequentially.  After the first display
@@ -1228,7 +1139,6 @@ filter matches a packet, any additional display filters in the list are
 ignored.  Therefore, if you are filtering on the existence of protocols,
 you should list the higher-level protocols first, and the lower-level
 protocols last.
---
 
 How Colorization Works::
 +
@@ -1247,13 +1157,10 @@ If neither of these exist then the packets will not be colored.
 --
 
 menu:View[Show Packet In New Window]::
-+
---
 Create a new window containing a packet details view and a hex dump
 window of the currently selected packet; this window will continue to
 display that packet's details and data even if another packet is
 selected.
---
 
 menu:View[Reload]::
 Reload a capture file.  Same as __File:Close__ and __File:Open__ the same file again.
@@ -1268,8 +1175,6 @@ menu:Go[Go To Packet]::
 Go to a particular numbered packet.
 
 menu:Go[Go To Corresponding Packet]::
-+
---
 If a field in the packet details pane containing a packet number is
 selected, go to the packet number specified by that field.  (This works
 only if the dissector that put that entry into the packet details put it
@@ -1277,7 +1182,6 @@ into the details as a filterable field rather than just as text.) This
 can be used, for example, to go to the packet for the request
 corresponding to a reply, or the reply corresponding to a request, if
 that packet number has been put into the packet details.
---
 
 menu:Go[Previous Packet]::
 
@@ -1294,16 +1198,11 @@ menu:Go[Next Packet In Conversation]::
 Go to the previous or next packet of the TCP, UDP or IP conversation.
 
 menu:Capture[Interfaces]::
-+
---
 Shows a dialog box with all currently known interfaces and displaying the
 current network traffic amount.  Capture sessions can be started from here.
 Beware: keeping this box open results in high system load!
---
 
 menu:Capture[Options]::
-+
---
 Initiate a live packet capture (see /"Capture Options Dialog"
 below).  If no filename is specified, a temporary file will be created
 to hold the capture.  Temporary files are written in the directory listed
@@ -1311,26 +1210,19 @@ in menu:Help[About Wireshark > Folders]. This location can be chosen with the
 command line option *--temp-dir*, or by setting the environment variable
 TMPDIR (on UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris,
 and AIX) or TEMP (on Windows) before starting **Wireshark**.
---
 
 menu:Capture[Start]::
-+
---
 Start a live packet capture with the previously selected options.  This won't
 open the options dialog box, and can be convenient for repeatedly capturing
 with the same options.
---
 
 menu:Capture[Stop]::
 Stop a running live capture.
 
 menu:Capture[Restart]::
-+
---
 While a live capture is running, stop it and restart with the same options
 again.  This can be convenient to remove irrelevant packets, if no valuable
 packets were captured so far.
---
 
 menu:Capture[Capture Filters]::
 Edit the saved list of capture filters, allowing filters to be added, changed, or deleted.
@@ -1390,8 +1282,6 @@ the protocols in that list disabled.
 --
 
 menu:Analyze[Decode As]::
-+
---
 If you have a packet selected, present a dialog allowing you to change
 which dissectors are used to decode this packet.  The dialog has one
 panel each for the link layer, network layer and transport layer
@@ -1399,15 +1289,11 @@ protocol/port numbers, and will allow each of these to be changed
 independently.  For example, if the selected packet is a TCP packet to
 port 12345, using this dialog you can instruct Wireshark to decode all
 packets to or from that TCP port as HTTP packets.
---
 
 menu:Analyze[User Specified Decodes]::
-+
---
 Create a new window showing whether any protocol ID to dissector
 mappings have been changed by the user.  This window also allows the
 user to reset all decodes to their default values.
---
 
 menu:Analyze[Follow TCP Stream]::
 +
@@ -1446,17 +1332,12 @@ Show anomalies found by Wireshark in a capture file.
 menu:Analyze[Conversation Filter]::
 
 menu:Statistics[Summary]::
-+
---
 Show summary information about the capture, including elapsed time,
 packet counts, byte counts, and the like.  If a display filter is in
 effect, summary information will be shown about the capture and about
 the packets currently being displayed.
---
 
 menu:Statistics[Protocol Hierarchy]::
-+
---
 Show the number of packets, and the number of bytes in those packets,
 for each protocol in the trace.  It organizes the protocols in the same
 hierarchy in which they were found in the trace.  Besides counting the
@@ -1465,7 +1346,6 @@ in which the protocol is the last protocol in the stack.  These
 last-protocol counts show you how many packets (and the byte count
 associated with those packets) *ended* in a particular protocol.  In
 the table, they are listed under "End Packets" and "End Bytes".
---
 
 menu:Statistics[Conversations]::
 Lists of conversations; selectable by protocol.
@@ -1862,12 +1742,9 @@ default settings.
 --
 
 Main Toolbar::
-+
---
 Some menu items are available for quick access here.  There is no way to
 customize the items in the toolbar, however the toolbar can be hidden by
 __View:Main Toolbar__.
---
 
 Filter Toolbar::
 +
@@ -1912,13 +1789,10 @@ The middle mouse button can be used to mark a packet.
 --
 
 Packet Details Pane::
-+
---
 The middle pane contains a display of the details of the
 currently-selected packet.  The display shows each field and its value
 in each protocol header in the stack.  The right mouse button can be
 used to pop up a menu of operations.
---
 
 Packet Bytes Pane::
 +
@@ -1948,8 +1822,6 @@ User Interface Preferences::
 Modify the UI to your own personal tastes.
 
 Selection Bars::
-+
---
 The selection bar in the packet list and packet details can have either
 a "browse" or "select" behavior.  If the selection bar has a "browse"
 behavior, the arrow keys will move an outline of the selection bar,
@@ -1957,114 +1829,71 @@ allowing you to browse the rest of the list or details without changing
 the selection until you press the space bar.  If the selection bar has a
 "select" behavior, the arrow keys will move the selection bar and change
 the selection to the new item in the packet list or packet details.
---
 
 Save Window Position::
-+
---
 If this item is selected, the position of the main Wireshark window will
 be saved when Wireshark exits, and used when Wireshark is started again.
---
 
 Save Window Size::
-+
---
 If this item is selected, the size of the main Wireshark window will
 be saved when Wireshark exits, and used when Wireshark is started again.
---
 
 Save Window Maximized state::
-+
---
 If this item is selected the maximize state of the main Wireshark window
 will be saved when Wireshark exists, and used when Wireshark is started again.
---
 
 File Open Dialog Behavior::
-+
---
 This item allows the user to select how Wireshark handles the listing
 of the "File Open" Dialog when opening trace files.  "Remember Last
 Directory" causes Wireshark to automatically position the dialog in the
 directory of the most recently opened file, even between launches of Wireshark.
 "Always Open in Directory" allows the user to define a persistent directory
 that the dialog will always default to.
---
 
 Directory::
-+
---
 Allows the user to specify a persistent File Open directory.  Trailing
 slashes or backslashes will automatically be added.
---
 
 File Open Preview timeout::
-+
---
 This items allows the user to define how much time is spend reading the
 capture file to present preview data in the File Open dialog.
---
 
 Open Recent maximum list entries::
-+
---
 The File menu supports a recent file list.  This items allows the user to
 specify how many files are kept track of in this list.
---
 
 Ask for unsaved capture files::
-+
---
 When closing a capture file or Wireshark itself if the file isn't saved yet
 the user is presented the option to save the file when this item is set.
---
 
 Wrap during find::
-+
---
 This items determines the behavior when reaching the beginning or the end
 of a capture file.  When set the search wraps around and continues, otherwise
 it stops.
---
 
 Settings dialogs show a save button::
-+
---
 This item determines if the various dialogs sport an explicit Save button
 or that save is implicit in OK / Apply.
---
 
 Web browser command::
-+
---
 This entry specifies the command line to launch a web browser.  It is used
 to access online content, like the Wiki and user guide.  Use '%s' to place
 the request URL in the command line.
---
 
 Layout Preferences::
-+
---
 The __Layout__ page lets you specify the general layout of the main window.
 You can choose from six different layouts and fill the three panes with the
 contents you like.
---
 
 Scrollbars::
-+
---
 The vertical scrollbars in the three panes can be set to be either on
 the left or the right.
---
 
 Alternating row colors::
 
 Hex Display::
-+
---
 The highlight method in the hex dump display for the selected protocol
 item can be set to use either inverse video, or bold characters.
---
 
 Toolbar style::
 
@@ -2097,13 +1926,10 @@ Font Preferences::
 The __Font__ page lets you select the font to be used for most text.
 
 Color Preferences::
-+
---
 The __Colors__ page can be used to change the color of the text
 displayed in the TCP stream window and for marked packets.  To change a color,
 simply select an attribute from the "Set:" menu and use the color selector to
 get the desired color.  The new text colors are displayed as a sample text.
---
 
 Capture Preferences::
 +
@@ -2160,19 +1986,13 @@ __SMI modules__
 --
 
 RTP Player Preferences::
-+
---
 This page allows you to select the number of channels visible in the
 RTP player window.  It determines the height of the window, more channels
 are possible and visible by means of a scroll bar.
---
 
 Protocol Preferences::
-+
---
 There are also pages for various protocols that Wireshark dissects,
 controlling the way Wireshark handles those protocols.
---
 
 Edit Capture Filter List::
 
@@ -2254,14 +2074,11 @@ Apply::
 Makes the filter in the __Filter string__ entry the current display filter, and applies it to the current capture.
 
 Save::
-+
---
 If the list of filters being edited is the list of
 capture filters, saves the current filter list to the personal capture
 filters file, and if the list of filters being edited is the list of
 display filters, saves the current filter list to the personal display
 filters file.
---
 
 Close::
 Closes the dialog without doing anything with the filter in the __Filter string__ entry.
@@ -2270,15 +2087,10 @@ The Color Filters Dialog::
 This dialog displays a list of color filters and allows it to be modified.
 
 THE FILTER LIST::
-+
---
 Single rows may be selected by clicking.  Multiple rows may be selected
 by using the ctrl and shift keys in combination with the mouse button.
---
 
 NEW::
-+
---
 Adds a new filter at the bottom of the list and opens the Edit Color
 Filter dialog box.  You will have to alter the filter expression at
 least before the filter will be accepted.  The format of color filter
@@ -2286,15 +2098,11 @@ expressions is identical to that of display filters.  The new filter is
 selected, so it may immediately be moved up and down, deleted or edited.
 To avoid confusion all filters are unselected before the new filter is
 created.
---
 
 EDIT::
-+
---
 Opens the Edit Color Filter dialog box for the selected filter. (If this
 button is disabled you may have more than one filter selected, making it
 ambiguous which is to be edited.)
---
 
 ENABLE::
 Enables the selected color filter(s).
@@ -2306,24 +2114,18 @@ DELETE::
 Deletes the selected color filter(s).
 
 EXPORT::
-+
---
 Allows you to choose a file in which to save the current list of color
 filters.  You may also choose to save only the selected filters.  A
 button is provided to save the filters in the global color filters file
 (you must have sufficient permissions to write this file, of course).
---
 
 IMPORT::
-+
---
 Allows you to choose a file containing color filters which are then
 added to the bottom of the current list.  All the added filters are
 selected, so they may be moved to the correct position in the list as a
 group.  To avoid confusion, all filters are unselected before the new
 filters are imported.  A button is provided to load the filters from the
 global color filters file.
---
 
 CLEAR::
 Deletes your personal color filters file, reloads the global color filters file, if any, and closes the dialog.
@@ -2341,20 +2143,14 @@ APPLY::
 Colors the packets according to the current list of color filters, but does not close the dialog.
 
 SAVE::
-+
---
 Saves the current list of color filters in your personal color filters
 file.  Unless you do this they will not be used the next time you start
 Wireshark.
---
 
 CLOSE::
-+
---
 Closes the dialog without changing the coloration of the packets.  Note
 that changes you have made to the current list of color filters are not
 undone.
---
 
 Capture Options Dialog::
 +
@@ -2443,21 +2239,15 @@ About::
 The __About__ dialog lets you view various information about Wireshark.
 
 menu:About[Wireshark]::
-+
---
 The __Wireshark__ page lets you view general information about Wireshark,
 like the installed version, licensing information and such.
---
 
 menu:About[Authors]::
 The __Authors__ page shows the author and all contributors.
 
 menu:About[Folders]::
-+
---
 The __Folders__ page lets you view the directory names where Wireshark is
 searching its various configuration and other files.
---
 
 menu:About[Plugins]::
 +
@@ -2806,10 +2596,7 @@ not merged.
 --
 
 Plugins::
-+
---
 See above in the description of the About:Plugins page.
---
 
 == ENVIRONMENT VARIABLES
 
@@ -2830,73 +2617,50 @@ Wireshark 3.0.
 --
 
 WIRESHARK_DEBUG_WMEM_OVERRIDE::
-+
---
 Setting this environment variable forces the wmem framework to use the
 specified allocator backend for *all* allocations, regardless of which
 backend is normally specified by the code. This is mainly useful to developers
 when testing or debugging. See __README.wmem__ in the source distribution for
 details.
---
 
 WIRESHARK_RUN_FROM_BUILD_DIRECTORY::
-+
---
 This environment variable causes the plugins and other data files to be
 loaded from the build directory (where the program was compiled) rather
 than from the standard locations.  It has no effect when the program in
 question is running with root (or setuid) permissions on UNIX-compatible
 systems, such as Linux, macOS, \*BSD, Solaris, and AIX.
---
 
 WIRESHARK_DATA_DIR::
-+
---
 This environment variable causes the various data files to be loaded from
 a directory other than the standard locations.  It has no effect when the
 program in question is running with root (or setuid) permissions on
 UNIX-compatible systems.
---
 
 WIRESHARK_EXTCAP_DIR::
-+
---
 This environment variable causes the various extcap programs and scripts
 to be run from a directory other than the standard locations.  It has no
 effect when the program in question is running with root (or setuid)
 permissions on UNIX-compatible systems.
---
 
 WIRESHARK_PLUGIN_DIR::
-+
---
 This environment variable causes the various plugins to be loaded from
 a directory other than the standard locations.  It has no effect when the
 program in question is running with root (or setuid) permissions on
 UNIX-compatible systems.
---
 
 ERF_RECORDS_TO_CHECK::
-+
---
 This environment variable controls the number of ERF records checked when
 deciding if a file really is in the ERF format.  Setting this environment
 variable a number higher than the default (20) would make false positives
 less likely.
---
 
 IPFIX_RECORDS_TO_CHECK::
-+
---
 This environment variable controls the number of IPFIX records checked when
 deciding if a file really is in the IPFIX format.  Setting this environment
 variable a number higher than the default (20) would make false positives
 less likely.
---
 
 WIRESHARK_ABORT_ON_DISSECTOR_BUG::
-+
---
 If this environment variable is set, *Wireshark* will call abort(3)
 when a dissector bug is encountered.  abort(3) will cause the program to
 exit abnormally; if you are running *Wireshark* in a debugger, it
@@ -2905,11 +2669,8 @@ you are not running it in a debugger, it will, on some OSes, assuming
 your environment is configured correctly, generate a core dump file.
 This can be useful to developers attempting to troubleshoot a problem
 with a protocol dissector.
---
 
 WIRESHARK_ABORT_ON_TOO_MANY_ITEMS::
-+
---
 If this environment variable is set, *Wireshark* will call abort(3)
 if a dissector tries to add too many items to a tree (generally this
 is an indication of the dissector not breaking out of a loop soon enough).
@@ -2919,58 +2680,39 @@ inspection of the process, and, if you are not running it in a debugger,
 it will, on some OSes, assuming your environment is configured correctly,
 generate a core dump file.  This can be useful to developers attempting to
 troubleshoot a problem with a protocol dissector.
---
 
 WIRESHARK_QUIT_AFTER_CAPTURE::
-+
---
 Cause *Wireshark* to exit after the end of the capture session.  This
 doesn't automatically start a capture; you must still use *-k* to do
 that.  You must also specify an autostop condition, e.g.  *-c* or *-a
- duration:...*.  This means that you will not be able to see the results
+duration:...*.  This means that you will not be able to see the results
 of the capture after it stops; it's primarily useful for testing.
---
 
 WIRESHARK_LOG_LEVEL::
-+
---
 This environment variable controls the verbosity of diagnostic messages to
 the console. From less verbose to most verbose levels can be `critical`,
 `warning`, `message`, `info`, `debug` or `noisy`. Levels above the
 current level are also active. Levels `critical` and `error` are always
 active.
---
 
 WIRESHARK_LOG_FATAL::
-+
---
 Sets the fatal log level. Fatal log levels cause the program to abort.
 This level can be set to `Error`, `critical` or `warning`. `Error` is
 always fatal and is the default.
---
 
 WIRESHARK_LOG_DOMAINS::
-+
---
 This environment variable selects which log domains are active. The filter is
 given as a case-insensitive comma separated list. If set only the included
 domains will be enabled. The default domain is always considered to be enabled.
 Domain filter lists can be preceded by '!' to invert the sense of the match.
---
 
 WIRESHARK_LOG_DEBUG::
-+
---
 List of domains with `debug` log level. This sets the level of the provided
 log domains and takes precedence over the active domains filter. If preceded
 by '!' this disables the `debug` level instead.
---
 
 WIRESHARK_LOG_NOISY::
-+
---
 Same as above but for `noisy` log level instead.
---
 
 == AUTHORS
 

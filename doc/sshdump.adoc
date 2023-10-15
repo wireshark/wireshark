@@ -99,110 +99,58 @@ Supported interfaces:
 == OPTIONS
 
 --help::
-+
---
 Print program arguments.
---
 
 --version::
-+
---
 Print program version.
---
 
 --extcap-interfaces::
-+
---
 List available interfaces.
---
 
 --extcap-interface=<interface>::
-+
---
 Use specified interfaces.
---
 
 --extcap-dlts::
-+
---
 List DLTs of specified interface.
---
 
 --extcap-config::
-+
---
 List configuration options of specified interface.
---
 
 --extcap-capture-filter=<capture filter>::
-+
---
 The capture filter. It corresponds to the value provided via the *tshark -f*
 option, and the Capture Filter field next to the interfaces list in the
 Wireshark interface.
---
 
 --capture::
-+
---
 Start capturing from specified interface and write raw packet data to the location specified by --fifo.
---
 
 --fifo=<path to file or pipe>::
-+
---
 Save captured packet to file or send it through pipe.
---
 
 --remote-host=<remote host>::
-+
---
 The address of the remote host for capture.
---
 
 --remote-port=<remote port>::
-+
---
 The SSH port of the remote host.
---
 
 --remote-username=<username>::
-+
---
 The username for SSH authentication.
---
 
 --remote-password=<password>::
-+
---
 The password to use (if not ssh-agent and pubkey are used). WARNING: the
 passwords are stored in plaintext and visible to all users on this system. It is
 recommended to use keyfiles with a SSH agent.
---
 
 --sshkey=<SSH private key path>::
-+
---
 The path to a private key for authentication. NOTE: Only OPENSSH key/value pair format is supported.
---
 
 --sshkey-passphrase=<SSH private key passphrase>::
-+
---
 The passphrase for the private key for authentication.
---
 
 --proxycommand=<proxy command>::
-+
---
 The command to use as proxy for the SSH connection.
---
-
 --remote-interface=<remote interface>::
-+
---
 The remote network interface to capture from.
---
 
 --remote-capture-command-select=<capture command-selection>::
 +
@@ -231,31 +179,19 @@ filter (*--extcap-capture-filter*) will not be appended.
 --
 
 --remote-priv=<privilege elevation command selection>::
-+
---
 The command to use to achieve privilege elevation to capture on the remote host. Either none, sudo or doas.
---
 
 --remote-priv-user=<privileged user name>::
-+
---
 If a command is used to achieve privilege elevation to capture on the remote host this may require a user name.
 If needed use this option to give that user name.
---
 
 --remote-filter=<capture filter>::
-+
---
 The remote capture filter. It corresponds to the value provided via the *tshark -f*
 option, and the Capture Filter field next to the interfaces list in the
 Wireshark interface.
---
 
 --remote-count=<number>::
-+
---
 The number of packets to capture.
---
 
 == EXAMPLES
 

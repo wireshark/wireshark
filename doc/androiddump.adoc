@@ -84,77 +84,41 @@ Android-based operating systems.
 == OPTIONS
 
 --help::
-+
---
 Print program arguments.
---
 
 --version::
-+
---
 Print program version.
---
 
 --extcap-version::
-+
---
 Print extcapized version.
---
 
 --debug::
-+
---
 Print additional messages.
---
 
 --extcap-interfaces::
-+
---
 List available interfaces.
---
 
 --extcap-interface=<interface>::
-+
---
 Use specified interfaces.
---
 
 --extcap-dlts::
-+
---
 List DLTs of specified interface.
---
 
 --extcap-config::
-+
---
 List configuration options of specified interface.
---
 
 --capture::
-+
---
 Start capturing from the specified interface and save it in the location
 specified with --fifo.
---
 
 --fifo=<path to file or pipe>::
-+
---
 Save captured packet to file or send it through pipe.
---
 
 --adb-server-ip=<IP address>::
-+
---
 Use other than default (127.0.0.1) ADB daemon's IP address.
---
 
 --adb-server-tcp-port=<TCP port>::
-+
---
 Use other than default (5037) ADB daemon's TCP port.
---
 
 --logcat-text=<TRUE or FALSE>::
 +
@@ -183,16 +147,10 @@ Defaults to FALSE.
 --
 
 --bt-local-ip=<IP address>::
-+
---
 Use other than default (127.0.0.1) IP address on host side for forwarded socket.
---
 
 --bt-local-tcp-port=<TCP port>::
-+
---
 Specify port to be used on host side for forwarded socket.
---
 
 == EXAMPLES
 
