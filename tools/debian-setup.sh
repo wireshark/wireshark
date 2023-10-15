@@ -211,6 +211,10 @@ BASIC_LIST="$BASIC_LIST cmake"
 add_package ADDITIONAL_LIST libnghttp2-dev ||
 echo "libnghttp2-dev is unavailable" >&2
 
+# Debian >= bookworm, Ubuntu >= 22.04
+add_package ADDITIONAL_LIST libnghttp3-dev ||
+echo "libnghttp3-dev is unavailable" >&2
+
 # libssh-gcrypt-dev: Debian >= jessie, Ubuntu >= 16.04
 # libssh-dev (>= 0.6): Debian >= jessie, Ubuntu >= 14.04
 add_package ADDITIONAL_LIST libssh-gcrypt-dev ||

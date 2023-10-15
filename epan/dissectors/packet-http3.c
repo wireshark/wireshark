@@ -595,7 +595,6 @@ http3_nghttp3_realloc(void *ptr, size_t size, void *user_data _U_)
 }
 
 static nghttp3_mem g_qpack_mem_allocator = {
-    .user_data = NULL,
     .malloc    = http3_nghttp3_malloc,
     .free      = http3_nghttp3_free,
     .calloc    = http3_nghttp3_calloc,

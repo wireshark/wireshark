@@ -72,6 +72,7 @@ BASIC_LIST="base-devel \
 	libilbc \
 	libmaxminddb \
 	libnghttp2 \
+	libnghttp3 \
 	libnl \
 	libpcap \
 	libssh \

@@ -1361,7 +1361,7 @@ ws_find_package(ZSTD ENABLE_ZSTD HAVE_ZSTD "1.0.0")
 ws_find_package(NGHTTP2 ENABLE_NGHTTP2 HAVE_NGHTTP2 "1.11.0")
 
 # Enhanced HTTP/3 dissection
-ws_find_package(NGHTTP3 ENABLE_NGHTTP3 HAVE_NGHTTP3 "0.6.0")
+ws_find_package(NGHTTP3 ENABLE_NGHTTP3 HAVE_NGHTTP3)
 
 # Embedded Lua interpreter
 if(FETCH_lua)

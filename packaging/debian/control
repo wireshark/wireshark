@@ -16,7 +16,8 @@ Build-Depends:
  libgcrypt-dev, libkrb5-dev, liblua5.2-dev, libsmi2-dev,
  libmaxminddb-dev, dpkg-dev (>= 1.16.1~), libsystemd-dev | libsystemd-journal-dev,
  libnl-genl-3-dev [linux-any], libnl-route-3-dev [linux-any], asciidoctor,
- cmake (>= 3.5) | cmake3, libsbc-dev, libnghttp2-dev, libssh-gcrypt-dev,
+ cmake (>= 3.5) | cmake3, libsbc-dev, libnghttp2-dev, libnghttp3-dev,
+ libssh-gcrypt-dev,
  liblz4-dev, libsnappy-dev, libzstd-dev, libspandsp-dev, libxml2-dev, libbrotli-dev,
  libspeexdsp-dev
 Build-Conflicts: libsnmp4.2-dev, libsnmp-dev

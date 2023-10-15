@@ -103,13 +103,14 @@ ADDITIONAL_LIST=(
     gnutls
     libilbc
     libmaxminddb
+    libnghttp2
+    libnghttp3
     libsmi
     libssh
     libxml2
     lua@5.1
     lz4
     minizip
-    nghttp2
     opus
     snappy
     spandsp
