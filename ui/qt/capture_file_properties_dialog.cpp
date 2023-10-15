@@ -325,6 +325,8 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
                 << table_row_end;
         }
 
+        // XXX: The mapping of interfaces to different SHBs isn't
+        // handled correctly here or elsewhere
         for (guint i = 0; i < summary.ifaces->len; i++) {
             iface_summary_info iface;
             iface = g_array_index(summary.ifaces, iface_summary_info, i);
@@ -367,6 +369,16 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             out << table_end;
         }
     }
+
+    // Done with the interfaces
+    for (guint i = 0; i < summary.ifaces->len; i++) {
+        iface_summary_info iface;
+        iface = g_array_index(summary.ifaces, iface_summary_info, i);
+
+        g_free(iface.descr);
+        g_free(iface.name);
+    }
+    g_array_free(summary.ifaces, TRUE);
 
     // Statistics Section
     out << section_tmpl_.arg(tr("Statistics"));
