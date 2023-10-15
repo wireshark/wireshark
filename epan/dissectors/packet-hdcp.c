@@ -302,8 +302,7 @@ proto_register_hdcp(void)
     };
 
 
-    proto_hdcp = proto_register_protocol(
-            "High bandwidth Digital Content Protection", "HDCP", "hdcp");
+    proto_hdcp = proto_register_protocol("High bandwidth Digital Content Protection", "HDCP", "hdcp");
 
     proto_register_field_array(proto_hdcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

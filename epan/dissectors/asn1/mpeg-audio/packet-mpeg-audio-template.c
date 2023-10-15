@@ -205,8 +205,7 @@ proto_register_mpeg_audio(void)
 #include "packet-mpeg-audio-ettarr.c"
 	};
 
-	proto_mpeg_audio = proto_register_protocol(
-			"Moving Picture Experts Group Audio", "MPEG Audio", "mpeg-audio");
+	proto_mpeg_audio = proto_register_protocol("Moving Picture Experts Group Audio", "MPEG Audio", "mpeg-audio");
 	proto_register_field_array(proto_mpeg_audio, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

@@ -425,10 +425,7 @@ void proto_register_vp9(void)
           NULL, 0,
           NULL, HFILL}}};
 
-    proto_vp9 = proto_register_protocol(
-        "VP9",
-        "VP9",
-        "vp9");
+    proto_vp9 = proto_register_protocol("VP9", "VP9", "vp9");
 
     proto_register_field_array(proto_vp9, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -3220,8 +3220,7 @@ proto_register_pipe_lanman(void)
 		&ett_lanman_share,
 	};
 
-	proto_smb_lanman = proto_register_protocol(
-		"Microsoft Windows Lanman Remote API Protocol", "LANMAN", "lanman");
+	proto_smb_lanman = proto_register_protocol("Microsoft Windows Lanman Remote API Protocol", "LANMAN", "lanman");
 	proto_register_field_array(proto_smb_lanman, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

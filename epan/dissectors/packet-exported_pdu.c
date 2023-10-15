@@ -617,8 +617,7 @@ proto_register_exported_pdu(void)
     expert_module_t *expert_exported_pdu;
 
     /* Register the protocol name and description */
-    proto_exported_pdu = proto_register_protocol("EXPORTED_PDU",
-            "exported_pdu", "exported_pdu");
+    proto_exported_pdu = proto_register_protocol("EXPORTED_PDU", "exported_pdu", "exported_pdu");
 
     expert_exported_pdu = expert_register_protocol(proto_exported_pdu);
     expert_register_field_array(expert_exported_pdu, ei, array_length(ei));

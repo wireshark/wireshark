@@ -100,8 +100,7 @@ proto_register_hpext(void)
 		&ett_hpext
 	};
 
-	proto_hpext = proto_register_protocol(
-	    "HP Extended Local-Link Control", "HPEXT", "hpext");
+	proto_hpext = proto_register_protocol("HP Extended Local-Link Control", "HPEXT", "hpext");
 	proto_register_field_array(proto_hpext, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

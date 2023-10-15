@@ -1133,8 +1133,7 @@ proto_register_smb_logon( void)
 		&ett_smb_db_info
 	};
 
-	proto_smb_logon = proto_register_protocol(
-		"Microsoft Windows Logon Protocol (Old)", "SMB_NETLOGON", "smb_netlogon");
+	proto_smb_logon = proto_register_protocol("Microsoft Windows Logon Protocol (Old)", "SMB_NETLOGON", "smb_netlogon");
 
 	proto_register_field_array(proto_smb_logon, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

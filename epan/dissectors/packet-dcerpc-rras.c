@@ -132,8 +132,7 @@ proto_register_dcerpc_rras(void)
 	};
 
 
-	proto_dcerpc_rras = proto_register_protocol(
-		"Microsoft Routing and Remote Access Service", "RRAS", "rras");
+	proto_dcerpc_rras = proto_register_protocol("Microsoft Routing and Remote Access Service", "RRAS", "rras");
 
 	proto_register_field_array(proto_dcerpc_rras, hf, array_length(hf));
 

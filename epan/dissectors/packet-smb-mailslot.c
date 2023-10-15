@@ -229,8 +229,7 @@ proto_register_smb_mailslot(void)
 		&ett_smb_msp
 	};
 
-	proto_smb_msp = proto_register_protocol(
-		"SMB MailSlot Protocol", "SMB Mailslot", "mailslot");
+	proto_smb_msp = proto_register_protocol("SMB MailSlot Protocol", "SMB Mailslot", "mailslot");
 
 	proto_register_field_array(proto_smb_msp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

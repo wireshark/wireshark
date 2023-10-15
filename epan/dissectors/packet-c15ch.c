@@ -7347,11 +7347,7 @@ void proto_register_c15ch_hbeat(void)
         &ett_c15ch_hbeat
     };
 
-    proto_c15ch_hbeat = proto_register_protocol(
-        "C15 Call History Heartbeat Protocol", /* name */
-        "C15HBEAT",         /* short name */
-        "c15hbeat"            /* abbreviation */
-        );
+    proto_c15ch_hbeat = proto_register_protocol("C15 Call History Heartbeat Protocol", "C15HBEAT", "c15hbeat");
     proto_register_field_array(proto_c15ch_hbeat, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -11866,53 +11862,33 @@ void proto_register_c15ch(void)
     /* protocols */
 
     /* first level: Call History Common Header */
-    proto_c15ch = proto_register_protocol(
-        "C15 Call History Common Header Protocol",
-        "C15.ch",
-        "c15.ch"
-        );
+    proto_c15ch = proto_register_protocol("C15 Call History Common Header Protocol", "C15.ch", "c15.ch");
     proto_register_field_array(proto_c15ch, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     c15ch_handle = register_dissector("c15.ch", dissect_c15ch, proto_c15ch);
 
     /* second level dissector */
-    proto_c15ch_second_level = proto_register_protocol(
-        "C15 Call History Protocol",
-        "C15",
-        "c15"
-        );
+    proto_c15ch_second_level = proto_register_protocol("C15 Call History Protocol", "C15", "c15");
     proto_register_field_array(proto_c15ch_second_level, hf_second_level, array_length(hf_second_level));
     proto_register_subtree_array(ett_second_level, array_length(ett_second_level));
     c15ch_dissector_table = register_dissector_table("c15", "C15", proto_c15ch, FT_UINT32, BASE_DEC);
 
     /* third level */
     /* tone */
-        proto_c15ch_third_level_tone = proto_register_protocol(
-        "C15 Tone",
-        "C15.TONE",
-        "c15.tone"
-        );
+        proto_c15ch_third_level_tone = proto_register_protocol("C15 Tone", "C15.TONE", "c15.tone");
     proto_register_field_array(proto_c15ch_third_level_tone, hf_third_level_tone, array_length(hf_third_level_tone));
     proto_register_subtree_array(ett_third_level_tone, array_length(ett_third_level_tone));
     c15ch_tone_dissector_table = register_dissector_table("c15.tone", "C15.TONE", proto_c15ch_third_level_tone, FT_UINT32, BASE_DEC);
 
     /* inc gwe */
-    proto_c15ch_third_level_inc_gwe = proto_register_protocol(
-        "C15 Incoming GWE",
-        "C15.INC_GWE",
-        "c15.inc_gwe"
-        );
+    proto_c15ch_third_level_inc_gwe = proto_register_protocol("C15 Incoming GWE", "C15.INC_GWE", "c15.inc_gwe");
     proto_register_field_array(proto_c15ch_third_level_inc_gwe, hf_third_level_inc_gwe, array_length(hf_third_level_inc_gwe));
     proto_register_subtree_array(ett_third_level_inc_gwe, array_length(ett_third_level_inc_gwe));
     c15ch_inc_gwe_dissector_table = register_dissector_table("c15.inc_gwe", "C15.INC_GWE", proto_c15ch_third_level_inc_gwe, FT_UINT32, BASE_DEC);
 
     /* out gwe */
-    proto_c15ch_third_level_out_gwe = proto_register_protocol(
-        "C15 Outgoing GWE",
-        "C15.out_gwe",
-        "c15.out_gwe"
-        );
+    proto_c15ch_third_level_out_gwe = proto_register_protocol("C15 Outgoing GWE", "C15.out_gwe", "c15.out_gwe");
     proto_register_field_array(proto_c15ch_third_level_out_gwe, hf_third_level_out_gwe, array_length(hf_third_level_out_gwe));
     proto_register_subtree_array(ett_third_level_out_gwe, array_length(ett_third_level_out_gwe));
     c15ch_out_gwe_dissector_table = register_dissector_table("c15.out_gwe", "C15.out_gwe", proto_c15ch_third_level_out_gwe, FT_UINT32, BASE_DEC);

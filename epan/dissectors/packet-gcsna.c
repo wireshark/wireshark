@@ -431,11 +431,7 @@ proto_register_gcsna(void)
 
     expert_module_t* expert_gcsna;
 
-    proto_gcsna = proto_register_protocol(
-        "GCSNA",    /* name */
-        "GCSNA",    /* short name */
-        "gcsna"     /* abbrev */
-    );
+    proto_gcsna = proto_register_protocol("GCSNA", "GCSNA", "gcsna");
 
     gcsna_handle = register_dissector("gcsna", dissect_gcsna, proto_gcsna);
 

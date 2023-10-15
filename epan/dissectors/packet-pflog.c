@@ -523,8 +523,7 @@ proto_register_pflog(void)
   expert_module_t* expert_pflog;
   module_t *pflog_module;
 
-  proto_pflog = proto_register_protocol("OpenBSD Packet Filter log file",
-                                        "PFLOG", "pflog");
+  proto_pflog = proto_register_protocol("OpenBSD Packet Filter log file", "PFLOG", "pflog");
   proto_register_field_array(proto_pflog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_pflog = expert_register_protocol(proto_pflog);
@@ -646,9 +645,7 @@ proto_register_old_pflog(void)
   };
   static gint *ett[] = { &ett_old_pflog };
 
-  proto_old_pflog = proto_register_protocol(
-          "OpenBSD Packet Filter log file, pre 3.4",
-          "PFLOG-OLD", "pflog-old");
+  proto_old_pflog = proto_register_protocol("OpenBSD Packet Filter log file, pre 3.4", "PFLOG-OLD", "pflog-old");
   proto_register_field_array(proto_old_pflog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

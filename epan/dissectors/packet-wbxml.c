@@ -8144,11 +8144,7 @@ proto_register_wbxml(void)
 	expert_module_t* expert_wbxml;
 
 	/* Register the protocol name and description */
-	proto_wbxml = proto_register_protocol(
-					      "WAP Binary XML",
-					      "WBXML",
-					      "wbxml"
-					      );
+	proto_wbxml = proto_register_protocol("WAP Binary XML", "WBXML", "wbxml");
 
 	/* Required function calls to register the header fields
 	 * and subtrees used */

@@ -1880,8 +1880,7 @@ proto_register_iso14443(void)
 
     expert_module_t* expert_iso14443;
 
-    proto_iso14443 = proto_register_protocol(
-            "ISO/IEC 14443", "ISO 14443", "iso14443");
+    proto_iso14443 = proto_register_protocol("ISO/IEC 14443", "ISO 14443", "iso14443");
     proto_register_field_array(proto_iso14443, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_iso14443 = expert_register_protocol(proto_iso14443);

@@ -1139,8 +1139,7 @@ static hf_register_info hf[] = {
 		&ett_dcerpc_browser
 	};
 
-	proto_dcerpc_browser = proto_register_protocol(
-		"RPC Browser", "RPC_BROWSER", "rpc_browser");
+	proto_dcerpc_browser = proto_register_protocol("RPC Browser", "RPC_BROWSER", "rpc_browser");
 
 	proto_register_field_array(proto_dcerpc_browser, hf,
 				   array_length(hf));

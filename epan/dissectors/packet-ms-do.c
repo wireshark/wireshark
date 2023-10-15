@@ -734,11 +734,7 @@ proto_register_do(void)
 
     expert_module_t* expert_do = NULL;
 
-    proto_do = proto_register_protocol(
-        "Microsoft Delivery Optimization",
-        "MS-DO",
-        "msdo"
-    );
+    proto_do = proto_register_protocol("Microsoft Delivery Optimization", "MS-DO", "msdo");
 
     proto_register_field_array(proto_do, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

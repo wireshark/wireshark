@@ -218,9 +218,7 @@ proto_register_mpls_mac(void)
     };
 
     proto_mpls_mac =
-        proto_register_protocol("MPLS-MAC",
-                                "Media Access Control (MAC) Address Withdrawal over Static Pseudowire",
-                                "mpls_mac");
+        proto_register_protocol("Media Access Control (MAC) Address Withdrawal over Static Pseudowire", "MPLS-MAC", "mpls_mac");
 
     proto_register_field_array(proto_mpls_mac, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

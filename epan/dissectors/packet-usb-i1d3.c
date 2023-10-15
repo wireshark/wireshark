@@ -720,9 +720,7 @@ static int dissect_usb_i1d3(
 
 void proto_register_usb_i1d3(void)
 {
-    proto_usb_i1d3 = proto_register_protocol(
-            "X-Rite i1 Display Pro (and derivatives) USB protocol",
-            "X-Rite i1 Display Pro", "i1d3");
+    proto_usb_i1d3 = proto_register_protocol("X-Rite i1 Display Pro (and derivatives) USB protocol", "X-Rite i1 Display Pro", "i1d3");
 
     static gint *ett[] = {
         &ett_usb_i1d3,

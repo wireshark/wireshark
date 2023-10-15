@@ -291,8 +291,7 @@ proto_register_kpasswd(void)
     };
         module_t *kpasswd_module;
 
-    proto_kpasswd = proto_register_protocol("MS Kpasswd",
-        "Kpasswd", "kpasswd");
+    proto_kpasswd = proto_register_protocol("MS Kpasswd", "Kpasswd", "kpasswd");
     proto_register_field_array(proto_kpasswd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

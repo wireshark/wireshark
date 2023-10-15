@@ -368,10 +368,7 @@ proto_register_xip_serval(void)
 
 	expert_module_t* expert_xip_serval;
 
-	proto_xip_serval = proto_register_protocol(
-		"XIP Serval",
-		"XIP Serval",
-	        "xipserval");
+	proto_xip_serval = proto_register_protocol("XIP Serval", "XIP Serval", "xipserval");
 	register_dissector("xipserval", dissect_xip_serval,
 		proto_xip_serval);
 	proto_register_field_array(proto_xip_serval, hf, array_length(hf));

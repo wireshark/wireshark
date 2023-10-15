@@ -8935,23 +8935,11 @@ proto_register_acn(void)
   module_t *acn_module;
   expert_module_t* expert_acn;
 
-  proto_acn = proto_register_protocol (
-    "Architecture for Control Networks", /* name */
-    "ACN",                               /* short name */
-    "acn"                                /* abbrev */
-    );
+  proto_acn = proto_register_protocol("Architecture for Control Networks", "ACN", "acn");
 
-  proto_magic = proto_register_protocol(
-    "Magic Bullet",                      /* name */
-    "MAGIC",                             /* short name */
-    "magic"                              /* abbrev */
-    );
+  proto_magic = proto_register_protocol("Magic Bullet", "MAGIC", "magic");
 
-  proto_rdmnet = proto_register_protocol(
-    "RDMnet",                            /* name */
-    "RDMnet",                            /* short name */
-    "rdmnet"                             /* abbrev */
-    );
+  proto_rdmnet = proto_register_protocol("RDMnet", "RDMnet", "rdmnet");
 
   proto_register_field_array(proto_acn, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

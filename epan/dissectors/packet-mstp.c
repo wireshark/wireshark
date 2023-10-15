@@ -542,8 +542,7 @@ proto_register_mstp(void)
 
 	expert_module_t* expert_mstp;
 
-	proto_mstp = proto_register_protocol("BACnet MS/TP",
-	    "BACnet MS/TP", "mstp");
+	proto_mstp = proto_register_protocol("BACnet MS/TP", "BACnet MS/TP", "mstp");
 
 	proto_register_field_array(proto_mstp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

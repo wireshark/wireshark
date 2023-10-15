@@ -5664,9 +5664,7 @@ void proto_register_ldap(void) {
 
   prefs_register_obsolete_preference(ldap_module, "max_pdu");
 
-  proto_cldap = proto_register_protocol(
-          "Connectionless Lightweight Directory Access Protocol",
-          "CLDAP", "cldap");
+  proto_cldap = proto_register_protocol("Connectionless Lightweight Directory Access Protocol", "CLDAP", "cldap");
   cldap_handle = register_dissector("cldap", dissect_mscldap, proto_cldap);
 
   ldap_tap=register_tap("ldap");

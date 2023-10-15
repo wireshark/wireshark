@@ -1637,8 +1637,7 @@ void proto_register_tns(void)
 	};
 	module_t *tns_module;
 
-	proto_tns = proto_register_protocol(
-		"Transparent Network Substrate Protocol", "TNS", "tns");
+	proto_tns = proto_register_protocol("Transparent Network Substrate Protocol", "TNS", "tns");
 	proto_register_field_array(proto_tns, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	tns_handle = register_dissector("tns", dissect_tns, proto_tns);

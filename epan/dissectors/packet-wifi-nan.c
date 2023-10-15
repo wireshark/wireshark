@@ -4155,10 +4155,7 @@ proto_register_nan(void)
         },
     };
 
-    proto_nan = proto_register_protocol(
-        "Wi-Fi Neighbor Awareness Networking (NAN)",
-        "Wi-Fi NAN",
-        "wifi_nan");
+    proto_nan = proto_register_protocol("Wi-Fi Neighbor Awareness Networking (NAN)", "Wi-Fi NAN", "wifi_nan");
 
     proto_register_field_array(proto_nan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

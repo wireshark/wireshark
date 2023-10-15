@@ -78,11 +78,7 @@ proto_register_cert(void)
         };
 
         /* Register the protocol name and description */
-        proto_cert = proto_register_protocol(
-                        "PKIX CERT File Format",
-                        "PKIX Certificate",
-                        "pkix-cert"
-        );
+        proto_cert = proto_register_protocol("PKIX CERT File Format", "PKIX Certificate", "pkix-cert");
 
         /* Required function calls to register the header fields
          * and subtrees used */

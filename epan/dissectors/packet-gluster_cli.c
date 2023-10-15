@@ -531,8 +531,7 @@ proto_register_gluster_cli(void)
 	};
 
 	/* Register the protocol name and description */
-	proto_gluster_cli = proto_register_protocol("Gluster CLI",
-					"Gluster CLI", "gluster.cli");
+	proto_gluster_cli = proto_register_protocol("Gluster CLI", "Gluster CLI", "gluster.cli");
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_gluster_cli, hf, array_length(hf));
 }

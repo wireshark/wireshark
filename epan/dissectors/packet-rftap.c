@@ -551,10 +551,7 @@ proto_register_rftap(void)
     };
 
     /* Register the protocol name and description */
-    proto_rftap = proto_register_protocol(
-        "RFtap Protocol",  /* name */
-        "RFtap",   /* short_name */
-        "rftap");  /* filter_name (used for display filter string) */
+    proto_rftap = proto_register_protocol("RFtap Protocol", "RFtap", "rftap");
 
     /* Register the header fields and subtrees */
     proto_register_field_array(proto_rftap, hf, array_length(hf));

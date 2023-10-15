@@ -181,10 +181,7 @@ proto_register_fmtp(void)
         &ett_fmtp
     };
 
-    proto_fmtp = proto_register_protocol(
-        "Flight Message Transfer Protocol (FMTP)",
-        "FMTP",
-        "fmtp");
+    proto_fmtp = proto_register_protocol("Flight Message Transfer Protocol (FMTP)", "FMTP", "fmtp");
 
     proto_register_field_array(proto_fmtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

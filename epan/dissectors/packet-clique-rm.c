@@ -450,8 +450,7 @@ proto_register_clique_rm(void)
   };
 
 /* Register the protocol name and description */
-  proto_clique_rm = proto_register_protocol(
-    "Clique Reliable Multicast Protocol", "Clique-rm", "clique-rm");
+  proto_clique_rm = proto_register_protocol("Clique Reliable Multicast Protocol", "Clique-rm", "clique-rm");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_clique_rm, hf, array_length(hf));

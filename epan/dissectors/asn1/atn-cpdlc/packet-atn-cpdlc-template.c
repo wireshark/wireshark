@@ -310,10 +310,7 @@ void proto_register_atn_cpdlc (void)
     };
 
     /* register CPDLC */
-    proto_atn_cpdlc = proto_register_protocol(
-        ATN_CPDLC_PROTO ,
-        "ATN-CPDLC",
-        "atn-cpdlc");
+    proto_atn_cpdlc = proto_register_protocol(ATN_CPDLC_PROTO, "ATN-CPDLC", "atn-cpdlc");
 
     proto_register_field_array(
         proto_atn_cpdlc,

@@ -17169,10 +17169,7 @@ void proto_register_rtps(void) {
   module_t *rtps_module;
   expert_module_t *expert_rtps;
 
-  proto_rtps = proto_register_protocol(
-                        "Real-Time Publish-Subscribe Wire Protocol",
-                        "RTPS",
-                        "rtps");
+  proto_rtps = proto_register_protocol("Real-Time Publish-Subscribe Wire Protocol", "RTPS", "rtps");
   proto_register_field_array(proto_rtps, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_rtps = expert_register_protocol(proto_rtps);

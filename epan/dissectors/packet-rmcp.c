@@ -207,8 +207,7 @@ proto_register_rmcp(void)
 		&ett_rmcp_typeclass
 	};
 
-	proto_rmcp = proto_register_protocol(
-		"Remote Management Control Protocol", "RMCP", "rmcp");
+	proto_rmcp = proto_register_protocol("Remote Management Control Protocol", "RMCP", "rmcp");
 
 	proto_register_field_array(proto_rmcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -236,8 +235,7 @@ proto_register_rsp(void)
 		&ett_rsp
 	};
 
-	proto_rsp = proto_register_protocol(
-		"RMCP Security-extensions Protocol", "RSP", "rsp");
+	proto_rsp = proto_register_protocol("RMCP Security-extensions Protocol", "RSP", "rsp");
 	proto_register_field_array(proto_rsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

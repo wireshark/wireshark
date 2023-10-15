@@ -65,8 +65,7 @@ proto_register_dcerpc_rs_plcy(void)
 		&ett_dcerpc_rs_plcy
 	};
 
-	proto_dcerpc_rs_plcy = proto_register_protocol(
-		"RS Interface properties", "RS_PLCY", "rs_plcy");
+	proto_dcerpc_rs_plcy = proto_register_protocol("RS Interface properties", "RS_PLCY", "rs_plcy");
 
 	proto_register_field_array(proto_dcerpc_rs_plcy, hf,
 		array_length(hf));

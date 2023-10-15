@@ -318,11 +318,7 @@ proto_register_cl3dcw(void) {
 
   expert_module_t* expert_cl3dcw;
 
-  proto_cl3dcw = proto_register_protocol(
-    "CableLabs Dual-Channel Wi-Fi",  /* name */
-    "cl3dcw",                        /* short name */
-    "cl3dcw"                         /* abbrev */
-  );
+  proto_cl3dcw = proto_register_protocol("CableLabs Dual-Channel Wi-Fi", "cl3dcw", "cl3dcw");
 
   proto_register_field_array(proto_cl3dcw, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

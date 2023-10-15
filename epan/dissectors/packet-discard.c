@@ -133,10 +133,7 @@ proto_register_discard(void)
 
 	module_t *module_data;
 
-	proto_discard = proto_register_protocol(
-		"Discard Protocol",
-		"DISCARD",
-		"discard");
+	proto_discard = proto_register_protocol("Discard Protocol", "DISCARD", "discard");
 
 	proto_register_field_array(proto_discard, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

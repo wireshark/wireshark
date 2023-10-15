@@ -370,10 +370,7 @@ proto_register_gsm_sms_ud(void)
     &ett_gsm_sms_ud_fragments,
     };
     /* Register the protocol name and description */
-    proto_gsm_sms_ud = proto_register_protocol(
-        "GSM Short Message Service User Data",  /* Name */
-        "GSM SMS UD",           /* Short name */
-        "gsm_sms_ud");          /* Filter name */
+    proto_gsm_sms_ud = proto_register_protocol("GSM Short Message Service User Data", "GSM SMS UD", "gsm_sms_ud");
 
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_gsm_sms_ud, hf, array_length(hf));

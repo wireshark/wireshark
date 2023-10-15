@@ -186,8 +186,7 @@ proto_register_turnchannel(void)
 	};
 
 /* Register the protocol name and description */
-	proto_turnchannel = proto_register_protocol("TURN Channel",
-	    "TURNCHANNEL", "turnchannel");
+	proto_turnchannel = proto_register_protocol("TURN Channel", "TURNCHANNEL", "turnchannel");
 
 	turnchannel_tcp_handle = register_dissector("turnchannel-tcp", dissect_turnchannel_tcp, proto_turnchannel);
 	turnchannel_udp_handle = register_dissector("turnchannel", dissect_turnchannel_message, proto_turnchannel);

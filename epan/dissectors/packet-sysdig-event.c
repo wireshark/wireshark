@@ -3220,8 +3220,7 @@ proto_register_sysdig_event(void)
     };
 
     /* Register the protocol name and description */
-    proto_sysdig_event = proto_register_protocol("Sysdig Event",
-            "Sysdig Event", "sysdig");
+    proto_sysdig_event = proto_register_protocol("Sysdig Event", "Sysdig Event", "sysdig");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_sysdig_event, hf, array_length(hf));

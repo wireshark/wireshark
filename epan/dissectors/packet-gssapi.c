@@ -620,9 +620,7 @@ proto_register_gssapi(void)
 	module_t *gssapi_module;
 	expert_module_t *expert_gssapi;
 
-	proto_gssapi = proto_register_protocol(
-		"GSS-API Generic Security Service Application Program Interface",
-		"GSS-API", "gss-api");
+	proto_gssapi = proto_register_protocol("GSS-API Generic Security Service Application Program Interface", "GSS-API", "gss-api");
 
 	gssapi_module = prefs_register_protocol(proto_gssapi, NULL);
 	prefs_register_bool_preference(gssapi_module, "gssapi_reassembly",

@@ -5403,10 +5403,7 @@ proto_register_wimaxmacphy(void)
     expert_module_t* expert_wimaxmacphy;
 
     /* Register the protocol name and description */
-    proto_wimaxmacphy = proto_register_protocol(
-        "WiMAX MAC-PHY over Ethernet",
-        "WiMAX MAC-PHY",
-        "wimaxmacphy");
+    proto_wimaxmacphy = proto_register_protocol("WiMAX MAC-PHY over Ethernet", "WiMAX MAC-PHY", "wimaxmacphy");
     wimaxmacphy_handle = register_dissector("wimaxmacphy", dissect_wimaxmacphy, proto_wimaxmacphy);
 
     /* Required function calls to register the header fields and subtrees

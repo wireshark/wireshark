@@ -385,9 +385,7 @@ void proto_register_opa_snc(void)
         }
     };
 
-    proto_opa_snc = proto_register_protocol(
-        "Intel Omni-Path SnC - Omni-Path Snoop and Capture MetaData Header",
-        "OPA SnC", "opa.snc");
+    proto_opa_snc = proto_register_protocol("Intel Omni-Path SnC - Omni-Path Snoop and Capture MetaData Header", "OPA SnC", "opa.snc");
     opa_snc_handle = register_dissector("opa.snc", dissect_opa_snc, proto_opa_snc);
 
     proto_register_field_array(proto_opa_snc, hf, array_length(hf));

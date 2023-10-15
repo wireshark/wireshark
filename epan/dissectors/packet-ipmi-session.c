@@ -291,9 +291,7 @@ proto_register_ipmi_session(void)
 
 	static gint *ett[] = { &ett_ipmi_session, &ett_ipmi_session_payloadtype };
 
-	proto_ipmi_session = proto_register_protocol(
-			"Intelligent Platform Management Interface (Session Wrapper)", "IPMI Session",
-			"ipmi_session");
+	proto_ipmi_session = proto_register_protocol("Intelligent Platform Management Interface (Session Wrapper)", "IPMI Session", "ipmi_session");
 	proto_register_field_array(proto_ipmi_session, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

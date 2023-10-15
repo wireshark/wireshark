@@ -3353,11 +3353,7 @@ proto_register_eigrp(void)
     expert_module_t* expert_eigrp;
 
     /* Register the protocol name and description */
-    proto_eigrp = proto_register_protocol(
-        "Enhanced Interior Gateway Routing Protocol",   /* name         */
-        "EIGRP",                                        /* short name   */
-        "eigrp"                                         /* abbrev       */
-        );
+    proto_eigrp = proto_register_protocol("Enhanced Interior Gateway Routing Protocol", "EIGRP", "eigrp");
     register_dissector("eigrp", dissect_eigrp, proto_eigrp);
 
     /* Required function calls to register the header fields and subtrees used */

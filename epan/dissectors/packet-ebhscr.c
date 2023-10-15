@@ -1822,11 +1822,7 @@ proto_register_ebhscr(void)
 		},
 	};
 
-	proto_ebhscr = proto_register_protocol(
-		"EBHSCR Protocol",
-		"EBHSCR",
-		"ebhscr"
-		);
+	proto_ebhscr = proto_register_protocol("EBHSCR Protocol", "EBHSCR", "ebhscr");
 
 	proto_register_field_array(proto_ebhscr, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

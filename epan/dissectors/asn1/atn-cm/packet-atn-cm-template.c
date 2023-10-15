@@ -187,10 +187,7 @@ void proto_register_atn_cm (void)
     };
 
     /* register CM application */
-    proto_atn_cm = proto_register_protocol(
-        ATN_CM_PROTO ,
-        "ATN-CM",
-        "atn-cm");
+    proto_atn_cm = proto_register_protocol(ATN_CM_PROTO, "ATN-CM", "atn-cm");
 
     proto_register_field_array(
         proto_atn_cm,

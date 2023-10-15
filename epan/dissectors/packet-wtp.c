@@ -1019,13 +1019,8 @@ proto_register_wtp(void)
     };
 
     /* Register the protocol name and description */
-    proto_wtp = proto_register_protocol(
-            "Wireless Transaction Protocol",   /* protocol name for use by wireshark */
-            "WTP",                             /* short version of name */
-            "wtp"                              /* Abbreviated protocol name, should Match IANA
-                                                  < URL:http://www.iana.org/assignments/port-numbers/ >
-                                                */
-            );
+    /* Abbreviated protocol name should Match IANA: https://www.iana.org/assignments/port-numbers/ */
+    proto_wtp = proto_register_protocol("Wireless Transaction Protocol", "WTP", "wtp");
 
     /* Required calls to register the header fields and subtrees used */
     proto_register_field_array(proto_wtp, hf, array_length(hf));

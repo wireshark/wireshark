@@ -4730,11 +4730,7 @@ proto_register_message_http(void)
 		&ett_message_http,
 	};
 
-	proto_message_http = proto_register_protocol(
-			"Media Type: message/http",
-			"message/http",
-			"message-http"
-	);
+	proto_message_http = proto_register_protocol("Media Type: message/http", "message/http", "message-http");
 	proto_register_subtree_array(ett, array_length(ett));
 }
 

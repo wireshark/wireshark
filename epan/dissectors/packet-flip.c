@@ -433,11 +433,7 @@ proto_register_flip(void)
 
     module_t *flip_module;
 
-    proto_flip = proto_register_protocol(
-        "NSN FLIP", /* name */
-        "FLIP",     /* short name */
-        "flip"      /* abbrev */
-        );
+    proto_flip = proto_register_protocol("NSN FLIP", "FLIP", "flip");
     flip_handle = register_dissector("flip", dissect_flip, proto_flip);
 
     proto_register_field_array(proto_flip, hf, array_length(hf));

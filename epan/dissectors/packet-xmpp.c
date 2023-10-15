@@ -1458,11 +1458,7 @@ proto_register_xmpp(void) {
         ett_unknown_ptr[i] = &ett_unknown[i];
     }
 
-    proto_xmpp = proto_register_protocol(
-        "XMPP Protocol", /* name       */
-        "XMPP",          /* short name */
-        "xmpp"           /* abbrev     */
-        );
+    proto_xmpp = proto_register_protocol("XMPP Protocol", "XMPP", "xmpp");
 
     xmpp_module = prefs_register_protocol(proto_xmpp, NULL);
     prefs_register_bool_preference(xmpp_module, "desegment",

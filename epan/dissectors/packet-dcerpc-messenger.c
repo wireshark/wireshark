@@ -114,8 +114,7 @@ proto_register_dcerpc_messenger(void)
 		&ett_dcerpc_messenger
 	};
 
-	proto_dcerpc_messenger = proto_register_protocol(
-		"Microsoft Messenger Service", "Messenger", "messenger");
+	proto_dcerpc_messenger = proto_register_protocol("Microsoft Messenger Service", "Messenger", "messenger");
 
 	proto_register_field_array (proto_dcerpc_messenger, hf, array_length (hf));
 	proto_register_subtree_array(ett, array_length(ett));

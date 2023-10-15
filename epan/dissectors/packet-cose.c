@@ -1244,11 +1244,7 @@ static void cose_reinit(void) {
 
 /// Overall registration of the protocol
 void proto_register_cose(void) {
-    proto_cose = proto_register_protocol(
-        "CBOR Object Signing and Encryption", /* name */
-        proto_name_cose, /* short name */
-        "cose" /* abbrev */
-    );
+    proto_cose = proto_register_protocol("CBOR Object Signing and Encryption", proto_name_cose, "cose");
     register_init_routine(&cose_init);
     register_cleanup_routine(&cose_cleanup);
 

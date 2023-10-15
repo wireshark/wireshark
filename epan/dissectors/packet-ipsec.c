@@ -2533,12 +2533,10 @@ proto_register_ipsec(void)
   proto_ah = proto_register_protocol("Authentication Header", "AH", "ah");
   proto_register_field_array(proto_ah, hf_ah, array_length(hf_ah));
 
-  proto_esp = proto_register_protocol("Encapsulating Security Payload",
-                                      "ESP", "esp");
+  proto_esp = proto_register_protocol("Encapsulating Security Payload", "ESP", "esp");
   proto_register_field_array(proto_esp, hf_esp, array_length(hf_esp));
 
-  proto_ipcomp = proto_register_protocol("IP Payload Compression",
-                                         "IPComp", "ipcomp");
+  proto_ipcomp = proto_register_protocol("IP Payload Compression", "IPComp", "ipcomp");
   proto_register_field_array(proto_ipcomp, hf_ipcomp, array_length(hf_ipcomp));
 
   proto_register_subtree_array(ett, array_length(ett));

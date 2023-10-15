@@ -982,8 +982,7 @@ proto_register_iso7816(void)
 
     expert_module_t* expert_iso7816;
 
-    proto_iso7816 = proto_register_protocol(
-            "ISO/IEC 7816", "ISO 7816", "iso7816");
+    proto_iso7816 = proto_register_protocol("ISO/IEC 7816", "ISO 7816", "iso7816");
     proto_register_field_array(proto_iso7816, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_iso7816 = expert_register_protocol(proto_iso7816);

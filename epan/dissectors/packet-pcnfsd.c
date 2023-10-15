@@ -403,8 +403,7 @@ proto_register_pcnfsd(void)
         &ett_pcnfsd_gids
     };
 
-    proto_pcnfsd = proto_register_protocol("PC NFS",
-                                           "PCNFSD", "pcnfsd");
+    proto_pcnfsd = proto_register_protocol("PC NFS", "PCNFSD", "pcnfsd");
     proto_register_field_array(proto_pcnfsd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

@@ -372,9 +372,7 @@ proto_register_hdcp2(void)
                 (gpointer)(&msg_info[i]));
     }
 
-    proto_hdcp2 = proto_register_protocol(
-            "High bandwidth Digital Content Protection version 2",
-            "HDCP2", "hdcp2");
+    proto_hdcp2 = proto_register_protocol("High bandwidth Digital Content Protection version 2", "HDCP2", "hdcp2");
 
     hdcp2_module = prefs_register_protocol_obsolete(proto_hdcp2);
     prefs_register_obsolete_preference(hdcp2_module, "enable");

@@ -416,8 +416,7 @@ proto_register_vines_frp(void)
 		&ett_vines_frp_flags
 	};
 
-	proto_vines_frp = proto_register_protocol(
-	    "Banyan Vines Fragmentation Protocol", "Vines FRP", "vines_frp");
+	proto_vines_frp = proto_register_protocol("Banyan Vines Fragmentation Protocol", "Vines FRP", "vines_frp");
 	proto_register_field_array(proto_vines_frp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	vines_frp_handle = register_dissector("vines_frp", dissect_vines_frp, proto_vines_frp);
@@ -486,8 +485,7 @@ proto_register_vines_llc(void)
 		&ett_vines_llc,
 	};
 
-	proto_vines_llc = proto_register_protocol(
-	    "Banyan Vines LLC", "Vines LLC", "vines_llc");
+	proto_vines_llc = proto_register_protocol("Banyan Vines LLC", "Vines LLC", "vines_llc");
 	proto_register_field_array(proto_vines_llc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	vines_llc_handle = register_dissector("vines_llc", dissect_vines_llc, proto_vines_llc);
@@ -741,8 +739,7 @@ proto_register_vines_echo(void)
 		&ett_vines_echo,
 	};
 
-	proto_vines_echo = proto_register_protocol(
-	    "Banyan Vines Echo", "Vines Echo", "vines_echo");
+	proto_vines_echo = proto_register_protocol("Banyan Vines Echo", "Vines Echo", "vines_echo");
 	proto_register_field_array(proto_vines_echo, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	vines_echo_handle = register_dissector("vines_echo", dissect_vines_echo,
@@ -1287,8 +1284,7 @@ proto_register_vines_arp(void)
 		&ett_vines_arp,
 	};
 
-	proto_vines_arp = proto_register_protocol(
-	    "Banyan Vines ARP", "Vines ARP", "vines_arp");
+	proto_vines_arp = proto_register_protocol("Banyan Vines ARP", "Vines ARP", "vines_arp");
 	proto_register_field_array(proto_vines_arp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	vines_arp_handle = register_dissector("vines_arp", dissect_vines_arp,
@@ -1881,8 +1877,7 @@ proto_register_vines_rtp(void)
 		&ett_vines_rtp_flags,
 	};
 
-	proto_vines_rtp = proto_register_protocol(
-	    "Banyan Vines RTP", "Vines RTP", "vines_rtp");
+	proto_vines_rtp = proto_register_protocol("Banyan Vines RTP", "Vines RTP", "vines_rtp");
 	proto_register_field_array(proto_vines_rtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	vines_rtp_handle = register_dissector("vines_rtp", dissect_vines_rtp,
@@ -1990,8 +1985,7 @@ proto_register_vines_icp(void)
 		&ett_vines_icp,
 	};
 
-	proto_vines_icp = proto_register_protocol(
-	    "Banyan Vines ICP", "Vines ICP", "vines_icp");
+	proto_vines_icp = proto_register_protocol("Banyan Vines ICP", "Vines ICP", "vines_icp");
 	/* Placeholder for capture statistics */
 	proto_vines = proto_register_protocol("VINES", "VINES", "vines");
 	proto_register_field_array(proto_vines_icp, hf, array_length(hf));

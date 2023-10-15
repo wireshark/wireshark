@@ -211,8 +211,7 @@ static hf_register_info hf[] = {
 		&ett_dcerpc_tapi
 	};
 
-	proto_dcerpc_tapi = proto_register_protocol(
-		"Microsoft Telephony API Service", "TAPI", "tapi");
+	proto_dcerpc_tapi = proto_register_protocol("Microsoft Telephony API Service", "TAPI", "tapi");
 
 	proto_register_field_array(proto_dcerpc_tapi, hf,
 				   array_length(hf));

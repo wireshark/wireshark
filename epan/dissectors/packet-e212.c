@@ -3743,10 +3743,7 @@ proto_register_e212(void)
     /*
      * Register the protocol name and description
      */
-    proto_e212 = proto_register_protocol(
-            "ITU-T E.212 number",
-            "E.212",
-            "e212");
+    proto_e212 = proto_register_protocol("ITU-T E.212 number", "E.212", "e212");
 
     /*
      * Required function calls to register

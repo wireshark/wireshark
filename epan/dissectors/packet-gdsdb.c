@@ -2042,9 +2042,7 @@ proto_register_gdsdb(void)
 			"Invalid length", EXPFILL }},
 	};
 
-	proto_gdsdb = proto_register_protocol(
-		"Firebird SQL Database Remote Protocol",
-		"FB/IB GDS DB", "gdsdb");
+	proto_gdsdb = proto_register_protocol("Firebird SQL Database Remote Protocol", "FB/IB GDS DB", "gdsdb");
 
 	proto_register_field_array(proto_gdsdb, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

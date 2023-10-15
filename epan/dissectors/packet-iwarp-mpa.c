@@ -1066,9 +1066,7 @@ void proto_register_mpa(void)
 	expert_module_t* expert_iwarp_mpa;
 
 	/* register the protocol name and description */
-	proto_iwarp_mpa = proto_register_protocol(
-		"iWARP Marker Protocol data unit Aligned framing",
-		"IWARP_MPA", "iwarp_mpa");
+	proto_iwarp_mpa = proto_register_protocol("iWARP Marker Protocol data unit Aligned framing", "IWARP_MPA", "iwarp_mpa");
 
 	/* required function calls to register the header fields and subtrees */
 	proto_register_field_array(proto_iwarp_mpa, hf, array_length(hf));

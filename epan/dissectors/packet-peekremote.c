@@ -799,8 +799,7 @@ proto_register_peekremote(void)
   };
   expert_module_t *expert_peekremote;
 
-  proto_peekremote = proto_register_protocol(
-    "AiroPeek/OmniPeek encapsulated IEEE 802.11", "PEEKREMOTE", "peekremote");
+  proto_peekremote = proto_register_protocol("AiroPeek/OmniPeek encapsulated IEEE 802.11", "PEEKREMOTE", "peekremote");
   proto_register_field_array(proto_peekremote, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_peekremote = expert_register_protocol(proto_peekremote);
