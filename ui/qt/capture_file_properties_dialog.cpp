@@ -21,6 +21,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"
+#include "capture_comment_dialog.h"
 
 #include <QPushButton>
 #include <QScrollBar>
@@ -39,10 +40,6 @@ CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget &parent, Captur
 
     ui->detailsTextEdit->setAcceptRichText(true);
 
-    // make the details box larger than the comments
-    ui->splitter->setStretchFactor(0, 6);
-    ui->splitter->setStretchFactor(1, 1);
-
     QPushButton *button = ui->buttonBox->button(QDialogButtonBox::Reset);
     if (button) {
         button->setText(tr("Refresh"));
@@ -53,15 +50,13 @@ CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget &parent, Captur
         button->setText(tr("Copy To Clipboard"));
     }
 
-    button = ui->buttonBox->button(QDialogButtonBox::Save);
-    if (button) {
-        button->setText(tr("Save Comments"));
-    }
-
     button = ui->buttonBox->button(QDialogButtonBox::Close);
     if (button) {
         button->setDefault(true);
     }
+
+    ui->buttonBox->addButton(ui->actionEditButton, QDialogButtonBox::ActionRole);
+    connect(ui->actionEditButton, &QPushButton::clicked, this, &CaptureFilePropertiesDialog::addCaptureComment);
 
     setWindowSubtitle(tr("Capture File Properties"));
     QTimer::singleShot(0, this, SLOT(updateWidgets()));
@@ -81,34 +76,16 @@ CaptureFilePropertiesDialog::~CaptureFilePropertiesDialog()
 void CaptureFilePropertiesDialog::updateWidgets()
 {
     QPushButton *refresh_bt = ui->buttonBox->button(QDialogButtonBox::Reset);
-    QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
 
     if (file_closed_ || !cap_file_.isValid()) {
         if (refresh_bt) {
             refresh_bt->setEnabled(false);
         }
-        ui->commentsTextEdit->setReadOnly(true);
-        if (save_bt) {
-            save_bt->setEnabled(false);
-        }
         WiresharkDialog::updateWidgets();
         return;
     }
 
-    bool enable = wtap_dump_can_write(cap_file_.capFile()->linktypes, WTAP_COMMENT_PER_SECTION);
-    save_bt->setEnabled(enable);
-    ui->commentsTextEdit->setEnabled(enable);
-
     fillDetails();
-    // XXX - this just handles the first comment in the first section;
-    // add support for multiple sections with multiple comments.
-    wtap_block_t shb = wtap_file_get_shb(cap_file_.capFile()->provider.wth, 0);
-    char *shb_comment;
-    if (wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, 0,
-                                               &shb_comment) == WTAP_OPTTYPE_SUCCESS)
-        ui->commentsTextEdit->setText(shb_comment);
-    else
-        ui->commentsTextEdit->setText(NULL);
 
     WiresharkDialog::updateWidgets();
 }
@@ -397,6 +374,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
         g_free(iface.descr);
         g_free(iface.name);
+        g_free(iface.cfilter);
     }
     g_array_free(summary.ifaces, TRUE);
 
@@ -611,38 +589,19 @@ void CaptureFilePropertiesDialog::changeEvent(QEvent* event)
     QDialog::changeEvent(event);
 }
 
+void CaptureFilePropertiesDialog::addCaptureComment()
+{
+    CaptureCommentDialog* cc_dialog;
+    cc_dialog = new CaptureCommentDialog(*this, cap_file_);
+    connect(cc_dialog, &CaptureCommentDialog::captureCommentChanged, this, &CaptureFilePropertiesDialog::updateWidgets);
+    //cc_dialog->setWindowModality(Qt::ApplicationModal);
+    cc_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    cc_dialog->show();
+}
+
 void CaptureFilePropertiesDialog::on_buttonBox_helpRequested()
 {
     mainApp->helpTopicAction(HELP_STATS_SUMMARY_DIALOG);
-}
-
-void CaptureFilePropertiesDialog::on_buttonBox_accepted()
-{
-    if (file_closed_ || !cap_file_.capFile()->filename) {
-        return;
-    }
-
-    if (wtap_dump_can_write(cap_file_.capFile()->linktypes, WTAP_COMMENT_PER_SECTION))
-    {
-        gchar *str = qstring_strdup(ui->commentsTextEdit->toPlainText());
-
-        /*
-         * Make sure this would fit in a pcapng option.
-         *
-         * XXX - 65535 is the maximum size for an option in pcapng;
-         * what if another capture file format supports larger
-         * comments?
-         */
-        if (strlen(str) > 65535) {
-            /* It doesn't fit.  Tell the user and give up. */
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "That comment is too large to save in a capture file.");
-            return;
-        }
-        cf_update_section_comment(cap_file_.capFile(), str);
-        emit captureCommentChanged();
-        fillDetails();
-    }
 }
 
 void CaptureFilePropertiesDialog::on_buttonBox_clicked(QAbstractButton *button)

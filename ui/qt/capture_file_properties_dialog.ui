@@ -21,65 +21,38 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <widget class="QSplitter" name="splitter">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="opaqueResize">
-      <bool>false</bool>
-     </property>
-     <property name="childrenCollapsible">
-      <bool>false</bool>
-     </property>
-     <widget class="QWidget" name="">
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QLabel" name="detailsLabel">
-         <property name="text">
-          <string>Details</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="detailsTextEdit">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="">
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="commentsLabel">
-         <property name="text">
-          <string>Capture file comments</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="commentsTextEdit">
-         <property name="sizeIncrement">
-          <size>
-           <width>0</width>
-           <height>10</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+    <widget class="QWidget" name="">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="detailsLabel">
+        <property name="text">
+         <string>Details</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="detailsTextEdit">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Reset|QDialogButtonBox::Save</set>
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Reset</set>
      </property>
     </widget>
    </item>
   </layout>
+  <widget class="QPushButton" name="actionEditButton">
+   <property name="text">
+    <string>Edit Comments</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

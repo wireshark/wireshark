@@ -4429,6 +4429,52 @@ cf_update_section_comment(capture_file *cf, gchar *comment)
 }
 
 /*
+ * Modify the section comments for a given section.
+ */
+void
+cf_update_section_comments(capture_file *cf, unsigned shb_idx, char **comments)
+{
+    wtap_block_t shb_inf;
+    gchar *shb_comment;
+
+    shb_inf = wtap_file_get_shb(cf->provider.wth, shb_idx);
+    if (shb_inf == NULL) {
+        /* Shouldn't happen. XXX: Report it if it does? */
+        return;
+    }
+
+    unsigned n_comments = g_strv_length(comments);
+    unsigned i;
+    char* comment;
+
+    for (i = 0; i < n_comments; i++) {
+        comment = comments[i];
+        if (wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, i, &shb_comment) != WTAP_OPTTYPE_SUCCESS) {
+            /* There's no comment - add one. */
+            wtap_block_add_string_option_owned(shb_inf, OPT_COMMENT, comment);
+            cf->unsaved_changes = TRUE;
+        } else {
+            /* See if the comment has changed or not */
+            if (strcmp(shb_comment, comment) != 0) {
+                /* The comment has changed, let's update it */
+                wtap_block_set_nth_string_option_value(shb_inf, OPT_COMMENT, 0, comment, strlen(comment));
+                cf->unsaved_changes = TRUE;
+            }
+            g_free(comment);
+        }
+    }
+    /* We either transferred ownership of the comments or freed them
+     * above, so free the array of strings but not the strings themselves. */
+    g_free(comments);
+
+    /* If there are extra old comments, remove them. Start at the end. */
+    for (i = wtap_block_count_option(shb_inf, OPT_COMMENT); i > n_comments; i--) {
+        wtap_block_remove_nth_option_instance(shb_inf, OPT_COMMENT, i - 1);
+        cf->unsaved_changes = TRUE;
+    }
+}
+
+/*
  * Get the packet block for a packet (record).
  * If the block has been edited, it returns the result of the edit,
  * otherwise it returns the block from the file.

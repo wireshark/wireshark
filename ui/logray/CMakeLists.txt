@@ -137,6 +137,7 @@ set(WIRESHARK_QT_HEADERS
 	../qt/accordion_frame.h
 	../qt/address_editor_frame.h
 	../qt/byte_view_tab.h
+	../qt/capture_comment_dialog.h
 	../qt/capture_file_dialog.h
 	../qt/capture_file_properties_dialog.h
 	../qt/capture_file.h
@@ -361,6 +362,7 @@ set(WIRESHARK_QT_SRC
 	../qt/accordion_frame.cpp
 	../qt/address_editor_frame.cpp
 	../qt/byte_view_tab.cpp
+	../qt/capture_comment_dialog.cpp
 	../qt/capture_file_dialog.cpp
 	../qt/capture_file_properties_dialog.cpp
 	../qt/capture_file.cpp
@@ -487,6 +489,7 @@ set (LOGRAY_QT_FILES ${WIRESHARK_QT_FILES})
 set(WIRESHARK_QT_UI
 	../qt/about_dialog.ui
 	../qt/address_editor_frame.ui
+	../qt/capture_comment_dialog.ui
 	../qt/capture_file_properties_dialog.ui
 	../qt/capture_info_dialog.ui
 	../qt/capture_options_dialog.ui

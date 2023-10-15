@@ -689,6 +689,16 @@ cf_merge_files_to_tempfile(gpointer pd_window, const char *temp_dir, char **out_
  */
 void cf_update_section_comment(capture_file *cf, gchar *comment);
 
+/**
+ * Update(replace) the comments on a capture from the SHB data block
+ *
+ * @param cf the capture file
+ * @param shb_idx the index of the SHB (0-indexed)
+ * @param comments a NULL-terminated string array of comments. The function
+ * takes ownership of the string array and frees it and the contents.
+ */
+void cf_update_section_comments(capture_file *cf, unsigned shb_idx, char **comments);
+
 /*
  * Get the packet block for a packet (record).
  * If the block has been edited, it returns the result of the edit,

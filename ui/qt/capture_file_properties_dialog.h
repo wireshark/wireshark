@@ -62,8 +62,8 @@ private:
 
 private slots:
     void updateWidgets();
+    void addCaptureComment();
     void on_buttonBox_helpRequested();
-    void on_buttonBox_accepted();
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_rejected();
 };
