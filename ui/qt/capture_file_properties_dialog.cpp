@@ -545,22 +545,36 @@ void CaptureFilePropertiesDialog::fillDetails()
     cursor.insertHtml(summary);
     cursor.insertBlock(); // Work around rendering oddity.
 
-    // XXX - this just shows the first comment in the first section;
-    // add support for multiple sections with multiple comments.
-    wtap_block_t shb = wtap_file_get_shb(cap_file_.capFile()->provider.wth, 0);
+    unsigned num_shbs = wtap_file_get_num_shbs(cap_file_.capFile()->provider.wth);
+    wtap_block_t shb;
     char *shb_comment;
-    if (wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, 0,
-                                               &shb_comment) == WTAP_OPTTYPE_SUCCESS) {
-        QString section_comment = shb_comment;
-        QString section_comment_html;
-
-        if (!section_comment.isEmpty()) {
-            QString comment_escaped = html_escape(section_comment).replace('\n', "<br>");
-            section_comment_html += section_tmpl_.arg(QString(tr("Section Comment")));
-            section_comment_html += para_tmpl_.arg(comment_escaped);
-
+    for (unsigned i = 0; i < num_shbs; i++) {
+        shb = wtap_file_get_shb(cap_file_.capFile()->provider.wth, i);
+        unsigned num_comments = wtap_block_count_option(shb, OPT_COMMENT);
+        if (num_comments > 0) {
             cursor.insertBlock();
-            cursor.insertHtml(section_comment_html);
+            if (num_shbs > 1) {
+                cursor.insertHtml(section_tmpl_.arg(QString(tr("Section %1 Comments").arg(i+1))));
+            } else {
+                cursor.insertHtml(section_tmpl_.arg(QString(tr("Section Comments"))));
+            }
+            cursor.insertBlock();
+        }
+        for (unsigned j = 0; j < num_comments; j++) {
+            if (wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, j,
+                                                       &shb_comment) == WTAP_OPTTYPE_SUCCESS) {
+                QString section_comment = shb_comment;
+                QString section_comment_html;
+                if (num_comments > 1) {
+                    section_comment_html += tr("Comment %1: ").arg(j+1);
+                }
+
+                QString comment_escaped = html_escape(section_comment).replace('\n', "<br>");
+                section_comment_html += para_tmpl_.arg(comment_escaped);
+
+                cursor.insertBlock();
+                cursor.insertHtml(section_comment_html);
+            }
         }
     }
 
