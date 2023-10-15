@@ -264,13 +264,14 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         // If we have more than one section, add headers for each section.
         if (wtap_file_get_num_shbs(cap_file_.capFile()->provider.wth) > 1)
             out << section_tmpl_.arg(QString(tr("Section %1"))
-                                     .arg(section_number));
+                                     .arg(section_number + 1));
+
+        wtap_block_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->provider.wth, section_number);
 
         // Capture Section
         out << section_tmpl_.arg(tr("Capture"));
         out << table_begin;
 
-        wtap_block_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->provider.wth, section_number);
         char *str;
 
         if (shb_inf != nullptr) {
@@ -367,6 +368,25 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         }
         if (summary.ifaces->len > 0) {
             out << table_end;
+        }
+
+        unsigned num_comments = wtap_block_count_option(shb_inf, OPT_COMMENT);
+        if (num_comments > 0) {
+            out << section_tmpl_.arg(tr("Comments"));
+            char *shb_comment;
+            for (unsigned i = 0; i < num_comments; i++) {
+                if (wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, i,
+                                                           &shb_comment) == WTAP_OPTTYPE_SUCCESS) {
+                    QString section_comment = shb_comment;
+                    QString section_comment_html;
+                    if (num_comments > 1) {
+                        out << tr("Comment %1: ").arg(i+1);
+                    }
+
+                    QString comment_escaped = html_escape(section_comment).replace('\n', "<br>");
+                    out << para_tmpl_.arg(comment_escaped);
+                }
+            }
         }
     }
 
@@ -544,39 +564,6 @@ void CaptureFilePropertiesDialog::fillDetails()
     QString summary = summaryToHtml();
     cursor.insertHtml(summary);
     cursor.insertBlock(); // Work around rendering oddity.
-
-    unsigned num_shbs = wtap_file_get_num_shbs(cap_file_.capFile()->provider.wth);
-    wtap_block_t shb;
-    char *shb_comment;
-    for (unsigned i = 0; i < num_shbs; i++) {
-        shb = wtap_file_get_shb(cap_file_.capFile()->provider.wth, i);
-        unsigned num_comments = wtap_block_count_option(shb, OPT_COMMENT);
-        if (num_comments > 0) {
-            cursor.insertBlock();
-            if (num_shbs > 1) {
-                cursor.insertHtml(section_tmpl_.arg(QString(tr("Section %1 Comments").arg(i+1))));
-            } else {
-                cursor.insertHtml(section_tmpl_.arg(QString(tr("Section Comments"))));
-            }
-            cursor.insertBlock();
-        }
-        for (unsigned j = 0; j < num_comments; j++) {
-            if (wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, j,
-                                                       &shb_comment) == WTAP_OPTTYPE_SUCCESS) {
-                QString section_comment = shb_comment;
-                QString section_comment_html;
-                if (num_comments > 1) {
-                    section_comment_html += tr("Comment %1: ").arg(j+1);
-                }
-
-                QString comment_escaped = html_escape(section_comment).replace('\n', "<br>");
-                section_comment_html += para_tmpl_.arg(comment_escaped);
-
-                cursor.insertBlock();
-                cursor.insertHtml(section_comment_html);
-            }
-        }
-    }
 
     if (cap_file_.capFile()->packet_comment_count > 0) {
         cursor.insertBlock();
