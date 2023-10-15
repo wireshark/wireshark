@@ -82,6 +82,7 @@ ADDITIONAL_LIST="
 	gnutls-dev
 	snappy-dev
 	nghttp2-dev
+	nghttp3-dev
 	lua5.2-dev
 	libnl3-dev
 	sbc-dev

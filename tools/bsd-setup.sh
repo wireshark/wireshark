@@ -148,9 +148,17 @@ add_package ADDITIONAL_LIST liblz4 ||
 add_package ADDITIONAL_LIST lz4 ||
 echo "lz4 is unavailable"
 
+# libnghttp2: FreeBSD
 # nghttp2: NetBSD
+add_package ADDITIONAL_LIST libnghttp2 ||
 add_package ADDITIONAL_LIST nghttp2 ||
 echo "nghttp2 is unavailable"
+
+# libnghttp3: FreeBSD
+# nghttp3: NetBSD
+add_package ADDITIONAL_LIST libnghttp3 ||
+add_package ADDITIONAL_LIST nghttp3 ||
+echo "nghttp3 is unavailable"
 
 # spandsp: NetBSD
 add_package ADDITIONAL_LIST spandsp ||
