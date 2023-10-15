@@ -194,8 +194,7 @@ proto_register_dcerpc_pnp(void)
 	};
 
 
-	proto_dcerpc_pnp = proto_register_protocol(
-		"Microsoft Plug and Play service", "PNP", "pnp");
+	proto_dcerpc_pnp = proto_register_protocol("Microsoft Plug and Play service", "PNP", "pnp");
 
 	proto_register_field_array(proto_dcerpc_pnp, hf, array_length(hf));
 

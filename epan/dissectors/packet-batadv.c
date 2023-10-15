@@ -5501,11 +5501,7 @@ void proto_register_batadv(void)
 		{ &ei_batadv_tvlv_tt_vlan_empty, { "batadv.tvlv_tt_vlan_empty", PI_SEQUENCE, PI_WARN, "BATADV Warn: empty VLAN", EXPFILL }},
 	};
 
-	proto_batadv_plugin = proto_register_protocol(
-				      "B.A.T.M.A.N. Advanced Protocol",
-				      "BATADV",          /* short name */
-				      "batadv"           /* abbrev */
-			      );
+	proto_batadv_plugin = proto_register_protocol("B.A.T.M.A.N. Advanced Protocol", "BATADV", "batadv");
 
 	batman_handle = register_dissector("batadv",dissect_batadv_plugin,proto_batadv_plugin);
 

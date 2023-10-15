@@ -242,8 +242,7 @@ proto_register_hdmi(void)
         &ett_hdmi_edid
     };
 
-    proto_hdmi = proto_register_protocol(
-            "High-Definition Multimedia Interface", "HDMI", "hdmi");
+    proto_hdmi = proto_register_protocol("High-Definition Multimedia Interface", "HDMI", "hdmi");
     hdmi_handle = register_dissector("hdmi",  dissect_hdmi, proto_hdmi );
 
     proto_register_field_array(proto_hdmi, hf, array_length(hf));

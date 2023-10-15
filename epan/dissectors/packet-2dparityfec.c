@@ -231,10 +231,7 @@ void proto_register_2dparityfec(void)
 
    module_t *module_2dparityfec;
 
-   proto_2dparityfec = proto_register_protocol(
-      "Pro-MPEG Code of Practice #3 release 2 FEC Protocol",   /* name */
-      "2dparityfec",            /* short name */
-      "2dparityfec");           /* abbrev */
+   proto_2dparityfec = proto_register_protocol("Pro-MPEG Code of Practice #3 release 2 FEC Protocol", "2dparityfec", "2dparityfec");
 
    proto_register_field_array(proto_2dparityfec, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));

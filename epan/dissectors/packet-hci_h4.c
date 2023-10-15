@@ -122,8 +122,7 @@ proto_register_hci_h4(void)
         &ett_hci_h4,
     };
 
-    proto_hci_h4 = proto_register_protocol("Bluetooth HCI H4",
-            "HCI_H4", "hci_h4");
+    proto_hci_h4 = proto_register_protocol("Bluetooth HCI H4", "HCI_H4", "hci_h4");
 
     hci_h4_handle = register_dissector("hci_h4", dissect_hci_h4, proto_hci_h4);
 

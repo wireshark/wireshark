@@ -71,8 +71,7 @@ proto_register_dcerpc_frsapi(void)
 	};
 
 
-	proto_dcerpc_frsapi = proto_register_protocol(
-		"Microsoft File Replication Service API", "FRSAPI", "frsapi");
+	proto_dcerpc_frsapi = proto_register_protocol("Microsoft File Replication Service API", "FRSAPI", "frsapi");
 
 	proto_register_field_array(proto_dcerpc_frsapi, hf, array_length(hf));
 

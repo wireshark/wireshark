@@ -329,10 +329,7 @@ proto_register_nwp(void)
 
 	expert_module_t *expert_nwp;
 
-	proto_nwp = proto_register_protocol(
-		"Neighborhood Watch Protocol",
-		"NWP",
-	        "nwp");
+	proto_nwp = proto_register_protocol("Neighborhood Watch Protocol", "NWP", "nwp");
 
 	nwp_handle = register_dissector("nwp", dissect_nwp, proto_nwp);
 	proto_register_field_array(proto_nwp, hf, array_length(hf));

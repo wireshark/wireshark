@@ -354,12 +354,7 @@ proto_register_msrcp(void)
         }
     };
 
-    proto_msrcp = proto_register_protocol(
-        "MSRCP Protocol",
-        "MSRCP",
-        "msrcp"
-    );
-
+    proto_msrcp = proto_register_protocol("MSRCP Protocol", "MSRCP", "msrcp");
 
     proto_register_field_array(proto_msrcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

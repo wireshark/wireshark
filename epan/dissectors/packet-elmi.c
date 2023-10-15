@@ -509,8 +509,7 @@ proto_register_elmi(void)
     };
 
 
-    proto_elmi = proto_register_protocol(
-            "Ethernet Local Management Interface", "E-LMI", "elmi");
+    proto_elmi = proto_register_protocol("Ethernet Local Management Interface", "E-LMI", "elmi");
 
     proto_register_field_array(proto_elmi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

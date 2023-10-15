@@ -129,9 +129,7 @@ void proto_register_opa_fe(void)
         &ett_fe
     };
 
-    proto_opa_fe = proto_register_protocol(
-        "Intel Omni-Path FE Header - Omni-Path Fabric Executive Header",
-        "OPA FE", "opa.fe");
+    proto_opa_fe = proto_register_protocol("Intel Omni-Path FE Header - Omni-Path Fabric Executive Header", "OPA FE", "opa.fe");
     opa_fe_handle = register_dissector("opa.fe", dissect_opa_fe, proto_opa_fe);
 
     proto_register_field_array(proto_opa_fe, hf, array_length(hf));

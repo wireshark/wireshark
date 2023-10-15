@@ -419,8 +419,7 @@ proto_register_krb4(void)
 		&ett_krb4_auth_msg_type,
 	};
 
-	proto_krb4 = proto_register_protocol("Kerberos v4",
-					     "KRB4", "krb4");
+	proto_krb4 = proto_register_protocol("Kerberos v4", "KRB4", "krb4");
 	krb4_handle = register_dissector("krb4", dissect_krb4, proto_krb4);
 	proto_register_field_array(proto_krb4, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

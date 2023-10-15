@@ -584,7 +584,7 @@ budb_dissect_dumpEntry_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 static int
 budb_dissect_time_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
 {
-    
+
     offset=dissect_ndr_time_t(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
 
     return offset;
@@ -4836,9 +4836,7 @@ proto_register_budb(void)
 
         };
 
-        proto_budb = proto_register_protocol(
-                "DCE/DFS BUDB", 
-		"BUDB", "budb");
+        proto_budb = proto_register_protocol("DCE/DFS BUDB", "BUDB", "budb");
 	proto_register_field_array(proto_budb, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 }

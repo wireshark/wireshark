@@ -1780,9 +1780,7 @@ proto_register_canopen(void)
         &ett_canopen_em_er
     };
 
-    proto_canopen = proto_register_protocol("CANopen",
-                                            "CANOPEN",
-                                            "canopen");
+    proto_canopen = proto_register_protocol("CANopen", "CANOPEN", "canopen");
 
     proto_register_field_array(proto_canopen, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -363,8 +363,7 @@ proto_register_asf(void)
 
 	expert_module_t* expert_asf;
 
-	proto_asf = proto_register_protocol(
-		"Alert Standard Forum", "ASF", "asf");
+	proto_asf = proto_register_protocol("Alert Standard Forum", "ASF", "asf");
 
 	proto_register_field_array(proto_asf, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

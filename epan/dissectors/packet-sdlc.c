@@ -180,8 +180,7 @@ proto_register_sdlc(void)
 		&ett_sdlc_control,
 	};
 
-	proto_sdlc = proto_register_protocol(
-		"Synchronous Data Link Control (SDLC)", "SDLC", "sdlc");
+	proto_sdlc = proto_register_protocol("Synchronous Data Link Control (SDLC)", "SDLC", "sdlc");
 	proto_register_field_array(proto_sdlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

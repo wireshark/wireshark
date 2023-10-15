@@ -4019,8 +4019,7 @@ proto_register_f5ethtrailer(void)
                 "This version of Wireshark does not understand how to decode this value", EXPFILL } },
     };
 
-    proto_f5ethtrailer = proto_register_protocol(
-        "F5 Ethernet Trailer Protocol", "F5 Ethernet trailer", "f5ethtrailer");
+    proto_f5ethtrailer = proto_register_protocol("F5 Ethernet Trailer Protocol", "F5 Ethernet trailer", "f5ethtrailer");
 
     expert_f5ethtrailer = expert_register_protocol(proto_f5ethtrailer);
     expert_register_field_array(expert_f5ethtrailer, ei, array_length(ei));

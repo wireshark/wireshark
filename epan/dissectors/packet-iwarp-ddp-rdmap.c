@@ -1193,10 +1193,7 @@ proto_register_iwarp_ddp_rdmap(void)
 	module_t *iwarp_dep_rdmap_module;
 
 	/* register the protocol name and description */
-	proto_iwarp_ddp_rdmap = proto_register_protocol(
-		"iWARP Direct Data Placement and Remote Direct Memory Access Protocol",
-		"IWARP_DDP_RDMAP",
-		"iwarp_ddp_rdmap");
+	proto_iwarp_ddp_rdmap = proto_register_protocol("iWARP Direct Data Placement and Remote Direct Memory Access Protocol", "IWARP_DDP_RDMAP", "iwarp_ddp_rdmap");
 
 	/* required function calls to register the header fields and subtrees */
 	proto_register_field_array(proto_iwarp_ddp_rdmap, hf, array_length(hf));

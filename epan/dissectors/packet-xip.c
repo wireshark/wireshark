@@ -666,10 +666,7 @@ proto_register_xip(void)
 
 	expert_module_t* expert_xip;
 
-	proto_xip = proto_register_protocol(
-		"eXpressive Internet Protocol",
-		"XIP",
-		"xip");
+	proto_xip = proto_register_protocol("eXpressive Internet Protocol", "XIP", "xip");
 
 	xip_handle = register_dissector("xip", dissect_xip, proto_xip);
 	proto_register_field_array(proto_xip, hf, array_length(hf));

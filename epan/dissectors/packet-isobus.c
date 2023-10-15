@@ -835,9 +835,7 @@ proto_register_isobus(void)
     register_init_routine(&isobus_init);
     register_cleanup_routine(&isobus_cleanup);
 
-    proto_isobus = proto_register_protocol("ISObus",
-                                           "ISOBUS",
-                                           "isobus");
+    proto_isobus = proto_register_protocol("ISObus", "ISOBUS", "isobus");
 
     proto_register_field_array(proto_isobus, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

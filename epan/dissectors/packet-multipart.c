@@ -1060,10 +1060,7 @@ proto_register_multipart(void)
     /*
      * Register the protocol name and description
      */
-    proto_multipart = proto_register_protocol(
-        "MIME Multipart Media Encapsulation",
-        "MIME multipart",
-        "mime_multipart");
+    proto_multipart = proto_register_protocol("MIME Multipart Media Encapsulation", "MIME multipart", "mime_multipart");
 
     /*
      * Required function calls to register

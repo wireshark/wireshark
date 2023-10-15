@@ -1883,8 +1883,7 @@ void proto_register_waveagent(void)
         &ett_relaymessage,
     };
 
-    proto_waveagent = proto_register_protocol(
-        "WaveAgent", "waveagent", "waveagent");
+    proto_waveagent = proto_register_protocol("WaveAgent", "waveagent", "waveagent");
 
     proto_register_field_array(proto_waveagent, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

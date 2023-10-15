@@ -10712,8 +10712,7 @@ proto_register_openflow_v6(void)
     expert_module_t *expert_openflow_v6;
 
     /* Register the protocol name and description */
-    proto_openflow_v6 = proto_register_protocol("OpenFlow 1.5",
-            "openflow_v6", "openflow_v6");
+    proto_openflow_v6 = proto_register_protocol("OpenFlow 1.5", "openflow_v6", "openflow_v6");
 
     register_dissector("openflow_v6", dissect_openflow_v6, proto_openflow_v6);
 

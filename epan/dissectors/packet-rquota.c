@@ -284,8 +284,7 @@ proto_register_rquota(void)
 		&ett_rquota_rquota,
 	};
 
-	proto_rquota = proto_register_protocol("Remote Quota",
-	    "RQUOTA", "rquota");
+	proto_rquota = proto_register_protocol("Remote Quota", "RQUOTA", "rquota");
 
 	proto_register_field_array(proto_rquota, hf, array_length(hf));
 

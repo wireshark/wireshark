@@ -981,8 +981,7 @@ proto_register_websocket(void)
   module_t *websocket_module;
   expert_module_t* expert_websocket;
 
-  proto_websocket = proto_register_protocol("WebSocket",
-      "WebSocket", "websocket");
+  proto_websocket = proto_register_protocol("WebSocket", "WebSocket", "websocket");
 
   /*
    * Heuristic dissectors SHOULD register themselves in

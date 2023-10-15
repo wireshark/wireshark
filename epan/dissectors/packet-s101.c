@@ -624,8 +624,7 @@ proto_register_S101(void)
     };
 
     /* Register the protocol name and description */
-    proto_S101 = proto_register_protocol("S101",
-            "S101", "s101");
+    proto_S101 = proto_register_protocol("S101", "S101", "s101");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_S101, hf, array_length(hf));

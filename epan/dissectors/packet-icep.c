@@ -1272,8 +1272,7 @@ void proto_register_icep(void)
     /* Register the protocol name and description */
 
     proto_icep =
-        proto_register_protocol("Internet Communications Engine Protocol",
-                    "ICEP", "icep");
+        proto_register_protocol("Internet Communications Engine Protocol", "ICEP", "icep");
 
     /* Required function calls to register the header fields and subtrees used */
 

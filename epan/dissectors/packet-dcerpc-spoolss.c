@@ -8885,8 +8885,7 @@ proto_register_dcerpc_spoolss(void)
 
 	expert_module_t* expert_dcerpc_spoolss;
 
-	proto_dcerpc_spoolss = proto_register_protocol(
-		"Microsoft Spool Subsystem", "SPOOLSS", "spoolss");
+	proto_dcerpc_spoolss = proto_register_protocol("Microsoft Spool Subsystem", "SPOOLSS", "spoolss");
 
 	proto_register_field_array(proto_dcerpc_spoolss, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

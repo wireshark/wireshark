@@ -726,10 +726,7 @@ proto_register_dsr(void)
     };
 
     /* Register the protocol name and description */
-    proto_dsr = proto_register_protocol(
-                        "Dynamic Source Routing",
-                        "DSR",
-                        "dsr");
+    proto_dsr = proto_register_protocol("Dynamic Source Routing", "DSR", "dsr");
     dsr_handle = register_dissector("dsr", dissect_dsr, proto_dsr);
 
     /* Required function calls to register the header fields and subtrees */

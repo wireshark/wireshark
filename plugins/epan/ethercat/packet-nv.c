@@ -215,8 +215,7 @@ void proto_register_nv(void)
          &ett_nv_varheader
       };
 
-   proto_nv = proto_register_protocol("TwinCAT NV",
-                                      "TC-NV","tc_nv");
+   proto_nv = proto_register_protocol("TwinCAT NV", "TC-NV","tc_nv");
    proto_register_field_array(proto_nv,hf,array_length(hf));
    proto_register_subtree_array(ett,array_length(ett));
    nv_handle = register_dissector("tc_nv", dissect_nv, proto_nv);

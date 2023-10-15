@@ -7363,14 +7363,8 @@ proto_register_sir(void)
 
 
     /* Register the dissector */
-    proto_sir = proto_register_protocol(
-        "WAP Session Initiation Request",   /* protocol name for use by wireshark */
-        "WAP SIR",                          /* short version of name */
-        "wap-sir"                           /* Abbreviated protocol name,
-                                               should Match IANA:
-                                               < URL:http://www.iana.org/assignments/port-numbers/ >
-                                            */
-        );
+    /* Abbreviated protocol name should Match IANA: https://www.iana.org/assignments/port-numbers/ */
+    proto_sir = proto_register_protocol("WAP Session Initiation Request", "WAP SIR", "wap-sir");
 
     /* Register header fields and protocol subtrees */
     proto_register_field_array(proto_sir, hf, array_length(hf));

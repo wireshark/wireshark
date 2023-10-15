@@ -2277,11 +2277,7 @@ static gchar * bp_build_filter(packet_info *pinfo, void *user_data _U_) {
 
 /// Overall registration of the protocol
 void proto_register_bpv7(void) {
-    proto_bp = proto_register_protocol(
-        "DTN Bundle Protocol Version 7", /* name */
-        "BPv7", /* short name */
-        "bpv7" /* abbrev */
-    );
+    proto_bp = proto_register_protocol("DTN Bundle Protocol Version 7", "BPv7", "bpv7");
     register_init_routine(&bp_init);
     register_cleanup_routine(&bp_cleanup);
 
@@ -2362,11 +2358,7 @@ void proto_register_bpv7(void) {
     register_conversation_table(proto_bp, TRUE, bp_conv_packet, bp_endp_packet);
     register_conversation_filter("bpv7", "BPv7", bp_filter_valid, bp_build_filter, NULL);
 
-    proto_bp_admin = proto_register_protocol(
-        "BPv7 Administrative Record", /* name */
-        "BPv7 Admin", /* short name */
-        "bpv7.admin_rec" /* abbrev */
-    );
+    proto_bp_admin = proto_register_protocol("BPv7 Administrative Record", "BPv7 Admin", "bpv7.admin_rec");
     handle_admin = register_dissector("bpv7.admin_rec", dissect_payload_admin, proto_bp_admin);
     admin_dissectors = register_custom_dissector_table("bpv7.admin_record_type", "BPv7 Administrative Record Type", proto_bp_admin, g_int64_hash, g_int64_equal, g_free);
     proto_admintype = proto_register_protocol_in_name_only("BPv7 Administrative Record Type", "Admin Type", "bpv7.admin_record_type", proto_bp, FT_PROTOCOL);

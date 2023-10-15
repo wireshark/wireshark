@@ -200,8 +200,7 @@ proto_register_laplink(void)
 	module_t *laplink_module;
 
 /* Register the protocol name and description */
-	proto_laplink = proto_register_protocol("Laplink",
-	    "Laplink", "laplink");
+	proto_laplink = proto_register_protocol("Laplink", "Laplink", "laplink");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_laplink, hf, array_length(hf));

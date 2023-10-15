@@ -134,10 +134,7 @@ proto_register_text_lines(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	proto_text_lines = proto_register_protocol(
-			"Line-based text data",	/* Long name */
-			"Line-based text data",	/* Short name */
-			"data-text-lines");		/* Filter name */
+	proto_text_lines = proto_register_protocol("Line-based text data", "Line-based text data", "data-text-lines");
 	register_dissector("data-text-lines", dissect_text_lines, proto_text_lines);
 }
 

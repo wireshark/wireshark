@@ -1169,10 +1169,7 @@ proto_register_rtps_virtual_transport(void)
     };
 
     /* Register the protocol name and description */
-    proto_rtpsvt = proto_register_protocol(
-            "Real-Time Publish-Subscribe Virtual Transport",
-            "RTPS-VT",
-            "rtpsvt");
+    proto_rtpsvt = proto_register_protocol("Real-Time Publish-Subscribe Virtual Transport", "RTPS-VT", "rtpsvt");
 
     /* Required function calls to register the header fields and subtrees */
     rtpsvt_hf = proto_registrar_get_nth(proto_rtpsvt);

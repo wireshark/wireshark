@@ -818,10 +818,7 @@ void proto_register_twamp(void)
 
 
     /* Register the protocol */
-    proto_twamp_test = proto_register_protocol(
-        "TwoWay Active Measurement Test Protocol",
-        "TWAMP-Test",
-        "twamp.test");
+    proto_twamp_test = proto_register_protocol("TwoWay Active Measurement Test Protocol", "TWAMP-Test", "twamp.test");
 
     /* Register the field array */
     proto_register_field_array (proto_twamp_test, hf_twamp_test,
@@ -835,10 +832,7 @@ void proto_register_twamp(void)
     twamp_test_handle = register_dissector("twamp.test", dissect_twamp_test, proto_twamp_test);
 
     /* Register the protocol */
-    proto_twamp_control = proto_register_protocol(
-        "TwoWay Active Measurement Control Protocol",
-        "TWAMP-Control",
-        "twamp.control");
+    proto_twamp_control = proto_register_protocol("TwoWay Active Measurement Control Protocol", "TWAMP-Control", "twamp.control");
 
     /* Register the field array */
     proto_register_field_array (proto_twamp_control, hf_twamp_control,
@@ -852,10 +846,7 @@ void proto_register_twamp(void)
     twamp_control_handle = register_dissector("twamp.control", dissect_twamp_server_greeting, proto_twamp_control);
 
     /* Register the protocol */
-    proto_owamp_test = proto_register_protocol(
-        "One-way Active Measurement Protocol",
-        "OWAMP-Test",
-        "owamp.test");
+    proto_owamp_test = proto_register_protocol("One-way Active Measurement Protocol", "OWAMP-Test", "owamp.test");
 
     /* Register the dissector handle */
     owamp_test_handle = register_dissector("owamp.test", dissect_owamp_test, proto_owamp_test);

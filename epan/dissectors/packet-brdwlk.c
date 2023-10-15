@@ -378,8 +378,7 @@ proto_register_brdwlk(void)
     };
 
 /* Register the protocol name and description */
-    proto_brdwlk = proto_register_protocol("Boardwalk",
-                                           "Boardwalk", "brdwlk");
+    proto_brdwlk = proto_register_protocol("Boardwalk", "Boardwalk", "brdwlk");
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_brdwlk, hf, array_length(hf));

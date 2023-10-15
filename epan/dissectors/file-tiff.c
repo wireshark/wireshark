@@ -1139,11 +1139,7 @@ proto_register_tiff(void)
 
     };
 
-    proto_tiff = proto_register_protocol(
-        "Tagged Image File Format",
-        "TIFF image",
-        "tiff"
-        );
+    proto_tiff = proto_register_protocol("Tagged Image File Format", "TIFF image", "tiff");
 
     register_dissector("tiff", dissect_tiff, proto_tiff);
     proto_register_field_array(proto_tiff, hf, array_length(hf));

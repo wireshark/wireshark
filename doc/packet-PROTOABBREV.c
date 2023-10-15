@@ -244,8 +244,7 @@ proto_register_PROTOABBREV(void)
     };
 
     /* Register the protocol name and description */
-    proto_PROTOABBREV = proto_register_protocol("PROTONAME",
-            "PROTOSHORTNAME", "PROTOFILTERNAME");
+    proto_PROTOABBREV = proto_register_protocol("PROTONAME", "PROTOSHORTNAME", "PROTOFILTERNAME");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));

@@ -357,7 +357,7 @@ butc_dissect_tc_dumpDesc_partition(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 butc_dissect_time_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
 {
-    
+
     offset=dissect_ndr_time_t(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
 
     return offset;
@@ -2884,9 +2884,7 @@ proto_register_butc(void)
 
         };
 
-        proto_butc = proto_register_protocol(
-                "DCE/RPC BUTC", 
-		"BUTC", "butc");
+        proto_butc = proto_register_protocol("DCE/RPC BUTC", "BUTC", "butc");
 	proto_register_field_array(proto_butc, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 }

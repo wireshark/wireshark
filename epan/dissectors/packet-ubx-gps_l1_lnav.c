@@ -380,10 +380,7 @@ void proto_register_ubx_gps_l1(void) {
         &ett_ubx_gps_l1_sf1_w10,
     };
 
-    proto_ubx_gps_l1 = proto_register_protocol(
-            "GPS L1 Navigation Message",
-            "GPS L1",
-            "gps_l1");
+    proto_ubx_gps_l1 = proto_register_protocol("GPS L1 Navigation Message", "GPS L1", "gps_l1");
 
     register_dissector("ubx_gps_l1", dissect_ubx_gps_l1, proto_ubx_gps_l1);
 

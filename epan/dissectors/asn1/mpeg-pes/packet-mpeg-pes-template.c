@@ -734,13 +734,11 @@ proto_register_mpeg_pes(void)
 		&ett_mpeg_pes_trick_mode
 	};
 
-	proto_mpeg = proto_register_protocol(
-			"Moving Picture Experts Group", "MPEG", "mpeg");
+	proto_mpeg = proto_register_protocol("Moving Picture Experts Group", "MPEG", "mpeg");
 	mpeg_handle = register_dissector("mpeg", dissect_mpeg, proto_mpeg);
 	heur_subdissector_list = register_heur_dissector_list("mpeg", proto_mpeg);
 
-	proto_mpeg_pes = proto_register_protocol(
-			"Packetized Elementary Stream", "MPEG PES", "mpeg-pes");
+	proto_mpeg_pes = proto_register_protocol("Packetized Elementary Stream", "MPEG PES", "mpeg-pes");
 	proto_register_field_array(proto_mpeg_pes, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("mpeg-pes", dissect_mpeg_pes, proto_mpeg_pes);

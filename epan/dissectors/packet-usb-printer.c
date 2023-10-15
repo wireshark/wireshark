@@ -161,8 +161,7 @@ void proto_register_usb_printer(void)
         &ett_usb_printer
     };
 
-    proto_usb_printer = proto_register_protocol(
-            "USB Printer", "USBPRINTER", "usbprinter");
+    proto_usb_printer = proto_register_protocol("USB Printer", "USBPRINTER", "usbprinter");
     proto_register_field_array(proto_usb_printer, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     usb_printer_ctl_handle = register_dissector("usbprinter",  dissect_usb_printer_ctl, proto_usb_printer);

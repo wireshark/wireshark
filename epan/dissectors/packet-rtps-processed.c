@@ -420,10 +420,7 @@ proto_register_rtps_processed(void)
     };
 
   /* Register the protocol name and description */
-    rtpsproc_tree = proto_register_protocol(
-            "Real-Time Publish-Subscribe Wire Protocol (processed)",
-            "RTPS-PROC",
-            "rtpsproc");
+    rtpsproc_tree = proto_register_protocol("Real-Time Publish-Subscribe Wire Protocol (processed)", "RTPS-PROC", "rtpsproc");
 
     /* Required function calls to register the header fields and subtrees */
     rtpsproc_hf = proto_registrar_get_nth(rtpsproc_tree);

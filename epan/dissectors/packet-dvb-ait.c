@@ -551,8 +551,7 @@ proto_register_dvb_ait(void)
                 FT_UINT8, BASE_HEX, VALS(app_ctrl_code), 0, NULL, HFILL } }
     };
 
-    proto_dvb_ait = proto_register_protocol(
-            "DVB Application Information Table", "DVB AIT", "dvb_ait");
+    proto_dvb_ait = proto_register_protocol("DVB Application Information Table", "DVB AIT", "dvb_ait");
 
     proto_register_field_array(proto_dvb_ait, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

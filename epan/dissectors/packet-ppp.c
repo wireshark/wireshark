@@ -6153,8 +6153,7 @@ proto_register_ppp_raw_hdlc(void)
         &ett_ppp_hdlc_data
     };
 
-    proto_ppp_hdlc = proto_register_protocol("PPP In HDLC-Like Framing",
-        "PPP-HDLC", "ppp_hdlc");
+    proto_ppp_hdlc = proto_register_protocol("PPP In HDLC-Like Framing", "PPP-HDLC", "ppp_hdlc");
     ppp_raw_hdlc_handle = register_dissector("ppp_raw_hdlc", dissect_ppp_raw_hdlc, proto_ppp_hdlc);
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_ppp_hdlc, hf, array_length(hf));
@@ -8021,8 +8020,7 @@ proto_register_chap(void)
                 NULL, HFILL }},
         };
 
-    proto_chap = proto_register_protocol(
-        "PPP Challenge Handshake Authentication Protocol", "PPP CHAP", "chap");
+    proto_chap = proto_register_protocol("PPP Challenge Handshake Authentication Protocol", "PPP CHAP", "chap");
     chap_handle = register_dissector("chap", dissect_chap,
         proto_chap);
     proto_register_field_array(proto_chap, hf, array_length(hf));

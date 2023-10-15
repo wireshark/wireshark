@@ -46,8 +46,7 @@ dissect_pcapng_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 void proto_register_pcapng_block(void)
 {
-	proto_pcapng_block = proto_register_protocol("Pcapng block",
-	    "PCAPNG", "pcapng");
+	proto_pcapng_block = proto_register_protocol("Pcapng block", "PCAPNG", "pcapng");
 	pcapng_block_type_dissector_table = register_dissector_table("pcapng.block_type",
 	    "pcapng block type", proto_pcapng_block, FT_UINT32, BASE_DEC);
 

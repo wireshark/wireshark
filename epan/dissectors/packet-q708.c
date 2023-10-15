@@ -14148,10 +14148,7 @@ proto_register_q708(void)
 	/*
 	 * Register the protocol name and description
 	 */
-	proto_q708 = proto_register_protocol(
-			"ITU-T Q.708 ISPC Analysis",
-			"Q.708",
-			"q708");
+	proto_q708 = proto_register_protocol("ITU-T Q.708 ISPC Analysis", "Q.708", "q708");
 
 	/*
 	 * Required function calls to register

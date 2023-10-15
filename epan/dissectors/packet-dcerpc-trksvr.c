@@ -65,8 +65,7 @@ static hf_register_info hf[] = {
 		&ett_dcerpc_trksvr
 	};
 
-	proto_dcerpc_trksvr = proto_register_protocol(
-		"Microsoft Distributed Link Tracking Server Service", "TRKSVR", "trksvr");
+	proto_dcerpc_trksvr = proto_register_protocol("Microsoft Distributed Link Tracking Server Service", "TRKSVR", "trksvr");
 
 	proto_register_field_array(proto_dcerpc_trksvr, hf,
 				   array_length(hf));

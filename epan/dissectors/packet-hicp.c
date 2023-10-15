@@ -382,10 +382,7 @@ proto_register_hicp(void)
         }
     };
 
-    proto_hicp = proto_register_protocol(
-        "Host IP Configuration Protocol",
-        "HICP",
-        "hicp");
+    proto_hicp = proto_register_protocol("Host IP Configuration Protocol", "HICP", "hicp");
 
     proto_register_field_array(proto_hicp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

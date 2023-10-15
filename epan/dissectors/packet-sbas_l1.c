@@ -1232,10 +1232,7 @@ void proto_register_sbas_l1(void) {
         &ett_sbas_l1_mt25,
     };
 
-    proto_sbas_l1 = proto_register_protocol(
-            "SBAS L1 Navigation Message",
-            "SBAS L1",
-            "sbas_l1");
+    proto_sbas_l1 = proto_register_protocol("SBAS L1 Navigation Message", "SBAS L1", "sbas_l1");
 
     proto_register_field_array(proto_sbas_l1, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

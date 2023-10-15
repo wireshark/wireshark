@@ -157,8 +157,7 @@ proto_register_openflow(void)
     expert_module_t* expert_openflow;
 
     /* Register the protocol name and description */
-    proto_openflow = proto_register_protocol("OpenFlow",
-            "OpenFlow", "openflow");
+    proto_openflow = proto_register_protocol("OpenFlow", "OpenFlow", "openflow");
 
     openflow_handle = register_dissector("openflow", dissect_openflow, proto_openflow);
 

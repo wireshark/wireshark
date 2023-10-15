@@ -314,8 +314,7 @@ void proto_register_vrrp(void)
     expert_module_t* expert_vrrp;
     module_t *vrrp_module;
 
-    proto_vrrp = proto_register_protocol("Virtual Router Redundancy Protocol",
-            "VRRP", "vrrp");
+    proto_vrrp = proto_register_protocol("Virtual Router Redundancy Protocol", "VRRP", "vrrp");
     proto_register_field_array(proto_vrrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

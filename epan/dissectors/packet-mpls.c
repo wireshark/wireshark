@@ -657,14 +657,10 @@ proto_register_mpls(void)
     expert_module_t* expert_mpls;
     module_t * module_mpls;
 
-    proto_mpls = proto_register_protocol("MultiProtocol Label Switching Header",
-                                         "MPLS", "mpls");
-    proto_pw_ach = proto_register_protocol(PW_ACH,
-                                           "PW Associated Channel", "pwach");
-    proto_pw_mcw = proto_register_protocol("PW MPLS Control Word (generic/preferred)",
-                                           "Generic PW (with CW)", "pwmcw");
-    proto_pw_ach_mcc = proto_register_protocol("Management Communication Channel (MCC)",
-                                               "PW Associated Management Communication Channel", "mcc");
+    proto_mpls = proto_register_protocol("MultiProtocol Label Switching Header", "MPLS", "mpls");
+    proto_pw_ach = proto_register_protocol(PW_ACH, "PW Associated Channel", "pwach");
+    proto_pw_mcw = proto_register_protocol("PW MPLS Control Word (generic/preferred)", "Generic PW (with CW)", "pwmcw");
+    proto_pw_ach_mcc = proto_register_protocol("Management Communication Channel (MCC)", "PW Associated Management Communication Channel", "mcc");
 
     proto_register_field_array(proto_mpls, mplsf_info, array_length(mplsf_info));
     proto_register_subtree_array(ett, array_length(ett));

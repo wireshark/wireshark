@@ -479,11 +479,7 @@ static void reinit_bpsec(void) {
 
 /// Overall registration of the protocol
 void proto_register_bpsec(void) {
-    proto_bpsec = proto_register_protocol(
-        "DTN Bundle Protocol Security", /* name */
-        "BPSec", /* short name */
-        "bpsec" /* abbrev */
-    );
+    proto_bpsec = proto_register_protocol("DTN Bundle Protocol Security", "BPSec", "bpsec");
 
     proto_register_field_array(proto_bpsec, fields, array_length(fields));
     proto_register_subtree_array(ett, array_length(ett));

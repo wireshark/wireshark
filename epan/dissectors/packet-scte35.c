@@ -1475,11 +1475,7 @@ proto_register_scte35(void)
     };
 
     /* Allocate a protocol number. */
-    proto_scte35 = proto_register_protocol(
-        "SCTE-35 Splice Information",  /* name */
-        "SCTE 35",                     /* short name */
-        "scte35"                       /* abbreviation */
-        );
+    proto_scte35 = proto_register_protocol("SCTE-35 Splice Information", "SCTE 35", "scte35");
     scte35_handle = register_dissector("scte35", dissect_scte35_splice_info, proto_scte35);
 
     /* Register groups and fields. */

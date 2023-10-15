@@ -367,8 +367,7 @@ proto_register_teredo(void)
 
 	module_t *teredo_module;
 
-	proto_teredo = proto_register_protocol(
-		"Teredo IPv6 over UDP tunneling", "Teredo", "teredo");
+	proto_teredo = proto_register_protocol("Teredo IPv6 over UDP tunneling", "Teredo", "teredo");
 	proto_register_field_array(proto_teredo, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	teredo_handle = register_dissector("teredo", dissect_teredo, proto_teredo);

@@ -145,8 +145,7 @@ proto_register_oipf(void)
                 NULL, 0, NULL, HFILL } }
     };
 
-    proto_oipf_ciplus = proto_register_protocol(
-            "Open IPTV Forum CSPG-CI+", "OIPF CI+", "oipf.ciplus");
+    proto_oipf_ciplus = proto_register_protocol("Open IPTV Forum CSPG-CI+", "OIPF CI+", "oipf.ciplus");
     proto_register_field_array(proto_oipf_ciplus, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

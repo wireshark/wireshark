@@ -89,10 +89,7 @@ proto_register_l1_events(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	proto_l1_events = proto_register_protocol(
-			"Layer 1 Event Messages", /* Long name */
-			"Layer 1 Events",	  /* Short name */
-			"data-l1-events");		/* Filter name */
+	proto_l1_events = proto_register_protocol("Layer 1 Event Messages", "Layer 1 Events", "data-l1-events");
 
 	l1_events_handle = register_dissector("data-l1-events", dissect_l1_events, proto_l1_events);
 }

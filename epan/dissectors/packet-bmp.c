@@ -1726,11 +1726,7 @@ proto_register_bmp(void)
 
     module_t *bmp_module;
 
-    proto_bmp = proto_register_protocol(
-            "BGP Monitoring Protocol", /* name */
-            "BMP",                     /* short name */
-            "bmp"                      /* abbrev */
-            );
+    proto_bmp = proto_register_protocol("BGP Monitoring Protocol", "BMP", "bmp");
 
     bmp_handle = register_dissector("bmp", dissect_bmp, proto_bmp);
 

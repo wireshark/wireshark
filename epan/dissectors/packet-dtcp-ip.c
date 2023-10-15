@@ -272,9 +272,7 @@ proto_register_dtcp_ip(void)
         &ett_dtcp_ip_ake_procedure
     };
 
-    proto_dtcp_ip = proto_register_protocol(
-            "Digital Transmission Content Protection over IP",
-            "DTCP-IP", "dtcp-ip");
+    proto_dtcp_ip = proto_register_protocol("Digital Transmission Content Protection over IP", "DTCP-IP", "dtcp-ip");
 
     proto_register_field_array(proto_dtcp_ip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

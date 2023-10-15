@@ -227,8 +227,7 @@ proto_register_rmp(void)
 		&ett_rmp,
 	};
 
-	proto_rmp = proto_register_protocol(
-	    "HP Remote Maintenance Protocol", "RMP", "rmp");
+	proto_rmp = proto_register_protocol("HP Remote Maintenance Protocol", "RMP", "rmp");
 	proto_register_field_array(proto_rmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

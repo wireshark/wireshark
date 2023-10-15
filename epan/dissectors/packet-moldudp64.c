@@ -247,8 +247,7 @@ proto_register_moldudp64(void)
     expert_module_t* expert_moldudp64;
 
     /* Register the protocol name and description */
-    proto_moldudp64 = proto_register_protocol("MoldUDP64",
-            "MoldUDP64", "moldudp64");
+    proto_moldudp64 = proto_register_protocol("MoldUDP64", "MoldUDP64", "moldudp64");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_moldudp64, hf, array_length(hf));

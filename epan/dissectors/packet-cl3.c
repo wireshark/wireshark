@@ -179,11 +179,7 @@ proto_register_cl3(void) {
 
   expert_module_t* expert_cl3;
 
-  proto_cl3 = proto_register_protocol(
-    "CableLabs Layer 3 Protocol", /* name */
-    "CL3",                        /* short name */
-    "cl3"                         /* abbrev */
-  );
+  proto_cl3 = proto_register_protocol("CableLabs Layer 3 Protocol", "CL3", "cl3");
 
   proto_register_field_array(proto_cl3, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

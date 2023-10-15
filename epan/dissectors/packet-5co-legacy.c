@@ -44,7 +44,7 @@ static dissector_handle_t FiveCoLegacy_handle;
 #define FIVECO_LEGACY_HEADER_LENGTH 6
 #define FIVECO_LEGACY_MIN_LENGTH FIVECO_LEGACY_HEADER_LENGTH + 2 // Checksum is 16 bits
 
-#define PROTO_TAG_FIVECO "5co-legacy"
+#define PSNAME "5co-legacy"
 
 /* Global sample ports preferences */
 #define FIVECO_PORT1 8010     /* TCP port of the FiveCo protocol */
@@ -268,7 +268,7 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         return 0;
 
     /* Display fiveco in protocol column */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_FIVECO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -814,7 +814,7 @@ void proto_register_FiveCoLegacy(void)
 
     /* Register the protocol name and description */
     proto_FiveCoLegacy = proto_register_protocol("FiveCo's Legacy Register Access Protocol",
-                                                 PROTO_TAG_FIVECO, "5co_legacy");
+                                                 PSNAME, "5co_legacy");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_FiveCoLegacy, hf, array_length(hf));

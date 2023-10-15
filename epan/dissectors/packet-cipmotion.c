@@ -3455,10 +3455,7 @@ proto_register_cipmotion(void)
    };
 
    /* Create a CIP Motion protocol handle */
-   proto_cipmotion = proto_register_protocol(
-     "Common Industrial Protocol, Motion",  /* Full name of protocol        */
-     "CIP Motion",           /* Short name of protocol       */
-     "cipm");                /* Abbreviated name of protocol */
+   proto_cipmotion = proto_register_protocol("Common Industrial Protocol, Motion", "CIP Motion", "cipm");
 
    proto_cipmotion3 = proto_register_protocol_in_name_only(
      "Common Industrial Protocol, Motion - Rev 3",

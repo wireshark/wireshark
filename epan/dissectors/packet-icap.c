@@ -296,9 +296,7 @@ proto_register_icap(void)
         &ett_icap,
     };
 
-    proto_icap = proto_register_protocol(
-            "Internet Content Adaptation Protocol",
-            "ICAP", "icap");
+    proto_icap = proto_register_protocol("Internet Content Adaptation Protocol", "ICAP", "icap");
     proto_register_field_array(proto_icap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

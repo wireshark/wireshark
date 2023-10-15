@@ -3710,8 +3710,7 @@ proto_register_l2tp(void)
     static decode_as_t l2tp_da = {"l2tp", "l2tp.pw_type", 1, 0, &l2tp_da_values, NULL, NULL,
                                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-    proto_l2tp = proto_register_protocol(
-        "Layer 2 Tunneling Protocol", "L2TP", "l2tp");
+    proto_l2tp = proto_register_protocol("Layer 2 Tunneling Protocol", "L2TP", "l2tp");
     l2tp_udp_handle = register_dissector("lt2p_udp", dissect_l2tp_udp, proto_l2tp);
     l2tp_ip_handle = register_dissector("l2tp_ip", dissect_l2tp_ip, proto_l2tp);
     atm_oam_llc_handle = register_dissector("atm_oam_llc",  dissect_atm_oam_llc, proto_l2tp );

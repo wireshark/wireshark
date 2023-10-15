@@ -1431,10 +1431,7 @@ void proto_register_1722_61883(void)
     expert_module_t* expert_1722_61883;
 
     /* Register the protocol name and description */
-    proto_1722_61883 = proto_register_protocol(
-                "IEC 61883 Protocol",   /* name */
-                "IEC 61883",            /* short name */
-                "iec61883");            /* abbrev */
+    proto_1722_61883 = proto_register_protocol("IEC 61883 Protocol", "IEC 61883", "iec61883");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_1722_61883, hf, array_length(hf));

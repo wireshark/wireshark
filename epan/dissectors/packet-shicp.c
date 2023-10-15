@@ -605,10 +605,7 @@ proto_register_shicp(void)
         }
     };
 
-    proto_shicp = proto_register_protocol(
-        "Secure Host IP Configuration Protocol",
-        "SHICP",
-        "shicp");
+    proto_shicp = proto_register_protocol("Secure Host IP Configuration Protocol", "SHICP", "shicp");
 
     proto_register_field_array(proto_shicp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
