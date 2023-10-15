@@ -73,6 +73,9 @@ Wireshark 4.2.0 Release Notes
      • The Windows installers now ship with Qt 6.5.3. They previously
        shipped with Qt 6.2.3.
 
+     • The Windows installers now ship with Npcap 1.77. They previously
+       shipped with Npcap 1.71.
+
      • The API has been updated to ensure that the dissection engine
        produces valid UTF-8 strings.
 

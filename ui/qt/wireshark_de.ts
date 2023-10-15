@@ -10006,251 +10006,251 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation>Graph zurücksetzen</translation>
+        <translation type="vanished">Graph zurücksetzen</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation>Graph in den Ursprungszustand zurücksetzen.</translation>
+        <translation type="vanished">Graph in den Ursprungszustand zurücksetzen.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation>Vergrößern</translation>
+        <translation type="vanished">Vergrößern</translation>
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>Verkleinern</translation>
+        <translation type="vanished">Verkleinern</translation>
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation>Um 10 Bildpunkte nach oben verschieben</translation>
+        <translation type="vanished">Um 10 Bildpunkte nach oben verschieben</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation>Rauf</translation>
+        <translation type="vanished">Rauf</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation>Um 10 Bildpunkte nach links verschieben</translation>
+        <translation type="vanished">Um 10 Bildpunkte nach links verschieben</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>Links</translation>
+        <translation type="vanished">Links</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation>Um 10 Bildpunkte nach rechts verschieben</translation>
+        <translation type="vanished">Um 10 Bildpunkte nach rechts verschieben</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>Rechts</translation>
+        <translation type="vanished">Rechts</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation>Um 10 Bildpunkte nach unten verschieben</translation>
+        <translation type="vanished">Um 10 Bildpunkte nach unten verschieben</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation>Runter</translation>
+        <translation type="vanished">Runter</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation>Um 1 Bildpunkt nach oben verschieben</translation>
+        <translation type="vanished">Um 1 Bildpunkt nach oben verschieben</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation>Shift+Up</translation>
+        <translation type="vanished">Shift+Up</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation>Um 1 Bildpunkt nach links verschieben</translation>
+        <translation type="vanished">Um 1 Bildpunkt nach links verschieben</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Shift+Left</translation>
+        <translation type="vanished">Shift+Left</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation>Um 1 Bildpunkt nach rechts verschieben</translation>
+        <translation type="vanished">Um 1 Bildpunkt nach rechts verschieben</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Shift+Right</translation>
+        <translation type="vanished">Shift+Right</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation>Um 1 Bildpunkt nach unten verschieben</translation>
+        <translation type="vanished">Um 1 Bildpunkt nach unten verschieben</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation>Shift+Down</translation>
+        <translation type="vanished">Shift+Down</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation>Nächster Stream</translation>
+        <translation type="vanished">Nächster Stream</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation>Zum nächsten Stream im Mitschnitt wechseln</translation>
+        <translation type="vanished">Zum nächsten Stream im Mitschnitt wechseln</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation>Bild nach oben</translation>
+        <translation type="vanished">Bild nach oben</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation>Vorheriger Stream</translation>
+        <translation type="vanished">Vorheriger Stream</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation>Zum vorherigen Stream im Mitschnitt wechseln</translation>
+        <translation type="vanished">Zum vorherigen Stream im Mitschnitt wechseln</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation>Bild nach unten</translation>
+        <translation type="vanished">Bild nach unten</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation>Richtung tauschen</translation>
+        <translation type="vanished">Richtung tauschen</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation>Richtung tauschen (TCP Endpunkte tauschen)</translation>
+        <translation type="vanished">Richtung tauschen (TCP Endpunkte tauschen)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation>D</translation>
+        <translation type="vanished">D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation>Zum Paket gehen, auf das der Mauszeiger gerade zeigt</translation>
+        <translation type="vanished">Zum Paket gehen, auf das der Mauszeiger gerade zeigt</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation>Zum Paket gehen, auf das der Mauszeiger gerade zeigt</translation>
+        <translation type="vanished">Zum Paket gehen, auf das der Mauszeiger gerade zeigt</translation>
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>Verschieben / Zoomen</translation>
+        <translation type="vanished">Verschieben / Zoomen</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Maustastenverhalten umschalten: Verschieben / Zoomen</translation>
+        <translation type="vanished">Maustastenverhalten umschalten: Verschieben / Zoomen</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation>Relative / Absolute Sequenznummer</translation>
+        <translation type="vanished">Relative / Absolute Sequenznummer</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation>Umschalten zwischen relativer und absoluter Sequenznummer</translation>
+        <translation type="vanished">Umschalten zwischen relativer und absoluter Sequenznummer</translation>
     </message>
     <message>
         <source>S</source>
-        <translation>S</translation>
+        <translation type="vanished">S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>Uhrzeit / verstrichene Zeit</translation>
+        <translation type="vanished">Uhrzeit / verstrichene Zeit</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>Umschalten zwischen Uhrzeit und verstrichener Zeit</translation>
+        <translation type="vanished">Umschalten zwischen Uhrzeit und verstrichener Zeit</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Fadenkreuz</translation>
+        <translation type="vanished">Fadenkreuz</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Fadenkreuz ein/ausblenden</translation>
+        <translation type="vanished">Fadenkreuz ein/ausblenden</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>Space</translation>
+        <translation type="vanished">Space</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation>Round-Trip-Zeit</translation>
+        <translation type="vanished">Round-Trip-Zeit</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation>Zum Round-Trip-Zeit-Graph wechseln</translation>
+        <translation type="vanished">Zum Round-Trip-Zeit-Graph wechseln</translation>
     </message>
     <message>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="vanished">1</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation>Durchsatz</translation>
+        <translation type="vanished">Durchsatz</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation>Zum Durchsatzgraphen wechseln</translation>
+        <translation type="vanished">Zum Durchsatzgraphen wechseln</translation>
     </message>
     <message>
         <source>2</source>
-        <translation>2</translation>
+        <translation type="vanished">2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation>Zeit / Sequenznummern (Stevens)</translation>
+        <translation type="vanished">Zeit / Sequenznummern (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation>Zum Stevens-Stil Zeit / Sequenznummern Graph wechseln</translation>
+        <translation type="vanished">Zum Stevens-Stil Zeit / Sequenznummern Graph wechseln</translation>
     </message>
     <message>
         <source>3</source>
-        <translation>3</translation>
+        <translation type="vanished">3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation>Window Skalierung</translation>
+        <translation type="vanished">Window Skalierung</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation>Zum Window Scaling Graph wechseln</translation>
+        <translation type="vanished">Zum Window Scaling Graph wechseln</translation>
     </message>
     <message>
         <source>5</source>
-        <translation>5</translation>
+        <translation type="vanished">5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation>Zeit / Sequenznummern (tcptrace)</translation>
+        <translation type="vanished">Zeit / Sequenznummern (tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation>Zum tcptrace-Stil Zeit / Sequenznummern Graph wechseln</translation>
+        <translation type="vanished">Zum tcptrace-Stil Zeit / Sequenznummern Graph wechseln</translation>
     </message>
     <message>
         <source>4</source>
-        <translation>4</translation>
+        <translation type="vanished">4</translation>
     </message>
 </context>
 <context>
@@ -10277,7 +10277,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Close</source>
-        <translation>Schließen</translation>
+        <translation type="vanished">Schließen</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
@@ -10301,7 +10301,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>TextLabel</source>
-        <translation>Textbeschriftung</translation>
+        <translation type="vanished">Textbeschriftung</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -10330,6 +10330,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Minimum Number of Inbound Streams:</source>
         <translation>Minimale Anzahl an Inbound Streams:</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished">-</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
@@ -10455,7 +10463,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10506,7 +10514,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>

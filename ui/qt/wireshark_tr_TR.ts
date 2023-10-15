@@ -9979,251 +9979,251 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation>Grafiği Sıfırla</translation>
+        <translation type="vanished">Grafiği Sıfırla</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation>Grafiği ilk durumuna sıfırlayın.</translation>
+        <translation type="vanished">Grafiği ilk durumuna sıfırlayın.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation>Yakınlaş</translation>
+        <translation type="vanished">Yakınlaş</translation>
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>Uzaklaş</translation>
+        <translation type="vanished">Uzaklaş</translation>
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation>10 Piksel Yukarı Taşı</translation>
+        <translation type="vanished">10 Piksel Yukarı Taşı</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation>Üst</translation>
+        <translation type="vanished">Üst</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation>10 Piksel Sola Taşı</translation>
+        <translation type="vanished">10 Piksel Sola Taşı</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>Sol</translation>
+        <translation type="vanished">Sol</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation>10 Piksel Sağa Taşı</translation>
+        <translation type="vanished">10 Piksel Sağa Taşı</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>Sağa</translation>
+        <translation type="vanished">Sağa</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation>10 Piksel Aşağı Taşı</translation>
+        <translation type="vanished">10 Piksel Aşağı Taşı</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation>Aşağı</translation>
+        <translation type="vanished">Aşağı</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation>1 Piksel Yukarı Taşı</translation>
+        <translation type="vanished">1 Piksel Yukarı Taşı</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation>Shift+Yukarı</translation>
+        <translation type="vanished">Shift+Yukarı</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation>Sola 1 Piksel Taşı</translation>
+        <translation type="vanished">Sola 1 Piksel Taşı</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Shift+Sol</translation>
+        <translation type="vanished">Shift+Sol</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation>1 Piksel Sağa Taşı</translation>
+        <translation type="vanished">1 Piksel Sağa Taşı</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Shift+Sağ</translation>
+        <translation type="vanished">Shift+Sağ</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation>1 Piksel Aşağı Taşı</translation>
+        <translation type="vanished">1 Piksel Aşağı Taşı</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation>Shift+Aşağı</translation>
+        <translation type="vanished">Shift+Aşağı</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation>Sonraki Akış</translation>
+        <translation type="vanished">Sonraki Akış</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation>Yakalamadaki sonraki akışa git</translation>
+        <translation type="vanished">Yakalamadaki sonraki akışa git</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation>Sayfa yukarı</translation>
+        <translation type="vanished">Sayfa yukarı</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation>Önceki Akış</translation>
+        <translation type="vanished">Önceki Akış</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation>Yakalamada önceki akışa git</translation>
+        <translation type="vanished">Yakalamada önceki akışa git</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation>Sayfa aşağı</translation>
+        <translation type="vanished">Sayfa aşağı</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation>Yön Değiştir</translation>
+        <translation type="vanished">Yön Değiştir</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation>Yön değiştir (TCP uç noktalarını değiştir)</translation>
+        <translation type="vanished">Yön değiştir (TCP uç noktalarını değiştir)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation>D</translation>
+        <translation type="vanished">D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation>İmleç Altındaki Pakete Git</translation>
+        <translation type="vanished">İmleç Altındaki Pakete Git</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation>İmlecin altındaki pakete git</translation>
+        <translation type="vanished">İmlecin altındaki pakete git</translation>
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>Sürükle / Yakınlaştır</translation>
+        <translation type="vanished">Sürükle / Yakınlaştır</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Fare sürükle / yakınlaştırma davranışını değiştir</translation>
+        <translation type="vanished">Fare sürükle / yakınlaştırma davranışını değiştir</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation>Bağıl / Mutlak Sıra Numaraları</translation>
+        <translation type="vanished">Bağıl / Mutlak Sıra Numaraları</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation>Göreceli / mutlak sıra numaralarını değiştir</translation>
+        <translation type="vanished">Göreceli / mutlak sıra numaralarını değiştir</translation>
     </message>
     <message>
         <source>S</source>
-        <translation>S</translation>
+        <translation type="vanished">S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>Yakalama / Oturum Süresi Menşei</translation>
+        <translation type="vanished">Yakalama / Oturum Süresi Menşei</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>Yakalama / oturum zamanı kaynağını aç/kapat</translation>
+        <translation type="vanished">Yakalama / oturum zamanı kaynağını aç/kapat</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Artılar</translation>
+        <translation type="vanished">Artılar</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Artı işaretlerini aç/kapat</translation>
+        <translation type="vanished">Artı işaretlerini aç/kapat</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>Boşluk</translation>
+        <translation type="vanished">Boşluk</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation>Gidiş-dönüş süresi</translation>
+        <translation type="vanished">Gidiş-dönüş süresi</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation>Gidiş-Dönüş Süresi grafiğine geçin</translation>
+        <translation type="vanished">Gidiş-Dönüş Süresi grafiğine geçin</translation>
     </message>
     <message>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="vanished">1</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation>Verim</translation>
+        <translation type="vanished">Verim</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation>Verim grafiğine geç</translation>
+        <translation type="vanished">Verim grafiğine geç</translation>
     </message>
     <message>
         <source>2</source>
-        <translation>2</translation>
+        <translation type="vanished">2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation>Zaman / Sıra (Stevens)</translation>
+        <translation type="vanished">Zaman / Sıra (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation>Stevens tarzı Zaman / Sıra grafiğine geçin</translation>
+        <translation type="vanished">Stevens tarzı Zaman / Sıra grafiğine geçin</translation>
     </message>
     <message>
         <source>3</source>
-        <translation>3</translation>
+        <translation type="vanished">3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation>Pencere Ölçekleme</translation>
+        <translation type="vanished">Pencere Ölçekleme</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation>Pencere Ölçekleme grafiğine geç</translation>
+        <translation type="vanished">Pencere Ölçekleme grafiğine geç</translation>
     </message>
     <message>
         <source>5</source>
-        <translation>5</translation>
+        <translation type="vanished">5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation>Zaman / Sıra (tcpizi)</translation>
+        <translation type="vanished">Zaman / Sıra (tcpizi)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation>TCP izleme stili Zaman / Sıra grafiğine geçin</translation>
+        <translation type="vanished">TCP izleme stili Zaman / Sıra grafiğine geçin</translation>
     </message>
     <message>
         <source>4</source>
-        <translation>4</translation>
+        <translation type="vanished">4</translation>
     </message>
 </context>
 <context>
@@ -10250,7 +10250,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Close</source>
-        <translation>Kapat</translation>
+        <translation type="vanished">Kapat</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
@@ -10274,7 +10274,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TextLabel</source>
-        <translation>Metin Etiketi</translation>
+        <translation type="vanished">Metin Etiketi</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -10303,6 +10303,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Minimum Number of Inbound Streams:</source>
         <translation>Minimum Gelen Akış Sayısı:</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished">-</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
@@ -10428,7 +10436,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10479,7 +10487,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>

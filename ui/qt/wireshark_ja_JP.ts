@@ -9978,251 +9978,251 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation>グラフをリセット</translation>
+        <translation type="vanished">グラフをリセット</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation>グラフを初期状態にリセットします</translation>
+        <translation type="vanished">グラフを初期状態にリセットします</translation>
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation>ズームイン</translation>
+        <translation type="vanished">ズームイン</translation>
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>ズームアウト</translation>
+        <translation type="vanished">ズームアウト</translation>
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation>上に10ピクセル移動</translation>
+        <translation type="vanished">上に10ピクセル移動</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation>上</translation>
+        <translation type="vanished">上</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation>左に10ピクセル移動</translation>
+        <translation type="vanished">左に10ピクセル移動</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>左</translation>
+        <translation type="vanished">左</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation>右に10ピクセル移動</translation>
+        <translation type="vanished">右に10ピクセル移動</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>右</translation>
+        <translation type="vanished">右</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation>下に10ピクセル移動</translation>
+        <translation type="vanished">下に10ピクセル移動</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation>下</translation>
+        <translation type="vanished">下</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation>上に1ピクセル移動</translation>
+        <translation type="vanished">上に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation>Shift+Up</translation>
+        <translation type="vanished">Shift+Up</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation>左に1ピクセル移動</translation>
+        <translation type="vanished">左に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Shift+Left</translation>
+        <translation type="vanished">Shift+Left</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation>右に1ピクセル移動</translation>
+        <translation type="vanished">右に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Shift+Right</translation>
+        <translation type="vanished">Shift+Right</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation>下に1ピクセル移動</translation>
+        <translation type="vanished">下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation>Shift+Down</translation>
+        <translation type="vanished">Shift+Down</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation>次のストリーム</translation>
+        <translation type="vanished">次のストリーム</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation>キャプチャ内の次のストリームへ移動します</translation>
+        <translation type="vanished">キャプチャ内の次のストリームへ移動します</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation>ページアップ</translation>
+        <translation type="vanished">ページアップ</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation>前のストリーム</translation>
+        <translation type="vanished">前のストリーム</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation>キャプチャ内の前のストリームへ移動します</translation>
+        <translation type="vanished">キャプチャ内の前のストリームへ移動します</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation>ページダウン</translation>
+        <translation type="vanished">ページダウン</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation>向きを切替</translation>
+        <translation type="vanished">向きを切替</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation>向きを切り替え(TCPの終端を入替)</translation>
+        <translation type="vanished">向きを切り替え(TCPの終端を入替)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation>D</translation>
+        <translation type="vanished">D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation>カーソル位置にあるパケットへ移動</translation>
+        <translation type="vanished">カーソル位置にあるパケットへ移動</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation>現在のカーソル位置にあるパケットへ移動します</translation>
+        <translation type="vanished">現在のカーソル位置にあるパケットへ移動します</translation>
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>ドラッグ/ズーム</translation>
+        <translation type="vanished">ドラッグ/ズーム</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>マウスのドラッグ/ズームの動作を切替えます</translation>
+        <translation type="vanished">マウスのドラッグ/ズームの動作を切替えます</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation>相対的/絶対的シーケンス番号を切替</translation>
+        <translation type="vanished">相対的/絶対的シーケンス番号を切替</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation>相対的/絶対的シーケンス番号を切り替えます</translation>
+        <translation type="vanished">相対的/絶対的シーケンス番号を切り替えます</translation>
     </message>
     <message>
         <source>S</source>
-        <translation>S</translation>
+        <translation type="vanished">S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>キャプチャ/セッション時間起点</translation>
+        <translation type="vanished">キャプチャ/セッション時間起点</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>キャプチャ/セッション時間起点を切り替えます</translation>
+        <translation type="vanished">キャプチャ/セッション時間起点を切り替えます</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>十字カーソル</translation>
+        <translation type="vanished">十字カーソル</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>十字カーソルの表示を切り替えます</translation>
+        <translation type="vanished">十字カーソルの表示を切り替えます</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>スペース</translation>
+        <translation type="vanished">スペース</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation>往復遅延時間</translation>
+        <translation type="vanished">往復遅延時間</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation>往復遅延時間グラフに切り替えます</translation>
+        <translation type="vanished">往復遅延時間グラフに切り替えます</translation>
     </message>
     <message>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="vanished">1</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation>スループット</translation>
+        <translation type="vanished">スループット</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation>スループットグラフに切り替えます</translation>
+        <translation type="vanished">スループットグラフに切り替えます</translation>
     </message>
     <message>
         <source>2</source>
-        <translation>2</translation>
+        <translation type="vanished">2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation>時間/シーケンス (Stevens)</translation>
+        <translation type="vanished">時間/シーケンス (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation>Stevens形式の時間/シーケンスグラフに切り替えます</translation>
+        <translation type="vanished">Stevens形式の時間/シーケンスグラフに切り替えます</translation>
     </message>
     <message>
         <source>3</source>
-        <translation>3</translation>
+        <translation type="vanished">3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation>ウインドウスケーリング</translation>
+        <translation type="vanished">ウインドウスケーリング</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation>ウインドウスケーリンググラフに切り替えます</translation>
+        <translation type="vanished">ウインドウスケーリンググラフに切り替えます</translation>
     </message>
     <message>
         <source>5</source>
-        <translation>5</translation>
+        <translation type="vanished">5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation>時間/シーケンス(tcptrace)</translation>
+        <translation type="vanished">時間/シーケンス(tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation>tcptrace形式の時間/シーケンスグラフに切り替えます</translation>
+        <translation type="vanished">tcptrace形式の時間/シーケンスグラフに切り替えます</translation>
     </message>
     <message>
         <source>4</source>
-        <translation>4</translation>
+        <translation type="vanished">4</translation>
     </message>
 </context>
 <context>
@@ -10249,7 +10249,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Close</source>
-        <translation>閉じる</translation>
+        <translation type="vanished">閉じる</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
@@ -10273,7 +10273,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TextLabel</source>
-        <translation>テキストラベル</translation>
+        <translation type="vanished">テキストラベル</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -10302,6 +10302,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Minimum Number of Inbound Streams:</source>
         <translation>内向きストリームの最小数:</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished">-</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
@@ -10427,7 +10435,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10478,7 +10486,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
