@@ -551,7 +551,15 @@ void proto_report_dissector_bug(const char *format, ...)
  *  epoch (1900-01-01 00:00:00 GMT) and the next 4 bytes are 1/2^32's of
  *  a second since that second.  (I.e., a 64-bit count of 1/2^32's of a
  *  second since the NTP epoch, with the upper 32 bits first and the
- *  lower 32 bits second, even when little-endian.)
+ *  lower 32 bits second, even when little-endian.)  A value of 0 is a
+ *  special case representing unknown or unsynchronized time.  Per the
+ *  suggestion in RFC 4330, if bit 0 is not set then the time is assumed
+ *  to be in NTP Era 1, beginning on 2036-02-07 06:28:16 UTC.  (I.e., the
+ *  time displayed will be between 1968-01-20 03:14:08 UTC and
+ *  2104-02-26 09:42:24 UTC.)  The 16 byte NTP date format and the 4 byte
+ *  NTP short relative time format are not supported.
+ *  Encodings that store only the seconds since the NTP epoch without
+ *  fractional seconds should use ENC_TIME_SECS_NTP, described below.
  *
  *  ENC_TIME_TOD - 8 bytes, as a count of microseconds since the System/3x0
  *  and z/Architecture epoch (1900-01-01 00:00:00 GMT).
@@ -580,14 +588,17 @@ void proto_report_dissector_bug(const char *format, ...)
  *  If the time is absolute, it's nanoseconds since the UN*X epoch.
  *
  *  ENC_TIME_SECS_NTP - 4 bytes, representing a count of seconds since
- *  the NTP epoch.
+ *  the NTP epoch.  As with ENC_TIME_NTP, times are assumed to be in
+ *  the upper half of NTP Era 0 or the lower half of NTP Era 1.
  *
  *  ENC_TIME_RFC_3971 - 8 bytes, representing a count of 1/64ths of a
  *  second since the UN*X epoch; see section 5.3.1 "Timestamp Option"
  *  in RFC 3971.
  *
- *  ENC_TIME_MSEC_NTP - 4-8 bytes, representing a count of milliseconds since
- *  the NTP epoch.
+ *  ENC_TIME_MSEC_NTP - 6-8 bytes, representing a count of milliseconds since
+ *  the NTP epoch.  Similar to ENC_TIME_NTP, times before the midpoint of
+ *  NTP Era 0 (1968-01-20) are assumed to represent the corresponding
+ *  time in NTP Era 1 instead.
  *
  *  ENC_TIME_MIP6 - 8 bytes; the first 48 bits are seconds since the UN*X epoch
  *  and the remaining 16 bits indicate the number of 1/65536's of a second

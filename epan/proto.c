@@ -2016,13 +2016,17 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 
 			if (length == 8) {
-				/*
-				 * Convert 1/2^32s of a second to nanoseconds.
-				 */
-				time_stamp->nsecs = (int)(1000000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
-				if ((time_stamp->nsecs == 0) && (tmpsecs == 0)) {
+				tmp64secs = tvb_get_ntoh64(tvb, start);
+				if (tmp64secs == 0) {
 					//This is "NULL" time
 					time_stamp->secs = 0;
+					time_stamp->nsecs = 0;
+				} else {
+					/*
+					 * Convert 1/2^32s of a second to
+					 * nanoseconds.
+					 */
+					time_stamp->nsecs = (int)(1000000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
 				}
 			} else if (length == 4) {
 				/*
@@ -2063,13 +2067,17 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 
 			if (length == 8) {
-				/*
-				 * Convert 1/2^32s of a second to nanoseconds.
-				 */
-				time_stamp->nsecs = (int)(1000000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
-				if ((time_stamp->nsecs == 0) && (tmpsecs == 0)) {
+				tmp64secs = tvb_get_letoh64(tvb, start);
+				if (tmp64secs == 0) {
 					//This is "NULL" time
 					time_stamp->secs = 0;
+					time_stamp->nsecs = 0;
+				} else {
+					/*
+					 * Convert 1/2^32s of a second to
+					 * nanoseconds.
+					 */
+					time_stamp->nsecs = (int)(1000000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
 				}
 			} else if (length == 4) {
 				/*
@@ -2460,31 +2468,55 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			break;
 		case ENC_TIME_MSEC_NTP | ENC_BIG_ENDIAN:
 			/*
-			* Milliseconds, 1 to 8 bytes.
+			* Milliseconds, 6 to 8 bytes.
 			* For absolute times, it's milliseconds since the
 			* NTP epoch.
+			*
+			* ETSI TS 129.274 8.119 defines this as:
+			* "a 48 bit unsigned integer in network order format
+			* ...encoded as the number of milliseconds since
+			* 00:00:00 January 1, 1900 00:00 UTC, i.e. as the
+			* rounded value of 1000 x the value of the 64-bit
+			* timestamp (Seconds + (Fraction / (1<<32))) defined
+			* in clause 6 of IETF RFC 5905."
+			*
+			* Taken literally, the part after "i.e." would
+			* mean that the value rolls over before reaching
+			* 2^32 * 1000 = 4294967296000 = 0x3e800000000
+			* when the 64 bit timestamp rolls over, and we have
+			* to pick an NTP Era equivalence class to support
+			* (such as 1968-01-20 to 2104-02-06).
+			*
+			* OTOH, the extra room might be used to store Era
+			* information instead, in which case times until
+			* 10819-08-03 can be represented with 6 bytes without
+			* ambiguity. We handle both implementations, and assume
+			* that times before 1968-01-20 are not represented.
+			*
+			* Only 6 bytes or more makes sense as an absolute
+			* time. 5 bytes or fewer could express a span of
+			* less than 35 years, either 1900-1934 or 2036-2070.
 			*/
-			if (length >= 1 && length <= 8) {
+			if (length >= 6 && length <= 8) {
 				guint64 msecs;
 
 				msecs = get_uint64_value(tree, tvb, start, length, encoding);
-				tmpsecs = (guint32)(msecs / 1000);
+				tmp64secs = (msecs / 1000);
 				/*
-				* If bit 0 is set, the UTC time is in the range 1968-2036 and
-				* UTC time is reckoned from 0h 0m 0s UTC on 1 January 1900.
-				* If bit 0 is not set, the time is in the range 2036-2104 and
-				* UTC time is reckoned from 6h 28m 16s UTC on 7 February 2036.
-				*/
-				if ((tmpsecs & 0x80000000) != 0)
-					time_stamp->secs = (time_t)((gint64)tmpsecs - NTP_TIMEDIFF1900TO1970SEC);
+				 * Assume that times in the first half of NTP
+				 * Era 0 really represent times in the NTP
+				 * Era 1.
+				 */
+				if (tmp64secs >= 0x80000000)
+					time_stamp->secs = (time_t)((gint64)tmp64secs - NTP_TIMEDIFF1900TO1970SEC);
 				else
-					time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
+					time_stamp->secs = (time_t)((gint64)tmp64secs + NTP_TIMEDIFF1970TO2036SEC);
 				time_stamp->nsecs = (int)(msecs % 1000)*1000000;
 			}
 			else {
 				time_stamp->secs  = 0;
 				time_stamp->nsecs = 0;
-				report_type_length_mismatch(tree, "a time-in-milliseconds NTP time stamp", length, (length < 4));
+				report_type_length_mismatch(tree, "a time-in-milliseconds NTP time stamp", length, (length < 6));
 			}
 			break;
 
