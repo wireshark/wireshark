@@ -51,6 +51,7 @@ struct mausb_header {
 };
 
 gboolean mausb_is_from_host(struct mausb_header *header);
+guint8 mausb_ep_handle_ep_d(guint16 handle);
 guint8 mausb_ep_handle_ep_num(guint16 handle);
 guint8 mausb_ep_handle_dev_addr(guint16 handle);
 guint8 mausb_ep_handle_bus_num(guint16 handle);

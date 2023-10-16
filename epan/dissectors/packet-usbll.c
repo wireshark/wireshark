@@ -1526,7 +1526,8 @@ usbll_get_endpoint_info(packet_info *pinfo, guint8 addr, guint8 ep, gboolean fro
         usb_conv_info_t *usb_conv_info;
         usbll_ep_type_t  type = USBLL_EP_UNKNOWN;
         guint16          max_packet_size = 0;
-        usb_conv_info = get_existing_usb_ep_conv_info(pinfo, 0, addr, ep);
+        guint8           endpoint = ep | (from_host ? 0 : 0x80);
+        usb_conv_info = get_existing_usb_ep_conv_info(pinfo, 0, addr, endpoint);
         if (usb_conv_info && usb_conv_info->max_packet_size)
         {
             type = usbll_ep_type_from_urb_type(usb_conv_info->descriptor_transfer_type);
@@ -1769,7 +1770,7 @@ usbll_construct_urb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     DISSECTOR_ASSERT_NOT_REACHED();
             }
             pseudo_urb.device_address = data->transaction->address;
-            pseudo_urb.endpoint = data->transaction->endpoint;
+            pseudo_urb.endpoint = data->transaction->endpoint | (transfer->from_host ? 0 : 0x80);
             pseudo_urb.bus_id = 0;
             pseudo_urb.speed = usbll_get_data_transaction_speed(data);
             dissect_usb_common(transfer_tvb, pinfo, proto_tree_get_parent_tree(tree),

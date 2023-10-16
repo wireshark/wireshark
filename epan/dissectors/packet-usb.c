@@ -1733,7 +1733,7 @@ static int usb_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
         (void) g_strlcpy(buf, "host", buf_len);
     } else {
         snprintf(buf, buf_len, "%d.%d.%d", pletoh16(&addrp[8]),
-                        pletoh32(&addrp[0]), pletoh32(&addrp[4]));
+                        pletoh32(&addrp[0]), pletoh32(&addrp[4]) & 0x0f);
     }
 
     return (int)(strlen(buf)+1);
@@ -2617,11 +2617,11 @@ void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset)
     endpoint_item = proto_tree_add_item(tree, hf_usb_bEndpointAddress, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     endpoint_tree = proto_item_add_subtree(endpoint_item, ett_configuration_bEndpointAddress);
 
-    endpoint = tvb_get_guint8(tvb, offset)&0x0f;
+    endpoint = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(endpoint_tree, hf_usb_bEndpointAddress_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(endpoint_item, "  %s", (tvb_get_guint8(tvb, offset)&0x80)?"IN":"OUT");
+    proto_item_append_text(endpoint_item, "  %s", (endpoint&0x80)?"IN":"OUT");
     proto_tree_add_item(endpoint_tree, hf_usb_bEndpointAddress_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(endpoint_item, "  Endpoint:%d", endpoint);
+    proto_item_append_text(endpoint_item, "  Endpoint:%d", endpoint&0x0f);
 }
 
 unsigned int
@@ -2729,7 +2729,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
 
-    endpoint = tvb_get_guint8(tvb, offset)&0x0f;
+    endpoint = tvb_get_guint8(tvb, offset);
     dissect_usb_endpoint_address(tree, tvb, offset);
     offset += 1;
 
@@ -4075,7 +4075,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                 heur_subdissector_list = heur_control_subdissector_list;
                 usb_dissector_table = usb_control_dissector_table;
 
-                endpoint = usb_trans_info->setup.wIndex & 0x0f;
+                endpoint = usb_trans_info->setup.wIndex & 0xff;
 
                 if (usb_conv_info->is_request) {
                     usb_address_t *dst_addr = wmem_new0(pinfo->pool, usb_address_t);
@@ -5471,7 +5471,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     case USB_HEADER_LINUX_48_BYTES:
     case USB_HEADER_LINUX_64_BYTES:
         urb_type = tvb_get_guint8(tvb, 8);
-        endpoint = tvb_get_guint8(tvb, 10) & 0x7F;
+        endpoint = tvb_get_guint8(tvb, 10);
         device_address = (guint16)tvb_get_guint8(tvb, 11);
         bus_id = tvb_get_letohs(tvb, 12);
         break;
@@ -5485,7 +5485,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             /* USBPcap before 1.3.0.0 DATA OUT packet (the info at offset 16 is wrong) */
             urb_type = URB_SUBMIT;
         }
-        endpoint &= 0x7F; /* Clear the direction flag */
         bus_id = tvb_get_letohs(tvb, 17);
         break;
 
@@ -5495,6 +5494,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         device_address = mausb_ep_handle_dev_addr(ma_header->handle);
         endpoint = mausb_ep_handle_ep_num(ma_header->handle);
         bus_id = mausb_ep_handle_bus_num(ma_header->handle);
+        if (mausb_ep_handle_ep_d(ma_header->handle)) {
+            /* IN endpoint */
+            endpoint |= 0x80;
+        }
         break;
 
     case USB_HEADER_USBIP:
@@ -5503,11 +5506,15 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         device_address = ip_header->devid;
         bus_id = ip_header->busid;
         endpoint = ip_header->ep;
+        if (ip_header->dir == 1) {
+            /* IN endpoint */
+            endpoint |= 0x80;
+        }
         break;
 
     case USB_HEADER_DARWIN:
         urb_type = tvb_get_guint8(tvb, 3) ? URB_COMPLETE : URB_SUBMIT;
-        endpoint = tvb_get_guint8(tvb, 30) & 0x7F;
+        endpoint = tvb_get_guint8(tvb, 30);
         device_address = (guint16)tvb_get_guint8(tvb, 29);
         location = tvb_get_letohl(tvb, 24);
         bus_id = location >> 24;
@@ -5528,6 +5535,13 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
     urb_tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
     tree = proto_item_add_subtree(urb_tree_ti, ett_usb_hdr);
+
+    if (endpoint == 0x80) {
+        /* Control endpoint is only bidirectional endpoint, use 0 to look up
+         * correct conversation.
+         */
+        endpoint = 0;
+    }
 
     usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint,
                  (urb_type == URB_SUBMIT));
