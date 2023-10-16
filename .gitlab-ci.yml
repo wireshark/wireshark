@@ -191,10 +191,10 @@ variables:
       - ccache/
   variables:
     HOMEBREW_DISPLAY_INSTALL_TIMES: "1"
-    HOMEBREW_NO_AUTO_UPDATE: "1"
     HOMEBREW_NO_INSTALL_CLEANUP: "1"
     HOMEBREW_NO_INSTALL_UPGRADE: "1"
     HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
+    HOMEBREW_NO_UPDATE_REPORT_NEW: "1"
   before_script:
     # At the time of this writing (January 2023), the macOS SaaS builder has the following PATH:
     # /Users/gitlab/.asdf/shims:/Users/gitlab/.asdf/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin
@@ -203,6 +203,7 @@ variables:
     #   unknown command: python3. Perhaps you have to reshim?
     # Make sure /usr/local/bin is first in order to work around asdf.
     - export PATH=/usr/local/bin:$PATH
+    - brew --version
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
     - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
     - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
