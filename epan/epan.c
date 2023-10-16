@@ -916,6 +916,12 @@ epan_gather_runtime_info(feature_list l)
 	with_feature(l, "nghttp2 %s",  nghttp2_ptr->version_str);
 #endif /* NGHTTP2_VERSION_AGE */
 
+	/* nghttp3 */
+#if NGHTTP3_VERSION_AGE >= 1
+	const nghttp3_info *nghttp3_ptr = nghttp3_version(0);
+	with_feature(l, "nghttp3 %s", nghttp3_ptr->version_str);
+#endif /* NGHTTP3_VERSION_AGE */
+
 	/* brotli */
 #ifdef HAVE_BROTLI
 	with_feature(l, "brotli %d.%d.%d", BrotliDecoderVersion() >> 24,
