@@ -158,10 +158,6 @@ fi
 # Uncomment to enable generation of documentation
 # brew install asciidoctor
 
-if [ -z "$HOMEBREW_NO_AUTO_UPDATE" ] ; then
-    brew doctor
-fi
-
 exit 0
 #
 #  Editor modelines
