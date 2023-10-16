@@ -389,6 +389,8 @@ void ws_log_fatal_full(const char *domain, enum ws_log_level level,
 #define WS_DEBUG_HERE(...) \
         _LOG_FULL(true, LOG_LEVEL_ECHO, __VA_ARGS__)
 
+#define WS_NOT_IMPLEMENTED() \
+        ws_error("Not implemented yet")
 
 WS_DLL_PUBLIC
 void ws_log_utf8_full(const char *domain, enum ws_log_level level,
