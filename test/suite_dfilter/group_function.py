@@ -67,10 +67,9 @@ class TestFunctionMaxMin:
         dfilter = 'max(5060, udp.dstport) == udp.srcport'
         checkDFilterCount(dfilter, 2)
 
-    def test_max_5(self, checkDFilterFail):
-        error = 'Constant expression is invalid on the LHS'
+    def test_max_5(self, checkDFilterCount):
         dfilter = 'max(5060, 5070) == udp.srcport'
-        checkDFilterFail(dfilter, error)
+        checkDFilterCount(dfilter, 1)
 
 class TestFunctionAbs:
     trace_file = "dhcp.pcapng"
