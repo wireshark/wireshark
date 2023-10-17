@@ -1494,7 +1494,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
 }
 
 static gboolean
-blf_read_canerror(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp) {
+blf_read_canerror(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp, gboolean overload) {
     blf_canerror_t canheader;
     guint32  canid;
     guint8   payload_length;
@@ -1518,6 +1518,11 @@ blf_read_canerror(blf_params_t *params, int *err, gchar **err_info, gint64 block
 
     // Fixed packet data length for socketcan error messages
     payload_length = CAN_ERR_DLC;
+
+    if (overload) {
+        tmpbuf[10] = CAN_ERR_PROT_OVERLOAD;
+        canid |= CAN_ERR_PROT;
+    }
 
     tmpbuf[0] = (canid & 0xff000000) >> 24;
     tmpbuf[1] = (canid & 0x00ff0000) >> 16;
@@ -2407,7 +2412,11 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
             break;
 
         case BLF_OBJTYPE_CAN_ERROR:
-            return blf_read_canerror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+            return blf_read_canerror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, FALSE);
+            break;
+
+        case BLF_OBJTYPE_CAN_OVERLOAD:
+            return blf_read_canerror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, TRUE);
             break;
 
         case BLF_OBJTYPE_CAN_MESSAGE2:
