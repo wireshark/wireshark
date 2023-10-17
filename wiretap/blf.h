@@ -456,6 +456,54 @@ typedef struct blf_linmessage {
 */
 } blf_linmessage_t;
 
+typedef struct blf_linbusevent {
+    guint64 sof;
+    guint32 eventBaudrate;
+    guint16 channel;
+    guint8  res1[2];
+} blf_linbusevent_t;
+
+typedef struct blf_linsynchfieldevent {
+    blf_linbusevent_t   linBusEvent;
+    guint64             synchBreakLength;
+    guint64             synchDelLength;
+} blf_linsynchfieldevent_t;
+
+typedef struct blf_linmessagedescriptor {
+    blf_linsynchfieldevent_t    linSynchFieldEvent;
+    guint16                     supplierId;             /* LIN 2.0 or higher */
+    guint16                     messageId;              /* LIN 2.0: message identifier, LIN 2.1: position index as specified in LDF */
+    guint8                      configuredNodeAddress;  /* LIN 2.0 or higher */
+    guint8                      id;
+    guint8                      dlc;
+    guint8                      checksumModel;
+} blf_linmessagedescriptor_t;
+
+typedef struct blf_lindatabytetimestampevent {
+    blf_linmessagedescriptor_t  linMessageDescriptor;
+    guint64                     databyteTimestamps[9];  /* Byte 0: Timestamp of last header byte, Bytes 1-9: Timestamps of data bytes 1-8 */
+} blf_lindatabytetimestampevent_t;
+
+typedef struct blf_linmessage2 {
+    blf_lindatabytetimestampevent_t linDataByteTimestampEvent;
+    guint8                          data[8];
+    guint16                         crc;
+    guint8                          dir;        /* 0 RX, 1 TX Receipt, 2 TX Req */
+    guint8                          simulated;  /* 0 Real frame, 1 Simulated frame */
+    guint8                          isEtf;      /* 0 Not event triggered frame, 1 Event triggered frame */
+    guint8                          eftAssocIndex;
+    guint8                          eftAssocEftId;
+    guint8                          fsmId;      /* Obsolete */
+    guint8                          fsmState;   /* Obsolete */
+    guint8                          res1[3];
+/*  These fields are optional and skipping does not hurt us.
+    guint32                         respBaudrate;
+    double                          exactHeaderBaudrate;
+    guint32                         earlyStopBitOffset;
+    guint32                         earlyStopBitOffsetResponse;
+*/
+} blf_linmessage2_t;
+
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/AppText.h */
 
