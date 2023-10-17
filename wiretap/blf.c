@@ -1288,9 +1288,9 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("blf: %s: not enough bytes for canfd header in object",
+        *err_info = ws_strdup_printf("blf: %s: not enough bytes for can header in object",
                                     can_message2 ? "CAN_MESSAGE2" : "CAN_MESSAGE");
-        ws_debug("not enough bytes for canfd header in object");
+        ws_debug("not enough bytes for can header in object");
         return FALSE;
     }
 
@@ -1300,9 +1300,7 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     }
     fix_endianness_blf_canmessage(&canheader);
 
-    if (canheader.dlc > 15) {
-        canheader.dlc = 15;
-    }
+    canheader.dlc &= 0x0f;
 
     payload_length = canheader.dlc;
     if (payload_length > 8) {
@@ -1330,13 +1328,13 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     /* actually, we do not really need the data, right now.... */
     if (can_message2) {
-        if (object_length < (data_start - block_start) + (int) sizeof(canheader) + payload_length_valid + (int) sizeof(can2trailer)) {
+        if (object_length < (data_start - block_start) + (int) sizeof(canheader) + 8 + (int) sizeof(can2trailer)) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = ws_strdup_printf("blf: CAN_MESSAGE2: not enough bytes for can message 2 trailer");
             ws_debug("not enough bytes for can message 2 trailer");
             return FALSE;
         }
-        if (!blf_read_bytes(params, data_start + sizeof(canheader) + payload_length_valid, &can2trailer, sizeof(can2trailer), err, err_info)) {
+        if (!blf_read_bytes(params, data_start + sizeof(canheader) + 8, &can2trailer, sizeof(can2trailer), err, err_info)) {
             ws_debug("not enough bytes for can message 2 trailer in file");
             return FALSE;
         }
@@ -1370,9 +1368,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
     }
     fix_endianness_blf_canfdmessage(&canheader);
 
-    if (canheader.dlc > 15) {
-        canheader.dlc = 15;
-    }
+    canheader.dlc &= 0x0f;
 
     canfd = (canheader.canfdflags & BLF_CANFDMESSAGE_CANFDFLAG_EDL) == BLF_CANFDMESSAGE_CANFDFLAG_EDL;
     if (canfd) {
@@ -1434,10 +1430,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
     }
     fix_endianness_blf_canfdmessage64(&canheader);
 
-
-    if (canheader.dlc > 15) {
-        canheader.dlc = 15;
-    }
+    canheader.dlc &= 0x0f;
 
     canfd = (canheader.flags & BLF_CANFDMESSAGE64_FLAG_EDL) == BLF_CANFDMESSAGE64_FLAG_EDL;
     if (canfd) {
