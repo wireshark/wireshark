@@ -474,6 +474,12 @@ static http3_file_local_ctx *http3_get_file_local_ctx(void);
 #ifdef HAVE_NGHTTP3
 #define HTTP3_HEADER_CACHE http3_get_file_local_ctx()->hdr_cache_map
 #define HTTP3_HEADER_NAME_CACHE http3_get_file_local_ctx()->hdr_def_cache_map
+
+/* This global carries header name_length + name + value_length + value.
+ * It is allocated with file scoped memory, and then either placed in the
+ * cache map or, if it matches something already in the cache map, the
+ * memory is reallocated for the next header encountered. */
+static char *http3_header_pstr = NULL;
 #endif
 
 /**
@@ -564,6 +570,11 @@ static bool
 qpack_decoder_del_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
     nghttp3_qpack_decoder_del((nghttp3_qpack_decoder *)user_data);
+    /* If we have a decoder, then we might have set http3_header_pstr to
+     * point to file scoped memory. Make sure we set it to NULL when leaving
+     * wmem_file_scope.
+     */
+    http3_header_pstr = NULL;
     return FALSE;
 }
 
@@ -690,8 +701,6 @@ http3_packet_get_direction(quic_stream_info *stream_info)
         ? FROM_CLIENT_TO_SERVER
         : FROM_SERVER_TO_CLIENT;
 }
-
-char *http3_header_pstr = NULL;
 
 static void
 try_append_method_path_info(packet_info *pinfo, proto_tree *tree, const gchar *method_header_value,
@@ -911,6 +920,18 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
                     def->name     = (const char *)def_name;
 
                     wmem_map_insert(HTTP3_HEADER_NAME_CACHE, http3_header_pstr, def);
+                    /* XXX: keys are not copied in wmem_maps, so once we use
+                     * http3_header_pstr, we should set it to NULL so that
+                     * the memory pointed to won't be realloc'ed. However,
+                     * we'll do that in the other map below, as we only insert
+                     * into these maps at the same time, we are guaranteed
+                     * that we will be setting it to NULL below. This is
+                     * fragile and should be replaced with a single map.
+                     * I also don't see the point of this map considering
+                     * that the name and name_len are contained within the
+                     * pstr value and can (and are) parsed from it; this
+                     * map doesn't seem to be used currently.
+                     */
                 }
 
                 /* Create an output field and add it to the headers array */
