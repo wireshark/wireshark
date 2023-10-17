@@ -33,6 +33,10 @@ typedef struct _plugin {
     const char     *type_name;    /* user-facing name (what it does). Should these be capitalized? */
 } plugin;
 
+#define TYPE_DIR_EPAN       "epan"
+#define TYPE_DIR_WIRETAP    "wiretap"
+#define TYPE_DIR_CODECS     "codecs"
+
 #define TYPE_NAME_DISSECTOR "dissector"
 #define TYPE_NAME_FILE_TYPE "file type"
 #define TYPE_NAME_CODEC     "codec"
@@ -42,15 +46,15 @@ static GSList *plugins_module_list = NULL;
 
 
 static inline const char *
-type_to_signature(plugin_type_e type)
+type_to_dir(plugin_type_e type)
 {
     switch (type) {
     case WS_PLUGIN_EPAN:
-        return WIRESHARK_EPAN_PLUGIN;
+        return TYPE_DIR_EPAN;
     case WS_PLUGIN_WIRETAP:
-        return WIRESHARK_WIRETAP_PLUGIN;
+        return TYPE_DIR_WIRETAP;
     case WS_PLUGIN_CODEC:
-        return WIRESHARK_CODEC_PLUGIN;
+        return TYPE_DIR_CODECS;
     default:
         ws_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
         break;
@@ -68,6 +72,23 @@ type_to_name(plugin_type_e type)
         return TYPE_NAME_FILE_TYPE;
     case WS_PLUGIN_CODEC:
         return TYPE_NAME_CODEC;
+    default:
+        ws_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
+        break;
+    }
+    ws_assert_not_reached();
+}
+
+static inline const char *
+type_to_signature(plugin_type_e type)
+{
+    switch (type) {
+    case WS_PLUGIN_EPAN:
+        return WIRESHARK_EPAN_PLUGIN;
+    case WS_PLUGIN_WIRETAP:
+        return WIRESHARK_WIRETAP_PLUGIN;
+    case WS_PLUGIN_CODEC:
+        return WIRESHARK_CODEC_PLUGIN;
     default:
         ws_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
         break;
@@ -125,7 +146,7 @@ pass_plugin_version_compatibility(GModule *handle, const char *name)
 #endif
 
 static void
-scan_plugins_dir(GHashTable *plugins_module, const char *plugin_folder, plugin_type_e type, int level)
+scan_plugins_dir(GHashTable *plugins_module, const char *plugin_folder, plugin_type_e type)
 {
     GDir          *dir;
     const char    *name;            /* current file name */
@@ -134,13 +155,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *plugin_folder, plugin_t
     void *         symbol;
     const char    *plug_version;
     plugin        *new_plug;
-    char          *tmp_path;
     const char    *type_signature;
-
-    /* Only recurse one level */
-    if (level > 1) {
-        return;
-    }
 
     dir = g_dir_open(plugin_folder, 0, NULL);
     if (dir == NULL) {
@@ -152,15 +167,16 @@ scan_plugins_dir(GHashTable *plugins_module, const char *plugin_folder, plugin_t
 
     while ((name = g_dir_read_name(dir)) != NULL) {
         /* Skip anything but files with .dll or .so. */
-        if (!g_str_has_suffix(name, MODULE_SUFFIX)) {
-            /* Recurse into subdirectories one level */
-            tmp_path = g_build_filename(plugin_folder, name, (char *)NULL);
-            if (g_file_test(tmp_path, G_FILE_TEST_IS_DIR)) {
-                scan_plugins_dir(plugins_module, tmp_path, type, level + 1);
-                g_free(tmp_path);
-                continue;
-            }
-            g_free(tmp_path);
+        if (!g_str_has_suffix(name, MODULE_SUFFIX))
+            continue;
+
+        /*
+         * Check if the same name is already registered.
+         */
+        if (g_hash_table_lookup(plugins_module, name)) {
+            /* Yes, it is. */
+            report_warning("The plugin '%s' was found "
+                                "in multiple directories", name);
             continue;
         }
 
@@ -237,6 +253,8 @@ DIAG_ON_PEDANTIC
 plugins_t *
 plugins_init(plugin_type_e type)
 {
+    char *plugin_path;
+
     if (!g_module_supported())
         return NULL; /* nothing to do */
 
@@ -245,7 +263,14 @@ plugins_init(plugin_type_e type)
     /*
      * Scan the global plugin directory.
      */
-    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, 0);
+    plugin_path = g_build_filename(get_plugins_dir_with_version(), type_to_dir(type), (char *)NULL);
+    /* Scan type-specific global sub-folder. */
+    scan_plugins_dir(plugins_module, plugin_path, type);
+    g_free(plugin_path);
+    plugin_path = g_build_filename(get_plugins_dir_with_version(), (char *)NULL);
+    /* Scan top-level generic global folder. */
+    scan_plugins_dir(plugins_module, plugin_path, type);
+    g_free(plugin_path);
 
     /*
      * If the program wasn't started with special privileges,
@@ -256,7 +281,14 @@ plugins_init(plugin_type_e type)
      * reclaim them before each time we start capturing.)
      */
     if (!started_with_special_privs()) {
-        scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(), type, 0);
+        plugin_path = g_build_filename(get_plugins_pers_dir_with_version(), type_to_dir(type), (char *)NULL);
+        /* Scan type-specific personal sub-folder. */
+        scan_plugins_dir(plugins_module, plugin_path, type);
+        g_free(plugin_path);
+        plugin_path = g_build_filename(get_plugins_pers_dir_with_version(), (char *)NULL);
+        /* Scan top-level generic personal folder. */
+        scan_plugins_dir(plugins_module, plugin_path, type);
+        g_free(plugin_path);
     }
 
     plugins_module_list = g_slist_prepend(plugins_module_list, plugins_module);

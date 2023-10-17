@@ -551,15 +551,16 @@ machine code.
 Wireshark looks for plugins in both a personal plugin folder and a
 global plugin folder.  Lua plugins are stored in the plugin folders;
 compiled plugins are stored in subfolders of the plugin folders, with
-the subfolder name being the Wireshark minor version number (X.Y).
+the subfolder name being the Wireshark minor version number (X.Y). There is
+another hierarchical level for each Wireshark plugin type (libwireshark,
+libwiretap and codecs). So for example the location for a libwireshark plugin
+_foo.so_ (_foo.dll_ on Windows) would be _PLUGINDIR/X.Y/epan_
+(libwireshark used to be called libepan; the other folder names are _codecs_
+and _wiretap_).
 
-Optionally you can add another level below this to organize the plugins
-as you wish. This is how Wireshark installs its bundled plugins by default,
-using three subfolders (epan/wiretap/codecs) but this is not mandatory.
-At most one more hierarchical filesystem level can be used. Wireshark will
-recursively descend into folders and check each compiled DSO for
-compatibility. If the compiled binary file passes those checks then the
-plugin is loaded during startup.
+As an exception to facilitate manual installation of plugins the root of
+the plugins folder is also scanned for binary plugins. Incompatible
+plugins will be ignored.
 
 On Windows:
 
