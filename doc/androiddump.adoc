@@ -21,6 +21,7 @@ androiddump - Provide interfaces to capture from Android devices
 [ *--extcap-dlts* ]
 [ *--extcap-interface*=<interface> ]
 [ *--extcap-config* ]
+[ *--extcap-capture-filter*=<capture filter> ]
 [ *--capture* ]
 [ *--fifo*=<path to file or pipe> ]
 [ *--adb-server-ip*=<IP address> ]
@@ -76,7 +77,7 @@ Supported interfaces:
 6. Bluetooth Hcidump [++<=++Jelly Bean]
 7. Bluetooth Bluedroid External Parser [Kitkat]
 8. Bluetooth BtsnoopNet [>=Lollipop]
-9. WiFi tcpdump [need tcpdump on phone]
+9. WiFi/Ethernet tcpdump [needs tcpdump on phone]
 
 Please note that Androiddump will work also for FirefoxOS or other
 Android-based operating systems.
@@ -106,6 +107,14 @@ List DLTs of specified interface.
 
 --extcap-config::
 List configuration options of specified interface.
+
+--extcap-capture-filter=<capture filter>::
+The capture filter. It corresponds to the value provided via the *tshark -f*
+option, and the Capture Filter field next to the interfaces list in the
+Wireshark interface.
++
+NOTE: This is only respected for Wifi/Ethernet (tcpdump) capturing, not for
+Bluetooth or logcat.
 
 --capture::
 Start capturing from the specified interface and save it in the location
@@ -173,8 +182,10 @@ interface {display=Android Logcat System unknown MSM7627A}{value=android-logcat-
 interface {display=Android Logcat Radio unknown MSM7627A}{value=android-logcat-radio-MSM7627A}
 interface {display=Android Logcat Events unknown MSM7627A}{value=android-logcat-events-MSM7627A}
 interface {display=Android Bluetooth Hcidump unknown MSM7627A}{value=android-bluetooth-hcidump-MSM7627A}
+----
 
 Human-readable display name of interfaces contains interface type, one of:
+
     android-logcat-main (Android Logcat Main)
     android-logcat-system (Android Logcat System)
     android-logcat-radio (Android Logcat Radio)
@@ -187,17 +198,19 @@ Human-readable display name of interfaces contains interface type, one of:
     android-bluetooth-hcidump (Android Bluetooth Hcidump)
     android-bluetooth-external-parser (Android Bluetooth External Parser)
     android-bluetooth-btsnoop-net (Android Bluetooth Btsnoop Net)
-    android-wifi-tcpdump (Android WiFi)
-Then Android Device's name if available, otherwise "unknown".
-Last part of it is DeviceID - the identificator of the device provided by Android SDK (see "adb devices").
+    android-tcpdump (Android tcpdump)
 
-For example:
-"Android Logcat Main unknown MSM7627A"
+For tcpdump this is followed by target network device name (like `eth0`).
 
-"Android Logcat Main" - user-friendly type of interface
-"unknown" - name of Android Device
-"MSM7627A" - device ID
-----
+Then Android Device's name if available, otherwise `unknown`.
+
+Last part of it is DeviceID - the identificator of the device provided by Android SDK (see `adb devices`).
+
+For example: `Android Logcat Main unknown MSM7627A`
+
+- `Android Logcat Main` - user-friendly type of interface
+- `unknown` - name of Android Device
+- `MSM7627A` - device ID
 
 To see interface DLTs:
 
