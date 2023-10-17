@@ -116,7 +116,7 @@ blf_calc_key_value(int pkt_encap, guint16 channel, guint16 hwchannel) {
 
 static void add_interface_name(wtap_block_t *int_data, int pkt_encap, guint16 channel, guint16 hwchannel, gchar *name) {
     if (name != NULL) {
-        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, name, channel);
+        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "%s", name);
     } else {
         switch (pkt_encap) {
         case WTAP_ENCAP_ETHERNET:
@@ -2184,12 +2184,14 @@ blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint6
     /* We'll write this as a WS UPPER PDU packet with a data blob */
     /* This will create an interface with the "name" of the matching
      * WTAP_ENCAP_ETHERNET interface with the same channel and hardware
-     * channel prefixedwith "STATUS" and with a different interface ID,
+     * channel prefixed with "STATUS" and with a different interface ID,
      * because IDBs in pcapng can only have one linktype.
      * The other option would be to write everything as UPPER_PDU, including
      * the Ethernet data (with one of the "eth_" dissectors.)
      */
-    blf_lookup_interface(params, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_status_header.channel, ethernet_status_header.hardwareChannel, ws_strdup_printf("STATUS-ETH-%u-%u", ethernet_status_header.channel, ethernet_status_header.hardwareChannel));
+    char* iface_name = ws_strdup_printf("STATUS-ETH-%u-%u", ethernet_status_header.channel, ethernet_status_header.hardwareChannel);
+    blf_lookup_interface(params, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_status_header.channel, ethernet_status_header.hardwareChannel, iface_name);
+    g_free(iface_name);
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_status_header.channel, ethernet_status_header.hardwareChannel, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
 
     if ((ethernet_status_header.flags & BLF_ETH_STATUS_HARDWARECHANNEL) == BLF_ETH_STATUS_HARDWARECHANNEL) {
