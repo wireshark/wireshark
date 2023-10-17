@@ -420,15 +420,11 @@ fix_endianness_blf_flexrayrcvmessage(blf_flexrayrcvmessage_t *header) {
 }
 
 static void
-fix_endianness_blf_linmessage(blf_linmessage_t *header) {
-    header->channel = GUINT16_FROM_LE(header->channel);
-}
-
-static void
-fix_endianness_blf_linmessage_trailer(blf_linmessage_trailer_t *header) {
-    header->crc = GUINT16_FROM_LE(header->crc);
+fix_endianness_blf_linmessage(blf_linmessage_t* message) {
+    message->channel = GUINT16_FROM_LE(message->channel);
+    message->crc = GUINT16_FROM_LE(message->crc);
 /*  skip the optional part
-    header->res2 = GUINT32_FROM_LE(header->res2);
+    message->res2 = GUINT32_FROM_LE(message->res2);
 */
 }
 
@@ -1957,75 +1953,47 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
 }
 
 static gboolean
-blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp) {
-    blf_linmessage_t         linheader;
-    blf_linmessage_trailer_t lintrailer;
+blf_read_linmessage(blf_params_t* params, int* err, gchar** err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp) {
+    blf_linmessage_t         linmessage;
 
     guint8  payload_length;
-    guint8  payload_length_valid;
-    guint   caplen, len;
+    guint   len;
 
-    if (object_length < (data_start - block_start) + (int)sizeof(linheader)) {
+    if (object_length < (data_start - block_start) + (int)sizeof(linmessage)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("blf: LIN_MESSAGE: not enough bytes for linmessage header in object");
-        ws_debug("not enough bytes for linmessage header in object");
+        *err_info = ws_strdup_printf("blf: LIN_MESSAGE: not enough bytes for linmessage in object");
+        ws_debug("not enough bytes for linmessage in object");
         return FALSE;
     }
 
-    if (!blf_read_bytes(params, data_start, &linheader, sizeof(linheader), err, err_info)) {
-        ws_debug("not enough bytes for linmessage header in file");
+    if (!blf_read_bytes(params, data_start, &linmessage, sizeof(linmessage), err, err_info)) {
+        ws_debug("not enough bytes for linmessage in file");
         return FALSE;
     }
-    fix_endianness_blf_linmessage(&linheader);
+    fix_endianness_blf_linmessage(&linmessage);
 
-    if (linheader.dlc > 15) {
-        linheader.dlc = 15;
-    }
+    linmessage.dlc &= 0x0f;
+    linmessage.id &= 0x3f;
 
-    payload_length = linheader.dlc;
-    payload_length_valid = payload_length;
-
-    if (payload_length_valid > object_length - (data_start - block_start)) {
-        ws_debug("shortening LIN payload because buffer is too short!");
-        payload_length_valid = (guint8)(object_length - (data_start - block_start));
-    }
+    payload_length = MIN(linmessage.dlc, 8);
 
     guint8 tmpbuf[8];
     tmpbuf[0] = 1; /* message format rev = 1 */
     tmpbuf[1] = 0; /* reserved */
     tmpbuf[2] = 0; /* reserved */
     tmpbuf[3] = 0; /* reserved */
-    tmpbuf[4] = (linheader.dlc << 4) | 0; /* dlc (4bit) | type (2bit) | checksum type (2bit) */
-    tmpbuf[5] = linheader.id;
-    tmpbuf[6] = 0; /* checksum */
+    tmpbuf[4] = (linmessage.dlc << 4) | 0; /* dlc (4bit) | type (2bit) | checksum type (2bit) */
+    tmpbuf[5] = linmessage.id;  /* parity (2bit) | id (6bit) */
+    tmpbuf[6] = (guint8)(linmessage.crc & 0xff); /* checksum */
     tmpbuf[7] = 0; /* errors */
 
-    ws_buffer_assure_space(params->buf, sizeof(tmpbuf) + payload_length_valid);
+    ws_buffer_assure_space(params->buf, sizeof(tmpbuf) + payload_length);
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
-    caplen = sizeof(tmpbuf) + payload_length_valid;
+    ws_buffer_append(params->buf, linmessage.data, payload_length);
     len = sizeof(tmpbuf) + payload_length;
 
-    if (payload_length_valid > 0 && !blf_read_bytes(params, data_start + 4, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
-        ws_debug("copying can payload failed");
-        return FALSE;
-    }
-    params->buf->first_free += payload_length_valid;
-
-    if (object_length < (data_start - block_start) + (int)sizeof(linheader) + payload_length_valid + (int)sizeof(lintrailer)) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("blf: LIN_MESSAGE: not enough bytes for linmessage trailer");
-        ws_debug("not enough bytes for linmessage trailer");
-        return FALSE;
-    }
-    if (!blf_read_bytes(params, data_start + sizeof(linheader) + payload_length_valid, &lintrailer, sizeof(lintrailer), err, err_info)) {
-        ws_debug("not enough bytes for linmessage trailer in file");
-        return FALSE;
-    }
-    fix_endianness_blf_linmessage_trailer(&lintrailer);
-    /* we are not using it right now since the CRC is too big to convert */
-
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linheader.channel, UINT16_MAX, caplen, len);
-    blf_add_direction_option(params, lintrailer.dir);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linmessage.channel, UINT16_MAX, len, len);
+    blf_add_direction_option(params, linmessage.dir);
 
     return TRUE;
 }

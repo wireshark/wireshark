@@ -443,9 +443,7 @@ typedef struct blf_linmessage {
     guint16 channel;
     guint8  id;
     guint8  dlc;
-} blf_linmessage_t;
-
-typedef struct blf_linmessage_trailer {
+    guint8  data[8];
     guint8  fsmId;
     guint8  fsmState;
     guint8  headerTime;
@@ -456,7 +454,7 @@ typedef struct blf_linmessage_trailer {
 /*  This field is optional and skipping does not hurt us.
     guint32 res2;
 */
-} blf_linmessage_trailer_t;
+} blf_linmessage_t;
 
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/AppText.h */
