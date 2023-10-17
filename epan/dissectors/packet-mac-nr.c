@@ -1960,9 +1960,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             /* Add SDU, for now just as hex data */
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
-                if (lcid == CCCH_LCID) {
+                if ((lcid == CCCH_LCID) || (lcid == 36)) {
                     SDU_length = 8;
-                } else if (lcid == CCCH_48_BITS_LCID) {
+                } else if ((lcid == CCCH_48_BITS_LCID) || (lcid == 35)) {
                     SDU_length = 6;
                 }
                 sch_pdu_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_ulsch_sdu,
@@ -2033,7 +2033,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
 
                 if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
-                    protocol_handle = (lcid == CCCH_LCID) ? nr_rrc_ul_ccch1_handle : nr_rrc_ul_ccch_handle;
+                    protocol_handle = ((lcid == CCCH_LCID) || (lcid == 36)) ?
+                                            nr_rrc_ul_ccch1_handle :
+                                            nr_rrc_ul_ccch_handle;
                 } else {
                     protocol_handle = nr_rrc_dl_ccch_handle;
                 }
