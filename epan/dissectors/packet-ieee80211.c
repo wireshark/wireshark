@@ -7637,6 +7637,23 @@ static int hf_ieee80211_ext_tag_number = -1;
 static int hf_ieee80211_ext_tag_length = -1;
 static int hf_ieee80211_ext_tag_data = -1;
 
+static int hf_ieee80211_fils_req_params_parameter_control_bitmap = -1;
+static int hf_ieee80211_fils_req_params_fils_criteria_present = -1;
+static int hf_ieee80211_fils_req_params_max_delay_limit_present = -1;
+static int hf_ieee80211_fils_req_params_minimum_data_rate_present = -1;
+static int hf_ieee80211_fils_req_params_rcpi_limit_present = -1;
+static int hf_ieee80211_fils_req_params_oui_response_criteria_present = -1;
+static int hf_ieee80211_fils_req_params_reserved = -1;
+static int hf_ieee80211_fils_req_params_max_channel_time = -1;
+static int hf_ieee80211_fils_req_params_fils_criteria = -1;
+static int hf_ieee80211_fils_req_params_fils_criteria_bss_delay = -1;
+static int hf_ieee80211_fils_req_params_fils_criteria_phy_support = -1;
+static int hf_ieee80211_fils_req_params_fils_criteria_reserved = -1;
+static int hf_ieee80211_fils_req_params_max_delay_limit = -1;
+static int hf_ieee80211_fils_req_params_minimum_data_rate = -1;
+static int hf_ieee80211_fils_req_params_rcpi_limit = -1;
+static int hf_ieee80211_fils_req_params_oui_response_criteria = -1;
+
 static int hf_ieee80211_fils_session = -1;
 static int hf_ieee80211_fils_encrypted_data = -1;
 static int hf_ieee80211_fils_nonce = -1;
@@ -8584,6 +8601,9 @@ static gint ett_neighbor_ap_info = -1;
 static gint ett_tbtt_infos = -1;
 static gint ett_rnr_bss_params_tree = -1;
 static gint ett_rnr_mld_params_tree = -1;
+
+static gint ett_ff_fils_req_params = -1;
+static gint ett_ff_fils_req_params_fils_criteria = -1;
 
 /* Generic address HF list for proto_tree_add_mac48_detail() */
 static const mac_hf_list_t mac_addr = {
@@ -13956,6 +13976,81 @@ dissect_wrapped_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
       break;
     }
   }
+}
+
+#define FILS_REQ_PARAMS_FILS_CRITERIA           0x01
+#define FILS_REQ_PARAMS_MAX_DELAY_LIMIT         0x02
+#define FILS_REQ_PARAMS_MINIMUM_DATA_RATE       0x04
+#define FILS_REQ_PARAMS_RCPI_LIMIT              0x08
+#define FILS_REQ_PARAMS_OUI_RESPONSE_CRITERIA   0x10
+#define FILS_REQ_PARAMS_RESERVED                0xE0
+
+#define FILS_REQ_PARAMS_FILS_CRITERIA_BSS_DELAY   0x07
+#define FILS_REQ_PARAMS_FILS_CRITERIA_PHY_SUPPORT 0x38
+#define FILS_REQ_PARAMS_FILS_CRITERIA_RESERVED    0xC0
+
+static void
+dissect_fils_req_params(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, guint8 ext_tag_len _U_)
+{
+  guint8 bitmap;
+
+  static int * const ieee80211_fils_req_params_paramter_control_bitmap[] = {
+    &hf_ieee80211_fils_req_params_fils_criteria_present,
+    &hf_ieee80211_fils_req_params_max_delay_limit_present,
+    &hf_ieee80211_fils_req_params_minimum_data_rate_present,
+    &hf_ieee80211_fils_req_params_rcpi_limit_present,
+    &hf_ieee80211_fils_req_params_oui_response_criteria_present,
+    &hf_ieee80211_fils_req_params_reserved,
+    NULL
+  };
+
+  static int * const ieee80211_fils_req_params_fils_criteria[] = {
+    &hf_ieee80211_fils_req_params_fils_criteria_bss_delay,
+    &hf_ieee80211_fils_req_params_fils_criteria_phy_support,
+    &hf_ieee80211_fils_req_params_fils_criteria_reserved,
+    NULL
+  };
+
+  bitmap = tvb_get_guint8(tvb, offset);
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_fils_req_params_parameter_control_bitmap,
+                         ett_ff_fils_req_params, ieee80211_fils_req_params_paramter_control_bitmap, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_fils_req_params_max_channel_time,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset +=1;
+
+  if(bitmap & FILS_REQ_PARAMS_FILS_CRITERIA) {
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_fils_req_params_fils_criteria,
+                         ett_ff_fils_req_params_fils_criteria, ieee80211_fils_req_params_fils_criteria, ENC_LITTLE_ENDIAN);
+    offset += 1;
+  }
+
+  if(bitmap & FILS_REQ_PARAMS_MAX_DELAY_LIMIT) {
+    proto_tree_add_item(tree, hf_ieee80211_fils_req_params_max_delay_limit,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+  }
+
+  if(bitmap & FILS_REQ_PARAMS_MINIMUM_DATA_RATE) {
+    proto_tree_add_item(tree, hf_ieee80211_fils_req_params_minimum_data_rate,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+  }
+
+  if(bitmap & FILS_REQ_PARAMS_RCPI_LIMIT) {
+    proto_tree_add_item(tree, hf_ieee80211_fils_req_params_rcpi_limit,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+  }
+
+  if(bitmap & FILS_REQ_PARAMS_OUI_RESPONSE_CRITERIA) {
+    proto_tree_add_item(tree, hf_ieee80211_fils_req_params_oui_response_criteria,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    //offset += 2;
+  }
+
 }
 
 static guint
@@ -34529,6 +34624,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   ext_tag_len = tag_len - 1;
 
   switch (ext_tag_no) {
+    case ETAG_FILS_REQ_PARAMS:
+      dissect_fils_req_params(tree, pinfo, tvb, offset, ext_tag_len);
+      break;
     case ETAG_FILS_SESSION:
       proto_tree_add_item(tree, hf_ieee80211_fils_session, tvb, offset, ext_tag_len, ENC_NA);
       if (field_data->sanity_check != NULL) {
@@ -56072,6 +56170,86 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, 0x0, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_fils_req_params_parameter_control_bitmap,
+     {"Parameter Control Bitmap", "wlan.ext_tag.fils.req_params.parameter_control_bitmap",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_fils_criteria_present,
+     {"FILS Criteria Present", "wlan.ext_tag.fils.req_params.fils_criteria_present",
+      FT_BOOLEAN, 8, NULL, FILS_REQ_PARAMS_FILS_CRITERIA,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_max_delay_limit_present,
+     {"Max Delay Limit Present", "wlan.ext_tag.fils.req_params.max_delay_limit_present",
+      FT_BOOLEAN, 8, NULL, FILS_REQ_PARAMS_MAX_DELAY_LIMIT,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_minimum_data_rate_present,
+     {"Minimum Data Rate Present", "wlan.ext_tag.fils.req_params.minimum_data_rate_present",
+      FT_BOOLEAN, 8, NULL, FILS_REQ_PARAMS_MINIMUM_DATA_RATE,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_rcpi_limit_present,
+     {"RCPI Limit Present", "wlan.ext_tag.fils.req_params.rcpi_limit_present",
+      FT_BOOLEAN, 8, NULL, FILS_REQ_PARAMS_RCPI_LIMIT,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_oui_response_criteria_present,
+     {"OUI Response Criteria Present", "wlan.ext_tag.fils.req_params.oui_response_criteria_present",
+      FT_BOOLEAN, 8, NULL, FILS_REQ_PARAMS_OUI_RESPONSE_CRITERIA,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_reserved,
+     {"Reserved", "wlan.ext_tag.fils.req_params.reserved",
+      FT_UINT8, BASE_HEX, NULL, FILS_REQ_PARAMS_RESERVED,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_max_channel_time,
+     {"Max Channel Time", "wlan.ext_tag.fils.req_params.max_channel_time",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_fils_criteria,
+     {"FILS Criteria", "wlan.ext_tag.fils.req_params.fils_criteria",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_fils_criteria_bss_delay,
+     {"BSS Delay", "wlan.ext_tag.fils.req_params.fils_criteria.bss_delay",
+      FT_BOOLEAN, 8, NULL, FILS_REQ_PARAMS_FILS_CRITERIA_BSS_DELAY,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_fils_criteria_phy_support,
+     {"PHY Support", "wlan.ext_tag.fils.req_params.fils_criteria.phy_support",
+      FT_BOOLEAN, 8, NULL, FILS_REQ_PARAMS_FILS_CRITERIA_PHY_SUPPORT,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_fils_criteria_reserved,
+     {"Reserved", "wlan.ext_tag.fils.req_params.fils_criteria.reserved",
+      FT_UINT8, BASE_HEX, NULL, FILS_REQ_PARAMS_FILS_CRITERIA_RESERVED,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_max_delay_limit,
+     {"Max Delay Limit", "wlan.ext_tag.fils.req_params.max_delay_limit",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_minimum_data_rate,
+     {"Minimum Data Rate", "wlan.ext_tag.fils.req_params.minimum_data_rate",
+      FT_UINT24, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_rcpi_limit,
+     {"RCPI Limit", "wlan.ext_tag.fils.req_params.rcpi_limit",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_req_params_oui_response_criteria,
+     {"OUI Response Criteria", "wlan.ext_tag.fils.req_params.oui_response_criteria",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_fils_session,
      {"FILS Session", "wlan.ext_tag.fils.session",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -59588,6 +59766,9 @@ proto_register_ieee80211(void)
 
     &ett_ff_fils_discovery_frame_control,
     &ett_ff_fils_discovery_capability,
+
+    &ett_ff_fils_req_params,
+    &ett_ff_fils_req_params_fils_criteria,
   };
 
   static ei_register_info ei[] = {
