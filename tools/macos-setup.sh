@@ -348,7 +348,7 @@ install_pcre() {
         $no_build && echo "Skipping installation" && return
         bzcat pcre-$PCRE_VERSION.tar.bz2 | tar xf - || exit 1
         cd pcre-$PCRE_VERSION
-        ./configure --enable-unicode-properties || exit 1
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-unicode-properties || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
@@ -1807,7 +1807,7 @@ install_zstd() {
         $no_build && echo "Skipping installation" && return
         gzcat zstd-$ZSTD_VERSION.tar.gz | tar xf - || exit 1
         cd zstd-$ZSTD_VERSION
-        make $MAKE_BUILD_OPTS || exit 1
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
         touch zstd-$ZSTD_VERSION-done
