@@ -52,11 +52,6 @@ typedef bool (*FtypeCanFunc)(enum ftenum);
 static ftenum_t
 find_logical_ftype(dfwork_t *dfw, stnode_t *st_node);
 
-static ftenum_t
-check_arithmetic_LHS(dfwork_t *dfw, stnode_op_t st_op,
-			stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
-			ftenum_t logical_ftype);
-
 static void
 check_relation(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, bool allow_partial_value,
@@ -1582,7 +1577,7 @@ op_to_error_msg(stnode_op_t st_op)
 }
 
 static ftenum_t
-check_arithmetic_LHS(dfwork_t *dfw, stnode_op_t st_op,
+check_arithmetic_LHS_NUMBER(dfwork_t *dfw, stnode_op_t st_op,
 			stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
 			ftenum_t logical_ftype)
 {
@@ -1656,6 +1651,53 @@ check_arithmetic_LHS(dfwork_t *dfw, stnode_op_t st_op,
 	return ftype1;
 }
 
+/*
+ * Time arithmetic with scalar multiplication/division only.
+ * An extra limitation is that multiplicative scalars must appear on the
+ * RHS currently.
+ */
+static ftenum_t
+check_arithmetic_LHS_TIME(dfwork_t *dfw, stnode_op_t st_op, stnode_t *st_node,
+			stnode_t *st_arg1, stnode_t *st_arg2,
+			ftenum_t logical_ftype)
+{
+	ftenum_t		ftype1, ftype2;
+
+	sttype_oper_get(st_node, &st_op, &st_arg1, &st_arg2);
+
+	LOG_NODE(st_node);
+
+	switch (st_op) {
+		case STNODE_OP_UNARY_MINUS:
+			ftype1 = check_arithmetic(dfw, st_arg1, logical_ftype);
+			return ftype1;
+		case STNODE_OP_ADD:
+		case STNODE_OP_SUBTRACT:
+			ftype1 = check_arithmetic(dfw, st_arg1, logical_ftype);
+			if (!FT_IS_TIME(ftype1)) {
+				FAIL(dfw, st_node, "Left hand side must be a time type, not %s.", ftype_pretty_name(ftype1));
+			}
+			ftype2 = check_arithmetic(dfw, st_arg2, logical_ftype);
+			if (!FT_IS_TIME(ftype2)) {
+				FAIL(dfw, st_node, "Right hand side must be a time type, not %s.", ftype_pretty_name(ftype2));
+			}
+			return ftype1;
+		case STNODE_OP_MULTIPLY:
+		case STNODE_OP_DIVIDE:
+			ftype1 = check_arithmetic(dfw, st_arg1, logical_ftype);
+			if (!FT_IS_TIME(ftype1)) {
+				FAIL(dfw, st_node, "Left hand side must be a time type, not %s.", ftype_pretty_name(ftype1));
+			}
+			ftype2 = check_arithmetic(dfw, st_arg2, FT_INT64);
+			if (!FT_IS_INTEGER(ftype2)) {
+				FAIL(dfw, st_node, "Right hand side must be an integer type, not %s.", ftype_pretty_name(ftype2));
+			}
+			return ftype1;
+		default:
+			ws_error("invalid stnode op %s", stnode_todebug(st_node));
+	}
+}
+
 ftenum_t
 check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t logical_ftype)
 {
@@ -1695,7 +1737,10 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t logical_ftype)
 
 		case STTYPE_ARITHMETIC:
 			sttype_oper_get(st_node, &st_op, &st_arg1, &st_arg2);
-			ftype = check_arithmetic_LHS(dfw, st_op, st_node, st_arg1, st_arg2, logical_ftype);
+			if (FT_IS_TIME(logical_ftype))
+				ftype = check_arithmetic_LHS_TIME(dfw, st_op, st_node, st_arg1, st_arg2, logical_ftype);
+			else
+				ftype = check_arithmetic_LHS_NUMBER(dfw, st_op, st_node, st_arg1, st_arg2, logical_ftype);
 			break;
 
 		default:

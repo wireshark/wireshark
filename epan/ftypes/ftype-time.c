@@ -503,11 +503,11 @@ time_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
 static void
 check_ns_wraparound(nstime_t *ns, jmp_buf env)
 {
-	if (ns->nsecs >= NS_PER_S || (ns->nsecs > 0 && ns->secs < 0)) {
+	while(ns->nsecs >= NS_PER_S || (ns->nsecs > 0 && ns->secs < 0)) {
 		ws_safe_sub_jmp(&ns->nsecs, ns->nsecs, NS_PER_S, env);
 		ws_safe_add_jmp(&ns->secs, ns->secs, 1, env);
 	}
-	else if(ns->nsecs <= -NS_PER_S || (ns->nsecs < 0 && ns->secs > 0)) {
+	while (ns->nsecs <= -NS_PER_S || (ns->nsecs < 0 && ns->secs > 0)) {
 		ws_safe_add_jmp(&ns->nsecs, ns->nsecs, NS_PER_S, env);
 		ws_safe_sub_jmp(&ns->secs, ns->secs, 1, env);
 	}
@@ -521,16 +521,8 @@ _nstime_add(nstime_t *res, nstime_t a, const nstime_t b, jmp_buf env)
 	check_ns_wraparound(res, env);
 }
 
-static void
-_nstime_sub(nstime_t *res, nstime_t a, const nstime_t b, jmp_buf env)
-{
-	ws_safe_sub_jmp(&res->secs, a.secs, b.secs, env);
-	ws_safe_sub_jmp(&res->nsecs, a.nsecs, b.nsecs, env);
-	check_ns_wraparound(res, env);
-}
-
 static enum ft_result
-time_add(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
+time_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
 	jmp_buf env;
 	if (setjmp(env) != 0) {
@@ -541,8 +533,16 @@ time_add(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 	return FT_OK;
 }
 
+static void
+_nstime_sub(nstime_t *res, nstime_t a, const nstime_t b, jmp_buf env)
+{
+	ws_safe_sub_jmp(&res->secs, a.secs, b.secs, env);
+	ws_safe_sub_jmp(&res->nsecs, a.nsecs, b.nsecs, env);
+	check_ns_wraparound(res, env);
+}
+
 static enum ft_result
-time_subtract(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
+time_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
 	jmp_buf env;
 	if (setjmp(env) != 0) {
@@ -550,6 +550,61 @@ time_subtract(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_p
 		return FT_ERROR;
 	}
 	_nstime_sub(&dst->value.time, a->value.time, b->value.time, env);
+	return FT_OK;
+}
+
+static void
+_nstime_mul(nstime_t *res, nstime_t a, int64_t val, jmp_buf env)
+{
+	ws_safe_mul_jmp(&res->secs, a.secs, (time_t)val, env);
+	ws_safe_mul_jmp(&res->nsecs, a.nsecs, (int)val, env);
+	check_ns_wraparound(res, env);
+}
+
+static enum ft_result
+time_multiply(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
+{
+	jmp_buf env;
+	if (setjmp(env) != 0) {
+		*err_ptr = ws_strdup_printf("time_subtract: overflow");
+		return FT_ERROR;
+	}
+
+	int64_t val;
+	enum ft_result res = fvalue_to_sinteger64(b, &val);
+	if (res != FT_OK)
+		return res;
+
+	_nstime_mul(&dst->value.time, a->value.time, val, env);
+	return FT_OK;
+}
+
+static void
+_nstime_div(nstime_t *res, nstime_t a, int64_t val, jmp_buf env)
+{
+	ws_safe_div_jmp(&res->secs, a.secs, (time_t)val, env);
+	ws_safe_div_jmp(&res->nsecs, a.nsecs, (int)val, env);
+}
+
+static enum ft_result
+time_divide(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
+{
+	jmp_buf env;
+	if (setjmp(env) != 0) {
+		*err_ptr = ws_strdup_printf("time_divide: overflow");
+		return FT_ERROR;
+	}
+
+	int64_t val;
+	enum ft_result res = fvalue_to_sinteger64(b, &val);
+	if (res != FT_OK)
+		return res;
+	if (val == 0) {
+		*err_ptr = ws_strdup_printf("time_divide: division by zero");
+		return FT_ERROR;
+	}
+
+	_nstime_div(&dst->value.time, a->value.time, val, env);
 	return FT_OK;
 }
 
@@ -589,8 +644,8 @@ ftype_register_time(void)
 		time_unary_minus,		/* unary_minus */
 		time_add,			/* add */
 		time_subtract,			/* subtract */
-		NULL,				/* multiply */
-		NULL,				/* divide */
+		time_multiply,			/* multiply */
+		time_divide,			/* divide */
 		NULL,				/* modulo */
 	};
 	static ftype_t reltime_type = {
@@ -625,8 +680,8 @@ ftype_register_time(void)
 		time_unary_minus,		/* unary_minus */
 		time_add,			/* add */
 		time_subtract,			/* subtract */
-		NULL,				/* multiply */
-		NULL,				/* divide */
+		time_multiply,			/* multiply */
+		time_divide,			/* divide */
 		NULL,				/* modulo */
 	};
 

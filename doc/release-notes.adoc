@@ -45,6 +45,10 @@ The following features are new (or have been significantly updated) since versio
 
   ** Fields with value strings now support regular expression matching.
 
+  ** Date and time values now support arithmetic, with some restrictions:
+     the multiplier/divisor must be an integer and appear on the right-hand
+     side of the operator.
+
 //=== Removed Features and Support
 
 // === Removed Dissectors

@@ -519,6 +519,13 @@ Arithmetic expressions are supported with the usual operators:
     /   Division
     %   Modulo (integer remainder)
 
+Arithmetic operations can be performed on numeric types. Numeric types are
+integers, floating point numbers and date and time values.
+
+Date and time values can only be multiplied by integers and furthermore the
+scalar multiplier must appear on the right-hand side of the arithmetic
+operation.
+
 For example it is possible to filter for UDP destination ports greater or
 equal by one to the source port with the expression:
 

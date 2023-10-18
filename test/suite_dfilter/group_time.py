@@ -146,3 +146,26 @@ class TestDfilterTimezone:
     def test_time_6(self, checkDFilterCount):
         dfilter = 'frame.time == "2002-12-31 07:55:31.3 CST"'
         checkDFilterCount(dfilter, 1)
+
+class TestDfilterTimeArithmetic:
+    trace_file = "sip-rtp.pcapng"
+
+    def test_time_math_1(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'frame.time_relative > ${frame.time_relative} + 10'
+        # select frame 4, expect 425 frames out of 562.
+        checkDFilterCountWithSelectedFrame(dfilter, 425, 4)
+
+    def test_time_math_2(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'frame.time_relative > ${frame.time_relative} - 2'
+        # select frame 14, expect 557 frames out of 562.
+        checkDFilterCountWithSelectedFrame(dfilter, 557, 14)
+
+    def test_time_math_3(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'frame.time_relative > ${frame.time_relative} * 2'
+        # select frame 4, expect 557 frames out of 562.
+        checkDFilterCountWithSelectedFrame(dfilter, 557, 4)
+
+    def test_time_math_4(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'frame.time_relative > ${frame.time_relative} / 3'
+        # select frame 532, expect 528 frames out of 562.
+        checkDFilterCountWithSelectedFrame(dfilter, 528, 532)
