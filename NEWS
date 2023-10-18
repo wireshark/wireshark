@@ -1,6 +1,6 @@
 Wireshark 4.2.0 Release Notes
 
- This is the first release candidate for Wireshark 4.2.
+ This is the second release candidate for Wireshark 4.2.
 
  What is Wireshark?
 
@@ -27,7 +27,9 @@ Wireshark 4.2.0 Release Notes
   registry.
 
   The enterprises, manuf, and services configuration files have been
-  compiled in for improved start-up times.
+  compiled in for improved start-up times. These files are no longer
+  available in the master branch in our source code repository. You can
+  download the manuf file[1] from our automated build directory.
 
   The installation target no longer installs development headers by
   default.
@@ -35,7 +37,7 @@ Wireshark 4.2.0 Release Notes
   The Wireshark installation is relocatable on Linux (and other ELF
   platforms with support for relative RPATHs).
 
-  Wireshark can be compiled on Windows using MSYS2[1]. Check the
+  Wireshark can be compiled on Windows using MSYS2[2]. Check the
   Developer’s guide for instructions.
 
   Wireshark can be cross-compiled for Windows using Linux. Check the
@@ -54,27 +56,30 @@ Wireshark 4.2.0 Release Notes
 
    The following bugs have been fixed:
 
-     • Issue 18413[2] - RTP player do not play audio frequently on
+     • Issue 18413[3] - RTP player do not play audio frequently on
        Windows builds with Qt6.
 
-     • Issue 18510[3] - Playback marker does not move after resume with
+     • Issue 18510[4] - Playback marker does not move after resume with
        Qt6.
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 4.2.0rc1:
+
+     • The Windows installers now ship with Npcap 1.77. They previously
+       shipped with Npcap 1.71.
 
    The following features are new (or have been significantly updated)
    since version 4.1.0:
 
      • Improved dark mode support.
 
-   The following features are new (or have been significantly updated)
-   since version 4.0.0:
-
      • The Windows installers now ship with Qt 6.5.3. They previously
        shipped with Qt 6.2.3.
 
-     • The Windows installers now ship with Npcap 1.77. They previously
-       shipped with Npcap 1.71.
+   The following features are new (or have been significantly updated)
+   since version 4.0.0:
 
      • The API has been updated to ensure that the dissection engine
        produces valid UTF-8 strings.
@@ -120,11 +125,11 @@ Wireshark 4.2.0 Release Notes
         • Added XOR logical operator.
 
         • Fixed the implementation of `all …​ in` membership operator
-       (#19188[4]).
+       (#19188[5]).
 
         • When parsing absolute time values the display filter engine
        has learned to understand timezones as specified in
-       strptime(3)[5], including some common North American
+       strptime(3)[6], including some common North American
        designations. Arbitrary timezone names are not supported however.
        Previously only ISO8601 offsets and the "UTC" designation was
        understood.
@@ -139,7 +144,7 @@ Wireshark 4.2.0 Release Notes
         • The deprecated ~≃ operator symbol has been removed. It was
        replaced by !== in version 4.0.
 
-     • Running the test suite requires the pytest[6] Python module. The
+     • Running the test suite requires the pytest[7] Python module. The
        emulation layer that allowed running tests without pytest
        installed has been removed.
 
@@ -246,7 +251,7 @@ Wireshark 4.2.0 Release Notes
 
      • The bundled script "dtd_gen.lua" that was disabled by default has
        been removed from the installation. It can be found in the
-       Wireshark Wiki under "Contrib"[7].
+       Wireshark Wiki under "Contrib"[8].
 
      • The Wi-Fi NAN dissector filter name has been changed from 'nan'
        to 'wifi_nan'.
@@ -297,7 +302,7 @@ Wireshark 4.2.0 Release Notes
        details about addresses (default off).
 
      • IPv6: The dissector now supports dissecting the Application-aware
-       IPv6 Networking (APN6) option[8] in the Hop-by-Hop Options Header
+       IPv6 Networking (APN6) option[9] in the Hop-by-Hop Options Header
        (HBH) and Destination Options Header (DOH), including all three
        types of APN ID, which are 32-bit, 64-bit and 128-bit in length.
 
@@ -331,7 +336,7 @@ Wireshark 4.2.0 Release Notes
 
   New and Updated Codec support
 
-   Adaptive Multi-Rate (AMR), if compiled with opencore-amr[9].
+   Adaptive Multi-Rate (AMR), if compiled with opencore-amr[10].
 
   Major API Changes
 
@@ -345,7 +350,7 @@ Wireshark 4.2.0 Release Notes
        data of a high level protocol that is not on top of TCP.
 
      • Some of the API now uses C99 types instead of GLib types. Issue
-       19116[10]
+       19116[11]
 
  Getting Wireshark
 
@@ -357,7 +362,7 @@ Wireshark 4.2.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[11] on the Wireshark web site.
+   be found on the download page[12] on the Wireshark web site.
 
  File Locations
 
@@ -372,41 +377,42 @@ Wireshark 4.2.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[12] and on the
+  Community support is available on Wireshark’s Q&A site[13] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[13].
+  for all of Wireshark’s mailing lists can be found on the web site[14].
 
-  Bugs and feature requests can be reported on the issue tracker[14].
+  Bugs and feature requests can be reported on the issue tracker[15].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[15].
+  SharkFest[16].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[16].
+  at wiresharkfoundation.org[17].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[17].
+  A complete FAQ is available on the Wireshark web site[18].
 
  References
 
-   1. https://www.msys2.org/
-   2. https://gitlab.com/wireshark/wireshark/-/issues/18413
-   3. https://gitlab.com/wireshark/wireshark/-/issues/18510
-   4. https://gitlab.com/wireshark/wireshark/-/issues/19188
-   5. https://man.netbsd.org/strptime.3
-   6. https://pypi.org/project/pytest/
-   7. https://wiki.wireshark.org/Contrib
-   8. https://www.ipv6plus.net/Phase3/apn6/
-   9. https://sourceforge.net/projects/opencore-amr/
-  10. https://gitlab.com/wireshark/wireshark/-/issues/19116
-  11. https://www.wireshark.org/download.html
-  12. https://ask.wireshark.org/
-  13. https://www.wireshark.org/lists/
-  14. https://gitlab.com/wireshark/wireshark/-/issues
-  15. https://sharkfest.wireshark.org
-  16. https://wiresharkfoundation.org
-  17. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/download/automated/data/manuf
+   2. https://www.msys2.org/
+   3. https://gitlab.com/wireshark/wireshark/-/issues/18413
+   4. https://gitlab.com/wireshark/wireshark/-/issues/18510
+   5. https://gitlab.com/wireshark/wireshark/-/issues/19188
+   6. https://man.netbsd.org/strptime.3
+   7. https://pypi.org/project/pytest/
+   8. https://wiki.wireshark.org/Contrib
+   9. https://www.ipv6plus.net/Phase3/apn6/
+  10. https://sourceforge.net/projects/opencore-amr/
+  11. https://gitlab.com/wireshark/wireshark/-/issues/19116
+  12. https://www.wireshark.org/download.html
+  13. https://ask.wireshark.org/
+  14. https://www.wireshark.org/lists/
+  15. https://gitlab.com/wireshark/wireshark/-/issues
+  16. https://sharkfest.wireshark.org
+  17. https://wiresharkfoundation.org
+  18. https://www.wireshark.org/faq.html

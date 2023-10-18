@@ -1,3 +1,65 @@
+5c794eb6ca ieee80211: Add dissection of ETAG FILS Request Parameter
+473c5e257e VMware HeartBeat: Enhance dissection
+95c12710ef netscreen: do bounds checking for each byte of packet data.
+fd19f0d06f TLS: add JA4 TLS client fingerprinting
+2e391adb00 BLF: Fix memory leak for interface name
+ddda9246f8 blf: Use WTAP_ENCAP_NONE, record linktypes must match interface linktype
+c09a9a8182 androiddoc: Update man page
+668adf474f androiddump: support capture filter
+1be6e3da00 Windows: Upgrade to nghttp2 1.57.0
+abcfc2efb2 http3: Don't point to file scoped memory after leaving the scope
+42529db7e9 Make `grep proto_register_protocol` more useful
+d975c5353c CI,Tools: auto-enable Homebrew updates in CI, remove brew doctor
+575de4a6c7 HTTP3: remove nghttp3 min version, update setup scripts
+2907dda307 nghttp3: Add runtime version information, if present
+e5c3052e4b Docs: Simplify our man page markup
+9984dd37d8 [Automatic update for 2023-10-15]
+c736142853 HTTP3: fix ASAN stack-use-after-return error
+1d8d689c2d wireguard: Handle unexpected inability to decrypt due to FIPS mode
+5f39dac3cd wireguard: Get rid of some redundant log warning text
+5db2a6ccb0 docs: Make version option handling consistent
+3fa56dc0e2 Tools: Add an install-test-deps option to macos-setup-brew
+6d1019705e Tools: Various macos-setup-brew updates
+e17c02934f mdb: start dissecting comms gw reports
+fed930d21b github: fix macos workflow.
+8f88ce051b mdb: dissect peripheral id response
+c4c738cfe0 Fix Wi-SUN LFNVER-IE display
+890fd8ac55 mdb: start dissecting comms gw expansion
+5024eff333 mdb: dissect comms gw config
+30b6c4ad64 doc: Man page minor grammar fix
+dc73193a7b OSPF: Support for draft-ietf-ospf-shortcut-abr-02
+55ba0f9129 gcrypt: Disable FIPS mode if possible
+45b55d010f wsutil: Rename ws_strcasestr to ws_ascii_strcasestr
+74dc0ad44a wsutil: Do not use built in strcasestr
+cf940bb464 wmem_list: increment count for insert_sorted
+840e1b2a58 mdb: dissect comms gw's setup command
+bb3ee4eca8 Add wiretap log domain to wiretap/blf
+5a66bf2c6b wiretap: set WS_LOG_DOMAIN to LOG_DOMAIN_WIRETAP if wslog.h is used.
+268f76ff1d mdb: show comms gw responses
+79d7366bcd TLS, DNS: add dissection of Encrypted Client Hello
+a01f956d3c mdb: start Communications Gateway support
+a2c33a8c1d asn2wrs: Handle c-style comments by removing them in preparse state.
+08214affb8 mdb: dissect vending messages
+f1cadee300 BTatt: fix indentation of two dissectors
+a9900885c7 asn2wrs: Ignore the "WITH SUCCESSORS" directive
+6b23c591e8 BLF: create Ethernet Interface IDs based on channel and hwchannel
+a5cd5150bd Qt: Normalize SCTP dialogs
+754ea8d559 BLF: Fix Ethernet Status Filter
+04f668527e Qt: Remove a separator from the Help menu
+7609897704 sctp tap: Fix copying checksum string
+f04e7d19b8 Windows: upgrade Npcap to 1.77
+c5a9962482 [Automatic update for 2023-10-08]
+d9f2645649 mdb: start dissecting Optional Feature Enabled
+0891fecdad diameter: Decode User-Name as an IMSI in S13/S13'
+55409fea51 Packaging: Make sure we stash our version info when creating a tarball
+30e69c62eb Tools: More update-appdata.py updates
+6f725b77ff Tools: Fix a comment in update-appdata.py
+60042733ec GitLab CI: Update our Freedesktop metainformation when we build our tarball
+264d37213a mdb: start dissecting the Peripheral ID response
+b3f176fde6 ssh: Plug leak of MAC context when using ChaCha20
+8b0b460647 GitLab CI: More rules updates
+d66839c75d GitLab CI: Fix the if-merged and source package job rules
+57d9af0495 Build: 4.2.0rc1
 9bb2f610ed ssh: Fix some invalid reads and writes, infinite loops
 7e7114f308 mdb: start dissecting Expansion messages
 d12ea77a43 ssh: Don't close a cipher twice
