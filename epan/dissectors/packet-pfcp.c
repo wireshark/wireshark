@@ -8854,8 +8854,8 @@ dissect_pfcp_multicast_transport_information(tvbuff_t *tvb, packet_info *pinfo, 
     offset++;
 
     /* Oct 6 to 9 Common Tunnel Endpoint Identifer */
-    proto_tree_add_item(tree, hf_pfcp_multicast_transport_information_endpoint_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    proto_tree_add_item(tree, hf_pfcp_multicast_transport_information_endpoint_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
 
     /* Oct 10 Distribution Address Type && Length */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_multicast_transport_information_distribution_address_type, tvb, offset, 1, ENC_BIG_ENDIAN, &distribution_address_type);
@@ -15688,7 +15688,7 @@ proto_register_pfcp(void)
 
         { &hf_pfcp_multicast_transport_information_endpoint_identifier,
         { "Common Tunnel Endpoint Identifier", "pfcp.multicast_transport_information.endpoint_identifier",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_multicast_transport_information_distribution_address_type,
@@ -15717,7 +15717,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_multicast_transport_information_source_address_length,
-        { "Source Address Type", "pfcp.multicast_transport_information.distribution_address.length",
+        { "Source Address Length", "pfcp.multicast_transport_information.distribution_address.length",
             FT_UINT8, BASE_DEC, NULL, 0x3F,
             NULL, HFILL }
         },
