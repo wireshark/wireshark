@@ -558,10 +558,6 @@ _foo.so_ (_foo.dll_ on Windows) would be _PLUGINDIR/X.Y/epan_
 (libwireshark used to be called libepan; the other folder names are _codecs_
 and _wiretap_).
 
-As an exception to facilitate manual installation of plugins the root of
-the plugins folder is also scanned for binary plugins. Incompatible
-plugins will be ignored.
-
 On Windows:
 
 * The personal plugin folder is _%APPDATA%\Wireshark\plugins_.

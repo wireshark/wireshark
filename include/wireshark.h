@@ -53,10 +53,6 @@
 #include <wsutil/glib-compat.h>
 #include <wsutil/wmem/wmem.h>
 
-#define WIRESHARK_EPAN_PLUGIN       "epan"
-#define WIRESHARK_WIRETAP_PLUGIN    "wiretap"
-#define WIRESHARK_CODEC_PLUGIN      "codec"
-
 #endif /* __WIRESHARK_H__ */
 
 /*

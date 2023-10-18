@@ -45,10 +45,6 @@ The following features are new (or have been significantly updated) since versio
 
   ** Fields with value strings now support regular expression matching.
 
-* Binary plugins can be placed on the root of the versioned plugins
-  folder, in addition to the type-specific sub-folder. Incompatible
-  plugins will be ignored.
-
 //=== Removed Features and Support
 
 // === Removed Dissectors
@@ -87,12 +83,8 @@ Too many protocol updates have been made to list them all here.
 
 //_Non-empty section placeholder._
 
-=== Major API Changes
+//=== Major API Changes
 
-* The API for loading binary plugins has changed and all plugins are now required
-  to include a new public symbol named "plugin_type". The possible values are
-  defined in `wireshark.h` and correspond to the three major supported plugin
-  types (epan/wiretap/codec).
 
 == Getting Wireshark
 

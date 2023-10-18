@@ -115,7 +115,7 @@ reg_code += """
 
 /* plugins are DLLs on Windows */
 #define WS_BUILD_DLL
-#include <wireshark.h>
+#include "ws_symbol_export.h"
 
 """
 
@@ -139,24 +139,16 @@ for symbol in regs['codec_register']:
 for symbol in regs['register_tap_listener']:
     reg_code += "void register_tap_listener_%s(void);\n" % (symbol)
 
-plugin_type = {
-    "plugin": "WIRESHARK_EPAN_PLUGIN",
-    "plugin_wtap": "WIRESHARK_WIRETAP_PLUGIN",
-    "plugin_codec": "WIRESHARK_CODEC_PLUGIN",
-    "plugin_tap": "WIRESHARK_EPAN_PLUGIN",
-}
-
 reg_code += """
 WS_DLL_PUBLIC_DEF const gchar plugin_version[] = PLUGIN_VERSION;
-WS_DLL_PUBLIC_DEF const gchar plugin_type[] = {};
 WS_DLL_PUBLIC_DEF const int plugin_want_major = VERSION_MAJOR;
 WS_DLL_PUBLIC_DEF const int plugin_want_minor = VERSION_MINOR;
 
 WS_DLL_PUBLIC void plugin_register(void);
 
 void plugin_register(void)
-{{
-""".format(plugin_type[registertype])
+{
+"""
 
 if registertype == "plugin":
     for symbol in regs['proto_reg']:
