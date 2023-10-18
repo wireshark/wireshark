@@ -59,7 +59,12 @@ static gboolean netscreen_seek_read(wtap *wth, gint64 seek_off,
 static gboolean parse_netscreen_packet(FILE_T fh, wtap_rec *rec,
 	Buffer* buf, char *line, int *err, gchar **err_info);
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
-	guint byte_offset);
+	guint byte_offset, guint pkt_len);
+
+/* Error returns from parse_single_hex_dump_line() */
+#define PARSE_LINE_INVALID_CHARACTER	-1
+#define PARSE_LINE_NO_BYTES_SEEN	-2
+#define PARSE_LINE_TOO_MANY_BYTES_SEEN	-3
 
 static int netscreen_file_type_subtype = -1;
 
@@ -245,13 +250,40 @@ netscreen_seek_read(wtap *wth, gint64 seek_off,	wtap_rec *rec, Buffer *buf,
               2c 21 b6 d3 20 60 0c 8c 35 98 88 cf 20 91 0e a9     ,!...`..5.......
               1d 0b                                               ..
 
+ * The first line of a packet is in the form
 
+<secs>.<dsecs>: <iface>({i,o}) len=<length>:<llinfo>>
+
+ * where:
+ *
+ *   <secs> and <dsecs> are a time stamp in seconds and deciseconds,
+ *     giving the time since the firewall was booted;
+ *
+ *   <iface> is the name of the interface on which the packet was
+ *     received or on which it was transmitted;
+ *
+ *   {i,o} is i for a received packet and o for a transmitted packet;
+ *
+ *   <length> is the length of the packet on the network;
+ *
+ *   <llinfo>, at least for Ethernet, appears to be a source MAC
+ *     address, folowed by "->", folowed by a destination MAC
+ *     address, followed by a sequence of Ethertypes, each
+ *     preceded by a "/" (multiple Ethertypes if there are VLAN
+ *     tags and the like), possibly followed by ", tag <tag>".
+ *
+ * Following that may be some "info lines", each of which is indented
+ * by 14 spaces, giving a dissection of the payload after the
+ * link-layer header.
+ *
+ * Following that is a hex/ASCII dump of the contents of the
+ * packet, with 16 octets per line.
  */
 static gboolean
 parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
     char *line, int *err, gchar **err_info)
 {
-	int		pkt_len;
+	guint		pkt_len;
 	int		sec;
 	int		dsec;
 	char		cap_int[NETSCREEN_MAX_INT_NAME_LENGTH];
@@ -271,25 +303,20 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 	memset(cap_int, 0, sizeof(cap_int));
 	memset(cap_dst, 0, sizeof(cap_dst));
 
-	if (sscanf(line, "%9d.%9d: %15[a-z0-9/:.-](%1[io]) len=%9d:%12s->%12s/",
+	if (sscanf(line, "%9d.%9d: %15[a-z0-9/:.-](%1[io]) len=%9u:%12s->%12s/",
 		   &sec, &dsec, cap_int, direction, &pkt_len, cap_src, cap_dst) < 5) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("netscreen: Can't parse packet-header");
 		return -1;
 	}
-	if (pkt_len < 0) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup("netscreen: packet header has a negative packet length");
-		return FALSE;
-	}
-	if ((guint)pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
+	if (pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("netscreen: File has %u-byte packet, bigger than maximum of %u",
-		    (guint)pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
+		    pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
 
@@ -328,44 +355,71 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 			break;
 		}
 
-		n = parse_single_hex_dump_line(p, pd, offset);
+		n = parse_single_hex_dump_line(p, pd, offset, pkt_len);
 
-		/* the smallest packet has a length of 6 bytes, if
-		 * the first hex-data is less then check whether
-		 * it is a info-line and act accordingly
+		/*
+		 * The smallest packet has a length of 6 bytes.
+		 * If the first line either gets an error when
+		 * parsed as hex data, or has fewer than 6
+		 * bytes of hex data, check whether it's an
+		 * info line by see if it has at least
+		 * NETSCREEN_SPACES_ON_INFO_LINE spaces at the
+		 * beginning.
+		 *
+		 * If it does, count this line and, if we have,
+		 * so far, skipped no more than NETSCREEN_MAX_INFOLINES
+		 * lines, skip this line.
 		 */
 		if (offset == 0 && n < 6) {
 			if (info_line(line)) {
+				/* Info line */
 				if (++i <= NETSCREEN_MAX_INFOLINES) {
+					/* Skip this line */
 					continue;
 				}
 			} else {
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup("netscreen: cannot parse hex-data");
-				return FALSE;
+				if (n >= 0) {
+					*err = WTAP_ERR_BAD_FILE;
+					*err_info = g_strdup("netscreen: first line of packet data has only %d hex bytes, < 6");
+					return FALSE;
+				}
+				/* Otherwise, fall through to report error */
 			}
 		}
 
 		/* If there is no more data and the line was not empty,
 		 * then there must be an error in the file
 		 */
-		if (n == -1) {
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup("netscreen: cannot parse hex-data");
+		if (n < 0) {
+			switch (n) {
+
+			case PARSE_LINE_INVALID_CHARACTER:
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup("netscreen: invalid character in hex data");
+				break;
+
+			case PARSE_LINE_NO_BYTES_SEEN:
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup("netscreen: no hex bytes seen in hex data");
+				break;
+
+			case PARSE_LINE_TOO_MANY_BYTES_SEEN:
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup("netscreen: number of hex bytes seen in hex data is greater than the packet length");
+				break;
+
+			default:
+				*err = WTAP_ERR_INTERNAL;
+				*err_info = g_strdup_printf("netscreen: unknown error %d from parse_single_hex_dump_line()", n);
+				break;
+			}
+
 			return FALSE;
 		}
 
 		/* Adjust the offset to the data that was just added to the buffer */
 		offset += n;
 
-		/* If there was more hex-data than was announced in the len=x
-		 * header, then there must be an error in the file
-		 */
-		if (offset > pkt_len) {
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup("netscreen: too much hex-data");
-			return FALSE;
-		}
 	}
 
 	/*
@@ -405,7 +459,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
  *
  * Returns number of bytes successfully read, -1 if bad.  */
 static int
-parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
+parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset, guint pkt_len)
 {
 	int num_items_scanned;
 	guint8 character;
@@ -424,7 +478,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
 			/* Nothing more to parse */
 			break;
 		} else
-			return -1; /* not a hex digit, space before ASCII dump, or EOL */
+			return PARSE_LINE_INVALID_CHARACTER; /* not a hex digit, space before ASCII dump, or EOL */
 		byte <<= 4;
 		character = *rec++ & 0xFF;
 		if (character >= '0' && character <= '9')
@@ -434,7 +488,16 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
 		else if (character >= 'a' && character <= 'f')
 			byte += character - 'a' + 0xa;
 		else
-			return -1; /* not a hex digit */
+			return PARSE_LINE_INVALID_CHARACTER; /* not a hex digit */
+
+		/* If there was more hex-data than was announced in the len=x
+		 * header, then there must be an error in the file; quit
+		 * now, as adding this byte will overflow the buffer.
+		 */
+		if (byte_offset + num_items_scanned >= pkt_len) {
+			return PARSE_LINE_TOO_MANY_BYTES_SEEN;
+		}
+
 		buf[byte_offset + num_items_scanned] = byte;
 		character = *rec++ & 0xFF;
 		if (character == '\0' || character == '\r' || character == '\n') {
@@ -442,11 +505,11 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
 			break;
 		} else if (character != ' ') {
 			/* not space before ASCII dump */
-			return -1;
+			return PARSE_LINE_INVALID_CHARACTER;
 		}
 	}
 	if (num_items_scanned == 0)
-		return -1;
+		return PARSE_LINE_NO_BYTES_SEEN;
 
 	return num_items_scanned;
 }
