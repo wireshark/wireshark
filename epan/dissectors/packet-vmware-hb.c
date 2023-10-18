@@ -26,15 +26,17 @@ void proto_register_vmware_hb(void);
 
 static int proto_vmware_hb = -1;
 static int hf_vmware_hb_magic = -1;
-static int hf_vmware_hb_build_number= -1;
-static int hf_vmware_hb_uuid_length = -1;
-static int hf_vmware_hb_uuid = -1;
-static int hf_vmware_hb_counter = -1;
-static int hf_vmware_hb_esxi_ip4_address_length = -1;
-static int hf_vmware_hb_esxi_ip4_address = -1;
-static int hf_vmware_hb_payload = -1;
-
-static int hf_vmware_hb_unknown = -1;
+static int hf_vmware_hb_build_number = -1;
+static int hf_vmware_hb_server_id = -1;
+static int hf_vmware_hb_host_key_length = -1;
+static int hf_vmware_hb_host_key = -1;
+static int hf_vmware_hb_change_gen = -1;
+static int hf_vmware_hb_spec_gen = -1;
+static int hf_vmware_hb_bundle_version = -1;
+static int hf_vmware_hb_heartbeat_counter = -1;
+static int hf_vmware_hb_ip4_address_length = -1;
+static int hf_vmware_hb_ip4_address = -1;
+static int hf_vmware_hb_verification_signature = -1;
 
 static dissector_handle_t vmware_hb_handle;
 
@@ -402,7 +404,7 @@ dissect_vmware_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *vmware_hb_tree;
-    guint       offset = 0, uuid_length, ip4_length;
+    guint       offset = 0, host_key_length, ip4_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VMWARE-HB");
 
@@ -410,46 +412,45 @@ dissect_vmware_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     vmware_hb_tree = proto_item_add_subtree(ti, ett_vmware_hb);
 
-    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_magic, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_build_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_unknown, tvb, offset, 3, ENC_NA);
-    offset += 3;
-
-    proto_tree_add_item_ret_uint(vmware_hb_tree, hf_vmware_hb_uuid_length, tvb, offset, 2, ENC_BIG_ENDIAN, &uuid_length);
-    offset += 2;
-
-    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_uuid, tvb, offset, uuid_length, ENC_ASCII);
-    offset += uuid_length;
-
-    /* counter ? */
-    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_unknown, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item_ret_uint(vmware_hb_tree, hf_vmware_hb_host_key_length, tvb, offset, 1, ENC_BIG_ENDIAN, &host_key_length);
+    offset += 1;
+
+    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_host_key, tvb, offset, host_key_length, ENC_ASCII);
+    offset += host_key_length;
+
+    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_change_gen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_unknown, tvb, offset, 3, ENC_NA);
-    offset += 3;
-
-    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_spec_gen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item_ret_uint(vmware_hb_tree, hf_vmware_hb_esxi_ip4_address_length, tvb, offset, 2, ENC_BIG_ENDIAN, &ip4_length);
-    offset += 2;
+    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_bundle_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
 
-    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_esxi_ip4_address, tvb, offset, ip4_length, ENC_ASCII);
+    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_heartbeat_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item_ret_uint(vmware_hb_tree, hf_vmware_hb_ip4_address_length, tvb, offset, 1, ENC_BIG_ENDIAN, &ip4_length);
+    offset += 1;
+
+    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_ip4_address, tvb, offset, ip4_length, ENC_ASCII);
     offset += ip4_length;
 
-    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_payload, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(vmware_hb_tree, hf_vmware_hb_verification_signature, tvb, offset, -1, ENC_NA);
     offset += tvb_reported_length_remaining(tvb, offset);
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "UUID: %s - IP: %s",
-                tvb_get_string_enc(pinfo->pool, tvb, 13, uuid_length, ENC_ASCII), /* UUID */
-                tvb_get_string_enc(pinfo->pool, tvb, (13+uuid_length+17), ip4_length, ENC_ASCII)  /* ESX IPv4 Address ID*/
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Host Key: %s - IP: %s",
+                tvb_get_string_enc(pinfo->pool, tvb, 13, host_key_length, ENC_ASCII), /* Host Key */
+                tvb_get_string_enc(pinfo->pool, tvb, (13+host_key_length+17), ip4_length, ENC_ASCII)  /* ESX IPv4 Address ID*/
                 );
 
     return offset;
@@ -473,46 +474,64 @@ proto_register_vmware_hb(void)
             NULL, HFILL }
         },
 
-        { &hf_vmware_hb_uuid_length,
-            { "Length UUID", "vmware_hb.uuid.length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+        { &hf_vmware_hb_server_id,
+            { "Server ID", "vmware_hb.server_id",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
 
-        { &hf_vmware_hb_uuid,
-            { "UUID", "vmware_hb.uuid",
+        { &hf_vmware_hb_host_key_length,
+            { "Length Host Key", "vmware_hb.host_key.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_vmware_hb_host_key,
+            { "Host Key", "vmware_hb.host_key",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
-        { &hf_vmware_hb_counter,
-            { "Counter", "vmware_hb.counter",
+        { &hf_vmware_hb_change_gen,
+            { "Change Gen", "vmware_hb.change_gen",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_vmware_hb_spec_gen,
+            { "Spec Gen", "vmware_hb.spec_gen",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_vmware_hb_bundle_version,
+            { "Bundle Version", "vmware_hb.bundle_version",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_vmware_hb_heartbeat_counter,
+            { "Heartbeat Counter", "vmware_hb.heartbeat_counter",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
-        { &hf_vmware_hb_esxi_ip4_address_length,
-            { "ESXi IP4 Address Length", "vmware_hb.esxi_ip4_address.length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+        { &hf_vmware_hb_ip4_address_length,
+            { "IP4 Address Length", "vmware_hb.ip4_address.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
-        { &hf_vmware_hb_esxi_ip4_address,
-            { "ESXi IP4 Address", "vmware_hb.esxi_ip4_address",
+        { &hf_vmware_hb_ip4_address,
+            { "IP4 Address", "vmware_hb.esxi_ip4_address",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
-        { &hf_vmware_hb_payload,
-            { "Payload", "vmware_hb.payload",
+        { &hf_vmware_hb_verification_signature,
+            { "Verification Signature", "vmware_hb.verification_signature",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
-        },
-
-        { &hf_vmware_hb_unknown,
-            { "Unknown", "vmware_hb.unknown",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Always NULL ?", HFILL }
         },
 
     };
