@@ -3029,7 +3029,7 @@ dissect_dhcpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			while (composite_offset < tvb_reported_length(rfc3396_sip_server.tvb_composite)) {
 				if (rfc3396_sip_server.total_number_of_block == 1) {
 					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
-					proto_tree_add_item(tree, hf_dhcp_option_sip_server_address, rfc3396_sip_server.tvb_composite, composite_offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_dhcp_option_sip_server_address, tvb, composite_offset, 4, ENC_BIG_ENDIAN);
 				} else {
 					guint32 sip_server = tvb_get_ipv4(rfc3396_sip_server.tvb_composite, composite_offset);
 					/* RFC 3396 is used, so the option is split into several option 120. We don't link fqdn with v_tree. */
