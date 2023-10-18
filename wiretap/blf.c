@@ -1284,7 +1284,6 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     guint32  canid;
     guint8   payload_length;
-    guint8   payload_length_valid;
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         *err = WTAP_ERR_BAD_FILE;
@@ -1308,16 +1307,14 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
         payload_length = 8;
     }
 
-    payload_length_valid = payload_length;
-
     canid = canheader.id;
 
     if ((canheader.flags & BLF_CANMESSAGE_FLAG_RTR) == BLF_CANMESSAGE_FLAG_RTR) {
         canid |= CAN_RTR_FLAG;
-        payload_length_valid = 0;
+        payload_length = 0;
     }
 
-    if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel)) {
+    if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel)) {
         return FALSE;
     }
 
@@ -1375,23 +1372,23 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
         payload_length = can_dlc_to_length[canheader.dlc];
     }
 
-    payload_length_valid = payload_length;
-
-    if (payload_length_valid > canheader.validDataBytes) {
+    if (payload_length > canheader.validDataBytes) {
         ws_debug("shortening canfd payload because valid data bytes shorter!");
-        payload_length_valid = canheader.validDataBytes;
-    }
-
-    if (payload_length_valid > object_length - (data_start - block_start) + sizeof(canheader)) {
-        ws_debug("shortening can payload because buffer is too short!");
-        payload_length_valid = (guint8)(object_length - (data_start - block_start));
+        payload_length = canheader.validDataBytes;
     }
 
     canid = canheader.id;
 
     if (!canfd && (canheader.flags & BLF_CANMESSAGE_FLAG_RTR) == BLF_CANMESSAGE_FLAG_RTR) {
         canid |= CAN_RTR_FLAG;
-        payload_length_valid = 0;
+        payload_length = 0; /* Should already be zero from validDataBytes */
+    }
+
+    payload_length_valid = payload_length;
+
+    if (payload_length_valid > object_length - (data_start - block_start) + sizeof(canheader)) {
+        ws_debug("shortening can payload because buffer is too short!");
+        payload_length_valid = (guint8)(object_length - (data_start - block_start));
     }
 
     if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel)) {
@@ -1437,23 +1434,23 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
         payload_length = can_dlc_to_length[canheader.dlc];
     }
 
-    payload_length_valid = payload_length;
-
-    if (payload_length_valid > canheader.validDataBytes) {
+    if (payload_length > canheader.validDataBytes) {
         ws_debug("shortening canfd payload because valid data bytes shorter!");
-        payload_length_valid = canheader.validDataBytes;
-    }
-
-    if (payload_length_valid > object_length - (data_start - block_start)) {
-        ws_debug("shortening can payload because buffer is too short!");
-        payload_length_valid = (guint8)(object_length - (data_start - block_start));
+        payload_length = canheader.validDataBytes;
     }
 
     canid = canheader.id;
 
     if (!canfd && (canheader.flags & BLF_CANFDMESSAGE64_FLAG_REMOTE_FRAME) == BLF_CANFDMESSAGE64_FLAG_REMOTE_FRAME) {
         canid |= CAN_RTR_FLAG;
-        payload_length_valid = 0;
+        payload_length = 0; /* Should already be zero from validDataBytes */
+    }
+
+    payload_length_valid = payload_length;
+
+    if (payload_length_valid > object_length - (data_start - block_start)) {
+        ws_debug("shortening can payload because buffer is too short!");
+        payload_length_valid = (guint8)(object_length - (data_start - block_start));
     }
 
     if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel)) {
