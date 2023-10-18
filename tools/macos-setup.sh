@@ -19,11 +19,11 @@ shopt -s extglob
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
-# The minimum supported version of Qt is 5.9, so the minimum supported version
-# of macOS is OS X 10.10 (Yosemite), aka Darwin 14.0.
+# The minimum supported version of Qt is 5.10, so the minimum supported version
+# of macOS is OS X 10.11 (El Capitan), aka Darwin 15.0.
 #
-if [[ $DARWIN_MAJOR_VERSION -lt 14 ]]; then
-    echo "This script does not support any versions of macOS before Yosemite" 1>&2
+if [[ $DARWIN_MAJOR_VERSION -lt 15 ]]; then
+    echo "This script does not support any versions of macOS before El Capitan" 1>&2
     exit 1
 fi
 
