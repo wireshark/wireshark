@@ -502,29 +502,33 @@ gen_arithmetic(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 
 	sttype_oper_get(st_arg, &st_op, &left, &right);
 
-	if (st_op == STNODE_OP_UNARY_MINUS) {
-		op = DFVM_UNARY_MINUS;
-	}
-	else if (st_op == STNODE_OP_ADD) {
-		op = DFVM_ADD;
-	}
-	else if (st_op == STNODE_OP_SUBTRACT) {
-		op = DFVM_SUBTRACT;
-	}
-	else if (st_op == STNODE_OP_MULTIPLY) {
-		op = DFVM_MULTIPLY;
-	}
-	else if (st_op == STNODE_OP_DIVIDE) {
-		op = DFVM_DIVIDE;
-	}
-	else if (st_op == STNODE_OP_MODULO) {
-		op = DFVM_MODULO;
-	}
-	else if (st_op == STNODE_OP_BITWISE_AND) {
-		op = DFVM_BITWISE_AND;
-	}
-	else {
-		ws_assert_not_reached();
+	switch (st_op) {
+		case STNODE_OP_UNARY_MINUS:	op = DFVM_UNARY_MINUS; break;
+		case STNODE_OP_ADD:		op = DFVM_ADD; break;
+		case STNODE_OP_SUBTRACT:	op = DFVM_SUBTRACT; break;
+		case STNODE_OP_MULTIPLY:	op = DFVM_MULTIPLY; break;
+		case STNODE_OP_DIVIDE:		op = DFVM_DIVIDE; break;
+		case STNODE_OP_MODULO:		op = DFVM_MODULO; break;
+		case STNODE_OP_BITWISE_AND:	op = DFVM_BITWISE_AND; break;
+
+		/* fall-through */
+		case STNODE_OP_NOT:
+		case STNODE_OP_AND:
+		case STNODE_OP_OR:
+		case STNODE_OP_ALL_EQ:
+		case STNODE_OP_ANY_EQ:
+		case STNODE_OP_ALL_NE:
+		case STNODE_OP_ANY_NE:
+		case STNODE_OP_GT:
+		case STNODE_OP_GE:
+		case STNODE_OP_LT:
+		case STNODE_OP_LE:
+		case STNODE_OP_CONTAINS:
+		case STNODE_OP_MATCHES:
+		case STNODE_OP_IN:
+		case STNODE_OP_NOT_IN:
+		case STNODE_OP_UNINITIALIZED:
+			ws_assert_not_reached();
 	}
 
 	val1 = gen_entity(dfw, left, jumps_ptr);
