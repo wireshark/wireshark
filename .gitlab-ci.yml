@@ -107,6 +107,9 @@ variables:
     paths:
       - ccache/
   before_script:
+    - printf "\e[0Ksection_start:%s:ci_env_section[collapsed=true]\r\e[0KCI environment variables" "$(date +%s)"
+    - env | grep ^CI | sort
+    - printf "\e[0Ksection_end:%s:ci_env_section\r\e[0K" "$(date +%s)"
     - useradd user
     - export LANG=en_US.UTF-8
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
@@ -200,6 +203,9 @@ variables:
     HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
     HOMEBREW_NO_UPDATE_REPORT_NEW: "1"
   before_script:
+    - printf "\e[0Ksection_start:%s:ci_env_section[collapsed=true]\r\e[0KCI environment variables" "$(date +%s)"
+    - env | grep ^CI | sort
+    - printf "\e[0Ksection_end:%s:ci_env_section\r\e[0K" "$(date +%s)"
     # At the time of this writing (January 2023), the macOS SaaS builder has the following PATH:
     # /Users/gitlab/.asdf/shims:/Users/gitlab/.asdf/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin
     # The suite_clopts.case_tshark_extcap.test_tshark_extcap_interfaces test will fail because
@@ -242,6 +248,9 @@ variables:
     paths:
       - ccache/
   before_script:
+    - printf "\e[0Ksection_start:%s:ci_env_section[collapsed=true]\r\e[0KCI environment variables" "$(date +%s)"
+    - env | grep ^CI | sort
+    - printf "\e[0Ksection_end:%s:ci_env_section\r\e[0K" "$(date +%s)"
     - mkdir -p ccache
     - ccache --show-stats
     - mkdir build
