@@ -266,7 +266,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	exported_pdu_info.presence_flags = 0;
 	exported_pdu_info.ptype = EXP_PDU_PT_NONE;
 
-	prev_pos = curr_pos = curr_pos + 4;
+	prev_pos = curr_pos;
 	/* Look for the end of the tag first */
 	next_msg_pos = STRNSTR(curr_pos, ">");
 	if (!next_msg_pos) {
