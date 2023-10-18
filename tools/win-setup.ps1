@@ -94,7 +94,7 @@ $X64Archives = @{
     "snappy/snappy-1.1.9-1-win64ws.zip" = "fa907724be019bcc55d27ebe88257ba8898b5c38b719099b8164ac78600d81cc";
     "spandsp/spandsp-0.0.6-5-x64-windows-ws.zip" = "cbb18310876ec6f081662253a2d37f5174ac60c58b0b7cd6759852fbcfaa7d7f";
     "speexdsp/speexdsp-1.21.1-1-win64ws.zip" = "d36db62e64ffaee38d9f607bef07d3778d8957ad29757f3eba169eb135f1a4e5";
-    "vcpkg-export/vcpkg-export-20220726-1-win64ws.zip" = "b1eaa8124802532fa8d30789219906f90fb80908844e4458327b3f73995a44b0";
+    "vcpkg-export/vcpkg-export-20231017-1-x64-windows-ws.zip" = "fc5ea8110ce5e905e3342197481a805b6c2c87e273b0370bcc6a5964316c20ee";
     "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
     "zstd/zstd-1.5.2-1-win64ws.zip" = "d920afe636951cfcf144824d9c075d1f2c13387f4739152fe185fd9c09fc58f2";
 }
@@ -122,7 +122,7 @@ $Arm64Archives = @{
     "snappy/snappy-1.1.9-1-win64armws.zip" = "f3f6ec841024d18df06934ff70f44068a4e8f1008eca1f363257645647f74d4a";
     "spandsp/spandsp-0.0.6-5-arm64-windows-ws.zip" = "fdf01e3c33e739ff9399b7d42cd8230c97cb27ce51865a0f06285a8f68206b6c";
     "speexdsp/speexdsp-1.2.1-1-win64armws.zip" = "1759a9193065f27e50dd79dbb1786d24031ac43ccc48c40dca46d8a48552e3bb";
-    "vcpkg-export/vcpkg-export-20230502-1-win64armws.zip" = "94bc2d98bcb86e79569c7bf638cde8d63175cd65cf07cc219890cdc713707ce9";
+    "vcpkg-export/vcpkg-export-20231017-1-arm64-windows-ws.zip" = "2752e2e059ea13e8b4e1ef5f8892b81b745da6838e513bd6e4e548d290d9f472";
     "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
     "zstd/zstd-1.5.5-1-win64armws.zip" = "0e448875380cc5d5f5539d994062201bfa564e4a27466bc3fdfec84d9008e51d";
 }
