@@ -296,6 +296,11 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 	gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_init();
+#if GNUTLS_VERSION_NUMBER >= 0x030602
+	if (gnutls_fips140_mode_enabled()) {
+		gnutls_fips140_set_mode(GNUTLS_FIPS140_LAX, 0);
+	}
+#endif
 #endif
 #ifdef HAVE_LIBXML2
 	xmlInitParser();
