@@ -9,7 +9,7 @@ add_library(lrexlib STATIC ${REX_SRC})
 
 target_link_libraries(lrexlib PRIVATE
 	${LUA_LIBRARIES}
-	${PCRE2_LIBRARIES}
+	$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 )
 
 target_include_directories(lrexlib SYSTEM PRIVATE

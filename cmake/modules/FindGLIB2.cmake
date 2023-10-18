@@ -142,11 +142,6 @@ if( GLIB2_FOUND )
 			# "${GLIB2_DLL_DIR_RELEASE}/libffi.dll"
 			"${GLIB2_DLL_DIR_RELEASE}/iconv-2.dll"
 			"${GLIB2_DLL_DIR_RELEASE}/intl-8.dll"
-			"${GLIB2_DLL_DIR_RELEASE}/pcre.dll"
-			# "${GLIB2_DLL_DIR_RELEASE}/pcre16.dll"
-			# "${GLIB2_DLL_DIR_RELEASE}/pcre32.dll"
-			# "${GLIB2_DLL_DIR_RELEASE}/pcrecpp.dll"
-			# "${GLIB2_DLL_DIR_RELEASE}/pcreposix.dll"
 		)
 		set ( GLIB2_DLLS_RELEASE ${_glib2_dlls_release}
 			# We're storing filenames only. Should we use STRING instead?
@@ -163,11 +158,6 @@ if( GLIB2_FOUND )
 			# "${GLIB2_DLL_DIR_DEBUG}/libffi.dll"
 			"${GLIB2_DLL_DIR_DEBUG}/iconv-2.dll"
 			"${GLIB2_DLL_DIR_DEBUG}/intl-8.dll"
-			"${GLIB2_DLL_DIR_DEBUG}/pcred.dll"
-			# "${GLIB2_DLL_DIR_DEBUG}/pcre16d.dll"
-			# "${GLIB2_DLL_DIR_DEBUG}/pcre32d.dll"
-			# "${GLIB2_DLL_DIR_DEBUG}/pcrecppd.dll"
-			# "${GLIB2_DLL_DIR_DEBUG}/pcreposixd.dll"
 		)
 		set ( GLIB2_DLLS_DEBUG ${_glib2_dlls_debug}
 			# We're storing filenames only. Should we use STRING instead?
@@ -181,7 +171,6 @@ if( GLIB2_FOUND )
 			# "${GLIB2_DLL_DIR_RELEASE}/libcharset.pdb"
 			# "${GLIB2_DLL_DIR_RELEASE}/libiconv.pdb"
 			# "${GLIB2_DLL_DIR_RELEASE}/libintl.pdb"
-			"${GLIB2_DLL_DIR_RELEASE}/pcre.pdb"
 		)
 		set ( GLIB2_PDBS_RELEASE ${_glib2_pdbs_release}
 			CACHE FILEPATH "GLib2 debug release PDB list"
@@ -193,7 +182,6 @@ if( GLIB2_FOUND )
 			# "${GLIB2_DLL_DIR_DEBUG}/libcharset.pdb"
 			# "${GLIB2_DLL_DIR_DEBUG}/libiconv.pdb"
 			# "${GLIB2_DLL_DIR_DEBUG}/libintl.pdb"
-			"${GLIB2_DLL_DIR_DEBUG}/pcre.pdb"
 		)
 		set ( GLIB2_PDBS_DEBUG ${_glib2_pdbs_debug}
 			CACHE FILEPATH "GLib2 debug debug PDB list"
