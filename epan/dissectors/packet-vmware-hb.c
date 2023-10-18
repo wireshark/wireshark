@@ -523,7 +523,7 @@ proto_register_vmware_hb(void)
         },
 
         { &hf_vmware_hb_ip4_address,
-            { "IP4 Address", "vmware_hb.esxi_ip4_address",
+            { "IP4 Address", "vmware_hb.ip4_address",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
