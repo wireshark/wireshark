@@ -49,6 +49,7 @@ static const guchar c_s_msg[] = "<msg";
 static const guchar c_e_msg[] = "</msg>";
 static const guchar c_s_rawmsg[] = "<rawMsg";
 static const guchar c_change_time[] = "changeTime=\"";
+static const guchar c_function[] = "function=\"";
 static const guchar c_proto_name[] = "name=\"";
 //static const guchar c_address[] = "ddress"; /* omit the 'a' to cater for "Address" */
 static const guchar c_s_initiator[] = "<initiator";
@@ -65,11 +66,13 @@ static const guchar c_protocol[] = "protocol=\"";
 static const guchar c_sai_req[] = "gsm_map.v3.arg.opcode";
 static const guchar c_sai_rsp[] = "gsm_map.v3.res.opcode";
 static const guchar c_nas_eps[] = "nas-eps_plain";
+static const guchar c_nas_5gs[] = "nas-5gs";
 
 
 #define RINGBUFFER_START_SIZE G_MAXINT
 #define RINGBUFFER_CHUNK_SIZE 1024
 
+#define MAX_FUNCTION_LEN 64
 #define MAX_NAME_LEN 64
 #define MAX_PROTO_LEN 16
 #define MAX_DTBL_LEN 32
@@ -236,11 +239,13 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 
 	char* raw_msg_pos;
 	char* start_msg_tag_cont;
+	char function_str[MAX_FUNCTION_LEN+1];
 	char name_str[MAX_NAME_LEN+1];
 	char proto_name_str[MAX_PROTO_LEN+1];
 	char dissector_table_str[MAX_DTBL_LEN+1];
 	int dissector_table_val = 0;
 
+	int function_str_len = 0;
 	int name_str_len = 0;
 	int proto_str_len, dissector_table_str_len, raw_data_len, pkt_data_len, exp_pdu_tags_len, i;
 	guint8 *packet_buf;
@@ -320,6 +325,25 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 				rec->ts.nsecs = file_info->start_time.nsecs + (elapsed_ms * 1000000);
 			}
 		}
+	}
+
+	/* See if we have a "function" */
+	function_str[0] = '\0';	/* if we don't have a function */
+	curr_pos = STRNSTR(start_msg_tag_cont, c_function);
+	if (curr_pos != NULL) {
+		/* extract the function */
+		curr_pos += CLEN(c_function);
+		next_pos = STRNSTR(curr_pos, "\"");
+		function_str_len = (int)(next_pos - curr_pos);
+		if (function_str_len > MAX_FUNCTION_LEN) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = ws_strdup_printf("nettrace_3gpp_32_423: function_str_len > %d", MAX_FUNCTION_LEN);
+			goto end;
+		}
+
+		(void) g_strlcpy(function_str, curr_pos, (gsize)function_str_len + 1);
+		ascii_strdown_inplace(function_str);
+
 	}
 
 	/* See if we have a "name" */
@@ -402,12 +426,23 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 		proto_name_str[5] = '\0';
 		proto_str_len = 5;
 	}
-	/* XXX Do we need to check for function="S1"? */
 	if (strcmp(proto_name_str, "nas") == 0) {
-		/* Change to nas-eps_plain */
-		(void) g_strlcpy(proto_name_str, c_nas_eps, sizeof(c_nas_eps));
-		proto_str_len = CLEN(c_nas_eps);
+		if (strcmp(function_str, "s1") == 0) {
+			/* Change to nas-eps_plain */
+			(void) g_strlcpy(proto_name_str, c_nas_eps, sizeof(c_nas_eps));
+			proto_str_len = CLEN(c_nas_eps);
+		} else if (strcmp(function_str, "n1") == 0) {
+			/* Change to nas-5gs */
+			(void) g_strlcpy(proto_name_str, c_nas_5gs, sizeof(c_nas_5gs));
+			proto_str_len = CLEN(c_nas_5gs);
+		} else {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = ws_strdup_printf("nettrace_3gpp_32_423: No handle of message \"%s\" on function \"%s\" ", proto_name_str, function_str);
+			status = FALSE;
+			goto end;
+		}
 	}
+
 	if (strcmp(proto_name_str, "map") == 0) {
 		/* For GSM map, it looks like the message data is stored like SendAuthenticationInfoArg
 		 * use the GSM MAP dissector table to dissect the content.
