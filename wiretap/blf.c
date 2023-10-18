@@ -1310,11 +1310,6 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     payload_length_valid = payload_length;
 
-    if (payload_length_valid > object_length - (data_start - block_start)) {
-        ws_debug("shortening CAN payload because buffer is too short!");
-        payload_length_valid = (guint8)(object_length - (data_start - block_start));
-    }
-
     canid = canheader.id;
 
     if ((canheader.flags & BLF_CANMESSAGE_FLAG_RTR) == BLF_CANMESSAGE_FLAG_RTR) {
