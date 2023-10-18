@@ -273,7 +273,7 @@ install_xz() {
         cd xz-$XZ_VERSION
         #
         # This builds and installs liblzma, which libxml2 uses, and
-        # Wireshark uses liblzma, so we need to build this with
+        # Wireshark uses libxml2, so we need to build this with
         # all the minimum-deployment-version and SDK stuff.
         #
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
