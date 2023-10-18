@@ -393,6 +393,8 @@ static const value_string vmware_hb_build_number[] = {
     { 22082334, "ESXi 8.0 Update 1c (Security Only)" },
     { 22088125, "ESXi 8.0 Update 1c" },
     { 22346715, "ESXi 7.0 for ARM Fling v1.14" },
+    { 22348808, "ESXi 7.0 Update 3o (Security Only)" },
+    { 22348816, "ESXi 7.0 Update 3o" },
     { 22380479, "ESXi 8.0 Update 2" },
     {0, NULL}
 };
