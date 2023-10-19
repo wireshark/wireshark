@@ -264,6 +264,7 @@ WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,match_string,ws_pinfo->match_string);
 
 /* WSLUA_ATTRIBUTE Pinfo_port_type RW Type of Port of .src_port and .dst_port. */
 PINFO_NAMED_NUMBER_GETTER(port_type,ptype);
+PINFO_NAMED_NUMBER_SETTER(port_type,ptype,guint8);
 
 /* WSLUA_ATTRIBUTE Pinfo_src_port RW Source Port of this Packet. */
 PINFO_NAMED_NUMBER_GETTER(src_port,srcport);
@@ -449,7 +450,7 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_RWREG(Pinfo,dl_dst),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,net_src),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,net_dst),
-    WSLUA_ATTRIBUTE_ROREG(Pinfo,port_type),
+    WSLUA_ATTRIBUTE_RWREG(Pinfo,port_type),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,src_port),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,dst_port),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match),
