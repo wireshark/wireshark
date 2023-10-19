@@ -2132,7 +2132,9 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
         g_free(text);
         return apptextheader.source;
+        break;
     default:
+        g_free(text);
         return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */;
         break;
     }
