@@ -646,7 +646,7 @@ install_cmake() {
             # 3.19.3 and later have a macos-universal DMG for 10.13 and later,
             # and a macos10.10-universal DMG for 10.10 and later.
             #
-            if [ "$CMAKE_MINOR_VERSION" -lt 5 ]; then
+            if [ "$CMAKE_MINOR_VERSION" -lt 10 ]; then
                 echo "CMake $CMAKE_VERSION" is too old 1>&2
             elif [ "$CMAKE_MINOR_VERSION" -lt 19 -o \
                  "$CMAKE_VERSION" = 3.19.0 -o \
@@ -1079,11 +1079,11 @@ EOF
         *)
             case $GLIB_MINOR_VERSION in
 
-            [0-9]|1[0-9]|2[0-9]|3[0-7])
+            [0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9])
                 echo "GLib $GLIB_VERSION" is too old 1>&2
                 ;;
 
-            3[8-9]|4[0-9]|5[0-8])
+            5[0-8])
                 if [ ! -f ./configure ]; then
                     LIBTOOLIZE=glibtoolize ./autogen.sh
                 fi
@@ -1238,11 +1238,11 @@ install_qt() {
         5)
             case $QT_MINOR_VERSION in
 
-            0|1|2|3|4|5|6|7|8)
+            0|1|2|3|4|5|6|7|8|9)
                 echo "Qt $QT_VERSION" is too old 1>&2
                 ;;
 
-            9|10|11|12|13|14)
+            10|11|12|13|14)
                 QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
                 ;;
             *)
