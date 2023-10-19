@@ -2125,8 +2125,8 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
 
         wtap_buffer_append_epdu_end(params->buf);
 
-        ws_buffer_assure_space(params->buf, apptextheader.textLength + 1);
-        ws_buffer_append(params->buf, text, apptextheader.textLength + 1);
+        ws_buffer_assure_space(params->buf, apptextheader.textLength); /* The dissector doesn't need NULL-terminated strings */
+        ws_buffer_append(params->buf, text, apptextheader.textLength);
 
         /* We'll write this as a WS UPPER PDU packet with a text blob */
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
