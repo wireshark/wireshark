@@ -16,7 +16,7 @@ local taptests = {
     [FRAME]=n_frames,
     [DENIED]=n_frames*32,
     [GETTER]=n_frames*39,
-    [SETTER]=n_frames*15,
+    [SETTER]=n_frames*16,
     [ADDR]=n_frames*6,
     [OTHER]=n_frames*2,
 }
@@ -58,7 +58,6 @@ function tap.packet(pinfo,tvb)
     testlib.test(DENIED,"Pinfo.visited-set-1",not pcall(setPinfo,pinfo,"visited",0))
     testlib.test(DENIED,"Pinfo.lo-set-1",not pcall(setPinfo,pinfo,"lo",0))
     testlib.test(DENIED,"Pinfo.hi-set-1",not pcall(setPinfo,pinfo,"hi",0))
-    testlib.test(DENIED,"Pinfo.port_type-set-1",not pcall(setPinfo,pinfo,"port_type",0))
     testlib.test(DENIED,"Pinfo.match-set-1",not pcall(setPinfo,pinfo,"match",0))
     testlib.test(DENIED,"Pinfo.curr_proto-set-1",not pcall(setPinfo,pinfo,"curr_proto",0))
     testlib.test(DENIED,"Pinfo.columns-set-1",not pcall(setPinfo,pinfo,"columns",0))
@@ -76,6 +75,7 @@ function tap.packet(pinfo,tvb)
     testlib.test(DENIED,"Pinfo.dl_dst-set-1",not pcall(setPinfo,pinfo,"dl_dst","foobar"))
     testlib.test(DENIED,"Pinfo.net_src-set-1",not pcall(setPinfo,pinfo,"net_src","foobar"))
     testlib.test(DENIED,"Pinfo.net_dst-set-1",not pcall(setPinfo,pinfo,"net_dst","foobar"))
+    testlib.test(DENIED,"Pinfo.port_type-set-1",not pcall(setPinfo,pinfo,"port_type","foobar"))
     testlib.test(DENIED,"Pinfo.src_port-set-1",not pcall(setPinfo,pinfo,"src_port","foobar"))
     testlib.test(DENIED,"Pinfo.dst_port-set-1",not pcall(setPinfo,pinfo,"dst_port","foobar"))
     testlib.test(DENIED,"Pinfo.can_desegment-set-1",not pcall(setPinfo,pinfo,"can_desegment","foobar"))
@@ -189,6 +189,9 @@ function tap.packet(pinfo,tvb)
     testlib.test(SETTER,"Pinfo.net_src-set-1",typeof(pinfo.net_src) == "Address")
     testlib.test(SETTER,"Pinfo.net_dst-set-1",tostring(pinfo.net_dst) == srcip)
     testlib.test(SETTER,"Pinfo.net_dst-set-1",typeof(pinfo.net_dst) == "Address")
+
+    pinfo.port_type = 2
+    testlib.test(SETTER,"Pinfo.port_type-set-1",pinfo.port_type == 2)
 
     tmp = pinfo.src_port
     pinfo.src_port = pinfo.dst_port
