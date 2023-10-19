@@ -104,11 +104,11 @@ PKG_CONFIG_VERSION=0.29.2
 #
 # libgpg-error is required for libgcrypt.
 #
-LIBGPG_ERROR_VERSION=1.39
+LIBGPG_ERROR_VERSION=1.47
 #
 # libgcrypt is required.
 #
-LIBGCRYPT_VERSION=1.8.7
+LIBGCRYPT_VERSION=1.10.2
 #
 # libpcre2 is required.
 #
