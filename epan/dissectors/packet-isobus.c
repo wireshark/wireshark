@@ -311,7 +311,7 @@ static struct address_reassemble_table* findAddressIdentifierFor(guint8 src_addr
     }
 }
 
-const gchar *
+static const gchar *
 isobus_lookup_function(guint32 industry_group, guint32 vehicle_system, guint32 function) {
     if (function < 128) {
         return try_val_to_str((guint32)function, isobus_global_name_functions);
@@ -321,7 +321,7 @@ isobus_lookup_function(guint32 industry_group, guint32 vehicle_system, guint32 f
     return try_val_to_str((guint32)new_id, isobus_ig_specific_name_functions);
 }
 
-const gchar *
+static const gchar *
 isobus_lookup_pgn(guint32 pgn) {
     /* TODO: add configuration option via UAT? */
 
