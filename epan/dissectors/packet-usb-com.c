@@ -914,7 +914,7 @@ static cdc_data_conv_t *get_cdc_data_conv(packet_info *pinfo)
     return (cdc_data_conv_t *)usb_conv_info->class_data;
 }
 
-gchar *cdc_data_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream _U_)
+static gchar *cdc_data_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream _U_)
 {
     cdc_data_conv_t *cdc_data_info;
 
@@ -927,18 +927,18 @@ gchar *cdc_data_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, 
     return NULL;
 }
 
-gchar *cdc_data_follow_index_filter(guint stream, guint sub_stream _U_)
+static gchar *cdc_data_follow_index_filter(guint stream, guint sub_stream _U_)
 {
     return ws_strdup_printf("usbcom.data.stream eq %u", stream);
 }
 
-gchar *cdc_data_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
+static gchar *cdc_data_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
 {
     /* We always just filter stream based on an arbitrarily generated index. */
     return NULL;
 }
 
-gchar *cdc_data_port_to_display(wmem_allocator_t *allocator, guint port)
+static gchar *cdc_data_port_to_display(wmem_allocator_t *allocator, guint port)
 {
     return wmem_strdup(allocator, port == NO_ENDPOINT ? "host" : "device");
 }
