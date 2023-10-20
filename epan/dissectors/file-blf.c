@@ -70,6 +70,11 @@ static int hf_blf_app_text_data_version = -1;
 static int hf_blf_app_text_channelno = -1;
 static int hf_blf_app_text_busstype = -1;
 static int hf_blf_app_text_can_fd_channel = -1;
+static int hf_blf_app_text_metadata_remaining_length = -1;
+static int hf_blf_app_text_metadata_type = -1;
+static int hf_blf_app_text_traceline_source = -1;
+static int hf_blf_app_text_traceline_display_in_tracewindow = -1;
+static int hf_blf_app_text_traceline_ascii_conversion_wo_comment_indicator_timestamp = -1;
 static int hf_blf_app_text_text = -1;
 static int hf_blf_trigg_cond_state = -1;
 static int hf_blf_trigg_cond_triggerblocknamelength = -1;
@@ -281,6 +286,8 @@ static const value_string blf_app_text_source_vals[] = {
     { 0,     "Measurement comment" },
     { 1,     "Database channel information" },
     { 2,     "Meta data" },
+    { 3,     "Attachment" },
+    { 4,     "Trace line" },
     { 0, NULL }
 };
 
@@ -328,7 +335,22 @@ static const value_string blf_bustype_vals[] = {
     { BLF_BUSTYPE_ETHERNET, "ETHERNET"},
     { BLF_BUSTYPE_WLAN,     "WLAN"},
     { BLF_BUSTYPE_AFDX,     "AFDX"},
+    { 0, NULL }
+};
 
+static const value_string blf_app_text_metadata_type_vals[] = {
+    { 1,     "General" },
+    { 2,     "Channels" },
+    { 3,     "Identity" },
+    { 0, NULL }
+};
+
+static const value_string hf_blf_app_text_traceline_source_vals[] = {
+    { 0,     "Write to log" },
+    { 1,     "Timer" },
+    { 2,     "Write to X" },
+    { 3,     "Node layer" },
+    { 4,     "CAPL on board" },
     { 0, NULL }
 };
 
@@ -490,7 +512,8 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             offset += 4;
 
             /*uint32_t reservedAppText1 {};*/
-            if (source == 1) {
+            switch (source) {
+            case BLF_APPTEXT_CHANNEL:
                 /* 1: Database channel information
                  * - reserved contains channel information. The following
                  * - table show how the 4 bytes are used:
@@ -521,8 +544,19 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
                 proto_tree_add_item(subtree, hf_blf_app_text_channelno, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(subtree, hf_blf_app_text_busstype, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(subtree, hf_blf_app_text_can_fd_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            } else {
+                break;
+            case BLF_APPTEXT_METADATA:
+                proto_tree_add_item(subtree, hf_blf_app_text_metadata_remaining_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(subtree, hf_blf_app_text_metadata_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                break;
+            case BLF_APPTEXT_TRACELINE:
+                proto_tree_add_item(subtree, hf_blf_app_text_traceline_source, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(subtree, hf_blf_app_text_traceline_display_in_tracewindow, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(subtree, hf_blf_app_text_traceline_ascii_conversion_wo_comment_indicator_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                break;
+            default:
                 proto_tree_add_item(subtree, hf_blf_app_text_reservedapptext1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                break;
             }
             offset += 4;
             /*uint32_t textLength {};*/
@@ -993,6 +1027,16 @@ proto_register_file_blf(void) {
             { "Bus type", "blf.object.app_text.bustype", FT_UINT32, BASE_DEC, VALS(blf_bustype_vals), 0x00ff0000, NULL, HFILL}},
         { &hf_blf_app_text_can_fd_channel,
             { "CAN FD-Channel", "blf.object.app_text.can_fd_channel", FT_BOOLEAN, 32, NULL, 0x01000000, NULL, HFILL }},
+        { &hf_blf_app_text_metadata_remaining_length,
+            { "Remaining length", "blf.object.app_text.remaining_length", FT_UINT32, BASE_DEC, NULL, 0x00ffffff, NULL, HFILL }},
+        { &hf_blf_app_text_metadata_type,
+            { "Metadata type", "blf.object.app_text.metadata_type", FT_UINT32, BASE_DEC, VALS(blf_app_text_metadata_type_vals), 0xff000000, NULL, HFILL}},
+        { &hf_blf_app_text_traceline_source,
+            { "Metadata type", "blf.object.app_text.traceline_source", FT_UINT32, BASE_DEC, VALS(hf_blf_app_text_traceline_source_vals), 0x0000000f, NULL, HFILL}},
+        { &hf_blf_app_text_traceline_display_in_tracewindow,
+            { "Display in trace window", "blf.object.app_text.display_in_tracewindow", FT_BOOLEAN, 32, NULL, 0x00000010, NULL, HFILL}},
+        { &hf_blf_app_text_traceline_ascii_conversion_wo_comment_indicator_timestamp,
+            { "ASCII conversion should be done without comment indicator and timestamp", "blf.object.app_text.ascii_conversion_wo_comment_indicator_timestamp", FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL}},
         { &hf_blf_app_text_text,
             { "Text", "blf.object.app_text.text", FT_STRINGZPAD, BASE_NONE, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_trigg_cond_state,

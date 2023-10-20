@@ -1984,7 +1984,7 @@ blf_read_linmessage(blf_params_t* params, int* err, gchar** err_info, gint64 blo
 }
 
 static int
-blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp) {
+blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp, gsize metadata_cont) {
     blf_apptext_t            apptextheader;
 
     if (object_length < (data_start - block_start) + (int)sizeof(apptextheader)) {
@@ -1999,6 +1999,14 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         return BLF_APPTEXT_FAILED;
     }
     fix_endianness_blf_apptext_header(&apptextheader);
+
+    if (metadata_cont && apptextheader.source != BLF_APPTEXT_METADATA) {
+        /* If we're in the middle of a sequence of metadata objects,
+         * but we get an AppText object from another source,
+         * skip the previously incomplete object and start fresh.
+         */
+        metadata_cont = 0;
+    }
 
     /* Add an extra byte for a terminating '\0' */
     gchar* text = g_try_malloc((gsize)apptextheader.textLength + 1);
@@ -2062,7 +2070,34 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         break;
     }
     case BLF_APPTEXT_METADATA:
+        if (metadata_cont) {
+            /* Set the buffer pointer to the end of the previous object */
+            params->buf->first_free = metadata_cont;
+        }
+        else {
+            /* First object of a sequence of one or more */
+            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "data-text-lines");
+            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_PROT_TEXT, "BLF App text");
+            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Metadata");
+            wtap_buffer_append_epdu_end(params->buf);
+        }
+
+        ws_buffer_assure_space(params->buf, apptextheader.textLength);
+        ws_buffer_append(params->buf, text, apptextheader.textLength);
+        g_free(text);
+
+        if ((apptextheader.reservedAppText1 & 0x00ffffff) > apptextheader.textLength) {
+            /* Continues in the next object */
+            return BLF_APPTEXT_CONT;
+        }
+
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
+        return BLF_APPTEXT_METADATA;
+        break;
     case BLF_APPTEXT_COMMENT:
+    case BLF_APPTEXT_ATTACHMENT:
+    case BLF_APPTEXT_TRACELINE:
+    {
         if (apptextheader.textLength < 5) {
             /* Arbitrary length chosen */
             g_free(text);
@@ -2070,22 +2105,32 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         }
         wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "data-text-lines");
         wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_PROT_TEXT, "BLF App text");
-        if (apptextheader.source == BLF_APPTEXT_METADATA) {
-            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Metadata");
-        } else {
+        switch (apptextheader.source) {
+        case BLF_APPTEXT_COMMENT:
             wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Comment");
+            break;
+        case BLF_APPTEXT_ATTACHMENT:
+            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Attachment");
+            break;
+        case BLF_APPTEXT_TRACELINE:
+            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Trace line");
+            break;
+        default:
+            break;
         }
 
         wtap_buffer_append_epdu_end(params->buf);
 
-        ws_buffer_assure_space(params->buf, apptextheader.textLength); /* The dissector doesn't need NULL-terminated strings */
-        ws_buffer_append(params->buf, text, apptextheader.textLength);
+        gsize text_length = strlen(text);  /* The string can contain '\0' before textLength bytes */
+        ws_buffer_assure_space(params->buf, text_length); /* The dissector doesn't need NULL-terminated strings */
+        ws_buffer_append(params->buf, text, text_length);
 
         /* We'll write this as a WS UPPER PDU packet with a text blob */
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
         g_free(text);
         return apptextheader.source;
         break;
+    }
     default:
         g_free(text);
         return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */;
@@ -2165,6 +2210,8 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
     blf_logobjectheader3_t   logheader3;
     guint32                  flags;
     guint64                  object_timestamp;
+    gint64                   last_metadata_start = 0;
+    gsize                    metadata_cont = 0;
 
     while (1) {
         /* Find Object */
@@ -2231,6 +2278,15 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
 
         /* already making sure that we start after this object next time. */
         params->blf_data->current_real_seek_pos = start_pos + MAX(MAX(16, header.object_length), header.header_length);
+
+        if (metadata_cont && header.object_type != BLF_OBJTYPE_APP_TEXT) {
+            /* If we're in the middle of a sequence of AppText metadata objects,
+             * but we get an AppText object from another source,
+             * skip the previous incomplete packet and start fresh.
+             */
+            metadata_cont = 0;
+            last_metadata_start = 0;
+        }
 
         switch (header.object_type) {
         case BLF_OBJTYPE_LOG_CONTAINER:
@@ -2302,18 +2358,37 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
 
         case BLF_OBJTYPE_APP_TEXT:
         {
-            int result = blf_read_apptextmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+            int result = blf_read_apptextmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, metadata_cont);
+            if (result == BLF_APPTEXT_CONT) {
+                if (!metadata_cont) {
+                    /* First object of a sequence, save its start position */
+                    last_metadata_start = start_pos;
+                }
+                /* Save a pointer to the end of the buffer */
+                metadata_cont = params->buf->first_free;
+            }
+            else {
+                if (result == BLF_APPTEXT_METADATA && metadata_cont) {
+                    /* Last object of a sequence, restore the start position of the first object */
+                    params->blf_data->start_of_last_obj = last_metadata_start;
+                }
+                /* Reset everything and start fresh */
+                last_metadata_start = 0;
+                metadata_cont = 0;
+            }
             switch (result) {
                 case BLF_APPTEXT_FAILED:
                     return FALSE;
-                case BLF_APPTEXT_METADATA:
-                    return TRUE;
                 case BLF_APPTEXT_COMMENT:
+                case BLF_APPTEXT_METADATA:
+                case BLF_APPTEXT_ATTACHMENT:
+                case BLF_APPTEXT_TRACELINE:
                     return TRUE;
                 case BLF_APPTEXT_CHANNEL:
+                case BLF_APPTEXT_CONT:
                 default:
                     /* we do not return since there is no packet to show here */
-                start_pos += MAX(MAX(16, header.object_length), header.header_length);
+                    start_pos += MAX(MAX(16, header.object_length), header.header_length);
             }
         }
             break;
