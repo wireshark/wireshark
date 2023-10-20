@@ -292,7 +292,7 @@ dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
 void
 dfilter_fvalue_from_number(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
 {
-	fvalue_t *fv;
+	fvalue_t *fv = NULL;
 	const char *s = stnode_token(st);
 	char *error_message = NULL;
 	stnumber_t num_type;

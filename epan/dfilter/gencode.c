@@ -498,7 +498,7 @@ gen_arithmetic(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	stnode_t	*left, *right;
 	stnode_op_t	st_op;
 	dfvm_value_t	*reg_val, *val1, *val2 = NULL;
-	dfvm_opcode_t	op;
+	dfvm_opcode_t	op = DFVM_NULL;
 
 	sttype_oper_get(st_arg, &st_op, &left, &right);
 

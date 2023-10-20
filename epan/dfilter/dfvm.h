@@ -48,7 +48,7 @@ typedef struct {
 #define dfvm_value_get_fvalue(val) ((val)->value.fvalue_p->pdata[0])
 
 typedef enum {
-
+	DFVM_NULL,	/* Null/invalid opcode */
 	DFVM_IF_TRUE_GOTO,
 	DFVM_IF_FALSE_GOTO,
 	DFVM_CHECK_EXISTS,
