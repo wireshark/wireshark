@@ -7308,8 +7308,15 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         proto_tree_add_item(alpn_tree, hf->hf.hs_ext_alpn_str,
                             tvb, offset, name_length, ENC_ASCII|ENC_NA);
         if (ja4_data && wmem_strbuf_get_len(ja4_data->alpn) == 0) {
-            wmem_strbuf_append_c(ja4_data->alpn, (char)tvb_get_guint8(tvb,offset));
-            wmem_strbuf_append_c(ja4_data->alpn, (char)tvb_get_guint8(tvb,offset + name_length - 1));
+            const char alpn_first_char = (char)tvb_get_guint8(tvb,offset);
+            const char alpn_last_char = (char)tvb_get_guint8(tvb,offset + name_length - 1);
+            if ((g_ascii_isprint(alpn_first_char)) && g_ascii_isprint(alpn_last_char)) {
+                wmem_strbuf_append_printf(ja4_data->alpn, "%c%c", alpn_first_char, alpn_last_char);
+            }
+            else {
+                wmem_strbuf_append_printf(ja4_data->alpn, "%x%x",(alpn_first_char >> 4) & 0x0F,
+                    alpn_last_char & 0x0F);
+            }
         }
         /* Remember first ALPN ProtocolName entry for server. */
         if (hnd_type == SSL_HND_SERVER_HELLO || hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS) {
