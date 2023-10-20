@@ -172,6 +172,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 			}
 
 		case FT_NUM_TYPES:
+		case FT_SCALAR:
 			ws_assert_not_reached();
 	}
 
@@ -298,17 +299,38 @@ dfilter_fvalue_from_number(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
 
 	num_type = sttype_number_get_type(st);
 
-	if (num_type == STNUM_INTEGER) {
-		fv = fvalue_from_sinteger64(ftype, s, sttype_number_get_integer(st), &error_message);
+	if (ftype == FT_SCALAR) {
+		/* If a scalar was requested then transform the number
+		 * syntax node to an fvalue according to its lexical
+		 * type (integer or float). */
+		switch (num_type) {
+			case STNUM_INTEGER:
+			case STNUM_UNSIGNED:
+				ftype = FT_INT64;
+				break;
+			case STNUM_FLOAT:
+				ftype = FT_DOUBLE;
+				break;
+			case STNUM_NONE:
+				ws_assert_not_reached();
+		}
 	}
-	else if (num_type == STNUM_UNSIGNED) {
-		fv = fvalue_from_uinteger64(ftype, s, sttype_number_get_unsigned(st), &error_message);
-	}
-	else if (num_type == STNUM_FLOAT) {
-		fv = fvalue_from_floating(ftype, s, sttype_number_get_float(st), &error_message);
-	}
-	else {
-		ws_assert_not_reached();
+
+	switch (num_type) {
+		case STNUM_INTEGER:
+			fv = fvalue_from_sinteger64(ftype, s, sttype_number_get_integer(st), &error_message);
+			break;
+
+		case STNUM_UNSIGNED:
+			fv = fvalue_from_uinteger64(ftype, s, sttype_number_get_unsigned(st), &error_message);
+			break;
+
+		case STNUM_FLOAT:
+			fv = fvalue_from_floating(ftype, s, sttype_number_get_float(st), &error_message);
+			break;
+
+		case STNUM_NONE:
+			ws_assert_not_reached();
 	}
 
 	if (fv != NULL) {
@@ -417,6 +439,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 			break;
 
 		case FT_NUM_TYPES:
+		case FT_SCALAR:
 			ws_assert_not_reached();
 	}
 
@@ -612,6 +635,7 @@ is_bytes_type(enum ftenum type)
 			return false;
 
 		case FT_NUM_TYPES:
+		case FT_SCALAR:
 			ws_assert_not_reached();
 	}
 
@@ -1747,9 +1771,9 @@ check_arithmetic_LHS_TIME(dfwork_t *dfw, stnode_op_t st_op, stnode_t *st_node,
 			if (!FT_IS_TIME(ftype1)) {
 				FAIL(dfw, st_node, "Left hand side must be a time type, not %s.", ftype_pretty_name(ftype1));
 			}
-			ftype2 = check_arithmetic(dfw, st_arg2, FT_INT64);
-			if (!FT_IS_INTEGER(ftype2)) {
-				FAIL(dfw, st_node, "Right hand side must be an integer type, not %s.", ftype_pretty_name(ftype2));
+			ftype2 = check_arithmetic(dfw, st_arg2, FT_SCALAR);
+			if (!FT_IS_SCALAR(ftype2)) {
+				FAIL(dfw, st_node, "Right hand side must be an integer ou float type, not %s.", ftype_pretty_name(ftype2));
 			}
 			return ftype1;
 		default:

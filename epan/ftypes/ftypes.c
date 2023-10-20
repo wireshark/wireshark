@@ -574,7 +574,7 @@ fvalue_from_floating(ftenum_t ftype, const char *s, double num, char **err_msg)
 }
 
 ftenum_t
-fvalue_type_ftenum(fvalue_t *fv)
+fvalue_type_ftenum(const fvalue_t *fv)
 {
 	return fv->ftype->ftype;
 }

@@ -169,3 +169,13 @@ class TestDfilterTimeArithmetic:
         dfilter = 'frame.time_relative > ${frame.time_relative} / 3'
         # select frame 532, expect 528 frames out of 562.
         checkDFilterCountWithSelectedFrame(dfilter, 528, 532)
+
+    def test_time_math_5(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'frame.time_relative > ${frame.time_relative} * 2.5'
+        # select frame 8, expect 355 frames out of 562.
+        checkDFilterCountWithSelectedFrame(dfilter, 355, 8)
+
+    def test_time_math_6(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'frame.time_relative > ${frame.time_relative} / 2.5'
+        # select frame 440, expect 483 frames out of 562.
+        checkDFilterCountWithSelectedFrame(dfilter, 483, 440)

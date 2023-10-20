@@ -69,7 +69,9 @@ enum ftenum {
 	FT_STRINGZPAD,	/* null-padded string */
 	FT_FCWWN,
 	FT_STRINGZTRUNC,	/* null-truncated string */
-	FT_NUM_TYPES /* last item number plus one */
+	FT_NUM_TYPES, /* last item number plus one */
+	FT_SCALAR,		/* Pseudo-type used only internally for certain
+				 * arithmetic operations. */
 };
 
 #define FT_IS_INT32(ft) \
@@ -112,6 +114,8 @@ enum ftenum {
 #define FT_IS_STRING(ft) \
 	((ft) == FT_STRING || (ft) == FT_STRINGZ || (ft) == FT_STRINGZPAD || \
 	 (ft) == FT_STRINGZTRUNC || (ft) == FT_UINT_STRING)
+
+#define FT_IS_SCALAR(ft) ((ft) == FT_INT64 || (ft) == FT_DOUBLE)
 
 /* field types lengths */
 #define FT_ETHER_LEN		6
@@ -354,7 +358,7 @@ WS_DLL_PUBLIC enum ft_result
 fvalue_to_double(const fvalue_t *fv, double *repr);
 
 WS_DLL_PUBLIC ftenum_t
-fvalue_type_ftenum(fvalue_t *fv);
+fvalue_type_ftenum(const fvalue_t *fv);
 
 const char*
 fvalue_type_name(const fvalue_t *fv);

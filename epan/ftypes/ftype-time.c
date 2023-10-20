@@ -592,10 +592,18 @@ time_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 }
 
 static void
-_nstime_mul(nstime_t *res, nstime_t a, int64_t val, jmp_buf env)
+_nstime_mul_int(nstime_t *res, nstime_t a, int64_t val, jmp_buf env)
 {
 	ws_safe_mul_jmp(&res->secs, a.secs, (time_t)val, env);
 	ws_safe_mul_jmp(&res->nsecs, a.nsecs, (int)val, env);
+	check_ns_wraparound(res, env);
+}
+
+static void
+_nstime_mul_float(nstime_t *res, nstime_t a, double val, jmp_buf env)
+{
+	res->secs = (time_t)(a.secs * val);
+	res->nsecs = (int)(a.nsecs * val);
 	check_ns_wraparound(res, env);
 }
 
@@ -608,20 +616,34 @@ time_multiply(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 		return FT_ERROR;
 	}
 
-	int64_t val;
-	enum ft_result res = fvalue_to_sinteger64(b, &val);
-	if (res != FT_OK)
-		return res;
-
-	_nstime_mul(&dst->value.time, a->value.time, val, env);
+	ftenum_t ft_b = fvalue_type_ftenum(b);
+	if (ft_b == FT_INT64) {
+		int64_t val = fvalue_get_sinteger64((fvalue_t *)b);
+		_nstime_mul_int(&dst->value.time, a->value.time, val, env);
+	}
+	else if (ft_b == FT_DOUBLE) {
+		double val = fvalue_get_floating((fvalue_t *)b);
+		_nstime_mul_float(&dst->value.time, a->value.time, val, env);
+	}
+	else {
+		ws_critical("Invalid RHS ftype: %s", ftype_pretty_name(ft_b));
+		return FT_BADARG;
+	}
 	return FT_OK;
 }
 
 static void
-_nstime_div(nstime_t *res, nstime_t a, int64_t val, jmp_buf env)
+_nstime_div_int(nstime_t *res, nstime_t a, int64_t val, jmp_buf env)
 {
 	ws_safe_div_jmp(&res->secs, a.secs, (time_t)val, env);
 	ws_safe_div_jmp(&res->nsecs, a.nsecs, (int)val, env);
+}
+
+static void
+_nstime_div_float(nstime_t *res, nstime_t a, double val)
+{
+	res->secs = (time_t)(a.secs / val);
+	res->nsecs = (int)(a.nsecs / val);
 }
 
 static enum ft_result
@@ -633,16 +655,19 @@ time_divide(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 		return FT_ERROR;
 	}
 
-	int64_t val;
-	enum ft_result res = fvalue_to_sinteger64(b, &val);
-	if (res != FT_OK)
-		return res;
-	if (val == 0) {
-		*err_ptr = ws_strdup_printf("time_divide: division by zero");
-		return FT_ERROR;
+	ftenum_t ft_b = fvalue_type_ftenum(b);
+	if (ft_b == FT_INT64) {
+		int64_t val = fvalue_get_sinteger64((fvalue_t *)b);
+		_nstime_div_int(&dst->value.time, a->value.time, val, env);
 	}
-
-	_nstime_div(&dst->value.time, a->value.time, val, env);
+	else if (ft_b == FT_DOUBLE) {
+		double val = fvalue_get_floating((fvalue_t *)b);
+		_nstime_div_float(&dst->value.time, a->value.time, val);
+	}
+	else {
+		ws_critical("Invalid RHS ftype: %s", ftype_pretty_name(ft_b));
+		return FT_BADARG;
+	}
 	return FT_OK;
 }
 
