@@ -318,7 +318,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 				}
 				rec->presence_flags |= WTAP_HAS_TS;
 				rec->ts.secs = file_info->start_time.secs + second;
-				rec->ts.nsecs = file_info->start_time.nsecs + (elapsed_ms * 1000000);
+				rec->ts.nsecs = (elapsed_ms * 1000000);
 			}
 		}
 	}
