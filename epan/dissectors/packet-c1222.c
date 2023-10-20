@@ -42,8 +42,8 @@
 #define C1222_EPSEM_FLAG_RESPONSE_CONTROL 0x03
 
 #define C1222_PROCEDURE_RESPONSE 0xf000
-#define C1222_PROCEDURE_MFG 0x800
-#define C1222_PROCEDURE_NUMBER 0x7ff
+#define C1222_PROCEDURE_MFG      0x0800
+#define C1222_PROCEDURE_NUMBER   0x07ff
 
 /* if the packet is encrypted, it can be
  * good, bad, or simply not checked

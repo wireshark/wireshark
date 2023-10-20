@@ -156,10 +156,6 @@ static const value_string amp_ari_struct_type[] = {
     { 13, "Reserved" },
     { 14, "Reserved" },
     { 15, "Reserved" },
-    { 16, "Reserved" },
-    { 17, "Reserved" },
-    { 18, "Reserved" },
-    { 19, "Reserved" },
     { 0, NULL }
 };
 

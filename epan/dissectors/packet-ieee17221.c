@@ -1290,7 +1290,7 @@ static dissector_handle_t avb17221_handle;
 #define AECP_KEY_NUMBER_MASK                    0x04ff
 #define AECP_MATRIX_DIRECTION_MASK              0x70
 #define AECP_MATRIX_REP_MASK                    0x80
-#define AECP_MATRIX_VALUE_COUNT_MASK            0xfff
+#define AECP_MATRIX_VALUE_COUNT_MASK            0x0fff
 #define AECP_MSG_TYPE_MASK                      0x0f
 #define AECP_PERSISTENT_FLAG_MASK               0x00000001
 #define AECP_RELEASE_FLAG_MASK                  0x80000000

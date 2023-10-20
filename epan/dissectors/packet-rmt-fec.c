@@ -266,7 +266,7 @@ void proto_register_rmt_fec(void)
         },
         { &hf_instance_id,
           { "FEC Instance ID", "rmt-fec.instance_id",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_sbn,

@@ -15224,12 +15224,12 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_qos_monitoring_measurement_flags_b4_dlci,
-        { "DLCI (Download Congestion Info)", "pfcp.qos_monitoring_measurement.flags.dlci",
+        { "DLCI (Downlink Congestion Info)", "pfcp.qos_monitoring_measurement.flags.dlci",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
             NULL, HFILL }
         },
         { &hf_pfcp_qos_monitoring_measurement_flags_b5_ulci,
-        { "ULCI (Download Congestion Info)", "pfcp.qos_monitoring_measurement.flags.dlci",
+        { "ULCI (Uplink Congestion Info)", "pfcp.qos_monitoring_measurement.flags.ulci",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
             NULL, HFILL }
         },
