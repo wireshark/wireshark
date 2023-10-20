@@ -315,19 +315,20 @@ bool get_syscall_source_category_info(sinsp_source_info_t *ssi, size_t category_
         { "group", "Group information" },
         { "container", "Container information" },
         { "fd", "File descriptors" },
-        { "fs,path", "Filesystem paths" },
+        { "fs.path", "Filesystem paths" },
         { "syslog", "Syslog information" },
         { "fdlist", "Poll event fields" },
         { "span", "Distributed tracing" },
         { "evtin", "Distributed tracing" },
     };
+
     snprintf(field->abbrev, sizeof(field->abbrev), FALCO_FIELD_NAME_PREFIX "%s", fci->m_name.c_str());
     if (!fci->m_shortdesc.empty()) {
         g_strlcpy(field->display, fci->m_shortdesc.c_str(), sizeof(field->display));
     } else {
-        try {
-            g_strlcpy(field->display, name_to_display[fci->m_name], sizeof(field->display));
-        } catch (std::out_of_range) {
+        if (auto iter = name_to_display.find(fci->m_name); iter != name_to_display.end()) {
+            g_strlcpy(field->display, iter->second, sizeof(field->display));
+        } else {
             g_strlcpy(field->display, "Enriched information", sizeof(field->display));
         };
     }
