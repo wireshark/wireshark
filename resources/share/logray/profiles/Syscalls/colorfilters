@@ -1,0 +1,4 @@
+# This file was created by Logray. Edit with care.
+@Errors@ct.error@[4626,10023,11822][63479,34695,34695]
+@Write@sysdig.event_type == 8 || sysdig.event_type == 9@[61423,50372,39578][0,0,0]
+@Read@sysdig.event_type == 7@[38036,60909,60395][0,0,0]

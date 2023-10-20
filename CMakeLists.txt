@@ -2075,6 +2075,10 @@ set(DOC_FILES
 )
 
 if (BUILD_logray)
+	set(LOG_INSTALL_DIRS
+		resources/share/logray/profiles
+	)
+
 	set(LOG_INSTALL_FILES
 		docbook/ws.css
 		resources/share/logray/colorfilters
@@ -2530,12 +2534,28 @@ add_custom_command(
 		"${CMAKE_SOURCE_DIR}/resources/share/wireshark/profiles" "${DATAFILE_DIR}/profiles"
 )
 
+set (_log_profiles_data_files)
+if (BUILD_logray AND ENABLE_APPLICATION_BUNDLE)
+	set(_profiles_src_dir ${CMAKE_SOURCE_DIR}/resources/share/logray)
+	file(GLOB _profiles_src_files RELATIVE ${_profiles_src_dir} ${_profiles_src_dir}/profiles/*/*)
+	foreach(_data_file ${_profiles_src_files})
+		list(APPEND _log_profiles_data_files "${LOG_DATAFILE_DIR}/${_data_file}")
+	endforeach()
+
+	add_custom_command(
+		OUTPUT ${_log_profiles_data_files}
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+			"${CMAKE_SOURCE_DIR}/resources/share/logray/profiles" "${LOG_DATAFILE_DIR}/profiles"
+	)
+endif()
+
 list(APPEND copy_data_files_depends
 	${_dtds_data_files}
 	${_diameter_data_files}
 	${_radius_data_files}
 	${_protobuf_data_files}
 	${_profiles_data_files}
+	${_log_profiles_data_files}
 )
 
 # Copy files including ${INSTALL_FILES} and ${INSTALL_DIRS} to ${DATAFILE_DIR}
