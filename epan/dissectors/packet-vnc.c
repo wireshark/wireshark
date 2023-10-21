@@ -24,8 +24,7 @@
  *
  * The protocol itself is known as RFB - Remote Frame Buffer Protocol.
  *
- * This code is based on the protocol specification:
- *   http://www.realvnc.com/docs/rfbproto.pdf
+ * This code is based on the protocol specification published in RFC 6143
  *  and the RealVNC free edition & TightVNC source code
  *  Note: rfbproto.rst [ https://github.com/svn2github/tigervnc/blob/master/rfbproto/rfbproto.rst ]
  *        seems to have additional information over rfbproto.pdf.
@@ -61,7 +60,6 @@
    Check types, etc against IANA list
    Optimize: Do col_set(..., COL_INFO) once (after fetching message type & before dispatching ?)
    Dispatch via a message table (instead of using a switch(...)
-   Worry about globals (vnc_bytes_per_pixel & nc_depth): "Global so they keep their value between packets"
    Msg type 150: client-server: enable/disable (1+9 bytes); server-client: endofContinousUpdates(1+0 bytes) ?
 */
 
@@ -473,7 +471,6 @@ typedef enum {
 /* This structure will be tied to each conversation. */
 typedef struct {
 	gdouble server_proto_ver, client_proto_ver;
-	vnc_session_state_e vnc_next_state;
 	guint32 server_port;
 	/* These are specific to TightVNC */
 	gint num_server_message_types;
@@ -483,12 +480,18 @@ typedef struct {
 	gboolean tight_enabled;
 	/* This is specific to Apple Remote Desktop */
 	guint16 ard_key_length;
+	/* State information valid on first sequential pass;
+	 * stored in per-packet info for subsequent passes. */
+	guint8 bytes_per_pixel;
+	guint8 depth;
+	vnc_session_state_e vnc_next_state;
+	gint preferred_encoding;
 } vnc_conversation_t;
 
 /* This structure will be tied to each packet */
 typedef struct {
 	vnc_session_state_e state;
-	gint preferred_encoding;
+	//gint preferred_encoding; XXX: Not actually used?
 	guint8 bytes_per_pixel;
 	guint8 depth;
 } vnc_packet_t;
@@ -499,13 +502,16 @@ static gboolean vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo,
 				     gint offset, proto_tree *tree,
 				     vnc_conversation_t *per_conversation_info);
 static void vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo,
-				 gint *offset, proto_tree *tree);
+				 gint *offset, proto_tree *tree,
+				 vnc_conversation_t *per_conversation_info);
 static void vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo,
 				 gint *offset, proto_tree *tree);
 static void vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo,
-					gint *offset, proto_tree *tree);
+					gint *offset, proto_tree *tree,
+					vnc_conversation_t *per_conversation_info);
 static void vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo,
-				     gint *offset, proto_tree *tree);
+				     gint *offset, proto_tree *tree,
+				     vnc_conversation_t *per_conversation_info);
 static void vnc_client_framebuffer_update_request(tvbuff_t *tvb,
 						  packet_info *pinfo,
 						  gint *offset,
@@ -545,8 +551,8 @@ static void vnc_server_ring_bell(tvbuff_t *tvb, packet_info *pinfo,
 				 gint *offset, proto_tree *tree);
 static guint vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo,
 				 gint *offset, proto_tree *tree);
-static void vnc_set_bytes_per_pixel(packet_info *pinfo, const guint8 bytes_per_pixel);
-static void vnc_set_depth(packet_info *pinfo, const guint8 depth);
+static void vnc_set_bytes_per_pixel(packet_info *pinfo, vnc_conversation_t *per_conversation_info, const guint8 bytes_per_pixel);
+static void vnc_set_depth(packet_info *pinfo, vnc_conversation_t *per_conversation_info, const guint8 depth);
 static guint8 vnc_get_bytes_per_pixel(packet_info *pinfo);
 static guint8 vnc_get_depth(packet_info *pinfo);
 static guint32 vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree);
@@ -924,11 +930,11 @@ static expert_field ei_vnc_zrle_failed = EI_INIT;
 static expert_field ei_vnc_unknown_tight = EI_INIT;
 static expert_field ei_vnc_reassemble = EI_INIT;
 
-/* Global so they keep their value between packets */
-guint8 vnc_bytes_per_pixel;
-guint8 vnc_depth;
-
-#define VNC_PORT_RANGE "5500-5501,5900-5901" /* Not IANA registered */
+#define VNC_PORT_RANGE "5500-5501,5900-5901"
+/* Port 5900 is IANA registered (under the service name "Remote Framebuffer"),
+ * the others are customary but not registered as mentioned in RFC 6143.
+ * (5900+N is commonly used in the case of multiple servers, analogous to
+ * X11.) */
 
 static range_t *vnc_tcp_range = NULL;
 static dissector_handle_t vnc_handle;
@@ -959,6 +965,12 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SERVER_VERSION;
 		per_conversation_info->security_type_selected = VNC_SECURITY_TYPE_INVALID;
 		per_conversation_info->tight_enabled = FALSE;
+		per_conversation_info->preferred_encoding = VNC_ENCODING_TYPE_RAW;
+		/* Initial values for depth and bytes_per_pixel are set in
+		 * in the mandatory VNC_SESSION_STATE_SERVER_INIT startup
+		 * message. "This pixel format will be used unless the
+		 * client requests a different format using the SetPixelFormat
+		 * message" (RFC 6143 7.3.2 ServerInit) */
 
 		conversation_add_proto_data(conversation, proto_vnc, per_conversation_info);
 	}
@@ -978,9 +990,6 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	ret = vnc_startup_messages(tvb, pinfo, offset, vnc_tree,
 				   per_conversation_info);
 
-	vnc_set_bytes_per_pixel(pinfo, vnc_bytes_per_pixel);
-	vnc_set_depth(pinfo, vnc_depth);
-
 	if (ret) {
 		return tvb_captured_length(tvb);  /* We're in a "startup" state; Cannot yet do "normal" processing */
 	}
@@ -991,7 +1000,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	}
 
 	if(value_is_in_range(vnc_tcp_range, pinfo->destport) || per_conversation_info->server_port == pinfo->destport) {
-		vnc_client_to_server(tvb, pinfo, &offset, vnc_tree);
+		vnc_client_to_server(tvb, pinfo, &offset, vnc_tree, per_conversation_info);
 	}
 	else {
 		vnc_server_to_client(tvb, pinfo, &offset, vnc_tree);
@@ -1124,7 +1133,8 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		per_packet_info = wmem_new(wmem_file_scope(), vnc_packet_t);
 
 		per_packet_info->state = per_conversation_info->vnc_next_state;
-		per_packet_info->preferred_encoding = -1;
+		per_packet_info->bytes_per_pixel = per_conversation_info->bytes_per_pixel;
+		per_packet_info->depth = per_conversation_info->depth;
 
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0, per_packet_info);
 	}
@@ -1583,12 +1593,12 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		proto_tree_add_item(tree, hf_vnc_server_bits_per_pixel,
 				    tvb, offset, 1, ENC_BIG_ENDIAN);
-		vnc_bytes_per_pixel = tvb_get_guint8(tvb, offset)/8;
-		vnc_set_bytes_per_pixel(pinfo, vnc_bytes_per_pixel);
+		vnc_set_bytes_per_pixel(pinfo, per_conversation_info, tvb_get_guint8(tvb, offset) / 8);
 		offset += 1;
 
 		proto_tree_add_item(tree, hf_vnc_server_depth, tvb, offset,
 				    1, ENC_BIG_ENDIAN);
+		vnc_set_depth(pinfo, per_conversation_info, tvb_get_guint8(tvb, offset));
 		offset += 1;
 
 		proto_tree_add_item(tree, hf_vnc_server_big_endian_flag,
@@ -1696,7 +1706,8 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 static void
 vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-		     proto_tree *tree)
+		     proto_tree *tree,
+		     vnc_conversation_t *per_conversation_info)
 {
 	guint8 message_type;
 
@@ -1717,12 +1728,14 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	case VNC_CLIENT_MESSAGE_TYPE_SET_PIXEL_FORMAT :
 		vnc_client_set_pixel_format(tvb, pinfo, offset,
-					    vnc_client_message_type_tree);
+					    vnc_client_message_type_tree,
+					    per_conversation_info);
 		break;
 
 	case VNC_CLIENT_MESSAGE_TYPE_SET_ENCODINGS :
 		vnc_client_set_encodings(tvb, pinfo, offset,
-					 vnc_client_message_type_tree);
+					 vnc_client_message_type_tree,
+					 per_conversation_info);
 		break;
 
 	case VNC_CLIENT_MESSAGE_TYPE_FRAMEBUF_UPDATE_REQ :
@@ -1850,7 +1863,8 @@ again:
 
 static void
 vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-			    proto_tree *tree)
+			    proto_tree *tree,
+			    vnc_conversation_t *per_conversation_info)
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Client set pixel format");
 
@@ -1859,14 +1873,12 @@ vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	proto_tree_add_item(tree, hf_vnc_client_bits_per_pixel, tvb, *offset,
 			    1, ENC_BIG_ENDIAN);
-	vnc_bytes_per_pixel = tvb_get_guint8(tvb, *offset)/8;
-	vnc_set_bytes_per_pixel(pinfo, vnc_bytes_per_pixel);
+	vnc_set_bytes_per_pixel(pinfo, per_conversation_info, tvb_get_guint8(tvb, *offset) / 8);
 	*offset += 1;
 
 	proto_tree_add_item(tree, hf_vnc_client_depth, tvb, *offset,
 			    1, ENC_BIG_ENDIAN);
-	vnc_depth = tvb_get_guint8(tvb, *offset);
-	vnc_set_depth(pinfo, vnc_depth);
+	vnc_set_depth(pinfo, per_conversation_info, tvb_get_guint8(tvb, *offset));
 	*offset += 1;
 
 	proto_tree_add_item(tree, hf_vnc_client_big_endian_flag, tvb, *offset,
@@ -1908,15 +1920,11 @@ vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 static void
 vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-			 proto_tree *tree)
+			 proto_tree *tree,
+			 vnc_conversation_t *per_conversation_info)
 {
 	guint16       number_of_encodings;
 	guint         counter;
-	vnc_packet_t *per_packet_info;
-
-	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
-	/* Our calling function should have set the packet's proto data already */
-	DISSECTOR_ASSERT(per_packet_info != NULL);
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Client set encodings");
 
@@ -1927,7 +1935,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	proto_tree_add_item(tree, hf_vnc_encoding_num, tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 
-	per_packet_info->preferred_encoding = -1;
+	per_conversation_info->preferred_encoding = -1;
 
 	for(counter = 0; counter < number_of_encodings; counter++) {
 		proto_tree_add_item(tree,
@@ -1938,7 +1946,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		 * per xserver/hw/vnc/rfbserver.c:rfbProcessClientNormalMessage().
 		 * Otherwise, use RAW as the preferred encoding.
 		 */
-		if (per_packet_info->preferred_encoding == -1) {
+		if (per_conversation_info->preferred_encoding == -1) {
 			int encoding;
 
 			encoding = tvb_get_ntohl(tvb, *offset);
@@ -1950,7 +1958,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			case VNC_ENCODING_TYPE_HEXTILE:
 			case VNC_ENCODING_TYPE_ZLIB:
 			case VNC_ENCODING_TYPE_TIGHT:
-				per_packet_info->preferred_encoding = encoding;
+				per_conversation_info->preferred_encoding = encoding;
 				break;
 			}
 		}
@@ -1958,8 +1966,8 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		*offset += 4;
 	}
 
-	if (per_packet_info->preferred_encoding == -1)
-		per_packet_info->preferred_encoding = VNC_ENCODING_TYPE_RAW;
+	if (per_conversation_info->preferred_encoding == -1)
+		per_conversation_info->preferred_encoding = VNC_ENCODING_TYPE_RAW;
 }
 
 
@@ -3498,28 +3506,36 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 
 static void
-vnc_set_bytes_per_pixel(packet_info *pinfo, const guint8 bytes_per_pixel)
+vnc_set_bytes_per_pixel(packet_info *pinfo, vnc_conversation_t *per_conversation_info, const guint8 bytes_per_pixel)
 {
+	if (PINFO_FD_VISITED(pinfo)) {
+		return;
+	}
+
 	vnc_packet_t *per_packet_info;
 
 	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
-	per_packet_info->bytes_per_pixel = bytes_per_pixel;
+	per_packet_info->bytes_per_pixel = per_conversation_info->bytes_per_pixel = bytes_per_pixel;
 }
 
 
 static void
-vnc_set_depth(packet_info *pinfo, const guint8 depth)
+vnc_set_depth(packet_info *pinfo, vnc_conversation_t *per_conversation_info, const guint8 depth)
 {
+	if (PINFO_FD_VISITED(pinfo)) {
+		return;
+	}
+
 	vnc_packet_t *per_packet_info;
 
 	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
-	per_packet_info->depth = depth;
+	per_packet_info->depth = per_conversation_info->depth = depth;
 }
 
 
