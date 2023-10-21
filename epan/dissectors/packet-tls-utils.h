@@ -246,6 +246,7 @@ extern const value_string tls_hello_ext_ech_clienthello_types[];
 extern const value_string kem_id_type_vals[];
 extern const value_string kdf_id_type_vals[];
 extern const value_string aead_id_type_vals[];
+extern const value_string token_binding_key_parameter_vals[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
@@ -1023,6 +1024,13 @@ typedef struct ssl_common_dissect {
         gint hs_ext_compress_certificate_compressed_certificate_message_length;
         gint hs_ext_compress_certificate_compressed_certificate_message;
 
+        /* Token Binding Negotiation */
+        gint hs_ext_token_binding_version_major;
+        gint hs_ext_token_binding_version_minor;
+        gint hs_ext_token_binding_key_parameters;
+        gint hs_ext_token_binding_key_parameters_length;
+        gint hs_ext_token_binding_key_parameter;
+
         gint hs_ext_record_size_limit;
 
         /* QUIC Transport Parameters */
@@ -1157,6 +1165,7 @@ typedef struct ssl_common_dissect {
         gint ech_hpke_keyconfig;
         gint ech_hpke_cipher_suites;
         gint ech_hpke_cipher_suite;
+        gint hs_ext_token_binding_key_parameters;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
@@ -1366,12 +1375,12 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1                              \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1          \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1                                                  \
+        -1, -1, -1, -1, -1                                              \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,  \
@@ -2254,6 +2263,31 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
+    { & name .hf.hs_ext_token_binding_version_major,                    \
+      { "Protocol Major Version", prefix ".token_binding.version_major", \
+        FT_UINT8, BASE_HEX, NULL, 0x00,                                 \
+        "Major version of the Token Binding protocol", HFILL }          \
+    },                                                                  \
+    { & name .hf.hs_ext_token_binding_version_minor,                    \
+      { "Protocol Minor Version", prefix ".token_binding.version_minor", \
+        FT_UINT8, BASE_HEX, NULL, 0x00,                                 \
+        "Minor version of the Token Binding protocol", HFILL }          \
+    },                                                                  \
+    { & name .hf.hs_ext_token_binding_key_parameters,                   \
+      { "Key Parameters", prefix ".token_binding.key_parameters",       \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_token_binding_key_parameters_length,            \
+      { "Key Parameters Length", prefix ".token_binding.key_parameters_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        "Length of the key parameters list", HFILL }                    \
+    },                                                                  \
+    { & name .hf.hs_ext_token_binding_key_parameter,                    \
+      { "Key Parameter", prefix ".token_binding.key_parameter",         \
+        FT_UINT8, BASE_DEC, VALS(token_binding_key_parameter_vals), 0x00, \
+        "Identifier of the Token Binding key parameter", HFILL }         \
+    },                                                                  \
     { & name .hf.hs_ext_record_size_limit,                              \
       { "Record Size Limit", prefix ".record_size_limit",               \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
@@ -2749,6 +2783,7 @@ ssl_common_dissect_t name = {   \
         & name .ett.ech_hpke_keyconfig,             \
         & name .ett.ech_hpke_cipher_suites,         \
         & name .ett.ech_hpke_cipher_suite,          \
+        & name .ett.hs_ext_token_binding_key_parameters, \
 
 /* }}} */
 
