@@ -2116,8 +2116,8 @@ blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint6
 
     if (object_length < (data_start - block_start) + (int)sizeof(ethernet_status_header)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("blf: ETHERNET_STATUS: not enough bytes for apptext header in object");
-        ws_debug("not enough bytes for apptext header in object");
+        *err_info = ws_strdup_printf("blf: ETHERNET_STATUS: not enough bytes for ethernet status header in object");
+        ws_debug("not enough bytes for ethernet status header in object");
         return FALSE;
     }
 

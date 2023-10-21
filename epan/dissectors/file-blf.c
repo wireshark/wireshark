@@ -867,7 +867,6 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 
     /* uint8_t connector {};*/
     ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_connector, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(blf_tree, hf_blf_eth_status_mdi, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((flags & BLF_ETH_STATUS_CONNECTOR) == 0) {
         proto_item_append_text(ti, " - Invalid");
     }
