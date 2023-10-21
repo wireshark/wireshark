@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Include>
 
   <!-- Wireshark -->
@@ -577,13 +577,13 @@
     </ComponentGroup>
   </Fragment>
 
-  <?ifdef DOCBOOK_DIR?>
+  <?ifdef DOC_DIR?>
     <!-- User Guide is created by heat -->
     <!-- FAQ -->
     <Fragment>
       <DirectoryRef Id="INSTALLFOLDER">
         <Component Id="cmpFAQ_html" Guid="*">
-          <File Id="filFAQ_html" KeyPath="yes" Source="$(var.DOCBOOK_DIR)\faq.html" />
+          <File Id="filFAQ_html" KeyPath="yes" Source="$(var.DOC_DIR)\faq.html" />
         </Component>
       </DirectoryRef>
     </Fragment>

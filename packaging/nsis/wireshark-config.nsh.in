@@ -31,6 +31,7 @@
 #cmakedefine LIBSSH_FOUND
 
 #cmakedefine DOCBOOK_DIR "@DOCBOOK_DIR@"
+#cmakedefine DOC_DIR "@DOC_DIR@"
 
 #cmakedefine SMI_DIR "@SMI_DIR@"
 

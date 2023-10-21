@@ -1244,14 +1244,16 @@ Section "-Clear Partial Selected"
 SectionEnd
 
 !ifdef DOCBOOK_DIR
+!ifdef DOC_DIR
 Section "Documentation" SecDocumentation
 ;-------------------------------------------
 SetOutPath "$INSTDIR\Wireshark User's Guide"
 File /r "${DOCBOOK_DIR}\wsug_html_chunked\*.*"
 
 SetOutPath $INSTDIR
-File "${DOCBOOK_DIR}\faq.html"
+File "${DOC_DIR}\faq.html"
 SectionEnd
+!endif
 !endif
 
 Section "-Finally"
@@ -1597,7 +1599,7 @@ SectionEnd
   !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdump} "Provide capture interface to receive UDP packets streamed from network devices."
 
-!ifdef DOCBOOK_DIR
+!ifdef DOC_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install an offline copy of the User's Guide and FAQ."
 !endif
 !insertmacro MUI_FUNCTION_DESCRIPTION_END

@@ -1005,14 +1005,16 @@ SectionEnd
 SectionGroupEnd ; "Tools"
 
 !ifdef DOCBOOK_DIR
+!ifdef DOC_DIR
 Section "Documentation" SecDocumentation
 ;-------------------------------------------
 SetOutPath "$INSTDIR\Wireshark User's Guide"
 File /r "${DOCBOOK_DIR}\wsug_html_chunked\*.*"
 
 SetOutPath $INSTDIR
-File "${DOCBOOK_DIR}\faq.html"
+File "${DOC_DIR}\faq.html"
 SectionEnd
+!endif
 !endif
 
 Section "-Finally"
@@ -1056,7 +1058,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpkt} "Random packet generator."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool"
 
-!ifdef DOCBOOK_DIR
+!ifdef DOC_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install an offline copy of the User's Guide and FAQ."
 !endif
 !insertmacro MUI_FUNCTION_DESCRIPTION_END

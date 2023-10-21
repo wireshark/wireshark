@@ -9,6 +9,13 @@
 
 find_package( Asciidoctor 1.5 )
 
+function(set_doc_target_properties _target)
+	set_target_properties(${_target} PROPERTIES
+		FOLDER "Documentation"
+		EXCLUDE_FROM_DEFAULT_BUILD True
+		)
+endfunction()
+
 set(MAN1_SOURCE_FILES)
 set(MAN4_SOURCE_FILES)
 set(MAN1_INSTALL_FILES)
@@ -127,7 +134,20 @@ if(ASCIIDOCTOR_FOUND)
 			release_notes_txt
 	)
 	set_target_properties(news PROPERTIES FOLDER "Documentation")
+
+	ASCIIDOCTOR2HTML(faq.adoc)
+	add_custom_target(faq_html DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/faq.html)
+	set_doc_target_properties(faq_html)
+
+	add_custom_target(faq)
+	set_doc_target_properties(faq)
+	add_dependencies (faq faq_html)
 endif()
+
+
+if( ASCIIDOCTOR_FOUND )
+endif()
+
 
 add_custom_target(
 	docs ALL

@@ -1,4 +1,4 @@
-include::attributes.adoc[]
+include::../docbook/attributes.adoc[]
 :stylesheet: ws.css
 :linkcss:
 :copycss: {stylesheet}

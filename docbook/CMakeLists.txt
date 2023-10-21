@@ -463,19 +463,6 @@ if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_EPUB_EXECUTABLE)
 	add_dependencies(developer_guides developer_guide_epub)
 endif()
 
-# FAQ
-
-add_custom_target( faq_html DEPENDS faq.html )
-set_docbook_target_properties(faq_html)
-
-add_custom_target( faq )
-set_docbook_target_properties(faq)
-add_dependencies ( faq faq_html )
-
-if( ASCIIDOCTOR_FOUND )
-	ASCIIDOCTOR2HTML( faq.adoc )
-endif()
-
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
