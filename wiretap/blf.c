@@ -2319,11 +2319,12 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
 }
 
 static gboolean
-blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp) {
+blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp, guint16 object_version) {
     blf_ethernet_status_t            ethernet_status_header;
-    guint8 tmpbuf[16];
+    guint8 tmpbuf[24];
+    uint64_t linkUpDuration;
 
-    if (object_length < (data_start - block_start) + (int)sizeof(ethernet_status_header)) {
+    if (object_length < (data_start - block_start) + (int)sizeof(ethernet_status_header) + (int)(object_version >= 1 ? 8 : 0)) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("blf: ETHERNET_STATUS: not enough bytes for ethernet status header in object");
         ws_debug("not enough bytes for ethernet status header in object");
@@ -2333,6 +2334,14 @@ blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint6
     if (!blf_read_bytes(params, data_start, &ethernet_status_header, sizeof(ethernet_status_header), err, err_info)) {
         ws_debug("not enough bytes for ethernet_status_header header in file");
         return FALSE;
+    }
+
+    if (object_version >= 1) {
+        if (!blf_read_bytes(params, data_start + sizeof(ethernet_status_header), &linkUpDuration, 8, err, err_info)) {
+            ws_debug("not enough bytes for ethernet_status_header header in file");
+            return FALSE;
+        }
+        GUINT64_FROM_LE(linkUpDuration);
     }
 
     fix_endianness_blf_ethernet_status_header(&ethernet_status_header);
@@ -2354,11 +2363,22 @@ blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint6
     tmpbuf[14] = (ethernet_status_header.bitrate & 0x0000ff00) >> 8;
     tmpbuf[15] = (ethernet_status_header.bitrate & 0x000000ff);
 
+    if (object_version >= 1) {
+        tmpbuf[16] = (linkUpDuration & UINT64_C(0xff00000000000000)) >> 56;
+        tmpbuf[17] = (linkUpDuration & UINT64_C(0x00ff000000000000)) >> 48;
+        tmpbuf[18] = (linkUpDuration & UINT64_C(0x0000ff0000000000)) >> 40;
+        tmpbuf[19] = (linkUpDuration & UINT64_C(0x000000ff00000000)) >> 32;
+        tmpbuf[20] = (linkUpDuration & UINT64_C(0x00000000ff000000)) >> 24;
+        tmpbuf[21] = (linkUpDuration & UINT64_C(0x0000000000ff0000)) >> 16;
+        tmpbuf[22] = (linkUpDuration & UINT64_C(0x000000000000ff00)) >> 8;
+        tmpbuf[23] = (linkUpDuration & UINT64_C(0x00000000000000ff));
+    }
+
     wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "blf-ethernetstatus-obj");
     wtap_buffer_append_epdu_end(params->buf);
 
     ws_buffer_assure_space(params->buf, sizeof(ethernet_status_header));
-    ws_buffer_append(params->buf, tmpbuf, (gsize)16);
+    ws_buffer_append(params->buf, tmpbuf, (gsize)(object_version >= 1 ? 24 : 16));
 
     /* We'll write this as a WS UPPER PDU packet with a data blob */
     /* This will create an interface with the "name" of the matching
@@ -2593,7 +2613,7 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
             break;
 
         case BLF_OBJTYPE_ETHERNET_STATUS:
-            return blf_read_ethernet_status(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+            return blf_read_ethernet_status(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
             break;
         default:
             ws_debug("unknown object type 0x%04x", header.object_type);

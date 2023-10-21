@@ -99,6 +99,7 @@ static int hf_blf_eth_status_flags1_b5 = -1;
 static int hf_blf_eth_status_flags1_b6 = -1;
 static int hf_blf_eth_status_flags1_b7 = -1;
 static int hf_blf_eth_status_flags1_b8 = -1;
+static int hf_blf_eth_status_flags1_b9 = -1;
 
 static int hf_blf_eth_status_linkstatus = -1;
 static int hf_blf_eth_status_ethernetphy = -1;
@@ -109,6 +110,7 @@ static int hf_blf_eth_status_clockmode = -1;
 static int hf_blf_eth_status_pairs = -1;
 static int hf_blf_eth_status_hardwarechannel = -1;
 static int hf_blf_eth_status_bitrate = -1;
+static int hf_blf_eth_status_linkupduration = -1;
 static int hf_blf_eth_frame_ext_structlength = -1;
 static int hf_blf_eth_frame_ext_flags = -1;
 static int hf_blf_eth_frame_ext_channel = -1;
@@ -323,6 +325,42 @@ static const value_string blf_eth_status_ethernetphy_vals[] = {
     { 0,     "UnknownEthernetPhy" },
     { 1,     "Ieee802_3" },
     { 2,     "BroadR_Reach"},
+    { 0, NULL }
+};
+
+static const value_string blf_eth_status_duplex_vals[] = {
+    { 0,     "UnknownDuplex" },
+    { 1,     "HalfDuplex" },
+    { 2,     "FullDuplex"},
+    { 0, NULL }
+};
+
+static const value_string blf_eth_status_mdi_vals[] = {
+    { 0,     "UnknownMDI" },
+    { 1,     "Direct" },
+    { 2,     "Crossover"},
+    { 0, NULL }
+};
+
+static const value_string blf_eth_status_connector_vals[] = {
+    { 0,     "UnknownConnector" },
+    { 1,     "RJ45" },
+    { 2,     "D-sub"},
+    { 0, NULL }
+};
+
+static const value_string blf_eth_status_clockmode_vals[] = {
+    { 0,     "UnknownClockMode" },
+    { 1,     "Master" },
+    { 2,     "Slave"},
+    { 0, NULL }
+};
+
+static const value_string blf_eth_status_pairs_vals[] = {
+    { 0,     "UnknownPairs" },
+    { 1,     "1" },
+    { 2,     "2"},
+    { 3,     "4"},
     { 0, NULL }
 };
 
@@ -617,6 +655,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
         case BLF_OBJTYPE_ETHERNET_STATUS:
         {
             static int* const flags1[] = {
+                &hf_blf_eth_status_flags1_b9,
                 &hf_blf_eth_status_flags1_b8,
                 &hf_blf_eth_status_flags1_b7,
                 &hf_blf_eth_status_flags1_b6,
@@ -668,6 +707,10 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             offset += 1;
             /* uint32_t bitrate {}; */
             proto_tree_add_item(subtree, hf_blf_eth_status_bitrate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            if (offset_orig + obj_length - offset >= 8) {
+                proto_tree_add_item(subtree, hf_blf_eth_status_linkupduration, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            }
         }
             break;
         case BLF_OBJTYPE_ETHERNET_FRAME_EX:
@@ -843,6 +886,7 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
     int offset = 0;
 
     static int* const flags1[] = {
+        &hf_blf_eth_status_flags1_b9,
         &hf_blf_eth_status_flags1_b8,
         &hf_blf_eth_status_flags1_b7,
         &hf_blf_eth_status_flags1_b6,
@@ -932,6 +976,15 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
     ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_bitrate, tvb, offset, 4, ENC_BIG_ENDIAN);
     if ((flags & BLF_ETH_STATUS_BITRATE) == 0) {
         proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 4;
+
+    if ((gint)tvb_captured_length(tvb) >= offset + 8) {
+        /* uint64_t linkUpDuration {}; */
+        ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_linkupduration, tvb, offset, 8, ENC_BIG_ENDIAN);
+        if ((flags & BLF_ETH_STATUS_LINKUPDURATION) == 0) {
+            proto_item_append_text(ti, " - Invalid");
+        }
     }
 
     if ((flags & BLF_ETH_STATUS_LINKSTATUS) != 0) {
@@ -1085,24 +1138,28 @@ proto_register_file_blf(void) {
             { "BrPair",   "blf.object.eth_status.flags.b7", FT_BOOLEAN, 16, NULL, 0x0080,  NULL, HFILL } },
         { &hf_blf_eth_status_flags1_b8,
             { "HardwareChannel",   "blf.object.eth_status.flags.b8", FT_BOOLEAN, 16, NULL, 0x0100,  NULL, HFILL } },
+        { &hf_blf_eth_status_flags1_b9,
+            { "Link up duration",   "blf.object.eth_status.flags.b9", FT_BOOLEAN, 16, NULL, 0x0200,  NULL, HFILL } },
         { &hf_blf_eth_status_linkstatus,
             { "Link status", "blf.object.eth_status.linkstatus", FT_UINT8, BASE_DEC, VALS(blf_eth_status_linkstatus_vals), 0x00, NULL, HFILL}},
         { &hf_blf_eth_status_ethernetphy,
             { "Ethernet PHY", "blf.object.eth_status.ethernetphy", FT_UINT8, BASE_DEC, VALS(blf_eth_status_ethernetphy_vals), 0x00, NULL, HFILL}},
         { &hf_blf_eth_status_duplex,
-            { "Duplex", "blf.object.eth_status.duplex", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+            { "Duplex", "blf.object.eth_status.duplex", FT_UINT8, BASE_DEC, VALS(blf_eth_status_duplex_vals), 0x00, NULL, HFILL}},
         { &hf_blf_eth_status_mdi,
-            { "MDI", "blf.object.eth_status.mdi", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+            { "MDI", "blf.object.eth_status.mdi", FT_UINT8, BASE_DEC, VALS(blf_eth_status_mdi_vals), 0x00, NULL, HFILL}},
         { &hf_blf_eth_status_connector,
-            { "Connector", "blf.object.eth_status.connector", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+            { "Connector", "blf.object.eth_status.connector", FT_UINT8, BASE_DEC, VALS(blf_eth_status_connector_vals), 0x00, NULL, HFILL}},
         { &hf_blf_eth_status_clockmode,
-            { "Clock mode", "blf.object.eth_status.clockmode", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+            { "Clock mode", "blf.object.eth_status.clockmode", FT_UINT8, BASE_DEC, VALS(blf_eth_status_clockmode_vals), 0x00, NULL, HFILL}},
         { &hf_blf_eth_status_pairs,
-            { "Pairs", "blf.object.eth_status.pairs", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+            { "Pairs", "blf.object.eth_status.pairs", FT_UINT8, BASE_DEC, VALS(blf_eth_status_pairs_vals), 0x00, NULL, HFILL}},
         { &hf_blf_eth_status_hardwarechannel,
             { "Hardware channel", "blf.object.eth_status.hardwarechannel", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
         { &hf_blf_eth_status_bitrate,
-            { "Bitrate", "blf.object.eth_status.bitrate", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+            { "Bitrate (kbps)", "blf.object.eth_status.bitrate", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_status_linkupduration,
+            { "Link up duration (ns)", "blf.object.eth_status.linkupduration", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL} },
         { &hf_blf_eth_frame_ext_structlength,
             { "Struct length", "blf.object.eth_frame_ext.structlength", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
         { &hf_blf_eth_frame_ext_flags,

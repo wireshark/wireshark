@@ -563,6 +563,9 @@ typedef struct blf_ethernet_status {
     uint8_t pairs;
     uint8_t hardwareChannel;
     uint32_t bitrate;
+/* Starting from version 1
+    uint64_t linkUpDuration;    // In nanoseconds
+*/
 } blf_ethernet_status_t;
 
 
@@ -700,6 +703,7 @@ typedef struct blf_ethernet_status {
 #define BLF_ETH_STATUS_CLOCKMODE  0x0040
 #define BLF_ETH_STATUS_BRPAIR 0x0080
 #define BLF_ETH_STATUS_HARDWARECHANNEL 0x0100
+#define BLF_ETH_STATUS_LINKUPDURATION 0x0200
 
 #endif
 
