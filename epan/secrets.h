@@ -77,7 +77,8 @@ typedef void (*secrets_block_callback_t)(const void *secrets, guint size);
  * @param secrets_type A Secrets Type as defined in wiretap/secrets-types.h
  * @param cb Callback to be invoked for new secrets.
  */
-void secrets_register_type(guint32 secrets_type, secrets_block_callback_t cb);
+WS_DLL_PUBLIC void
+secrets_register_type(guint32 secrets_type, secrets_block_callback_t cb);
 
 #ifdef HAVE_LIBGNUTLS
 /**
