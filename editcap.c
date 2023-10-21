@@ -171,6 +171,7 @@ static const struct {
     { "tls",    SECRETS_TYPE_TLS },
     { "ssh",    SECRETS_TYPE_SSH },
     { "wg",     SECRETS_TYPE_WIREGUARD },
+    { "opcua",  SECRETS_TYPE_OPCUA },
 };
 
 static int find_dct2000_real_data(guint8 *buf);
