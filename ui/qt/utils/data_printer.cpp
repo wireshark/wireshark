@@ -34,6 +34,14 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
 
     switch(type)
     {
+    case DP_GoLiteral:
+        clipboard_text += QString("[]byte{");
+        for (int i = 0; i < printData.length(); i++) {
+        if (i>0) clipboard_text += ", ";
+            clipboard_text += QString("0x%1").arg((uint8_t) printData[i], 1, 16, QChar('0'));
+        }
+        clipboard_text += QString("}");
+        break;
     case DP_CString:
         // Beginning quote
         clipboard_text += QString("\"");
@@ -237,6 +245,11 @@ QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
     action = new QAction(tr("…as C String"), actions);
     action->setToolTip(tr("Copy packet bytes as printable ASCII characters and escape sequences."));
     action->setProperty("printertype", DataPrinter::DP_CString);
+    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
+
+    action = new QAction(tr("…as Go literal"), actions);
+    action->setToolTip(tr("Copy packet bytes as Go literal."));
+    action->setProperty("printertype", DataPrinter::DP_GoLiteral);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
     return actions;

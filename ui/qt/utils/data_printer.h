@@ -31,6 +31,7 @@ public:
         DP_HexOnly,
         DP_HexStream,
         DP_CString,
+        DP_GoLiteral,
         DP_MimeData,
         DP_Base64
     };
