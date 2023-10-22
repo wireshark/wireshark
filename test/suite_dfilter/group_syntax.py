@@ -218,6 +218,10 @@ class TestDfilterBitwise:
         checkDFilterCount(dfilter, 1)
 
     def test_exists_2(self, checkDFilterCount):
+        dfilter = "tcp.flags bitand 0x8"
+        checkDFilterCount(dfilter, 1)
+
+    def test_exists_3(self, checkDFilterCount):
         dfilter = "eth[0] & 1"
         checkDFilterCount(dfilter, 0)
 
@@ -227,6 +231,14 @@ class TestDfilterBitwise:
 
     def test_equal_2(self, checkDFilterCount):
         dfilter = "tcp.srcport != tcp.dstport & 0x0F"
+        checkDFilterCount(dfilter, 1)
+
+    def test_equal_3(self, checkDFilterCount):
+        dfilter = "tcp.srcport != tcp.dstport bitand 0x0F"
+        checkDFilterCount(dfilter, 1)
+
+    def test_equal_4(self, checkDFilterCount):
+        dfilter = "tcp.srcport != tcp.dstport bitwise_and 0x0F"
         checkDFilterCount(dfilter, 1)
 
 class TestDfilterUnaryMinus:

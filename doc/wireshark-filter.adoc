@@ -488,7 +488,7 @@ can be convenient:
 It is also possible to define tests with bitwise operations. Currently the
 following bitwise operator is supported:
 
-    bitwise_and, &	Bitwise AND
+    bitand, bitwise_and, &	Bitwise AND
 
 The bitwise AND operation allows masking bits and testing to see if one or
 more bits are set. Bitwise AND operates on integer protocol fields and slices.

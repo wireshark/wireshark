@@ -206,6 +206,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 "/"		return math(TOKEN_RSLASH);
 "%"		return math(TOKEN_PERCENT);
 "&"		return math(TOKEN_BITWISE_AND);
+"bitand"	return math(TOKEN_BITWISE_AND);
 "bitwise_and"	return math(TOKEN_BITWISE_AND);
 
 "#"				{

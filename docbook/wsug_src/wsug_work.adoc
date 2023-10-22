@@ -830,16 +830,16 @@ You can perform the arithmetic operations on numeric fields shown in <<Arithmeti
 [#ArithmeticOps]
 
 .Display Filter Arithmetic Operations
-[options="header",cols="1,1,4"]
+[options="header",cols="1,1,1,4"]
 |===
-|Name            |Syntax    | Description
-|Unary minus     |-A        | Negation of A
-|Addition        |A + B     | Add B to A
-|Subtraction     |A - B     | Subtract B from A
-|Multiplication  |A * B     | Multiply A times B
-|Division        |A / B     | Divide A by B
-|Modulo          |A % B     | Remainder of A divided by B
-|Bitwise AND     |A & B     | Bitwise AND of A and B
+|Name            |Syntax    | Alternative | Description
+|Unary minus     |-A        |             | Negation of A
+|Addition        |A + B     |             | Add B to A
+|Subtraction     |A - B     |             | Subtract B from A
+|Multiplication  |A * B     |             | Multiply A times B
+|Division        |A / B     |             | Divide A by B
+|Modulo          |A % B     |             | Remainder of A divided by B
+|Bitwise AND     |A & B     | A bitand B  | Bitwise AND of A and B
 |===
 
 Arithmetic expressions can be grouped using curly braces.

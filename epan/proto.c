@@ -484,6 +484,7 @@ static const char *reserved_filter_names[] = {
 	"ge",
 	"lt",
 	"le",
+	"bitand",
 	"bitwise_and",
 	"contains",
 	"matches",

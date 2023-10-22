@@ -49,6 +49,8 @@ The following features are new (or have been significantly updated) since versio
      the multiplier/divisor must be an integer or float and appear on the right-hand
      side of the operator.
 
+  ** The keyword "bitand" can be used as an alternative syntax for the bitwise-and operator.
+
 //=== Removed Features and Support
 
 // === Removed Dissectors
