@@ -173,7 +173,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 
 		case FT_NUM_TYPES:
 		case FT_SCALAR:
-			ws_assert_not_reached();
+			ASSERT_FTYPE_NOT_REACHED(a);
 	}
 
 	ws_assert_not_reached();
@@ -440,7 +440,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 
 		case FT_NUM_TYPES:
 		case FT_SCALAR:
-			ws_assert_not_reached();
+			ASSERT_FTYPE_NOT_REACHED(hfinfo->type);
 	}
 
 	/* Do val_strings exist? */
@@ -636,7 +636,7 @@ is_bytes_type(enum ftenum type)
 
 		case FT_NUM_TYPES:
 		case FT_SCALAR:
-			ws_assert_not_reached();
+			ASSERT_FTYPE_NOT_REACHED(type);
 	}
 
 	ws_assert_not_reached();
@@ -705,7 +705,7 @@ get_logical_ftype(stnode_t *st_node)
 		case STTYPE_NUM_TYPES:
 		case STTYPE_FVALUE:
 		case STTYPE_PCRE:
-			ws_error("invalid syntax type %s", stnode_type_name(st_node));
+			ASSERT_STTYPE_NOT_REACHED(stnode_type_id(st_node));
 	}
 
 	ws_assert_not_reached();
@@ -755,7 +755,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_PCRE:
 		case STTYPE_ARITHMETIC:
 		case STTYPE_SLICE:
-			ws_assert_not_reached();
+			ASSERT_STTYPE_NOT_REACHED(stnode_type_id(st_arg1));
 	}
 }
 
@@ -975,7 +975,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 		}
 	}
 	else {
-		ws_assert_not_reached();
+		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
 }
 
@@ -1039,7 +1039,7 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op,
 		}
 	}
 	else {
-		ws_assert_not_reached();
+		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
 
 	type1 = stnode_type_id(st_arg1);
@@ -1056,7 +1056,7 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op,
 		dfilter_fvalue_from_number(dfw, ftype2, st_arg1);
 	}
 	else {
-		ws_assert_not_reached();
+		ASSERT_STTYPE_NOT_REACHED(type1);
 	}
 	if (mk_val_string) {
 		sttype_field_set_value_string(st_arg2, true);
@@ -1164,7 +1164,7 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
 		}
 	}
 	else {
-		ws_assert_not_reached();
+		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
 }
 
@@ -1274,7 +1274,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op _U_,
 		}
 	}
 	else {
-		ws_assert_not_reached();
+		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
 }
 
@@ -1376,7 +1376,7 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op _U_,
 		}
 	}
 	else {
-		ws_assert_not_reached();
+		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
 }
 
@@ -1419,7 +1419,7 @@ check_relation(dfwork_t *dfw, stnode_op_t st_op,
 		case STTYPE_TEST:
 		case STTYPE_SET:
 		case STTYPE_NUM_TYPES:
-			ws_assert_not_reached();
+			ASSERT_STTYPE_NOT_REACHED(stnode_type_id(st_arg1));
 	}
 }
 
@@ -1614,7 +1614,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 		case STNODE_OP_MULTIPLY:
 		case STNODE_OP_DIVIDE:
 		case STNODE_OP_MODULO:
-			ws_assert_not_reached();
+			ASSERT_STNODE_OP_NOT_REACHED(st_op);
 	}
 }
 
@@ -1631,8 +1631,7 @@ check_nonzero(dfwork_t *dfw, stnode_t *st_node)
 			check_slice(dfw, st_node, find_logical_ftype(dfw, st_node));
 			break;
 		default:
-			ws_assert_not_reached();
-			break;
+			ASSERT_STTYPE_NOT_REACHED(stnode_type_id(st_node));
 	}
 }
 
@@ -1711,7 +1710,7 @@ check_arithmetic_LHS_NUMBER(dfwork_t *dfw, stnode_op_t st_op,
 			can_func = ftype_can_bitwise_and;
 			break;
 		default:
-			ws_assert_not_reached();
+			ASSERT_STNODE_OP_NOT_REACHED(st_op);
 	}
 
 	ftype1 = check_arithmetic(dfw, st_arg1, logical_ftype);

@@ -151,18 +151,120 @@ const char*
 ftype_name(enum ftenum ftype)
 {
 	ftype_t	*ft;
+	const char *s = "(null)";
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->name;
+	switch (ft->ftype) {
+		case FT_NONE:		s = "FT_NONE"; break;
+		case FT_PROTOCOL:	s = "FT_PROTOCOL"; break;
+		case FT_BOOLEAN:	s = "FT_BOOLEAN"; break;
+		case FT_CHAR:		s = "FT_CHAR"; break;
+		case FT_UINT8:		s = "FT_UINT8"; break;
+		case FT_UINT16:		s = "FT_UINT16"; break;
+		case FT_UINT24:		s = "FT_UINT24"; break;
+		case FT_UINT32:		s = "FT_UINT32"; break;
+		case FT_UINT40:		s = "FT_UINT40"; break;
+		case FT_UINT48:		s = "FT_UINT48"; break;
+		case FT_UINT56:		s = "FT_UINT56"; break;
+		case FT_UINT64:		s = "FT_UINT64"; break;
+		case FT_INT8:		s = "FT_INT8"; break;
+		case FT_INT16:		s = "FT_INT16"; break;
+		case FT_INT24:		s = "FT_INT24"; break;
+		case FT_INT32:		s = "FT_INT32"; break;
+		case FT_INT40:		s = "FT_INT40"; break;
+		case FT_INT48:		s = "FT_INT48"; break;
+		case FT_INT56:		s = "FT_INT56"; break;
+		case FT_INT64:		s = "FT_INT64"; break;
+		case FT_IEEE_11073_SFLOAT: s = "FT_IEEE_11073_SFLOAT"; break;
+		case FT_IEEE_11073_FLOAT: s = "FT_IEEE_11073_FLOAT"; break;
+		case FT_FLOAT:		s = "FT_FLOAT"; break;
+		case FT_DOUBLE:		s = "FT_DOUBLE"; break;
+		case FT_ABSOLUTE_TIME:	s = "FT_ABSOLUTE_TIME"; break;
+		case FT_RELATIVE_TIME:	s = "FT_RELATIVE_TIME"; break;
+		case FT_STRING:		s = "FT_STRING"; break;
+		case FT_STRINGZ:	s = "FT_STRINGZ"; break;
+		case FT_UINT_STRING:	s = "FT_UINT_STRING"; break;
+		case FT_ETHER:		s = "FT_ETHER"; break;
+		case FT_BYTES:		s = "FT_BYTES"; break;
+		case FT_UINT_BYTES:	s = "FT_UINT_BYTES"; break;
+		case FT_IPv4:		s = "FT_IPv4"; break;
+		case FT_IPv6:		s = "FT_IPv6"; break;
+		case FT_IPXNET:		s = "FT_IPXNET"; break;
+		case FT_FRAMENUM:	s = "FT_FRAMENUM"; break;
+		case FT_GUID:		s = "FT_GUID"; break;
+		case FT_OID:		s = "FT_OID"; break;
+		case FT_EUI64:		s = "FT_EUI64"; break;
+		case FT_AX25:		s = "FT_AX25"; break;
+		case FT_VINES:		s = "FT_VINES"; break;
+		case FT_REL_OID:	s = "FT_REL_OID"; break;
+		case FT_SYSTEM_ID:	s = "FT_SYSTEM_ID"; break;
+		case FT_STRINGZPAD:	s = "FT_STRINGZPAD"; break;
+		case FT_FCWWN:		s = "FT_FCWWN"; break;
+		case FT_STRINGZTRUNC:	s = "FT_STRINGZTRUNC"; break;
+		case FT_NUM_TYPES:	s = "FT_NUM_TYPES"; break;
+		case FT_SCALAR:		s = "FT_SCALAR"; break;
+	}
+	return s;
 }
 
 const char*
 ftype_pretty_name(enum ftenum ftype)
 {
 	ftype_t	*ft;
+	const char *s = "(null)";
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->pretty_name;
+	switch (ft->ftype) {
+		case FT_NONE:		s = "Label"; break;
+		case FT_PROTOCOL:	s = "Protocol"; break;
+		case FT_BOOLEAN:	s = "Boolean"; break;
+		case FT_CHAR:		s = "Character (8 bits)"; break;
+		case FT_UINT8:		s = "Unsigned integer (8 bits)"; break;
+		case FT_UINT16:		s = "Unsigned integer (16 bits)"; break;
+		case FT_UINT24:		s = "Unsigned integer (24 bits)"; break;
+		case FT_UINT32:		s = "Unsigned integer (32 bits)"; break;
+		case FT_UINT40:		s = "Unsigned integer (40 bits)"; break;
+		case FT_UINT48:		s = "Unsigned integer (48 bits)"; break;
+		case FT_UINT56:		s = "Unsigned integer (56 bits)"; break;
+		case FT_UINT64:		s = "Unsigned integer (64 bits)"; break;
+		case FT_INT8:		s = "Signed integer (8 bits)"; break;
+		case FT_INT16:		s = "Signed integer (16 bits)"; break;
+		case FT_INT24:		s = "Signed integer (24 bits)"; break;
+		case FT_INT32:		s = "Signed integer (32 bits)"; break;
+		case FT_INT40:		s = "Signed integer (40 bits)"; break;
+		case FT_INT48:		s = "Signed integer (48 bits)"; break;
+		case FT_INT56:		s = "Signed integer (56 bits)"; break;
+		case FT_INT64:		s = "Signed integer (64 bits)"; break;
+		case FT_IEEE_11073_SFLOAT: s = "IEEE-11073 floating point (16-bit)"; break;
+		case FT_IEEE_11073_FLOAT: s = "IEEE-11073 Floating point (32-bit)"; break;
+		case FT_FLOAT:		s = "Floating point (single-precision)"; break;
+		case FT_DOUBLE:		s = "Floating point (double-precision)"; break;
+		case FT_ABSOLUTE_TIME:	s = "Date and time"; break;
+		case FT_RELATIVE_TIME:	s = "Time offset"; break;
+		case FT_STRING:		s = "Character string"; break;
+		case FT_STRINGZ:	s = "Character string"; break;
+		case FT_UINT_STRING:	s = "Character string"; break;
+		case FT_ETHER:		s = "Ethernet or other MAC address"; break;
+		case FT_BYTES:		s = "Byte sequence"; break;
+		case FT_UINT_BYTES:	s = "Byte sequence"; break;
+		case FT_IPv4:		s = "IPv4 address"; break;
+		case FT_IPv6:		s = "IPv6 address"; break;
+		case FT_IPXNET:		s = "IPX network number"; break;
+		case FT_FRAMENUM:	s = "Frame number"; break;
+		case FT_GUID:		s = "Globally Unique Identifier"; break;
+		case FT_OID:		s = "ASN.1 object identifier"; break;
+		case FT_EUI64:		s = "EUI64 address"; break;
+		case FT_AX25:		s = "AX.25 address"; break;
+		case FT_VINES:		s = "VINES address"; break;
+		case FT_REL_OID:	s = "ASN.1 relative object identifier"; break;
+		case FT_SYSTEM_ID:	s = "OSI System-ID"; break;
+		case FT_STRINGZPAD:	s = "Character string"; break;
+		case FT_FCWWN:		s = "Fibre Channel WWN"; break;
+		case FT_STRINGZTRUNC:	s = "Character string"; break;
+		case FT_NUM_TYPES:	s = "(num types)"; break;
+		case FT_SCALAR:		s = "Scalar"; break;
+	}
+	return s;
 }
 
 int
@@ -582,7 +684,7 @@ fvalue_type_ftenum(const fvalue_t *fv)
 const char*
 fvalue_type_name(const fvalue_t *fv)
 {
-	return fv->ftype->name;
+	return ftype_name(fv->ftype->ftype);
 }
 
 

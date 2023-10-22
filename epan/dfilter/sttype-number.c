@@ -147,7 +147,6 @@ sttype_register_number(void)
 {
 	static sttype_t number_type = {
 		STTYPE_NUMBER,
-		"NUMBER",
 		number_new,
 		number_free,
 		number_dup,

@@ -204,8 +204,6 @@ ftype_register_ipv6(void)
 {
 	static ftype_t ipv6_type = {
 		FT_IPv6,			/* ftype */
-		"FT_IPv6",			/* name */
-		"IPv6 address",			/* pretty_name */
 		FT_IPv6_LEN,			/* wire_size */
 		NULL,				/* new_value */
 		NULL,				/* copy_value */

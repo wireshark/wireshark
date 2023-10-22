@@ -21,6 +21,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define ASSERT_FTYPE_NOT_REACHED(ft) \
+	ws_error("Invalid field type '%s'.", ftype_name(ft))
+
 /* field types */
 enum ftenum {
 	FT_NONE,	/* used for text labels with no value */

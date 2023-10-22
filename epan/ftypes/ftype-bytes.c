@@ -624,8 +624,6 @@ ftype_register_bytes(void)
 
 	static ftype_t bytes_type = {
 		FT_BYTES,			/* ftype */
-		"FT_BYTES",			/* name */
-		"Byte sequence",		/* pretty_name */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */
@@ -665,8 +663,6 @@ ftype_register_bytes(void)
 
 	static ftype_t uint_bytes_type = {
 		FT_UINT_BYTES,		/* ftype */
-		"FT_UINT_BYTES",		/* name */
-		"Byte sequence",		/* pretty_name */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */
@@ -706,8 +702,6 @@ ftype_register_bytes(void)
 
 	static ftype_t ax25_type = {
 		FT_AX25,			/* ftype */
-		"FT_AX25",			/* name */
-		"AX.25 address",		/* pretty_name */
 		FT_AX25_ADDR_LEN,		/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */
@@ -747,8 +741,6 @@ ftype_register_bytes(void)
 
 	static ftype_t vines_type = {
 		FT_VINES,			/* ftype */
-		"FT_VINES",			/* name */
-		"VINES address",		/* pretty_name */
 		FT_VINES_ADDR_LEN,		/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */
@@ -788,8 +780,6 @@ ftype_register_bytes(void)
 
 	static ftype_t ether_type = {
 		FT_ETHER,			/* ftype */
-		"FT_ETHER",			/* name */
-		"Ethernet or other MAC address",/* pretty_name */
 		FT_ETHER_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */
@@ -829,8 +819,6 @@ ftype_register_bytes(void)
 
 	static ftype_t oid_type = {
 		FT_OID,			/* ftype */
-		"FT_OID",			/* name */
-		"ASN.1 object identifier",	/* pretty_name */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */
@@ -870,8 +858,6 @@ ftype_register_bytes(void)
 
 	static ftype_t rel_oid_type = {
 		FT_REL_OID,			/* ftype */
-		"FT_REL_OID",			/* name */
-		"ASN.1 relative object identifier",	/* pretty_name */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */
@@ -911,8 +897,6 @@ ftype_register_bytes(void)
 
 	static ftype_t system_id_type = {
 		FT_SYSTEM_ID,			/* ftype */
-		"FT_SYSTEM_ID",			/* name */
-		"OSI System-ID",		/* pretty_name */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */
@@ -952,8 +936,6 @@ ftype_register_bytes(void)
 
 	static ftype_t fcwwn_type = {
 		FT_FCWWN,			/* ftype */
-		"FT_FCWWN",			/* name */
-		"Fibre Channel WWN",	/* pretty_name */
 		FT_FCWWN_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */

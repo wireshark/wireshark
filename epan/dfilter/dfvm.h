@@ -17,6 +17,9 @@
 #include "drange.h"
 #include "dfunctions.h"
 
+#define ASSERT_DFVM_OP_NOT_REACHED(op) \
+	ws_error("Invalid dfvm opcode '%s'.", dfvm_opcode_tostr(op))
+
 typedef enum {
 	EMPTY,
 	FVALUE,

@@ -21,6 +21,12 @@
 /** @file
  */
 
+#define ASSERT_STTYPE_NOT_REACHED(st) \
+	ws_error("Invalid syntax node type '%s'.", sttype_name(st))
+
+#define ASSERT_STNODE_OP_NOT_REACHED(op) \
+	ws_error("Invalid stnode op '%s'.", stnode_op_name(op))
+
 typedef enum {
 	STTYPE_UNINITIALIZED,
 	STTYPE_TEST,
@@ -48,7 +54,6 @@ typedef char*           (*STTypeToStrFunc)(gconstpointer, bool pretty);
 /* Type information */
 typedef struct {
 	sttype_id_t		id;
-	const char		*name;
 	STTypeNewFunc		func_new;
 	STTypeFreeFunc		func_free;
 	STTypeDupFunc		func_dup;
@@ -126,6 +131,12 @@ sttype_cleanup(void);
 
 void
 sttype_register(sttype_t *type);
+
+const char *
+sttype_name(sttype_id_t type);
+
+const char *
+stnode_op_name(stnode_op_t op);
 
 stnode_t*
 stnode_new(sttype_id_t type_id, void *data, char *token, df_loc_t loc);

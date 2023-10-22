@@ -152,7 +152,6 @@ sttype_register_function(void)
 {
 	static sttype_t function_type = {
 		STTYPE_FUNCTION,
-		"FUNCTION",
 		function_new,
 		function_free,
 		function_dup,

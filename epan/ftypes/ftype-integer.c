@@ -986,8 +986,6 @@ ftype_register_integers(void)
 {
 	static ftype_t char_type = {
 		FT_CHAR,			/* ftype */
-		"FT_CHAR",			/* name */
-		"Character (8 bits)",		/* pretty name */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1026,8 +1024,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t uint8_type = {
 		FT_UINT8,			/* ftype */
-		"FT_UINT8",			/* name */
-		"Unsigned integer (8 bits)",	/* pretty name */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1066,8 +1062,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t uint16_type = {
 		FT_UINT16,			/* ftype */
-		"FT_UINT16",			/* name */
-		"Unsigned integer (16 bits)",	/* pretty_name */
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1106,8 +1100,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t uint24_type = {
 		FT_UINT24,			/* ftype */
-		"FT_UINT24",			/* name */
-		"Unsigned integer (24 bits)",	/* pretty_name */
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1146,8 +1138,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t uint32_type = {
 		FT_UINT32,			/* ftype */
-		"FT_UINT32",			/* name */
-		"Unsigned integer (32 bits)",	/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1186,8 +1176,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t uint40_type = {
 		FT_UINT40,			/* ftype */
-		"FT_UINT40",			/* name */
-		"Unsigned integer (40 bits)",	/* pretty_name */
 		5,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
@@ -1226,8 +1214,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t uint48_type = {
 		FT_UINT48,			/* ftype */
-		"FT_UINT48",			/* name */
-		"Unsigned integer (48 bits)",	/* pretty_name */
 		6,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
@@ -1266,8 +1252,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t uint56_type = {
 		FT_UINT56,			/* ftype */
-		"FT_UINT56",			/* name */
-		"Unsigned integer (56 bits)",	/* pretty_name */
 		7,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
@@ -1306,8 +1290,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t uint64_type = {
 		FT_UINT64,			/* ftype */
-		"FT_UINT64",			/* name */
-		"Unsigned integer (64bits)",	/* pretty_name */
 		8,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
@@ -1346,8 +1328,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t int8_type = {
 		FT_INT8,			/* ftype */
-		"FT_INT8",			/* name */
-		"Signed integer (8bits)",	/* pretty_name */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1386,8 +1366,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t int16_type = {
 		FT_INT16,			/* ftype */
-		"FT_INT16",			/* name */
-		"Signed integer (16 bits)",	/* pretty_name */
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1426,8 +1404,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t int24_type = {
 		FT_INT24,			/* ftype */
-		"FT_INT24",			/* name */
-		"Signed integer (24 bits)",	/* pretty_name */
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1466,8 +1442,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t int32_type = {
 		FT_INT32,			/* ftype */
-		"FT_INT32",			/* name */
-		"Signed integer (32 bits)",	/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1506,8 +1480,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t int40_type = {
 		FT_INT40,			/* ftype */
-		"FT_INT40",			/* name */
-		"Signed integer (40 bits)",	/* pretty_name */
 		5,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
@@ -1546,8 +1518,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t int48_type = {
 		FT_INT48,			/* ftype */
-		"FT_INT48",			/* name */
-		"Signed integer (48 bits)",	/* pretty_name */
 		6,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
@@ -1586,8 +1556,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t int56_type = {
 		FT_INT56,			/* ftype */
-		"FT_INT56",			/* name */
-		"Signed integer (56 bits)",	/* pretty_name */
 		7,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
@@ -1626,8 +1594,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t int64_type = {
 		FT_INT64,			/* ftype */
-		"FT_INT64",			/* name */
-		"Signed integer (64 bits)",	/* pretty_name */
 		8,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
@@ -1666,8 +1632,6 @@ ftype_register_integers(void)
 	};
 	static ftype_t boolean_type = {
 		FT_BOOLEAN,			/* ftype */
-		"FT_BOOLEAN",			/* name */
-		"Boolean",			/* pretty_name */
 		0,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1707,8 +1671,6 @@ ftype_register_integers(void)
 
 	static ftype_t ipxnet_type = {
 		FT_IPXNET,			/* ftype */
-		"FT_IPXNET",			/* name */
-		"IPX network number",		/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1748,8 +1710,6 @@ ftype_register_integers(void)
 
 	static ftype_t framenum_type = {
 		FT_FRAMENUM,			/* ftype */
-		"FT_FRAMENUM",			/* name */
-		"Frame number",			/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* copy_value */
@@ -1789,8 +1749,6 @@ ftype_register_integers(void)
 
 	static ftype_t eui64_type = {
 		FT_EUI64,			/* ftype */
-		"FT_EUI64",			/* name */
-		"EUI64 address",		/* pretty_name */
 		FT_EUI64_LEN,			/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */

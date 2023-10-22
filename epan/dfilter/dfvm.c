@@ -584,7 +584,7 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
 		case DFVM_RETURN:
 		case DFVM_SET_CLEAR:
 		case DFVM_NULL:
-			ws_assert_not_reached();
+			ASSERT_DFVM_OP_NOT_REACHED(insn->op);
 	}
 
 	g_free(arg1_str);
@@ -1811,7 +1811,7 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				break;
 
 			case DFVM_NULL:
-				ws_assert_not_reached();
+				ASSERT_DFVM_OP_NOT_REACHED(insn->op);
 		}
 	}
 

@@ -169,7 +169,6 @@ sttype_register_slice(void)
 {
 	static sttype_t slice_type = {
 		STTYPE_SLICE,
-		"SLICE",
 		slice_new,
 		slice_free,
 		slice_dup,

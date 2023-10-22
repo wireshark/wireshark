@@ -155,8 +155,6 @@ ftype_register_double(void)
 
 	static ftype_t float_type = {
 		FT_FLOAT,			/* ftype */
-		"FT_FLOAT",			/* name */
-		"Floating point (single-precision)", /* pretty_name */
 		0,				/* wire_size */
 		double_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */
@@ -196,8 +194,6 @@ ftype_register_double(void)
 
 	static ftype_t double_type = {
 		FT_DOUBLE,			/* ftype */
-		"FT_DOUBLE",			/* name */
-		"Floating point (double-precision)", /* pretty_name */
 		0,				/* wire_size */
 		double_fvalue_new,		/* new_value */
 		NULL,				/* copy_value */

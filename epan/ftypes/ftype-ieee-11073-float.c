@@ -954,8 +954,6 @@ Example: 114 is 0x0072
 */
     static ftype_t sfloat_type = {
         FT_IEEE_11073_SFLOAT,                 /* ftype */
-        "FT_IEEE_11073_SFLOAT",               /* name */
-        "IEEE-11073 floating point (16-bit)", /* pretty_name */
         2,                                    /* wire_size */
 
         sfloat_ieee_11073_fvalue_new,         /* new_value */
@@ -1022,8 +1020,6 @@ Example: 36.4 is 0xFF00016C
 
     static ftype_t float_type = {
         FT_IEEE_11073_FLOAT,                  /* ftype */
-        "FT_IEEE_11073_FLOAT",                /* name */
-        "IEEE-11073 Floating point (32-bit)", /* pretty_name */
         4,                                    /* wire_size */
 
         float_ieee_11073_fvalue_new,         /* new_value */

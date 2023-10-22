@@ -229,7 +229,6 @@ sttype_register_field(void)
 {
 	static sttype_t field_type = {
 		STTYPE_FIELD,
-		"FIELD",
 		field_new,
 		field_free,
 		field_dup,
@@ -237,7 +236,6 @@ sttype_register_field(void)
 	};
 	static sttype_t reference_type = {
 		STTYPE_REFERENCE,
-		"REFERENCE",
 		field_new,
 		field_free,
 		field_dup,

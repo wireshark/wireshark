@@ -95,8 +95,6 @@ typedef enum ft_result (*FvalueBinaryOp)(fvalue_t *, const fvalue_t*, const fval
 
 struct _ftype_t {
 	ftenum_t		ftype;
-	const char		*name;
-	const char		*pretty_name;
 	int			wire_size;
 	FvalueNewFunc		new_value;
 	FvalueCopyFunc		copy_value;

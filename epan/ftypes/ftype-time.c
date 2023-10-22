@@ -677,8 +677,6 @@ ftype_register_time(void)
 
 	static ftype_t abstime_type = {
 		FT_ABSOLUTE_TIME,		/* ftype */
-		"FT_ABSOLUTE_TIME",		/* name */
-		"Date and time",		/* pretty_name */
 		0,				/* wire_size */
 		time_fvalue_new,		/* new_value */
 		time_fvalue_copy,		/* copy_value */
@@ -717,8 +715,6 @@ ftype_register_time(void)
 	};
 	static ftype_t reltime_type = {
 		FT_RELATIVE_TIME,		/* ftype */
-		"FT_RELATIVE_TIME",		/* name */
-		"Time offset",			/* pretty_name */
 		0,				/* wire_size */
 		time_fvalue_new,		/* new_value */
 		time_fvalue_copy,		/* copy_value */

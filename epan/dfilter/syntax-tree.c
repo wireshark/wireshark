@@ -74,6 +74,109 @@ sttype_lookup(sttype_id_t type_id)
 	return result;
 }
 
+const char *
+sttype_name(sttype_id_t type)
+{
+	switch (type) {
+		case STTYPE_UNINITIALIZED: return "UNINITIALIZED";
+		case STTYPE_TEST:	return "TEST";
+		case STTYPE_LITERAL:	return "LITERAL";
+		case STTYPE_REFERENCE:	return "REFERENCE";
+		case STTYPE_STRING:	return "STRING";
+		case STTYPE_CHARCONST:	return "CHARCONST";
+		case STTYPE_NUMBER:	return "NUMBER";
+		case STTYPE_FIELD:	return "FIELD";
+		case STTYPE_FVALUE:	return "FVALUE";
+		case STTYPE_SLICE:	return "SLICE";
+		case STTYPE_FUNCTION:	return "FUNCTION";
+		case STTYPE_SET:	return "SET";
+		case STTYPE_PCRE:	return "PCRE";
+		case STTYPE_ARITHMETIC:	return "ARITHMETIC";
+		case STTYPE_NUM_TYPES:	return "NUM_TYPES";
+	}
+	return "(unknown sttype)";
+}
+
+const char *
+stnode_op_name(stnode_op_t op)
+{
+	const char *s = "(null)";
+
+	switch(op) {
+		case STNODE_OP_NOT:
+			s = "TEST_NOT";
+			break;
+		case STNODE_OP_AND:
+			s = "TEST_AND";
+			break;
+		case STNODE_OP_OR:
+			s = "TEST_OR";
+			break;
+		case STNODE_OP_ALL_EQ:
+			s = "TEST_ALL_EQ";
+			break;
+		case STNODE_OP_ANY_EQ:
+			s = "TEST_ANY_EQ";
+			break;
+		case STNODE_OP_ALL_NE:
+			s = "TEST_ALL_NE";
+			break;
+		case STNODE_OP_ANY_NE:
+			s = "TEST_ANY_NE";
+			break;
+		case STNODE_OP_GT:
+			s = "TEST_GT";
+			break;
+		case STNODE_OP_GE:
+			s = "TEST_GE";
+			break;
+		case STNODE_OP_LT:
+			s = "TEST_LT";
+			break;
+		case STNODE_OP_LE:
+			s = "TEST_LE";
+			break;
+		case STNODE_OP_BITWISE_AND:
+			s = "OP_BITWISE_AND";
+			break;
+		case STNODE_OP_UNARY_MINUS:
+			s = "OP_UNARY_MINUS";
+			break;
+		case STNODE_OP_ADD:
+			s = "OP_ADD";
+			break;
+		case STNODE_OP_SUBTRACT:
+			s = "OP_SUBTRACT";
+			break;
+		case STNODE_OP_MULTIPLY:
+			s = "OP_MULTIPLY";
+			break;
+		case STNODE_OP_DIVIDE:
+			s = "OP_DIVIDE";
+			break;
+		case STNODE_OP_MODULO:
+			s = "OP_MODULO";
+			break;
+		case STNODE_OP_CONTAINS:
+			s = "TEST_CONTAINS";
+			break;
+		case STNODE_OP_MATCHES:
+			s = "TEST_MATCHES";
+			break;
+		case STNODE_OP_IN:
+			s = "TEST_IN";
+			break;
+		case STNODE_OP_NOT_IN:
+			s = "TEST_NOT_IN";
+			break;
+		case STNODE_OP_UNINITIALIZED:
+			s = "(uninitialized)";
+			break;
+	}
+
+	return s;
+}
+
 void
 stnode_clear(stnode_t *node)
 {
@@ -190,10 +293,7 @@ stnode_free(stnode_t *node)
 const char*
 stnode_type_name(stnode_t *node)
 {
-	if (node->type)
-		return node->type->name;
-	else
-		return "UNINITIALIZED";
+	return sttype_name(node->type->id);
 }
 
 sttype_id_t

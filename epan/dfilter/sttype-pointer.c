@@ -107,7 +107,6 @@ sttype_register_pointer(void)
 {
 	static sttype_t fvalue_type = {
 		STTYPE_FVALUE,
-		"FVALUE",
 		NULL,
 		sttype_fvalue_free,
 		NULL,
@@ -115,7 +114,6 @@ sttype_register_pointer(void)
 	};
 	static sttype_t pcre_type = {
 		STTYPE_PCRE,
-		"PCRE",
 		NULL,
 		pcre_free,
 		NULL,
@@ -123,7 +121,6 @@ sttype_register_pointer(void)
 	};
 	static sttype_t charconst_type = {
 		STTYPE_CHARCONST,
-		"CHARCONST",
 		NULL,
 		g_free,
 		NULL,

@@ -70,7 +70,7 @@ oper_free(void *value)
 static char *
 oper_todisplay(const oper_t *oper)
 {
-	const char *s = "<notset>";
+	const char *s = "(notset)";
 
 	switch(oper->op) {
 		case STNODE_OP_NOT:
@@ -138,7 +138,7 @@ oper_todisplay(const oper_t *oper)
 			s = "not in";
 			break;
 		case STNODE_OP_UNINITIALIZED:
-			s = "<uninitialized>";
+			s = "(uninitialized)";
 			break;
 	}
 	return g_strdup(s);
@@ -147,85 +147,12 @@ oper_todisplay(const oper_t *oper)
 static char *
 oper_todebug(const oper_t *oper)
 {
-	const char *s = "<notset>";
-
-	switch(oper->op) {
-		case STNODE_OP_NOT:
-			s = "TEST_NOT";
-			break;
-		case STNODE_OP_AND:
-			s = "TEST_AND";
-			break;
-		case STNODE_OP_OR:
-			s = "TEST_OR";
-			break;
-		case STNODE_OP_ALL_EQ:
-			s = "TEST_ALL_EQ";
-			break;
-		case STNODE_OP_ANY_EQ:
-			s = "TEST_ANY_EQ";
-			break;
-		case STNODE_OP_ALL_NE:
-			s = "TEST_ALL_NE";
-			break;
-		case STNODE_OP_ANY_NE:
-			s = "TEST_ANY_NE";
-			break;
-		case STNODE_OP_GT:
-			s = "TEST_GT";
-			break;
-		case STNODE_OP_GE:
-			s = "TEST_GE";
-			break;
-		case STNODE_OP_LT:
-			s = "TEST_LT";
-			break;
-		case STNODE_OP_LE:
-			s = "TEST_LE";
-			break;
-		case STNODE_OP_BITWISE_AND:
-			s = "OP_BITWISE_AND";
-			break;
-		case STNODE_OP_UNARY_MINUS:
-			s = "OP_UNARY_MINUS";
-			break;
-		case STNODE_OP_ADD:
-			s = "OP_ADD";
-			break;
-		case STNODE_OP_SUBTRACT:
-			s = "OP_SUBTRACT";
-			break;
-		case STNODE_OP_MULTIPLY:
-			s = "OP_MULTIPLY";
-			break;
-		case STNODE_OP_DIVIDE:
-			s = "OP_DIVIDE";
-			break;
-		case STNODE_OP_MODULO:
-			s = "OP_MODULO";
-			break;
-		case STNODE_OP_CONTAINS:
-			s = "TEST_CONTAINS";
-			break;
-		case STNODE_OP_MATCHES:
-			s = "TEST_MATCHES";
-			break;
-		case STNODE_OP_IN:
-			s = "TEST_IN";
-			break;
-		case STNODE_OP_NOT_IN:
-			s = "TEST_NOT_IN";
-			break;
-		case STNODE_OP_UNINITIALIZED:
-			s = "<uninitialized>";
-			break;
-	}
-
+	const char *s = stnode_op_name(oper->op);
 	if (oper->how == STNODE_MATCH_ALL)
-		return g_strdup_printf("ALL %s", s);
+		return ws_strdup_printf("ALL %s", s);
 	if (oper->how == STNODE_MATCH_ANY)
-		return g_strdup_printf("ANY %s", s);
-	return g_strdup(s);
+		return ws_strdup_printf("ANY %s", s);
+	return ws_strdup(s);
 }
 
 static char *
@@ -243,8 +170,6 @@ static int
 num_operands(stnode_op_t op)
 {
 	switch(op) {
-		case STNODE_OP_UNINITIALIZED:
-			break;
 		case STNODE_OP_NOT:
 		case STNODE_OP_UNARY_MINUS:
 			return 1;
@@ -269,9 +194,11 @@ num_operands(stnode_op_t op)
 		case STNODE_OP_IN:
 		case STNODE_OP_NOT_IN:
 			return 2;
+		case STNODE_OP_UNINITIALIZED:
+			ASSERT_STNODE_OP_NOT_REACHED(op);
 	}
+
 	ws_assert_not_reached();
-	return -1;
 }
 
 
@@ -377,7 +304,6 @@ sttype_register_opers(void)
 {
 	static sttype_t test_type = {
 		STTYPE_TEST,
-		"TEST",
 		oper_new,
 		oper_free,
 		oper_dup,
@@ -385,7 +311,6 @@ sttype_register_opers(void)
 	};
 	static sttype_t arithmetic_type = {
 		STTYPE_ARITHMETIC,
-		"ARITHMETIC",
 		oper_new,
 		oper_free,
 		oper_dup,

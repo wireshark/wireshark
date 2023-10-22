@@ -17,8 +17,6 @@ ftype_register_none(void)
 
 	static ftype_t none_type = {
 		FT_NONE,			/* ftype */
-		"FT_NONE",			/* name */
-		"Label",			/* pretty_name */
 		0,				/* wire_size */
 		NULL,				/* new_value */
 		NULL,				/* copy_value */

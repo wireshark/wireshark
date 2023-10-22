@@ -58,7 +58,7 @@ select_opcode(dfvm_opcode_t op, stmatch_t how)
 		case DFVM_SET_ANY_NOT_IN:
 			return how == STNODE_MATCH_ANY ? op : op - 1;
 		default:
-			break;
+			ASSERT_DFVM_OP_NOT_REACHED(op);
 	}
 	ws_assert_not_reached();
 }
@@ -528,7 +528,7 @@ gen_arithmetic(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 		case STNODE_OP_IN:
 		case STNODE_OP_NOT_IN:
 		case STNODE_OP_UNINITIALIZED:
-			ws_assert_not_reached();
+			ASSERT_STNODE_OP_NOT_REACHED(st_op);
 	}
 
 	val1 = gen_entity(dfw, left, jumps_ptr);
@@ -702,10 +702,6 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 	st_how = sttype_test_get_match(st_node);
 
 	switch (st_op) {
-		case STNODE_OP_UNINITIALIZED:
-			ws_assert_not_reached();
-			break;
-
 		case STNODE_OP_NOT:
 			gencode(dfw, st_arg1);
 			insn = dfvm_insn_new(DFVM_NOT);
@@ -784,6 +780,7 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			gen_relation_in(dfw, DFVM_SET_ANY_NOT_IN, st_how, st_arg1, st_arg2);
 			break;
 
+		case STNODE_OP_UNINITIALIZED:
 		case STNODE_OP_BITWISE_AND:
 		case STNODE_OP_UNARY_MINUS:
 		case STNODE_OP_ADD:
@@ -791,8 +788,7 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 		case STNODE_OP_MULTIPLY:
 		case STNODE_OP_DIVIDE:
 		case STNODE_OP_MODULO:
-			ws_assert_not_reached();
-			break;
+			ASSERT_STNODE_OP_NOT_REACHED(st_op);
 	}
 }
 
@@ -813,7 +809,7 @@ gencode(dfwork_t *dfw, stnode_t *st_node)
 			gen_exists_slice(dfw, st_node);
 			break;
 		default:
-			ws_assert_not_reached();
+			ASSERT_STTYPE_NOT_REACHED(stnode_type_id(st_node));
 	}
 }
 

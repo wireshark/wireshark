@@ -75,7 +75,6 @@ sttype_register_set(void)
 {
 	static sttype_t set_type = {
 		STTYPE_SET,
-		"SET",
 		NULL,
 		sttype_set_free,
 		NULL,
