@@ -58,6 +58,10 @@ static expert_field ei_xml_unrecognized_text = EI_INIT;
 /* dissector handles */
 static dissector_handle_t xml_handle;
 
+/* Port 3702 is IANA-registered for Web Service Discovery, which uses
+ * SOAP-over-UDP to send XML */
+#define XML_UDP_PORT_RANGE "3702"
+
 /* parser definitions */
 static tvbparse_wanted_t *want;
 static tvbparse_wanted_t *want_ignore;
@@ -1639,6 +1643,7 @@ proto_reg_handoff_xml(void)
 {
     wmem_map_foreach(media_types, add_dissector_media, NULL);
     dissector_add_uint_range_with_preference("tcp.port", "", xml_handle);
+    dissector_add_uint_range_with_preference("udp.port", XML_UDP_PORT_RANGE, xml_handle);
 
     heur_dissector_add("http",  dissect_xml_heur, "XML in HTTP", "xml_http", xml_ns.hf_tag, HEURISTIC_DISABLE);
     heur_dissector_add("sip",   dissect_xml_heur, "XML in SIP", "xml_sip", xml_ns.hf_tag, HEURISTIC_DISABLE);
