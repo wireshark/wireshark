@@ -658,10 +658,18 @@ time_divide(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 	ftenum_t ft_b = fvalue_type_ftenum(b);
 	if (ft_b == FT_INT64) {
 		int64_t val = fvalue_get_sinteger64((fvalue_t *)b);
+		if (val == 0) {
+			*err_ptr = ws_strdup_printf("time_divide: division by zero");
+			return FT_ERROR;
+		}
 		_nstime_div_int(&dst->value.time, a->value.time, val, env);
 	}
 	else if (ft_b == FT_DOUBLE) {
 		double val = fvalue_get_floating((fvalue_t *)b);
+		if (val == 0) {
+			*err_ptr = ws_strdup_printf("time_divide: division by zero");
+			return FT_ERROR;
+		}
 		_nstime_div_float(&dst->value.time, a->value.time, val);
 	}
 	else {
