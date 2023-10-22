@@ -99,8 +99,7 @@ wmem_strjoinv(wmem_allocator_t *allocator,
 {
     char *string = NULL;
 
-    if (!str_array)
-        return NULL;
+    ws_return_val_if(!str_array, NULL);
 
     if (separator == NULL) {
         separator = "";
@@ -128,6 +127,8 @@ wmem_strjoinv(wmem_allocator_t *allocator,
             ptr = g_stpcpy(ptr, separator);
             ptr = g_stpcpy(ptr, str_array[i]);
         }
+    } else {
+        string = wmem_strdup(allocator, "");
     }
 
     return string;
