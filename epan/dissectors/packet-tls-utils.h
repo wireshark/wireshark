@@ -354,15 +354,6 @@ typedef struct _SslDecoder {
     StringInfo app_traffic_secret;  /**< TLS 1.3 application traffic secret (if applicable), wmem file scope. */
 } SslDecoder;
 
-/*
- * TLS 1.3 Cipher context. Simpler than SslDecoder since no compression is
- * required and all keys are calculated internally.
- */
-typedef struct {
-    gcry_cipher_hd_t    hd;
-    guint8              iv[TLS13_AEAD_NONCE_LENGTH];
-} tls13_cipher;
-
 #define KEX_DHE_DSS     0x10
 #define KEX_DHE_PSK     0x11
 #define KEX_DHE_RSA     0x12
@@ -733,14 +724,6 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         gboolean ignore_mac_failed,
         const guchar *in, guint16 inl, const guchar *cid, guint8 cidl,
         StringInfo *comp_str, StringInfo *out_str, guint *outl);
-
-/**
- * Given a cipher algorithm and its mode, a hash algorithm and the secret (with
- * the same length as the hash algorithm), try to build a cipher. The algorithms
- * and mode are Libgcrypt identifiers.
- */
-tls13_cipher *
-tls13_cipher_create(const char *label_prefix, int cipher_algo, int cipher_mode, int hash_algo, const StringInfo *secret, const gchar **error);
 
 
 /* Common part between TLS and DTLS dissectors */
