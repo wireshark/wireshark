@@ -231,6 +231,7 @@ static ws_enum_t all_enums[] = {
     ENUM(FT_PROTOCOL),
     ENUM(FT_RELATIVE_TIME),
     ENUM(FT_REL_OID),
+    ENUM(FT_SCALAR),
     ENUM(FT_STRING),
     ENUM(FT_STRINGZ),
     ENUM(FT_STRINGZPAD),

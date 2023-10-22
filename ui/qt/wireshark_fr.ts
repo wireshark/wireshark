@@ -755,6 +755,28 @@
     </message>
 </context>
 <context>
+    <name>CaptureCommentDialog</name>
+    <message>
+        <source>Edit Capture Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Section %1</source>
+        <translation type="unfinished">Section %1</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureCommentTabWidget</name>
+    <message>
+        <source>Comment %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
@@ -948,8 +970,8 @@
         <translation>Détails</translation>
     </message>
     <message>
-        <source>Capture file comments</source>
-        <translation>Commentaires du fichier de capture</translation>
+        <source>Edit Comments</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -958,10 +980,6 @@
     <message>
         <source>Copy To Clipboard</source>
         <translation>Copier dans le Presse-papiers</translation>
-    </message>
-    <message>
-        <source>Save Comments</source>
-        <translation>Enregister les commentaires</translation>
     </message>
     <message>
         <source>Capture File Properties</source>
@@ -986,10 +1004,6 @@
     <message>
         <source>Hash (SHA256)</source>
         <translation>Hachage (SHA256)</translation>
-    </message>
-    <message>
-        <source>Hash (RIPEMD160)</source>
-        <translation type="vanished">Hachage (RIPEMD160)</translation>
     </message>
     <message>
         <source>Hash (SHA1)</source>
@@ -1130,10 +1144,6 @@
     <message>
         <source>Average bits/s</source>
         <translation>Débit moyen (bits/s)</translation>
-    </message>
-    <message>
-        <source>Section Comment</source>
-        <translation type="vanished">Commentaire de la Section</translation>
     </message>
     <message>
         <source>Packet Comments</source>
@@ -1597,14 +1607,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gardez la liste des paquets défilés vers le bas tout en capturant.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Automatic scrolling in live capture</source>
-        <translation type="vanished">Défilement automatique dans la capture en temps réel</translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>Ne pas charger les interface au démarrage</translation>
     </message>
@@ -1709,14 +1711,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Export %1 Coloring Rules</source>
         <translation>Exporter %1 règles de coloration</translation>
-    </message>
-    <message>
-        <source>Your coloring rules file contains unknown rules</source>
-        <translation type="vanished">Votre fichier de règles de coloriage contient des règles inconnues.</translation>
-    </message>
-    <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation type="vanished">Wireshark ne reconnaît pas une ou plusieurs de vos règles de coloration. Elles ont été désactivées.</translation>
     </message>
 </context>
 <context>
@@ -2051,14 +2045,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">…comme texte imprimable</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">Copier uniquement le texte imprimable de ce paquet.</translation>
-    </message>
-    <message>
         <source>…as a Hex Stream</source>
         <translation>…sous forme de flux Hex</translation>
     </message>
@@ -2075,20 +2061,8 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>…as Raw Binary</source>
-        <translation type="vanished">…en tant que binaire brut</translation>
-    </message>
-    <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>Copier les octets du paquet en tant que données MIME d&apos;application/de flux d&apos;octets.</translation>
-    </message>
-    <message>
-        <source>…as Escaped String</source>
-        <translation type="vanished">…comme chaîne d&apos;échappement</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as an escaped string.</source>
-        <translation type="vanished">Copiez les octets du paquet sous forme de chaîne d&apos;échappement.</translation>
     </message>
 </context>
 <context>
@@ -3930,10 +3904,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Log scale</source>
         <translation>échelle logarithmique</translation>
-    </message>
-    <message>
-        <source>Automatic Update</source>
-        <translation type="vanished">Mise à jour automatique</translation>
     </message>
     <message>
         <source>Automatic update</source>
@@ -6794,10 +6764,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Short name</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="obsolete">&lt;small&gt;&lt;i&gt;Un indice.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Select all</source>
@@ -10011,254 +9977,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <source>Analyze</source>
         <translation>Analyse</translation>
     </message>
-    <message>
-        <source>Reset Graph</source>
-        <translation type="vanished">Réinitialiser le Graphique</translation>
-    </message>
-    <message>
-        <source>Reset the graph to its initial state.</source>
-        <translation type="vanished">Réinitialiser le graphique à son état initial.</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
-        <source>Zoom In</source>
-        <translation type="vanished">Zoom Avant</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation type="vanished">+</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation type="vanished">Zoom  arrière</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
-        <source>Move Up 10 Pixels</source>
-        <translation type="vanished">Monter de 10 Pixels</translation>
-    </message>
-    <message>
-        <source>Up</source>
-        <translation type="vanished">Monter</translation>
-    </message>
-    <message>
-        <source>Move Left 10 Pixels</source>
-        <translation type="vanished">Déplacer à Gauche de 10 Pixels</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Gauche</translation>
-    </message>
-    <message>
-        <source>Move Right 10 Pixels</source>
-        <translation type="vanished">Déplacer à Droite de 10 Pixels</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">Droite</translation>
-    </message>
-    <message>
-        <source>Move Down 10 Pixels</source>
-        <translation type="vanished">Descendre de 10 Pixels</translation>
-    </message>
-    <message>
-        <source>Down</source>
-        <translation type="vanished">Descendre</translation>
-    </message>
-    <message>
-        <source>Move Up 1 Pixel</source>
-        <translation type="vanished">Monter d&apos;1 Pixel</translation>
-    </message>
-    <message>
-        <source>Shift+Up</source>
-        <translation type="vanished">Maj+Haut</translation>
-    </message>
-    <message>
-        <source>Move Left 1 Pixel</source>
-        <translation type="vanished">Déplacer à Gauche d&apos;1 Pixel</translation>
-    </message>
-    <message>
-        <source>Shift+Left</source>
-        <translation type="vanished">Maj+Gauche</translation>
-    </message>
-    <message>
-        <source>Move Right 1 Pixel</source>
-        <translation type="vanished">Déplacer à Droite d&apos;1 Pixel</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Maj+Droite</translation>
-    </message>
-    <message>
-        <source>Move Down 1 Pixel</source>
-        <translation type="vanished">Descendre d&apos;1 Pixel</translation>
-    </message>
-    <message>
-        <source>Shift+Down</source>
-        <translation type="vanished">Maj+Bas</translation>
-    </message>
-    <message>
-        <source>Next Stream</source>
-        <translation type="vanished">Flux suivant</translation>
-    </message>
-    <message>
-        <source>Go to the next stream in the capture</source>
-        <translation type="vanished">Allez au prochain flux dans la capture</translation>
-    </message>
-    <message>
-        <source>PgUp</source>
-        <translation type="vanished">PgUp</translation>
-    </message>
-    <message>
-        <source>Previous Stream</source>
-        <translation type="vanished">Flux précedent</translation>
-    </message>
-    <message>
-        <source>Go to the previous stream in the capture</source>
-        <translation type="vanished">Allez au précedent flux dans la capture</translation>
-    </message>
-    <message>
-        <source>PgDown</source>
-        <translation type="vanished">PgDown</translation>
-    </message>
-    <message>
-        <source>Switch Direction</source>
-        <translation type="vanished">Changer de direction</translation>
-    </message>
-    <message>
-        <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="vanished">Switch direction (Inverse les extrimités TCP)</translation>
-    </message>
-    <message>
-        <source>D</source>
-        <translation type="vanished">D</translation>
-    </message>
-    <message>
-        <source>Go To Packet Under Cursor</source>
-        <translation type="vanished">Aller au paquet sous le curseur</translation>
-    </message>
-    <message>
-        <source>Go to packet currently under the cursor</source>
-        <translation type="vanished">Aller au paquet actuellement sous le curseur</translation>
-    </message>
-    <message>
-        <source>G</source>
-        <translation type="vanished">G</translation>
-    </message>
-    <message>
-        <source>Drag / Zoom</source>
-        <translation type="vanished">Glisser / Zoom</translation>
-    </message>
-    <message>
-        <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="vanished">Basculer comportant de la souris glisser / zoom</translation>
-    </message>
-    <message>
-        <source>Z</source>
-        <translation type="vanished">Z</translation>
-    </message>
-    <message>
-        <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="vanished">Numéros de séquence Relative / Absolue</translation>
-    </message>
-    <message>
-        <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="vanished">Bascule de Numéros de séquence Relative à Absolue</translation>
-    </message>
-    <message>
-        <source>S</source>
-        <translation type="vanished">S</translation>
-    </message>
-    <message>
-        <source>Capture / Session Time Origin</source>
-        <translation type="vanished">Capture / Temps de Session d&apos;origine</translation>
-    </message>
-    <message>
-        <source>Toggle capture / session time origin</source>
-        <translation type="vanished">Basculer du temps d&apos;origine capture / session</translation>
-    </message>
-    <message>
-        <source>T</source>
-        <translation type="vanished">T</translation>
-    </message>
-    <message>
-        <source>Crosshairs</source>
-        <translation type="vanished">Réticule</translation>
-    </message>
-    <message>
-        <source>Toggle crosshairs</source>
-        <translation type="vanished">Basculer réticule</translation>
-    </message>
-    <message>
-        <source>Space</source>
-        <translation type="vanished">Espace</translation>
-    </message>
-    <message>
-        <source>Round Trip Time</source>
-        <translation type="vanished">Temps d&apos;Aller-Retour</translation>
-    </message>
-    <message>
-        <source>Switch to the Round Trip Time graph</source>
-        <translation type="vanished">Changer pour le Round Trip Time graphique</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="vanished">1</translation>
-    </message>
-    <message>
-        <source>Throughput</source>
-        <translation type="vanished">Débit</translation>
-    </message>
-    <message>
-        <source>Switch to the Throughput graph</source>
-        <translation type="vanished">Changer pour le graphique de débit</translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="vanished">2</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (Stevens)</source>
-        <translation type="vanished">Temps / Séquence (Stevens)</translation>
-    </message>
-    <message>
-        <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="vanished">Changer pour  Stevens-style Time / Sequence  Graphique </translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="vanished">3</translation>
-    </message>
-    <message>
-        <source>Window Scaling</source>
-        <translation type="vanished">Mise à l&apos;échelle Fenêtre</translation>
-    </message>
-    <message>
-        <source>Switch to the Window Scaling graph</source>
-        <translation type="vanished">Changer pour le Window Scaling graphique </translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="vanished">5</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (tcptrace)</source>
-        <translation type="vanished">Temps / Séquence (tcptrace)</translation>
-    </message>
-    <message>
-        <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="vanished">Changer pour tcptrace style Time / Sequence graphique</translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="vanished">4</translation>
-    </message>
 </context>
 <context>
     <name>SCTPAssocAnalyseDialog</name>
@@ -10283,10 +10001,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Filtrer l&apos;association</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="vanished">Fermer</translation>
-    </message>
-    <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
         <translation>Nombre de bloc de donnée de EP2 à EP1 : </translation>
     </message>
@@ -10305,10 +10019,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Number of Data Bytes from EP2 to EP1: </source>
         <translation>Nombre de donnée octets de EP2 à EP1: </translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">ÉtiquetteTexte</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -10469,10 +10179,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Remise à taille réelle</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Save Graph</source>
         <translation>Sauvegarder Graphique</translation>
     </message>
@@ -10518,10 +10224,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Reset to full size</source>
         <translation>Remise à taille réelle</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -12228,10 +11930,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source>Time shifting is not available while capturing packets.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Time shifting is not available capturing packets.</source>
-        <translation type="vanished">Le décalage de temps n&apos;est pas disponible pendant la capture de paquet.</translation>
-    </message>
 </context>
 <context>
     <name>TrafficTab</name>
@@ -13537,22 +13235,6 @@ a:hover {
         <translation>Supprimer tous les commentaires de paquet dans le fichier de capture</translation>
     </message>
     <message>
-        <source>Inject TLS Secrets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Embed used TLS secrets in the capture file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Discard All Secrets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Discard all decryption secrets in the capture file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Configuration Profiles…</source>
         <translation>&amp;Profils de configuration…</translation>
     </message>
@@ -13621,28 +13303,8 @@ a:hover {
         <translation>Mise à l&apos;échelle de la fenêtre TCP</translation>
     </message>
     <message>
-        <source>Release Notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DCCP Stream</source>
-        <translation type="vanished">Flux DCCP</translation>
-    </message>
-    <message>
-        <source>TLS Stream</source>
-        <translation type="vanished">Flux TLS</translation>
-    </message>
-    <message>
-        <source>HTTP Stream</source>
-        <translation type="vanished">Flux HTTP</translation>
-    </message>
-    <message>
         <source>HTTP/2 Stream</source>
         <translation>Flux HTTP/2</translation>
-    </message>
-    <message>
-        <source>QUIC Stream</source>
-        <translation type="vanished">Flux RAPIDE</translation>
     </message>
     <message>
         <source>SIP Call</source>
@@ -14201,20 +13863,28 @@ a:hover {
         <translation>Décalage dans le temps…</translation>
     </message>
     <message>
+        <source>Inject TLS Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Embed used TLS secrets in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard All Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard all decryption secrets in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Preferences…</source>
         <translation>&amp;Préférences...</translation>
     </message>
     <message>
         <source>TCP throughput</source>
         <translation>Débit TCP</translation>
-    </message>
-    <message>
-        <source>TCP Stream</source>
-        <translation type="vanished">Flux TCP</translation>
-    </message>
-    <message>
-        <source>UDP Stream</source>
-        <translation type="vanished">Flux UDP</translation>
     </message>
     <message>
         <source>Request Sequences</source>
@@ -14543,6 +14213,10 @@ a:hover {
         <translation>Aller au paquet référencé par le champ sélectionné.</translation>
     </message>
     <message>
+        <source>Release Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;VoIP Calls</source>
         <translation>&amp;Appels VoIP</translation>
     </message>
@@ -14861,6 +14535,10 @@ a:hover {
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>Quitter &amp;sans enregistrer</translation>
+    </message>
+    <message>
+        <source>USB CDC Data</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>

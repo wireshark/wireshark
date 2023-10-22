@@ -755,6 +755,28 @@
     </message>
 </context>
 <context>
+    <name>CaptureCommentDialog</name>
+    <message>
+        <source>Edit Capture Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureCommentTabWidget</name>
+    <message>
+        <source>Comment %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
@@ -948,7 +970,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Capture file comments</source>
+        <source>Edit Comments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -957,10 +979,6 @@
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save Comments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14389,6 +14407,10 @@ a:hover {
     <message>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>USB CDC Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
