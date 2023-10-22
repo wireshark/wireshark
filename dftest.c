@@ -43,10 +43,7 @@
 #include "wsutil/version_info.h"
 
 static int opt_verbose = 0;
-#define DFTEST_LOG_NONE     0
-#define DFTEST_LOG_DEBUG    1
-#define DFTEST_LOG_NOISY    2
-static int opt_log_level = DFTEST_LOG_NONE;
+static int opt_debug_level = 0; /* currently up to 2 */
 static int opt_flex = 0;
 static int opt_lemon = 0;
 static int opt_syntax_tree = 0;
@@ -101,7 +98,8 @@ print_usage(int status)
     fprintf(fp, "Usage: dftest [OPTIONS] -- EXPRESSION\n");
     fprintf(fp, "Options:\n");
     fprintf(fp, "  -V, --verbose       enable verbose mode\n");
-    fprintf(fp, "  -d, --debug         enable compiler debug logs\n");
+    fprintf(fp, "  -d, --debug[=N]     increase or set debug level\n");
+    fprintf(fp, "  -D                  set maximum debug level\n");
     fprintf(fp, "  -f, --flex          enable Flex debug trace\n");
     fprintf(fp, "  -l, --lemon         enable Lemon debug trace\n");
     fprintf(fp, "  -s, --syntax        print syntax tree\n");
@@ -209,6 +207,22 @@ compile_filter(const char *text, dfilter_t **dfp)
     return ok;
 }
 
+static int
+optarg_to_digit(const char *arg)
+{
+    if (strlen(arg) > 1 || !g_ascii_isdigit(*arg)) {
+        printf("Error: \"%s\" is not a valid number 0-9\n", arg);
+        print_usage(WS_EXIT_INVALID_OPTION);
+    }
+    errno = 0;
+    int digit = (int)strtol(ws_optarg, NULL, 10);
+    if (errno) {
+        printf("Error: %s\n", g_strerror(errno));
+        print_usage(WS_EXIT_INVALID_OPTION);
+    }
+    return digit;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -240,11 +254,11 @@ main(int argc, char **argv)
 
     ws_init_version_info("DFTest", NULL, NULL);
 
-    const char *optstring = "hvdflstV0";
+    const char *optstring = "hvdDflstV0";
     static struct ws_option long_options[] = {
         { "help",     ws_no_argument,   0,  'h' },
         { "version",  ws_no_argument,   0,  'v' },
-        { "debug",    ws_no_argument,   0,  'd' },
+        { "debug",    ws_optional_argument, 0, 'd' },
         { "flex",     ws_no_argument,   0,  'f' },
         { "lemon",    ws_no_argument,   0,  'l' },
         { "syntax",   ws_no_argument,   0,  's' },
@@ -267,7 +281,16 @@ main(int argc, char **argv)
                 opt_verbose = 1;
                 break;
             case 'd':
-                opt_log_level = DFTEST_LOG_NOISY;
+                if (ws_optarg) {
+                    opt_debug_level = optarg_to_digit(ws_optarg);
+                }
+                else {
+                    opt_debug_level++;
+                }
+                opt_show_types = 1;
+                break;
+            case 'D':
+                opt_debug_level = 9;
                 opt_show_types = 1;
                 break;
             case 'f':
@@ -286,16 +309,7 @@ main(int argc, char **argv)
                 opt_optimize = 0;
                 break;
             case 1000:
-                if (strlen(ws_optarg) > 1 || !g_ascii_isdigit(*ws_optarg)) {
-                    printf("Error: \"%s\" is not a valid number 0-9\n", ws_optarg);
-                    print_usage(WS_EXIT_INVALID_OPTION);
-                }
-                errno = 0;
-                opt_optimize = strtol(ws_optarg, NULL, 10);
-                if (errno) {
-                    printf("Error: %s\n", g_strerror(errno));
-                    print_usage(WS_EXIT_INVALID_OPTION);
-                }
+                opt_optimize = optarg_to_digit(ws_optarg);
                 break;
             case 2000:
                 opt_show_types = 1;
@@ -324,13 +338,13 @@ main(int argc, char **argv)
         print_usage(EXIT_FAILURE);
     }
 
-    if (opt_log_level == DFTEST_LOG_NOISY) {
+    /* Set dfilter domain logging. */
+    if (opt_debug_level > 1) {
         ws_log_set_noisy_filter(LOG_DOMAIN_DFILTER);
     }
-    else if (opt_flex || opt_lemon) {
-        /* Enable some dfilter logs with flex/lemon traces for context. */
+    else if (opt_debug_level > 0 || opt_flex || opt_lemon) {
+        /* Also enable some dfilter logs with flex/lemon traces for context. */
         ws_log_set_debug_filter(LOG_DOMAIN_DFILTER);
-        opt_log_level = DFTEST_LOG_DEBUG;
     }
 
     /*
@@ -421,7 +435,7 @@ main(int argc, char **argv)
     }
 
     /* If logging is enabled add an empty line. */
-    if (opt_log_level > DFTEST_LOG_NONE) {
+    if (opt_debug_level > 0) {
         printf("\n");
     }
 
