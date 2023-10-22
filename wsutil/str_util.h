@@ -29,6 +29,19 @@ wmem_strjoin(wmem_allocator_t *allocator,
              const char *separator, const char *first, ...)
 G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
 
+/**
+ * As g_strjoinv, with the returned string wmem allocated.
+ * Joins a number of strings together to form one long string,
+ * with the optional separator inserted between each of them.
+ *
+ * @param allocator  The wmem scope to use to allocate the returned string
+ * @param separator A string to insert between each of the strings, or NULL.
+ * @param str_array A NULL-terminated array of strings to join
+ *
+ * @note If str_array has no items, the return value is an empty string.
+ * str_array should not be NULL (NULL is returned with an warning.)
+ * NULL as a separator is equivalent to the empty string.
+ */
 WS_DLL_PUBLIC
 char *
 wmem_strjoinv(wmem_allocator_t *allocator,
