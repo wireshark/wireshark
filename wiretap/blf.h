@@ -460,6 +460,16 @@ typedef struct blf_linmessage {
 */
 } blf_linmessage_t;
 
+typedef struct blf_linsenderror {
+    guint16 channel;
+    guint8  id;
+    guint8  dlc;
+    guint8  fsmId;
+    guint8  fsmState;
+    guint8  headerTime;
+    guint8  fullTime;
+} blf_linsenderror_t;
+
 typedef struct blf_linbusevent {
     guint64 sof;
     guint32 eventBaudrate;
@@ -525,6 +535,20 @@ typedef struct blf_lincrcerror2 {
     guint32                         earlyStopBitOffsetResponse;
 */
 } blf_lincrcerror2_t;
+
+typedef struct blf_linsenderror2 {
+    blf_linmessagedescriptor_t  linMessageDescriptor;
+    guint64                     eoh;
+    guint8                      isEtf;
+    guint8                      fsmId;      /* Obsolete */
+    guint8                      fsmState;   /* Obsolete */
+    guint8                      res1;
+/*  These fields are optional and skipping does not hurt us.
+    guint8                      res2[4];
+    double                      exactHeaderBaudrate;
+    guint32                     earlyStopBitOffset;
+*/
+} blf_linsenderror2_t;
 
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/AppText.h */
