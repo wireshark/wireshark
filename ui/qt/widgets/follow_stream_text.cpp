@@ -31,7 +31,12 @@ FollowStreamText::FollowStreamText(QWidget *parent) :
 void FollowStreamText::mouseMoveEvent(QMouseEvent *event)
 {
     emit mouseMovedToTextCursorPosition(cursorForPosition(event->pos()).position());
-    QPlainTextEdit::mouseMoveEvent(event);
+    // Don't send the mouseMoveEvents with no buttons pushed to the base
+    // class, effectively turning off mouse tracking for the base class.
+    // It causes a lot of useless calculations that hurt scroll performance.
+    if (event->buttons() != Qt::NoButton) {
+        QPlainTextEdit::mouseMoveEvent(event);
+    }
 }
 
 void FollowStreamText::mousePressEvent(QMouseEvent *event)
