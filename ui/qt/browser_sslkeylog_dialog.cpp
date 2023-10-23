@@ -141,7 +141,17 @@ void SSLKeylogDialog::on_browseBrowserPath()
 {
     QString caption = mainApp->windowTitleString(tr("Web Browser"));
     QString file_name = WiresharkFileDialog::getOpenFileName(this, caption);
-    if (!file_name.isEmpty()) {
-        ui->browserLineEdit->setText(file_name);
+    if (file_name.isEmpty()) {
+        return;
     }
+#ifdef Q_OS_MAC
+    if (file_name.endsWith(".app")) {
+        QString base_name = QFileInfo(file_name).baseName();
+        QString bundle_exe_name = QString("%1/Contents/MacOS/%2").arg(file_name, base_name);
+        if (QFile::exists(bundle_exe_name)) {
+            file_name = bundle_exe_name;
+        }
+    }
+#endif
+    ui->browserLineEdit->setText(file_name);
 }
