@@ -1045,7 +1045,8 @@ static int hf_rtps_param_builtin_endpoint_qos               = -1;
 static int hf_rtps_secure_dataheader_transformation_kind    = -1;
 static int hf_rtps_secure_dataheader_transformation_key_revision_id    = -1;
 static int hf_rtps_secure_dataheader_transformation_key_id  = -1;
-static int hf_rtps_secure_dataheader_plugin_sec_header      = -1;
+static int hf_rtps_secure_dataheader_init_vector_suffix     = -1;
+static int hf_rtps_secure_dataheader_session_id             = -1;
 static int hf_rtps_secure_datatag_plugin_sec_tag            = -1;
 static int hf_rtps_pgm                                      = -1;
 static int hf_rtps_pgm_dst_participant_guid                 = -1;
@@ -13265,15 +13266,15 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint of
      * SecureDataHeader: TransformationIdentifier (kind + key) + plugin_sec_header
      *  0...2...........8...............16.............24...............32
      * +---------------+---------------+---------------+---------------+
-     * |                 octet transformation_kind[4]                  |
+     * | Revision_id                                   |tran...on_kind |
      * +---------------+---------------+---------------+---------------+
      * |                                                               |
      * +                 octet transformation_key_id[4]                +
      * |                                                               |
      * +---------------+---------------+---------------+---------------+
-     * |                                                               |
-     * ~                 octet plugin_sec_header[]                     ~
-     * |                                                               |
+     * |                          sesion_id                            |
+     * +---------------+---------------+---------------+---------------+
+     * |               init_vector_suffix[8]                           |
      * +---------------+---------------+---------------+---------------+
      */
   proto_tree * sec_data_header_tree;
@@ -13302,11 +13303,15 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint of
   offset += 1;
 
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_transformation_key_id, tvb,
-          offset, 4, encoding);
+          offset, 4, ENC_NA);
   offset += 4;
 
-  proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_plugin_sec_header, tvb,
-          offset, octets_to_next_header-8, encoding);
+  proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_session_id, tvb,
+          offset, 4, ENC_BIG_ENDIAN);
+  offset += 4;
+
+  proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_init_vector_suffix, tvb,
+          offset, octets_to_next_header-12, ENC_NA);
 }
 
 static void dissect_SECURE_POSTFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
@@ -16641,9 +16646,14 @@ void proto_register_rtps(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
-    { &hf_rtps_secure_dataheader_plugin_sec_header, {
-        "Plugin Secure Header", "rtps.secure.data_header.plugin_sec_header",
+    { &hf_rtps_secure_dataheader_init_vector_suffix, {
+        "Plugin Secure Header", "rtps.secure.data_header.init_vector_suffix",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_secure_dataheader_session_id, {
+        "Session Id", "rtps.secure.data_header.session_id",
+        FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
     { &hf_rtps_secure_datatag_plugin_sec_tag, {
