@@ -1560,10 +1560,10 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     offset2 += length2;
 
                     can_info.fd = (data_type == TECMP_DATA_TYPE_CAN_FD_DATA);
-                    can_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
+                    can_info.len = length2;
                     can_info.bus_id = ht_interface_config_to_bus_id(interface_id);
 
-                    /* luckely TECMP and SocketCAN share the first bit as indicator for 11 vs 29bit Identifiers */
+                    /* luckily TECMP and SocketCAN share the first bit as indicator for 11 vs 29bit Identifiers */
                     can_info.id = tmp;
 
                     if (data_type == TECMP_DATA_TYPE_CAN_DATA && (dataflags & DATA_FLAG_CAN_RTR) == DATA_FLAG_CAN_RTR) {
