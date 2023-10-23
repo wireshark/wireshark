@@ -1874,7 +1874,8 @@ check_arithmetic_LHS_TIME(dfwork_t *dfw, stnode_op_t st_op, stnode_t *st_node,
 			}
 			break;
 		default:
-			ws_error("invalid stnode op %s", stnode_todebug(st_node));
+			FAIL(dfw, st_node, "\"%s\" is not a valid arithmetic operator for %s",
+					stnode_todisplay(st_node), ftype_pretty_name(logical_ftype));
 	}
 
 	if (dfw->flags & DF_OPTIMIZE &&
