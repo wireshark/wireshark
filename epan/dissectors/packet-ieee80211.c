@@ -48456,7 +48456,7 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_rnr_20mhz_psd_subfield,
-     {"PSD Subfield", "wlan.rnr.tbt_info.psd_subfield",
+     {"PSD Subfield", "wlan.rnr.tbtt_info.psd_subfield",
       FT_UINT8, BASE_CUSTOM, CF_FUNC(tpe_psd_custom), 0, NULL, HFILL }},
 
     {&hf_ieee80211_rnr_reserved_data,
@@ -52969,8 +52969,8 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_ie_gtk_kde_data_type,
-     {"Data Type", "wlan.rsn.ie.kde.data_type",
-      FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(kde_selectors_rvals),
+     {"Data Type", "wlan.rsn.ie.data_type",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(kde_selectors_rvals),
       0, NULL, HFILL }},
 
     {&hf_ieee80211_rsn_ie_gtk_kde_key_id,
@@ -54381,16 +54381,16 @@ proto_register_ieee80211(void)
       0x00000FE000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ul_fec_coding_type,
-     {"Coding Type", "wlan.trigger.he.coding_type",
+     {"UL FEC Coding Type", "wlan.trigger.he.ul_fec_coding_type",
       FT_BOOLEAN, 40, TFS(&he_trigger_ul_fec_coding_type_tfs), 0x0000100000,
         NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ul_mcs,
-     {"MCS", "wlan.trigger.he.mcs",
+     {"UL MCS", "wlan.trigger.he.ul_mcs",
       FT_UINT40, BASE_HEX, NULL, 0x0001E00000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ul_dcm,
-     {"DCM", "wlan.trigger.he.dcm",
+     {"UL DCM", "wlan.trigger.he.ul_dcm",
       FT_BOOLEAN, 40, NULL, 0x0002000000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ru_starting_spatial_stream,
@@ -54413,7 +54413,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 40, NULL, 0x0080000000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ul_target_rssi,
-     {"Target RSSI", "wlan.trigger.he.target_rssi",
+     {"UL Target RSSI", "wlan.trigger.he.ul_target_rssi",
       FT_UINT40, BASE_CUSTOM, CF_FUNC(target_rssi_base_custom), 0x7F00000000,
        NULL, HFILL }},
 
@@ -57532,7 +57532,7 @@ proto_register_ieee80211(void)
      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_short_ssid,
-     {"Short BSSID", "wlan.ext_tag.short_bssid",
+     {"Short SSID", "wlan.ext_tag.short_ssid",
      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_rejected_groups_group,
