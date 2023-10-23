@@ -41,7 +41,16 @@
 #define FAIL_HERE(dfw) \
 	do {								\
 		ws_noisy("Semantic check failed here.");		\
-		THROW(TypeError); \
+		THROW(TypeError);					\
+	} while (0)
+
+#define FAIL_MSG(dfw, node, msg) \
+	do {								\
+		ws_noisy("Semantic check failed here.");		\
+		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(node), \
+					"%s", msg);			\
+		g_free(msg);						\
+		THROW(TypeError);					\
 	} while (0)
 
 #define IS_FIELD_ENTITY(ft) \
@@ -49,6 +58,8 @@
 		(ft) == STTYPE_REFERENCE)
 
 typedef bool (*FtypeCanFunc)(enum ftenum);
+
+typedef void (*ArithmeticDoFunc)(dfwork_t *dfw, stnode_t *node, stnode_t *arg1, stnode_t *arg2);
 
 static ftenum_t
 find_logical_ftype(dfwork_t *dfw, stnode_t *st_node);
@@ -1658,6 +1669,82 @@ op_to_error_msg(stnode_op_t st_op)
 	}
 }
 
+static void
+do_unary_minus(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg1)
+{
+	char *err_msg;
+	fvalue_t *new_fv = fvalue_unary_minus(stnode_data(st_arg1), &err_msg);
+	if (new_fv == NULL)
+		FAIL_MSG(dfw, st_node, err_msg);
+	stnode_replace(st_node, STTYPE_FVALUE, new_fv);
+}
+
+static void
+do_addition(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	char *err_msg;
+	fvalue_t *new_fv = fvalue_add(stnode_data(st_arg1), stnode_data(st_arg2), &err_msg);
+	if (new_fv == NULL)
+		FAIL_MSG(dfw, st_node, err_msg);
+	stnode_replace(st_node, STTYPE_FVALUE, new_fv);
+}
+
+static void
+do_subtraction(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	char *err_msg;
+	fvalue_t *new_fv = fvalue_subtract(stnode_data(st_arg1), stnode_data(st_arg2), &err_msg);
+	if (new_fv == NULL)
+		FAIL_MSG(dfw, st_node, err_msg);
+	stnode_replace(st_node, STTYPE_FVALUE, new_fv);
+}
+
+static void
+do_multiplication(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	char *err_msg;
+	fvalue_t *new_fv = fvalue_multiply(stnode_data(st_arg1), stnode_data(st_arg2), &err_msg);
+	if (new_fv == NULL)
+		FAIL_MSG(dfw, st_node, err_msg);
+	stnode_replace(st_node, STTYPE_FVALUE, new_fv);
+}
+
+static void
+do_division(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	if (fvalue_is_zero(stnode_data(st_arg2)))
+		FAIL(dfw, st_node, "Division by zero");
+
+	char *err_msg;
+	fvalue_t *new_fv = fvalue_divide(stnode_data(st_arg1), stnode_data(st_arg2), &err_msg);
+	if (new_fv == NULL)
+		FAIL_MSG(dfw, st_node, err_msg);
+	stnode_replace(st_node, STTYPE_FVALUE, new_fv);
+}
+
+static void
+do_modulo(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	if (fvalue_is_zero(stnode_data(st_arg2)))
+		FAIL(dfw, st_node, "Division by zero");
+
+	char *err_msg;
+	fvalue_t *new_fv = fvalue_modulo(stnode_data(st_arg1), stnode_data(st_arg2), &err_msg);
+	if (new_fv == NULL)
+		FAIL_MSG(dfw, st_node, err_msg);
+	stnode_replace(st_node, STTYPE_FVALUE, new_fv);
+}
+
+static void
+do_bitwise_and(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	char *err_msg;
+	fvalue_t *new_fv = fvalue_bitwise_and(stnode_data(st_arg1), stnode_data(st_arg2), &err_msg);
+	if (new_fv == NULL)
+		FAIL_MSG(dfw, st_node, err_msg);
+	stnode_replace(st_node, STTYPE_FVALUE, new_fv);
+}
+
 static ftenum_t
 check_arithmetic_LHS_NUMBER(dfwork_t *dfw, stnode_op_t st_op,
 			stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
@@ -1665,6 +1752,7 @@ check_arithmetic_LHS_NUMBER(dfwork_t *dfw, stnode_op_t st_op,
 {
 	ftenum_t		ftype1, ftype2;
 	FtypeCanFunc 		can_func = NULL;
+	ArithmeticDoFunc	do_func = NULL;
 
 	LOG_NODE(st_node);
 
@@ -1674,18 +1762,9 @@ check_arithmetic_LHS_NUMBER(dfwork_t *dfw, stnode_op_t st_op,
 			FAIL(dfw, st_arg1, "%s %s.",
 				ftype_name(ftype1), op_to_error_msg(st_op));
 		}
-		if (stnode_type_id(st_arg1) == STTYPE_FVALUE) {
-			/* Pre-compute constant unary minus result */
-			char *err_msg;
-			fvalue_t *new_fv = fvalue_unary_minus(stnode_data(st_arg1), &err_msg);
-			if (new_fv == NULL) {
-				dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st_arg1),
-							"%s: %s", stnode_todisplay(st_arg1), err_msg);
-				g_free(err_msg);
-				FAIL_HERE(dfw);
-			}
-			/* Replaces unary operator with result */
-			stnode_replace(st_node, STTYPE_FVALUE, new_fv);
+		if (dfw->flags & DF_OPTIMIZE && stnode_type_id(st_arg1) == STTYPE_FVALUE) {
+			/* Pre-compute constant result */
+			do_unary_minus(dfw, st_node, st_arg1);
 		}
 		return ftype1;
 	}
@@ -1693,21 +1772,27 @@ check_arithmetic_LHS_NUMBER(dfwork_t *dfw, stnode_op_t st_op,
 	switch (st_op) {
 		case STNODE_OP_ADD:
 			can_func = ftype_can_add;
+			do_func = do_addition;
 			break;
 		case STNODE_OP_SUBTRACT:
 			can_func = ftype_can_subtract;
+			do_func = do_subtraction;
 			break;
 		case STNODE_OP_MULTIPLY:
 			can_func = ftype_can_multiply;
+			do_func = do_multiplication;
 			break;
 		case STNODE_OP_DIVIDE:
 			can_func = ftype_can_divide;
+			do_func = do_division;
 			break;
 		case STNODE_OP_MODULO:
 			can_func = ftype_can_modulo;
+			do_func = do_modulo;
 			break;
 		case STNODE_OP_BITWISE_AND:
 			can_func = ftype_can_bitwise_and;
+			do_func = do_bitwise_and;
 			break;
 		default:
 			ASSERT_STNODE_OP_NOT_REACHED(st_op);
@@ -1730,6 +1815,13 @@ check_arithmetic_LHS_NUMBER(dfwork_t *dfw, stnode_op_t st_op,
 			ftype_name(ftype1), ftype_name(ftype2));
 	}
 
+	if (dfw->flags & DF_OPTIMIZE &&
+				stnode_type_id(st_arg1) == STTYPE_FVALUE &&
+				stnode_type_id(st_arg2) == STTYPE_FVALUE) {
+		/* Pre-compute constant result */
+		do_func(dfw, st_node, st_arg1, st_arg2);
+	}
+
 	return ftype1;
 }
 
@@ -1744,15 +1836,21 @@ check_arithmetic_LHS_TIME(dfwork_t *dfw, stnode_op_t st_op, stnode_t *st_node,
 			ftenum_t logical_ftype)
 {
 	ftenum_t		ftype1, ftype2;
+	ArithmeticDoFunc	do_func = NULL;
 
 	sttype_oper_get(st_node, &st_op, &st_arg1, &st_arg2);
 
 	LOG_NODE(st_node);
 
+	if (st_op == STNODE_OP_UNARY_MINUS) {
+		ftype1 = check_arithmetic(dfw, st_arg1, logical_ftype);
+		if (dfw->flags & DF_OPTIMIZE && stnode_type_id(st_arg1) == STTYPE_FVALUE) {
+			do_unary_minus(dfw, st_node, st_arg1);
+		}
+		return ftype1;
+	}
+
 	switch (st_op) {
-		case STNODE_OP_UNARY_MINUS:
-			ftype1 = check_arithmetic(dfw, st_arg1, logical_ftype);
-			return ftype1;
 		case STNODE_OP_ADD:
 		case STNODE_OP_SUBTRACT:
 			ftype1 = check_arithmetic(dfw, st_arg1, logical_ftype);
@@ -1763,7 +1861,7 @@ check_arithmetic_LHS_TIME(dfwork_t *dfw, stnode_op_t st_op, stnode_t *st_node,
 			if (!FT_IS_TIME(ftype2)) {
 				FAIL(dfw, st_node, "Right hand side must be a time type, not %s.", ftype_pretty_name(ftype2));
 			}
-			return ftype1;
+			break;
 		case STNODE_OP_MULTIPLY:
 		case STNODE_OP_DIVIDE:
 			ftype1 = check_arithmetic(dfw, st_arg1, logical_ftype);
@@ -1774,10 +1872,35 @@ check_arithmetic_LHS_TIME(dfwork_t *dfw, stnode_op_t st_op, stnode_t *st_node,
 			if (!FT_IS_SCALAR(ftype2)) {
 				FAIL(dfw, st_node, "Right hand side must be an integer ou float type, not %s.", ftype_pretty_name(ftype2));
 			}
-			return ftype1;
+			break;
 		default:
 			ws_error("invalid stnode op %s", stnode_todebug(st_node));
 	}
+
+	if (dfw->flags & DF_OPTIMIZE &&
+				stnode_type_id(st_arg1) == STTYPE_FVALUE &&
+				stnode_type_id(st_arg2) == STTYPE_FVALUE) {
+		/* Pre-compute constant result */
+		switch (st_op) {
+			case STNODE_OP_ADD:
+				do_func = do_addition;
+				break;
+			case STNODE_OP_SUBTRACT:
+				do_func = do_subtraction;
+				break;
+			case STNODE_OP_MULTIPLY:
+				do_func = do_multiplication;
+				break;
+			case STNODE_OP_DIVIDE:
+				do_func = do_division;
+				break;
+			default:
+				ASSERT_STNODE_OP_NOT_REACHED(st_op);
+		}
+		do_func(dfw, st_node, st_arg1, st_arg2);
+	}
+
+	return ftype1;
 }
 
 ftenum_t
