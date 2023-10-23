@@ -338,20 +338,23 @@ dfw_append_length(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 static dfvm_value_t *
 dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
-	GSList *params;
-	dfvm_value_t *jmp;
+	GSList		*params;
+	dfvm_value_t	*jmp;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*reg_val, *val1, *val3, *val_arg;
-	unsigned		count;
+	unsigned	count;
+	df_func_def_t	*func;
 
-	if (strcmp(sttype_function_name(node), "len") == 0) {
+	func = sttype_function_funcdef(node);
+
+	if (strcmp(func->name, "len") == 0) {
 		/* Replace len() function call with DFVM_LENGTH instruction. */
 		return dfw_append_length(dfw, node, jumps_ptr);
 	}
 
 	/* Create the new DFVM instruction */
 	insn = dfvm_insn_new(DFVM_CALL_FUNCTION);
-	val1 = dfvm_value_new_funcdef(sttype_function_funcdef(node));
+	val1 = dfvm_value_new_funcdef(func);
 	insn->arg1 = dfvm_value_ref(val1);
 	reg_val = dfvm_value_new_register(dfw->next_register++);
 	insn->arg2 = dfvm_value_ref(reg_val);
