@@ -7990,8 +7990,10 @@
 		<avp name="AESE-Communication-Pattern" code="3113" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-Reference-ID-Ext"/>
 				<gavp name="SCEF-ID"/>
 				<gavp name="SCEF-Reference-ID-for-Deletion"/>
+				<gavp name="SCEF-Reference-ID-for-Deletion-Ext"/>
 				<gavp name="Communication-Pattern-Set"/>
 			</grouped>
 		</avp>
@@ -8044,9 +8046,11 @@
 		<avp name="Monitoring-Event-Configuration" code="3122" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-Reference-ID-Ext"/>
 				<gavp name="SCEF-ID"/>
 				<gavp name="Monitoring-Type"/>
 				<gavp name="SCEF-Reference-ID-for-Deletion"/>
+				<gavp name="SCEF-Reference-ID-for-Deletion-Ext"/>
 				<gavp name="Maximum-Number-of-Reports"/>
 				<gavp name="Monitoring-Duration"/>
 				<gavp name="Charged-Party"/>
@@ -8061,8 +8065,10 @@
 		<avp name="Monitoring-Event-Report" code="3123" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-Reference-ID-Ext"/>
 				<gavp name="SCEF-ID"/>
 				<gavp name="SCEF-Reference-ID-for-Deletion"/>
+				<gavp name="SCEF-Reference-ID-for-Deletion-Ext"/>
 				<gavp name="Visited-PLMN-Id"/>
 				<gavp name="Roaming-Information"/>
 				<gavp name="IMEI-Change"/>
@@ -8174,6 +8180,7 @@
 			<grouped>
 				<gavp name="Service-Report"/>
 				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-Reference-ID-Ext"/>
 				<gavp name="SCEF-ID"/>
 			</grouped>
 		</avp>
@@ -8324,6 +8331,7 @@
 		<avp name="Suggested-Network-Configuration" code="3170" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-Reference-ID-Ext"/>
 				<gavp name="SCEF-ID"/>
 				<gavp name="Subscribed-Periodic-RAU-TAU-Timer"/>
 				<gavp name="Active-Time"/>
@@ -8334,6 +8342,7 @@
 		<avp name="Monitoring-Event-Report-Status" code="3171" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-Reference-ID-Ext"/>
 				<gavp name="SCEF-ID"/>
 				<gavp name="Result-Code"/>
 				<gavp name="Experimental-Result-Code"/>
@@ -8400,6 +8409,12 @@
 			<enum name="DUAL_TRANSMISSION_UL_WITH_SUBSEQUENT_DL" code="2"/>
 			<enum name="DUAL_TRANSMISSION_DL_WITH_SUBSEQUENT_UL" code="3"/>
 			<enum name="MULTI_TRANSMISSION" code="4"/>
+		</avp>
+		<avp name="SCEF-Reference-ID-Ext" code="3186" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<avp name="SCEF-Reference-ID-for-Deletion-Ext" code="3187" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned64"/>
 		</avp>
 		<!--
 		Note: The AVP codes from 3163 to 3199 are reserved for TS 29.336
