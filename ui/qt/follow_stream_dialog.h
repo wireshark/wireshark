@@ -83,7 +83,7 @@ private:
     void updateWidgets(bool follow_in_progress);
     void updateWidgets() { updateWidgets(false); } // Needed for WiresharkDialog?
     frs_return_t
-    showBuffer(char *buffer, size_t nchars, gboolean is_from_server,
+    showBuffer(QByteArray &buffer, size_t nchars, gboolean is_from_server,
                 guint32 packet_num, nstime_t abs_ts, guint32 *global_pos);
 
     frs_return_t readStream();
