@@ -276,6 +276,10 @@ typedef struct blf_canerrorext {
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/CanFdErrorFrame64.h */
 
+#define BLF_CANERROR64_FLAG_FDF 0x01
+#define BLF_CANERROR65_FLAG_BRS 0x02
+#define BLF_CANERROR65_FLAG_ESI 0x04
+
 typedef struct blf_canfderror64 {
     guint8  channel;
     guint8  dlc;

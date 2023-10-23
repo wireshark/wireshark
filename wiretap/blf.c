@@ -1257,7 +1257,7 @@ static guint8 canfd_dlc_to_length[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 2
 
 static gboolean
 blf_can_fill_buf_and_rec(blf_params_t *params, int *err, gchar **err_info, guint32 canid, guint8 payload_length, guint8 payload_length_valid, guint64 start_position,
-                         guint32 flags, guint64 object_timestamp, guint16 channel) {
+                         guint32 flags, guint64 object_timestamp, guint16 channel, guint8 canfd_flags) {
     guint8   tmpbuf[8];
     guint    caplen, len;
 
@@ -1266,7 +1266,7 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, gchar **err_info, guint
     tmpbuf[2] = (canid & 0x0000ff00) >> 8;
     tmpbuf[3] = (canid & 0x000000ff);
     tmpbuf[4] = payload_length;
-    tmpbuf[5] = 0;
+    tmpbuf[5] = canfd_flags;
     tmpbuf[6] = 0;
     tmpbuf[7] = 0;
 
@@ -1323,7 +1323,7 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
         payload_length = 0;
     }
 
-    if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel)) {
+    if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel, 0)) {
         return FALSE;
     }
 
@@ -1355,6 +1355,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
     guint32  canid;
     guint8   payload_length;
     guint8   payload_length_valid;
+    guint8   canfd_flags;
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         *err = WTAP_ERR_BAD_FILE;
@@ -1374,11 +1375,13 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
     canfd = (canheader.canfdflags & BLF_CANFDMESSAGE_CANFDFLAG_EDL) == BLF_CANFDMESSAGE_CANFDFLAG_EDL;
     if (canfd) {
         payload_length = canfd_dlc_to_length[canheader.dlc];
+        canfd_flags = (canheader.canfdflags & BLF_CANFDMESSAGE_CANFDFLAG_EDL) << 2 | (canheader.canfdflags & BLF_CANFDMESSAGE_CANFDFLAG_ESI) >> 1 | (canheader.canfdflags & BLF_CANFDMESSAGE_CANFDFLAG_BRS) >> 1;
     } else {
         if (canheader.dlc > 8) {
             ws_debug("regular CAN tries more than 8 bytes?");
         }
         payload_length = can_dlc_to_length[canheader.dlc];
+        canfd_flags = 0;
     }
 
     if (payload_length > canheader.validDataBytes) {
@@ -1400,7 +1403,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
         payload_length_valid = (guint8)(object_length - (data_start - block_start));
     }
 
-    if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel)) {
+    if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel, canfd_flags)) {
         return FALSE;
     }
 
@@ -1417,6 +1420,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
     guint32  canid;
     guint8   payload_length;
     guint8   payload_length_valid;
+    guint8   canfd_flags;
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         *err = WTAP_ERR_BAD_FILE;
@@ -1436,11 +1440,13 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
     canfd = (canheader.flags & BLF_CANFDMESSAGE64_FLAG_EDL) == BLF_CANFDMESSAGE64_FLAG_EDL;
     if (canfd) {
         payload_length = canfd_dlc_to_length[canheader.dlc];
+        canfd_flags = (canheader.flags & BLF_CANFDMESSAGE64_FLAG_EDL) >> 10 | (canheader.flags & BLF_CANFDMESSAGE64_FLAG_ESI) >> 13 | (canheader.flags & BLF_CANFDMESSAGE64_FLAG_BRS) >> 13;
     } else {
         if (canheader.dlc > 8) {
             ws_debug("regular CAN tries more than 8 bytes?");
         }
         payload_length = can_dlc_to_length[canheader.dlc];
+        canfd_flags = 0;
     }
 
     if (payload_length > canheader.validDataBytes) {
@@ -1462,7 +1468,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
         payload_length_valid = (guint8)(object_length - (data_start - block_start));
     }
 
-    if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel)) {
+    if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel, canfd_flags)) {
         return FALSE;
     }
 
@@ -1676,6 +1682,7 @@ blf_read_canfderror64(blf_params_t *params, int *err, gchar **err_info, gint64 b
     tmpbuf[2] = (canid & 0x0000ff00) >> 8;
     tmpbuf[3] = (canid & 0x000000ff);
     tmpbuf[4] = payload_length;
+    tmpbuf[5] = (canheader.extFlags & BLF_CANERROR64_FLAG_FDF) << 2 | (canheader.extFlags & BLF_CANERROR65_FLAG_ESI) >> 1 | (canheader.extFlags & BLF_CANERROR65_FLAG_BRS) >> 1;
 
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
