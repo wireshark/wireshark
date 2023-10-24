@@ -959,21 +959,19 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     hdrext_offset += 1;
                     hdr_extension_len -= 1;
 
-                    if ( rtp_hext_tree ) {
-                        tvbuff_t   *newtvb;
-                        guint32     ft_table_key;
+                    tvbuff_t   *newtvb;
+                    guint32     ft_table_key;
 
-                        /* join 4 bit type and 4 bit lenght to 8 bit key */
-                        ft_table_key = MAKE_KEY( ft_type, ft_len );
+                    /* join 4 bit type and 4 bit lenght to 8 bit key */
+                    ft_table_key = MAKE_KEY( ft_type, ft_len );
 
-                        /* pass interpretation of header extension to a registered subdissector */
-                        /* new subset points to value (starts behind type/length pair) */
-                        newtvb = tvb_new_subset_length(tvb, hdrext_offset, hdr_extension_len);
+                    /* pass interpretation of header extension to a registered subdissector */
+                    /* new subset points to value (starts behind type/length pair) */
+                    newtvb = tvb_new_subset_length(tvb, hdrext_offset, hdr_extension_len);
 
-                        /* try to find a dissector by type/len key and dissect additional feature header */
-                        if ( !(dissector_try_uint(rtp_hdr_ext_ed137a_add_features_table, ft_table_key, newtvb, pinfo, rtp_hext_tree3)) ) {
-                            proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_value, tvb, hdrext_offset, ft_len, ENC_NA);
-                        }
+                    /* try to find a dissector by type/len key and dissect additional feature header */
+                    if ( !(dissector_try_uint(rtp_hdr_ext_ed137a_add_features_table, ft_table_key, newtvb, pinfo, rtp_hext_tree3)) ) {
+                        proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_value, tvb, hdrext_offset, ft_len, ENC_NA);
                     }
 
                     /* Shift behind feature data */
