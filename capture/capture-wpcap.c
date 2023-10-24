@@ -23,7 +23,6 @@
 #include <ws_attributes.h>
 
 #include "capture/capture-wpcap.h"
-#include <wsutil/strtoi.h>
 
 gboolean has_wpcap = FALSE;
 
@@ -38,6 +37,7 @@ gboolean has_wpcap = FALSE;
 #include "capture/capture-pcap-util-int.h"
 
 #include <wsutil/file_util.h>
+#include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
 
 /* XXX - yes, I know, I should move cppmagic.h to a generic location. */
@@ -239,7 +239,7 @@ caplibs_get_npcap_version(guint *major, guint *minor)
 
 	version = p_pcap_lib_version();
 	if (!g_str_has_prefix(version, prefix))
-		return FALSE;	/* we ahve it, but it's not Npcap */
+		return FALSE;	/* we have it, but it's not Npcap */
 
 	/*
 	 * This is Npcap; return the major and minor version numbers.
