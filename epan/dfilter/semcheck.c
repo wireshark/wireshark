@@ -762,11 +762,6 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 			break;
 
 		case STTYPE_FUNCTION:
-			/* XXX - Maybe we should change functions so they can return fields,
-			 * in which case the 'exist' should be fine. */
-			FAIL(dfw, st_arg1, "You cannot test whether a function is present.");
-			break;
-
 		case STTYPE_SET:
 		case STTYPE_UNINITIALIZED:
 		case STTYPE_NUM_TYPES:
@@ -1641,17 +1636,27 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 static void
 check_nonzero(dfwork_t *dfw, stnode_t *st_node)
 {
+	ftenum_t ftype;
+
 	LOG_NODE(st_node);
 
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_ARITHMETIC:
-			check_arithmetic(dfw, st_node, find_logical_ftype(dfw, st_node));
+			ftype = check_arithmetic(dfw, st_node, find_logical_ftype(dfw, st_node));
 			break;
 		case STTYPE_SLICE:
-			check_slice(dfw, st_node, find_logical_ftype(dfw, st_node));
+			ftype = check_slice(dfw, st_node, find_logical_ftype(dfw, st_node));
+			break;
+		case STTYPE_FUNCTION:
+			ftype = check_function(dfw, st_node, find_logical_ftype(dfw, st_node));
 			break;
 		default:
 			ASSERT_STTYPE_NOT_REACHED(stnode_type_id(st_node));
+	}
+
+	if (!ftype_can_is_zero(ftype)) {
+		FAIL(dfw, st_node, "Type %s cannot be assigned a truth value.",
+					ftype_pretty_name(ftype));
 	}
 }
 
@@ -1986,6 +1991,7 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 			break;
 		case STTYPE_ARITHMETIC:
 		case STTYPE_SLICE:
+		case STTYPE_FUNCTION:
 			check_nonzero(dfw, st_node);
 			break;
 		default:

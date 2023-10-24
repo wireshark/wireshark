@@ -657,7 +657,7 @@ gen_notzero(dfwork_t *dfw, stnode_t *st_node)
 	dfvm_value_t	*val1;
 	GSList		*jumps = NULL;
 
-	val1 = gen_arithmetic(dfw, st_node, &jumps);
+	val1 = gen_entity(dfw, st_node, &jumps);
 	insn = dfvm_insn_new(DFVM_NOT_ALL_ZERO);
 	insn->arg1 = dfvm_value_ref(val1);
 	dfw_append_insn(dfw, insn);
@@ -666,7 +666,7 @@ gen_notzero(dfwork_t *dfw, stnode_t *st_node)
 }
 
 static void
-gen_exists_slice(dfwork_t *dfw, stnode_t *st_node)
+gen_notzero_slice(dfwork_t *dfw, stnode_t *st_node)
 {
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *reg_val;
@@ -803,10 +803,11 @@ gencode(dfwork_t *dfw, stnode_t *st_node)
 			gen_exists(dfw, st_node);
 			break;
 		case STTYPE_ARITHMETIC:
+		case STTYPE_FUNCTION:
 			gen_notzero(dfw, st_node);
 			break;
 		case STTYPE_SLICE:
-			gen_exists_slice(dfw, st_node);
+			gen_notzero_slice(dfw, st_node);
 			break;
 		default:
 			ASSERT_STTYPE_NOT_REACHED(stnode_type_id(st_node));
