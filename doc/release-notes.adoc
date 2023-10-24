@@ -80,6 +80,8 @@ The following features are new (or have been significantly updated) since versio
 [commaize]
 --
 MAC NR Framed (mac-nr-framed)
+RF4CE Network Layer (RF4CE)
+RF4CE Profile (RF4CE Profile)
 --
 
 === Updated Protocol Support
