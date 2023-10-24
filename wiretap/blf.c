@@ -2098,11 +2098,6 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
     case BLF_APPTEXT_ATTACHMENT:
     case BLF_APPTEXT_TRACELINE:
     {
-        if (apptextheader.textLength < 5) {
-            /* Arbitrary length chosen */
-            g_free(text);
-            return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */
-        }
         wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "data-text-lines");
         wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_PROT_TEXT, "BLF App text");
         switch (apptextheader.source) {
