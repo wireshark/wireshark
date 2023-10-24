@@ -52,10 +52,26 @@ def open_url(url):
     return body
 
 class IPv4SpecialBlock(ipaddress.IPv4Network):
+    @staticmethod
+    def ip_get_subnet_mask(bits):
+        masks = (
+            0x00000000,
+            0x80000000, 0xc0000000, 0xe0000000, 0xf0000000,
+            0xf8000000, 0xfc000000, 0xfe000000, 0xff000000,
+            0xff800000, 0xffc00000, 0xffe00000, 0xfff00000,
+            0xfff80000, 0xfffc0000, 0xfffe0000, 0xffff0000,
+            0xffff8000, 0xffffc000, 0xffffe000, 0xfffff000,
+            0xfffff800, 0xfffffc00, 0xfffffe00, 0xffffff00,
+            0xffffff80, 0xffffffc0, 0xffffffe0, 0xfffffff0,
+            0xfffffff8, 0xfffffffc, 0xfffffffe, 0xffffffff)
+        if bits > 32:
+            ValueError("Expected bit mask less or equal to 32")
+        return masks[bits]
+
     def __str__(self):
-        addr = int(self.network_address)
+        addr = self.network_address
         mask = self.prefixlen
-        line = '{{ {:d}, {:d} }}'.format(addr, mask)
+        line = '{{ {:#x}, {:#010x} }}'.format(addr, self.ip_get_subnet_mask(mask))
         return line
 
 class IPv6SpecialBlock(ipaddress.IPv6Network):
@@ -72,7 +88,7 @@ class IPv6SpecialBlock(ipaddress.IPv6Network):
         line = '{{ {}, {} }}'.format(self.addr_c_array(addr), mask)
         return line
 
-class IPRegisty(list):
+class IPRegistry(list):
     @staticmethod
     def true_or_false(val):
         if val == 'True':
@@ -96,7 +112,7 @@ class IPRegisty(list):
         reserved = self.true_or_false(reserved)
         super().append([ip, name, source, destination, forward, glob, reserved])
 
-class IPv4Registry(IPRegisty):
+class IPv4Registry(IPRegistry):
     @staticmethod
     def ipv4_addr_and_mask(s):
         ip = IPv4SpecialBlock(s)
@@ -118,7 +134,7 @@ class IPv4Registry(IPRegisty):
             fd.write(line)
         fd.write('};\n')
 
-class IPv6Registry(IPRegisty):
+class IPv6Registry(IPRegistry):
     @staticmethod
     def ipv6_addr_and_mask(s):
         ip_str = s.split()[0]
