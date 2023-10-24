@@ -2100,20 +2100,23 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
     {
         wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "data-text-lines");
         wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_PROT_TEXT, "BLF App text");
+
+        gchar* info_line = NULL;
         switch (apptextheader.source) {
         case BLF_APPTEXT_COMMENT:
-            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Comment");
+            info_line = ws_strdup_printf("Comment: %s", text);
             break;
         case BLF_APPTEXT_ATTACHMENT:
-            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Attachment");
+            info_line = ws_strdup_printf("Attachment: %s", text);
             break;
         case BLF_APPTEXT_TRACELINE:
-            wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, "Trace line");
+            info_line = ws_strdup_printf("Trace line%s: %s", (apptextheader.reservedAppText1 & 0x00000010) ? "" : " (hidden)", text);
             break;
         default:
             break;
         }
 
+        wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_COL_INFO_TEXT, info_line);
         wtap_buffer_append_epdu_end(params->buf);
 
         gsize text_length = strlen(text);  /* The string can contain '\0' before textLength bytes */
@@ -2123,6 +2126,9 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         /* We'll write this as a WS UPPER PDU packet with a text blob */
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
         g_free(text);
+        if (info_line) {
+            g_free(info_line);
+        }
         return apptextheader.source;
         break;
     }
