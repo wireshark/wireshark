@@ -17,6 +17,12 @@
 
 /* Functions take any number of arguments and return 1. */
 
+#define dfunc_fail(dfw, node, ...) \
+    do { \
+        ws_noisy("Semantic check failed here."); \
+        dfilter_fail_throw(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__); \
+    } while (0)
+
 /* The run-time logic of the dfilter function */
 typedef bool (*DFFuncType)(GSList *stack, uint32_t arg_count, df_cell_t *retval);
 

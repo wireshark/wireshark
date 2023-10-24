@@ -9,7 +9,7 @@
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 
-#include <glib.h>
+#include <wireshark.h>
 
 #include "dfilter-int.h"
 #include "dfunctions.h"
@@ -23,11 +23,6 @@
 #include <epan/exceptions.h>
 #include <wsutil/ws_assert.h>
 
-#define FAIL(dfw, node, ...) \
-    do { \
-        ws_noisy("Semantic check failed here."); \
-        dfilter_fail_throw(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__); \
-    } while (0)
 
 /* Convert an FT_STRING using a callback function */
 static bool
@@ -238,25 +233,82 @@ df_func_abs(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
     return !df_cell_is_empty(retval);
 }
 
+static ftenum_t
+df_semcheck_param(dfwork_t *dfw, const char *func_name _U_, ftenum_t logical_ftype,
+                            stnode_t *param, df_loc_t func_loc _U_)
+{
+    ftenum_t ftype = FT_NONE;
+
+    switch (stnode_type_id(param)) {
+        case STTYPE_ARITHMETIC:
+            ftype = check_arithmetic(dfw, param, logical_ftype);
+            break;
+
+        case STTYPE_LITERAL:
+            dfilter_fvalue_from_literal(dfw, logical_ftype, param, false, NULL);
+            ftype = sttype_pointer_ftenum(param);
+            break;
+
+        case STTYPE_STRING:
+            dfilter_fvalue_from_string(dfw, logical_ftype, param, NULL);
+            ftype = sttype_pointer_ftenum(param);
+            break;
+
+        case STTYPE_CHARCONST:
+            dfilter_fvalue_from_charconst(dfw, logical_ftype, param);
+            ftype = sttype_pointer_ftenum(param);
+            break;
+
+        case STTYPE_NUMBER:
+            dfilter_fvalue_from_number(dfw, logical_ftype, param);
+            ftype = sttype_pointer_ftenum(param);
+            break;
+
+        case STTYPE_FUNCTION:
+            ftype = check_function(dfw, param, logical_ftype);
+            break;
+
+        case STTYPE_FIELD:
+            dfw->field_count++;
+            /* fall-through */
+        case STTYPE_REFERENCE:
+            ftype = sttype_field_ftenum(param);
+            break;
+
+        case STTYPE_SLICE:
+            ftype = check_slice(dfw, param, logical_ftype);
+            break;
+
+        case STTYPE_TEST:
+        case STTYPE_FVALUE:
+        case STTYPE_PCRE:
+        case STTYPE_SET:
+        case STTYPE_UNINITIALIZED:
+        case STTYPE_NUM_TYPES:
+            ASSERT_STTYPE_NOT_REACHED(stnode_type_id(param));
+    }
+
+    return ftype;
+}
+
 /* For upper() and lower() checks that the parameter passed to
  * it is an FT_STRING */
 static ftenum_t
 ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype _U_,
                             GSList *param_list, df_loc_t func_loc _U_)
 {
-    header_field_info *hfinfo;
-
     ws_assert(g_slist_length(param_list) == 1);
-    stnode_t *st_node = param_list->data;
+    stnode_t *param = param_list->data;
+    ftenum_t ftype;
 
-    if (stnode_type_id(st_node) == STTYPE_FIELD) {
-        dfw->field_count++;
-        hfinfo = sttype_field_hfinfo(st_node);
-        if (FT_IS_STRING(hfinfo->type)) {
-            return FT_STRING;
-        }
+    if (stnode_type_id(param) != STTYPE_FIELD) {
+        dfunc_fail(dfw, param, "Only fields can be used as parameter for %s()", func_name);
     }
-    FAIL(dfw, st_node, "Only string type fields can be used as parameter for %s()", func_name);
+    ftype = df_semcheck_param(dfw, func_name, logical_ftype, param, func_loc);
+    if (!FT_IS_STRING(ftype)) {
+        dfunc_fail(dfw, param, "Only string type fields can be used as parameter for %s()", func_name);
+    }
+    return FT_STRING;
 }
 
 static ftenum_t
@@ -264,14 +316,13 @@ ul_semcheck_is_field(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftyp
                             GSList *param_list, df_loc_t func_loc _U_)
 {
     ws_assert(g_slist_length(param_list) == 1);
-    stnode_t *st_node = param_list->data;
+    stnode_t *param = param_list->data;
 
-    if (stnode_type_id(st_node) == STTYPE_FIELD) {
-        dfw->field_count++;
-        return FT_UINT32;
+    if (stnode_type_id(param) != STTYPE_FIELD) {
+        dfunc_fail(dfw, param, "Only fields can be used as parameter for %s()", func_name);
     }
-
-    FAIL(dfw, st_node, "Only fields can be used as parameter for %s()", func_name);
+    df_semcheck_param(dfw, func_name, logical_ftype, param, func_loc);
+    return FT_UINT32;
 }
 
 static ftenum_t
@@ -279,27 +330,28 @@ ul_semcheck_can_length(dfwork_t *dfw, const char *func_name, ftenum_t logical_ft
                             GSList *param_list, df_loc_t func_loc)
 {
     ws_assert(g_slist_length(param_list) == 1);
-    stnode_t *st_node = param_list->data;
+    stnode_t *param = param_list->data;
+    ftenum_t ftype;
 
-    ul_semcheck_is_field(dfw, func_name, logical_ftype, param_list, func_loc);
-    if (!ftype_can_length(sttype_field_ftenum(st_node))) {
-        FAIL(dfw, st_node, "Field %s does not support the %s() function", stnode_todisplay(st_node), func_name);
+    ftype = df_semcheck_param(dfw, func_name, logical_ftype, param, func_loc);
+    if (!ftype_can_length(ftype)) {
+        dfunc_fail(dfw, param, "Argument does not support the %s() function", func_name);
     }
     return FT_UINT32;
 }
 
 static ftenum_t
-ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype _U_,
+ul_semcheck_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype _U_,
                             GSList *param_list, df_loc_t func_loc _U_)
 {
     header_field_info *hfinfo;
 
     ws_assert(g_slist_length(param_list) == 1);
-    stnode_t *st_node = param_list->data;
+    stnode_t *param = param_list->data;
 
-    if (stnode_type_id(st_node) == STTYPE_FIELD) {
+    if (stnode_type_id(param) == STTYPE_FIELD) {
         dfw->field_count++;
-        hfinfo = sttype_field_hfinfo(st_node);
+        hfinfo = sttype_field_hfinfo(param);
         switch (hfinfo->type) {
             case FT_UINT8:
             case FT_UINT16:
@@ -337,58 +389,31 @@ ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t logical_
             default:
                 break;
         }
-        FAIL(dfw, st_node, "String conversion for field \"%s\" is not supported", hfinfo->abbrev);
+        dfunc_fail(dfw, param, "String conversion for field \"%s\" is not supported", hfinfo->abbrev);
     }
-    FAIL(dfw, st_node, "Only fields can be used as parameter for %s()", func_name);
+    dfunc_fail(dfw, param, "Only fields can be used as parameter for %s()", func_name);
 }
 
 /* Check arguments are all the same type and they can be compared. */
 static ftenum_t
 ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype,
-                        GSList *param_list, df_loc_t func_loc _U_)
+                        GSList *param_list, df_loc_t func_loc)
 {
-    stnode_t *arg;
-    sttype_id_t type;
-    ftenum_t ft_arg;
+    stnode_t *param;
+    ftenum_t ftype;
     GSList *l;
 
     for (l = param_list; l != NULL; l = l->next) {
-        arg = l->data;
-        type = stnode_type_id(arg);
+        param = l->data;
+        ftype = df_semcheck_param(dfw, func_name, logical_ftype, param, func_loc);
 
-        if (type == STTYPE_ARITHMETIC) {
-            ft_arg = check_arithmetic(dfw, arg, logical_ftype);
+        if (!compatible_ftypes(ftype, logical_ftype)) {
+            dfunc_fail(dfw, param, "Arguments to '%s' must be of compatible type (expected %s, got %s)",
+                                        func_name, ftype_pretty_name(logical_ftype), ftype_pretty_name(ftype));
         }
-        else if (type == STTYPE_LITERAL) {
-            dfilter_fvalue_from_literal(dfw, logical_ftype, arg, false, NULL);
-            ft_arg = sttype_pointer_ftenum(arg);
-        }
-        else if (type == STTYPE_NUMBER) {
-            dfilter_fvalue_from_number(dfw, logical_ftype, arg);
-            ft_arg = sttype_pointer_ftenum(arg);
-        }
-        else if (type == STTYPE_FUNCTION) {
-            ft_arg = check_function(dfw, arg, logical_ftype);
-        }
-        else if (type == STTYPE_FIELD) {
-            dfw->field_count++;
-            ft_arg = sttype_field_ftenum(arg);
-        }
-        else if (type == STTYPE_REFERENCE) {
-            ft_arg = sttype_field_ftenum(arg);
-        }
-        else {
-            FAIL(dfw, arg, "Argument '%s' is not valid for %s()",
-                                    stnode_todisplay(arg), func_name);
-        }
-
-        if (!compatible_ftypes(ft_arg, logical_ftype)) {
-            FAIL(dfw, arg, "Arguments to '%s' must be of compatible type (expected %s, got %s)",
-                                        func_name, ftype_name(logical_ftype), ftype_name(ft_arg));
-        }
-        if (!ftype_can_cmp(ft_arg)) {
-            FAIL(dfw, arg, "Argument '%s' to '%s' cannot be ordered",
-                                    stnode_todisplay(arg), func_name);
+        if (!ftype_can_cmp(ftype)) {
+            dfunc_fail(dfw, param, "Argument '%s' to '%s' cannot be ordered",
+                                    stnode_todisplay(param), func_name);
         }
     }
 
@@ -397,35 +422,15 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype
 
 static ftenum_t
 ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype,
-                        GSList *param_list, df_loc_t func_loc _U_)
+                        GSList *param_list, df_loc_t func_loc)
 {
     ws_assert(g_slist_length(param_list) == 1);
-    stnode_t *st_node;
+    stnode_t *param = param_list->data;
     ftenum_t ftype;
 
-    st_node = param_list->data;
-
-    if (stnode_type_id(st_node) == STTYPE_ARITHMETIC) {
-        ftype = check_arithmetic(dfw, st_node, logical_ftype);
-    }
-    else if (stnode_type_id(st_node) == STTYPE_LITERAL) {
-        dfilter_fvalue_from_literal(dfw, logical_ftype, st_node, false, NULL);
-        ftype = sttype_pointer_ftenum(st_node);
-    }
-    else if (stnode_type_id(st_node) == STTYPE_FUNCTION) {
-        ftype = check_function(dfw, st_node, logical_ftype);
-    }
-    else if (stnode_type_id(st_node) == STTYPE_FIELD) {
-        dfw->field_count++;
-        ftype = sttype_field_ftenum(st_node);
-    }
-    else {
-        FAIL(dfw, st_node, "Type %s is not valid for %s",
-                        stnode_type_name(st_node), func_name);
-    }
-    if (!ftype_can_is_negative(ftype)) {
-        FAIL(dfw, st_node, "'%s' is not a valid argument to '%s'()",
-                        stnode_todisplay(st_node), func_name);
+    ftype = df_semcheck_param(dfw, func_name, logical_ftype, param, func_loc);
+    if (!ftype_can_is_negative(ftype) || !ftype_can_unary_minus(ftype)) {
+        dfunc_fail(dfw, param, "Argument cannot be negated");
     }
     return ftype;
 }
@@ -438,7 +443,7 @@ df_functions[] = {
     /* Length function is implemented as a DFVM instruction. */
     { "len",    NULL,           1, 1, FT_UINT32, ul_semcheck_can_length },
     { "count",  df_func_count,  1, 1, FT_UINT32, ul_semcheck_is_field },
-    { "string", df_func_string, 1, 1, FT_STRING, ul_semcheck_string_param },
+    { "string", df_func_string, 1, 1, FT_STRING, ul_semcheck_string },
     { "max",    df_func_max,    1, 0, FT_NONE, ul_semcheck_compare },
     { "min",    df_func_min,    1, 0, FT_NONE, ul_semcheck_compare },
     { "abs",    df_func_abs,    1, 1, FT_NONE, ul_semcheck_absolute_value },
