@@ -680,7 +680,7 @@ get_function_ftype(stnode_t *st_node)
 		return FT_NONE;
 
 	for (GSList *l = params; l != NULL; l = l->next) {
-		ftenum_t ftype = get_logical_ftype(params->data);
+		ftenum_t ftype = get_logical_ftype(l->data);
 		if (ftype != FT_NONE) {
 			return ftype;
 		}
