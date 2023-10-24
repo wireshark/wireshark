@@ -20,9 +20,6 @@
 /* The run-time logic of the dfilter function */
 typedef bool (*DFFuncType)(GSList *stack, uint32_t arg_count, df_cell_t *retval);
 
-/* The return type for the dfilter function */
-typedef ftenum_t (*DFReturnType)(GSList *param_list);
-
 /* The semantic check for the dfilter function */
 typedef ftenum_t (*DFSemCheckType)(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
                                 GSList *param_list, df_loc_t func_loc);
@@ -34,7 +31,8 @@ typedef struct {
     DFFuncType      function;
     unsigned        min_nargs;
     unsigned        max_nargs; /* 0 for no limit */
-    DFReturnType    return_type;
+    ftenum_t        return_ftype; /* Can be FT_NONE if the function returns the same type
+                                   * as its arguments. */
     DFSemCheckType  semcheck_param_function;
 } df_func_def_t;
 

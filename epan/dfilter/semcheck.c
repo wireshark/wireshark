@@ -674,9 +674,18 @@ get_function_ftype(stnode_t *st_node)
 	params   = sttype_function_params(st_node);
 	nparams  = g_slist_length(params);
 
+	if (funcdef->return_ftype != FT_NONE)
+		return funcdef->return_ftype;
 	if (nparams < 1)
 		return FT_NONE;
-	return funcdef->return_type(params);
+
+	for (GSList *l = params; l != NULL; l = l->next) {
+		ftenum_t ftype = get_logical_ftype(params->data);
+		if (ftype != FT_NONE) {
+			return ftype;
+		}
+	}
+	return FT_NONE;
 }
 
 ftenum_t

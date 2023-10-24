@@ -281,6 +281,12 @@ value_type_tostr(dfvm_value_t *v, bool show_ftype)
 		case FVALUE:
 			s = fvalue_type_name(dfvm_value_get_fvalue(v));
 			break;
+		case FUNCTION_DEF:
+			if (v->value.funcdef->return_ftype != FT_NONE)
+				s = ftype_name(v->value.funcdef->return_ftype);
+			else
+				s = "***";
+			break;
 		default:
 			return ws_strdup("");
 			break;
@@ -305,8 +311,8 @@ dump_str_stack_pop(GSList *stack, uint32_t count)
 }
 
 static void
-append_call_function(wmem_strbuf_t *buf, const char *func, uint32_t nargs,
-					GSList *stack_print)
+append_call_function(wmem_strbuf_t *buf, const char *func, const char *func_type,
+			uint32_t nargs, GSList *stack_print)
 {
 	uint32_t idx;
 	GString	*gs;
@@ -324,7 +330,7 @@ append_call_function(wmem_strbuf_t *buf, const char *func, uint32_t nargs,
 		wmem_strbuf_append(buf, gs->str);
 		g_string_free(gs, true);
 	}
-	wmem_strbuf_append(buf, ")");
+	wmem_strbuf_append_printf(buf, ")%s", func_type);
 }
 
 static void
@@ -412,7 +418,8 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
 			break;
 
 		case DFVM_CALL_FUNCTION:
-			append_call_function(buf, arg1_str, arg3->value.numeric, *stack_print);
+			append_call_function(buf, arg1_str, arg1_str_type,
+						arg3->value.numeric, *stack_print);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;

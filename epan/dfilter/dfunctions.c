@@ -430,45 +430,19 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t logica
     return ftype;
 }
 
-static ftenum_t
-return_string(GSList *param_list _U_)
-{
-    return FT_STRING;
-}
-
-static ftenum_t
-return_unsigned(GSList *param_list _U_)
-{
-    return FT_UINT32;
-}
-
-static ftenum_t
-return_compare(GSList *param_list)
-{
-    GSList *l;
-    ftenum_t ftype;
-
-    for (l = param_list; l != NULL; l = l->next) {
-        ftype = get_logical_ftype(l->data);
-        if (ftype != FT_NONE)
-            return ftype;
-    }
-    return FT_NONE;
-}
-
 /* The table of all display-filter functions */
 static df_func_def_t
 df_functions[] = {
-    { "lower",  df_func_lower,  1, 1, return_string, ul_semcheck_is_field_string },
-    { "upper",  df_func_upper,  1, 1, return_string, ul_semcheck_is_field_string },
+    { "lower",  df_func_lower,  1, 1, FT_STRING, ul_semcheck_is_field_string },
+    { "upper",  df_func_upper,  1, 1, FT_STRING, ul_semcheck_is_field_string },
     /* Length function is implemented as a DFVM instruction. */
-    { "len",    NULL,           1, 1, return_unsigned, ul_semcheck_can_length },
-    { "count",  df_func_count,  1, 1, return_unsigned, ul_semcheck_is_field },
-    { "string", df_func_string, 1, 1, return_string, ul_semcheck_string_param },
-    { "max",    df_func_max,    1, 0, return_compare, ul_semcheck_compare },
-    { "min",    df_func_min,    1, 0, return_compare, ul_semcheck_compare },
-    { "abs",    df_func_abs,    1, 1, return_compare, ul_semcheck_absolute_value },
-    { NULL, NULL, 0, 0, NULL, NULL }
+    { "len",    NULL,           1, 1, FT_UINT32, ul_semcheck_can_length },
+    { "count",  df_func_count,  1, 1, FT_UINT32, ul_semcheck_is_field },
+    { "string", df_func_string, 1, 1, FT_STRING, ul_semcheck_string_param },
+    { "max",    df_func_max,    1, 0, FT_NONE, ul_semcheck_compare },
+    { "min",    df_func_min,    1, 0, FT_NONE, ul_semcheck_compare },
+    { "abs",    df_func_abs,    1, 1, FT_NONE, ul_semcheck_absolute_value },
+    { NULL, NULL, 0, 0, FT_NONE, NULL }
 };
 
 /* Lookup a display filter function record by name */
