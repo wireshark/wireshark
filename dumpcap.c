@@ -668,10 +668,96 @@ relinquish_all_capabilities(void)
   #define PLATFORM_PERMISSIONS_SUGGESTION
 #endif
 
+#if defined(_WIN32)
+static const char *
+get_platform_pcap_failure_secondary_error_message(const char *open_status_str)
+{
+    /*
+     * The error string begins with the error produced by WinPcap
+     * and Npcap if attempting to set promiscuous mode fails.
+     * (Note that this string could have a specific error message
+     * from an NDIS error after the initial part, so we do a prefix
+     * check rather than an exact match check.)
+     *
+     * If this is with Npcap 1.71 through 1.73, which have bugs that
+     * cause this error on Windows 11 with some drivers, suggest that
+     * the user upgrade to the current version of Npcap;
+     * otherwise, suggest that they turn off promiscuous mode
+     * on that device.
+     */
+    static const char promisc_failed[] =
+        "failed to set hardware filter to promiscuous mode";
+
+    if (strncmp(open_status_str, promisc_failed, sizeof promisc_failed - 1) == 0) {
+        unsigned int npcap_major, npcap_minor;
+
+        if (caplibs_get_npcap_version(&npcap_major, &npcap_minor)) {
+            if (npcap_major == 1 &&
+                (npcap_minor >= 71 && npcap_minor <= 73)) {
+                return
+"This is a bug in your version of Npcap.\n"
+"\n"
+"If you need to use promiscuous mode, you must upgrade to the current "
+"version of Npcap, which is available from https://npcap.com/\n"
+"\n"
+"Otherwise, turn off promiscuous mode for this device.";
+            }
+        }
+        return
+              "Please turn off promiscuous mode for this device.";
+    }
+    return NULL;
+}
+#elif defined(__linux__)
+static const char *
+get_platform_pcap_failure_secondary_error_message(const char *open_status_str)
+{
+    /*
+     * The error string is the message provided by libpcap on
+     * Linux if an attempt to open a PF_PACKET socket failed
+     * with EAFNOSUPPORT.  This probably means that either 1)
+     * the kernel doesn't have PF_PACKET support configured in
+     * or 2) this is a Flatpak version of Wireshark that's been
+     * sandboxed in a way that disallows opening PF_PACKET
+     * sockets.
+     *
+     * Suggest that the user find some other package of
+     * Wireshark if they want to capture traffic and are
+     * running a Flatpak of Wireshark or that they configure
+     * PF_PACKET support back in if it's configured out.
+     */
+    static const char af_notsup[] =
+        "socket: Address family not supported by protocol";
+
+    if (strcmp(open_status_str, af_notsup) == 0) {
+        return
+                   "If you are running Wireshark from a Flatpak package, "
+                   "it does not support packet capture; you will need "
+                   "to run a different version of Wireshark in order "
+                   "to capture traffic.\n"
+                   "\n"
+                   "Otherwise, if your machine is running a kernel that "
+                   "was not configured with CONFIG_PACKET, that kernel "
+                   "does not support packet capture; you will need to "
+                   "use a kernel configured with CONFIG_PACKET.";
+    }
+    return NULL;
+}
+#else
+static const char *
+get_platform_pcap_failure_secondary_error_message(const char *open_status_str _U_)
+{
+    /* No such message for platforms not handled above. */
+    return NULL;
+}
+#endif
+
 static const char *
 get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
                                          const char *open_status_str)
 {
+    const char *platform_secondary_error_message;
+
 #ifdef _WIN32
     /*
      * On Windows, first make sure they *have* Npcap installed.
@@ -694,6 +780,13 @@ get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
      */
     switch (open_status) {
 
+    case CAP_DEVICE_OPEN_NO_ERR:
+    case CAP_DEVICE_OPEN_WARNING_PROMISC_NOTSUP:
+    case CAP_DEVICE_OPEN_WARNING_TSTAMP_TYPE_NOTSUP:
+    case CAP_DEVICE_OPEN_WARNING_OTHER:
+        /* This should not happen, as those aren't errors. */
+        return "";
+
     case CAP_DEVICE_OPEN_ERROR_NO_SUCH_DEVICE:
     case CAP_DEVICE_OPEN_ERROR_RFMON_NOTSUP:
     case CAP_DEVICE_OPEN_ERROR_IFACE_NOT_UP:
@@ -715,82 +808,39 @@ get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
 
     case CAP_DEVICE_OPEN_ERROR_OTHER:
     case CAP_DEVICE_OPEN_ERROR_GENERIC:
-        {
         /*
          * We don't know what kind of error it is.  See if there's a hint
          * in the error string; if not, throw all generic suggestions at
          * the user.
+         *
+         * First, check for some text that pops up in some errors.
+         * Do platform-specific checks first.
          */
-        static const char promisc_failed[] =
-            "failed to set hardware filter to promiscuous mode";
-#if defined(__linux__)
-        static const char af_notsup[] =
-            "socket: Address family not supported by protocol";
-#endif
+        platform_secondary_error_message =
+            get_platform_pcap_failure_secondary_error_message(open_status_str);
+        if (platform_secondary_error_message != NULL) {
+            /* We got one, so return it. */
+            return platform_secondary_error_message;
+        }
 
         /*
-         * Check for some text that pops up in some errors.
+         * Not one of those particular problems.  Was this a "generic"
+         * error from pcap_open_live() or pcap_open(), in which case
+         * it might be a permissions error?
          */
-        if (strncmp(open_status_str, promisc_failed, sizeof promisc_failed - 1) == 0) {
-            /*
-             * The error string begins with the error produced by WinPcap
-             * and Npcap if attempting to set promiscuous mode fails.
-             * (Note that this string could have a specific error message
-             * from an NDIS error after the initial part, so we do a prefix
-             * check rather than an exact match check.)
-             *
-             * Suggest that the user turn off promiscuous mode on that
-             * device.
-             */
+        if (open_status == CAP_DEVICE_OPEN_ERROR_GENERIC) {
+            /* Yes. */
             return
-                   "Please turn off promiscuous mode for this device";
-#if defined(__linux__)
-        } else if (strcmp(open_status_str, af_notsup) == 0) {
-            /*
-             * The error string is the message provided by libpcap on
-	     * Linux if an attempt to open a PF_PACKET socket failed
-	     * with EAFNOSUPPORT.  This probably means that either 1)
-	     * the kernel doesn't have PF_PACKET support configured in
-	     * or 2) this is a Flatpak version of Wireshark that's been
-	     * sandboxed in a way that disallows opening PF_PACKET
-	     * sockets.
-	     *
-	     * Suggest that the user find some other package of
-	     * Wireshark if they want to capture traffic and are
-	     * running a Flatpak of Wireshark or that they configure
-	     * PF_PACKET support back in if it's configured out.
-	     */
-	    return
-                       "If you are running Wireshark from a Flatpak package, "
-                       "it does not support packet capture; you will need "
-                       "to run a different version of Wireshark in order "
-                       "to capture traffic.\n"
-                       "\n"
-                       "Otherwise, if your machine is running a kernel that "
-                       "was not configured with CONFIG_PACKET, that kernel "
-                       "does not support packet capture; you will need to "
-                       "use a kernel configured with CONFIG_PACKET.";
-#endif
+                   "Please check to make sure you have sufficient permissions, and that you have "
+                   "the proper interface or pipe specified."
+                   PLATFORM_PERMISSIONS_SUGGESTION;
         } else {
             /*
-             * No.  Was this a "generic" error from pcap_open_live()
-             * or pcap_open(), in which case it might be a permissions
-             * error?
+             * This is not a permissions error, so no need to suggest
+             * checking permissions.
              */
-            if (open_status == CAP_DEVICE_OPEN_ERROR_GENERIC) {
-                return
-                       "Please check to make sure you have sufficient permissions, and that you have "
-                       "the proper interface or pipe specified."
-                       PLATFORM_PERMISSIONS_SUGGESTION;
-            } else {
-                /*
-                 * This is not a permissions error, so no need to suggest
-                 * checking permissions.
-                 */
-                return
-                    "Please check that you have the proper interface or pipe specified.";
-            }
-        }
+            return
+                "Please check that you have the proper interface or pipe specified.";
         }
         break;
 

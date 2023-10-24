@@ -109,6 +109,8 @@ extern void gather_caplibs_runtime_info(feature_list l);
 
 #ifdef _WIN32
 extern bool caplibs_have_npcap(void);
+extern bool caplibs_get_npcap_version(unsigned int *major,
+    unsigned int *minor);
 #endif
 
 #ifdef __cplusplus
