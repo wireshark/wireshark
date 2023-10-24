@@ -25,7 +25,6 @@
 
 #include "capture/capture-wpcap.h"
 #include <wsutil/feature_list.h>
-#include <wsutil/strtoi.h>
 
 bool has_wpcap = false;
 
@@ -40,6 +39,7 @@ bool has_wpcap = false;
 #include "capture/capture-pcap-util-int.h"
 
 #include <wsutil/file_util.h>
+#include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
 
 #define MAX_WIN_IF_NAME_LEN 511
@@ -238,7 +238,7 @@ caplibs_get_npcap_version(unsigned int *major, unsigned int *minor)
 
 	version = p_pcap_lib_version();
 	if (!g_str_has_prefix(version, prefix))
-		return false;	/* we ahve it, but it's not Npcap */
+		return false;	/* we have it, but it's not Npcap */
 
 	/*
 	 * This is Npcap; return the major and minor version numbers.
