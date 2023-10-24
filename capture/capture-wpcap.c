@@ -23,6 +23,7 @@
 #include <ws_attributes.h>
 
 #include "capture/capture-wpcap.h"
+#include <wsutil/strtoi.h>
 
 gboolean has_wpcap = FALSE;
 
@@ -225,6 +226,55 @@ gboolean
 caplibs_have_npcap(void)
 {
 	return has_wpcap && g_str_has_prefix(p_pcap_lib_version(), "Npcap");
+}
+
+gboolean
+caplibs_get_npcap_version(guint *major, guint *minor)
+{
+	const char *version;
+	static const char prefix[] = "Npcap version ";
+
+	if (!has_wpcap)
+		return FALSE;	/* we don't have any pcap */
+
+	version = p_pcap_lib_version();
+	if (!g_str_has_prefix(version, prefix))
+		return FALSE;	/* we ahve it, but it's not Npcap */
+
+	/*
+	 * This is Npcap; return the major and minor version numbers.
+	 * First, skip pas the "Npcap version " prefix.
+	 */
+	const char *major_version_number;
+	const char *minor_version_number;
+	const char *p;
+
+	/*
+	 * Get the major version number.
+	 */
+	major_version_number = version + sizeof prefix - 1;
+	if (!ws_strtou(major_version_number, &p, major))
+		return FALSE;	/* not a number */
+	if (*p != '.')
+		return FALSE;	/* not followed by a "." */
+	p++;	/* skip over the '.' */
+
+	/*
+	 * Get the minor version number.
+	 */
+	minor_version_number = p;
+	if (!ws_strtou(minor_version_number, &p, minor))
+		return FALSE;	/* not a number */
+	if (*p != ',' && *p != '.' && *p != '\0') {
+		/*
+		 * Not followed by a comma (to separate from "based on
+		 * libpcap ..."), not followed by a period (in case Npcap
+		 * ever has a dot-dot release), and not followed by a
+		 * '\0' (in case it has only the Npcap version number).
+		 */
+		return FALSE;
+	}
+	return TRUE;
 }
 
 static char *
