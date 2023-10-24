@@ -476,9 +476,6 @@ void FollowStreamDialog::resetStream()
     follow_record_t *follow_record;
 
     filter_out_filter_.clear();
-    if (!data_out_filename_.isEmpty()) {
-        ws_unlink(data_out_filename_.toUtf8().constData());
-    }
     for (cur = follow_info_.payload; cur; cur = gxx_list_next(cur)) {
         follow_record = gxx_list_data(follow_record_t *, cur);
         if (follow_record->data) {

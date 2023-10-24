@@ -103,7 +103,6 @@ private:
 
     follow_info_t           follow_info_;
     register_follow_t*      follower_;
-    QString                 data_out_filename_;
     QString                 previous_filter_;
     QString                 filter_out_filter_;
     QString                 output_filter_;
