@@ -131,7 +131,7 @@ void keypair_context_update_seed(guint8 *seed, guint8 seed_seqn)
 static nwk_key_entry_t *nwk_key_storage_get_entry_by_key(guint8 *nwk_key, gboolean key_from_gui)
 {
     nwk_key_entry_t *entry = NULL;
-    size_t idx = 0;
+    int idx = 0;
 
     while (idx < RF4CE_NWK_KEY_STORAGE_SIZE)
     {
@@ -154,7 +154,7 @@ void nwk_key_storage_add_entry(guint8 *nwk_key, addr_entry_t *controller_addr_en
 
     if (nwk_key_entry == NULL)
     {
-        size_t idx = 0;
+        int idx = 0;
 
         while (idx < RF4CE_NWK_KEY_STORAGE_SIZE)
         {
@@ -466,7 +466,7 @@ void key_exchange_calc_key(guint32 tag_b_pack)
 static vendor_secret_entry_t *vendor_secret_storage_get_entry(guint8 *secret)
 {
     vendor_secret_entry_t *entry = NULL;
-    size_t idx = 0;
+    int idx = 0;
 
     while (idx < RF4CE_VENDOR_SECRET_STORAGE_SIZE)
     {
@@ -516,7 +516,7 @@ void vendor_secret_storage_release_entry(guint8 *secret)
 
 void rf4ce_secur_cleanup(void)
 {
-    size_t idx = 0;
+    int idx = 0;
 
     memset(&keypair_context, 0, sizeof(keypair_context));
     memset(addr_table, 0, sizeof(addr_table));
@@ -548,7 +548,7 @@ gboolean decrypt_data(
 {
     gboolean ret = false;
     guint8 frame_control = *in;
-    size_t idx = 0;
+    int idx = 0;
 
     if (*len < RF4CE_MIN_NWK_LENGTH || *len > RF4CE_MAX_NWK_LENGTH)
     {

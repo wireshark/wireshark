@@ -1064,7 +1064,7 @@ void proto_register_rf4ce_profile(void)
           NULL, 0x0,
           NULL, HFILL}},
         {&hf_rf4ce_profile_gdp_poll_constraints_polling_rec_max_polling_time_interval,
-         {"Maxnimum Polling Time Interval", "rf4ce-profile.attr.poll_constraints.polling_record.max_polling_time_interval",
+         {"Maximum Polling Time Interval", "rf4ce-profile.attr.poll_constraints.polling_record.max_polling_time_interval",
           FT_UINT32, BASE_DEC,
           NULL, 0x0,
           NULL, HFILL}},
@@ -1738,7 +1738,7 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
     }
     else if (attr_id == RF4CE_GDP_ATTR_POLL_CONSTRAINTS)
     {
-        size_t methods_index;
+        int methods_index;
         guint8 methods_num;
 
         static int *const polling_trig_cap_bits[] = {
@@ -1760,7 +1760,7 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
             char subtree_name[40];
             proto_tree *record_subtree;
 
-            snprintf(subtree_name, sizeof(subtree_name), "Polling Constraint Record %ld:", methods_index);
+            snprintf(subtree_name, sizeof(subtree_name), "Polling Constraint Record %d:", methods_index);
             record_subtree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_profile_gdp_poll_constraints_polling_rec, NULL, subtree_name);
 
             proto_tree_add_item(record_subtree, hf_rf4ce_profile_gdp_poll_constraints_polling_rec_method_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
