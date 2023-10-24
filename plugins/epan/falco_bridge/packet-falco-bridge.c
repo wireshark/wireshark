@@ -595,7 +595,8 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     if (bi->source_id == 0) {
         dissect_sinsp_enriched(tvb, pinfo, fb_tree, bi);
     } else {
-        dissect_sinsp_plugin(tvb, pinfo, fb_tree, bi);
+        tvbuff_t* plugin_tvb = tvb_new_subset_length(tvb, 12, tvb_captured_length(tvb) - 12);
+        dissect_sinsp_plugin(plugin_tvb, pinfo, fb_tree, bi);
     }
 
     return tvb_captured_length(tvb);
@@ -767,7 +768,7 @@ static int
 dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr)
 {
     bridge_info* bi = (bridge_info *) bi_ptr;
-    guint plen = tvb_captured_length(tvb);
+    guint payload_len = tvb_captured_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "oops");
     /* Clear out stuff in the info column */
@@ -776,7 +777,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     proto_item *ti = tree;
     proto_tree* fb_tree = proto_item_add_subtree(ti, ett_sinsp_span);
 
-    guint8* payload = (guint8*)tvb_get_ptr(tvb, 0, plen);
+    guint8* payload = (guint8*)tvb_get_ptr(tvb, 0, payload_len);
 
     sinsp_field_extract_t *sinsp_fields = (sinsp_field_extract_t*) wmem_alloc(pinfo->pool, sizeof(sinsp_field_extract_t) * bi->visible_fields);
     for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
@@ -789,7 +790,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     }
 
     // If we have a failure, try to dissect what we can first, then bail out with an error.
-    bool rc = extract_plugin_source_fields(bi->ssi, pinfo->rec->rec_header.syscall_header.event_type, pinfo->rec->rec_header.syscall_header.nparams, payload, plen, pinfo->pool, sinsp_fields, bi->visible_fields);
+    bool rc = extract_plugin_source_fields(bi->ssi, pinfo->rec->rec_header.syscall_header.event_type, pinfo->rec->rec_header.syscall_header.nparams, payload, payload_len, pinfo->pool, sinsp_fields, bi->visible_fields);
 
     if (!rc) {
         REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
@@ -829,7 +830,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
 
 
         if (sfe->type == FT_STRINGZ && hfinfo->type == FT_STRINGZ) {
-            proto_item *pi = proto_tree_add_string(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res.str);
+            proto_item *pi = proto_tree_add_string(fb_tree, bi->hf_ids[fld_idx], tvb, 0, payload_len, sfe->res.str);
             if (bi->field_flags[fld_idx] & BFF_INFO) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", sfe->res.str);
                 // Mark it hidden, otherwise we end up with a bunch of empty "Info" tree items.
@@ -874,7 +875,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
             }
         }
         else if (sfe->type == FT_UINT64 && hfinfo->type == FT_UINT64) {
-            proto_tree_add_uint64(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res.u64);
+            proto_tree_add_uint64(fb_tree, bi->hf_ids[fld_idx], tvb, 0, payload_len, sfe->res.u64);
             if (cur_conv_filter) {
                 switch (hfinfo->display) {
                 case BASE_HEX:
@@ -910,7 +911,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
 //        }
     }
 
-    return plen;
+    return payload_len;
 }
 
 void

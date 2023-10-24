@@ -51,6 +51,7 @@ typedef struct sinsp_source_info_t {
 
 typedef struct sinsp_span_t {
     sinsp inspector;
+    sinsp_filter_check_list filter_checks;
 } sinsp_span_t;
 
 sinsp_span_t *create_sinsp_span()
@@ -70,14 +71,13 @@ void destroy_sinsp_span(sinsp_span_t *sinsp_span) {
 void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t **ssi_ptr) {
     sinsp_source_info_t *ssi = new sinsp_source_info_t();
 
-    sinsp_filter_check_list filter_checks;
-    std::shared_ptr<gen_event_filter_factory> factory(new sinsp_filter_factory(NULL, filter_checks));
-    sinsp_filter_factory filter_factory(&sinsp_span->inspector, filter_checks);
+    std::shared_ptr<gen_event_filter_factory> factory(new sinsp_filter_factory(NULL, sinsp_span->filter_checks));
+    sinsp_filter_factory filter_factory(&sinsp_span->inspector, sinsp_span->filter_checks);
     std::vector<const filter_check_info*> all_syscall_fields;
 
     // Extract the fields defined in filterchecks.{cpp,h}
 
-    filter_checks.get_all_fields(all_syscall_fields);
+    sinsp_span->filter_checks.get_all_fields(all_syscall_fields);
     for (const auto fci : all_syscall_fields) {
         if (fci->m_flags == filter_check_info::FL_HIDDEN) {
             continue;
@@ -354,7 +354,6 @@ bool extract_syscall_source_fields(sinsp_source_info_t *ssi, uint16_t event_type
     }
     scap_evt *sevt = (scap_evt *) ssi->evt_storage;
 
-    // XXX Fill in ts, tid, and cpuid
     sevt->ts = ts;
     sevt->tid = thread_id;
     sevt->len = tot_evt_len - payload_hdr_size;
@@ -436,7 +435,7 @@ bool extract_syscall_source_fields(sinsp_source_info_t *ssi, uint16_t event_type
 // The code below, falcosecurity/libs, and falcosecurity/plugins need to be in alignment.
 // The Makefile in /plugins defines FALCOSECURITY_LIBS_REVISION and uses that version of
 // plugin_info.h. We need to build against a compatible revision of /libs.
-bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint16_t event_type, uint32_t nparams, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
+bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint16_t event_type _U_, uint32_t nparams _U_, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
 {
     if (!ssi->source) {
         return false;
@@ -447,9 +446,9 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint16_t event_type,
     // PPME_PLUGINEVENT_E events have the following format:
     // | scap_evt header | uint32_t sizeof(id) = 4 | uint32_t evt_datalen | uint32_t id | uint8_t[] evt_data |
 
-    // uint32_t payload_hdr[3] = {4, evt_datalen, ssi->source->id()};
-    uint32_t payload_hdr_size = (nparams + 1) * 4;
-    uint32_t tot_evt_len = (uint32_t)sizeof(scap_evt) + evt_datalen;
+    uint32_t payload_hdr[3] = {4, evt_datalen, ssi->source->id()};
+//    uint32_t payload_hdr_size = (nparams + 1) * 4;
+    uint32_t tot_evt_len = (uint32_t)sizeof(scap_evt) + sizeof(payload_hdr) + evt_datalen;
     if (ssi->evt_storage_size < tot_evt_len) {
         while (ssi->evt_storage_size < tot_evt_len) {
             ssi->evt_storage_size *= 2;
@@ -460,12 +459,12 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint16_t event_type,
 
     sevt->ts = -1;
     sevt->tid = -1;
-    sevt->len = tot_evt_len - payload_hdr_size;
-    sevt->type = event_type;
-    sevt->nparams = nparams;
+    sevt->len = tot_evt_len;
+    sevt->type = PPME_PLUGINEVENT_E;
+    sevt->nparams = 2; // Plugin ID + evt_data;
 
-    // memcpy(ssi->evt_storage + sizeof(scap_evt), payload_hdr, sizeof(payload_hdr));
-    memcpy(ssi->evt_storage + sizeof(scap_evt), evt_data, evt_datalen);
+    memcpy(ssi->evt_storage + sizeof(scap_evt), payload_hdr, sizeof(payload_hdr));
+    memcpy(ssi->evt_storage + sizeof(scap_evt) + sizeof(payload_hdr), evt_data, evt_datalen);
     ssi->evt->init(ssi->evt_storage, 0);
 
     fields.resize(sinsp_field_len);
