@@ -658,6 +658,7 @@ set(WIRESHARK_QT_TS
 	wireshark_fr.ts
 	wireshark_it.ts
 	wireshark_ja_JP.ts
+	wireshark_ko.ts
 	wireshark_pl.ts
 	wireshark_ru.ts
 	wireshark_sv.ts
