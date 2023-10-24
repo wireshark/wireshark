@@ -193,7 +193,8 @@ WS_DLL_PUBLIC void follow_iterate_followers(wmem_foreach_func func, gpointer use
  */
 WS_DLL_PUBLIC gchar* follow_get_stat_tap_string(register_follow_t* follower);
 
-/** Clear counters, addresses and ports of follow_info_t
+/** Clear payload, fragments, counters, addresses, and ports of follow_info_t
+ * Free everything except the follow_info_t structure itself
  *
  * @param info [in] follower info
  */

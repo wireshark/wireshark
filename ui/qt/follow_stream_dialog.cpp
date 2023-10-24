@@ -472,41 +472,7 @@ void FollowStreamDialog::removeStreamControls()
 
 void FollowStreamDialog::resetStream()
 {
-    GList *cur;
-    follow_record_t *follow_record;
-
-    filter_out_filter_.clear();
-    for (cur = follow_info_.payload; cur; cur = gxx_list_next(cur)) {
-        follow_record = gxx_list_data(follow_record_t *, cur);
-        if (follow_record->data) {
-            g_byte_array_free(follow_record->data, TRUE);
-        }
-        g_free(follow_record);
-    }
-    g_list_free(follow_info_.payload);
-
-    //Only TCP stream uses fragments
-    for (cur = follow_info_.fragments[0]; cur; cur = gxx_list_next(cur)) {
-        follow_record = gxx_list_data(follow_record_t *, cur);
-        if (follow_record->data) {
-            g_byte_array_free(follow_record->data, TRUE);
-        }
-        g_free(follow_record);
-    }
-    follow_info_.fragments[0] = Q_NULLPTR;
-    for (cur = follow_info_.fragments[1]; cur; cur = gxx_list_next(cur)) {
-        follow_record = gxx_list_data(follow_record_t *, cur);
-        if (follow_record->data) {
-            g_byte_array_free(follow_record->data, TRUE);
-        }
-        g_free(follow_record);
-    }
-    follow_info_.fragments[1] = Q_NULLPTR;
-
-    free_address(&follow_info_.client_ip);
-    free_address(&follow_info_.server_ip);
-    follow_info_.payload = Q_NULLPTR;
-    follow_info_.client_port = 0;
+    follow_reset_stream(&follow_info_);
 }
 
 frs_return_t
@@ -903,8 +869,6 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
             return false;
         }
     }
-
-    follow_reset_stream(&follow_info_);
 
     /* Create a new filter that matches all packets in the TCP stream,
         and set the display filter entry accordingly */
