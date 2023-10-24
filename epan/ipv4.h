@@ -16,11 +16,16 @@
 #ifndef __IPV4_H__
 #define __IPV4_H__
 
+#include <wireshark.h>
 #include <wsutil/inet_ipv4.h>
 
 typedef struct {
 	guint32	addr;	/* stored in host order */
 	guint32	nmask;	/* stored in host order */
 } ipv4_addr_and_mask;
+
+WS_DLL_PUBLIC
+bool
+ws_ipv4_addr_and_mask_contains(const ipv4_addr_and_mask *ipv4, const ws_in4_addr *addr);
 
 #endif

@@ -77,10 +77,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[ipv4.[ch]]
-indent_style = tab
-indent_size = tab
-
 [next_tvb.[ch]]
 indent_size = 2
 

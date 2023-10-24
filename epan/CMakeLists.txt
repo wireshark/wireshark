@@ -100,6 +100,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	iax2_codec_type.h
 	in_cksum.h
 	introspection.h
+	iana-ip.h
 	ip_opts.h
 	ipproto.h
 	ipv4.h
@@ -211,9 +212,12 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	golay.c
 	guid-utils.c
 	iana_charsets.c
+	iana-ip.c
 	in_cksum.c
 	introspection.c
 	ipproto.c
+	ipv4.c
+	ipv6.c
 	manuf.c
 	maxmind_db.c
 	media_params.c

@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tvbuff.h"
 #include "ipv6.h"
 #include "addr_and_mask.h"
 #include <wsutil/ws_assert.h>

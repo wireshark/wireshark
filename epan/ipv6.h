@@ -17,11 +17,16 @@
 #ifndef __IPV6_UTILS_H__
 #define __IPV6_UTILS_H__
 
+#include <wireshark.h>
 #include <wsutil/inet_ipv6.h>
 
 typedef struct {
 	ws_in6_addr addr;
 	guint32 prefix;
 } ipv6_addr_and_prefix;
+
+WS_DLL_PUBLIC
+bool
+ws_ipv6_addr_and_prefix_contains(const ipv6_addr_and_prefix *ipv6, const ws_in6_addr *addr);
 
 #endif /* __IPV6_UTILS_H__ */
