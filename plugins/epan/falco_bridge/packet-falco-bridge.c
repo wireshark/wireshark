@@ -648,7 +648,7 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
     // If we have a failure, try to dissect what we can first, then bail out with an error.
     uint64_t ts = pinfo->abs_ts.secs * 1000000000 + pinfo->abs_ts.nsecs;
-    bool rc = extract_syscall_source_fields(sinsp_span, bi->ssi, pinfo->fd->file_off,pinfo->rec->rec_header.syscall_header.event_type,
+    bool rc = extract_syscall_source_fields(bi->ssi, pinfo->rec->rec_header.syscall_header.event_type,
                                             pinfo->rec->rec_header.syscall_header.nparams,
                                             ts, pinfo->rec->rec_header.syscall_header.thread_id, pinfo->rec->rec_header.syscall_header.cpu_id,
                                             payload, plen, pinfo->pool, sinsp_fields, bi->visible_fields);

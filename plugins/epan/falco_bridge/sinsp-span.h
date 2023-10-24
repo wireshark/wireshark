@@ -82,7 +82,7 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath);
 void close_sinsp_capture(sinsp_span_t *sinsp_span);
 size_t get_syscall_source_ncategories(sinsp_source_info_t *ssi);
 bool get_syscall_source_category_info(sinsp_source_info_t *ssi, size_t category_num, sinsp_field_info_t *field);
-bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, int64_t seek_pos, uint16_t event_type, uint32_t nparams, uint64_t ts, uint64_t thread_id, uint16_t cpu_id, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
+bool extract_syscall_source_fields(sinsp_source_info_t *ssi, uint16_t event_type, uint32_t nparams, uint64_t ts, uint64_t thread_id, uint16_t cpu_id, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
 
 // Extractor plugin routines.
 // These roughly match common_plugin_info

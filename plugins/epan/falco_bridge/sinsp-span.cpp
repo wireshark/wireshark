@@ -44,7 +44,6 @@ typedef struct sinsp_source_info_t {
     sinsp_evt *evt;
     uint8_t *evt_storage;
     size_t evt_storage_size;
-    sinsp_evt *meta_evt;
     const char *name;
     const char *description;
     char *last_error;
@@ -104,7 +103,6 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
     ssi->evt = new sinsp_evt(&sinsp_span->inspector);
     ssi->evt_storage_size = 4096;
     ssi->evt_storage = (uint8_t *) g_malloc(ssi->evt_storage_size);
-    ssi->meta_evt = new sinsp_evt(&sinsp_span->inspector);
     ssi->name = strdup(sinsp_syscall_event_source_name);
     ssi->description = strdup(sinsp_syscall_event_source_name);
     *ssi_ptr = ssi;
@@ -341,12 +339,10 @@ bool get_syscall_source_category_info(sinsp_source_info_t *ssi, size_t category_
     return true;
 }
 
-bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, int64_t seek_pos, uint16_t event_type, uint32_t nparams, uint64_t ts, uint64_t thread_id, uint16_t cpu_id, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len) {
+bool extract_syscall_source_fields(sinsp_source_info_t *ssi, uint16_t event_type, uint32_t nparams, uint64_t ts, uint64_t thread_id, uint16_t cpu_id, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len) {
     if (ssi->source) {
         return false;
     }
-
-    sinsp_span->inspector.fseek(seek_pos);
 
     uint32_t payload_hdr_size = (nparams + 1) * 4;
     uint32_t tot_evt_len = (uint32_t)sizeof(scap_evt) + evt_datalen;
