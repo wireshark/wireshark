@@ -1019,23 +1019,6 @@ void FollowStreamDialog::captureFileClosed()
     WiresharkDialog::captureFileClosed();
 }
 
-/*
- * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
- * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
- * and "follow_add_to_gtk_text()", but, as "follow_print_text()" calls
- * the "print_line()" routine from "print.c", and as that routine might
- * genuinely expect to be handed a line (if, for example, it's using
- * some OS or desktop environment's printing API, and that API expects
- * to be handed lines), "follow_print_text()" should probably accumulate
- * lines in a buffer and hand them "print_line()".  (If there's a
- * complete line in a buffer - i.e., there's nothing of the line in
- * the previous buffer or the next buffer - it can just hand that to
- * "print_line()" after filtering out non-printables, as an
- * optimization.)
- *
- * This might or might not be the reason why C arrays display
- * correctly but get extra blank lines very other line when printed.
- */
 frs_return_t
 FollowStreamDialog::readFollowStream()
 {
