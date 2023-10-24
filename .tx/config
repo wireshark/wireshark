@@ -25,6 +25,7 @@ trans.de               = ui/qt/wireshark_de.ts
 trans.ja_JP            = ui/qt/wireshark_ja_JP.ts
 trans.pl               = ui/qt/wireshark_pl.ts
 trans.sv               = ui/qt/wireshark_sv.ts
+trans.ko               = ui/qt/wireshark_ko.ts
 replace_edited_strings = false
 keep_translations      = false
 
