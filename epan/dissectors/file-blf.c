@@ -26,6 +26,7 @@
 
 static int proto_blf = -1;
 static int proto_blf_ethernetstatus_obj = -1;
+static int proto_blf_ethernetphystate_obj = -1;
 
 static dissector_handle_t xml_handle;
 
@@ -121,6 +122,15 @@ static int hf_blf_eth_frame_ext_dir = -1;
 static int hf_blf_eth_frame_ext_framelength = -1;
 static int hf_blf_eth_frame_ext_framehandle = -1;
 static int hf_blf_eth_frame_ext_reservedethernetframeex = -1;
+
+static int hf_blf_eth_phystate_channel = -1;
+static int hf_blf_eth_phy_state_flags1_b0 = -1;
+static int hf_blf_eth_phy_state_flags1_b1 = -1;
+static int hf_blf_eth_phy_state_flags1_b2 = -1;
+static int hf_blf_eth_phy_state_phystate = -1;
+static int hf_blf_eth_phy_state_eventstate = -1;
+static int hf_blf_eth_phy_state_hardwarechannel = -1;
+static int hf_blf_eth_phy_state_res1 = -1;
 
 static gint ett_blf = -1;
 static gint ett_blf_header = -1;
@@ -252,6 +262,8 @@ static const value_string blf_object_names[] = {
     { BLF_OBJTYPE_CAN_SETTING_CHANGED,              "CAN Settings Changed" },
     { BLF_OBJTYPE_DISTRIBUTED_OBJECT_MEMBER,        "Distributed Object Member" },
     { BLF_OBJTYPE_ATTRIBUTE_EVENT,                  "Attribute Event" },
+    { BLF_OBJTYPE_DISTRIBUTED_OBJECT_CHANGE,        "Distributed Object Change" },
+    { BLF_OBJTYPE_ETHERNET_PHY_STATE,               "Ethernet PHY State" },
     { 0, NULL }
 };
 
@@ -389,6 +401,29 @@ static const value_string hf_blf_app_text_traceline_source_vals[] = {
     { 2,     "Write to X" },
     { 3,     "Node layer" },
     { 4,     "CAPL on board" },
+    { 0, NULL }
+};
+
+static const value_string blf_eth_phystate_phystate_vals[] = {
+    { 0,     "Invalid" },
+    { 1,     "Normal" },
+    { 2,     "Sleep"},
+    { 3,     "PowerOff"},
+    { 4,     "SleepRequest"},
+    { 0, NULL }
+};
+
+static const value_string blf_eth_phystate_eventstate_vals[] = {
+    { 0,     "Invalid" },
+    { 1,     "SleepReceived" },
+    { 2,     "SleepSent"},
+    { 3,     "SleepAbort"},
+    { 4,     "SleepAckReceived"},
+    { 8,     "WakeUpReceived"},
+    { 9,     "WakeUpSent"},
+    { 17,    "PowerOff"},
+    { 18,    "PowerOn"},
+    { 25,    "Activated"},
     { 0, NULL }
 };
 
@@ -785,6 +820,42 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             offset += triggerconditionlength;
         }
         break;
+        case BLF_OBJTYPE_ETHERNET_PHY_STATE:
+        {
+            static int* const flags1[] = {
+                &hf_blf_eth_phy_state_flags1_b2,
+                &hf_blf_eth_phy_state_flags1_b1,
+                &hf_blf_eth_phy_state_flags1_b0,
+                NULL
+            };
+            if (offset - offset_orig < (gint)hdr_length) {
+                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
+                offset = offset_orig + hdr_length;
+            }
+
+            ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+
+            /* uint16_t channel {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_phystate_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            /* uint16_t flags; */
+            proto_tree_add_bitmask_list(subtree, tvb, offset, 2, flags1, ENC_BIG_ENDIAN);
+            offset += 2;
+            /* uint8_t phyState {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_phy_state_phystate, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            /* uint8_t eventState {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_phy_state_eventstate, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            /* uint8_t hardwareChannel {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_phy_state_hardwarechannel, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            /* uint8_t res1 {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_phy_state_res1, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
+        break;
         default:
             if (offset - offset_orig < (gint)hdr_length) {
                 proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
@@ -998,6 +1069,81 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
     return tvb_reported_length(tvb);
 }
 
+static int
+dissect_blf_ethernetphystate_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
+    proto_item* ti;
+    proto_tree* blf_tree;
+    int offset = 0;
+
+    static int* const flags1[] = {
+        &hf_blf_eth_phy_state_flags1_b2,
+        &hf_blf_eth_phy_state_flags1_b1,
+        &hf_blf_eth_phy_state_flags1_b0,
+        NULL
+    };
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLF Ethernet PHY State");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    ti = proto_tree_add_item(tree, proto_blf_ethernetphystate_obj, tvb, offset, -1, ENC_NA);
+    blf_tree = proto_item_add_subtree(ti, ett_blf);
+
+    /* uint16_t channel {}; */
+    uint32_t channel;
+    proto_tree_add_item_ret_uint(blf_tree, hf_blf_eth_phystate_channel, tvb, offset, 2, ENC_BIG_ENDIAN, &channel);
+    offset += 2;
+
+    /* uint16_t flags; */
+    uint16_t flags = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_bitmask_list(blf_tree, tvb, offset, 2, flags1, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* uint8_t phyState {}; */
+    uint32_t phyState;
+    ti = proto_tree_add_item_ret_uint(blf_tree, hf_blf_eth_phy_state_phystate, tvb, offset, 1, ENC_BIG_ENDIAN, &phyState);
+    if ((flags & BLF_PHY_STATE_PHYSTATE) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+
+    /* uint8_t eventState {}; */
+    uint32_t eventState;
+    ti = proto_tree_add_item_ret_uint(blf_tree, hf_blf_eth_phy_state_eventstate, tvb, offset, 1, ENC_BIG_ENDIAN, &eventState);
+    if ((flags & BLF_PHY_STATE_PHYEVENT) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+
+    /* uint8_t hardwareChannel {}; */
+    uint32_t hardwareChannel;
+    ti = proto_tree_add_item_ret_uint(blf_tree, hf_blf_eth_phy_state_hardwarechannel, tvb, offset, 1, ENC_BIG_ENDIAN, &hardwareChannel);
+    if ((flags & BLF_PHY_STATE_HARDWARECHANNEL) == 0) {
+        proto_item_append_text(ti, " - Invalid");
+    }
+    offset += 1;
+
+    /* uint8_t res1 {}; */
+    proto_tree_add_item(blf_tree, hf_blf_eth_phy_state_res1, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    if ((flags & (BLF_PHY_STATE_PHYSTATE | BLF_PHY_STATE_PHYEVENT)) != 0) {
+        /* One of the two is valid */
+        if ((flags & BLF_PHY_STATE_HARDWARECHANNEL) == 0) {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "ETH-%u", channel);
+        }
+        else {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "ETH-%u-%u", channel, hardwareChannel);
+        }
+        if ((flags & BLF_PHY_STATE_PHYSTATE) != 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - State: %s", val_to_str_const(phyState, blf_eth_phystate_phystate_vals, "Unknown"));
+        }
+        if ((flags & BLF_PHY_STATE_PHYEVENT) != 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - Event: %s", val_to_str_const(eventState, blf_eth_phystate_eventstate_vals, "Unknown"));
+        }
+    }
+
+    return tvb_reported_length(tvb);
+}
+
 
 void
 proto_register_file_blf(void) {
@@ -1180,6 +1326,22 @@ proto_register_file_blf(void) {
             { "Frame handle", "blf.object.eth_frame_ext.frame_handle", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
         { &hf_blf_eth_frame_ext_reservedethernetframeex,
             { "Reserved ethernet frame ex", "blf.object.eth_frame_ext.reservedethernetframeex", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_phystate_channel,
+            { "Channel", "blf.object.eth_phy_state.channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_phy_state_flags1_b0,
+            { "PHYState", "blf.object.eth_phy_state.flags.b0", FT_BOOLEAN, 16, NULL, 0x0001,  NULL, HFILL } },
+        { &hf_blf_eth_phy_state_flags1_b1,
+            { "PHYEvent", "blf.object.eth_phy_state.flags.b1", FT_BOOLEAN, 16, NULL, 0x0002,  NULL, HFILL } },
+        { &hf_blf_eth_phy_state_flags1_b2,
+            { "HardwareChannel", "blf.object.eth_phy_state.flags.b2", FT_BOOLEAN, 16, NULL, 0x0004,  NULL, HFILL } },
+        { &hf_blf_eth_phy_state_phystate,
+            { "PHY state", "blf.object.eth_status.phystate", FT_UINT8, BASE_DEC, VALS(blf_eth_phystate_phystate_vals), 0x00, NULL, HFILL} },
+        { &hf_blf_eth_phy_state_eventstate,
+            { "Event state", "blf.object.eth_status.eventstate", FT_UINT8, BASE_DEC, VALS(blf_eth_phystate_eventstate_vals), 0x00, NULL, HFILL} },
+        { &hf_blf_eth_phy_state_hardwarechannel,
+            { "Hardware channel", "blf.object.eth_status.hardwarechannel", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_phy_state_res1,
+            { "Reserved", "blf.object.eth_status.res1", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
     };
 
     static gint *ett[] = {
@@ -1193,13 +1355,14 @@ proto_register_file_blf(void) {
 
     proto_blf = proto_register_protocol("BLF File Format", "File-BLF", "file-blf");
     proto_blf_ethernetstatus_obj = proto_register_protocol("BLF Ethernet Status", "BLF-Ethernet-Status", "blf-ethernet-status");
+    proto_blf_ethernetphystate_obj = proto_register_protocol("BLF Ethernet PHY State", "BLF-Ethernet-PHY-State", "blf-ethernet-phystate");
 
     proto_register_field_array(proto_blf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("file-blf", dissect_blf, proto_blf);
-
     register_dissector("blf-ethernetstatus-obj", dissect_blf_ethernetstatus_obj, proto_blf_ethernetstatus_obj);
+    register_dissector("blf-ethernetphystate-obj", dissect_blf_ethernetphystate_obj, proto_blf_ethernetphystate_obj);
 }
 
 void

@@ -512,6 +512,12 @@ fix_endianness_blf_ethernet_status_header(blf_ethernet_status_t* header) {
 }
 
 static void
+fix_endianness_blf_ethernet_phystate_header(blf_ethernet_phystate_t* header) {
+    header->channel = GUINT16_FROM_LE(header->channel);
+    header->flags = GUINT16_FROM_LE(header->flags);
+}
+
+static void
 blf_init_logcontainer(blf_log_container_t *tmp) {
     tmp->infile_start_pos = 0;
     tmp->infile_length = 0;
@@ -2513,6 +2519,61 @@ blf_read_ethernet_status(blf_params_t* params, int* err, gchar** err_info, gint6
 }
 
 static gboolean
+blf_read_ethernet_phystate(blf_params_t* params, int* err, gchar** err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp) {
+    blf_ethernet_phystate_t ethernet_phystate_header;
+    guint8 tmpbuf[8];
+
+    if (object_length < (data_start - block_start) + (int)sizeof(ethernet_phystate_header)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: ETHERNET_PHY_STATE: not enough bytes for ethernet phystate header in object");
+        ws_debug("not enough bytes for ethernet phystate header in object");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes(params, data_start, &ethernet_phystate_header, sizeof(ethernet_phystate_header), err, err_info)) {
+        ws_debug("not enough bytes for ethernet phystate header in file");
+        return FALSE;
+    }
+
+    fix_endianness_blf_ethernet_phystate_header(&ethernet_phystate_header);
+
+    tmpbuf[0] = (ethernet_phystate_header.channel & 0xff00) >> 8;
+    tmpbuf[1] = (ethernet_phystate_header.channel & 0x00ff);
+    tmpbuf[2] = (ethernet_phystate_header.flags & 0xff00) >> 8;
+    tmpbuf[3] = (ethernet_phystate_header.flags & 0x00ff);
+    tmpbuf[4] = (ethernet_phystate_header.phyState);
+    tmpbuf[5] = (ethernet_phystate_header.phyEvent);
+    tmpbuf[6] = (ethernet_phystate_header.hardwareChannel);
+    tmpbuf[7] = (ethernet_phystate_header.res1);
+
+    wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "blf-ethernetphystate-obj");
+    wtap_buffer_append_epdu_end(params->buf);
+
+    ws_buffer_assure_space(params->buf, sizeof(ethernet_phystate_header));
+    ws_buffer_append(params->buf, tmpbuf, sizeof(ethernet_phystate_header));
+
+    /* We'll write this as a WS UPPER PDU packet with a data blob */
+    /* This will create an interface with the "name" of the matching
+     * WTAP_ENCAP_ETHERNET interface with the same channel and hardware
+     * channel prefixed with "STATUS" and with a different interface ID,
+     * because IDBs in pcapng can only have one linktype.
+     * The other option would be to write everything as UPPER_PDU, including
+     * the Ethernet data (with one of the "eth_" dissectors.)
+     */
+    char* iface_name = ws_strdup_printf("STATUS-ETH-%u-%u", ethernet_phystate_header.channel, ethernet_phystate_header.hardwareChannel);
+    blf_lookup_interface(params, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_phystate_header.channel, ethernet_phystate_header.hardwareChannel, iface_name);
+    g_free(iface_name);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, ethernet_phystate_header.channel, ethernet_phystate_header.hardwareChannel, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
+
+    if ((ethernet_phystate_header.flags & BLF_PHY_STATE_HARDWARECHANNEL) == BLF_PHY_STATE_HARDWARECHANNEL) {
+        /* If HW channel valid */
+        wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethernet_phystate_header.hardwareChannel);
+    }
+
+    return TRUE;
+}
+
+static gboolean
 blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_info) {
     blf_blockheader_t        header;
     blf_logobjectheader_t    logheader;
@@ -2732,6 +2793,11 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
         case BLF_OBJTYPE_ETHERNET_STATUS:
             return blf_read_ethernet_status(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
             break;
+
+        case BLF_OBJTYPE_ETHERNET_PHY_STATE:
+            return blf_read_ethernet_phystate(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+            break;
+
         default:
             ws_debug("unknown object type 0x%04x", header.object_type);
             start_pos += MAX(MAX(16, header.object_length), header.header_length);

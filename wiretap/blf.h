@@ -596,6 +596,15 @@ typedef struct blf_ethernet_status {
 */
 } blf_ethernet_status_t;
 
+typedef struct blf_ethernet_phystate {
+    uint16_t    channel;
+    uint16_t    flags;
+    uint8_t     phyState;
+    uint8_t     phyEvent;
+    uint8_t     hardwareChannel;
+    uint8_t     res1;
+} blf_ethernet_phystate_t;
+
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/ObjectHeaderBase.h */
 
@@ -721,6 +730,8 @@ typedef struct blf_ethernet_status {
 #define BLF_OBJTYPE_CAN_SETTING_CHANGED         129
 #define BLF_OBJTYPE_DISTRIBUTED_OBJECT_MEMBER   130
 #define BLF_OBJTYPE_ATTRIBUTE_EVENT             131
+#define BLF_OBJTYPE_DISTRIBUTED_OBJECT_CHANGE   132
+#define BLF_OBJTYPE_ETHERNET_PHY_STATE          133
 
 #define BLF_ETH_STATUS_LINKSTATUS 0x0001
 #define BLF_ETH_STATUS_BITRATE 0x0002
@@ -732,6 +743,10 @@ typedef struct blf_ethernet_status {
 #define BLF_ETH_STATUS_BRPAIR 0x0080
 #define BLF_ETH_STATUS_HARDWARECHANNEL 0x0100
 #define BLF_ETH_STATUS_LINKUPDURATION 0x0200
+
+#define BLF_PHY_STATE_PHYSTATE          0x0001
+#define BLF_PHY_STATE_PHYEVENT          0x0002
+#define BLF_PHY_STATE_HARDWARECHANNEL   0x0004
 
 #endif
 
