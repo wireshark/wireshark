@@ -6,19 +6,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-3.0-or-later WITH Bison-exception-2.2
- *
- * As a special exception, you may create a larger work that contains part or
- * all of the Bison parser skeleton and distribute that work under terms of
- * your choice, so long as that work isn't itself a parser generator using the
- * skeleton or a modified version thereof as a parser skeleton. Alternatively,
- * if you modify or redistribute the parser skeleton itself, you may (at your
- * option) remove this special exception, which will cause the skeleton and
- * the resulting Bison output files to be licensed under the GNU General
- * Public License without this special exception.
- *
- * This special exception was added by the Free Software Foundation in version
- * 2.2 of Bison.
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include <stdbool.h>
@@ -299,6 +287,7 @@ static const value_string hf_rf4ce_profile_cmd_heartbeat_trigger_vals[] = {
 };
 
 /* RF4CE Profile Attributes common */
+#define RF4CE_PROFILE_ATTR_DISSECT_NOT_SET                      0b00000000
 #define RF4CE_PROFILE_ATTR_DISSECT_ATTR_ID_MASK                 0b00000001
 #define RF4CE_PROFILE_ATTR_DISSECT_ENTRY_ID_MASK                0b00000010
 #define RF4CE_PROFILE_ATTR_DISSECT_ATTR_STATUS_MASK             0b00000100
@@ -848,7 +837,7 @@ static const value_string rf4ce_profile_cmd_key_exchange_sub_type_vals[] = {
 #define RF4CE_VENDOR_ID_TEST_VENDOR_3     0xfff3
                                        /* 0xfff4 - 0xffff Reserved */
 
-#define RF4CE_VENDOR_ID_MASK              0xffff
+#define RF4CE_VENDOR_ID_MASK              0x0007
 
 static const value_string rf4ce_vendor_id_vals[] = {
     { RF4CE_VENDOR_ID_RESERVED,          "Reserved" },
@@ -859,9 +848,6 @@ static const value_string rf4ce_vendor_id_vals[] = {
     { RF4CE_VENDOR_ID_FREESCALE,         "Freescale" },
     { RF4CE_VENDOR_ID_OKI_SEMICONDUCTOR, "Oki Semiconductor" },
     { RF4CE_VENDOR_ID_TEXAS_INSTRUMENTS, "Texas Instruments" },
-    { RF4CE_VENDOR_ID_TEST_VENDOR_1,     "Test Vendor #1" },
-    { RF4CE_VENDOR_ID_TEST_VENDOR_2,     "Test Vendor #2" },
-    { RF4CE_VENDOR_ID_TEST_VENDOR_3,     "Test Vendor #3" },
     { 0, NULL }
 };
 
@@ -1752,7 +1738,7 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
     }
     else if (attr_id == RF4CE_GDP_ATTR_POLL_CONSTRAINTS)
     {
-        guint8 methods_index;
+        size_t methods_index;
         guint8 methods_num;
 
         static int *const polling_trig_cap_bits[] = {
@@ -1769,13 +1755,12 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
         methods_num = tvb_get_guint8(tvb, *offset);
         *offset += 1;
 
-        methods_index = 1;
-        while (methods_index <= methods_num)
+        for (methods_index = 1; methods_index <= methods_num; methods_index++)
         {
             char subtree_name[40];
             proto_tree *record_subtree;
 
-            snprintf(subtree_name, sizeof(subtree_name), "Polling Constraint Record %d:", methods_index);
+            snprintf(subtree_name, sizeof(subtree_name), "Polling Constraint Record %ld:", methods_index);
             record_subtree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_profile_gdp_poll_constraints_polling_rec, NULL, subtree_name);
 
             proto_tree_add_item(record_subtree, hf_rf4ce_profile_gdp_poll_constraints_polling_rec_method_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -1795,8 +1780,6 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
 
             proto_tree_add_item(record_subtree, hf_rf4ce_profile_gdp_poll_constraints_polling_rec_max_polling_time_interval, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
             *offset += 4;
-
-            methods_index++;
         }
     }
     else if (attr_id == RF4CE_GDP_ATTR_POLL_CONFIGURATION)
@@ -1987,6 +1970,7 @@ static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, guint *
     guint8 attr_status = RF4CE_PROFILE_ATTR_STATUS_ATTRIBUTE_SUCCESSFULLY_READ_AND_INCLUDED;
     guint8 attr_length = 0xff;
     proto_tree *attrs_tree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_profile_attrs, NULL, "Attributes List");
+    guint prev_offset = *offset;
 
     while (tvb_captured_length(tvb) - *offset)
     {
@@ -2051,6 +2035,15 @@ static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, guint *
                 *offset += attr_length;
             }
         }
+
+        if (dissection_mask == RF4CE_PROFILE_ATTR_DISSECT_NOT_SET || prev_offset == *offset)
+        {
+            attr_length = tvb_captured_length(tvb) - *offset;
+            proto_tree_add_item(attrs_subtree, hf_rf4ce_profile_attr_value, tvb, *offset, attr_length, ENC_NA);
+            *offset += attr_length;
+        }
+
+	    prev_offset = *offset;
     }
 }
 
@@ -2308,7 +2301,7 @@ static void dissect_rf4ce_profile_zrc20_cmd(tvbuff_t *tvb, proto_tree *tree, gui
         }
         else
         {
-            action_records_tree = proto_tree_add_subtree(tree, tvb, *offset, remaining_length, ett_rf4ce_profile_action_records, NULL, "Action Records List - empty");
+            proto_tree_add_subtree(tree, tvb, *offset, remaining_length, ett_rf4ce_profile_action_records, NULL, "Action Records List - empty");
         }
     }
 }

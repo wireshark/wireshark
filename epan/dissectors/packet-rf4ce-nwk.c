@@ -6,19 +6,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-3.0-or-later WITH Bison-exception-2.2
- *
- * As a special exception, you may create a larger work that contains part or
- * all of the Bison parser skeleton and distribute that work under terms of
- * your choice, so long as that work isn't itself a parser generator using the
- * skeleton or a modified version thereof as a parser skeleton. Alternatively,
- * if you modify or redistribute the parser skeleton itself, you may (at your
- * option) remove this special exception, which will cause the skeleton and
- * the resulting Bison output files to be licensed under the GNU General
- * Public License without this special exception.
- *
- * This special exception was added by the Free Software Foundation in version
- * 2.2 of Bison.
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include <stdbool.h>
@@ -324,7 +312,6 @@ static const value_string rf4ce_disc_req_vendor_ids[] = {
 /* NWK Commands - Discovery Request - Device Types */
 #define RF4CE_DEVICE_RESERVED_INVALID               0x00
 #define RF4CE_DEVICE_REMOTE_CONTROL                 0x01
-#define RF4CE_DEVICE_TARGET_TYPE_START              0x02
 #define RF4CE_DEVICE_TELEVISION                     0x02
 #define RF4CE_DEVICE_PROJECTOR                      0x03
 #define RF4CE_DEVICE_PLAYER                         0x04
@@ -344,7 +331,6 @@ static const value_string rf4ce_disc_req_vendor_ids[] = {
 static const value_string rf4ce_nwk_device_type_vals[] = {
     { RF4CE_DEVICE_RESERVED_INVALID,         "Invalid" },
     { RF4CE_DEVICE_REMOTE_CONTROL,           "Remote Control" },
-    { RF4CE_DEVICE_TARGET_TYPE_START,        "Target" },
     { RF4CE_DEVICE_TELEVISION,               "Television" },
     { RF4CE_DEVICE_PROJECTOR,                "Projector" },
     { RF4CE_DEVICE_PLAYER,                   "Player" },
@@ -1070,7 +1056,10 @@ static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     {
         guint unparsed_length = tvb_captured_length(tvb) - offset;
         proto_tree_add_item(rf4ce_nwk_tree, hf_rf4ce_nwk_unparsed_payload, tvb, offset, unparsed_length, ENC_NA);
+#if 0
+        /* enable this block if you need to add NWK MIC */
         offset += unparsed_length;
+#endif
     }
 
 #if 0

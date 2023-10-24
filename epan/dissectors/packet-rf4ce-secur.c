@@ -6,19 +6,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-3.0-or-later WITH Bison-exception-2.2
- *
- * As a special exception, you may create a larger work that contains part or
- * all of the Bison parser skeleton and distribute that work under terms of
- * your choice, so long as that work isn't itself a parser generator using the
- * skeleton or a modified version thereof as a parser skeleton. Alternatively,
- * if you modify or redistribute the parser skeleton itself, you may (at your
- * option) remove this special exception, which will cause the skeleton and
- * the resulting Bison output files to be licensed under the GNU General
- * Public License without this special exception.
- *
- * This special exception was added by the Free Software Foundation in version
- * 2.2 of Bison.
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "packet-rf4ce-secur.h"
@@ -143,7 +131,7 @@ void keypair_context_update_seed(guint8 *seed, guint8 seed_seqn)
 static nwk_key_entry_t *nwk_key_storage_get_entry_by_key(guint8 *nwk_key, gboolean key_from_gui)
 {
     nwk_key_entry_t *entry = NULL;
-    guint8 idx = 0;
+    size_t idx = 0;
 
     while (idx < RF4CE_NWK_KEY_STORAGE_SIZE)
     {
@@ -166,7 +154,7 @@ void nwk_key_storage_add_entry(guint8 *nwk_key, addr_entry_t *controller_addr_en
 
     if (nwk_key_entry == NULL)
     {
-        guint8 idx = 0;
+        size_t idx = 0;
 
         while (idx < RF4CE_NWK_KEY_STORAGE_SIZE)
         {
@@ -478,7 +466,7 @@ void key_exchange_calc_key(guint32 tag_b_pack)
 static vendor_secret_entry_t *vendor_secret_storage_get_entry(guint8 *secret)
 {
     vendor_secret_entry_t *entry = NULL;
-    guint8 idx = 0;
+    size_t idx = 0;
 
     while (idx < RF4CE_VENDOR_SECRET_STORAGE_SIZE)
     {
@@ -528,7 +516,7 @@ void vendor_secret_storage_release_entry(guint8 *secret)
 
 void rf4ce_secur_cleanup(void)
 {
-    gint8 idx = 0;
+    size_t idx = 0;
 
     memset(&keypair_context, 0, sizeof(keypair_context));
     memset(addr_table, 0, sizeof(addr_table));
@@ -560,7 +548,7 @@ gboolean decrypt_data(
 {
     gboolean ret = false;
     guint8 frame_control = *in;
-    guint8 idx = 0;
+    size_t idx = 0;
 
     if (*len < RF4CE_MIN_NWK_LENGTH || *len > RF4CE_MAX_NWK_LENGTH)
     {
