@@ -65,8 +65,8 @@ private slots:
     void findText(bool go_back = true);
     void saveAs();
     void printStream();
-    void fillHintLabel(int text_pos);
-    void goToPacketForTextPos(int text_pos);
+    void fillHintLabel(int pkt = 0);
+    void goToPacketForTextPos(int pkt = 0);
 
     void on_streamNumberSpinBox_valueChanged(int stream_num);
     void on_subStreamNumberSpinBox_valueChanged(int sub_stream_num);
@@ -104,8 +104,6 @@ private:
     follow_info_t           follow_info_;
     register_follow_t*      follower_;
     QString                 data_out_filename_;
-    static const int        max_document_length_;
-    bool                    truncated_;
     QString                 previous_filter_;
     QString                 filter_out_filter_;
     QString                 output_filter_;
@@ -116,7 +114,6 @@ private:
     guint32                 last_packet_;
     gboolean                last_from_server_;
     int                     turns_;
-    QMap<int,guint32>       text_pos_to_packet_;
 
     bool                    use_regex_find_;
 

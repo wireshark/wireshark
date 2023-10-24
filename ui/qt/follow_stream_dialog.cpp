@@ -45,7 +45,6 @@
 #include <QMutex>
 #include <QPrintDialog>
 #include <QPrinter>
-#include <QScrollBar>
 #include <QTextCodec>
 
 // To do:
@@ -72,7 +71,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
     ui(new Ui::FollowStreamDialog),
     b_find_(NULL),
     follower_(NULL),
-    truncated_(false),
     client_buffer_count_(0),
     server_buffer_count_(0),
     client_packet_count_(0),
@@ -131,12 +129,12 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
-    connect(ui->teStreamContent, SIGNAL(mouseMovedToTextCursorPosition(int)),
-            this, SLOT(fillHintLabel(int)));
-    connect(ui->teStreamContent, SIGNAL(mouseClickedOnTextCursorPosition(int)),
-            this, SLOT(goToPacketForTextPos(int)));
+    connect(ui->teStreamContent, &FollowStreamText::mouseMovedToPacket,
+            this, &FollowStreamDialog::fillHintLabel);
+    connect(ui->teStreamContent, &FollowStreamText::mouseClickedOnPacket,
+            this, &FollowStreamDialog::goToPacketForTextPos);
 
-    fillHintLabel(-1);
+    fillHintLabel();
 }
 
 FollowStreamDialog::~FollowStreamDialog()
@@ -167,17 +165,9 @@ void FollowStreamDialog::printStream()
 #endif
 }
 
-void FollowStreamDialog::fillHintLabel(int text_pos)
+void FollowStreamDialog::fillHintLabel(int pkt)
 {
     QString hint;
-    int pkt = -1;
-
-    if (text_pos >= 0) {
-        QMap<int, guint32>::iterator it = text_pos_to_packet_.upperBound(text_pos);
-        if (it != text_pos_to_packet_.end()) {
-            pkt = it.value();
-        }
-    }
 
     if (pkt > 0) {
         hint = QString(tr("Packet %1. ")).arg(pkt);
@@ -200,18 +190,10 @@ void FollowStreamDialog::fillHintLabel(int text_pos)
     ui->hintLabel->setText(hint);
 }
 
-void FollowStreamDialog::goToPacketForTextPos(int text_pos)
+void FollowStreamDialog::goToPacketForTextPos(int pkt)
 {
-    int pkt = -1;
     if (file_closed_) {
         return;
-    }
-
-    if (text_pos >= 0) {
-        QMap<int, guint32>::iterator it = text_pos_to_packet_.upperBound(text_pos);
-        if (it != text_pos_to_packet_.end()) {
-            pkt = it.value();
-        }
     }
 
     if (pkt > 0) {
@@ -494,7 +476,6 @@ void FollowStreamDialog::resetStream()
     follow_record_t *follow_record;
 
     filter_out_filter_.clear();
-    text_pos_to_packet_.clear();
     if (!data_out_filename_.isEmpty()) {
         ws_unlink(data_out_filename_.toUtf8().constData());
     }
@@ -541,7 +522,6 @@ FollowStreamDialog::readStream()
     loop_break_mutex.unlock();
 
     ui->teStreamContent->clear();
-    text_pos_to_packet_.clear();
     switch (recent.gui_follow_show) {
 
     case SHOW_CARRAY:
@@ -559,7 +539,6 @@ FollowStreamDialog::readStream()
         ui->teStreamContent->setWordWrapMode(QTextOption::WrapAnywhere);
     }
 
-    truncated_ = false;
     frs_return_t ret;
 
     client_buffer_count_ = 0;
@@ -587,49 +566,9 @@ FollowStreamDialog::followStream()
     readStream();
 }
 
-const int FollowStreamDialog::max_document_length_ = 500 * 1000 * 1000; // Just a guess
 void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 packet_num, gboolean colorize)
 {
-    if (truncated_) {
-        return;
-    }
-
-    int char_count = ui->teStreamContent->document()->characterCount();
-    if (char_count + text.length() > max_document_length_) {
-        text.truncate(max_document_length_ - char_count);
-        truncated_ = true;
-    }
-
-    setUpdatesEnabled(false);
-    int cur_pos = ui->teStreamContent->verticalScrollBar()->value();
-    ui->teStreamContent->moveCursor(QTextCursor::End);
-
-    QTextCharFormat tcf = ui->teStreamContent->currentCharFormat();
-    if (!colorize) {
-        tcf.setBackground(palette().window().color());
-        tcf.setForeground(palette().windowText().color());
-    } else if (is_from_server) {
-        tcf.setForeground(ColorUtils::fromColorT(prefs.st_server_fg));
-        tcf.setBackground(ColorUtils::fromColorT(prefs.st_server_bg));
-    } else {
-        tcf.setForeground(ColorUtils::fromColorT(prefs.st_client_fg));
-        tcf.setBackground(ColorUtils::fromColorT(prefs.st_client_bg));
-    }
-    ui->teStreamContent->setCurrentCharFormat(tcf);
-
-    ui->teStreamContent->insertPlainText(text);
-    text_pos_to_packet_[ui->teStreamContent->textCursor().anchor()] = packet_num;
-
-    if (truncated_) {
-        tcf = ui->teStreamContent->currentCharFormat();
-        tcf.setBackground(palette().window().color());
-        tcf.setForeground(palette().windowText().color());
-        ui->teStreamContent->insertPlainText("\n" + tr("[Stream output truncated]"));
-        ui->teStreamContent->moveCursor(QTextCursor::End);
-    } else {
-        ui->teStreamContent->verticalScrollBar()->setValue(cur_pos);
-    }
-    setUpdatesEnabled(true);
+    ui->teStreamContent->addText(text, is_from_server, packet_num, colorize);
 }
 
 // The following keyboard shortcuts should work (although
@@ -1099,7 +1038,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     ui->cbDirections->blockSignals(false);
 
     followStream();
-    fillHintLabel(-1);
+    fillHintLabel();
 
     updateWidgets(false);
     endRetapPackets();
@@ -1186,7 +1125,7 @@ FollowStreamDialog::readFollowStream()
             if (frs_return == FRS_PRINT_ERROR)
                 return frs_return;
             if (elapsed_timer.elapsed() > info_update_freq_) {
-                fillHintLabel(ui->teStreamContent->textCursor().position());
+                fillHintLabel(ui->teStreamContent->currentPacket());
                 mainApp->processEvents();
                 elapsed_timer.start();
             }
