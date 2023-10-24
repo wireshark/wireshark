@@ -208,6 +208,7 @@ ftype_pretty_name(ftenum_t ftype);
 int
 ftype_wire_size(ftenum_t ftype);
 
+WS_DLL_PUBLIC
 bool
 ftype_can_length(enum ftenum ftype);
 
@@ -223,24 +224,31 @@ WS_DLL_PUBLIC
 bool
 ftype_can_cmp(enum ftenum ftype);
 
+WS_DLL_PUBLIC
 bool
 ftype_can_bitwise_and(enum ftenum ftype);
 
+WS_DLL_PUBLIC
 bool
 ftype_can_unary_minus(enum ftenum ftype);
 
+WS_DLL_PUBLIC
 bool
 ftype_can_add(enum ftenum ftype);
 
+WS_DLL_PUBLIC
 bool
 ftype_can_subtract(enum ftenum ftype);
 
+WS_DLL_PUBLIC
 bool
 ftype_can_multiply(enum ftenum ftype);
 
+WS_DLL_PUBLIC
 bool
 ftype_can_divide(enum ftenum ftype);
 
+WS_DLL_PUBLIC
 bool
 ftype_can_modulo(enum ftenum ftype);
 
@@ -296,18 +304,23 @@ typedef struct _protocol_value_t
 
 typedef struct _fvalue_t fvalue_t;
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_new(ftenum_t ftype);
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_dup(const fvalue_t *fv);
 
+WS_DLL_PUBLIC
 void
 fvalue_init(fvalue_t *fv, ftenum_t ftype);
 
+WS_DLL_PUBLIC
 void
 fvalue_cleanup(fvalue_t *fv);
 
+WS_DLL_PUBLIC
 void
 fvalue_free(fvalue_t *fv);
 
@@ -363,61 +376,80 @@ fvalue_to_double(const fvalue_t *fv, double *repr);
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(const fvalue_t *fv);
 
+WS_DLL_PUBLIC
 const char*
 fvalue_type_name(const fvalue_t *fv);
 
 /* GBytes reference count is automatically incremented. */
+WS_DLL_PUBLIC
 void
 fvalue_set_bytes(fvalue_t *fv, GBytes *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_byte_array(fvalue_t *fv, GByteArray *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_bytes_data(fvalue_t *fv, const void *data, size_t size);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_fcwwn(fvalue_t *fv, const uint8_t *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_ax25(fvalue_t *fv, const uint8_t *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_vines(fvalue_t *fv, const uint8_t *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_ether(fvalue_t *fv, const uint8_t *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_guid(fvalue_t *fv, const e_guid_t *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_time(fvalue_t *fv, const nstime_t *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_string(fvalue_t *fv, const char *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, int length);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_uinteger(fvalue_t *fv, uint32_t value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_sinteger(fvalue_t *fv, int32_t value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_uinteger64(fvalue_t *fv, uint64_t value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_sinteger64(fvalue_t *fv, int64_t value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_floating(fvalue_t *fv, double value);
 
+WS_DLL_PUBLIC
 void
 fvalue_set_ipv6(fvalue_t *fv, const ipv6_addr_and_prefix *value);
 
@@ -475,66 +507,87 @@ fvalue_get_floating(fvalue_t *fv);
 WS_DLL_PUBLIC const ipv6_addr_and_prefix *
 fvalue_get_ipv6(fvalue_t *fv);
 
+WS_DLL_PUBLIC
 ft_bool_t
 fvalue_eq(const fvalue_t *a, const fvalue_t *b);
 
+WS_DLL_PUBLIC
 ft_bool_t
 fvalue_ne(const fvalue_t *a, const fvalue_t *b);
 
+WS_DLL_PUBLIC
 ft_bool_t
 fvalue_gt(const fvalue_t *a, const fvalue_t *b);
 
+WS_DLL_PUBLIC
 ft_bool_t
 fvalue_ge(const fvalue_t *a, const fvalue_t *b);
 
+WS_DLL_PUBLIC
 ft_bool_t
 fvalue_lt(const fvalue_t *a, const fvalue_t *b);
 
+WS_DLL_PUBLIC
 ft_bool_t
 fvalue_le(const fvalue_t *a, const fvalue_t *b);
 
+WS_DLL_PUBLIC
 ft_bool_t
 fvalue_contains(const fvalue_t *a, const fvalue_t *b);
 
+WS_DLL_PUBLIC
 ft_bool_t
 fvalue_matches(const fvalue_t *a, const ws_regex_t *re);
 
+WS_DLL_PUBLIC
 bool
 fvalue_is_zero(const fvalue_t *a);
 
+WS_DLL_PUBLIC
 bool
 fvalue_is_negative(const fvalue_t *a);
 
+WS_DLL_PUBLIC
 size_t
 fvalue_length2(fvalue_t *fv);
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_slice(fvalue_t *fv, drange_t *dr);
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_unary_minus(const fvalue_t *fv, char **err_msg);
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_add(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_subtract(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_multiply(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_divide(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
+WS_DLL_PUBLIC
 fvalue_t*
 fvalue_modulo(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
+WS_DLL_PUBLIC
 unsigned
 fvalue_hash(const fvalue_t *fv);
 
+WS_DLL_PUBLIC
 bool
 fvalue_equal(const fvalue_t *a, const fvalue_t *b);
 

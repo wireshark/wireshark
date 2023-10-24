@@ -132,66 +132,86 @@ sttype_cleanup(void);
 void
 sttype_register(sttype_t *type);
 
+WS_DLL_PUBLIC
 const char *
 sttype_name(sttype_id_t type);
 
+WS_DLL_PUBLIC
 const char *
 stnode_op_name(stnode_op_t op);
 
+WS_DLL_PUBLIC
 stnode_t*
 stnode_new(sttype_id_t type_id, void *data, char *token, df_loc_t loc);
 
+WS_DLL_PUBLIC
 stnode_t*
 stnode_new_empty(sttype_id_t type_id);
 
+WS_DLL_PUBLIC
 stnode_t*
 stnode_dup(const stnode_t *org);
 
+WS_DLL_PUBLIC
 void
 stnode_clear(stnode_t *node);
 
+WS_DLL_PUBLIC
 void
 stnode_init(stnode_t *node, sttype_id_t type_id, void *data, char *token, df_loc_t loc);
 
+WS_DLL_PUBLIC
 void
 stnode_replace(stnode_t *node, sttype_id_t type_id, void *data);
 
+WS_DLL_PUBLIC
 void
 stnode_free(stnode_t *node);
 
+WS_DLL_PUBLIC
 const char*
 stnode_type_name(stnode_t *node);
 
+WS_DLL_PUBLIC
 sttype_id_t
 stnode_type_id(stnode_t *node);
 
+WS_DLL_PUBLIC
 void *
 stnode_data(stnode_t *node);
 
+WS_DLL_PUBLIC
 GString *
 stnode_string(stnode_t *node);
 
+WS_DLL_PUBLIC
 void *
 stnode_steal_data(stnode_t *node);
 
+WS_DLL_PUBLIC
 const char *
 stnode_token(stnode_t *node);
 
+WS_DLL_PUBLIC
 df_loc_t
 stnode_location(stnode_t *node);
 
+WS_DLL_PUBLIC
 void
 stnode_set_location(stnode_t *node, df_loc_t loc);
 
+WS_DLL_PUBLIC
 bool
 stnode_get_flags(stnode_t *node, uint16_t flags);
 
+WS_DLL_PUBLIC
 void
 stnode_set_flags(stnode_t *node, uint16_t flags);
 
 void
 stnode_merge_location(stnode_t *dst, stnode_t *n1, stnode_t *n2);
 
+WS_DLL_PUBLIC
 const char *
 stnode_tostr(stnode_t *node, bool pretty);
 

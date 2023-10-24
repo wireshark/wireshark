@@ -104,15 +104,17 @@ void Dfilter(void *, int, stnode_t *, dfsyntax_t *);
 /* Return value for error in scanner. */
 #define SCAN_FAILED	-1	/* not 0, as that means end-of-input */
 
+WS_DLL_PUBLIC
 void
 dfilter_vfail(void *state, int code, df_loc_t err_loc,
 			const char *format, va_list args);
 
+WS_DLL_PUBLIC
 void
 dfilter_fail(void *state, int code, df_loc_t err_loc,
 			const char *format, ...) G_GNUC_PRINTF(4, 5);
 
-WS_NORETURN
+WS_DLL_PUBLIC WS_NORETURN
 void
 dfilter_fail_throw(void *state, int code, df_loc_t err_loc,
 			const char *format, ...) G_GNUC_PRINTF(4, 5);
@@ -159,37 +161,47 @@ reference_new(const field_info *finfo, bool raw);
 void
 reference_free(df_reference_t *ref);
 
+WS_DLL_PUBLIC
 void
 df_cell_append(df_cell_t *rp, fvalue_t *fv);
 
+WS_DLL_PUBLIC
 GPtrArray *
 df_cell_ref(df_cell_t *rp);
 
 #define df_cell_ptr(rp) ((rp)->array)
 
+WS_DLL_PUBLIC
 size_t
 df_cell_size(const df_cell_t *rp);
 
+WS_DLL_PUBLIC
 fvalue_t **
 df_cell_array(const df_cell_t *rp);
 
+WS_DLL_PUBLIC
 bool
 df_cell_is_empty(const df_cell_t *rp);
 
+WS_DLL_PUBLIC
 bool
 df_cell_is_null(const df_cell_t *rp);
 
 /* Pass true to free the array contents when the cell is cleared. */
+WS_DLL_PUBLIC
 void
 df_cell_init(df_cell_t *rp, bool free_seg);
 
+WS_DLL_PUBLIC
 void
 df_cell_clear(df_cell_t *rp);
 
 /* Cell must not be cleared while iter is alive. */
+WS_DLL_PUBLIC
 void
 df_cell_iter_init(df_cell_t *rp, df_cell_iter_t *iter);
 
+WS_DLL_PUBLIC
 fvalue_t *
 df_cell_iter_next(df_cell_iter_t *iter);
 
