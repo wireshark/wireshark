@@ -416,6 +416,15 @@ main(int argc, char *argv[])
             cfile_close_failure_message(out_filename, err, err_info);
             break;
 
+        case MERGE_ERR_INVALID_OPTION:
+            if (err_info) {
+                cmdarg_err("%s", err_info);
+            }
+            else {
+                cmdarg_err("Unspecified error with merge option");
+            }
+            break;
+
         default:
             cmdarg_err("Unknown merge_files error %d", status);
             break;
