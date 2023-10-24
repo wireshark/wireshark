@@ -9,6 +9,7 @@
 
 set(DFILTER_PUBLIC_HEADERS
 	dfilter.h
+	dfilter-plugin.h
 	drange.h
 )
 
@@ -16,10 +17,8 @@ set(DFILTER_HEADER_FILES
 	${DFILTER_PUBLIC_HEADERS}
 	dfilter-int.h
 	dfilter-macro.h
-	dfilter.h
 	dfunctions.h
 	dfvm.h
-	drange.h
 	gencode.h
 	semcheck.h
 	sttype-field.h
@@ -35,6 +34,7 @@ set(DFILTER_HEADER_FILES
 set(DFILTER_NONGENERATED_FILES
 	dfilter.c
 	dfilter-macro.c
+	dfilter-plugin.c
 	dfunctions.c
 	dfvm.c
 	drange.c

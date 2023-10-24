@@ -22,6 +22,8 @@ It is used for troubleshooting, analysis, development and education.
 Improved display filter support for value strings (optional string
 representations for numeric fields).
 
+Display filter functions can be implemented as runtime-loadable C plugins.
+
 //=== Bug Fixes
 
 //The following bugs have been fixed:

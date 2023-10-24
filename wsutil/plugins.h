@@ -33,6 +33,7 @@ typedef enum {
 #define WS_PLUGIN_DESC_CODEC        (1 << 2)
 #define WS_PLUGIN_DESC_EPAN         (1 << 3)
 #define WS_PLUGIN_DESC_TAP_LISTENER (1 << 4)
+#define WS_PLUGIN_DESC_DFILTER      (1 << 5)
 
 WS_DLL_PUBLIC plugins_t *plugins_init(plugin_type_e type);
 

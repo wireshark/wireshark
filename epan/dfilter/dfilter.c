@@ -20,7 +20,9 @@
 #include <epan/epan_dissect.h>
 #include <epan/exceptions.h>
 #include "dfilter.h"
+#include "dfunctions.h"
 #include "dfilter-macro.h"
+#include "dfilter-plugin.h"
 #include "scanner_lex.h"
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
@@ -113,14 +115,18 @@ dfilter_init(void)
 	/* Initialize the syntax-tree sub-sub-system */
 	sttype_init();
 
+	df_func_init();
 	dfilter_macro_init();
+	dfilter_plugins_init();
 }
 
 /* Clean-up the dfilter module */
 void
 dfilter_cleanup(void)
 {
+	dfilter_plugins_cleanup();
 	dfilter_macro_cleanup();
+	df_func_cleanup();
 
 	/* Free the Lemon Parser object */
 	if (ParserObj) {

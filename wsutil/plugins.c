@@ -72,6 +72,8 @@ desc_flags_to_str(int type_flags)
         return "epan";
     else if (type_flags & WS_PLUGIN_DESC_TAP_LISTENER)
         return "tap listener";
+    else if (type_flags & WS_PLUGIN_DESC_DFILTER)
+        return "dfilter";
     else
         return "unknown";
 }

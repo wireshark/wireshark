@@ -11,9 +11,9 @@
 #define DFUNCTIONS_H
 
 #include <glib.h>
-#include <ftypes/ftypes.h>
-#include "syntax-tree.h"
-#include "dfilter-int.h"
+#include <epan/ftypes/ftypes.h>
+#include <epan/dfilter/syntax-tree.h>
+#include <epan/dfilter/dfilter-int.h>
 
 /* Functions take any number of arguments and return 1. */
 
@@ -42,8 +42,24 @@ typedef struct {
     DFSemCheckType  semcheck_param_function;
 } df_func_def_t;
 
+WS_DLL_PUBLIC
+ftenum_t
+df_semcheck_param(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype,
+                            stnode_t *param, df_loc_t func_loc);
+
+void df_func_init(void);
+
+/* Returns false if the function name already exists. */
+WS_DLL_PUBLIC
+bool df_func_register(df_func_def_t *func);
+
+WS_DLL_PUBLIC
+bool df_func_deregister(df_func_def_t *func);
+
 /* Return the function definition record for a function of named "name" */
 WS_DLL_PUBLIC
 df_func_def_t* df_func_lookup(const char *name);
+
+void df_func_cleanup(void);
 
 #endif

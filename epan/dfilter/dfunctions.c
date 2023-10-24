@@ -13,6 +13,7 @@
 
 #include "dfilter-int.h"
 #include "dfunctions.h"
+#include "dfilter-plugin.h"
 #include "sttype-field.h"
 #include "sttype-pointer.h"
 #include "semcheck.h"
@@ -23,6 +24,8 @@
 #include <epan/exceptions.h>
 #include <wsutil/ws_assert.h>
 
+
+static GHashTable *registered_functions = NULL;
 
 /* Convert an FT_STRING using a callback function */
 static bool
@@ -233,7 +236,7 @@ df_func_abs(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
     return !df_cell_is_empty(retval);
 }
 
-static ftenum_t
+ftenum_t
 df_semcheck_param(dfwork_t *dfw, const char *func_name _U_, ftenum_t logical_ftype,
                             stnode_t *param, df_loc_t func_loc _U_)
 {
@@ -450,20 +453,63 @@ df_functions[] = {
     { NULL, NULL, 0, 0, FT_NONE, NULL }
 };
 
+void
+df_func_init(void)
+{
+    registered_functions = g_hash_table_new(g_str_hash, g_str_equal);
+}
+
+bool
+df_func_register(df_func_def_t *func)
+{
+    ws_assert(registered_functions);
+    if (g_hash_table_contains(registered_functions, func->name)) {
+        ws_critical("Trying to register display filter function \"%s\" but "
+                    "it already exists", func->name);
+        return false;
+    }
+
+    return g_hash_table_insert(registered_functions, (gpointer)func->name, func);
+}
+
+bool
+df_func_deregister(df_func_def_t *func)
+{
+    ws_assert(registered_functions);
+    df_func_def_t *value;
+
+    value = g_hash_table_lookup(registered_functions, func->name);
+    if (value != func) {
+        ws_critical("Trying to deregister display filter function name \"%s\" but "
+                    "it doesn't match the existing function", func->name);
+        return false;
+    }
+
+    return g_hash_table_remove(registered_functions, func->name);
+}
+
 /* Lookup a display filter function record by name */
 df_func_def_t*
 df_func_lookup(const char *name)
 {
-    df_func_def_t *func_def;
-
-    func_def = df_functions;
+    /* First check built-in functions. */
+    df_func_def_t *func_def = df_functions;
     while (func_def->name != NULL) {
         if (strcmp(func_def->name, name) == 0) {
             return func_def;
         }
         func_def++;
     }
-    return NULL;
+
+    /* Now try plugins. */
+    return g_hash_table_lookup(registered_functions, name);
+}
+
+void
+df_func_cleanup(void)
+{
+    g_hash_table_destroy(registered_functions);
+    registered_functions = NULL;
 }
 
 /*
