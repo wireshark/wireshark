@@ -3154,7 +3154,6 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     gint        offset = 0;
     mac_nr_info *p_mac_nr_info;
     tvbuff_t    *mac_tvb;
-    guint8      tag;
 
     /* Needs to be at least as long as:
        - the signature string
@@ -3176,66 +3175,11 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     if (p_mac_nr_info == NULL) {
         /* Allocate new info struct for this frame */
         p_mac_nr_info = wmem_new0(wmem_file_scope(), mac_nr_info);
-
-        /* Read fixed fields */
-        p_mac_nr_info->radioType = tvb_get_guint8(tvb, offset++);
-        p_mac_nr_info->direction = tvb_get_guint8(tvb, offset++);
-        p_mac_nr_info->rntiType = tvb_get_guint8(tvb, offset++);
-
-        /* Read optional fields */
-        do {
-            /* Process next tag */
-            tag = tvb_get_guint8(tvb, offset++);
-            switch (tag) {
-                case MAC_NR_RNTI_TAG:
-                    p_mac_nr_info->rnti = tvb_get_ntohs(tvb, offset);
-                    offset += 2;
-                    break;
-                case MAC_NR_UEID_TAG:
-                    p_mac_nr_info->ueid = tvb_get_ntohs(tvb, offset);
-                    offset += 2;
-                    break;
-                case MAC_NR_HARQID:
-                    p_mac_nr_info->harqid = tvb_get_guint8(tvb, offset);
-                    offset++;
-                    break;
-                case MAC_NR_FRAME_SUBFRAME_TAG:
-                    /* deprecated */
-                    offset += 2;
-                    break;
-                case MAC_NR_PHR_TYPE2_OTHERCELL_TAG:
-                    p_mac_nr_info->phr_type2_othercell = tvb_get_guint8(tvb, offset);
-                    offset++;
-                    break;
-                case MAC_NR_FRAME_SLOT_TAG:
-                    p_mac_nr_info->sfnSlotInfoPresent = TRUE;
-                    p_mac_nr_info->sysframeNumber = tvb_get_ntohs(tvb, offset);
-                    p_mac_nr_info->slotNumber = tvb_get_ntohs(tvb, offset+2);
-                    offset += 4;
-                    break;
-                case MAC_NR_PAYLOAD_TAG:
-                    /* Have reached data, so set payload length and get out of loop */
-                    /* TODO: this is not correct if there is padding which isn't in frame */
-                    p_mac_nr_info->length = tvb_reported_length_remaining(tvb, offset);
-                    continue;
-                default:
-                    /* It must be a recognised tag */
-                    {
-                        proto_item *ti;
-                        proto_tree *subtree;
-
-                        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-NR");
-                        col_clear(pinfo->cinfo, COL_INFO);
-                        ti = proto_tree_add_item(tree, proto_mac_nr, tvb, offset, tvb_reported_length(tvb), ENC_NA);
-                        subtree = proto_item_add_subtree(ti, ett_mac_nr);
-                        proto_tree_add_expert(subtree, pinfo, &ei_mac_nr_unknown_udp_framing_tag,
-                                              tvb, offset-1, 1);
-                    }
-                    wmem_free(wmem_file_scope(), p_mac_nr_info);
-                    return TRUE;
-            }
-        } while (tag != MAC_NR_PAYLOAD_TAG);
-
+        /* Dissect the fields to populate p_mac_nr */
+        if(!dissect_mac_nr_context_fields(p_mac_nr_info, tvb, pinfo, tree, &offset)){
+            return TRUE;
+        }
+        /* Store info in packet */
         p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_nr, 0, p_mac_nr_info);
     }
     else {
@@ -3252,6 +3196,78 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     return TRUE;
 }
 
+/* Dissect context fields in the format described in packet-mac-nr.h.
+   Return TRUE if the necessary information was successfully found */
+gboolean dissect_mac_nr_context_fields(struct mac_nr_info  *p_mac_nr_info, tvbuff_t *tvb,
+                                       packet_info *pinfo, proto_tree *tree, gint *p_offset)
+{
+    gint    offset = *p_offset;
+    guint8  tag = 0;
+
+    /* Read fixed fields */
+    p_mac_nr_info->radioType = tvb_get_guint8(tvb, offset++);
+    p_mac_nr_info->direction = tvb_get_guint8(tvb, offset++);
+    p_mac_nr_info->rntiType = tvb_get_guint8(tvb, offset++);
+
+    /* Read optional fields */
+    do {
+        /* Process next tag */
+        tag = tvb_get_guint8(tvb, offset++);
+        switch (tag) {
+            case MAC_NR_RNTI_TAG:
+                p_mac_nr_info->rnti = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+            case MAC_NR_UEID_TAG:
+                p_mac_nr_info->ueid = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+            case MAC_NR_HARQID:
+                p_mac_nr_info->harqid = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case MAC_NR_FRAME_SUBFRAME_TAG:
+                /* deprecated */
+                offset += 2;
+                break;
+            case MAC_NR_PHR_TYPE2_OTHERCELL_TAG:
+                p_mac_nr_info->phr_type2_othercell = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case MAC_NR_FRAME_SLOT_TAG:
+                p_mac_nr_info->sfnSlotInfoPresent = TRUE;
+                p_mac_nr_info->sysframeNumber = tvb_get_ntohs(tvb, offset);
+                p_mac_nr_info->slotNumber = tvb_get_ntohs(tvb, offset+2);
+                offset += 4;
+                break;
+            case MAC_NR_PAYLOAD_TAG:
+                /* Have reached data, so set payload length and get out of loop */
+                /* TODO: this is not correct if there is padding which isn't in frame */
+                p_mac_nr_info->length = tvb_reported_length_remaining(tvb, offset);
+                continue;
+            default:
+                /* It must be a recognised tag */
+                {
+                    proto_item *ti;
+                    proto_tree *subtree;
+
+                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-NR");
+                    col_clear(pinfo->cinfo, COL_INFO);
+                    ti = proto_tree_add_item(tree, proto_mac_nr, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+                    subtree = proto_item_add_subtree(ti, ett_mac_nr);
+                    proto_tree_add_expert(subtree, pinfo, &ei_mac_nr_unknown_udp_framing_tag,
+                                          tvb, offset-1, 1);
+                }
+                wmem_free(wmem_file_scope(), p_mac_nr_info);
+                return TRUE;
+        }
+    } while (tag != MAC_NR_PAYLOAD_TAG);
+
+    /* Pass out where offset is now */
+    *p_offset = offset;
+
+    return TRUE;
+}
 
 /* Callback used as part of configuring a channel mapping using UAT */
 static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _U_)

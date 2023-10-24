@@ -1469,6 +1469,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mac-lte-framed.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mac-lte.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mac-nr.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-mac-nr-framed.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-maccontrol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-macsec.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mactelnet.c
