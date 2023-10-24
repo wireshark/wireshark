@@ -1,26 +1,30 @@
 [main]
 host = https://www.transifex.com
 
-[wireshark.qt-40]
-file_filter = ui/qt/wireshark_<lang>.ts
-source_file = ui/qt/wireshark_en.ts
-source_lang = en
-trans.de = ui/qt/wireshark_de.ts
-trans.es = ui/qt/wireshark_es.ts
-trans.fr = ui/qt/wireshark_fr.ts
-trans.it = ui/qt/wireshark_it.ts
-trans.ja_JP = ui/qt/wireshark_ja_JP.ts
-trans.pl = ui/qt/wireshark_pl.ts
-trans.ru = ui/qt/wireshark_ru.ts
-trans.sv = ui/qt/wireshark_sv.ts
-trans.tr_TR = ui/qt/wireshark_tr_TR.ts
-trans.uk = ui/qt/wireshark_uk.ts
-trans.zh_CN = ui/qt/wireshark_zh_CN.ts
-type = QT
+[o:wireshark:p:wireshark:r:po-40]
+file_filter            = packaging/debian/po/<lang>.po
+source_file            = packaging/debian/po/templates.pot
+source_lang            = en
+type                   = PO
+replace_edited_strings = false
+keep_translations      = false
 
-[wireshark.po-40]
-file_filter = packaging/debian/po/<lang>.po
-source_file = packaging/debian/po/templates.pot
-source_lang = en
-type = PO
+[o:wireshark:p:wireshark:r:qt-40]
+file_filter            = ui/qt/wireshark_<lang>.ts
+source_file            = ui/qt/wireshark_en.ts
+source_lang            = en
+type                   = QT
+trans.pl               = ui/qt/wireshark_pl.ts
+trans.tr_TR            = ui/qt/wireshark_tr_TR.ts
+trans.fr               = ui/qt/wireshark_fr.ts
+trans.es               = ui/qt/wireshark_es.ts
+trans.it               = ui/qt/wireshark_it.ts
+trans.ja_JP            = ui/qt/wireshark_ja_JP.ts
+trans.ru               = ui/qt/wireshark_ru.ts
+trans.sv               = ui/qt/wireshark_sv.ts
+trans.uk               = ui/qt/wireshark_uk.ts
+trans.zh_CN            = ui/qt/wireshark_zh_CN.ts
+trans.de               = ui/qt/wireshark_de.ts
+replace_edited_strings = false
+keep_translations      = false
 
