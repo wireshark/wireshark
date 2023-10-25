@@ -16,6 +16,7 @@
 #include <epan/reassemble.h>
 #include "packet-socketcan.h"
 #include <epan/wmem_scopes.h>
+#include "packet-isobus-parameters.h"
 
 void proto_register_isobus(void);
 void proto_reg_handoff_isobus(void);
@@ -27,12 +28,27 @@ static int proto_isobus = -1;
 static int hf_isobus_can_id = -1;
 static int hf_isobus_priority = -1;
 static int hf_isobus_ext_data_page = -1;
-static int hf_isobus_src_addr = -1;
 static int hf_isobus_data_page = -1;
 static int hf_isobus_pdu_format_dp0 = -1;
 static int hf_isobus_pdu_format_dp1 = -1;
-static int hf_isobus_dst_addr = -1;
 static int hf_isobus_group_extension = -1;
+static int hf_isobus_src_addr = -1;
+static int hf_isobus_dst_addr = -1;
+static int hf_isobus_payload = -1;
+
+static int hf_isobus_req_requested_pgn = -1;
+static int hf_isobus_ac_name = -1;
+static int hf_isobus_ac_name_id_number = -1;
+static int hf_isobus_ac_name_manufacturer = -1;
+static int hf_isobus_ac_name_ecu_instance = -1;
+static int hf_isobus_ac_name_function_instance = -1;
+static int hf_isobus_ac_name_function = -1;
+static int hf_isobus_ac_name_reserved = -1;
+static int hf_isobus_ac_name_vehicle_system = -1;
+static int hf_isobus_ac_name_vehicle_system_instance = -1;
+static int hf_isobus_ac_name_industry_group = -1;
+static int hf_isobus_ac_name_arbitrary_address_capable = -1;
+
 static int hf_isobus_transportprotocol_controlbyte = -1;
 static int hf_isobus_transportprotocol_requesttosend_totalsize = -1;
 static int hf_isobus_transportprotocol_requesttosend_numberofpackets = -1;
@@ -71,6 +87,8 @@ static dissector_table_t subdissector_table;
 
 #define VT_TO_ECU 230
 #define ECU_TO_VT 231
+#define REQUEST 234
+#define ADDRESS_CLAIM 238
 #define ETP_DATA_TRANSFER 199
 #define ETP_DATA_MANAGEMENT 200
 #define TP_DATA_TRANSFER 235
@@ -93,10 +111,10 @@ static const value_string pdu_format_dp0[] = {
     { VT_TO_ECU, "VT to ECU" },
     { ECU_TO_VT, "ECU to VT" },
     { 232, "ACKNOWLEDGEMENT" },
-    { 234, "REQUEST" },
+    { REQUEST, "REQUEST" },
     { TP_DATA_TRANSFER, "TRANSPORT PROTOCOL - DATA TRANSFER" },
     { TP_DATA_MANAGEMENT, "TRANSPORT PROTOCOL - CONNECTION MANAGEMENT" },
-    { 238, "ADDRESS CLAIM" },
+    { ADDRESS_CLAIM, "ADDRESS CLAIM" },
     { 239, "PROPRIETARY A" },
     { 253, "Certification / Operating state" },
     { 254, "Parameter groups" },
@@ -168,14 +186,16 @@ static const range_string connection_abort_reasons[] = {
 static const value_string transport_protocol_control_byte[] = {
     { 16, "Request To Send" },
     { 17, "Clear To Send" },
-    { 19, "End of Message Acknowledgement" },
+    { 19, "End of Message Acknowledgment" },
     { 255, "Connection Abort" },
     { 32, "Broadcast Announce Message" },
     { 0, NULL }
 };
 
+
 static gint ett_isobus = -1;
 static gint ett_isobus_can_id = -1;
+static gint ett_isobus_name = -1;
 static gint ett_isobus_fragment = -1;
 static gint ett_isobus_fragments = -1;
 
@@ -288,6 +308,30 @@ static struct address_reassemble_table* findAddressIdentifierFor(guint8 src_addr
         newItem->reassembleIdentifierTable = wmem_list_new(wmem_file_scope());
         wmem_map_insert(addressIdentifierTable, addrCombi, newItem);
         return newItem;
+    }
+}
+
+const gchar *
+isobus_lookup_function(guint32 industry_group, guint32 vehicle_system, guint32 function) {
+    if (function < 128) {
+        return try_val_to_str((guint32)function, isobus_global_name_functions);
+    }
+
+    guint32 new_id = industry_group << 16 | vehicle_system << 8 | function;
+    return try_val_to_str((guint32)new_id, isobus_ig_specific_name_functions);
+}
+
+const gchar *
+isobus_lookup_pgn(guint32 pgn) {
+    /* TODO: add configuration option via UAT? */
+
+    return try_val_to_str(pgn, isobus_pgn_names);
+}
+
+static void
+proto_item_append_conditional(proto_item *ti, const gchar *str) {
+    if (str != NULL && ti != NULL) {
+        proto_item_append_text(ti, " (%s)", str);
     }
 }
 
@@ -524,7 +568,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             proto_tree_add_item(tree, hf_isobus_transportprotocol_endofmsgack_pgn, tvb, data_offset, 3, ENC_LITTLE_ENDIAN);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "End of Message Acknowledgement, %u bytes sent in %u packets", total_size, number_of_packets);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "End of Message Acknowledgment, %u bytes sent in %u packets", total_size, number_of_packets);
         }
         else if (control_byte == 255)
         {
@@ -617,9 +661,59 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             col_append_fstr(pinfo->cinfo, COL_INFO, "ERROR: Transport protocol was not initialized");
         }
     }
+    else if (pdu_format == REQUEST)
+    {
+        guint32 pgn;
+        proto_tree_add_item_ret_uint(isobus_tree, hf_isobus_req_requested_pgn, tvb, 0, 3, ENC_LITTLE_ENDIAN, &pgn);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Requesting PGN: %u", pgn);
+        const gchar *tmp = isobus_lookup_pgn(pgn);
+        if (tmp != NULL) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", tmp);
+        }
+    }
+    else if (pdu_format == ADDRESS_CLAIM)
+    {
+        proto_tree * name_tree;
+        ti = proto_tree_add_item(isobus_tree, hf_isobus_ac_name, tvb, 0, 8, ENC_NA);
+        name_tree = proto_item_add_subtree(ti, ett_isobus_name);
+
+        /* we cannot directly use the value strings as they depend on other parameters */
+        guint64 industry_group, vehicle_system, function, manufacturer;
+        proto_tree_add_item(name_tree, hf_isobus_ac_name_arbitrary_address_capable, tvb, 0, 8, ENC_LITTLE_ENDIAN);
+        ti = proto_tree_add_item_ret_uint64(name_tree, hf_isobus_ac_name_industry_group, tvb, 0, 8, ENC_LITTLE_ENDIAN, &industry_group);
+        proto_item_append_conditional(ti, try_val_to_str((guint32)industry_group, isobus_industry_groups));
+        proto_tree_add_item(name_tree, hf_isobus_ac_name_vehicle_system_instance, tvb, 0, 8, ENC_LITTLE_ENDIAN);
+        ti = proto_tree_add_item_ret_uint64(name_tree, hf_isobus_ac_name_vehicle_system, tvb, 0, 8, ENC_LITTLE_ENDIAN, &vehicle_system);
+        proto_item_append_conditional(ti, try_val_to_str((guint16)industry_group * 256 + (guint8)vehicle_system, isobus_vehicle_systems));
+
+        proto_tree_add_item(name_tree, hf_isobus_ac_name_reserved, tvb, 0, 8, ENC_LITTLE_ENDIAN);
+        ti = proto_tree_add_item_ret_uint64(name_tree, hf_isobus_ac_name_function, tvb, 0, 8, ENC_LITTLE_ENDIAN, &function);
+        proto_item_append_conditional(ti, isobus_lookup_function((guint32)industry_group, (guint32)vehicle_system, (guint32)function));
+
+        proto_tree_add_item(name_tree, hf_isobus_ac_name_function_instance, tvb, 0, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(name_tree, hf_isobus_ac_name_ecu_instance, tvb, 0, 8, ENC_LITTLE_ENDIAN);
+        ti = proto_tree_add_item_ret_uint64(name_tree, hf_isobus_ac_name_manufacturer, tvb, 0, 8, ENC_LITTLE_ENDIAN, &manufacturer);
+        proto_item_append_conditional(ti, try_val_to_str((guint32)manufacturer, isobus_manufacturers));
+
+        proto_tree_add_item(name_tree, hf_isobus_ac_name_id_number, tvb, 0, 8, ENC_LITTLE_ENDIAN);
+
+        guint address_claimed = can_info.id & 0xff;
+        switch (address_claimed) {
+        case 255:
+            /* This seems to be not allowed. Create ticket, if this is not correct. */
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Trying to claim global destination address!? This seems wrong!");
+            break;
+        case 254:
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Cannot claim address");
+            break;
+        default:
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Address claimed %u", address_claimed);
+        }
+    }
     else if(dissector_try_uint_new(subdissector_table, pdu_format, tvb, pinfo, isobus_tree, FALSE, data) == 0)
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
+        proto_tree_add_item(isobus_tree, hf_isobus_payload, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     }
 
     return tvb_reported_length(tvb);
@@ -687,6 +781,74 @@ proto_register_isobus(void)
             FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(address_range), 0xff,
             NULL, HFILL }
         },
+        { &hf_isobus_payload,
+          { "Payload", "isobus.payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_isobus_req_requested_pgn,
+          { "Requested PGN", "isobus.req.requested_pgn",
+            FT_UINT24, BASE_HEX, VALS(isobus_pgn_names), 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_isobus_ac_name,
+          { "Name", "isobus.ac.name",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_id_number,
+          { "Identity Number", "isobus.ac.name.identity_number",
+            FT_UINT64, BASE_DEC, NULL, 0x00000000001fffff,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_manufacturer,
+          { "Manufacturer", "isobus.ac.name.manufacturer",
+            FT_UINT64, BASE_DEC, NULL, 0x00000000ffe00000,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_function_instance,
+          { "Function Instance", "isobus.ac.name.function_instance",
+            FT_UINT64, BASE_DEC, NULL, 0x000000f000000000,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_ecu_instance,
+          { "ECU Instance", "isobus.ac.name.ecu_instance",
+            FT_UINT64, BASE_DEC, NULL, 0x0000000f00000000,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_function,
+          { "Function", "isobus.ac.name.function",
+            FT_UINT64, BASE_DEC, NULL, 0x0000ff0000000000,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_reserved,
+          { "Reserved", "isobus.ac.name.reserved",
+            FT_UINT64, BASE_HEX, NULL, 0x0001000000000000,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_vehicle_system,
+          { "Vehicle System", "isobus.ac.name.vehicle_system",
+            FT_UINT64, BASE_DEC, NULL, 0x00fe000000000000,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_vehicle_system_instance,
+          { "System Instance", "isobus.ac.name.system_instance",
+            FT_UINT64, BASE_DEC, NULL, 0x0f00000000000000,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_industry_group,
+          { "Industry Group", "isobus.ac.name.industry_group",
+            FT_UINT64, BASE_DEC, NULL, 0x7000000000000000,
+            NULL, HFILL }
+        },
+        { &hf_isobus_ac_name_arbitrary_address_capable,
+          { "Arbitrary Address Capable", "isobus.ac.name.arbitrary_address_capable",
+            FT_UINT64, BASE_DEC, NULL, 0x8000000000000000,
+            NULL, HFILL }
+        },
+
         { &hf_isobus_transportprotocol_controlbyte,
           { "Control Byte", "isobus.transport_protocol.control_byte",
             FT_UINT8, BASE_DEC, VALS(transport_protocol_control_byte), 0x0,
@@ -709,7 +871,7 @@ proto_register_isobus(void)
         },
         { &hf_isobus_transportprotocol_requesttosend_pgn,
           { "PGN", "isobus.transport_protocol.request_to_send.pgn",
-            FT_UINT24, BASE_HEX, NULL, 0x0,
+            FT_UINT24, BASE_HEX, VALS(isobus_pgn_names), 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_transportprotocol_cleartosend_numberofpacketscanbesent,
@@ -724,7 +886,7 @@ proto_register_isobus(void)
         },
         { &hf_isobus_transportprotocol_cleartosend_pgn,
           { "PGN", "isobus.transport_protocol.clear_to_send.pgn",
-            FT_UINT24, BASE_HEX, NULL, 0x0,
+            FT_UINT24, BASE_HEX, VALS(isobus_pgn_names), 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_transportprotocol_endofmsgack_totalsize,
@@ -739,7 +901,7 @@ proto_register_isobus(void)
         },
         { &hf_isobus_transportprotocol_endofmsgack_pgn,
           { "PGN", "isobus.transport_protocol.end_of_message_acknowledgement.pgn",
-            FT_UINT24, BASE_HEX, NULL, 0x0,
+            FT_UINT24, BASE_HEX, VALS(isobus_pgn_names), 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_transportprotocol_connabort_abortreason,
@@ -749,7 +911,7 @@ proto_register_isobus(void)
         },
         { &hf_isobus_transportprotocol_connabort_pgn,
           { "PGN", "isobus.transport_protocol.connection_abort.pgn",
-            FT_UINT24, BASE_HEX, NULL, 0x0,
+            FT_UINT24, BASE_HEX, VALS(isobus_pgn_names), 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_transportprotocol_broadcastannouncemessage_totalsize,
@@ -767,6 +929,7 @@ proto_register_isobus(void)
             FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+
         { &hf_msg_fragments,
           { "Message fragments", "isobus.fragments",
             FT_NONE, BASE_NONE, NULL, 0x00,
@@ -827,6 +990,7 @@ proto_register_isobus(void)
     static gint *ett[] = {
         &ett_isobus,
         &ett_isobus_can_id,
+        &ett_isobus_name,
         &ett_isobus_fragment,
         &ett_isobus_fragments
     };
