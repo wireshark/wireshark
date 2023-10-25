@@ -2660,6 +2660,12 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
         can_info.id |= CAN_RTR_FLAG;
     }
 
+    can_info.len = (guint32)parsed.datalen;
+    can_info.fd = parsed.is_fd;
+
+    /* for practical reasons a remapping might be needed in the future */
+    can_info.bus_id = (guint16)parsed.bus_id;
+
     next_tvb = tvb_new_subset_length(tvb, offset, parsed.datalen);
 
     if (!socketcan_call_subdissectors(next_tvb, pinfo, tree, &can_info, can_heuristic_first)) {
