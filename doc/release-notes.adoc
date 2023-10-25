@@ -82,7 +82,9 @@ MAC NR Framed (mac-nr-framed)
 
 === Updated Protocol Support
 
-Too many protocol updates have been made to list them all here.
+* IPv6: The "show address detail" preference is now enabled by default.
+
+Too many other protocol updates have been made to list them all here.
 
 //=== New and Updated Capture File Support
 

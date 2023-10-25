@@ -788,7 +788,7 @@ static gboolean ipv6_reassemble = TRUE;
 static gboolean ipv6_summary_in_tree = TRUE;
 
 /* Show expanded information about IPv6 address */
-static gboolean ipv6_address_detail = FALSE;
+static gboolean ipv6_address_detail = TRUE;
 
 /* Perform strict RFC adherence checking */
 static gboolean g_ipv6_rpl_srh_strict_rfc_checking = FALSE;
