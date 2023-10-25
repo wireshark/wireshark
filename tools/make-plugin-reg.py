@@ -116,6 +116,7 @@ reg_code += """
 /* plugins are DLLs on Windows */
 #define WS_BUILD_DLL
 #include "ws_symbol_export.h"
+#include <wsutil/plugins.h>
 
 """
 
@@ -139,16 +140,29 @@ for symbol in regs['codec_register']:
 for symbol in regs['register_tap_listener']:
     reg_code += "void register_tap_listener_%s(void);\n" % (symbol)
 
+DESCRIPTION_FLAG = {
+    'plugin': 'WS_PLUGIN_DESC_DISSECTOR',
+    'plugin_wtap': 'WS_PLUGIN_DESC_FILE_TYPE',
+    'plugin_codec': 'WS_PLUGIN_DESC_CODEC',
+    'plugin_tap': 'WS_PLUGIN_DESC_TAP_LISTENER'
+}
+
 reg_code += """
 WS_DLL_PUBLIC_DEF const gchar plugin_version[] = PLUGIN_VERSION;
 WS_DLL_PUBLIC_DEF const int plugin_want_major = VERSION_MAJOR;
 WS_DLL_PUBLIC_DEF const int plugin_want_minor = VERSION_MINOR;
 
 WS_DLL_PUBLIC void plugin_register(void);
+WS_DLL_PUBLIC int plugin_describe(void);
+
+int plugin_describe(void)
+{
+    return %s;
+}
 
 void plugin_register(void)
 {
-"""
+""" % DESCRIPTION_FLAG[registertype]
 
 if registertype == "plugin":
     for symbol in regs['proto_reg']:

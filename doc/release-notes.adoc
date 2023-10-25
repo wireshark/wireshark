@@ -102,8 +102,10 @@ Too many other protocol updates have been made to list them all here.
 
 //_Non-empty section placeholder._
 
-//=== Major API Changes
+=== Major API Changes
 
+* Plugins should provide a `plugin_describe()` function that returns an ORed
+  list of flags consisting of the plugin types used (declared in wsutil/plugins.h).
 
 == Getting Wireshark
 

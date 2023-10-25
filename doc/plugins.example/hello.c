@@ -9,6 +9,7 @@
 
 #define WS_BUILD_DLL
 #include <wireshark.h>
+#include <wsutil/plugins.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 
@@ -21,7 +22,7 @@ WS_DLL_PUBLIC_DEF const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
 WS_DLL_PUBLIC_DEF const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
 
 WS_DLL_PUBLIC void plugin_register(void);
-
+WS_DLL_PUBLIC int plugin_describe(void);
 
 static int proto_hello = -1;
 static dissector_handle_t handle_hello;
@@ -55,4 +56,10 @@ plugin_register(void)
     plug.register_protoinfo = proto_register_hello;
     plug.register_handoff = proto_reg_handoff_hello; /* or NULL */
     proto_register_plugin(&plug);
+}
+
+int
+plugin_describe(void)
+{
+    return WS_PLUGIN_DESC_DISSECTOR;
 }

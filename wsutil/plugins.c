@@ -30,17 +30,12 @@ typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
     char           *name;         /* plugin name */
     const char     *version;      /* plugin version */
-    const char     *type_name;    /* user-facing name (what it does). Should these be capitalized? */
+    int            desc_flags;    /* user-facing description flags (what it does) */
 } plugin;
 
 #define TYPE_DIR_EPAN       "epan"
 #define TYPE_DIR_WIRETAP    "wiretap"
 #define TYPE_DIR_CODECS     "codecs"
-
-#define TYPE_NAME_DISSECTOR "dissector"
-#define TYPE_NAME_FILE_TYPE "file type"
-#define TYPE_NAME_CODEC     "codec"
-
 
 static GSList *plugins_module_list = NULL;
 
@@ -63,20 +58,22 @@ type_to_dir(plugin_type_e type)
 }
 
 static inline const char *
-type_to_name(plugin_type_e type)
+desc_flags_to_str(int type_flags)
 {
-    switch (type) {
-    case WS_PLUGIN_EPAN:
-        return TYPE_NAME_DISSECTOR;
-    case WS_PLUGIN_WIRETAP:
-        return TYPE_NAME_FILE_TYPE;
-    case WS_PLUGIN_CODEC:
-        return TYPE_NAME_CODEC;
-    default:
-        ws_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
-        break;
-    }
-    ws_assert_not_reached();
+    /* XXX: Allow joining multiple types? Our plugins only implement a
+     * single type but out in the wild this may not be true. */
+    if (type_flags & WS_PLUGIN_DESC_DISSECTOR)
+        return "dissector";
+    else if (type_flags & WS_PLUGIN_DESC_FILE_TYPE)
+        return "file type";
+    else if (type_flags & WS_PLUGIN_DESC_CODEC)
+        return "codec";
+    else if (type_flags & WS_PLUGIN_DESC_EPAN)
+        return "epan";
+    else if (type_flags & WS_PLUGIN_DESC_TAP_LISTENER)
+        return "tap listener";
+    else
+        return "unknown";
 }
 
 static void
@@ -138,6 +135,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
     GModule       *handle;          /* handle returned by g_module_open */
     void *         symbol;
     const char    *plug_version;
+    int            desc_flags;
     plugin        *new_plug;
 
     if (append_type)
@@ -206,11 +204,17 @@ DIAG_OFF_PEDANTIC
         ((plugin_register_func)symbol)();
 DIAG_ON_PEDANTIC
 
+        /* Search for the (optional) description flag registration function */
+        if (g_module_symbol(handle, "plugin_describe", &symbol))
+            desc_flags = ((plugin_describe_func)symbol)();
+        else
+            desc_flags = 0;
+
         new_plug = g_new(plugin, 1);
         new_plug->handle = handle;
         new_plug->name = g_strdup(name);
         new_plug->version = plug_version;
-        new_plug->type_name = type_to_name(type);
+        new_plug->desc_flags = desc_flags;
 
         /* Add it to the list of plugins. */
         g_hash_table_replace(plugins_module, new_plug->name, new_plug);
@@ -272,7 +276,7 @@ plugins_get_descriptions(plugin_description_callback callback, void *callback_da
 
     for (unsigned i = 0; i < plugins_array->len; i++) {
         plugin *plug = (plugin *)plugins_array->pdata[i];
-        callback(plug->name, plug->version, plug->type_name, g_module_name(plug->handle), callback_data);
+        callback(plug->name, plug->version, plug->desc_flags, g_module_name(plug->handle), callback_data);
     }
 
     g_ptr_array_free(plugins_array, true);
@@ -280,10 +284,10 @@ plugins_get_descriptions(plugin_description_callback callback, void *callback_da
 
 static void
 print_plugin_description(const char *name, const char *version,
-                         const char *description, const char *filename,
+                         int desc_flags, const char *filename,
                          void *user_data _U_)
 {
-    printf("%-16s\t%s\t%s\t%s\n", name, version, description, filename);
+    printf("%-16s\t%s\t%s\t%s\n", name, version, desc_flags_to_str(desc_flags), filename);
 }
 
 void

@@ -100,7 +100,31 @@ QStringList AuthorListModel::headerColumns() const
     return QStringList() << tr("Name") << tr("Email");
 }
 
+#ifdef HAVE_PLUGINS
 static void plugins_add_description(const char *name, const char *version,
+                                    int desc_flags, const char *filename,
+                                    void *user_data)
+{
+    QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
+    QStringList plugin_types;
+    if (desc_flags & WS_PLUGIN_DESC_DISSECTOR)
+        plugin_types << "dissector";
+    if (desc_flags & WS_PLUGIN_DESC_FILE_TYPE)
+        plugin_types << "file type";
+    if (desc_flags & WS_PLUGIN_DESC_CODEC)
+        plugin_types << "codec";
+    if (desc_flags & WS_PLUGIN_DESC_EPAN)
+        plugin_types << "epan";
+    if (desc_flags & WS_PLUGIN_DESC_TAP_LISTENER)
+        plugin_types << "tap listener";
+    if (plugin_types.empty())
+        plugin_types << "unknown";
+    QStringList plugin_row = QStringList() << name << version << plugin_types.join(", ") << filename;
+    *plugin_data << plugin_row;
+}
+#endif
+
+static void other_plugins_add_description(const char *name, const char *version,
                                     const char *types, const char *filename,
                                     void *user_data)
 {
@@ -109,7 +133,7 @@ static void plugins_add_description(const char *name, const char *version,
     *plugin_data << plugin_row;
 }
 
-PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent)
+PluginListModel::PluginListModel(QObject *parent) : AStringListListModel(parent)
 {
     QList<QStringList> plugin_data;
 #ifdef HAVE_PLUGINS
@@ -117,10 +141,10 @@ PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent
 #endif
 
 #ifdef HAVE_LUA
-    wslua_plugins_get_descriptions(plugins_add_description, &plugin_data);
+    wslua_plugins_get_descriptions(other_plugins_add_description, &plugin_data);
 #endif
 
-    extcap_get_descriptions(plugins_add_description, &plugin_data);
+    extcap_get_descriptions(other_plugins_add_description, &plugin_data);
 
     typeNames_ << QString("");
     foreach(QStringList row, plugin_data)

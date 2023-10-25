@@ -62,6 +62,10 @@ typedef enum {
     EXTCAP_FILTER_INVALID
 } extcap_filter_status;
 
+typedef void (*extcap_plugin_description_callback)(const char *, const char *,
+                                                  const char *, const char *,
+                                                  void *);
+
 struct _extcap_arg;
 
 #ifdef __cplusplus
@@ -134,7 +138,7 @@ extcap_clear_interfaces(void);
  * @param callback_data Data to be passed to the callback routine.
  */
 void
-extcap_get_descriptions(plugin_description_callback callback, void *callback_data);
+extcap_get_descriptions(extcap_plugin_description_callback callback, void *callback_data);
 
 /**
  * Print information about all available extcap executables.

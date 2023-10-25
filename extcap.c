@@ -188,7 +188,7 @@ compare_tools(gconstpointer a, gconstpointer b)
 }
 
 void
-extcap_get_descriptions(plugin_description_callback callback, void *callback_data)
+extcap_get_descriptions(extcap_plugin_description_callback callback, void *callback_data)
 {
     extcap_ensure_all_interfaces_loaded();
 
