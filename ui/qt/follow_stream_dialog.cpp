@@ -87,6 +87,8 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
 
     ui->streamNumberSpinBox->setStyleSheet("QSpinBox { min-width: 2em; }");
     ui->subStreamNumberSpinBox->setStyleSheet("QSpinBox { min-width: 2em; }");
+    ui->streamNumberSpinBox->setKeyboardTracking(false);
+    ui->subStreamNumberSpinBox->setKeyboardTracking(false);
 
     follower_ = get_follow_by_proto_id(proto_id);
     if (follower_ == NULL) {
@@ -203,6 +205,8 @@ void FollowStreamDialog::goToPacketForTextPos(int pkt)
 
 void FollowStreamDialog::updateWidgets(bool follow_in_progress)
 {
+    // XXX: If follow_in_progress set cursor to Qt::BusyCursor or WaitCursor,
+    // otherwise unset cursor?
     bool enable = !follow_in_progress;
     if (file_closed_) {
         ui->teStreamContent->setEnabled(true);
@@ -211,9 +215,9 @@ void FollowStreamDialog::updateWidgets(bool follow_in_progress)
 
     ui->cbDirections->setEnabled(enable);
     ui->cbCharset->setEnabled(enable);
-    ui->streamNumberSpinBox->setEnabled(enable);
+    ui->streamNumberSpinBox->setReadOnly(!enable);
     if (get_follow_sub_stream_id_func(follower_) != NULL) {
-        ui->subStreamNumberSpinBox->setEnabled(enable);
+        ui->subStreamNumberSpinBox->setReadOnly(!enable);
     }
     ui->leFind->setEnabled(enable);
     ui->bFind->setEnabled(enable);
