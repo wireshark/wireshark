@@ -489,7 +489,9 @@ static int hf_diameter_3gpp_feature_list_s6t_flags_bit4 = -1;
 static int hf_diameter_3gpp_feature_list_s6t_flags_bit5 = -1;
 static int hf_diameter_3gpp_feature_list_s6t_flags_bit6 = -1;
 static int hf_diameter_3gpp_feature_list_s6t_flags_bit7 = -1;
-static int hf_diameter_3gpp_feature_list_s6t_spare_b31_b8 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit8 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit9 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_spare_b31_b10 = -1;
 static int hf_diameter_3gpp_supported_monitoring_events = -1;
 static int hf_diameter_3gpp_supported_monitoring_events_b0 = -1;
 static int hf_diameter_3gpp_supported_monitoring_events_b1 = -1;
@@ -1164,7 +1166,9 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     case DIAM_APPID_3GPP_S6T:
     {
         int* const flags[] = {
-            &hf_diameter_3gpp_feature_list_s6t_spare_b31_b8,
+            &hf_diameter_3gpp_feature_list_s6t_spare_b31_b10,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit9,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit8,
             &hf_diameter_3gpp_feature_list_s6t_flags_bit7,
             &hf_diameter_3gpp_feature_list_s6t_flags_bit6,
             &hf_diameter_3gpp_feature_list_s6t_flags_bit5,
@@ -5834,9 +5838,19 @@ proto_register_diameter_3gpp(void)
           FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000080,
           NULL, HFILL }
         },
-        { &hf_diameter_3gpp_feature_list_s6t_spare_b31_b8,
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit8,
+        { "Config-Eff-NP", "diameter.3gpp.s6t.b8",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000100,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit9,
+        { "Extended Reference IDs", "diameter.3gpp.s6t.b9",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000200,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_spare_b31_b10,
         { "Spare", "diameter.3gpp.s6t.spare",
-          FT_UINT32, BASE_HEX, NULL, 0xffffff00,
+          FT_UINT32, BASE_HEX, NULL, 0xfffffc00,
           NULL, HFILL }
         },
          { &hf_diameter_3gpp_supported_monitoring_events,
