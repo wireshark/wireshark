@@ -1,6 +1,6 @@
-Wireshark 4.2.0 Release Notes
+Wireshark 4.2.0rc3 Release Notes
 
- This is the second release candidate for Wireshark 4.2.
+ This is the third release candidate for Wireshark 4.2.
 
  What is Wireshark?
 
@@ -63,6 +63,12 @@ Wireshark 4.2.0 Release Notes
        Qt6.
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 4.2.0rc2:
+
+     • The Windows installers now ship with Npcap 1.78. They previously
+       shipped with Npcap 1.77.
 
    The following features are new (or have been significantly updated)
    since version 4.2.0rc1:

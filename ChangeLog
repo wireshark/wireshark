@@ -1,3 +1,34 @@
+3246be814e Qt: Follow Stream stream and substream spinboxes keyboard handling
+f8c72c6d53 IEEE 1722: Fix unitialized can_info
+ad27114c12 RTPS: string dissection, unicode improvements
+3f55453c14 ED137: Fix additional feature dissection
+a01b123c2e Translation: Update to Transifex API v3
+4a9e3a1a60 capture-wpcap.c: fix typo, move a #include.
+b8a0f59c34 dumpcap: recommend upgrading Npcap for promiscuous-mode errors.
+f8b780914f Diameter: add support for SCEF Extended Reference IDs
+7e26c93621 Qt: Fixup application bundle paths on macOS
+8967b199ae TECMP: Fixing length of CAN payload (BUGFIX)
+232fdb9226 Thrift: Multiple fixes in compact protocol
+a72920acc9 TLS: improve visualization of Token Binding estension
+e4691a7b2e Windows: upgrade Npcap to 1.78
+7e42778ec1 Packaging: Make sure we ship our PCRE DLL
+37329d3fdf [Automatic update for 2023-10-22]
+2992dc8919 wsutil: wmem_strjoinv behavior on empty array
+67e11b3c0a TLS: JA4 fix non printable ALPN values
+fade811bf8 nettrace_3gpp_32_423: Timestamp wrongly calculated.
+7c98aecfe9 DHCP: Fix offset for SIP Server (option 120)
+4b5a097a59 Fixup vcpkg-export-20231017-1
+24c3ac40fd Add vcpkg-export-20231017-1
+957d772ba3 gnutls: Set FIPS mode to lax if enabled
+c43dc90147 GitLab CI: Print our CI variables
+9a9fea7fe6 vmware-hb: fix display filter name
+1dd9436304 vmware-hb: Update build number
+fdd0fda227 IEEE1609dot2: Clean up the asn1 files.
+06b31e05f5 Nettrace: add handle of both NAS-EPS and NAS-5GS
+69270347cd nettrace_3gpp_32_423: Offset for msg advanced twice.
+18f978a77e PFCP: Wrong length used for TEID
+9ffb12a9ea Build: 4.2.0rc2
+ac0fc25f38 Windows: Upgrade to nghttp3 1.0.0
 5c794eb6ca ieee80211: Add dissection of ETAG FILS Request Parameter
 473c5e257e VMware HeartBeat: Enhance dissection
 95c12710ef netscreen: do bounds checking for each byte of packet data.

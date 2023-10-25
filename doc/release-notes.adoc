@@ -7,7 +7,7 @@ include::../docbook/attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is the second release candidate for Wireshark 4.2.
+This is the third release candidate for Wireshark 4.2.
 
 == What is Wireshark?
 
