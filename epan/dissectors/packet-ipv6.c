@@ -171,6 +171,11 @@ static int hf_ipv6_src_multicast_flags_transient = -1;
 static int hf_ipv6_src_multicast_flags_network_prefix = -1;
 static int hf_ipv6_src_multicast_flags_embed_rp = -1;
 static int hf_ipv6_src_special_purpose          = -1;
+static int hf_ipv6_src_special_purpose_source   = -1;
+static int hf_ipv6_src_special_purpose_destination = -1;
+static int hf_ipv6_src_special_purpose_forwardable = -1;
+static int hf_ipv6_src_special_purpose_global   = -1;
+static int hf_ipv6_src_special_purpose_reserved = -1;
 static int hf_ipv6_src_multicast_scope          = -1;
 static int hf_ipv6_src_host                     = -1;
 static int hf_ipv6_src_slaac_mac                = -1;
@@ -190,6 +195,11 @@ static int hf_ipv6_dst_multicast_flags_network_prefix = -1;
 static int hf_ipv6_dst_multicast_flags_embed_rp = -1;
 static int hf_ipv6_dst_multicast_scope          = -1;
 static int hf_ipv6_dst_special_purpose          = -1;
+static int hf_ipv6_dst_special_purpose_source   = -1;
+static int hf_ipv6_dst_special_purpose_destination = -1;
+static int hf_ipv6_dst_special_purpose_forwardable = -1;
+static int hf_ipv6_dst_special_purpose_global   = -1;
+static int hf_ipv6_dst_special_purpose_reserved = -1;
 static int hf_ipv6_dst_host                     = -1;
 static int hf_ipv6_dst_slaac_mac                = -1;
 static int hf_ipv6_dst_isatap_ipv4              = -1;
@@ -208,6 +218,11 @@ static int hf_ipv6_multicast_flags_network_prefix = -1;
 static int hf_ipv6_multicast_flags_embed_rp     = -1;
 static int hf_ipv6_multicast_scope              = -1;
 static int hf_ipv6_addr_special_purpose         = -1;
+static int hf_ipv6_addr_special_purpose_source  = -1;
+static int hf_ipv6_addr_special_purpose_destination = -1;
+static int hf_ipv6_addr_special_purpose_forwardable = -1;
+static int hf_ipv6_addr_special_purpose_global  = -1;
+static int hf_ipv6_addr_special_purpose_reserved = -1;
 static int hf_ipv6_host                         = -1;
 static int hf_ipv6_slaac_mac                    = -1;
 static int hf_ipv6_isatap_ipv4                  = -1;
@@ -401,6 +416,11 @@ struct ipv6_addr_info_s {
     int *const *hf_multicast_flags_bits;
     int *hf_multicast_scope;
     int *hf_special_purpose;
+    int *hf_special_purpose_source;
+    int *hf_special_purpose_destination;
+    int *hf_special_purpose_forwardable;
+    int *hf_special_purpose_global;
+    int *hf_special_purpose_reserved;
     int *hf_host;
 };
 
@@ -419,6 +439,11 @@ static struct ipv6_addr_info_s ipv6_src_info = {
     ipv6_src_multicast_flags_bits,
     &hf_ipv6_src_multicast_scope,
     &hf_ipv6_src_special_purpose,
+    &hf_ipv6_src_special_purpose_source,
+    &hf_ipv6_src_special_purpose_destination,
+    &hf_ipv6_src_special_purpose_forwardable,
+    &hf_ipv6_src_special_purpose_global,
+    &hf_ipv6_src_special_purpose_reserved,
     &hf_ipv6_src_host,
 };
 
@@ -437,6 +462,11 @@ static struct ipv6_addr_info_s ipv6_dst_info = {
     ipv6_dst_multicast_flags_bits,
     &hf_ipv6_dst_multicast_scope,
     &hf_ipv6_dst_special_purpose,
+    &hf_ipv6_dst_special_purpose_source,
+    &hf_ipv6_dst_special_purpose_destination,
+    &hf_ipv6_dst_special_purpose_forwardable,
+    &hf_ipv6_dst_special_purpose_global,
+    &hf_ipv6_dst_special_purpose_reserved,
     &hf_ipv6_dst_host,
 };
 
@@ -466,6 +496,7 @@ static int hf_geoip_dst_longitude       = -1;
 
 static gint ett_ipv6_proto              = -1;
 static gint ett_ipv6_detail             = -1;
+static gint ett_ipv6_detail_special_purpose = -1;
 static gint ett_ipv6_multicast_flags    = -1;
 static gint ett_ipv6_traffic_class      = -1;
 static gint ett_ipv6_opt                = -1;
@@ -3076,12 +3107,48 @@ add_ipv6_address_detail(packet_info *pinfo, proto_item *vis, proto_item *invis,
     /* Check for IPv6 address special-purpose ranges. */
     const ws_in6_addr *addr = tvb_get_ptr_ipv6(tvb, offset);
     const struct ws_ipv6_special_block *block;
+    proto_tree *vtree2;
+    proto_tree *itree2;
 
     if ((block = ws_ipv6_special_block_lookup(addr)) != NULL) {
         ti = proto_tree_add_string(vtree, *addr_info->hf_special_purpose, tvb, offset, IPv6_ADDR_SIZE, block->name);
         proto_item_set_generated(ti);
+        vtree2 = proto_item_add_subtree(ti, ett_ipv6_detail_special_purpose);
+
         ti = proto_tree_add_string(itree, hf_ipv6_addr_special_purpose, tvb, offset, IPv6_ADDR_SIZE, block->name);
         proto_item_set_generated(ti);
+        itree2 = proto_item_add_subtree(ti, ett_ipv6_detail_special_purpose);
+
+        if (block->source >= 0) {
+            ti = proto_tree_add_boolean(vtree2, *addr_info->hf_special_purpose_source, tvb, offset, IPv6_ADDR_SIZE, block->source);
+            proto_item_set_generated(ti);
+            ti = proto_tree_add_boolean(itree2, hf_ipv6_addr_special_purpose_source, tvb, offset, IPv6_ADDR_SIZE, block->source);
+            proto_item_set_generated(ti);
+        }
+        if (block->destination >= 0) {
+            ti = proto_tree_add_boolean(vtree2, *addr_info->hf_special_purpose_destination, tvb, offset, IPv6_ADDR_SIZE, block->destination);
+            proto_item_set_generated(ti);
+            ti = proto_tree_add_boolean(itree2, hf_ipv6_addr_special_purpose_destination, tvb, offset, IPv6_ADDR_SIZE, block->destination);
+            proto_item_set_generated(ti);
+        }
+        if (block->forwardable >= 0) {
+            ti = proto_tree_add_boolean(vtree2, *addr_info->hf_special_purpose_forwardable, tvb, offset, IPv6_ADDR_SIZE, block->forwardable);
+            proto_item_set_generated(ti);
+            ti = proto_tree_add_boolean(itree2, hf_ipv6_addr_special_purpose_forwardable, tvb, offset, IPv6_ADDR_SIZE, block->forwardable);
+            proto_item_set_generated(ti);
+        }
+        if (block->global >= 0) {
+            ti = proto_tree_add_boolean(vtree2, *addr_info->hf_special_purpose_global, tvb, offset, IPv6_ADDR_SIZE, block->global);
+            proto_item_set_generated(ti);
+            ti = proto_tree_add_boolean(itree2, hf_ipv6_addr_special_purpose_global, tvb, offset, IPv6_ADDR_SIZE, block->global);
+            proto_item_set_generated(ti);
+        }
+        if (block->reserved >= 0) {
+            ti = proto_tree_add_boolean(vtree2, *addr_info->hf_special_purpose_reserved, tvb, offset, IPv6_ADDR_SIZE, block->reserved);
+            proto_item_set_generated(ti);
+            ti = proto_tree_add_boolean(itree2, hf_ipv6_addr_special_purpose_reserved, tvb, offset, IPv6_ADDR_SIZE, block->reserved);
+            proto_item_set_generated(ti);
+        }
     }
 }
 
@@ -3716,6 +3783,36 @@ proto_register_ipv6(void)
                 FT_STRING, BASE_NONE, NULL, 0x0,
                 "Source Address Special-Purpose Allocation", HFILL }
         },
+        { &hf_ipv6_src_special_purpose_source,
+            { "Source", "ipv6.src_special_purpose_source",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether an address from the allocated special-purpose address "
+                "block is valid when used as the source address of an IP datagram", HFILL }
+        },
+        { &hf_ipv6_src_special_purpose_destination,
+            { "Destination", "ipv6.src_special_purpose_destination",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether an address from the allocated special-purpose address "
+                "block is valid when used as the destination address of an IP datagram", HFILL }
+        },
+        { &hf_ipv6_src_special_purpose_forwardable,
+            { "Forwardable", "ipv6.src_special_purpose_forwardable",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether a router may forward an IP datagram whose destination "
+                "address is drawn from the allocated special-purpose address block", HFILL }
+        },
+        { &hf_ipv6_src_special_purpose_global,
+            { "Globally Reachable", "ipv6.src_special_purpose_global",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether an IP datagram whose destination address is drawn "
+                "from the allocated special-purpose address block is "
+                "forwardable beyond a specified administrative domain", HFILL }
+        },
+        { &hf_ipv6_src_special_purpose_reserved,
+            { "Reserved-by-Protocol", "ipv6.src_special_purpose_reserved",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether the special-purpose address block is reserved by IP itself", HFILL }
+        },
         { &hf_ipv6_src_host,
             { "Source Host", "ipv6.src_host",
                 FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3806,6 +3903,36 @@ proto_register_ipv6(void)
                 FT_STRING, BASE_NONE, NULL, 0x0,
                 "Destination Address Special-Purpose Allocation", HFILL }
         },
+        { &hf_ipv6_dst_special_purpose_source,
+            { "Source", "ipv6.dst_special_purpose_source",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether an address from the allocated special-purpose address "
+                "block is valid when used as the source address of an IP datagram", HFILL }
+        },
+        { &hf_ipv6_dst_special_purpose_destination,
+            { "Destination", "ipv6.dst_special_purpose_destination",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether an address from the allocated special-purpose address "
+                "block is valid when used as the destination address of an IP datagram", HFILL }
+        },
+        { &hf_ipv6_dst_special_purpose_forwardable,
+            { "Forwardable", "ipv6.dst_special_purpose_forwardable",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether a router may forward an IP datagram whose destination "
+                "address is drawn from the allocated special-purpose address block", HFILL }
+        },
+        { &hf_ipv6_dst_special_purpose_global,
+            { "Globally Reachable", "ipv6.dst_special_purpose_global",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether an IP datagram whose destination address is drawn "
+                "from the allocated special-purpose address block is "
+                "forwardable beyond a specified administrative domain", HFILL }
+        },
+        { &hf_ipv6_dst_special_purpose_reserved,
+            { "Reserved-by-Protocol", "ipv6.dst_special_purpose_reserved",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether the special-purpose address block is reserved by IP itself", HFILL }
+        },
         { &hf_ipv6_dst_host,
             { "Destination Host", "ipv6.dst_host",
                 FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3895,6 +4022,36 @@ proto_register_ipv6(void)
             { "Special-Purpose Allocation", "ipv6.addr_special_purpose",
                 FT_STRING, BASE_NONE, NULL, 0x0,
                 "Source or Destination Address Special-Purpose Allocation", HFILL }
+        },
+        { &hf_ipv6_addr_special_purpose_source,
+            { "Source", "ipv6.addr_special_purpose_source",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether an address from the allocated special-purpose address "
+                "block is valid when used as the source address of an IP datagram", HFILL }
+        },
+        { &hf_ipv6_addr_special_purpose_destination,
+            { "Destination", "ipv6.addr_special_purpose_destination",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether an address from the allocated special-purpose address "
+                "block is valid when used as the destination address of an IP datagram", HFILL }
+        },
+        { &hf_ipv6_addr_special_purpose_forwardable,
+            { "Forwardable", "ipv6.addr_special_purpose_forwardable",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether a router may forward an IP datagram whose destination "
+                "address is drawn from the allocated special-purpose address block", HFILL }
+        },
+        { &hf_ipv6_addr_special_purpose_global,
+            { "Globally Reachable", "ipv6.addr_special_purpose_global",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether an IP datagram whose destination address is drawn "
+                "from the allocated special-purpose address block is "
+                "forwardable beyond a specified administrative domain", HFILL }
+        },
+        { &hf_ipv6_addr_special_purpose_reserved,
+            { "Reserved-by-Protocol", "ipv6.addr_special_purpose_reserved",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Whether the special-purpose address block is reserved by IP itself", HFILL }
         },
         { &hf_ipv6_host,
             { "Source or Destination Host", "ipv6.host",
@@ -4941,6 +5098,7 @@ proto_register_ipv6(void)
     static gint *ett_ipv6[] = {
         &ett_ipv6_proto,
         &ett_ipv6_detail,
+        &ett_ipv6_detail_special_purpose,
         &ett_ipv6_multicast_flags,
         &ett_ipv6_traffic_class,
         &ett_geoip_info,

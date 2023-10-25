@@ -82,7 +82,9 @@ MAC NR Framed (mac-nr-framed)
 
 === Updated Protocol Support
 
-* IPv6: The "show address detail" preference is now enabled by default.
+* IPv6: The "show address detail" preference is now enabled by default. The
+  address details provided have been extended to include more special purpose address
+  block properties (forwardable, globally-routable, etc).
 
 Too many other protocol updates have been made to list them all here.
 
