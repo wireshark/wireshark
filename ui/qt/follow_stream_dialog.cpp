@@ -470,9 +470,17 @@ void FollowStreamDialog::removeStreamControls()
     ui->subStreamNumberSpinBox->setVisible(false);
 }
 
+void FollowStreamDialog::resetStream(void *tap_data)
+{
+    follow_info_t *follow_info = static_cast<follow_info_t*>(tap_data);
+    follow_reset_stream(follow_info);
+    // If we ever draw the text while tapping (instead of only after
+    // the tap finishes), reset the GUI here too.
+}
+
 void FollowStreamDialog::resetStream()
 {
-    follow_reset_stream(&follow_info_);
+    FollowStreamDialog::resetStream(&follow_info_);
 }
 
 frs_return_t
@@ -848,8 +856,6 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     int                 stream_count;
     follow_stream_count_func stream_count_func = NULL;
 
-    resetStream();
-
     if (file_closed_)
     {
         QMessageBox::warning(this, tr("No capture file."), tr("Please make sure you have a capture file opened."));
@@ -904,7 +910,8 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     /* data will be passed via tap callback*/
     if (!registerTapListener(get_follow_tap_string(follower_), &follow_info_,
                                 follow_filter.toUtf8().constData(),
-                                0, NULL, get_follow_tap_handler(follower_), NULL)) {
+                                0, FollowStreamDialog::resetStream,
+                                get_follow_tap_handler(follower_), NULL)) {
         return false;
     }
 
@@ -953,6 +960,24 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
 
     /* Run the display filter so it goes in effect - even if it's the
        same as the previous display filter. */
+    /* XXX: This forces a cf_filter_packets() - but if a rescan (or something else
+     * that sets cf->read_lock) is in progress, this will queue the filter
+     * and return immediately. It will also cause a rescan in progress to
+     * stop and restart with the new filter. That also applies to this rescan;
+     * changing the main display filter (from the main window, or from, e.g.
+     * another FollowStreamDialog) will cause this to restart and reset the
+     * tap.
+     *
+     * Other tapping dialogs call cf_retap_packets (which retaps but doesn't
+     * set the main display filter, freeze the packet list, etc.), which
+     * has somewhat different behavior when another dialog tries to retap,
+     * but also results in the taps being reset mid tap.
+     *
+     * Either way, we should be event driven and listening for CaptureEvents
+     * instead of drawing after this returns. (Or like other taps, draw
+     * periodically in a callback, provided that can be done without causing
+     * issues with changing the Decode As type.)
+     */
     emit updateFilter(follow_filter, TRUE);
 
     removeTapListeners();

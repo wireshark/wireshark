@@ -186,10 +186,17 @@ follow_reset_stream(follow_info_t* info)
     }
     info->fragments[0] = info->fragments[1] = NULL;
     info->seq[0] = info->seq[1] = 0;
-    info->substream_id = SUBSTREAM_UNUSED;
 
     g_free(info->filter_out_filter);
     info->filter_out_filter = NULL;
+
+    /* Don't reset the substream_id - that's used by followers for
+     * for determining which tvbs match, and we don't want to clear
+     * it when the taps are reset due to a retap.
+     */
+#if 0
+    info->substream_id = SUBSTREAM_UNUSED;
+#endif
 }
 
 void

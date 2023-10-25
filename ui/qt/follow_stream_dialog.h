@@ -78,6 +78,9 @@ signals:
     void goToPacket(int packet_num);
 
 private:
+    // Callback for register_tap_listener
+    static void resetStream(void *tapData);
+
     void removeStreamControls();
     void resetStream(void);
     void updateWidgets(bool follow_in_progress);
