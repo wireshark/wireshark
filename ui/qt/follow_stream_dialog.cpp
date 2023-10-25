@@ -531,7 +531,7 @@ FollowStreamDialog::followStream()
 
 void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 packet_num, gboolean colorize)
 {
-    ui->teStreamContent->addText(text, is_from_server, packet_num, colorize);
+    ui->teStreamContent->addText(std::move(text), is_from_server, packet_num, colorize);
 }
 
 // The following keyboard shortcuts should work (although
