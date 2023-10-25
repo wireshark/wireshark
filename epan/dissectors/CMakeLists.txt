@@ -254,7 +254,7 @@ source_group(dissectors-ncp2222 FILES ${NCP2222_DISSECTOR_SRC})
 # So at most only a small part of dissector header content belongs in any
 # sort of public API but historically there has been no separation and everything is balled
 # up as a DISSECTOR_PUBLIC_HEADER more or less automatically and indiscriminately (because of a lack
-# of clear guidelines). In the future this unsatistactory situation should be fixed somehow.
+# of clear guidelines). In the future this unsatisfactory situation should be fixed somehow.
 #
 set(DISSECTOR_PUBLIC_HEADERS
 	cond_ace_token_enum.h
@@ -443,6 +443,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-isl.h
 	packet-iso10681.h
 	packet-iso15765.h
+	packet-isobus-parameters.h
 	packet-isup.h
 	packet-its.h
 	packet-iwarp-ddp-rdmap.h
