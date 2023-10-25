@@ -128,6 +128,7 @@ class IPv4Registry(IPRegistry):
             super().append(row)
 
     def dump(self, fd):
+        self.sort()
         fd.write('_U_ static const struct ws_ipv4_special_block __ipv4_special_block[] = {\n')
         for row in self:
             line = '    {{ {}, {}, {}, {}, {}, {}, {} }},\n'.format(*row)
@@ -148,6 +149,7 @@ class IPv6Registry(IPRegistry):
         super().append(row)
 
     def dump(self, fd):
+        self.sort()
         fd.write('// GCC bug?\n')
         fd.write('DIAG_OFF(missing-braces)\n')
         fd.write('_U_ static const struct ws_ipv6_special_block __ipv6_special_block[] = {\n')
