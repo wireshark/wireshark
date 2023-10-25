@@ -142,6 +142,20 @@ static const char* g_szMessageTypes[] =
     "Invalid message"
 };
 
+#ifdef _MSC_VER
+static char *ua_strtok_r(char *str, const char *delim, char **saveptr)
+{
+    /* use MSVC specific strtok_s */
+    return strtok_s(str, delim, saveptr);
+}
+#else
+static char *ua_strtok_r(char *str, const char *delim, char **saveptr)
+{
+    /* use POSIX strtok_r */
+    return strtok_r(str, delim, saveptr);
+}
+#endif
+
 /** returns the length of an OpcUa message.
   * This function reads the length information from
   * the transport header.
@@ -196,10 +210,10 @@ static void opcua_keylog_process_line(struct opcua_keylog_parser_ctx *ctx, const
 
     /* split key into parts */
     num_parts = 0;
-    tmp = strtok_r(key, "_", &saveptr);
+    tmp = ua_strtok_r(key, "_", &saveptr);
     while (tmp) {
         parts[num_parts++] = tmp;
-        tmp = strtok_r(NULL, "_", &saveptr);
+        tmp = ua_strtok_r(NULL, "_", &saveptr);
     }
     if (num_parts != 4) return; /* skip invalid enty */
     channel_id = (uint32_t)strtoul(parts[2], NULL, 10);
@@ -241,11 +255,11 @@ static void opcua_keylog_process_lines(char *data)
 {
     struct opcua_keylog_parser_ctx ctx = { NULL, 0 };
     char *saveptr;
-    const char *line = strtok_r(data, "\n", &saveptr);
+    const char *line = ua_strtok_r(data, "\n", &saveptr);
 
     while (line) {
         opcua_keylog_process_line(&ctx, line);
-        line = strtok_r(NULL, "\n", &saveptr);
+        line = ua_strtok_r(NULL, "\n", &saveptr);
     }
 
     /* sort data by id to make lookup working */
