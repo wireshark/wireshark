@@ -740,7 +740,7 @@ dissect_rtp_hdr_ext_ed137a_feature_sqi(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     proto_tree_add_item( tree, hf_rtp_hdr_ed137a_ft_sqi_qidx_ml, tvb, 0, 1, ENC_BIG_ENDIAN);
 
     if (sqi_qidx>0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", SQI=%d", sqi_qidx);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", SQI=%u", sqi_qidx);
     }
     else {
         col_append_str(pinfo->cinfo, COL_INFO, ", SQI N/A");
@@ -768,7 +768,7 @@ dissect_rtp_hdr_ext_ed137a_feature_climax_tdly(tvbuff_t *tvb, packet_info *pinfo
         climax_tdly_value_calc=2*climax_tdly_value;
 
         proto_tree_add_uint_format_value( tree, hf_rtp_hdr_ed137a_ft_climax_delay_relative_value, tvb, 0, 1, climax_tdly_value, "%d ms", climax_tdly_value_calc);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", CMX=%dms rel", climax_tdly_value_calc);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", CMX=%ums rel", climax_tdly_value_calc);
 
     }
     else {
@@ -1006,7 +1006,7 @@ static ed137rmm_transaction_t *transaction_end(packet_info * pinfo,
         col_append_fstr(pinfo->cinfo, COL_INFO, ", MAM>%.3f ms",(resp_time - (tsd*0.125)) / 2 + internal_t*0.125);
     }
 
-    col_append_frame_number(pinfo, COL_INFO, " (request in %d)",
+    col_append_frame_number(pinfo, COL_INFO, " (request in %u)",
             ed137rmm_trans->rqst_frame);
 
     return ed137rmm_trans;
