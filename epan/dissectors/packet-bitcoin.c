@@ -100,6 +100,7 @@ static int hf_bitcoin_length = -1;
 static int hf_bitcoin_magic = -1;
 static int hf_bitcoin_msg_addr = -1;
 static int hf_bitcoin_msg_block = -1;
+static int hf_bitcoin_msg_feefilter = -1;
 static int hf_bitcoin_msg_filteradd = -1;
 static int hf_bitcoin_msg_filterload = -1;
 static int hf_bitcoin_msg_getblocks = -1;
@@ -135,6 +136,7 @@ static int hf_msg_block_transactions32 = -1;
 static int hf_msg_block_transactions64 = -1;
 static int hf_msg_block_transactions8 = -1;
 static int hf_msg_block_version = -1;
+static int hf_msg_feefilter_value = -1;
 static int hf_msg_filteradd_data = -1;
 static int hf_msg_filterload_filter = -1;
 static int hf_msg_filterload_nflags = -1;
@@ -279,6 +281,11 @@ get_bitcoin_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
   length += tvb_get_letohl(tvb, offset+16);
 
   return length;
+}
+
+static void
+format_feefilter_value(gchar *buf, gint64 value) {
+  snprintf(buf, ITEM_LABEL_LENGTH, "%.3f sat/B", ((gdouble) value) / 1000);
 }
 
 /**
@@ -1077,6 +1084,24 @@ dissect_bitcoin_msg_reject(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 /**
+ * Handler for feefilter messages
+ */
+static int
+dissect_bitcoin_msg_feefilter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+  proto_item *ti;
+  guint32     offset = 0;
+
+  ti   = proto_tree_add_item(tree, hf_bitcoin_msg_feefilter, tvb, offset, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
+
+  proto_tree_add_item(tree, hf_msg_feefilter_value, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+  offset += 8;
+
+  return offset;
+}
+
+/**
  * Handler for filterload messages
  */
 static int
@@ -1852,6 +1877,16 @@ proto_register_bitcoin(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_bitcoin_msg_feefilter,
+      { "Feefilter message", "bitcoin.feefilter",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_feefilter_value,
+      { "Minimal fee", "bitcoin.feefilter.value",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(format_feefilter_value), 0x0,
+        NULL, HFILL }
+    },
     { &hf_bitcoin_msg_filterload,
       { "Filterload message", "bitcoin.filterload",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2131,6 +2166,8 @@ proto_reg_handoff_bitcoin(void)
   dissector_add_string("bitcoin.command", "reject", command_handle);
   command_handle = create_dissector_handle( dissect_bitcoin_msg_headers, proto_bitcoin );
   dissector_add_string("bitcoin.command", "headers", command_handle);
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_feefilter, proto_bitcoin );
+  dissector_add_string("bitcoin.command", "feefilter", command_handle);
   command_handle = create_dissector_handle( dissect_bitcoin_msg_filterload, proto_bitcoin );
   dissector_add_string("bitcoin.command", "filterload", command_handle);
   command_handle = create_dissector_handle( dissect_bitcoin_msg_filteradd, proto_bitcoin );
