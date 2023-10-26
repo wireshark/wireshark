@@ -851,6 +851,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btsap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btsdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btsmp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-busmirroring.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bvlc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bzr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-c15ch.c
