@@ -240,12 +240,16 @@ static void opcua_keylog_process_line(struct opcua_keylog_parser_ctx *ctx, const
                 hex_to_bin(value, keyset->client_iv, sizeof(keyset->client_iv));
             } else if (strcmp(parts[1], "key") == 0) {
                 keyset->client_key_len = (unsigned int)hex_to_bin(value, keyset->client_key, sizeof(keyset->client_key));
+            } else if (strcmp(parts[1], "siglen") == 0) {
+                keyset->client_sig_len = (unsigned int)strtoul(value, NULL, 10);
             }
         } else if (strcmp(parts[0], "server") == 0) {
             if (strcmp(parts[1], "iv") == 0) {
                 hex_to_bin(value, keyset->server_iv, sizeof(keyset->server_iv));
             } else if (strcmp(parts[1], "key") == 0) {
                 keyset->server_key_len = (unsigned int)hex_to_bin(value, keyset->server_key, sizeof(keyset->server_key));
+            } else if (strcmp(parts[1], "siglen") == 0) {
+                keyset->server_sig_len = (unsigned int)strtoul(value, NULL, 10);
             }
         }
     }
