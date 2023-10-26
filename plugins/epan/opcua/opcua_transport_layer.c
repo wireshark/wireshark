@@ -17,6 +17,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
+#include "epan/column-utils.h"
 #include "opcua_security_layer.h"
 #include "opcua_application_layer.h"
 #include "opcua_simpletypes.h"
@@ -45,6 +47,20 @@ static int hf_opcua_transport_rqid = -1;
 /** subtree types */
 extern gint ett_opcua_nodeid;
 extern gint ett_opcua_extensionobject;
+extern gint proto_opcua;
+
+/** Defined security policy URL from Part 7 OPC UA Specification. */
+#define UA_SECURITY_POLICY_NONE_STRING "http://opcfoundation.org/UA/SecurityPolicy#None"
+/** Defined security policy URL from Part 7 OPC UA Specification. */
+#define UA_SECURITY_POLICY_BASIC128RSA15_STRING "http://opcfoundation.org/UA/SecurityPolicy#Basic128Rsa15"
+/** Defined security policy URL from Part 7 OPC UA Specification. */
+#define UA_SECURITY_POLICY_BASIC256_STRING "http://opcfoundation.org/UA/SecurityPolicy#Basic256"
+/** Defined security policy URL from Part 7 OPC UA Specification. */
+#define UA_SECURITY_POLICY_BASIC256SHA256_STRING "http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256"
+/** Defined security policy URL from Part 7 OPC UA Specification. */
+#define UA_SECURITY_POLICY_AES128_SHA256_RSAOAEP_STRING "http://opcfoundation.org/UA/SecurityPolicy#Aes128_Sha256_RsaOaep"
+/** Defined security policy URL from Part 7 OPC UA Specification. */
+#define UA_SECURITY_POLICY_AES256_SHA256_RSAPSS_STRING "http://opcfoundation.org/UA/SecurityPolicy#Aes256_Sha256_RsaPss"
 
 /** Register transport layer types. */
 void registerTransportLayerTypes(int proto)
@@ -75,12 +91,17 @@ void registerTransportLayerTypes(int proto)
     proto_register_field_array(proto, hf, array_length(hf));
 }
 
-/* Transport Layer: message parsers */
-int parseHello(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseMessageHeader(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, struct ua_metadata *data _U_)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+}
+
+/* Transport Layer: message parsers */
+int parseHello(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data _U_)
+{
+    parseMessageHeader(tree, tvb, pinfo, pOffset, data);
     proto_tree_add_item(tree, hf_opcua_transport_ver, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_rbs, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
@@ -90,11 +111,9 @@ int parseHello(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffse
     return -1;
 }
 
-int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, struct ua_metadata *data _U_)
 {
-    proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
-    proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    parseMessageHeader(tree, tvb, pinfo, pOffset, data);
     proto_tree_add_item(tree, hf_opcua_transport_ver, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_rbs, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
@@ -103,48 +122,40 @@ int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gi
     return -1;
 }
 
-int parseError(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+int parseError(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data _U_)
 {
-    proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
-    proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    parseMessageHeader(tree, tvb, pinfo, pOffset, data);
     parseStatusCode(tree, tvb, pinfo, pOffset, hf_opcua_transport_error);
     parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_reason);
     return -1;
 }
 
-int parseReverseHello(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+int parseReverseHello(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data _U_)
 {
-    proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
-    proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    parseMessageHeader(tree, tvb, pinfo, pOffset, data);
     parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_suri);
     parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_endpoint);
     return -1;
 }
 
-int parseMessage(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+int parseMessage(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, struct ua_metadata *data _U_)
 {
-    proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
-    proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    parseMessageHeader(tree, tvb, pinfo, pOffset, data);
     proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-
-    /* message data contains the security layer */
-    parseSecurityLayer(tree, tvb, pOffset);
 
     return -1;
 }
 
-int parseAbort(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+int parseAbort(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, struct ua_metadata *data _U_)
 {
+    parseMessageHeader(tree, tvb, pinfo, pOffset, data);
     parseStatusCode(tree, tvb, pinfo, pOffset, hf_opcua_transport_error);
     parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_reason);
 
     return -1;
 }
 
-int parseService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+int parseService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data _U_)
 {
     proto_item *ti;
     proto_item *ti_inner;
@@ -152,83 +163,120 @@ int parseService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOff
     proto_tree *nodeid_tree;
     int ServiceId = 0;
 
-    /* AT THE MOMENT NO SECURITY IS IMPLEMENTED IN UA.
-     * WE CAN JUST JUMP INTO THE APPLICATION LAYER DATA.
-     * THIS WILL CHAHNGE IN THE FUTURE. */
-
     /* add encodeable object subtree */
-    encobj_tree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_extensionobject, &ti, "OpcUa Service : Encodeable Object");
+    encobj_tree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_extensionobject, &ti, "Message: Encodeable Object");
 
     /* add nodeid subtree */
-    nodeid_tree = proto_tree_add_subtree(encobj_tree, tvb, *pOffset, -1, ett_opcua_nodeid, &ti_inner, "TypeId : ExpandedNodeId");
+    nodeid_tree = proto_tree_add_subtree(encobj_tree, tvb, *pOffset, -1, ett_opcua_nodeid, &ti_inner, "TypeId: ExpandedNodeId");
     ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset);
     proto_item_set_end(ti_inner, tvb, *pOffset);
 
-    dispatchService(encobj_tree, tvb, pinfo, pOffset, ServiceId);
+    if (ServiceId >= 0) {
+        dispatchService(encobj_tree, tvb, pinfo, pOffset, ServiceId);
+    }
 
     proto_item_set_end(ti, tvb, *pOffset);
     return ServiceId;
 }
 
-int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+/**
+ * Stores the messages mode and signature length for this TCP connection.
+ * We need to know this mode in the following message to decide if decryption is required or not.
+ */
+void store_encryption_info(packet_info *pinfo, enum ua_message_mode mode, uint8_t sig_len)
 {
-    proto_item *ti;
-    proto_item *ti_inner;
-    proto_tree *encobj_tree;
-    proto_tree *nodeid_tree;
-    int ServiceId = 0;
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (conv) {
+        uintptr_t data = (uintptr_t)mode;
+        data |= ((uintptr_t)sig_len << 8);
+        conversation_add_proto_data(conv, proto_opcua, (gpointer)data);
+    }
+}
 
+/** Returns the message mode and signature length for current TCP connection. */
+void get_encryption_info(packet_info *pinfo, enum ua_message_mode *mode, uint8_t *sig_len)
+{
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (conv) {
+        uintptr_t data = (uintptr_t)conversation_get_proto_data(conv, proto_opcua);
+        *mode = (enum ua_message_mode)(data & 0xff);
+        *sig_len = (uintptr_t)(data >> 8);
+    }
+}
+
+/**
+ * Compares an unterminated string of a string constant.
+ *
+ * @param text Unterminated string to compare.
+ * @param text_len String data.
+ * @param ref_text Zero terminated string constant to compare with.
+ *
+ * @return 0 if equal, -1 if not.
+ */
+static int opcua_string_compare(const char *text, gint text_len, const char *ref_text)
+{
+    gint len = (gint)strlen(ref_text);
+    if (text_len == len && memcmp(text, ref_text, len) == 0) return 0;
+
+    return -1;
+}
+
+int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data)
+{
+    const guint8 *sec_policy = NULL;
+    gint sec_policy_len = 0;
+    int ServiceId = -1;
+    bool encrypted = false;
+
+    // Message Header
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-    parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_spu);
+    // Asym Security Header
+    parseString_ret_string_and_length(tree, tvb, pinfo, pOffset, hf_opcua_transport_spu, &sec_policy, &sec_policy_len);
     parseByteString(tree, tvb, pinfo, pOffset, hf_opcua_transport_scert);
     parseByteString(tree, tvb, pinfo, pOffset, hf_opcua_transport_rcthumb);
-    proto_tree_add_item(tree, hf_opcua_transport_seq, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_rqid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 
-    /* add encodeable object subtree */
-    encobj_tree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_extensionobject, &ti, "Message : Encodeable Object");
+    if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_NONE_STRING ) == 0) {
+        store_encryption_info(pinfo, UA_MessageMode_None, 0);
+    } else {
+        guint8 sig_len = 0;
+        // OPN is always encrypted for Policies != None, for both message modes Sign and SignAndEncrypted
+        encrypted = true;
+        // determine signature length based on security policy
+        if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_BASIC128RSA15_STRING ) == 0) {
+            sig_len = 20;
+        } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_BASIC256_STRING ) == 0) {
+            sig_len = 20;
+        } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_BASIC256SHA256_STRING ) == 0) {
+            sig_len = 32;
+        } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_AES128_SHA256_RSAOAEP_STRING ) == 0) {
+            sig_len = 32;
+        } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_AES256_SHA256_RSAPSS_STRING ) == 0) {
+            sig_len = 32;
+        }
+        // We don't know the messagemode without decrypting the OPN, so we assume it is SignAndEncrypt,
+        // we will try to decode the next service (CreateSession) and if it succeeds we change the mode to Sign
+        // or SignAndEncrypt accordingly
+        store_encryption_info(pinfo, UA_MessageMode_MaybeEncrypted, sig_len);
+    }
 
-    /* add nodeid subtree */
-    nodeid_tree = proto_tree_add_subtree(encobj_tree, tvb, *pOffset, -1, ett_opcua_nodeid, &ti_inner, "TypeId : ExpandedNodeId");
-    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset);
-    proto_item_set_end(ti_inner, tvb, *pOffset);
+    data->encrypted = encrypted;
+    if (!encrypted) {
+        parseSequenceHeader(tree, tvb, pOffset, data);
+        ServiceId = parseService(tree, tvb, pinfo,pOffset, data);
+    }
 
-    dispatchService(encobj_tree, tvb, pinfo, pOffset, ServiceId);
-
-    proto_item_set_end(ti, tvb, *pOffset);
     return ServiceId;
 }
 
-int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data _U_)
 {
-    proto_item *ti;
-    proto_item *ti_inner;
-    proto_tree *encobj_tree;
-    proto_tree *nodeid_tree;
-    int ServiceId = 0;
-
-    proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
-    proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    parseMessageHeader(tree, tvb, pinfo, pOffset, data);
     proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 
-    parseSecurityLayer(tree, tvb, pOffset);
-
-    /* add encodeable object subtree */
-    encobj_tree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_extensionobject, &ti, "Message : Encodeable Object");
-
-    /* add nodeid subtree */
-    nodeid_tree = proto_tree_add_subtree(encobj_tree, tvb, *pOffset, -1, ett_opcua_nodeid, &ti_inner, "TypeId : ExpandedNodeId");
-    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset);
-    proto_item_set_end(ti_inner, tvb, *pOffset);
-
-    dispatchService(encobj_tree, tvb, pinfo, pOffset, ServiceId);
-
-    proto_item_set_end(ti, tvb, *pOffset);
-    return ServiceId;
+    return -1;
 }
 
 /*

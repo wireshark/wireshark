@@ -28,6 +28,7 @@ set(DISSECTOR_SUPPORT_SRC
 	opcua_extensionobjecttable.c
 	opcua_hfindeces.c
 	opcua_statuscode.c
+	opcua_keyset.c
 )
 
 set(PLUGIN_FILES
@@ -50,7 +51,7 @@ register_plugin_files(plugin.c
 
 add_wireshark_plugin_library(opcua epan)
 
-target_link_libraries(opcua epan)
+target_link_libraries(opcua epan ${GCRYPT_LIBRARIES})
 
 install_plugin(opcua epan)
 

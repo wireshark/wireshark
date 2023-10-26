@@ -14,34 +14,59 @@
 ** Author: Gerhard Gappmeier <gerhard.gappmeier@ascolab.com>
 ******************************************************************************/
 
-#include "config.h"
-
-#include <epan/packet.h>
-#include <epan/reassemble.h>
 #include <epan/dissectors/packet-tcp.h>
-#include "opcua_transport_layer.h"
-#include "opcua_security_layer.h"
+#include <epan/packet.h>
+#include <epan/prefs.h>
+#include <epan/range.h>
+#include <epan/reassemble.h>
+#include <epan/tvbuff.h>
+#include <gcrypt.h>
+#include <wsutil/file_util.h>
+
+#include "config.h"
 #include "opcua_application_layer.h"
 #include "opcua_complextypeparser.h"
-#include "opcua_serviceparser.h"
 #include "opcua_enumparser.h"
-#include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
+#include "opcua_keyset.h"
+#include "opcua_security_layer.h"
+#include "opcua_serviceparser.h"
+#include "opcua_serviceids.h"
+#include "opcua_simpletypes.h"
+#include "opcua_transport_layer.h"
 
 void proto_register_opcua(void);
 
 extern const value_string g_requesttypes[];
 extern const int g_NumServices;
+static const gchar *g_opcua_debug_file_name = NULL;
 
 /* forward reference */
 void proto_reg_handoff_opcua(void);
 /* declare parse function pointer */
-typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
+typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data);
 
 int proto_opcua = -1;
 static dissector_handle_t opcua_handle;
+static module_t *opcua_module;
+
+/* #define OPCUA_DEBUG */
+#ifdef OPCUA_DEBUG
+# define debugprintf(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__);
+#else
+# define debugprintf(fmt, ...)
+#endif
+
 /** Official IANA registered port for OPC UA Binary Protocol. */
+#define OPCUA_DEFAULT_PORT 4840
+/* default port range for preferences */
 #define OPCUA_PORT_RANGE "4840"
+/** header length that is needed to compute the pdu length.
+  * @see get_opcua_message_len
+  */
+#define FRAME_HEADER_LEN 8
+/* AES block size: for both AES128 and AES256 the block size is 128 bits */
+#define AES_BLOCK_SIZE 16
 
 /** subtree types used in opcua_transport_layer.c */
 gint ett_opcua_extensionobject = -1;
@@ -115,15 +140,6 @@ static const char* g_szMessageTypes[] =
     "Invalid message"
 };
 
-
-
-
-/** header length that is needed to compute
-  * the pdu length.
-  * @see get_opcua_message_len
-  */
-#define FRAME_HEADER_LEN 8
-
 /** returns the length of an OpcUa message.
   * This function reads the length information from
   * the transport header.
@@ -139,6 +155,266 @@ static guint get_opcua_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     return plen;
 }
 
+/* Helper function to convert hex string to binary data */
+guint hex_to_bin(const char *hex_string, unsigned char *binary_data, unsigned int binary_size)
+{
+    guint length = (guint)strlen(hex_string);
+    guint i;
+
+    for (i = 0; i < length / 2 && i < binary_size; ++i) {
+        sscanf(hex_string + 2 * i, "%2hhx", &binary_data[i]);
+    }
+
+    return i;
+}
+
+/**
+ * Loads the configured OPCUA Keylog file.
+ */
+void load_keysets(const char *filename)
+{
+    struct ua_keyset *keyset = NULL;
+    char key[33]; /* 32 chars + null terminator */
+    char value[65]; /* 64 hex chars + null terminator */
+    const char *parts[4]; /* for string split */
+    unsigned int num_parts;
+    char *tmp;
+    uint32_t token_id = 0;
+    uint32_t channel_id = 0;
+    uint64_t id = 0;
+    uint64_t last_id = 0;
+    int n;
+
+    debugprintf("Loading key file '%s'...\n", filename);
+    FILE *f = ws_fopen(filename, "r");
+    if (f == NULL) {
+        debugprintf("error: '%s' not found\n", filename);
+        return;
+    }
+
+    while ((n = fscanf(f, "%32[^:]: %64s\n", key, value)) == 2) {
+        debugprintf("%s = %s\n", key, value);
+        /* split key into parts */
+        num_parts = 0;
+        tmp = strtok(key, "_");
+        while (tmp) {
+            parts[num_parts++] = tmp;
+            tmp = strtok(NULL, "_");
+        }
+        if (num_parts != 4) continue; /* skip invalid enty */
+        channel_id = (uint32_t)strtoul(parts[2], NULL, 10);
+        token_id = (uint32_t)strtoul(parts[3], NULL, 10);
+
+        debugprintf("channel_id = %u\n", channel_id);
+        debugprintf("token_id = %u\n", token_id);
+
+        /* create unique keyset id */
+        id = ua_keyset_id(channel_id, token_id);
+
+        if (keyset == NULL || id != last_id) {
+            debugprintf("Adding new keyset for id %lu...\n", id);
+            /* create new keyset for new id */
+            keyset = ua_keysets_add();
+            keyset->id = id;
+            last_id = id;
+        }
+        if (keyset) {
+            /* store key material */
+            if (strcmp(parts[0], "client") == 0) {
+                if (strcmp(parts[1], "iv") == 0) {
+                    hex_to_bin(value, keyset->client_iv, sizeof(keyset->client_iv));
+                } else if (strcmp(parts[1], "key") == 0) {
+                    keyset->client_key_len = (unsigned int)hex_to_bin(value, keyset->client_key, sizeof(keyset->client_key));
+                } else if (strcmp(parts[1], "siglen") == 0) {
+                    keyset->client_sig_len = (unsigned int)strtoul(value, NULL, 10);
+                }
+            } else if (strcmp(parts[0], "server") == 0) {
+                if (strcmp(parts[1], "iv") == 0) {
+                    hex_to_bin(value, keyset->server_iv, sizeof(keyset->server_iv));
+                } else if (strcmp(parts[1], "key") == 0) {
+                    keyset->server_key_len = (unsigned int)hex_to_bin(value, keyset->server_key, sizeof(keyset->server_key));
+                } else if (strcmp(parts[1], "siglen") == 0) {
+                    keyset->server_sig_len = (unsigned int)strtoul(value, NULL, 10);
+                }
+            }
+        }
+    }
+    /* sort data by id to make lookup working */
+    ua_keysets_sort();
+
+    fclose(f);
+}
+
+
+/**
+ * Checks the padding of a symetric signed message.
+ * A message always contains a padding_len byte, which tells us the length of
+ * the padding. All following padding bytes contain the same value. This makes it
+ * possible the padding from the end of the message.
+ * Example Paddings:
+ * - 00
+ * - 01 01
+ * - 02 02 02
+ * @param padding Pointer to last padding byte.
+ * @return padding length on success, -1 if the paddding is invalid.
+ */
+static int verify_padding(const guint8 *padding)
+{
+    uint8_t pad_len;
+    uint8_t i;
+
+    pad_len = *padding;
+
+    for (i = 0; i < pad_len; ++i) {
+        if (padding[-pad_len + i] != pad_len) return -1;
+    }
+
+    return pad_len;
+}
+/**
+ * Gets security footer info.
+ *
+ * @param channel_id SecureChannelId for keyset lookup.
+ * @param token_id TokenId for keyset lookup.
+ * @param sig_len Returns the length of the signature.
+ * @param from_server True of the message is sent from the server, false when sent from the client.
+ *
+ * @return Returns 0 on success, -1 if parsing failed.
+ */
+static int opcua_get_footer_info(uint32_t channel_id, uint32_t token_id, guint8 *sig_len, bool from_server)
+{
+    struct ua_keyset *keyset;
+    uint64_t id;
+
+    id = ua_keyset_id(channel_id, token_id);
+
+    /* try to get correct signature length from key log file */
+    keyset = ua_keysets_lookup(id);
+    if (keyset) {
+        /* The Client keys are used to secure Messages sent by the Client. The Server keys are used to
+         * secure Messages sent by the Server.
+         */
+        if (from_server) {
+            *sig_len = keyset->server_sig_len;
+        } else {
+            *sig_len = keyset->client_sig_len;
+        }
+    }
+
+    debugprintf("no keyset found for channel_id=%u and token_id=%u\n", channel_id, token_id);
+    /* we use sig_len set from OpenSecurehChannel Policy in this case.
+     * this requires to have the OPN in the capture file, otherwise we are out of luck.
+     */
+
+    return 0;
+}
+
+/**
+ * This function to perform AES decryption on service data in-place.
+ * Add also determines the payload length by removing the padding and signature.
+ *
+ * @param channel_id SecureChannelId for keyset lookup.
+ * @param token_id TokenId for keyset lookup.
+ * @param cipher The cipher text.
+ * @param cipher_len The cipher test length in bytes.
+ * @param plaintext The plaintext to return.
+ * @param plaintext_len The plaintext in bytes, should be the same as cipher_len.
+ * @param padding_len Returns the length of the padding.
+ * @param sig_len Returns the length of the signature.
+ * @param from_server True of the message is sent from the server, false when sent from the client.
+ *
+ * @return Returns 0 on success, -1 if decryption failed.
+ */
+static int decrypt_opcua(
+        uint32_t channel_id, uint32_t token_id,
+        const guint8 *cipher, guint cipher_len,
+        guint8 *plaintext, guint plaintext_len,
+        guint8 *padding_len, guint8 *sig_len, bool from_server)
+{
+    struct ua_keyset *keyset;
+    uint64_t id;
+    unsigned int keylen, ivlen;
+    unsigned char *keydata, *ivdata;
+    int cipher_mode;
+    gcry_error_t res;
+    int ret = 0;
+
+    id = ua_keyset_id(channel_id, token_id);
+
+    keyset = ua_keysets_lookup(id);
+    if (keyset == NULL) {
+        debugprintf("no keyset found for channel_id=%u and token_id=%u\n", channel_id, token_id);
+        /* col_append_fstr(pinfo->cinfo, COL_INFO, " (encrypted)"); */
+        return -1;
+    }
+    debugprintf("found keyset for channel_id=%u and token_id=%u\n", channel_id, token_id);
+
+    /* The Client keys are used to secure Messages sent by the Client. The Server keys are used to
+     * secure Messages sent by the Server.
+     */
+    if (from_server) {
+        ivlen = sizeof(keyset->server_iv);
+        ivdata = keyset->server_iv;
+        keylen = keyset->server_key_len;
+        keydata = keyset->server_key;
+        *sig_len = keyset->server_sig_len;
+    } else {
+        ivlen = sizeof(keyset->client_iv);
+        ivdata = keyset->client_iv;
+        keylen = keyset->client_key_len;
+        keydata = keyset->client_key;
+        *sig_len = keyset->client_sig_len;
+    }
+    /* derive AES mode from key length */
+    switch (keylen) {
+    case 16:
+        debugprintf("using AES-128-CBC\n");
+        cipher_mode = GCRY_CIPHER_AES128;
+        break;
+    case 32:
+        debugprintf("using AES-256-CBC\n");
+        cipher_mode = GCRY_CIPHER_AES256;
+        break;
+    default:
+        debugprintf("invalid AES key length: %u bytes\n", keylen);
+        /* col_append_fstr(pinfo->cinfo, COL_INFO, " (encrypted)"); */
+        return -1;
+    }
+
+    debugprintf("cipher_len=%u\n", cipher_len);
+    if (cipher_len % 16 != 0) {
+        debugprintf("warning: cipher_len not a multiple of 16.\n");
+    }
+
+    gcry_cipher_hd_t handle;
+    gcry_cipher_open(&handle, cipher_mode, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_CBC_CTS);
+    gcry_cipher_setkey(handle, keydata, keylen);
+    gcry_cipher_setiv(handle, ivdata, ivlen);
+
+    /* Decrypt the data in-place */
+    res = gcry_cipher_decrypt(handle, plaintext, plaintext_len, cipher, cipher_len);
+    if (res == 0) {
+        /* col_append_fstr(pinfo->cinfo, COL_INFO, " (decrypted)"); */
+    } else {
+        /* col_append_fstr(pinfo->cinfo, COL_INFO, " (encrypted)"); */
+        debugprintf("decryption failed.\n");
+        ret = -1;
+    }
+    gcry_cipher_close(handle);
+
+    ret = verify_padding(&plaintext[plaintext_len - *sig_len - 1]);
+    if (ret < 0) {
+        debugprintf("padding is invalid.\n");
+    }
+
+    /* return padding length */
+    *padding_len = plaintext[plaintext_len - *sig_len - 1];
+    debugprintf("sig_len=%u\n", *sig_len);
+    debugprintf("pad_len=%u\n", *padding_len);
+
+    return 0;
+}
+
 /** The OpcUa message dissector.
   * This method dissects full OpcUa messages.
   * It gets only called with reassembled data
@@ -148,8 +424,31 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     FctParse pfctParse = NULL;
     enum MessageType msgtype = MSG_INVALID;
+    guint16 src_port = pinfo->srcport;
+    range_t *port_range;
+    bool from_server = false;
+    bool decrypted = false; /* succesfully decrypted secure message */
+    enum ua_message_mode mode = UA_MessageMode_None;
+    uint8_t sig_len = 0;
+    struct ua_metadata metadata;
+    tvbuff_t *decrypted_tvb = NULL;
+    int ret;
+
+    /* determine if telegram is from server or from client by checking the port number */
+    if (src_port == OPCUA_DEFAULT_PORT) {
+        from_server = true;
+    } else {
+        port_range = prefs_get_range_value("opcua", "tcp.port");
+        if (port_range && value_is_in_range(port_range, src_port)) {
+            from_server = true;
+        }
+    }
+
+    metadata.encrypted = false;
+    get_encryption_info(pinfo, &mode, &sig_len);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpcUa");
+
 
     /* parse message type */
     if (tvb_memeql(tvb, 0, (const guint8 * )"HEL", 3) == 0)
@@ -207,9 +506,10 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         gint offset = 0;
         int iServiceId = -1;
-        tvbuff_t *next_tvb = tvb;
         gboolean bParseService = TRUE;
-        gboolean bIsLastFragment = FALSE;
+        gboolean bIsFinalChunk = FALSE;
+        guint payload_len = 0;
+        guint8 pad_len = 0;
 
         /* we are being asked for details */
         proto_item *ti = NULL;
@@ -218,63 +518,144 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         ti = proto_tree_add_item(tree, proto_opcua, tvb, 0, -1, ENC_NA);
         transport_tree = proto_item_add_subtree(ti, ett_opcua_transport);
 
-        /* MSG_MESSAGE might be fragmented, check for that */
-        if (msgtype == MSG_MESSAGE)
+        /* call the transport message dissector */
+        (*pfctParse)(transport_tree, tvb, pinfo, &offset, &metadata);
+
+        /* MSG_MESSAGE and MSG_CLOSESECURECHANNEL can be decrypted.
+         * Also handle chunked message reassembly for MSG_MESSAGE.
+         */
+        if (msgtype == MSG_MESSAGE || msgtype == MSG_CLOSESECURECHANNEL)
         {
             guint8 chunkType = 0;
-            guint32 opcua_seqid = 0;
-            guint32 opcua_num = 0;
-            guint32 opcua_seqnum;
+            guint32 opcua_seqno = 0; /* OPCUA sequence number */
+            guint32 opcua_reqid = 0; /* OPCUA request id */
+            guint32 opcua_frag_seqnum; /* wireshark reassemble fragment number (zero based) */
             fragment_head *frag_msg = NULL;
             fragment_item *frag_i = NULL;
 
             offset = 3;
-
             chunkType = tvb_get_guint8(tvb, offset); offset += 1;
+            offset += 4; /* message size */
+            offset += 4; /* skip secure channel_id */
+            parseSecurityHeader(transport_tree, tvb, &offset, &metadata); /* only token_id (4 byte) */
 
-            offset += 4; /* Message Size */
-            offset += 4; /* SecureChannelId */
-            offset += 4; /* Security Token Id */
+            if (mode == UA_MessageMode_MaybeEncrypted) {
+                /* try to parse ServiceId */
+                iServiceId = getServiceNodeId(tvb, offset + 8); /* skip 4 byte SeqNo and 4 byte RequestId */
+                const gchar *szServiceName = val_to_str((guint32)iServiceId, g_requesttypes, "not found");
+                if (strcmp(szServiceName, "not found") == 0) {
+                    mode = UA_MessageMode_SignAndEncrypt;
+                } else {
+                    mode = UA_MessageMode_Sign;
+                }
+                store_encryption_info(pinfo, mode, sig_len);
+            }
 
-            opcua_num = tvb_get_letohl(tvb, offset); offset += 4; /* Security Sequence Number */
-            opcua_seqid = tvb_get_letohl(tvb, offset); offset += 4; /* Security RequestId */
+            /* Message Structure:
+             *             +-----------------+
+             *          /  | Message Header  |   MSGF, MessageSize
+             *          |  +-----------------+
+             *          |  | Security Header |   SecureChannelId, TokenId
+             *          |  +-----------------+
+             * Signed  <   | Sequence Header | \ SequenceNumber, RequestId
+             *          |  +-----------------+ |
+             *          |  | Body            | |
+             *          |  +-----------------+  > Encrypted
+             *          \  | Padding         | |
+             *             +-----------------+ |
+             *             | Signature       | /
+             *             +-----------------+
+             */
+            if (mode == UA_MessageMode_SignAndEncrypt) {
+                uint32_t channel_id = tvb_get_letohl(tvb, 8);
+                uint32_t token_id = tvb_get_letohl(tvb, 12);
+                guint cipher_len = tvb_ensure_captured_length_remaining(tvb, 16);
+                guint plaintext_len = cipher_len;
+                const guint8 *cipher = tvb_get_ptr(tvb, 16, (gint)cipher_len);
+                guchar *plaintext = (guchar*)wmem_alloc(pinfo->pool, plaintext_len);
+
+                ret = decrypt_opcua(channel_id, token_id, cipher, cipher_len, plaintext, plaintext_len, &pad_len, &sig_len, from_server);
+                if (ret == 0) {
+                    /* decrypted */
+                    /* to get the payload length we need to subtract the sequence header (8) byte,
+                     * the padding (paddin_len+1), and the signature from the plaintext */
+                    payload_len = plaintext_len - pad_len - sig_len - 9; /* pad_len 2 = 02 02 02 */
+                    /* Now re-setup the tvb buffer to have the new data */
+                    decrypted_tvb = tvb_new_child_real_data(tvb, plaintext, (guint)plaintext_len, (gint)plaintext_len);
+                    add_new_data_source(pinfo, decrypted_tvb, "Decrypted Data");
+                    /* process decrypted_tvb from here */
+                    tvb = decrypted_tvb;
+                    offset = 0;
+                    decrypted = true;
+                } else {
+                    /* decryption failed */
+                    metadata.encrypted = true;
+                }
+            } else if (mode == UA_MessageMode_Sign) {
+                uint32_t channel_id = tvb_get_letohl(tvb, 8);
+                uint32_t token_id = tvb_get_letohl(tvb, 12);
+                payload_len = tvb_ensure_captured_length_remaining(tvb, 24); /* subtract header */
+
+                ret = opcua_get_footer_info(channel_id, token_id, &sig_len, from_server);
+                if (ret != 0) {
+                    debugprintf("Processing security footer of signed message failed.\n");
+                } else {
+                    /* signed only messages habe no padding, so the payload is the message size
+                     * without 24 byte header and without signature */
+                    payload_len -= sig_len;
+                }
+                /* store the current tvb as decrypted tvb, because we need this to parse the signature
+                 * at the end, and tvb gets replaces with the reassembled UA message if the message was chunked.
+                 */
+                decrypted_tvb = tvb;
+            } else {
+                /* no padding, no signature, just payload */
+                payload_len = tvb_ensure_captured_length_remaining(tvb, 16);
+                pad_len= 0;
+                sig_len = 0;
+            }
+
+            opcua_seqno = tvb_get_letohl(tvb, offset); /* Sequence.Sequence Number */
+            opcua_reqid = tvb_get_letohl(tvb, offset + 4); /* Sequence.RequestId */
+            parseSequenceHeader(transport_tree, tvb, &offset, &metadata);
 
             if (chunkType == 'A')
             {
-                fragment_delete(&opcua_reassembly_table, pinfo, opcua_seqid, NULL);
+                /* cancel chunk reassembly */
+                fragment_delete(&opcua_reassembly_table, pinfo, opcua_reqid, NULL);
 
                 col_clear_fence(pinfo->cinfo, COL_INFO);
                 col_set_str(pinfo->cinfo, COL_INFO, "Abort message");
 
                 offset = 0;
-                (*pfctParse)(transport_tree, tvb, pinfo, &offset);
-                parseAbort(transport_tree, tvb, pinfo, &offset);
+                (*pfctParse)(transport_tree, tvb, pinfo, &offset, &metadata);
+                parseAbort(transport_tree, tvb, pinfo, &offset, &metadata);
 
                 return tvb_reported_length(tvb);
             }
 
             /* check if tvb is part of a chunked message:
                the UA protocol does not tell us that, so we look into
-               opcua_reassembly_table if the opcua_seqid belongs to a
+               opcua_reassembly_table if the opcua_reqid belongs to a
                chunked message */
-            frag_msg = fragment_get(&opcua_reassembly_table, pinfo, opcua_seqid, NULL);
+            frag_msg = fragment_get(&opcua_reassembly_table, pinfo, opcua_reqid, NULL);
             if (frag_msg == NULL)
             {
-                frag_msg = fragment_get_reassembled_id(&opcua_reassembly_table, pinfo, opcua_seqid);
+                frag_msg = fragment_get_reassembled_id(&opcua_reassembly_table, pinfo, opcua_reqid);
             }
 
-            if (frag_msg != NULL || chunkType != 'F')
+            if (frag_msg != NULL || chunkType == 'C')
             {
                 gboolean bSaveFragmented = pinfo->fragmented;
                 gboolean bMoreFragments = TRUE;
-                tvbuff_t *new_tvb = NULL;
+                tvbuff_t *reassembled_tvb = NULL;
 
                 pinfo->fragmented = TRUE;
 
                 if (frag_msg == NULL)
                 {
                     /* first fragment */
-                    opcua_seqnum = 0;
+                    opcua_frag_seqnum = 0;
                 }
                 else
                 {
@@ -282,14 +663,14 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                        arbitrary value, so we have to fake the numbers in the stored fragments.
                        this way Wireshark reassembles the message, as it expects the fragment
                        sequence numbers to start at 0 */
-                    for (frag_i = frag_msg->next; frag_i; frag_i = frag_i->next) {}
+                    for (frag_i = frag_msg->next; frag_i && frag_i->next; frag_i = frag_i->next); /* get last fragment */
                     if (frag_i) {
-                        opcua_seqnum = frag_i->offset + 1;
+                        opcua_frag_seqnum = frag_i->offset + 1; /* offset contains fragment number */
                     } else {
                         /* We should never have a fragment head with no fragment items, but
                          * just in case.
                          */
-                        opcua_seqnum = 0;
+                        opcua_frag_seqnum = 0;
                     }
 
                     if (chunkType == 'F')
@@ -302,76 +683,88 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                                   tvb,
                                                   offset,
                                                   pinfo,
-                                                  opcua_seqid, /* ID for fragments belonging together */
+                                                  opcua_reqid, /* ID for fragments belonging together */
                                                   NULL,
-                                                  opcua_seqnum, /* fragment sequence number */
-                                                  tvb_captured_length_remaining(tvb, offset), /* fragment length - to the end */
+                                                  opcua_frag_seqnum, /* fragment sequence number */
+                                                  payload_len,
                                                   bMoreFragments); /* More fragments? */
 
-                new_tvb = process_reassembled_data(tvb,
+                reassembled_tvb = process_reassembled_data(tvb,
                                                    offset,
                                                    pinfo,
-                                                   "Reassembled Message",
+                                                   "Reassembled UA Message",
                                                    frag_msg,
                                                    &opcua_frag_items,
                                                    NULL,
                                                    transport_tree);
 
-                if (new_tvb)
+                if (reassembled_tvb)
                 {
                     /* Reassembled */
-                    bIsLastFragment = TRUE;
+                    bIsFinalChunk = TRUE;
+                    /* take it all */
+                    tvb = reassembled_tvb;
+                    /* new tvb starts at payload */
+                    offset = 0;
                 }
                 else
                 {
                     /* Not last packet of reassembled UA message */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %u)", opcua_num);
-                }
-
-                if (new_tvb)
-                {
-                    /* take it all */
-                    next_tvb = new_tvb;
-                }
-                else
-                {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %u)", opcua_seqno);
                     /* only show transport header */
                     bParseService = FALSE;
-                    next_tvb = tvb_new_subset_remaining(tvb, 0);
+                    tvb = tvb_new_subset_remaining(tvb, 0);
                 }
 
                 pinfo->fragmented = bSaveFragmented;
             }
         }
 
-        offset = 0;
+        /* parse payload if not encrypted */
+        if (!metadata.encrypted && bParseService) {
+            if (msgtype == MSG_CLOSESECURECHANNEL) {
+                iServiceId = parseService(transport_tree, tvb, pinfo, &offset, &metadata);
+                if (iServiceId == OpcUaId_CloseSecureChannelRequest_Encoding_DefaultBinary) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ": CloseSecureChannelRequest");
+                } else if (iServiceId == OpcUaId_CloseSecureChannelResponse_Encoding_DefaultBinary) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ": CloseSecureChannelResponse");
+                } else {
+                    const gchar *szServiceName = val_to_str((guint32)iServiceId, g_requesttypes, "ServiceId %d");
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s (Wrong ServiceId)", szServiceName);
+                }
+            } else if (msgtype == MSG_MESSAGE) {
+                /* parse the service if not chunked or message was reassembled */
+                iServiceId = parseService(transport_tree, tvb, pinfo, &offset, &metadata);
 
-        /* call the transport message dissector */
-        iServiceId = (*pfctParse)(transport_tree, tvb, pinfo, &offset);
+                /* display the service type in addition to the message type */
+                if (iServiceId != -1)
+                {
+                    const gchar *szServiceName = val_to_str((guint32)iServiceId, g_requesttypes, "ServiceId %d");
 
-        /* parse the service if not chunked or last chunk */
-        if (msgtype == MSG_MESSAGE && bParseService)
-        {
-            if (bIsLastFragment != FALSE)
-            {
-                offset = 0;
+                    if (bIsFinalChunk == FALSE)
+                    {
+                        /* normal message in one chunk */
+                        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", szServiceName);
+                    }
+                    else
+                    {
+                        /* reassembled message from multiple chunks */
+                        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s (Message Reassembled)", szServiceName);
+                    }
+                }
             }
-            iServiceId = parseService(transport_tree, next_tvb, pinfo, &offset);
+            if (mode == UA_MessageMode_SignAndEncrypt && decrypted) {
+                /* parse padding and signature */
+                parseSecurityFooterSAE(transport_tree, decrypted_tvb, 8 + payload_len, pad_len, sig_len);
+            } else if (mode == UA_MessageMode_Sign) {
+                /* parse signature */
+                parseSecurityFooterSO(transport_tree, decrypted_tvb, 24 + payload_len, sig_len);
+            }
         }
-
-        /* display the service type in addition to the message type */
-        if (iServiceId != -1)
-        {
-            const gchar *szServiceName = val_to_str((guint32)iServiceId, g_requesttypes, "ServiceId %d");
-
-            if (bIsLastFragment == FALSE)
-            {
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", g_szMessageTypes[msgtype], szServiceName);
-            }
-            else
-            {
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s (Message Reassembled)", g_szMessageTypes[msgtype], szServiceName);
-            }
+        if (metadata.encrypted) {
+            col_append_str(pinfo->cinfo, COL_INFO, " (encrypted)");
+        } else if (mode == UA_MessageMode_SignAndEncrypt) {
+            col_append_str(pinfo->cinfo, COL_INFO, " (decrypted)");
         }
     }
 
@@ -387,6 +780,21 @@ static int dissect_opcua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
                      get_opcua_message_len, dissect_opcua_message, data);
     return tvb_reported_length(tvb);
+}
+
+/** Init plugin resources */
+void proto_init_opcua(void)
+{
+    debugprintf("proto_init_opcua called.\n");
+    ua_keysets_init();
+    load_keysets(g_opcua_debug_file_name);
+}
+
+/** Cleanup plugin resources */
+void proto_cleanup_opcua(void)
+{
+    debugprintf("proto_cleanup_opcua called.\n");
+    ua_keysets_clear();
 }
 
 /** plugin entry functions.
@@ -422,8 +830,17 @@ void proto_register_opcua(void)
     proto_opcua = proto_register_protocol("OpcUa Binary Protocol", "OpcUa", "opcua");
     opcua_handle = register_dissector("opcua", dissect_opcua, proto_opcua);
 
+    register_init_routine(proto_init_opcua);
+    register_cleanup_routine(proto_cleanup_opcua);
+
+    opcua_module = prefs_register_protocol(proto_opcua, proto_reg_handoff_opcua);
+    prefs_register_filename_preference(opcua_module, "debug_file", "OPCUA debug file",
+            "Redirect OPC UA Secure Conversion session keys to the file specified to enable decryption.",
+            &g_opcua_debug_file_name, FALSE);
+
     registerTransportLayerTypes(proto_opcua);
     registerSecurityLayerTypes(proto_opcua);
+    registerSequenceLayerTypes(proto_opcua);
     registerApplicationLayerTypes(proto_opcua);
     registerSimpleTypes(proto_opcua);
     registerEnumTypes(proto_opcua);

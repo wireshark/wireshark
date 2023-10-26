@@ -52,6 +52,43 @@ void registerApplicationLayerTypes(int proto)
     proto_register_field_array(proto, hf, array_length(hf));
 }
 
+/** Decodes the service nodeid without modifying the tree or offset.
+ * Service NodeIds are alsways numeric.
+ */
+int getServiceNodeId(tvbuff_t *tvb, gint offset)
+{
+    guint8  EncodingMask;
+    guint32 Numeric = 0;
+
+    EncodingMask = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    switch(EncodingMask)
+    {
+    case 0x00: /* two byte node id */
+        Numeric = tvb_get_guint8(tvb, offset);
+        offset+=1;
+        break;
+    case 0x01: /* four byte node id */
+        offset+=1;
+        Numeric = tvb_get_letohs(tvb, offset);
+        offset+=2;
+        break;
+    case 0x02: /* numeric, that does not fit into four bytes */
+        offset+=2;
+        Numeric = tvb_get_letohl(tvb, offset);
+        offset+=4;
+        break;
+    case 0x03: /* string */
+    case 0x04: /* guid */
+    case 0x05: /* opaque*/
+        /* NOT USED */
+        break;
+    };
+
+    return Numeric;
+}
+
 /** Parses an OpcUa Service NodeId and returns the service type.
  * In this cases the NodeId is always from type numeric and NSId = 0.
  */
