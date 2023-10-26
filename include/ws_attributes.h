@@ -24,8 +24,7 @@ extern "C" {
  *
  * XXX - similar hints for other compilers?
  */
-#if defined(__GNUC__)
-  /* This includes clang */
+#if defined(__GNUC__) || defined(__clang__)
   #define _U_ __attribute__((unused))
 #elif defined(_MSC_VER)
   #define _U_ __pragma(warning(suppress:4100 4189))
@@ -119,8 +118,7 @@ extern "C" {
  * useful for functions where not checking the result is either a security
  * problem or always a bug, such as realloc.
  */
-#if defined(__GNUC__)
-  /* This includes clang */
+#if defined(__GNUC__) || defined(__clang__)
   #define WS_WARN_UNUSED __attribute__((warn_unused_result))
 #else
   #define WS_WARN_UNUSED
