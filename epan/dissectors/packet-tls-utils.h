@@ -689,7 +689,7 @@ ssl_get_cipher_blocksize(const SslCipherSuite *cipher_suite);
 gboolean
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
                                guint32 length, tvbuff_t *tvb, guint32 offset,
-                               const gchar *ssl_psk,
+                               const gchar *ssl_psk, packet_info *pinfo,
 #ifdef HAVE_LIBGNUTLS
                                GHashTable *key_hash,
 #endif

@@ -1530,7 +1530,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             /* try to find master key from pre-master key */
             if (!ssl_generate_pre_master_secret(ssl, length, sub_tvb, 0,
-                                                dtls_options.psk,
+                                                dtls_options.psk, pinfo,
 #ifdef HAVE_LIBGNUTLS
                                                 dtls_key_hash,
 #endif

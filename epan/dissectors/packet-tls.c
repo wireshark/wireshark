@@ -2973,7 +2973,7 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                         &ssl_master_key_map);
                 /* try to find master key from pre-master key */
                 if (!ssl_generate_pre_master_secret(ssl, length, tvb, offset,
-                            ssl_options.psk,
+                            ssl_options.psk, pinfo,
 #ifdef HAVE_LIBGNUTLS
                             ssl_key_hash,
 #endif
