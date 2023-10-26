@@ -86,9 +86,10 @@ dissect_busmirroring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
 
     int data_item_index = 0;
     int offset = header_size;
-    while (offset < buffer_length)
+    static const int min_data_header_size = 4;
+    while (offset + min_data_header_size <= buffer_length)
     {
-        int data_item_length = 4; // The data header should be at least 4 bytes long
+        int data_item_length = min_data_header_size;
         uint8_t flags = tvb_get_guint8(tvb, offset + 2);
         uint8_t type = flags & 0x1F;
         uint8_t has_network_state = flags & 0x80;
@@ -125,6 +126,10 @@ dissect_busmirroring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
             data_item_length += length;
         }
 
+        if (offset + data_item_length > buffer_length) {
+            return buffer_length;
+        }
+
         proto_item *data_item = proto_tree_add_item(busmirroring_tree, proto_busmirroring, tvb, offset, data_item_length, ENC_NA);
         proto_item_set_text(data_item, "Data Item #%d", data_item_index);
         proto_tree *data_tree = proto_item_add_subtree(data_item, ett_data_item);
@@ -135,34 +140,35 @@ dissect_busmirroring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
         proto_tree_add_item(data_tree, hf_network_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_network_id, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 
-        int local_offset = 4;
+        offset += min_data_header_size;
+
         if (has_network_state)
         {
-            proto_item *ns_item = proto_tree_add_item(data_item, hf_network_state, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
+            proto_item *ns_item = proto_tree_add_item(data_item, hf_network_state, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree *ns_tree = proto_item_add_subtree(ns_item, ett_network_state);
-            proto_tree_add_item(ns_tree, hf_frames_lost, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ns_tree, hf_bus_online, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ns_tree, hf_frames_lost, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ns_tree, hf_bus_online, tvb, offset, 1, ENC_BIG_ENDIAN);
             switch (type)
             {
             case NETWORK_TYPE_CAN:
             {
-                proto_tree_add_item(ns_tree, hf_can_error_passive, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ns_tree, hf_can_bus_off, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ns_tree, hf_can_tx_error_count, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_can_error_passive, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_can_bus_off, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_can_tx_error_count, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             break;
             case NETWORK_TYPE_LIN:
             {
-                proto_tree_add_item(ns_tree, hf_lin_header_tx_error, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ns_tree, hf_lin_tx_error, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ns_tree, hf_lin_rx_error, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ns_tree, hf_lin_rx_no_response, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_lin_header_tx_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_lin_tx_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_lin_rx_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_lin_rx_no_response, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             break;
             default:
                 break;
             }
-            local_offset += 1;
+            ++offset;
         }
         if (has_frame_id)
         {
@@ -170,26 +176,26 @@ dissect_busmirroring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
             {
             case NETWORK_TYPE_CAN:
             {
-                proto_item *frame_id_item = proto_tree_add_item(data_item, hf_frame_id, tvb, offset + local_offset, 4, ENC_BIG_ENDIAN);
+                proto_item *frame_id_item = proto_tree_add_item(data_item, hf_frame_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_tree *frame_id_tree = proto_item_add_subtree(frame_id_item, ett_frame_id);
-                proto_tree_add_item(frame_id_tree, hf_can_id_type, tvb, offset + local_offset, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(frame_id_tree, hf_can_frame_type, tvb, offset + local_offset, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(frame_id_tree, hf_can_id, tvb, offset + local_offset, 4, ENC_BIG_ENDIAN);
-                local_offset += 4;
+                proto_tree_add_item(frame_id_tree, hf_can_id_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(frame_id_tree, hf_can_frame_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(frame_id_tree, hf_can_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
             }
             break;
             case NETWORK_TYPE_LIN:
             {
-                proto_item *frame_id_item = proto_tree_add_item(data_item, hf_frame_id, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
+                proto_item *frame_id_item = proto_tree_add_item(data_item, hf_frame_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree *frame_id_tree = proto_item_add_subtree(frame_id_item, ett_frame_id);
-                proto_tree_add_item(frame_id_tree, hf_lin_pid, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
-                local_offset += 1;
+                proto_tree_add_item(frame_id_tree, hf_lin_pid, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
             }
             break;
             case NETWORK_TYPE_FLEXRAY:
             {
-                proto_tree_add_item(data_item, hf_frame_id, tvb, offset + local_offset, 3, ENC_BIG_ENDIAN);
-                local_offset += 3;
+                proto_tree_add_item(data_item, hf_frame_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
             }
             break;
             default:
@@ -198,12 +204,12 @@ dissect_busmirroring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
         }
         if (has_payload)
         {
-            proto_tree_add_item(data_item, hf_payload_length, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(data_item, hf_payload, tvb, offset + local_offset + 1, length, ENC_NA);
+            proto_tree_add_item(data_item, hf_payload_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(data_item, hf_payload, tvb, offset + 1, length, ENC_NA);
+            offset += (length + 1);
         }
 
         ++data_item_index;
-        offset += data_item_length;
     } // while
 
     return buffer_length;
