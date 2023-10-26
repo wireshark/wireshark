@@ -92,7 +92,7 @@ NINJA_VERSION=${NINJA_VERSION-1.10.2}
 # The following libraries and tools are required even to build only TShark.
 #
 GETTEXT_VERSION=0.21
-GLIB_VERSION=2.68.4
+GLIB_VERSION=2.76.6
 if [ "$GLIB_VERSION" ]; then
     GLIB_MAJOR_VERSION="`expr $GLIB_VERSION : '\([0-9][0-9]*\).*'`"
     GLIB_MINOR_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
