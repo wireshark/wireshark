@@ -19,8 +19,10 @@
 #include <epan/prefs.h>
 #include <epan/range.h>
 #include <epan/reassemble.h>
+#include <epan/secrets.h>
 #include <epan/tvbuff.h>
 #include <gcrypt.h>
+#include <wiretap/secrets-types.h>
 #include <wsutil/file_util.h>
 
 #include "config.h"
@@ -168,22 +170,95 @@ guint hex_to_bin(const char *hex_string, unsigned char *binary_data, unsigned in
     return i;
 }
 
-/**
- * Loads the configured OPCUA Keylog file.
- */
-void load_keysets(const char *filename)
+struct opcua_keylog_parser_ctx {
+    struct ua_keyset *keyset;
+    uint64_t last_id;
+};
+
+static void opcua_keylog_process_line(struct opcua_keylog_parser_ctx *ctx, const char *line)
 {
-    struct ua_keyset *keyset = NULL;
+    struct ua_keyset *keyset;
     char key[33]; /* 32 chars + null terminator */
     char value[65]; /* 64 hex chars + null terminator */
     const char *parts[4]; /* for string split */
     unsigned int num_parts;
-    char *tmp;
+    char *tmp, *saveptr;
     uint32_t token_id = 0;
     uint32_t channel_id = 0;
     uint64_t id = 0;
-    uint64_t last_id = 0;
     int n;
+
+    /* parse key/value pair */
+    n = sscanf(line, "%32[^:]: %64s\n", key, value);
+    if (n != 2) return;
+
+    debugprintf("%s = %s\n", key, value);
+
+    /* split key into parts */
+    num_parts = 0;
+    tmp = strtok_r(key, "_", &saveptr);
+    while (tmp) {
+        parts[num_parts++] = tmp;
+        tmp = strtok_r(NULL, "_", &saveptr);
+    }
+    if (num_parts != 4) return; /* skip invalid enty */
+    channel_id = (uint32_t)strtoul(parts[2], NULL, 10);
+    token_id = (uint32_t)strtoul(parts[3], NULL, 10);
+
+    debugprintf("channel_id = %u\n", channel_id);
+    debugprintf("token_id = %u\n", token_id);
+
+    /* create unique keyset id */
+    id = ua_keyset_id(channel_id, token_id);
+
+    if (ctx->keyset == NULL || id != ctx->last_id) {
+        debugprintf("Adding new keyset for id %lu...\n", id);
+        /* create new keyset for new id */
+        ctx->keyset = ua_keysets_add();
+        ctx->keyset->id = id;
+        ctx->last_id = id;
+    }
+    keyset = ctx->keyset;
+    if (keyset) {
+        /* store key material */
+        if (strcmp(parts[0], "client") == 0) {
+            if (strcmp(parts[1], "iv") == 0) {
+                hex_to_bin(value, keyset->client_iv, sizeof(keyset->client_iv));
+            } else if (strcmp(parts[1], "key") == 0) {
+                keyset->client_key_len = (unsigned int)hex_to_bin(value, keyset->client_key, sizeof(keyset->client_key));
+            }
+        } else if (strcmp(parts[0], "server") == 0) {
+            if (strcmp(parts[1], "iv") == 0) {
+                hex_to_bin(value, keyset->server_iv, sizeof(keyset->server_iv));
+            } else if (strcmp(parts[1], "key") == 0) {
+                keyset->server_key_len = (unsigned int)hex_to_bin(value, keyset->server_key, sizeof(keyset->server_key));
+            }
+        }
+    }
+}
+
+static void opcua_keylog_process_lines(char *data)
+{
+    struct opcua_keylog_parser_ctx ctx = { NULL, 0 };
+    char *saveptr;
+    const char *line = strtok_r(data, "\n", &saveptr);
+
+    while (line) {
+        opcua_keylog_process_line(&ctx, line);
+        line = strtok_r(NULL, "\n", &saveptr);
+    }
+
+    /* sort data by id to make lookup working */
+    ua_keysets_sort();
+}
+
+/**
+ * Loads the configured OPCUA Keylog file.
+ */
+static void opcua_load_keylog_file(const char *filename)
+{
+    struct opcua_keylog_parser_ctx ctx = { NULL, 0 };
+    char line[256];
 
     debugprintf("Loading key file '%s'...\n", filename);
     FILE *f = ws_fopen(filename, "r");
@@ -192,59 +267,15 @@ void load_keysets(const char *filename)
         return;
     }
 
-    while ((n = fscanf(f, "%32[^:]: %64s\n", key, value)) == 2) {
-        debugprintf("%s = %s\n", key, value);
-        /* split key into parts */
-        num_parts = 0;
-        tmp = strtok(key, "_");
-        while (tmp) {
-            parts[num_parts++] = tmp;
-            tmp = strtok(NULL, "_");
-        }
-        if (num_parts != 4) continue; /* skip invalid enty */
-        channel_id = (uint32_t)strtoul(parts[2], NULL, 10);
-        token_id = (uint32_t)strtoul(parts[3], NULL, 10);
-
-        debugprintf("channel_id = %u\n", channel_id);
-        debugprintf("token_id = %u\n", token_id);
-
-        /* create unique keyset id */
-        id = ua_keyset_id(channel_id, token_id);
-
-        if (keyset == NULL || id != last_id) {
-            debugprintf("Adding new keyset for id %lu...\n", id);
-            /* create new keyset for new id */
-            keyset = ua_keysets_add();
-            keyset->id = id;
-            last_id = id;
-        }
-        if (keyset) {
-            /* store key material */
-            if (strcmp(parts[0], "client") == 0) {
-                if (strcmp(parts[1], "iv") == 0) {
-                    hex_to_bin(value, keyset->client_iv, sizeof(keyset->client_iv));
-                } else if (strcmp(parts[1], "key") == 0) {
-                    keyset->client_key_len = (unsigned int)hex_to_bin(value, keyset->client_key, sizeof(keyset->client_key));
-                } else if (strcmp(parts[1], "siglen") == 0) {
-                    keyset->client_sig_len = (unsigned int)strtoul(value, NULL, 10);
-                }
-            } else if (strcmp(parts[0], "server") == 0) {
-                if (strcmp(parts[1], "iv") == 0) {
-                    hex_to_bin(value, keyset->server_iv, sizeof(keyset->server_iv));
-                } else if (strcmp(parts[1], "key") == 0) {
-                    keyset->server_key_len = (unsigned int)hex_to_bin(value, keyset->server_key, sizeof(keyset->server_key));
-                } else if (strcmp(parts[1], "siglen") == 0) {
-                    keyset->server_sig_len = (unsigned int)strtoul(value, NULL, 10);
-                }
-            }
-        }
+    /* parse file contents */
+    while (fgets(line, sizeof(line), f)) {
+        opcua_keylog_process_line(&ctx, line);
     }
+    fclose(f);
+
     /* sort data by id to make lookup working */
     ua_keysets_sort();
-
-    fclose(f);
 }
-
 
 /**
  * Checks the padding of a symetric signed message.
@@ -788,7 +819,7 @@ void proto_init_opcua(void)
 {
     debugprintf("proto_init_opcua called.\n");
     ua_keysets_init();
-    load_keysets(g_opcua_debug_file_name);
+    opcua_load_keylog_file(g_opcua_debug_file_name);
 }
 
 /** Cleanup plugin resources */
@@ -796,6 +827,20 @@ void proto_cleanup_opcua(void)
 {
     debugprintf("proto_cleanup_opcua called.\n");
     ua_keysets_clear();
+}
+
+static void opcua_secrets_block_callback(const void *secrets, guint size)
+{
+    char *tmp = g_memdup2(secrets, size + 1);
+    if (tmp == NULL) return; /* OOM */
+
+    debugprintf("Loading secrets block '%s'...\n", (const char*)secrets);
+    debugprintf("size = %u\n", size);
+    /* ensure data is zero terminated */
+    tmp[size] = 0;
+    /* parse data */
+    opcua_keylog_process_lines(tmp);
+    g_free(tmp);
 }
 
 /** plugin entry functions.
@@ -854,6 +899,7 @@ void proto_register_opcua(void)
 
     reassembly_table_register(&opcua_reassembly_table,
                           &addresses_reassembly_table_functions);
+    secrets_register_type(SECRETS_TYPE_OPCUA, opcua_secrets_block_callback);
 }
 
 void proto_reg_handoff_opcua(void)
