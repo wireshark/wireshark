@@ -1013,8 +1013,7 @@ fvalue_set_uinteger(fvalue_t *fv, uint32_t value)
 			fv->ftype->ftype == FT_UINT24 ||
 			fv->ftype->ftype == FT_UINT32 ||
 			fv->ftype->ftype == FT_IPXNET ||
-			fv->ftype->ftype == FT_FRAMENUM ||
-			fv->ftype->ftype == FT_IPv4);
+			fv->ftype->ftype == FT_FRAMENUM);
 	ws_assert(fv->ftype->set_value.set_value_uinteger);
 	fv->ftype->set_value.set_value_uinteger(fv, value);
 }
@@ -1061,6 +1060,14 @@ fvalue_set_floating(fvalue_t *fv, double value)
 			fv->ftype->ftype == FT_DOUBLE);
 	ws_assert(fv->ftype->set_value.set_value_floating);
 	fv->ftype->set_value.set_value_floating(fv, value);
+}
+
+void
+fvalue_set_ipv4(fvalue_t *fv,  const ipv4_addr_and_mask *value)
+{
+	ws_assert(fv->ftype->ftype == FT_IPv4);
+	ws_assert(fv->ftype->set_value.set_value_ipv4);
+	fv->ftype->set_value.set_value_ipv4(fv, value);
 }
 
 void
@@ -1155,8 +1162,7 @@ fvalue_get_uinteger(fvalue_t *fv)
 			fv->ftype->ftype == FT_UINT24 ||
 			fv->ftype->ftype == FT_UINT32 ||
 			fv->ftype->ftype == FT_IPXNET ||
-			fv->ftype->ftype == FT_FRAMENUM ||
-			fv->ftype->ftype == FT_IPv4);
+			fv->ftype->ftype == FT_FRAMENUM);
 	ws_assert(fv->ftype->get_value.get_value_uinteger);
 	return fv->ftype->get_value.get_value_uinteger(fv);
 }
@@ -1205,7 +1211,15 @@ fvalue_get_floating(fvalue_t *fv)
 	return fv->ftype->get_value.get_value_floating(fv);
 }
 
-WS_DLL_PUBLIC const ipv6_addr_and_prefix *
+const ipv4_addr_and_mask *
+fvalue_get_ipv4(fvalue_t *fv)
+{
+	ws_assert(fv->ftype->ftype == FT_IPv4);
+	ws_assert(fv->ftype->get_value.get_value_ipv4);
+	return fv->ftype->get_value.get_value_ipv4(fv);
+}
+
+const ipv6_addr_and_prefix *
 fvalue_get_ipv6(fvalue_t *fv)
 {
 	ws_assert(fv->ftype->ftype == FT_IPv6);

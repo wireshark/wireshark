@@ -451,6 +451,10 @@ fvalue_set_floating(fvalue_t *fv, double value);
 
 WS_DLL_PUBLIC
 void
+fvalue_set_ipv4(fvalue_t *fv, const ipv4_addr_and_mask *value);
+
+WS_DLL_PUBLIC
+void
 fvalue_set_ipv6(fvalue_t *fv, const ipv6_addr_and_prefix *value);
 
 /* GBytes reference count is automatically incremented. */
@@ -487,10 +491,12 @@ WS_DLL_PUBLIC
 tvbuff_t *
 fvalue_get_protocol(fvalue_t *fv);
 
-WS_DLL_PUBLIC uint32_t
+WS_DLL_PUBLIC
+uint32_t
 fvalue_get_uinteger(fvalue_t *fv);
 
-WS_DLL_PUBLIC int32_t
+WS_DLL_PUBLIC
+int32_t
 fvalue_get_sinteger(fvalue_t *fv);
 
 WS_DLL_PUBLIC
@@ -501,10 +507,16 @@ WS_DLL_PUBLIC
 int64_t
 fvalue_get_sinteger64(fvalue_t *fv);
 
-WS_DLL_PUBLIC double
+WS_DLL_PUBLIC
+double
 fvalue_get_floating(fvalue_t *fv);
 
-WS_DLL_PUBLIC const ipv6_addr_and_prefix *
+WS_DLL_PUBLIC
+const ipv4_addr_and_mask *
+fvalue_get_ipv4(fvalue_t *fv);
+
+WS_DLL_PUBLIC
+const ipv6_addr_and_prefix *
 fvalue_get_ipv6(fvalue_t *fv);
 
 WS_DLL_PUBLIC

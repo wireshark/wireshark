@@ -18,16 +18,15 @@
 #include <wsutil/strtoi.h>
 
 static void
-set_uinteger(fvalue_t *fv, uint32_t value)
+value_set_ipv4(fvalue_t *fv, const ipv4_addr_and_mask *ipv4)
 {
-	fv->value.ipv4.addr = g_ntohl(value);
-	fv->value.ipv4.nmask = ip_get_subnet_mask(32);
+	fv->value.ipv4 = *ipv4;
 }
 
-static uint32_t
-value_get(fvalue_t *fv)
+static const ipv4_addr_and_mask *
+value_get_ipv4(fvalue_t *fv)
 {
-	return g_htonl(fv->value.ipv4.addr);
+	return &fv->value.ipv4;
 }
 
 static bool
@@ -193,8 +192,8 @@ ftype_register_ipv4(void)
 		NULL,				/* val_to_sinteger64 */
 		NULL,				/* val_to_double */
 
-		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-		{ .get_value_uinteger = value_get },	/* union get_value */
+		{ .set_value_ipv4 = value_set_ipv4 },	/* union set_value */
+		{ .get_value_ipv4 = value_get_ipv4 },	/* union get_value */
 
 		cmp_order,
 		NULL,				/* cmp_contains */

@@ -25,6 +25,12 @@ compare_network(const ipv4_addr_and_mask *a, const ipv4_addr_and_mask *b)
     return 0;
 }
 
+void
+ws_ipv4_addr_and_mask_init(ipv4_addr_and_mask *dst, ws_in4_addr src_addr, int src_bits)
+{
+    dst->addr = g_ntohl(src_addr);
+    dst->nmask = ip_get_subnet_mask(src_bits);
+}
 
 bool
 ws_ipv4_addr_and_mask_contains(const ipv4_addr_and_mask *ipv4, const ws_in4_addr *in_addr)

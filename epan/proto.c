@@ -4951,7 +4951,9 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_ipv4(field_info *fi, ws_in4_addr value)
 {
-	fvalue_set_uinteger(fi->value, value);
+	ipv4_addr_and_mask ipv4;
+	ws_ipv4_addr_and_mask_init(&ipv4, value, 32);
+	fvalue_set_ipv4(fi->value, &ipv4);
 }
 
 /* Add a FT_IPv6 to a proto_tree */
@@ -6826,7 +6828,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 	char number_buf[48];
 	const char *number_out;
 	address addr;
-	ws_in4_addr ipv4;
+	const ipv4_addr_and_mask *ipv4;
 	const ipv6_addr_and_prefix *ipv6;
 
 	switch (hfinfo->type) {
@@ -6989,8 +6991,9 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 			break;
 
 		case FT_IPv4:
-			ipv4 = fvalue_get_uinteger(finfo->value);
-			set_address (&addr, AT_IPv4, 4, &ipv4);
+			ipv4 = fvalue_get_ipv4(finfo->value);
+			//XXX: Should we ignore the mask?
+			set_address (&addr, AT_IPv4, 4, &ipv4->addr);
 			tmp_str = address_to_display(NULL, &addr);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
@@ -9589,7 +9592,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	const guint8	   *bytes;
 	guint32		    integer;
 	guint64		    integer64;
-	ws_in4_addr         ipv4;
+	const ipv4_addr_and_mask *ipv4;
 	const ipv6_addr_and_prefix *ipv6;
 	const e_guid_t	   *guid;
 	gchar		   *name;
@@ -9754,11 +9757,12 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_IPv4:
-			ipv4 = fvalue_get_uinteger(fi->value);
+			ipv4 = fvalue_get_ipv4(fi->value);
 
 			addr.type = AT_IPv4;
 			addr.len  = 4;
-			addr.data = &ipv4;
+			//XXX: Should we ignore the mask?
+			addr.data = &ipv4->addr;
 
 			if (hfinfo->display == BASE_NETMASK) {
 				addr_str = (char*)address_to_str(NULL, &addr);

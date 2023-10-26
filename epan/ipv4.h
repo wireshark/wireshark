@@ -25,6 +25,10 @@ typedef struct {
 } ipv4_addr_and_mask;
 
 WS_DLL_PUBLIC
+void
+ws_ipv4_addr_and_mask_init(ipv4_addr_and_mask *dst, ws_in4_addr src_addr, int src_bits);
+
+WS_DLL_PUBLIC
 bool
 ws_ipv4_addr_and_mask_contains(const ipv4_addr_and_mask *ipv4, const ws_in4_addr *addr);
 
