@@ -776,7 +776,7 @@ dissect_rtp_hdr_ext_ed137a_feature_climax_tdly(tvbuff_t *tvb, packet_info *pinfo
         climax_tdly_value_calc=2*climax_tdly_value;
 
         proto_tree_add_uint_format_value( tree, hf_rtp_hdr_ed137a_ft_climax_delay_absolute_value, tvb, 0, 1, climax_tdly_value, "%d ms", climax_tdly_value_calc);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", CMX=%dms abs", climax_tdly_value_calc);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", CMX=%ums abs", climax_tdly_value_calc);
 
     }
 
