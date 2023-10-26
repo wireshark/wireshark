@@ -342,7 +342,8 @@ dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, guint32 offset, asn1_ct
 guint32
 dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value)
 {
-    guint32 val = 0, length;
+    gint32 val = 0;
+    guint32 length;
     /* 10.4 e) (the effective value constraint has a lower bound less than -263, no lower bound,
      * an upper bound greater than 2 exp 63-1, or no upper bound) every value of the integer type
      * shall be encoded as a length determinant (see 8.6) followed by a variable-size signed number
@@ -351,13 +352,38 @@ dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
     offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
     if (length > 0) {
         if (length < 5) {
-            proto_tree_add_item_ret_uint(tree, hf_index, tvb, offset, length, ENC_BIG_ENDIAN, &val);
-            offset += length;
+            /* extend sign bit for signed fields */
+            enum ftenum type = FT_INT32;
+            /* This should be signed, because the field should only be
+             * unsigned if there's a constraint, and then we don't get here. */
+            if (hf_index >= 0) {
+                type = proto_registrar_get_ftype(hf_index);
+            }
+            uint8_t first = tvb_get_guint8(tvb, offset);
+            if (first & 0x80 && FT_IS_INT(type)) {
+                val = -1;
+            }
+            for (unsigned i = 0; i < length; i++) {
+                val = ((uint32_t)val << 8) | tvb_get_guint8(tvb, offset);
+                offset++;
+            }
         } else {
-            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer NO_BOUND to many octets");
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer NO_BOUND too many octets");
         }
     } else {
         dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer unexpected length");
+    }
+
+    if (hf_index >= 0) {
+        header_field_info* hfi;
+        hfi = proto_registrar_get_nth(hf_index);
+        if (FT_IS_UINT32(hfi->type)) {
+            actx->created_item = proto_tree_add_uint(tree, hf_index, tvb, offset - length, length, (uint32_t)val);
+        } else if (FT_IS_INT32(hfi->type)) {
+            actx->created_item = proto_tree_add_int(tree, hf_index, tvb, offset - length, length, val);
+        } else {
+            DISSECTOR_ASSERT_NOT_REACHED();
+        }
     }
 
     if (value) {
