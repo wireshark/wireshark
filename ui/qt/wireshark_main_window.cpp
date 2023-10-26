@@ -492,12 +492,12 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     main_ui_->goToGo->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToCancel->setAttribute(Qt::WA_MacSmallSize, true);
 
-    connect(main_ui_->goToGo, &QPushButton::pressed, this, &WiresharkMainWindow::goToGoClicked);
-    connect(main_ui_->goToCancel, &QPushButton::pressed, this, &WiresharkMainWindow::goToCancelClicked);
-
     main_ui_->actionEditPreferences->setMenuRole(QAction::PreferencesRole);
 
 #endif // Q_OS_MAC
+
+    connect(main_ui_->goToGo, &QPushButton::pressed, this, &WiresharkMainWindow::goToGoClicked);
+    connect(main_ui_->goToCancel, &QPushButton::pressed, this, &WiresharkMainWindow::goToCancelClicked);
 
 // A billion-1 is equivalent to the inputMask 900000000 previously used
 // Avoid QValidator::Intermediate values by using a top value of all 9's
