@@ -211,7 +211,7 @@ static void opcua_keylog_process_line(struct opcua_keylog_parser_ctx *ctx, const
     /* split key into parts */
     num_parts = 0;
     tmp = ua_strtok_r(key, "_", &saveptr);
-    while (tmp) {
+    while (tmp && num_parts < 4) {
         parts[num_parts++] = tmp;
         tmp = ua_strtok_r(NULL, "_", &saveptr);
     }
