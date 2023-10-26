@@ -519,10 +519,12 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					pduInfo = (drdynvc_pdu_info_t*)wmem_tree_lookup32(drdynvcPinfo->pdus, key);
 				}
 
-				proto_item_set_generated(
-					proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_data_progress, tvb, offset, 0, NULL, "%d-%d/%d",
+				if (pduInfo) {
+					proto_item_set_generated(
+						proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_data_progress, tvb, offset, 0, NULL, "%d-%d/%d",
 							pduInfo->progress, pduInfo->progress + payloadLen, pduInfo->packetLen)
-				);
+					);
+				}
 
 				if (!pduInfo->fragmented)
 					targetTvb = tvb_new_subset_remaining(tvb, offset);

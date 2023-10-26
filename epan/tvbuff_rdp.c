@@ -444,6 +444,9 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 						return FALSE;
 				}
 
+				if (count > sizeof(zgfx->outputSegment) - zgfx->outputCount)
+					return FALSE;
+
 				if (!zgfx_write_from_history(zgfx, distance, count))
 					return FALSE;
 			} else {
