@@ -113,7 +113,6 @@ static const fragment_items opcua_frag_items = {
     "Message fragments"
 };
 
-
 static reassembly_table opcua_reassembly_table;
 
 /** OpcUa Transport Message Types */
@@ -184,11 +183,18 @@ guint hex_to_bin(const char *hex_string, unsigned char *binary_data, unsigned in
     return i;
 }
 
+/** Parsing context */
 struct opcua_keylog_parser_ctx {
-    struct ua_keyset *keyset;
-    uint64_t last_id;
+    struct ua_keyset *keyset; /**< current keyset */
+    uint64_t last_id; /**< the id of the previous line, this is also the id of the keyset */
 };
 
+/**
+ * Common function for parsing key log line used by opcua_keylog_process_lines and opcua_load_keylog_file.
+ *
+ * @param ctx Parsing context.
+ * @param line Current line to parse.
+ */
 static void opcua_keylog_process_line(struct opcua_keylog_parser_ctx *ctx, const char *line)
 {
     struct ua_keyset *keyset;
@@ -255,6 +261,10 @@ static void opcua_keylog_process_line(struct opcua_keylog_parser_ctx *ctx, const
     }
 }
 
+/**
+ * Parses key log data from PCAP file.
+ * This function splits the data by \n and calls opcua_keylog_process_line.
+ */
 static void opcua_keylog_process_lines(char *data)
 {
     struct opcua_keylog_parser_ctx ctx = { NULL, 0 };
@@ -847,6 +857,7 @@ void proto_cleanup_opcua(void)
     ua_keysets_clear();
 }
 
+/** secrets callback called from Wireshark when loading a capture file with OPC UA Keylog File. */
 static void opcua_secrets_block_callback(const void *secrets, guint size)
 {
     char *tmp = g_memdup2(secrets, size + 1);
