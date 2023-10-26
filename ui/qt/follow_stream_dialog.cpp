@@ -52,8 +52,6 @@
 // - Instead of calling QMessageBox, display the error message in the text
 //   box and disable the appropriate controls.
 // - Add a progress bar and connect captureCaptureUpdateContinue to it
-// - User's Guide documents the "Raw" type as "same as ASCII, but saving binary
-//   data". However it currently displays hex-encoded data.
 
 // Matches SplashOverlay.
 static int info_update_freq_ = 100;

@@ -170,8 +170,9 @@ a|
 |===
 
 menu:Raw[]:: This allows you to load the unaltered stream data into a different
-  program for further examination. The display will look the same as the ASCII
-  setting, but “Save As” will result in a binary file.
+  program for further examination. The display will show the data as strings
+  of hex characters with each frame on a separate line, but “Save As”
+  will result in a binary file without any added line separators.
 
 You can switch between streams using the “Stream” selector.
 
@@ -257,7 +258,7 @@ menu:Image[]:: This will try to convert the bytes into an image.
 
 menu:ISO 8859-1[]:: In this view you see the bytes as ISO 8859-1.
 
-menu:Raw[]:: This allows you to load the unaltered stream data into a different
+menu:Raw[]:: This allows you to load the bytes into a different
   program for further examination. The display will show HEX data, but
   “Save As” will result in a binary file.
 
