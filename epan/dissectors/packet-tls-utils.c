@@ -4260,7 +4260,7 @@ ssl_restore_master_key(SslDecryptSession *ssl, const char *label,
 gboolean
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
                                guint32 length, tvbuff_t *tvb, guint32 offset,
-                               const gchar *ssl_psk,
+                               const gchar *ssl_psk, packet_info *pinfo,
 #ifdef HAVE_LIBGNUTLS
                                GHashTable *key_hash,
 #endif
@@ -4375,7 +4375,7 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         }
 
         StringInfo encrypted_pre_master = {
-            .data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset + skip, encrlen),
+            .data = (guchar *)tvb_memdup(pinfo->pool, tvb, offset + skip, encrlen),
             .data_len = encrlen,
         };
 
@@ -7329,7 +7329,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         if (hnd_type == SSL_HND_SERVER_HELLO || hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS) {
             /* '\0'-terminated string for dissector table match and prefix
              * comparison purposes. */
-            proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
+            proto_name = tvb_get_string_enc(pinfo->pool, tvb, offset,
                                             name_length, ENC_ASCII);
         }
         offset += name_length;
@@ -7801,7 +7801,7 @@ ssl_dissect_hnd_hello_ext_oid_filters(ssl_common_dissect_t *hf, tvbuff_t *tvb, p
         offset += oid_length;
 
         /* Append OID to tree label */
-        name = oid_resolved_from_string(wmem_packet_scope(), oid);
+        name = oid_resolved_from_string(pinfo->pool, oid);
         proto_item_append_text(subtree, " (%s)", name ? name : oid);
 
         /* opaque certificate_extension_values<0..2^16-1> */
@@ -9557,7 +9557,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     guint32     compression_methods_length;
     guint8      compression_method;
     guint32     next_offset;
-    wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *ja3 = wmem_strbuf_new(pinfo->pool, "");
     gchar      *ja3_hash;
     gchar      *ja3_dash = "";
     gchar      *ja4, *ja4_r, *ja4_hash, *ja4_b, *ja4_c;
@@ -9792,7 +9792,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_item *ti;
     guint32     server_version;
     guint32     cipher_suite;
-    wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *ja3 = wmem_strbuf_new(pinfo->pool, "");
     gchar      *ja3_hash;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
@@ -9892,7 +9892,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
     offset += 4;
 
     if (lifetime_hint >= 60) {
-        gchar *time_str = unsigned_time_secs_to_str(wmem_packet_scope(), lifetime_hint);
+        gchar *time_str = unsigned_time_secs_to_str(pinfo->pool, lifetime_hint);
         proto_item_append_text(subitem, " (%s)", time_str);
     }
 
@@ -10491,8 +10491,8 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     guint32     next_offset;
     proto_tree *ext_tree;
     gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
-    wmem_strbuf_t *ja3_sg = wmem_strbuf_new(wmem_packet_scope(), "");
-    wmem_strbuf_t *ja3_ecpf = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *ja3_sg = wmem_strbuf_new(pinfo->pool, "");
+    wmem_strbuf_t *ja3_ecpf = wmem_strbuf_new(pinfo->pool, "");
     gchar      *ja3_dash = "";
 
     /* Extension extensions<0..2^16-2> (for TLS 1.3 HRR/CR min-length is 2) */
