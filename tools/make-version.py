@@ -83,7 +83,7 @@ def update_cmakelists_txt(src_dir, set_version, repo_data):
 
     with open(cmake_filepath, mode='w', encoding='utf-8') as fh:
         fh.write(new_cmake_contents)
-    print(cmake_filepath + " has been updated.")
+        print(cmake_filepath + " has been updated.")
 
 
 def update_debian_changelog(src_dir, repo_data):
@@ -99,8 +99,21 @@ def update_debian_changelog(src_dir, repo_data):
     new_changelog_contents = re.sub(CHANGELOG_PATTERN, text_replacement, changelog_contents)
     with open(deb_changelog_filepath, mode='w', encoding='utf-8') as fh:
         fh.write(new_changelog_contents)
-    print(deb_changelog_filepath + " has been updated.")
+        print(deb_changelog_filepath + " has been updated.")
 
+
+def create_env_files(src_dir, repo_data):
+    'Create POSIX shell and PowerShell files that set a variable to the current version'
+
+    posix_version_filepath = os.path.join(src_dir, 'wireshark_version.sh')
+    with open(posix_version_filepath, mode='w', encoding='utf-8') as fh:
+        fh.write(f"export WIRESHARK_VERSION={repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}\n")
+        print(posix_version_filepath + " has been created.")
+
+    powershell_version_filepath = os.path.join(src_dir, 'wireshark_version.ps1')
+    with open(powershell_version_filepath, mode='w', encoding='utf-8') as fh:
+        fh.write(f"$wiresharkVersion = \"{repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}\"\r\n")
+        print(powershell_version_filepath + " has been created.")
 
 def update_attributes_asciidoc(src_dir, repo_data):
     # Read docbook/attributes.adoc, then write it back out with an updated
@@ -117,8 +130,7 @@ def update_attributes_asciidoc(src_dir, repo_data):
 
     with open(asiidoc_filepath, mode='w', encoding='utf-8') as fh:
         fh.write(new_asciidoc_contents)
-
-    print(asiidoc_filepath + " has been updated.")
+        print(asiidoc_filepath + " has been updated.")
 
 
 def update_docinfo_asciidoc(src_dir, repo_data):
@@ -138,7 +150,7 @@ def update_docinfo_asciidoc(src_dir, repo_data):
 
         with open(doc_path, mode='w', encoding='utf-8') as fh:
             fh.write(new_doc_contents)
-        print(doc_path + " has been updated.")
+            print(doc_path + " has been updated.")
 
 
 def update_cmake_lib_releases(src_dir, repo_data):
@@ -162,13 +174,14 @@ def update_cmake_lib_releases(src_dir, repo_data):
 
         with open(cmakelists_filepath, mode='w', encoding='utf-8') as fh:
             fh.write(new_cmakelists_contents)
-        print(cmakelists_filepath + " has been updated.")
+            print(cmakelists_filepath + " has been updated.")
 
 
 # Update distributed files that contain any version information
 def update_versioned_files(src_dir, set_version, repo_data):
     update_cmakelists_txt(src_dir, set_version, repo_data)
     update_debian_changelog(src_dir, repo_data)
+    create_env_files(src_dir, repo_data)
     if set_version:
         update_attributes_asciidoc(src_dir, repo_data)
         update_docinfo_asciidoc(src_dir, repo_data)
@@ -222,7 +235,7 @@ def print_VCS_REVISION(version_file, repo_data, set_vcs):
     if needs_update:
         with open(version_file, mode='w', encoding='utf-8') as fh:
             fh.write(new_version_h)
-        print(version_file + " has been updated.")
+            print(version_file + " has been updated.")
     elif not repo_data['enable_vcsversion']:
         print(version_file + " disabled.")
     else:
