@@ -60,6 +60,7 @@ static reassembly_table nr_rrc_sib8_reassembly_table;
 static gboolean nr_rrc_nas_in_root_tree;
 
 extern int proto_mac_nr;
+extern int proto_rlc_nr;
 extern int proto_pdcp_nr;
 
 /* Include constants */
@@ -186,6 +187,29 @@ typedef struct {
   lpp_pos_sib_type_t pos_sib_type;
   pdcp_nr_security_info_t pdcp_security;
 } nr_rrc_private_data_t;
+
+/* Helper function to get UE identifier from lower layers (in order MAC, RLC, PDCP) */
+static guint16*
+nr_rrc_get_ueid_from_lower_layers(wmem_allocator_t *scope, struct _packet_info* pinfo)
+{
+  /* Try MAC first */
+  mac_nr_info *p_mac_nr_info = (mac_nr_info *)p_get_proto_data(scope, pinfo, proto_mac_nr, 0);
+  if (p_mac_nr_info != NULL) {
+    return &p_mac_nr_info->ueid;
+  }
+  /* Not found, try RLC */
+  rlc_nr_info *p_rlc_nr_info = (rlc_nr_info *)p_get_proto_data(scope, pinfo, proto_rlc_nr, 0);
+  if (p_rlc_nr_info != NULL) {
+    return &p_rlc_nr_info->ueid;
+  }
+  /* Not found, try PDCP */
+  pdcp_nr_info *p_pdcp_nr_info = (pdcp_nr_info *)p_get_proto_data(scope, pinfo, proto_pdcp_nr, 0);
+  if (p_pdcp_nr_info != NULL) {
+    return &p_pdcp_nr_info->ueid;
+  }
+  /* Nothing found, give up */
+  return NULL;
+}
 
 /* Helper function to get or create a struct that will be actx->private_data */
 static nr_rrc_private_data_t*

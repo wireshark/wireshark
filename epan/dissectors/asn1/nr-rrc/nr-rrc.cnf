@@ -851,11 +851,11 @@ RAT-Type TYPE_PREFIX
 
   if (!PINFO_FD_VISITED(actx->pinfo)) {
     /* Look for UE identifier */
-    mac_nr_info *p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+    guint16 *p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
 
-    if (p_mac_nr_info != NULL) {
+    if (p_ueid != NULL) {
       /* Inform PDCP about the RRCreestablishmentRequest */
-      set_pdcp_nr_rrc_reestablishment_request(p_mac_nr_info->ueid);
+      set_pdcp_nr_rrc_reestablishment_request(*p_ueid);
     }
   }
 
@@ -884,16 +884,16 @@ RAT-Type TYPE_PREFIX
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Complete");
 
 #.FN_BODY SecurityModeFailure
-  mac_nr_info *p_mac_nr_info;
+  guint16 *p_ueid;
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Failure");
 %(DEFAULT_BODY)s
   /* Look for UE identifier */
-  p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+  p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
 
-  if (p_mac_nr_info != NULL) {
+  if (p_ueid != NULL) {
     /* Inform PDCP that the UE failed to execute the securityModeCommand */
-    set_pdcp_nr_security_algorithms_failed(p_mac_nr_info->ueid);
+    set_pdcp_nr_security_algorithms_failed(*p_ueid);
   }
 
 #.FN_HDR ULInformationTransfer
@@ -1951,16 +1951,16 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   }
 
 #.FN_BODY RLC-BearerConfig
-  struct mac_nr_info *p_mac_nr_info;
+  guint16 *p_ueid;
   /* Get the struct and clear it out */
   nr_drb_mac_rlc_mapping_t *drb_mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
   memset(drb_mapping, 0, sizeof(nr_drb_mac_rlc_mapping_t));
   drb_mapping->active = TRUE;
 %(DEFAULT_BODY)s
   /* Need UE identifier */
-  p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
-  if (p_mac_nr_info && drb_mapping->drbid) {
-    drb_mapping->ueid = p_mac_nr_info->ueid;
+  p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
+  if (p_ueid != NULL && drb_mapping->drbid) {
+    drb_mapping->ueid = *p_ueid;
     /* Tell MAC about this mapping */
     set_mac_nr_bearer_mapping(drb_mapping);
   }
@@ -2043,12 +2043,12 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   memset(mapping, 0, sizeof(*mapping));
   mapping->active = TRUE;
 %(DEFAULT_BODY)s
-  /* Need UE identifier. Use mac-nr. */
-  mac_nr_info *p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
-  if (p_mac_nr_info) {
+  /* Need UE identifier. */
+  guint16 *p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
+  if (p_ueid != NULL) {
     /* Configure PDCP SN length(s) for this DRB */
     if (mapping->pdcpUlSnLength_present || mapping->pdcpDlSnLength_present) {
-      mapping->ueid = p_mac_nr_info->ueid;
+      mapping->ueid = *p_ueid;
       set_rlc_nr_drb_pdcp_mapping(actx->pinfo, mapping);
     }
   }
@@ -2184,7 +2184,7 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
   }
 
 #.FN_BODY SecurityAlgorithmConfig
-  mac_nr_info *p_mac_nr_info;
+  guint16 *p_ueid;
   pdcp_nr_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
   p_security_algorithms = &(nr_rrc_get_private_data(actx)->pdcp_security);
@@ -2194,10 +2194,10 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
   p_security_algorithms->previous_ciphering = nea0;
 
   /* Look for UE identifier */
-  p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
-  if (p_mac_nr_info != NULL) {
+  p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
+  if (p_ueid != NULL) {
     /* Configure algorithms */
-    set_pdcp_nr_security_algorithms(p_mac_nr_info->ueid, p_security_algorithms);
+    set_pdcp_nr_security_algorithms(*p_ueid, p_security_algorithms);
   }
 
 #.FN_BODY CipheringAlgorithm VAL_PTR=&value
