@@ -17,7 +17,10 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include "packet-rf4ce-common.h"
+#include <epan/value_string.h>
+
+#define RF4CE_IEEE_ADDR_LEN                 8
+#define RF4CE_SHORT_ADDR_LEN                2
 
 #define RF4CE_MIN_NWK_LENGTH                5
 #define RF4CE_MAX_NWK_LENGTH                148

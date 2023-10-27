@@ -10,18 +10,24 @@
  */
 
 #include <stdbool.h>
-
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include "packet-ieee802154.h"
-
-#include "packet-rf4ce-common.h"
 #include "packet-rf4ce-secur.h"
 
-#define RF4CE_MIN_NWK_LENGTH 5
-#define RF4CE_MAX_NWK_LENGTH 148
+#define RF4CE_MIN_NWK_LENGTH        5
+#define RF4CE_MAX_NWK_LENGTH        148
+
+/* Profile IDs */
+#define RF4CE_NWK_PROFILE_ID_GDP    0x00
+#define RF4CE_NWK_PROFILE_ID_ZRC10  0x01
+#define RF4CE_NWK_PROFILE_ID_ZID    0x02
+#define RF4CE_NWK_PROFILE_ID_ZRC20  0x03
+
+#define RF4CE_PROTOABBREV_NWK       "rf4ce_nwk"
+#define RF4CE_PROTOABBREV_PROFILE   "rf4ce_profile"
 
 static int proto_rf4ce_nwk = -1;
 static dissector_handle_t rf4ce_gdp_handle;
@@ -618,8 +624,8 @@ void proto_register_rf4ce_nwk(void)
           NULL, HFILL}},
         {&hf_rf4ce_nwk_fcf_security_enabled,
          {"Security enabled", "rf4ce-nwk.fcf.security_enabled",
-          FT_UINT8, BASE_HEX,
-          VALS(rf4ce_yes_no_vals), RF4CE_NWK_FCF_SECURITY_MASK,
+          FT_BOOLEAN, 8,
+          TFS(&tfs_yes_no), RF4CE_NWK_FCF_SECURITY_MASK,
           NULL, HFILL}},
         {&hf_rf4ce_nwk_fcf_protocol_version,
          {"Protocol version", "rf4ce-nwk.fcf.protocol_version",
@@ -673,13 +679,13 @@ void proto_register_rf4ce_nwk(void)
           NULL, HFILL}},
         {&hf_rf4ce_nwk_node_capabilities_security,
          {"Security Capable", "rf4ce-nwk.node_capabilities.security",
-          FT_UINT8, BASE_HEX,
-          VALS(rf4ce_yes_no_vals), RF4CE_NWK_SECURITY_MASK,
+          FT_BOOLEAN, 8,
+          TFS(&tfs_yes_no), RF4CE_NWK_SECURITY_MASK,
           NULL, HFILL}},
         {&hf_rf4ce_nwk_node_capabilities_channel_normalization,
          {"Channel Normalization", "rf4ce-nwk.node_capabilities.channel_normalization",
-          FT_UINT8, BASE_HEX,
-          VALS(rf4ce_yes_no_vals), RF4CE_NWK_CHANNEL_NORMALIZATION_MASK,
+          FT_BOOLEAN, 8,
+          TFS(&tfs_yes_no), RF4CE_NWK_CHANNEL_NORMALIZATION_MASK,
           NULL, HFILL}},
         {&hf_rf4ce_nwk_node_capabilities_reserved,
          {"Reserved", "rf4ce-nwk.node_capabilities.reserved",
@@ -703,8 +709,8 @@ void proto_register_rf4ce_nwk(void)
           NULL, HFILL}},
         {&hf_rf4ce_nwk_app_capabilities_usr_str,
          {"User String Specified", "rf4ce-nwk.app_capabilities.usr_str",
-          FT_UINT8, BASE_HEX,
-          VALS(rf4ce_yes_no_vals), RF4CE_NWK_USR_STR_SPECIFIED_MASK,
+          FT_BOOLEAN, 8,
+          TFS(&tfs_yes_no), RF4CE_NWK_USR_STR_SPECIFIED_MASK,
           NULL, HFILL}},
         {&hf_rf4ce_nwk_app_capabilities_supported_dev_num,
          {"Number of Supported Device Types", "rf4ce-nwk.app_capabilities.supported_dev_num",

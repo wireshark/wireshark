@@ -11,8 +11,14 @@
 
 #include "packet-rf4ce-secur.h"
 #include "packet-zbee-security.h"
-#include "packet-rf4ce-common.h"
 #include <wsutil/wsgcrypt.h>
+
+#ifdef RF4CE_DEBUG_EN
+void rf4ce_print_arr(const gchar *str, guint8 *ptr, guint16 len);
+#define RF4CE_PRINT_ARR(s, p, l) rf4ce_print_arr(s, p, l)
+#else
+#define RF4CE_PRINT_ARR(s, p, l)
+#endif /* RF4CE_DEBUG_EN */
 
 static keypair_context_t keypair_context = {0};
 static key_exchange_context_t key_exchange_context = {0};
@@ -334,6 +340,18 @@ void key_exchange_context_set_mac_b(guint8 *mac_b)
         memcpy(key_exchange_context.mac_b, mac_b, RF4CE_IEEE_ADDR_LEN);
     }
 }
+
+#ifdef RF4CE_DEBUG_EN
+void rf4ce_print_arr(const gchar *str, guint8 *ptr, guint16 len)
+{
+  g_print("%s: ", str);
+  for (guint16 i = 0; i < len-1; i++)
+  {
+    g_print("%02x:", *(ptr+i));
+  }
+  g_print("%02x\n", *(ptr+len-1));
+}
+#endif /* RF4CE_DEBUG_EN */
 
 static gboolean calc_key_cmac(guint8 *secret, guint8 *nwk_key, guint32 tag_b_pack, guint8 *key_out)
 {
