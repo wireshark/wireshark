@@ -856,6 +856,7 @@ static int hf_uds_max_block_len_len = -1;
 static int hf_uds_max_block_len = -1;
 
 static int hf_uds_dsc_subfunction = -1;
+static int hf_uds_dsc_suppress_pos_rsp_msg_ind = -1;
 static int hf_uds_dsc_parameter_record = -1;
 static int hf_uds_dsc_default_p2_server_timer = -1;
 static int hf_uds_dsc_enhanced_p2_server_timer = -1;
@@ -2287,8 +2288,15 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     switch (service) {
         case UDS_SERVICES_DSC:
+        {
+            gboolean suppress;
+            proto_tree_add_item_ret_boolean(uds_tree, hf_uds_dsc_suppress_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA, &suppress);
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_dsc_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_dsc_types, "Unknown (0x%02x)"));
+            if (suppress) {
+                col_append_str(pinfo->cinfo, COL_INFO, "   (Reply suppressed)");
+            }
+        }
             offset += 1;
 
             if (sid & UDS_REPLY_MASK) {
@@ -3290,7 +3298,9 @@ proto_register_uds(void) {
             "Max Block Length", "uds.max_block_length", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_dsc_subfunction, {
-            "SubFunction", "uds.dsc.subfunction", FT_UINT8, BASE_HEX, VALS(uds_dsc_types), 0x0, NULL, HFILL } },
+            "SubFunction", "uds.dsc.subfunction", FT_UINT8, BASE_HEX, VALS(uds_dsc_types), UDS_SUBFUNCTION_MASK, NULL, HFILL } },
+        { &hf_uds_dsc_suppress_pos_rsp_msg_ind, {
+            "Suppress reply", "uds.dsc.suppress_reply.indication", FT_BOOLEAN, 8, NULL, UDS_SUPPRESS_POS_RSP_MSG_IND_MASK, NULL, HFILL } },
         { &hf_uds_dsc_parameter_record, {
             "Parameter Record", "uds.dsc.parameter_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_dsc_default_p2_server_timer, {
