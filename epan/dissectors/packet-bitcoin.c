@@ -2144,6 +2144,9 @@ proto_reg_handoff_bitcoin(void)
   dissector_add_string("bitcoin.command", "getaddr", command_handle);
   dissector_add_string("bitcoin.command", "mempool", command_handle);
   dissector_add_string("bitcoin.command", "filterclear", command_handle);
+  dissector_add_string("bitcoin.command", "sendaddrv2", command_handle);
+  dissector_add_string("bitcoin.command", "sendheaders", command_handle);
+  dissector_add_string("bitcoin.command", "wtxidrelay", command_handle);
 
   /* messages not implemented */
   /* command_handle = create_dissector_handle( dissect_bitcoin_msg_empty, proto_bitcoin ); */
