@@ -1229,11 +1229,11 @@ dissect_http3_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http3_
                                             ENC_VARINT_QUIC, &settingsid, &lenvar);
         /* Check if it is a GREASE Settings ID */
         if (http3_is_reserved_code(settingsid)) {
-            proto_item_set_text(pi, "Type: GREASE (%#" PRIx64 ")", settingsid);
-            proto_item_append_text(ti_settings, " - GREASE");
+            proto_item_set_text(pi, "Settings Identifier: Reserved (%#" PRIx64 ")", settingsid);
+            proto_item_append_text(ti_settings, " - Reserved (GREASE)");
         } else {
             proto_item_append_text(ti_settings, " - %s",
-                                   val64_to_str_const(settingsid, http3_settings_vals, "Unknown"));
+                                   val64_to_str(settingsid, http3_settings_vals, "Unknown (%#" PRIx64 ")"));
         }
 
         offset += lenvar;
@@ -1311,68 +1311,78 @@ dissect_http3_priority_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static int
 dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
 {
-    guint64     frame_type, frame_length;
-    int         lenvar;
+    uint64_t    frame_type, frame_length;
+    int         type_length_size, lenvar, payload_length;
     proto_item  *ti_ft, *ti_ft_type;
     proto_tree  *ft_tree;
     const gchar *ft_display_name;
 
-    ti_ft = proto_tree_add_item(tree, hf_http3_frame, tvb, offset, 1, ENC_NA);
+    ti_ft = proto_tree_add_item(tree, hf_http3_frame, tvb, offset, -1, ENC_NA);
     ft_tree = proto_item_add_subtree(ti_ft, ett_http3_frame);
 
     ti_ft_type = proto_tree_add_item_ret_varint(ft_tree, hf_http3_frame_type, tvb, offset, -1, ENC_VARINT_QUIC, &frame_type,
                                         &lenvar);
     offset += lenvar;
+    type_length_size = lenvar;
     if (http3_is_reserved_code(frame_type)) {
         proto_item_set_text(ti_ft_type, "Type: Reserved (%#" PRIx64 ")", frame_type);
-        ft_display_name = "Reserved";
+        ft_display_name = "Reserved (GREASE)";
     } else {
-        ft_display_name = val64_to_str_const(frame_type, http3_frame_types, "Unknown");
+        ft_display_name = val64_to_str(frame_type, http3_frame_types, "Unknown (%#" PRIx64 ")");
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", ft_display_name);
     }
     proto_tree_add_item_ret_varint(ft_tree, hf_http3_frame_length, tvb, offset, -1, ENC_VARINT_QUIC, &frame_length,
                                    &lenvar);
-    proto_item_set_text(ti_ft, "%s len=%d", ft_display_name, lenvar);
+    proto_item_set_text(ti_ft, "%s len=%" PRId64, ft_display_name, frame_length);
     offset += lenvar;
+    type_length_size += lenvar;
 
-    if (frame_length) {
-        proto_tree_add_item(tree, hf_http3_frame_payload, tvb, offset, (int)frame_length, ENC_NA);
-
-        switch (frame_type) {
-        case HTTP3_DATA: { /* TODO: dissect Data Frame */
-            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)frame_length);
-            dissect_http3_data(next_tvb, pinfo, ft_tree, 0, stream_info, http3_stream);
-        } break;
-        case HTTP3_HEADERS: { /* TODO: dissect Headers Frame */
-#ifdef HAVE_NGHTTP3
-            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)frame_length);
-            dissect_http3_headers(next_tvb, pinfo, ft_tree, 0, offset, stream_info, http3_stream);
-#endif /* HAVE_NGHTTP3 */
-        } break;
-        case HTTP3_CANCEL_PUSH: /* TODO: dissect Cancel_Push Frame */
-            break;
-        case HTTP3_SETTINGS: { /* Settings Frame */
-            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)frame_length);
-            dissect_http3_settings(next_tvb, pinfo, ft_tree, 0);
-        } break;
-        case HTTP3_PUSH_PROMISE: /* TODO: dissect Push_Promise_Frame */
-            break;
-        case HTTP3_GOAWAY: /* TODO: dissect Goaway Frame */
-            break;
-        case HTTP3_MAX_PUSH_ID: /* TODO: dissect Max_Push_ID Frame */
-            break;
-        case HTTP3_PRIORITY_UPDATE_REQUEST_STREAM:
-        case HTTP3_PRIORITY_UPDATE_PUSH_STREAM: { /* Priority_Update Frame */
-            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)frame_length);
-            dissect_http3_priority_update(next_tvb, pinfo, ft_tree, 0, frame_length);
-        } break;
-        default: /* TODO: add expert_advise */
-            break;
-        }
-
-        offset += (int)frame_length;
+    if (frame_length >= (uint64_t)(INT32_MAX - type_length_size)) {
+        // There is no way for us to correctly handle these sizes. Most likely
+        // it is garbage.
+        return INT32_MAX;
     }
 
+    payload_length = (int)frame_length;
+    proto_item_set_len(ti_ft, type_length_size + payload_length);
+    if (payload_length == 0) {
+        return offset;
+    }
+
+    proto_tree_add_item(ft_tree, hf_http3_frame_payload, tvb, offset, payload_length, ENC_NA);
+
+    switch (frame_type) {
+    case HTTP3_DATA: { /* TODO: dissect Data Frame */
+        tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
+        dissect_http3_data(next_tvb, pinfo, ft_tree, 0, stream_info, http3_stream);
+    } break;
+    case HTTP3_HEADERS: {
+#ifdef HAVE_NGHTTP3
+        tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
+        dissect_http3_headers(next_tvb, pinfo, ft_tree, 0, offset, stream_info, http3_stream);
+#endif /* HAVE_NGHTTP3 */
+    } break;
+    case HTTP3_CANCEL_PUSH: /* TODO: dissect Cancel_Push Frame */
+        break;
+    case HTTP3_SETTINGS: { /* Settings Frame */
+        tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
+        dissect_http3_settings(next_tvb, pinfo, ft_tree, 0);
+    } break;
+    case HTTP3_PUSH_PROMISE: /* TODO: dissect Push_Promise_Frame */
+        break;
+    case HTTP3_GOAWAY: /* TODO: dissect Goaway Frame */
+        break;
+    case HTTP3_MAX_PUSH_ID: /* TODO: dissect Max_Push_ID Frame */
+        break;
+    case HTTP3_PRIORITY_UPDATE_REQUEST_STREAM:
+    case HTTP3_PRIORITY_UPDATE_PUSH_STREAM: { /* Priority_Update Frame */
+        tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
+        dissect_http3_priority_update(next_tvb, pinfo, ft_tree, 0, frame_length);
+    } break;
+    default: /* TODO: add expert_advise */
+        break;
+    }
+    offset += payload_length;
     return offset;
 }
 
@@ -1788,10 +1798,10 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         if (http3_is_reserved_code(stream_type)) {
             // Reserved to exercise requirement that unknown types are ignored.
             proto_item_set_text(ti_stream_type, "Stream Type: Reserved (%#" PRIx64 ")", stream_type);
-            stream_display_name = "Reserved";
+            stream_display_name = "Reserved (GREASE)";
         }
         else {
-            stream_display_name = val64_to_str_const(stream_type, http3_stream_types, "Unknown");
+            stream_display_name = val64_to_str(stream_type, http3_stream_types, "Unknown (%#" PRIx64 ")");
         }
         proto_item_set_text(ti_stream, "UNI STREAM: %s off=%" PRIu64 "", stream_display_name, stream_info->stream_offset);
     } else {
@@ -1801,6 +1811,12 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
     switch (stream_type) {
     case HTTP3_STREAM_TYPE_CONTROL:
+        while (tvb_reported_length_remaining(tvb, offset)) {
+            if (!http3_check_frame_size(tvb, pinfo, offset)) {
+                return tvb_captured_length(tvb);
+            }
+            offset = dissect_http3_frame(tvb, pinfo, stream_tree, offset, stream_info, http3_stream);
+        }
         break;
     case HTTP3_STREAM_TYPE_PUSH:
         // The remaining data of this stream consists of HTTP/3 frames.
