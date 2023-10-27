@@ -145,20 +145,16 @@ if(ASCIIDOCTOR_FOUND)
 endif()
 
 
-if( ASCIIDOCTOR_FOUND )
-endif()
-
-
 add_custom_target(
 	docs ALL
 	DEPENDS
-		${MAN1_INSTALL_FILES}
-		${MAN4_INSTALL_FILES}
 		${HTML_INSTALL_FILES}
 )
 set_target_properties(docs PROPERTIES FOLDER "Documentation")
 
 if(ASCIIDOCTOR_FOUND)
+	add_dependencies(docs manpages)
+
 	install(
 		FILES
 			${MAN1_INSTALL_FILES}
