@@ -506,7 +506,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         gint offset = 0;
         int iServiceId = -1;
-        gboolean bParseService = TRUE;
+        gboolean bParseService = FALSE; /* Only MSG, OPN and CLO have a service payload */
         gboolean bIsFinalChunk = FALSE;
         guint payload_len = 0;
         guint8 pad_len = 0;
@@ -533,6 +533,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             fragment_head *frag_msg = NULL;
             fragment_item *frag_i = NULL;
 
+            bParseService = TRUE;
             offset = 3;
             chunkType = tvb_get_guint8(tvb, offset); offset += 1;
             offset += 4; /* message size */
