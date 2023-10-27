@@ -152,7 +152,7 @@ void FollowStreamDialog::addCodecs(const QMap<QString, QTextCodec *> &codecMap)
     // Make the combobox respect max visible items?
     //ui->cbCharset->setStyleSheet("QComboBox { combobox-popup: 0;}");
     ui->cbCharset->insertSeparator(ui->cbCharset->count());
-    for (const auto &codec : qAsConst(codecMap)) {
+    for (const auto &codec : codecMap) {
         // This is already in the menu and handled separately
         if (codec->name() != "US-ASCII" && codec->name() != "UTF-8")
             ui->cbCharset->addItem(tr(codec->name()), SHOW_CODEC);
