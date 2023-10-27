@@ -260,6 +260,7 @@ static gint ett_pkt_ccc = -1;
 
 static expert_field ei_rtp_fragment_unfinished = EI_INIT;
 static expert_field ei_rtp_padding_missing = EI_INIT;
+static expert_field ei_rtp_padding_bogus = EI_INIT;
 
 /* RFC 5285 Header extensions */
 static int hf_rtp_ext_rfc5285_id = -1;
@@ -2507,6 +2508,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
          * that can be ignored at the end of the packet.
          */
         volatile unsigned int padding_count;
+        volatile gboolean padding_bogus = FALSE;
         if (tvb_captured_length(tvb) < tvb_reported_length(tvb)) {
             /*
              * We don't *have* the last octet of the
@@ -2584,29 +2586,38 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
              * The padding count is bigger than the
              * amount of RTP payload in the packet!
              * Clip the padding count.
-             *
-             * XXX - put an item in the tree to indicate
-             * that the padding count is bogus?
              */
             padding_count =
                 tvb_reported_length_remaining(tvb, offset);
+            padding_bogus = TRUE;
         }
-        if (padding_count > 1) {
+        if (padding_count) {
+            if (padding_count > 1) {
+                /*
+                 * There's more than one byte of padding;
+                 * show all but the last byte as padding
+                 * data.
+                 */
+                proto_tree_add_item( rtp_tree, hf_rtp_padding_data,
+                    tvb, offset, padding_count - 1, ENC_NA );
+                offset += padding_count - 1;
+            }
             /*
-             * There's more than one byte of padding;
-             * show all but the last byte as padding
-             * data.
+             * Show the last byte in the PDU as the padding
+             * count.
              */
-            proto_tree_add_item( rtp_tree, hf_rtp_padding_data,
-                tvb, offset, padding_count - 1, ENC_NA );
-            offset += padding_count - 1;
+            ti = proto_tree_add_item( rtp_tree, hf_rtp_padding_count,
+                tvb, offset, 1, ENC_BIG_ENDIAN );
+            if (padding_bogus) {
+                expert_add_info(pinfo, ti, &ei_rtp_padding_bogus);
+            }
+        } else {
+            /* The padding length includes itself, so zero is an illegal
+             * value. Trying to add it to the tree at this point would
+             * create a malformed error by running off the end of the tvb.
+             */
+            proto_tree_add_expert_format(rtp_tree, pinfo, &ei_rtp_padding_bogus, tvb, tvb_reported_length(tvb) - 1, 1, "Frame has padding, but of illegal length zero");
         }
-        /*
-         * Show the last byte in the PDU as the padding
-         * count.
-         */
-        proto_tree_add_item( rtp_tree, hf_rtp_padding_count,
-            tvb, offset, 1, ENC_BIG_ENDIAN );
     }
     else {
         /*
@@ -3566,7 +3577,8 @@ proto_register_rtp(void)
 
     static ei_register_info ei[] = {
         { &ei_rtp_fragment_unfinished, { "rtp.fragment_unfinished", PI_REASSEMBLE, PI_CHAT, "RTP fragment, unfinished", EXPFILL }},
-        { &ei_rtp_padding_missing, { "rtp.padding_missing", PI_MALFORMED, PI_ERROR, "Frame has padding, but not all the frame data was captured", EXPFILL }},
+        { &ei_rtp_padding_missing, { "rtp.padding_missing", PI_UNDECODED, PI_WARN, "Frame has padding, but not all the frame data was captured", EXPFILL }},
+        { &ei_rtp_padding_bogus, { "rtp.padding_bogus", PI_PROTOCOL, PI_WARN, "Frame has padding length value greater than payload length", EXPFILL }},
     };
 
     /* Decode As handling */
