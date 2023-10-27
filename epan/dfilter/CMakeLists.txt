@@ -9,15 +9,17 @@
 
 set(DFILTER_PUBLIC_HEADERS
 	dfilter.h
+	dfilter-int.h
+	dfilter-loc.h
 	dfilter-plugin.h
+	dfunctions.h
 	drange.h
+	syntax-tree.h
 )
 
 set(DFILTER_HEADER_FILES
 	${DFILTER_PUBLIC_HEADERS}
-	dfilter-int.h
 	dfilter-macro.h
-	dfunctions.h
 	dfvm.h
 	gencode.h
 	semcheck.h
@@ -28,7 +30,6 @@ set(DFILTER_HEADER_FILES
 	sttype-set.h
 	sttype-slice.h
 	sttype-op.h
-	syntax-tree.h
 )
 
 set(DFILTER_NONGENERATED_FILES
