@@ -775,7 +775,6 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     http3_stream_dir              packet_direction;
     int                           header_len = 0, hoffset = 0;
     nghttp3_qpack_decoder         *decoder;
-    nghttp3_qpack_stream_context  *sctx = NULL;
     proto_item                    *header, *ti, *ti_named_field;
     proto_tree                    *header_tree, *blocked_rcint_tree;
     tvbuff_t                      *header_tvb;
@@ -795,8 +794,6 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
          *  This makes context out-of-sync.
          */
 
-        nghttp3_qpack_stream_context_new(&sctx, http3_stream->id, nghttp3_mem_default());
-
         length           = tvb_reported_length_remaining(tvb, tvb_offset);
         packet_direction = http3_packet_get_direction(stream_info);
         decoder          = http3_session->qpack_decoder[packet_direction];
@@ -810,6 +807,9 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         header_data->encoded.bytes = tvb_memdup(wmem_file_scope(), tvb, tvb_offset, length);
         header_data->encoded.pos   = 0;
         header_data->encoded.len   = length;
+
+        nghttp3_qpack_stream_context *sctx = NULL;
+        nghttp3_qpack_stream_context_new(&sctx, http3_stream->id, nghttp3_mem_default());
 
         HTTP3_DISSECTOR_DPRINTF("Header data: %p %d %d\n", header_data->encoded.bytes, header_data->encoded.pos,
                                 header_data->encoded.len);
@@ -971,6 +971,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
             HEADER_BLOCK_ENC_ITER_INC(header_data, nread);
         }
+        nghttp3_qpack_stream_context_del(sctx);
     }
 
     if ((header_data->header_fields == NULL) || (wmem_array_get_count(header_data->header_fields) == 0)) {
@@ -1090,10 +1091,6 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         e_ti = proto_tree_add_string(tree, hf_http3_header_request_full_uri, tvb, 0, 0, uri);
         proto_item_set_url(e_ti);
         proto_item_set_generated(e_ti);
-    }
-
-    if (sctx) {
-        nghttp3_qpack_stream_context_del(sctx);
     }
 
     return tvb_offset;
