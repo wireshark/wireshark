@@ -102,18 +102,12 @@ def update_debian_changelog(src_dir, repo_data):
         print(deb_changelog_filepath + " has been updated.")
 
 
-def create_env_files(src_dir, repo_data):
-    'Create POSIX shell and PowerShell files that set a variable to the current version'
+def create_version_file(version_f, repo_data):
+    'Write the version to the specified file handle'
 
-    posix_version_filepath = os.path.join(src_dir, 'wireshark_version.sh')
-    with open(posix_version_filepath, mode='w', encoding='utf-8') as fh:
-        fh.write(f"export WIRESHARK_VERSION={repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}\n")
-        print(posix_version_filepath + " has been created.")
+    version_f.write(f"{repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}\n")
+    print(version_f.name + " has been created.")
 
-    powershell_version_filepath = os.path.join(src_dir, 'wireshark_version.ps1')
-    with open(powershell_version_filepath, mode='w', encoding='utf-8') as fh:
-        fh.write(f"$wiresharkVersion = \"{repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}\"\r\n")
-        print(powershell_version_filepath + " has been created.")
 
 def update_attributes_asciidoc(src_dir, repo_data):
     # Read docbook/attributes.adoc, then write it back out with an updated
@@ -181,7 +175,6 @@ def update_cmake_lib_releases(src_dir, repo_data):
 def update_versioned_files(src_dir, set_version, repo_data):
     update_cmakelists_txt(src_dir, set_version, repo_data)
     update_debian_changelog(src_dir, repo_data)
-    create_env_files(src_dir, repo_data)
     if set_version:
         update_attributes_asciidoc(src_dir, repo_data)
         update_docinfo_asciidoc(src_dir, repo_data)
@@ -431,8 +424,13 @@ def main():
     setrel_group.add_argument('--tagged-version-extra', '-t', default="", help="Extra version information format to use when a tag is found. No format \
 (an empty string) is used by default.")
     setrel_group.add_argument('--untagged-version-extra', '-u', default='-{vcsinfo}', help='Extra version information format to use when no tag is found. The format "-{vcsinfo}" (the number of commits and commit ID) is used by default.')
+    parser.add_argument('--version-file', '-f', metavar='<file>', type=argparse.FileType('w'), help='path to version file')
     parser.add_argument("src_dir", metavar='src_dir', nargs=1, help="path to source code")
     args = parser.parse_args()
+
+    if args.version_file and not args.set_release:
+        sys.stderr.write('Error: --version-file must be used with --set-release.\n')
+        sys.exit(1)
 
     src_dir = args.src_dir[0]
 
@@ -451,6 +449,10 @@ def main():
 
     if args.set_release or args.set_version:
         update_versioned_files(src_dir, args.set_version, repo_data)
+
+    if args.version_file:
+        create_version_file(args.version_file, repo_data)
+
 
 
 if __name__ == "__main__":
