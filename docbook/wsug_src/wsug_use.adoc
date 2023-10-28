@@ -765,6 +765,7 @@ It is assumed that the rules will be applied to an outside interface.
 Menu item is greyed out unless one (and only one) frame is selected in the packet list.
 |menu:Credentials[]|| This allows you to extract credentials from the current capture file. Some of the dissectors (ftp, http, imap, pop, smtp) have been instrumented to provide the module with usernames and passwords and more will be instrumented in the future. The window dialog provides you the packet number where the credentials have been found, the protocol that provided them, the username and protocol specific information.
 |menu:MAC Address Blocks[]|| This allows viewing the IEEE MAC address registry data that Wireshark uses to resolve MAC address blocks to vendor names. The table can be searched by address prefix or vendor name.
+|menu:SSL Keylog Launcher[]|| This can launch an application such as a web browser or a terminal window with the SSLKEYLOG environment variable set to the same value as the TLS secret log file. Note that you will probably have to quit your existing web browser session in order to have it run under a fresh environment.
 |menu:Lua Console[]|| This option allows you to work with the Lua interpreter optionally built into Wireshark, to inspect Lua internals and evaluate code.
 See “Lua Support in Wireshark” in the Wireshark Developer’s Guide.
 |===

@@ -139,7 +139,6 @@ set(WIRESHARK_QT_HEADERS
 	bluetooth_device_dialog.h
 	bluetooth_devices_dialog.h
 	bluetooth_hci_summary_dialog.h
-	browser_sslkeylog_dialog.h
 	byte_view_tab.h
 	capture_comment_dialog.h
 	capture_file_dialog.h
@@ -244,6 +243,7 @@ set(WIRESHARK_QT_HEADERS
 	service_response_time_dialog.h
 	show_packet_bytes_dialog.h
 	simple_statistics_dialog.h
+	sslkeylog_launcher_dialog.h
 	stats_tree_dialog.h
 	strip_headers_dialog.h
 	supported_protocols_dialog.h
@@ -394,7 +394,6 @@ set(WIRESHARK_QT_SRC
 	bluetooth_device_dialog.cpp
 	bluetooth_devices_dialog.cpp
 	bluetooth_hci_summary_dialog.cpp
-	browser_sslkeylog_dialog.cpp
 	byte_view_tab.cpp
 	capture_comment_dialog.cpp
 	capture_file_dialog.cpp
@@ -495,8 +494,9 @@ set(WIRESHARK_QT_SRC
 	show_packet_bytes_dialog.cpp
 	simple_dialog.cpp
 	simple_statistics_dialog.cpp
-	supported_protocols_dialog.cpp
+	sslkeylog_launcher_dialog.cpp
 	strip_headers_dialog.cpp
+	supported_protocols_dialog.cpp
 	tabnav_tree_widget.cpp
 	tap_parameter_dialog.cpp
 	tcp_stream_dialog.cpp
@@ -560,7 +560,6 @@ set(WIRESHARK_QT_UI
 	bluetooth_device_dialog.ui
 	bluetooth_devices_dialog.ui
 	bluetooth_hci_summary_dialog.ui
-	browser_sslkeylog_dialog.ui
 	capture_comment_dialog.ui
 	capture_file_properties_dialog.ui
 	capture_info_dialog.ui
@@ -629,6 +628,7 @@ set(WIRESHARK_QT_UI
 	search_frame.ui
 	sequence_dialog.ui
 	show_packet_bytes_dialog.ui
+	sslkeylog_launcher_dialog.ui
 	strip_headers_dialog.ui
 	supported_protocols_dialog.ui
 	tap_parameter_dialog.ui
