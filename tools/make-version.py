@@ -105,7 +105,7 @@ def update_debian_changelog(src_dir, repo_data):
 def create_version_file(version_f, repo_data):
     'Write the version to the specified file handle'
 
-    version_f.write(f"{repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}\n")
+    version_f.write(f"{repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}{repo_data['package_string']}\n")
     print(version_f.name + " has been created.")
 
 
