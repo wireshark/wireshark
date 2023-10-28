@@ -3020,7 +3020,7 @@
   </action>
   <action name="actionToolsSSLKeylog">
    <property name="text">
-    <string>Browser (SSL Keylog)</string>
+    <string>SSL Keylog Launcher</string>
    </property>
   </action>
   <action name="actionHelpReleaseNotes">

@@ -1,5 +1,5 @@
 /*
- * browser_sslkeylog_dialog.c
+ * sslkeylog_launcher_dialog.c
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -9,8 +9,8 @@
  */
 
 #include <config.h>
-#include "browser_sslkeylog_dialog.h"
-#include <ui_browser_sslkeylog_dialog.h>
+#include "sslkeylog_launcher_dialog.h"
+#include <ui_sslkeylog_launcher_dialog.h>
 
 #include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"

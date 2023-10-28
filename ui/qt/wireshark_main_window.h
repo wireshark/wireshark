@@ -73,7 +73,7 @@
 #include "main_window.h"
 #include "rtp_stream_dialog.h"
 #include "rtp_analysis_dialog.h"
-#include "browser_sslkeylog_dialog.h"
+#include "sslkeylog_launcher_dialog.h"
 
 class AccordionFrame;
 class ByteViewTab;

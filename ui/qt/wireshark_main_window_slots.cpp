@@ -97,7 +97,6 @@ DIAG_ON(frame-larger-than=)
 #include "capture_options_dialog.h"
 #endif
 #include <ui/qt/utils/color_utils.h>
-#include "browser_sslkeylog_dialog.h"
 #include "coloring_rules_dialog.h"
 #include "conversation_dialog.h"
 #include "conversation_colorize_action.h"
@@ -154,6 +153,7 @@ DIAG_ON(frame-larger-than=)
 #include "sctp_graph_dialog.h"
 #include "sequence_dialog.h"
 #include "show_packet_bytes_dialog.h"
+#include "sslkeylog_launcher_dialog.h"
 #include "stats_tree_dialog.h"
 #include "strip_headers_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
