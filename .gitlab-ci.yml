@@ -427,7 +427,7 @@ Windows x64 Package:
     - mkdir build
     - cd build
   script:
-    - C:\Windows\py.exe ..\tools\make-version.py --set-release ..
+    - C:\Windows\py.exe ..\tools\make-version.py --set-release --version-file=wireshark_version.txt ..
     - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
@@ -446,7 +446,14 @@ Windows x64 Package:
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash $package.length "bytes" }
     - if (Test-Path env:MC_DESTINATION_WINDOWS_X64) { C:\gitlab-builds\bin\mc --quiet cp $packages "$env:MC_DESTINATION_WINDOWS_X64/" }
+    - $nsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-x64.exe).Hash
+    - $wiresharkVersion = Get-Content .\wireshark_version.txt
+    - Set-Content -Path release-info-$($wiresharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nnsis_sha256 = $nsisSha256")
+    - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp release-info-$($wiresharkVersion)-windows-x64.ini "$env:MC_DESTINATION_RELEASE/" }
     - C:\Windows\py.exe -m pytest
+  artifacts:
+    paths:
+      - build/run/release-info-*.ini
 
 Windows Arm64 Package:
   extends: .build-windows
@@ -463,7 +470,7 @@ Windows Arm64 Package:
     - mkdir build
     - cd build
   script:
-    - C:\Windows\py.exe ..\tools\make-version.py --set-release ..
+    - C:\Windows\py.exe ..\tools\make-version.py --set-release --version-file=wireshark_version.txt ..
     - cmake -G "Visual Studio 17 2022" -A arm64 -DENABLE_LTO=off -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
@@ -476,7 +483,14 @@ Windows Arm64 Package:
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash $package.length "bytes" }
     - if (Test-Path env:MC_DESTINATION_WINDOWS_ARM64) { C:\gitlab-builds\bin\mc --quiet cp $packages "$env:MC_DESTINATION_WINDOWS_ARM64/" }
+    - $nsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-arm64.exe).Hash
+    - $wiresharkVersion = Get-Content .\wireshark_version.txt
+    - Set-Content -Path release-info-$($wiresharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nnsis_sha256 = $nsisSha256")
+    - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp release-info-$($wiresharkVersion)-windows-arm64.ini "$env:MC_DESTINATION_RELEASE/" }
     - C:\Windows\py.exe -m pytest
+  artifacts:
+    paths:
+      - build/run/release-info-*.ini
 
 Windows MinGW-w64 Package:
   extends: .build-mingw
