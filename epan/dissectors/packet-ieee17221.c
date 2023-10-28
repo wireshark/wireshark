@@ -1733,7 +1733,7 @@ static const value_string aecp_message_type_vals[] = {
 };
 
 static const value_string aecp_command_type_vals[] = {
-   {AECP_COMMAND_ACQUIRE_ENTITY                , "ACQUIRE_ENTIY"},
+   {AECP_COMMAND_ACQUIRE_ENTITY                , "ACQUIRE_ENTITY"},
    {AECP_COMMAND_LOCK_ENTITY                   , "LOCK_ENTITY"},
    {AECP_COMMAND_ENTITY_AVAILABLE              , "ENTITY_AVAILABLE"},
    {AECP_COMMAND_CONTROLLER_AVAILABLE          , "CONTROLLER_AVAILABLE"},

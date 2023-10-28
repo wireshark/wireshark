@@ -12859,7 +12859,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_usage_report_trigger_o7_b4_emrre,
-        { "EMRRE (End Marker Recetion REport)", "pfcp.usage_report_trigger_flags.emrre",
+        { "EMRRE (End Marker Reception REport)", "pfcp.usage_report_trigger_flags.emrre",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },

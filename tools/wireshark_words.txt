@@ -180,6 +180,7 @@ butype
 byte
 byteorder
 cablelabs
+caching
 cadenced
 callback
 callid
@@ -224,11 +225,13 @@ centiseconds
 centrino
 cfilters
 cframe
+chacha
 chan1
 chan2
 changelog
 channelisation
 channelized
+channelmap
 chars
 charset
 charsets
@@ -437,6 +440,7 @@ deselect
 designator
 destip
 destport
+determinant
 deutschland
 devcap
 deviceid
@@ -467,6 +471,7 @@ dissector
 dissectors
 distinguisher
 distributions
+diversifications
 diversifier
 divisor
 djiuav
@@ -570,6 +575,7 @@ etype
 eutra
 eutran
 eventlog
+evolutions
 executables
 exflags
 exocet
@@ -774,6 +780,7 @@ instrumented
 interferer
 interleaving
 interop
+interpolated
 interruptible
 interworking
 intra
@@ -851,6 +858,7 @@ lcgid
 lcids
 lcsap
 leasequery
+legitimisation
 libgcrypt
 libpcap
 libsmi
@@ -904,6 +912,7 @@ maybefcs
 mbits
 mbsfn
 mbytes
+mcaal
 mcast
 mcmemberrecord
 mcptt
@@ -930,6 +939,7 @@ mgmtmsg
 microapp
 microbit
 midamble
+migratable
 millimeters
 milliwatt
 mingw
@@ -1046,6 +1056,7 @@ nodeid
 nofcs
 nokia
 nominals
+non3gpp
 nonblock
 noncriticalextension
 noncriticalextensions
@@ -1137,6 +1148,7 @@ packetcable
 packetization
 packetized
 pagings
+panasonic
 parallelization
 param
 parameterization
@@ -1183,6 +1195,7 @@ picmg
 pinfo
 pixmap
 plaintext
+planar
 plano
 plixer
 plugin
@@ -1259,6 +1272,7 @@ qam64
 qmgmt
 qnet6
 qosinfo
+qpack
 qsearch
 quadlet
 quadrature
@@ -1354,6 +1368,7 @@ rekey
 rekeying
 relocatable
 remapping
+renegotiation
 renumbering
 reoptimization
 reoptimized
@@ -1408,6 +1423,7 @@ revalidate
 revalidation
 revertive
 revocations
+rf4ce
 rfcomm
 rfmon
 rgoose
@@ -1417,6 +1433,7 @@ rmcap
 rngrsp
 rnsap
 roamer
+romania
 routable
 rowfmt
 rpcap
@@ -1430,6 +1447,7 @@ rtpmidi
 rtpmux
 rtpstream
 ruleset
+rwanda
 rxchannel
 rxlen
 rxlev
@@ -1592,6 +1610,7 @@ subpdu
 subpm
 subprocesstest
 subquery
+subrect
 subrects
 subselect
 subselection
@@ -1605,6 +1624,7 @@ sverige
 svhdx
 switchinfo
 symantec
+symlink
 synchronizer
 synchronizing
 synchronously
@@ -1620,6 +1640,7 @@ sysmac
 systemd
 tablemod
 tabular
+tanzania
 tclas
 tcpdump
 tcpflags
@@ -1750,6 +1771,7 @@ uncompression
 unconfigurable
 unconfigured
 unconfirm
+unconstrained
 uncontended
 uncorrectable
 undecidable
@@ -1900,6 +1922,7 @@ virtex
 virtio
 virtualization
 vlans
+vmware
 vnode
 vocoder
 vodafone

@@ -4672,24 +4672,24 @@ proto_register_vnc(void)
 		    "Unique application id", HFILL }
 		},
 		{ &hf_vnc_mirrorlink_fb_block_x,
-		  { "Frambuffer X", "vnc.mirrorlink_fb_block_x",
+		  { "Framebuffer X", "vnc.mirrorlink_fb_block_x",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Frambuffer blocking - X position", HFILL }
+		    "Framebuffer blocking - X position", HFILL }
 		},
 		{ &hf_vnc_mirrorlink_fb_block_y,
-		  { "Frambuffer Y", "vnc.mirrorlink_fb_block_y",
+		  { "Framebuffer Y", "vnc.mirrorlink_fb_block_y",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Frambuffer blocking - Y position", HFILL }
+		    "Framdbuffer blocking - Y position", HFILL }
 		},
 		{ &hf_vnc_mirrorlink_fb_block_width,
-		  { "Frambuffer Width", "vnc.mirrorlink_fb_block_width",
+		  { "Framebuffer Width", "vnc.mirrorlink_fb_block_width",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Frambuffer blocking - Width", HFILL }
+		    "Framebuffer blocking - Width", HFILL }
 		},
 		{ &hf_vnc_mirrorlink_fb_block_height,
-		  { "Frambuffer Height", "vnc.mirrorlink_fb_block_height",
+		  { "Framebuffer Height", "vnc.mirrorlink_fb_block_height",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Frambuffer blocking - Height", HFILL }
+		    "Framebuffer blocking - Height", HFILL }
 		},
 		{ &hf_vnc_mirrorlink_fb_block_reason,
 		  { "Reason", "vnc.mirrorlink_fb_block_reason",

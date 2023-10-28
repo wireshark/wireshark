@@ -671,7 +671,7 @@ static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_reserved = -1
 
 static const true_false_string rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_trans_mode_vals = {
     "Broadcast Transmission",
-    "Unicast Ttransmission"
+    "Unicast Transmission"
 };
 
 static const true_false_string rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_dst_addr_mode_vals = {
@@ -801,7 +801,7 @@ static const value_string rf4ce_profile_cmd_client_notification_sub_type_vals[] 
 static const value_string rf4ce_profile_cmd_key_exchange_sub_type_vals[] = {
     { RF4CE_PROFILE_CMD_KEY_EXCHANGE_SUB_TYPE_CHALLENGE,     "Challenge" },
     { RF4CE_PROFILE_CMD_KEY_EXCHANGE_SUB_TYPE_CHALLENGE_RSP, "Challenge Response" },
-    { RF4CE_PROFILE_CMD_KEY_EXCHANGE_SUB_TYPE_RSP,           "Reponse" },
+    { RF4CE_PROFILE_CMD_KEY_EXCHANGE_SUB_TYPE_RSP,           "Response" },
     { RF4CE_PROFILE_CMD_KEY_EXCHANGE_SUB_TYPE_CONFIRM,       "Confirm" },
     { 0, NULL }
 };
@@ -1271,7 +1271,7 @@ void proto_register_rf4ce_profile(void)
           NULL, RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_IR_DESCR_IR_CONF_RESERVED_MASK,
           NULL, HFILL}},
         {&hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_vendor_id,
-         {"IR Venodr ID", "rf4ce-profile.attr.action_mappings.ir_descr.ir_vendor_id",
+         {"IR Vendor ID", "rf4ce-profile.attr.action_mappings.ir_descr.ir_vendor_id",
           FT_UINT16, BASE_HEX,
           VALS(rf4ce_vendor_id_vals), RF4CE_VENDOR_ID_MASK,
           NULL, HFILL}},
