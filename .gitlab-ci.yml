@@ -453,7 +453,7 @@ Windows x64 Package:
     - C:\Windows\py.exe -m pytest
   artifacts:
     paths:
-      - build/run/release-info-*.ini
+      - build/release-info-*.ini
 
 Windows Arm64 Package:
   extends: .build-windows
@@ -490,7 +490,7 @@ Windows Arm64 Package:
     - C:\Windows\py.exe -m pytest
   artifacts:
     paths:
-      - build/run/release-info-*.ini
+      - build/release-info-*.ini
 
 Windows MinGW-w64 Package:
   extends: .build-mingw
