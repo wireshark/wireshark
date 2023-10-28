@@ -310,12 +310,12 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
     label->setFont(font);
     ui->verticalLayout->addWidget(label);
 
-    prefSearchData * searchData = new prefSearchData;
-    searchData->layout = ui->verticalLayout;
-    searchData->moduleName = module->name;
+    prefSearchData searchData;
+    searchData.layout = ui->verticalLayout;
+    searchData.moduleName = module->name;
 
     /* Add items for each of the preferences */
-    prefs_pref_foreach(module, pref_show, (gpointer) searchData);
+    prefs_pref_foreach(module, pref_show, &searchData);
 
     foreach (QLineEdit *le, findChildren<QLineEdit *>()) {
         pref_t *pref = VariantPointer<pref_t>::asPtr(le->property(pref_prop_));
