@@ -3128,6 +3128,18 @@ prefs_register_modules(void)
      */
     gui_module = prefs_register_module(NULL, "gui", "User Interface",
         "User Interface", &gui_callback, FALSE);
+    /*
+     * The GUI preferences don't affect dissection in general.
+     * Any changes are signaled in other ways, so PREF_EFFECT_GUI doesn't
+     * explicitly do anything, but wslua_set_preference expects *some*
+     * effect flag to be set if the preference was changed.
+     * We have to do this again for all the submodules (except for the
+     * layout submodule, which has its own effect flag).
+     */
+    unsigned gui_effect_flags = prefs_get_module_effect_flags(gui_module);
+    gui_effect_flags |= PREF_EFFECT_GUI;
+    gui_effect_flags &= (~PREF_EFFECT_DISSECTION);
+    prefs_set_module_effect_flags(gui_module, gui_effect_flags);
 
     /*
      * gui.console_open is stored in the registry in addition to the
@@ -3160,6 +3172,7 @@ prefs_register_modules(void)
     prefs_register_obsolete_preference(gui_module, "packet_editor.enabled");
 
     gui_column_module = prefs_register_subtree(gui_module, "Columns", "Columns", NULL);
+    prefs_set_module_effect_flags(gui_column_module, gui_effect_flags);
     /* For reading older preference files with "column." preferences */
     prefs_register_module_alias("column", gui_column_module);
 
@@ -3201,6 +3214,7 @@ prefs_register_modules(void)
 
     /* User Interface : Font */
     gui_font_module = prefs_register_subtree(gui_module, "Font", "Font", NULL);
+    prefs_set_module_effect_flags(gui_font_module, gui_effect_flags);
 
     prefs_register_obsolete_preference(gui_font_module, "font_name");
 
@@ -3212,6 +3226,7 @@ prefs_register_modules(void)
 
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
+    prefs_set_module_effect_flags(gui_color_module, gui_effect_flags);
 
     prefs_register_color_preference(gui_color_module, "active_frame.fg", "Foreground color for an active selected item",
         "Foreground color for an active selected item", &prefs.gui_active_fg);
