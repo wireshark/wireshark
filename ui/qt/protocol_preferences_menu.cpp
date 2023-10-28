@@ -415,9 +415,12 @@ void ProtocolPreferencesMenu::enumCustomTCPOverridePreferenceTriggered()
             if (fdata->tcp_snd_manual_analysis != epa->getEnumValue()) { // Changed
                 fdata->tcp_snd_manual_analysis = epa->getEnumValue();
 
+                unsigned int changed_flags = prefs_get_effect_flags(epa->getPref());
+                if (changed_flags & PREF_EFFECT_FIELDS) {
+                    mainApp->emitAppSignal(MainApplication::FieldsChanged);
+                }
                 /* Protocol preference changes almost always affect dissection,
                    so don't bother checking flags */
-                mainApp->emitAppSignal(MainApplication::FieldsChanged);
                 mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
             }
         }
