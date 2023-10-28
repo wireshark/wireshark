@@ -590,11 +590,11 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
         }
 
         // Add display filter functions to the completion list
-        const char **func_list = df_func_list();
-        for (const char **ptr = func_list; *ptr != NULL; ptr++) {
-            field_list << QString::fromUtf8(*ptr).append("(");
+        GPtrArray *func_list = df_func_name_list();
+        for (guint i = 0; i < func_list->len; i++) {
+            field_list << QString::fromUtf8(static_cast<const char *>(func_list->pdata[i])).append("(");
         }
-        g_free(func_list);
+        g_ptr_array_unref(func_list);
 
         field_list.sort();
     }

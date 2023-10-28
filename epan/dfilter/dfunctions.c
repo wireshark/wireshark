@@ -27,6 +27,8 @@
 
 static GHashTable *registered_functions = NULL;
 
+static GPtrArray *registered_names = NULL;
+
 /* Convert an FT_STRING using a callback function */
 static bool
 string_walk(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval, char(*conv_func)(char))
@@ -456,19 +458,29 @@ df_functions[] = {
 void
 df_func_init(void)
 {
+    df_func_def_t *func;
+
     registered_functions = g_hash_table_new(g_str_hash, g_str_equal);
+    registered_names = g_ptr_array_new();
+
+    /* Register built-in functions. */
+    for (func = df_functions; func->name != NULL; func++) {
+        df_func_register(func);
+    }
 }
 
 bool
 df_func_register(df_func_def_t *func)
 {
     ws_assert(registered_functions);
+    ws_assert(registered_names);
     if (g_hash_table_contains(registered_functions, func->name)) {
         ws_critical("Trying to register display filter function \"%s\" but "
                     "it already exists", func->name);
         return false;
     }
 
+    g_ptr_array_add(registered_names, (gpointer)func->name);
     return g_hash_table_insert(registered_functions, (gpointer)func->name, func);
 }
 
@@ -485,6 +497,7 @@ df_func_deregister(df_func_def_t *func)
         return false;
     }
 
+    g_ptr_array_remove_fast(registered_names, (void *)func->name);
     return g_hash_table_remove(registered_functions, func->name);
 }
 
@@ -492,43 +505,13 @@ df_func_deregister(df_func_def_t *func)
 df_func_def_t*
 df_func_lookup(const char *name)
 {
-    /* First check built-in functions. */
-    df_func_def_t *func_def = df_functions;
-    while (func_def->name != NULL) {
-        if (strcmp(func_def->name, name) == 0) {
-            return func_def;
-        }
-        func_def++;
-    }
-
-    /* Now try plugins. */
     return g_hash_table_lookup(registered_functions, name);
 }
 
-const char **
-df_func_list(void)
+GPtrArray *
+df_func_name_list(void)
 {
-    size_t count;
-
-    count = G_N_ELEMENTS(df_functions) - 1 + g_hash_table_size(registered_functions) + 1; /* NULL terminated. */
-    const char **array = g_new(const char *, count);
-
-    size_t i = 0;
-    df_func_def_t *func_def = df_functions;
-    while (func_def->name != NULL) {
-        array[i++] = func_def->name;
-        func_def++;
-    }
-
-    GHashTableIter iter;
-    void *value;
-
-    g_hash_table_iter_init (&iter, registered_functions);
-    while (g_hash_table_iter_next (&iter, NULL, &value)) {
-        array[i++] = ((df_func_def_t *)value)->name;
-    }
-    array[i] = NULL;
-    return array;
+    return g_ptr_array_ref(registered_names);
 }
 
 void
@@ -536,6 +519,8 @@ df_func_cleanup(void)
 {
     g_hash_table_destroy(registered_functions);
     registered_functions = NULL;
+    g_ptr_array_unref(registered_names);
+    registered_names = NULL;
 }
 
 /*

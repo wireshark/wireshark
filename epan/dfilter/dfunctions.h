@@ -64,9 +64,9 @@ bool df_func_deregister(df_func_def_t *func);
 WS_DLL_PUBLIC
 df_func_def_t* df_func_lookup(const char *name);
 
-/* The array must be freed, but not the array contents. */
+/* You must call g_ptr_array_unref() when you are done. */
 WS_DLL_PUBLIC
-const char **df_func_list(void);
+GPtrArray *df_func_name_list(void);
 
 void df_func_cleanup(void);
 
