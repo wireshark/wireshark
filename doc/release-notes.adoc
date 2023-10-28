@@ -61,6 +61,8 @@ The following features are new (or have been significantly updated) since versio
      "bool_test(some.field)" instead of having to write "bool_test(some.field) == True"
      (both forms are now valid).
 
+* Display filter autocompletions now also include display filter functions.
+
 //=== Removed Features and Support
 
 // === Removed Dissectors

@@ -260,8 +260,8 @@ log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg, char **cache
 		if ((obj)->magic != (mnum)) { \
 			ws_log_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_ERROR, \
 				__FILE__, __LINE__, __func__, \
-				"Magic num is 0x%08"PRIx32", " \
-				"but should be 0x%08"PRIx32, \
+				"Magic num is 0x%08" PRIx32", " \
+				"but should be 0x%08" PRIx32, \
 				(obj)->magic, (mnum)); \
 		} \
 	} while(0)

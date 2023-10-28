@@ -505,6 +505,32 @@ df_func_lookup(const char *name)
     return g_hash_table_lookup(registered_functions, name);
 }
 
+const char **
+df_func_list(void)
+{
+    size_t count;
+
+    count = G_N_ELEMENTS(df_functions) - 1 + g_hash_table_size(registered_functions) + 1; /* NULL terminated. */
+    const char **array = g_new(const char *, count);
+
+    size_t i = 0;
+    df_func_def_t *func_def = df_functions;
+    while (func_def->name != NULL) {
+        array[i++] = func_def->name;
+        func_def++;
+    }
+
+    GHashTableIter iter;
+    void *value;
+
+    g_hash_table_iter_init (&iter, registered_functions);
+    while (g_hash_table_iter_next (&iter, NULL, &value)) {
+        array[i++] = ((df_func_def_t *)value)->name;
+    }
+    array[i] = NULL;
+    return array;
+}
+
 void
 df_func_cleanup(void)
 {

@@ -12,6 +12,7 @@
 #include <glib.h>
 
 #include <epan/dfilter/dfilter.h>
+#include <epan/dfilter/dfunctions.h>
 
 #include <ui/recent.h>
 
@@ -587,6 +588,14 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
                 }
             }
         }
+
+        // Add display filter functions to the completion list
+        const char **func_list = df_func_list();
+        for (const char **ptr = func_list; *ptr != NULL; ptr++) {
+            field_list << QString::fromUtf8(*ptr).append("(");
+        }
+        g_free(func_list);
+
         field_list.sort();
     }
 
