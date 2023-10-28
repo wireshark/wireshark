@@ -471,11 +471,27 @@ void ModulePreferencesScrollArea::updateWidgets()
         }
 
         if (prefs_get_type(pref) == PREF_PROTO_TCP_SNDAMB_ENUM && !prefs_get_enum_radiobuttons(pref)) {
-            MainWindow* topWidget = dynamic_cast<MainWindow*> (mainApp->mainWindow());
-            /* Ensure there is one unique or multiple selections. See issue 18642 */
-            if (topWidget->hasSelection() || topWidget->hasUniqueSelection()) {
-                frame_data * fdata = topWidget->frameDataForRow((topWidget->selectedRows()).at(0));
-                enum_cb->setCurrentIndex(fdata->tcp_snd_manual_analysis);
+            if (prefs_get_list_value(pref, pref_stashed) == NULL) {
+                /* We haven't added a list of frames that could have their
+                 * analysis changed. Set the current value to whatever the
+                 * first selected frame has for its its TCP Sequence Analysis
+                 * override.
+                 */
+                MainWindow* topWidget = qobject_cast<MainWindow*>(mainApp->mainWindow());
+                /* Ensure there is one unique or multiple selections. See issue 18642 */
+                if (topWidget->hasSelection() || topWidget->hasUniqueSelection()) {
+                    frame_data * fdata = topWidget->frameDataForRow((topWidget->selectedRows()).at(0));
+                    enum_cb->setCurrentIndex(enum_cb->findData(fdata->tcp_snd_manual_analysis));
+                    QList<int> rows = topWidget->selectedRows();
+                    foreach (int row, rows) {
+                        frame_data * fdata = topWidget->frameDataForRow(row);
+                        prefs_add_list_value(pref, fdata, pref_stashed);
+                    }
+                }
+            } else {
+                /* The initial value was already set from the selected frames,
+                 * use the current value from when the CB was changed. */
+                enum_cb->setCurrentIndex(enum_cb->findData(prefs_get_enum_value(pref, pref_current)));
             }
         }
     }
@@ -640,20 +656,8 @@ void ModulePreferencesScrollArea::enumComboBoxCurrentIndexChanged_PROTO_TCP(int 
     pref_t *pref = VariantPointer<pref_t>::asPtr(enum_cb->property(pref_prop_));
     if (!pref) return;
 
-    MainWindow* topWidget = dynamic_cast<MainWindow*> (mainApp->mainWindow());
-
-    // method 1 : apply to one single packet
-    /* frame_data * fdata = topWidget->frameDataForRow((topWidget->selectedRows()).at(0));
-    fdata->tcp_snd_manual_analysis = enum_cb->itemData(index).toInt();*/
-
-    // method 2 : we can leverage the functionality by allowing multiple selections
-    QList<int> rows = topWidget->selectedRows();
-    foreach (int row, rows) {
-        frame_data * fdata = topWidget->frameDataForRow(row);
-        fdata->tcp_snd_manual_analysis = enum_cb->itemData(index).toInt();
-    }
-
+    // Store the index value in the current value, not the stashed value.
+    // We use the stashed value to store the frame data pointers.
     prefs_set_enum_value(pref, enum_cb->itemData(index).toInt(), pref_current);
     //prefs_set_enum_value(pref, enum_cb->itemData(index).toInt(), pref_stashed);
-    updateWidgets();
 }

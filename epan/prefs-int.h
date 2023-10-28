@@ -249,6 +249,9 @@ WS_DLL_PUBLIC gboolean prefs_remove_decode_as_value(pref_t *pref, guint value, g
 WS_DLL_PUBLIC unsigned int prefs_set_password_value(pref_t *pref, const char* value, pref_source_t source);
 WS_DLL_PUBLIC char* prefs_get_password_value(pref_t *pref, pref_source_t source);
 
+WS_DLL_PUBLIC gboolean prefs_add_list_value(pref_t *pref, void *value, pref_source_t source);
+WS_DLL_PUBLIC GList* prefs_get_list_value(pref_t *pref, pref_source_t source);
+
 WS_DLL_PUBLIC void reset_pref(pref_t *pref);
 
 /** read the preferences file (or similar) and call the callback

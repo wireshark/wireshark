@@ -1648,6 +1648,45 @@ prefs_set_stashed_range_value(pref_t *pref, const gchar *value)
 
 }
 
+gboolean prefs_add_list_value(pref_t *pref, void* value, pref_source_t source)
+{
+    switch (source)
+    {
+    case pref_default:
+        pref->default_val.list = g_list_prepend(pref->default_val.list, value);
+        break;
+    case pref_stashed:
+        pref->stashed_val.list = g_list_prepend(pref->stashed_val.list, value);
+        break;
+    case pref_current:
+        *pref->varp.list = g_list_prepend(*pref->varp.list, value);
+        break;
+    default:
+        ws_assert_not_reached();
+        break;
+    }
+
+    return TRUE;
+}
+
+GList* prefs_get_list_value(pref_t *pref, pref_source_t source)
+{
+    switch (source)
+    {
+    case pref_default:
+        return pref->default_val.list;
+    case pref_stashed:
+        return pref->stashed_val.list;
+    case pref_current:
+        return *pref->varp.list;
+    default:
+        ws_assert_not_reached();
+        break;
+    }
+
+    return NULL;
+}
+
 gboolean prefs_set_range_value(pref_t *pref, range_t *value, pref_source_t source)
 {
     gboolean changed = FALSE;
@@ -1879,9 +1918,14 @@ prefs_register_custom_preference(module_t *module, const char *name,
 
 /*
  * Register a dedicated TCP preference for SEQ analysis overriding.
- * We are reusing the data structure from enum preference, as they are
- * similar in practice.
-
+ * This is similar to the data structure from enum preference, except
+ * that when a preference dialog is used, the stashed value is the list
+ * of frame data pointers whose sequence analysis override will be set
+ * to the current value if the dialog is accepted.
+ *
+ * We don't need to read or write the value from the preferences file
+ * (or command line), because the override is reset to the default (0)
+ * for each frame when a new capture file is loaded.
  */
 void
 prefs_register_custom_preference_TCP_Analysis(module_t *module, const char *name,
@@ -1895,6 +1939,7 @@ prefs_register_custom_preference_TCP_Analysis(module_t *module, const char *name
                                      PREF_PROTO_TCP_SNDAMB_ENUM);
     preference->varp.enump = var;
     preference->default_val.enumval = *var;
+    preference->stashed_val.list = NULL;
     preference->info.enum_info.enumvals = enumvals;
     preference->info.enum_info.radio_buttons = radio_buttons;
 }
@@ -2038,7 +2083,6 @@ pref_stash(pref_t *pref, gpointer unused _U_)
         break;
 
     case PREF_ENUM:
-    case PREF_PROTO_TCP_SNDAMB_ENUM:
         pref->stashed_val.enumval = *pref->varp.enump;
         break;
 
@@ -2064,6 +2108,7 @@ pref_stash(pref_t *pref, gpointer unused _U_)
     case PREF_STATIC_TEXT:
     case PREF_UAT:
     case PREF_CUSTOM:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
         break;
 
     case PREF_OBSOLETE:
@@ -2129,14 +2174,21 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
         break;
 
     case PREF_PROTO_TCP_SNDAMB_ENUM:
-        /*if (*pref->varp.enump != pref->stashed_val.enumval) {
-            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-            //unstash_data->module->prefs_changed_flags = 1;
-            *pref->varp.enump = pref->stashed_val.enumval;
-        }*/
-        unstash_data->module->prefs_changed_flags = 1;
+    {
+        /* The preference dialogs are modal so the frame_data pointers should
+         * still be valid; otherwise we could store the frame numbers to
+         * change.
+         */
+        frame_data *fdata;
+        for (GList* elem = pref->stashed_val.list; elem != NULL; elem = elem->next) {
+            fdata = (frame_data*)elem->data;
+            if (fdata->tcp_snd_manual_analysis != *pref->varp.enump) {
+                unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+                fdata->tcp_snd_manual_analysis = *pref->varp.enump;
+            }
+        }
         break;
-
+    }
     case PREF_STRING:
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
@@ -2241,7 +2293,6 @@ reset_stashed_pref(pref_t *pref) {
         break;
 
     case PREF_ENUM:
-    case PREF_PROTO_TCP_SNDAMB_ENUM:
         pref->stashed_val.enumval = pref->default_val.enumval;
         break;
 
@@ -2258,6 +2309,13 @@ reset_stashed_pref(pref_t *pref) {
     case PREF_RANGE:
         wmem_free(wmem_epan_scope(), pref->stashed_val.range);
         pref->stashed_val.range = range_copy(wmem_epan_scope(), pref->default_val.range);
+        break;
+
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
+        if (pref->stashed_val.list != NULL) {
+            g_list_free(pref->stashed_val.list);
+            pref->stashed_val.list = NULL;
+        }
         break;
 
     case PREF_COLOR:
@@ -2288,7 +2346,6 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
         break;
 
     case PREF_ENUM:
-    case PREF_PROTO_TCP_SNDAMB_ENUM:
         break;
 
     case PREF_STRING:
@@ -2314,6 +2371,13 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
     case PREF_UAT:
     case PREF_COLOR:
     case PREF_CUSTOM:
+        break;
+
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
+        if (pref->stashed_val.list != NULL) {
+            g_list_free(pref->stashed_val.list);
+            pref->stashed_val.list = NULL;
+        }
         break;
 
     case PREF_OBSOLETE:
@@ -6044,7 +6108,6 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             break;
 
         case PREF_ENUM:
-        case PREF_PROTO_TCP_SNDAMB_ENUM:
             /* XXX - give an error if it doesn't match? */
             enum_val = find_val_for_string(value, pref->info.enum_info.enumvals,
                                            *pref->varp.enump);
@@ -6149,7 +6212,13 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
 
         case PREF_STATIC_TEXT:
         case PREF_UAT:
+        case PREF_PROTO_TCP_SNDAMB_ENUM:
         {
+            /* There's no point in setting the TCP sequence override
+             * value from the command line, because the pref is different
+             * for each frame and reset to the default (0) for each new
+             * file.
+             */
             break;
         }
         }
@@ -6653,6 +6722,12 @@ write_pref(gpointer data, gpointer user_data)
     case PREF_DECODE_AS_RANGE:
         /* Data is saved through Decode As mechanism and not part of preferences file */
         return;
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
+        /* Not written to the preference file because the override is only
+         * for the lifetime of the capture file and there is no single
+         * value to write.
+         */
+        return;
     default:
         break;
     }
@@ -6724,6 +6799,7 @@ count_non_uat_pref(gpointer data, gpointer user_data)
     case PREF_OBSOLETE:
     case PREF_DECODE_AS_UINT:
     case PREF_DECODE_AS_RANGE:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
         //These types are not written in preference file
         break;
     default:
