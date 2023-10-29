@@ -6993,7 +6993,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_IPv4:
 			ipv4 = fvalue_get_ipv4(finfo->value);
 			//XXX: Should we ignore the mask?
-			set_address (&addr, AT_IPv4, 4, &ipv4->addr);
+			set_address_ipv4(&addr, ipv4);
 			tmp_str = address_to_display(NULL, &addr);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
@@ -9758,11 +9758,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_IPv4:
 			ipv4 = fvalue_get_ipv4(fi->value);
-
-			addr.type = AT_IPv4;
-			addr.len  = 4;
-			//XXX: Should we ignore the mask?
-			addr.data = &ipv4->addr;
+			set_address_ipv4(&addr, ipv4);
 
 			if (hfinfo->display == BASE_NETMASK) {
 				addr_str = (char*)address_to_str(NULL, &addr);

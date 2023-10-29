@@ -115,12 +115,7 @@ const range_string uavcan_service_id_vals[] = {
     {      0,      0, NULL                                     }
 };
 
-static const address anonymous_address = {
-    AT_NONE,
-    9,
-    "Anonymous",
-    NULL
-};
+static const address anonymous_address = ADDRESS_INIT(AT_NONE, 9, "Anonymous");
 
 static const value_string uavcan_file_error_vals[] = {
     {      0, "Ok"             },

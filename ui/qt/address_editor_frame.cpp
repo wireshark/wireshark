@@ -70,7 +70,7 @@ QString AddressEditorFrame::addressToString(const FieldInformation& finfo)
         // the currently resolved version, if resolution is
         // available and enabled. We want the unresolved string.
         ipv4 = fvalue_get_ipv4(finfo.fieldInfo()->value);
-        set_address(&addr, AT_IPv4, 4, &ipv4->addr);
+        set_address_ipv4(&addr, ipv4);
         return gchar_free_to_qstring(address_to_str(NULL, &addr));
     case FT_IPv6:
         ipv6 = fvalue_get_ipv6(finfo.fieldInfo()->value);

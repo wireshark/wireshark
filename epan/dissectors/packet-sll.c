@@ -135,7 +135,7 @@ static const char* sll_conv_get_filter_type(conv_item_t* conv, conv_filter_type_
 }
 
 static ct_dissector_info_t sll_ct_dissector_info = {&sll_conv_get_filter_type};
-static address no_dst = {AT_NONE, 0, NULL, NULL};
+static address no_dst = ADDRESS_INIT_NONE;
 
 static tap_packet_status
 sll_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
