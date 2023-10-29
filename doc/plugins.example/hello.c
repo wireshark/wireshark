@@ -22,7 +22,7 @@ WS_DLL_PUBLIC_DEF const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
 WS_DLL_PUBLIC_DEF const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
 
 WS_DLL_PUBLIC void plugin_register(void);
-WS_DLL_PUBLIC int plugin_describe(void);
+WS_DLL_PUBLIC uint32_t plugin_describe(void);
 
 static int proto_hello = -1;
 static dissector_handle_t handle_hello;
@@ -58,7 +58,7 @@ plugin_register(void)
     proto_register_plugin(&plug);
 }
 
-int
+uint32_t
 plugin_describe(void)
 {
     return WS_PLUGIN_DESC_DISSECTOR;

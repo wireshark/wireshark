@@ -102,22 +102,22 @@ QStringList AuthorListModel::headerColumns() const
 
 #ifdef HAVE_PLUGINS
 static void plugins_add_description(const char *name, const char *version,
-                                    int desc_flags, const char *filename,
+                                    uint32_t flags, const char *filename,
                                     void *user_data)
 {
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
     QStringList plugin_types;
-    if (desc_flags & WS_PLUGIN_DESC_DISSECTOR)
+    if (flags & WS_PLUGIN_DESC_DISSECTOR)
         plugin_types << "dissector";
-    if (desc_flags & WS_PLUGIN_DESC_FILE_TYPE)
+    if (flags & WS_PLUGIN_DESC_FILE_TYPE)
         plugin_types << "file type";
-    if (desc_flags & WS_PLUGIN_DESC_CODEC)
+    if (flags & WS_PLUGIN_DESC_CODEC)
         plugin_types << "codec";
-    if (desc_flags & WS_PLUGIN_DESC_EPAN)
+    if (flags & WS_PLUGIN_DESC_EPAN)
         plugin_types << "epan";
-    if (desc_flags & WS_PLUGIN_DESC_TAP_LISTENER)
+    if (flags & WS_PLUGIN_DESC_TAP_LISTENER)
         plugin_types << "tap listener";
-    if (desc_flags & WS_PLUGIN_DESC_DFILTER)
+    if (flags & WS_PLUGIN_DESC_DFILTER)
         plugin_types << "dfilter";
     if (plugin_types.empty())
         plugin_types << "unknown";

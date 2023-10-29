@@ -18,7 +18,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef void (*plugin_register_func)(void);
-typedef int  (*plugin_describe_func)(void);
+typedef uint32_t (*plugin_describe_func)(void);
 
 typedef void plugins_t;
 
@@ -28,17 +28,17 @@ typedef enum {
     WS_PLUGIN_CODEC
 } plugin_type_e;
 
-#define WS_PLUGIN_DESC_DISSECTOR    (1 << 0)
-#define WS_PLUGIN_DESC_FILE_TYPE    (1 << 1)
-#define WS_PLUGIN_DESC_CODEC        (1 << 2)
-#define WS_PLUGIN_DESC_EPAN         (1 << 3)
-#define WS_PLUGIN_DESC_TAP_LISTENER (1 << 4)
-#define WS_PLUGIN_DESC_DFILTER      (1 << 5)
+#define WS_PLUGIN_DESC_DISSECTOR    (1UL << 0)
+#define WS_PLUGIN_DESC_FILE_TYPE    (1UL << 1)
+#define WS_PLUGIN_DESC_CODEC        (1UL << 2)
+#define WS_PLUGIN_DESC_EPAN         (1UL << 3)
+#define WS_PLUGIN_DESC_TAP_LISTENER (1UL << 4)
+#define WS_PLUGIN_DESC_DFILTER      (1UL << 5)
 
 WS_DLL_PUBLIC plugins_t *plugins_init(plugin_type_e type);
 
 typedef void (*plugin_description_callback)(const char *name, const char *version,
-                                            int desc_flags, const char *filename,
+                                            uint32_t flags, const char *filename,
                                             void *user_data);
 
 WS_DLL_PUBLIC void plugins_get_descriptions(plugin_description_callback callback, void *user_data);
