@@ -54,6 +54,8 @@ Windows installer file names now have the format Wireshark-<version>-<architectu
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
+Wireshark now supports the Korean language.
+
 === Bug Fixes
 
 The following bugs have been fixed:
