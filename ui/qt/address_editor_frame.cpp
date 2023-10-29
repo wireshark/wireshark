@@ -38,6 +38,7 @@ AddressEditorFrame::AddressEditorFrame(QWidget *parent) :
     cap_file_(NULL)
 {
     ui->setupUi(this);
+    ui->addressComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
 #ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
