@@ -509,7 +509,7 @@ static const value_string rf4ce_profile_gdp_attr_vals[] = {
 #define RF4CE_ZRC20_ATTR_SCALAR2_MIN                    0xE0
 #define RF4CE_ZRC20_ATTR_SCALAR2_MAX                    0xFF
 
-const value_string rf4ce_profile_zrc20_attr_vals[] = {
+static const value_string rf4ce_profile_zrc20_attr_vals[] = {
     { RF4CE_ZRC20_ATTR_ZRC_PROFILE_VERSION,            "ZRC Profile Version" },
     { RF4CE_ZRC20_ATTR_ZRC_PROFILE_CAPABILITIES,       "ZRC Profile Capabilities" },
     { RF4CE_ZRC20_ATTR_ACTION_REPEAT_TRIGGER_INTERVAL, "Action Repeat Trigger Interval" },

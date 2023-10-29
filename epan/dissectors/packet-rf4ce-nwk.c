@@ -412,7 +412,7 @@ static void dissect_rf4ce_nwk_cmd_key_seed(tvbuff_t *tvb, proto_tree *tree, gint
 
 static void dissect_rf4ce_nwk_cmd_ping(tvbuff_t *tvb, proto_tree *tree, gint *offset);
 
-void rf4ce_cleanup(void)
+static void rf4ce_cleanup(void)
 {
     rf4ce_secur_cleanup();
 }
