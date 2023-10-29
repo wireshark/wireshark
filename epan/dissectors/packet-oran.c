@@ -617,9 +617,11 @@ static const true_false_string tfs_lbtBufErr =
 typedef struct {
     /* Ext 6 config */
     gboolean ext6_set;
+
+    guint8   ext6_rbg_size;      /* number of PRBs allocated by bitmask */
+
     guint8   ext6_num_bits_set;
-    guint8   ext6_bits_set[28];
-    guint8   ext6_rbg_size;
+    guint8   ext6_bits_set[28];  /* Which bit position this entry has */
 
     /* Ext 12 config */
     gboolean ext12_set;
@@ -657,22 +659,22 @@ static void ext11_work_out_bundles(guint startPrbc,
 {
     /* Allocation configured by ext 6 */
     if (settings->ext6_set) {
-        guint bundles_per_entry = settings->ext6_rbg_size / numBundPrb;
+        guint bundles_per_entry = (settings->ext6_rbg_size / numBundPrb);
 
         guint bundles_set = 0;
         for (guint8 n=0; n < settings->ext6_num_bits_set; n++) {
             /* For each bit set in the mask */
-            guint32 prb_start = settings->ext6_bits_set[n] * settings->ext6_rbg_size;
+            guint32 prb_start = (settings->ext6_bits_set[n] * settings->ext6_rbg_size);
 
             /* For each bundle within identified rbgSize block */
             for (guint m=0; m < bundles_per_entry; m++) {
-                settings->bundles[bundles_set].start = prb_start+(m*numBundPrb);
+                settings->bundles[bundles_set].start = startPrbc+prb_start+(m*numBundPrb);
                 /* Start already beyond end, so doesn't count. */
-                if (settings->bundles[bundles_set].start > (startPrbc+numPrbc)) {
+                if (settings->bundles[bundles_set].start > (startPrbc+numPrbc-1)) {
                     break;
                 }
-                settings->bundles[bundles_set].end = prb_start+((m+1)*numBundPrb)-1;
-                if (settings->bundles[bundles_set].end > numPrbc) {
+                settings->bundles[bundles_set].end = startPrbc+prb_start+((m+1)*numBundPrb)-1;
+                if (settings->bundles[bundles_set].end > (startPrbc+numPrbc-1)) {
                     /* Extends beyond end, so counts but is an orphan bundle */
                     settings->bundles[bundles_set].end = numPrbc;
                     settings->bundles[bundles_set].is_orphan = TRUE;
@@ -1119,7 +1121,7 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
         guint8 bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
         proto_item *bfw_ti = proto_tree_add_string_format(bundle_tree, hf_oran_bfw,
                                                           tvb, bfw_offset, bfw_extent,
-                                                          "", "TRX %u: (", m);
+                                                          "", "TRX %3u: (", m);
         proto_tree *bfw_tree = proto_item_add_subtree(bfw_ti, ett_oran_bfw);
 
         /* I */
@@ -1558,7 +1560,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Create antenna subtree */
                     gint bfw_offset = bit_offset / 8;
                     proto_item *bfw_ti = proto_tree_add_string_format(extension_tree, hf_oran_bfw,
-                                                                      tvb, bfw_offset, 0, "", "TRX %2u: (", n);
+                                                                      tvb, bfw_offset, 0, "", "TRX %3u: (", n);
                     proto_tree *bfw_tree = proto_item_add_subtree(bfw_ti, ett_oran_bfw);
 
                     /* I value */
@@ -1744,8 +1746,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 6: /* Non-contiguous PRB allocation in time and frequency domain */
             {
-                /* TODO: Field startSymbolId in the message header and the fields rb, symInc, and numSymbol in the section
-                   description shall not be used for identification of symbols and PRBs referred by the section description */
+                /* Update ext6 recorded info */
+                ext11_settings.ext6_set = TRUE;
 
                 /* repetition */
                 proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
@@ -1756,7 +1758,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     expert_add_info_format(pinfo, extlen_ti, &ei_oran_rbg_size_reserved,
                                            "rbgSize value of 0 is reserved");
                 }
-                /* rbgMask */
+                /* rbgMask (28 bits) */
                 guint32 rbgMask;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN, &rbgMask);
                 offset += 4;
@@ -1766,8 +1768,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                /* Update ext6 recorded info */
-                ext11_settings.ext6_set = TRUE;
+                /* Look up rbg_size enum -> value */
                 switch (rbgSize) {
                     case 0:
                         /* N.B. reserved, but covered above with expert info (would remain 0) */
@@ -1788,6 +1789,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         ext11_settings.ext6_rbg_size = 16; break;
                     /* N.B., encoded in 3 bits, so no other values are possible */
                 }
+                /* Record which bits (and count) are set in rbgMask */
                 for (guint n=0; n < 28 && ext11_settings.ext6_num_bits_set < 28; n++) {
                     if ((rbgMask >> n) & 0x01) {
                         ext11_settings.ext6_bits_set[ext11_settings.ext6_num_bits_set++] = n;
@@ -2003,6 +2005,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 12: /* Non-Contiguous PRB Allocation with Frequency Ranges */
             {
+                ext11_settings.ext12_set = TRUE;
+
                 /* priority */
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -2015,7 +2019,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 guint32 extlen_remaining_bytes = (extlen*4) - 4;
                 guint8 prb_index;
 
-                ext11_settings.ext12_set = TRUE;
                 for (prb_index = 1; extlen_remaining_bytes > 0; prb_index++)
                 {
                     /* Create a subtree for each pair */
@@ -2054,11 +2057,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 13:  /* PRB Allocation with Frequency Hopping */
             {
-                guint32 extlen_remaining_bytes = (extlen*4) - 2;
-                guint8 allocation_index;
-
                 /* Will update settings for ext11 */
                 ext11_settings.ext13_set = TRUE;
+
+                guint32 extlen_remaining_bytes = (extlen*4) - 2;
+                guint8 allocation_index;
 
                 guint prev_next_symbol_id = 0, prev_next_start_prbc = 0;
 
