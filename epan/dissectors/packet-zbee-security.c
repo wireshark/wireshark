@@ -46,6 +46,7 @@ static int hf_zbee_sec_field = -1;
 static int hf_zbee_sec_level = -1;
 static int hf_zbee_sec_key_id = -1;
 static int hf_zbee_sec_nonce = -1;
+static int hf_zbee_sec_verified_fc = -1;
 static int hf_zbee_sec_counter = -1;
 static int hf_zbee_sec_src64 = -1;
 static int hf_zbee_sec_key_seqno = -1;
@@ -236,6 +237,10 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
         { &hf_zbee_sec_nonce,
           { "Extended Nonce",         "zbee.sec.ext_nonce", FT_BOOLEAN, 8, NULL, ZBEE_SEC_CONTROL_NONCE,
             NULL, HFILL }},
+
+        { &hf_zbee_sec_verified_fc,
+          { "Require Verified Frame Counter", "zbee.sec.verified_fc", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_SEC_CONTROL_VERIFIED_FC, NULL, HFILL }},
 
         { &hf_zbee_sec_counter,
           { "Frame Counter",          "zbee.sec.counter", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -456,6 +461,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         &hf_zbee_sec_level,
         &hf_zbee_sec_key_id,
         &hf_zbee_sec_nonce,
+        &hf_zbee_sec_verified_fc,
         NULL
     };
 
