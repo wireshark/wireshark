@@ -3826,7 +3826,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>drags</source>
-        <translation>trascinamenti</translation>
+        <translation>trascina</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
@@ -3834,7 +3834,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>zooms</source>
-        <translation>zoom</translation>
+        <translation>ingrandisce</translation>
     </message>
     <message>
         <source>Interval</source>
@@ -5968,7 +5968,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>drags</source>
-        <translation>trascinamenti</translation>
+        <translation>trascina</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
@@ -5976,7 +5976,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>zooms</source>
-        <translation>ingrandimenti</translation>
+        <translation>ingrandisce</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11333,7 +11333,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>drags</source>
-        <translation>trascinamenti</translation>
+        <translation>trascina</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
@@ -11341,7 +11341,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>zooms</source>
-        <translation>zoom</translation>
+        <translation>ingrandisce</translation>
     </message>
     <message>
         <source>Display Round Trip Time vs Sequence Number</source>
