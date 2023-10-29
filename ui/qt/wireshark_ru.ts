@@ -109,10 +109,10 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Копировать Строку</numerusform>
+            <numerusform>Копировать Строки</numerusform>
+            <numerusform>Копировать Строки</numerusform>
         </translation>
     </message>
 </context>
@@ -3196,18 +3196,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>Total number of QUIC connections: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Общее число соединений QUIC: %Ln</numerusform>
+            <numerusform>Общее число соединений QUIC: %Ln</numerusform>
+            <numerusform>Общее число соединений QUIC: %Ln</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Максимальный QUIC Stream ID для выбранного соединения: %Ln</numerusform>
+            <numerusform>Максимальный QUIC Stream ID для выбранного соединения: %Ln</numerusform>
+            <numerusform>Максимальный QUIC Stream ID для выбранного соединения: %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -3240,10 +3240,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln поток.</numerusform>
+            <numerusform>%Ln всего потоков.</numerusform>
+            <numerusform>%Ln всего потоков.</numerusform>
         </translation>
     </message>
     <message>
@@ -3643,7 +3643,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Automatic Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Автоматическое Обновление</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -4267,7 +4267,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Import a standard hex dump as exported by Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Импорт стандартного шестнадцатеричного дампа как экспортированного Wireshark</translation>
     </message>
     <message>
         <source>Offsets in the text file are in octal notation</source>
@@ -4391,7 +4391,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
-        <translation type="unfinished"></translation>
+        <translation>%H:%M:%S.%f</translation>
     </message>
     <message>
         <source>timestampExampleLabel</source>
@@ -6140,10 +6140,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln байт</numerusform>
+            <numerusform>%Ln байты</numerusform>
+            <numerusform>%Ln байты</numerusform>
         </translation>
     </message>
     <message>
@@ -7144,11 +7144,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>NGAP</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP</translation>
     </message>
     <message>
         <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Сообщения NGAP</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -7312,7 +7312,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Старт &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</translation>
     </message>
     <message>
         <source>No GSM statistics registered</source>
@@ -8251,7 +8251,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation> перед переустановкой плагинов Lua</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
@@ -8999,7 +8999,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select a path</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать путь</translation>
     </message>
 </context>
 <context>
@@ -10570,11 +10570,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Add to List</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Добавить в Список</translation>
     </message>
     <message>
         <source>&amp;Remove from List</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Удалить из Списка</translation>
     </message>
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
@@ -10889,7 +10889,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Payload</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Нагрузка</translation>
     </message>
     <message>
         <source>Save RTP payload of selected stream.</source>
@@ -10989,7 +10989,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stop playing</source>
-        <translation type="unfinished"></translation>
+        <translation>Остановить проигрывание</translation>
     </message>
     <message>
         <source>I&amp;naudible streams</source>
@@ -11201,7 +11201,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Автоматически</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -11221,7 +11221,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save payload</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить нагрузку</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -11440,11 +11440,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Никакой</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished">Очистить выбор</translation>
+        <translation>Очистить выбор</translation>
     </message>
     <message>
         <source>Invert</source>
@@ -12376,10 +12376,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform>%Ln node</numerusform>
-            <numerusform>%Ln nodes</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln узел</numerusform>
+            <numerusform>%Ln узлы</numerusform>
+            <numerusform>%Ln узлы</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -12989,7 +12989,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>

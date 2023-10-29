@@ -1917,7 +1917,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>…as a Hex Stream</source>
-        <translation>... als Hex Stream</translation>
+        <translation>...als Hex Stream</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
