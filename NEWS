@@ -1,6 +1,4 @@
-Wireshark 4.2.0rc3 Release Notes
-
- This is the third release candidate for Wireshark 4.2.
+Wireshark 4.2.0 Release Notes
 
  What is Wireshark?
 
@@ -51,6 +49,8 @@ Wireshark 4.2.0rc3 Release Notes
 
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
+
+  Wireshark now supports the Korean language.
 
   Bug Fixes
 

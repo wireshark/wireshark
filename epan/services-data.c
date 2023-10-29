@@ -5661,6 +5661,7 @@ static ws_services_entry_t global_tcp_services_table[] = {
     { 8615, "imink",            "Imink Service Control" },
     { 8665, "monetra",          "Monetra" },
     { 8666, "monetra-admin",    "Monetra Administrative Access" },
+    { 8668, "spartan",          "Spartan management" },
     { 8675, "msi-cps-rm",       "Motorola Solutions Customer Programming Software for Radio Management" },
     { 8688, "openremote-ctrl",  "OpenRemote Controller HTTP/REST" },
     { 8699, "vnyx",             "VNYX Primary Port" },
