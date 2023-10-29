@@ -2045,6 +2045,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>…as Go literal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as Go literal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as a Hex Stream</source>
         <translation>… som en hex-ström</translation>
     </message>
@@ -3463,7 +3471,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>[Stream output truncated]</source>
-        <translation>[Strömutdatan avhuggen]</translation>
+        <translation type="vanished">[Strömutdatan avhuggen]</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
@@ -3511,6 +3519,13 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Find &amp;Next</source>
         <translation>Sök &amp;nästa</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamText</name>
+    <message>
+        <source>[Stream output truncated]</source>
+        <translation type="unfinished">[Strömutdatan avhuggen]</translation>
     </message>
 </context>
 <context>

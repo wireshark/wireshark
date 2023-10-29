@@ -2045,6 +2045,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Copia i byte dei pacchetti come caratteri ASCII stampabili e sequenze di escape.</translation>
     </message>
     <message>
+        <source>…as Go literal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as Go literal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as a Hex Stream</source>
         <translation>...come un flusso esadecimale</translation>
     </message>
@@ -3463,7 +3471,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>[Stream output truncated]</source>
-        <translation>[Flusso di output troncato]</translation>
+        <translation type="vanished">[Flusso di output troncato]</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
@@ -3511,6 +3519,13 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Find &amp;Next</source>
         <translation>Trova &amp;successivo</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamText</name>
+    <message>
+        <source>[Stream output truncated]</source>
+        <translation type="unfinished">[Flusso di output troncato]</translation>
     </message>
 </context>
 <context>

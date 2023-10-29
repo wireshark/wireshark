@@ -13,6 +13,9 @@ Wireshark 4.3.0 Release Notes
   Improved display filter support for value strings (optional string
   representations for numeric fields).
 
+  Display filter functions can be implemented as runtime-loadable C
+  plugins.
+
   New and Updated Features
 
    The following features are new (or have been significantly updated)
@@ -32,11 +35,40 @@ Wireshark 4.3.0 Release Notes
        restrictions: the multiplier/divisor must be an integer or float
        and appear on the right-hand side of the operator.
 
+        • The keyword "bitand" can be used as an alternative syntax for
+       the bitwise-and operator.
+
+        • Functions alone can now be used as an entire logical
+       expression. The result of the expression is the truthiness of the
+       function return value (or of all values if more than one). This
+       is useful for example to write "len(something)" instead of
+       "len(something) != 0". Even more so if a function returns itself
+       a boolean value, it is now possible to write
+       "bool_test(some.field)" instead of having to write
+       "bool_test(some.field) == True" (both forms are now valid).
+
+     • Display filter autocompletions now also include display filter
+       functions.
+
   New Protocol Support
+
+   MAC NR Framed (mac-nr-framed), RF4CE Network Layer (RF4CE), and RF4CE
+   Profile (RF4CE Profile)
 
   Updated Protocol Support
 
-   Too many protocol updates have been made to list them all here.
+     • IPv6: The "show address detail" preference is now enabled by
+       default. The address details provided have been extended to
+       include more special purpose address block properties
+       (forwardable, globally-routable, etc).
+
+   Too many other protocol updates have been made to list them all here.
+
+  Major API Changes
+
+     • Plugins should provide a `plugin_describe()` function that
+       returns an ORed list of flags consisting of the plugin types used
+       (declared in wsutil/plugins.h).
 
  Getting Wireshark
 

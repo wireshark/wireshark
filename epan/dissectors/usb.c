@@ -10734,6 +10734,7 @@ static const value_string usb_products_vals[] = {
     { 0x054c0df2, "DualSense Edge wireless controller (PS5)" },
     { 0x054c0e0c, "Sony ILCE-7RM5" },
     { 0x054c0e6e, "Sony NW-A306" },
+    { 0x054c0e78, "Sony A6700" },
     { 0x054c1000, "Wireless Buzz! Receiver" },
     { 0x054c1294, "Sony DCR-SR75" },
     { 0x05500002, "InkJet Color Printer" },
