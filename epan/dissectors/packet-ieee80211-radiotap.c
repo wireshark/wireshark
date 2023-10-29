@@ -3055,8 +3055,16 @@ dissect_radiotap_channel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	 * an 11ad packet.  Anything with a frequency in the 802.11ad range
 	 * is treated as 11ad.
 	 */
-	if (IS_80211AD(freq))
+	if (IS_80211AD(freq)) {
 		phdr->phy = PHDR_802_11_PHY_11AD;
+	}
+
+	/* XXX - Control frames are transmitted in legacy mode using the basic
+	 * rate, and in the 6 GHz band will get called PHY_11A (assuming the
+	 * 5 GHz bit is set), even though that the use of that band indicates
+	 * 802.11ax or 802.11be certified devices, which is confusing for some
+	 * users. (#17393)
+	 */
 
 	if (tree) {
 		gchar	   *chan_str;

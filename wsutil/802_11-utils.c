@@ -89,12 +89,19 @@ ieee80211_chan_to_mhz(int chan, bool is_bg) {
 char*
 ieee80211_mhz_to_str(unsigned freq){
     int chan = ieee80211_mhz_to_chan(freq);
-    bool is_bg = FREQ_IS_BG(freq);
+    const char* band;
+    if (FREQ_IS_BG(freq)) {
+        band = "2.4 GHz";
+    } else if (FREQ_IS_6G(freq)) {
+        band = "6 GHz";
+    } else {
+        band = "5 GHz";
+    }
 
     if (chan < 0) {
         return ws_strdup_printf("%u", freq);
     } else {
-        return ws_strdup_printf("%u [%s %u]", freq, is_bg ? "BG" : "A",
+        return ws_strdup_printf("%u [%s %u]", freq, band,
             chan);
     }
 }
