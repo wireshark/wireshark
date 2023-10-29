@@ -1052,7 +1052,7 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
         gsize i;
 
         host_addr = addr & (~subnet_entry.mask);
-        ip_to_str_buf((guint8 *)&host_addr, buffer, WS_INET_ADDRSTRLEN);
+        ip_addr_to_str_buf(&host_addr, buffer, WS_INET_ADDRSTRLEN);
         paddr = buffer;
 
         /* Skip to first octet that is not totally masked
@@ -1073,7 +1073,7 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
         snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);
     } else {
         /* XXX: This means we end up printing "1.2.3.4 (1.2.3.4)" in many cases */
-        ip_to_str_buf((const guint8 *)&addr, tp->name, MAXNAMELEN);
+        ip_addr_to_str_buf(&addr, tp->name, MAXNAMELEN);
     }
 }
 
@@ -1122,7 +1122,7 @@ new_ipv4(const guint addr)
     tp->addr = addr;
     tp->flags = 0;
     tp->name[0] = '\0';
-    ip_to_str_buf((const guint8 *)&addr, tp->ip, sizeof(tp->ip));
+    ip_addr_to_str_buf(&addr, tp->ip, sizeof(tp->ip));
     return tp;
 }
 

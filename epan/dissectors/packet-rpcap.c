@@ -479,7 +479,7 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *tree;
   proto_item *ti;
   guint16 af;
-  guint32 ipv4;
+  ws_in4_addr ipv4;
   ws_in6_addr ipv6;
   gchar ipaddr[MAX_ADDR_STR_LEN];
 
@@ -499,7 +499,7 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
 
     ipv4 = tvb_get_ipv4 (tvb, offset);
-    ip_to_str_buf((guint8 *)&ipv4, ipaddr, MAX_ADDR_STR_LEN);
+    ip_addr_to_str_buf(&ipv4, ipaddr, MAX_ADDR_STR_LEN);
     proto_item_append_text (ti, ": %s", ipaddr);
     if (parent_item) {
       proto_item_append_text (parent_item, ": %s", ipaddr);

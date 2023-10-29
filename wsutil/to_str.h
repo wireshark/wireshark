@@ -15,7 +15,7 @@
 #include <wireshark.h>
 
 #include <wsutil/wmem/wmem.h>
-#include <wsutil/inet_ipv6.h>
+#include <wsutil/inet_addr.h>
 #include <wsutil/nstime.h>
 
 #ifdef __cplusplus
@@ -286,11 +286,22 @@ WS_DLL_PUBLIC void guint32_to_str_buf(uint32_t u, char *buf, size_t buf_len);
 
 WS_DLL_PUBLIC void guint64_to_str_buf(uint64_t u, char *buf, size_t buf_len);
 
+WS_DEPRECATED_X("Use ip_num_to_str_buf() or ip_addr_to_str() instead")
 WS_DLL_PUBLIC void ip_to_str_buf(const uint8_t *ad, char *buf, const int buf_len);
 
+WS_DEPRECATED_X("Use ip_num_to_str() or ip_addr_to_str() instead")
 WS_DLL_PUBLIC char *ip_to_str(wmem_allocator_t *scope, const uint8_t *ad);
 
-/* Returns length of the result. */
+/* Host byte order */
+WS_DLL_PUBLIC void ip_num_to_str_buf(uint32_t ad, char *buf, const int buf_len);
+
+/* Host byte order */
+WS_DLL_PUBLIC char *ip_num_to_str(wmem_allocator_t *scope, uint32_t ad);
+
+WS_DLL_PUBLIC void ip_addr_to_str_buf(const ws_in4_addr *ad, char *buf, const int buf_len);
+
+WS_DLL_PUBLIC char *ip_addr_to_str(wmem_allocator_t *scope, const ws_in4_addr *ad);
+
 WS_DLL_PUBLIC void ip6_to_str_buf(const ws_in6_addr *ad, char *buf, size_t buf_size);
 
 WS_DLL_PUBLIC char *ip6_to_str(wmem_allocator_t *scope, const ws_in6_addr *ad);

@@ -100,8 +100,7 @@ val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int
 	char buf[WS_INET_ADDRSTRLEN];
 	char *repr;
 
-	uint32_t	ipv4_net_order = g_htonl(fv->value.ipv4.addr);
-	ip_to_str_buf((uint8_t*)&ipv4_net_order, buf, sizeof(buf));
+	ip_num_to_str_buf(fv->value.ipv4.addr, buf, sizeof(buf));
 
 	if (fv->value.ipv4.nmask != 0 && fv->value.ipv4.nmask != 0xffffffff)
 		repr = wmem_strdup_printf(scope, "%s/%d", buf, ws_count_ones(fv->value.ipv4.nmask));

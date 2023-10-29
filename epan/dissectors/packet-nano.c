@@ -190,7 +190,7 @@ static int dissect_nano_keepalive(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         if (!memcmp(&ip_addr, "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0", 16)) {
             proto_item_append_text(ti, ": (none)");
         } else if (!memcmp(&ip_addr, "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\xff\xff", 12)) {
-            ip_to_str_buf((gchar *) &ip_addr + 12, buf, sizeof(buf));
+            ip_addr_to_str_buf((ws_in4_addr *)((uint8_t *)&ip_addr + 12), buf, sizeof(buf));
             proto_item_append_text(ti, ": %s:%d", buf, port);
             peers++;
         } else {

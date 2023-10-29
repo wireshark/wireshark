@@ -547,8 +547,9 @@ guint64_to_str_buf(uint64_t u, char *buf, size_t buf_len)
    XXX update the address_to_str stuff to use this function.
    */
 void
-ip_to_str_buf(const uint8_t *ad, char *buf, const int buf_len)
+ip_addr_to_str_buf(const ws_in4_addr *_ad, char *buf, const int buf_len)
 {
+	uint8_t *ad = (uint8_t *)_ad;
 	register char const *p;
 	register char *b=buf;
 
@@ -583,13 +584,41 @@ ip_to_str_buf(const uint8_t *ad, char *buf, const int buf_len)
 	*b=0;
 }
 
-char *ip_to_str(wmem_allocator_t *scope, const uint8_t *ad)
+char *
+ip_addr_to_str(wmem_allocator_t *scope, const ws_in4_addr *ad)
 {
 	char *buf = wmem_alloc(scope, WS_INET_ADDRSTRLEN * sizeof(char));
 
-	ip_to_str_buf(ad, buf, WS_INET_ADDRSTRLEN);
+	ip_addr_to_str_buf(ad, buf, WS_INET_ADDRSTRLEN);
 
 	return buf;
+}
+
+void
+ip_num_to_str_buf(uint32_t ad, char *buf, const int buf_len)
+{
+	ws_in4_addr addr = g_htonl(ad);
+	ip_addr_to_str_buf(&addr, buf, buf_len);
+}
+
+/* Host byte order */
+char *
+ip_num_to_str(wmem_allocator_t *scope, uint32_t ad)
+{
+	ws_in4_addr addr = g_htonl(ad);
+	return ip_addr_to_str(scope, &addr);
+}
+
+void
+ip_to_str_buf(const uint8_t *ad, char *buf, const int buf_len)
+{
+	ip_addr_to_str_buf((const ws_in4_addr *)ad, buf, buf_len);
+}
+
+char *
+ip_to_str(wmem_allocator_t *scope, const uint8_t *ad)
+{
+	return ip_addr_to_str(scope, (const ws_in4_addr *)ad);
 }
 
 void

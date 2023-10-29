@@ -210,7 +210,7 @@ int ether_name_resolution_len(void)
  ******************************************************************************/
 static int ipv4_to_str(const address* addr, gchar *buf, int buf_len)
 {
-    ip_to_str_buf((const guint8*)addr->data, buf, buf_len);
+    ip_addr_to_str_buf(addr->data, buf, buf_len);
     return (int)(strlen(buf)+1);
 }
 

@@ -434,7 +434,7 @@ typedef struct wccp_address_table {
   gint16 family;
   gint16 version;
   guint16 table_length;
-  guint32 *table_ipv4;
+  ws_in4_addr *table_ipv4;
   ws_in6_addr *table_ipv6;
 } wccp_address_table;
 
@@ -553,7 +553,7 @@ static const gchar * decode_wccp_encoded_address(tvbuff_t *tvb, int offset, pack
       /* no; return the IPv4 IP */
       host_addr = tvb_get_ipv4(tvb,offset);
       buffer = (char *) wmem_alloc(wmem_packet_scope(), WS_INET_ADDRSTRLEN);
-      ip_to_str_buf( (guint8 *) &host_addr, buffer, WS_INET_ADDRSTRLEN);
+      ip_addr_to_str_buf(&host_addr, buffer, WS_INET_ADDRSTRLEN);
     }
   else
     {
@@ -589,7 +589,7 @@ static const gchar * decode_wccp_encoded_address(tvbuff_t *tvb, int offset, pack
           /* ok get the IP */
           if (addr_table->table_ipv4 != NULL) {
             buffer = (char *) wmem_alloc(wmem_packet_scope(), WS_INET_ADDRSTRLEN);
-            ip_to_str_buf( (guint8 *) &(addr_table->table_ipv4[addr_index-1]), buffer, WS_INET_ADDRSTRLEN);
+            ip_addr_to_str_buf(&addr_table->table_ipv4[addr_index-1], buffer, WS_INET_ADDRSTRLEN);
           }
           else {
             buffer = wmem_strdup(wmem_packet_scope(), "INVALID IPv4 table empty!");

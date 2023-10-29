@@ -12,6 +12,7 @@
 #include <glib.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/time_util.h>
+#include <wsutil/to_str.h>
 
 #include "inet_addr.h"
 
@@ -70,6 +71,19 @@ static void test_inet_ntop6_test1(void)
     ptr = ws_inet_ntop6(&in6_test1.addr, result, sizeof(result));
     g_assert_true(ptr == result);
     g_assert_cmpstr(result, ==, in6_test1.str);
+}
+
+static void test_ip_addr_to_str_test1(void)
+{
+    char result[WS_INET_ADDRSTRLEN];
+    const char *expect;
+    ws_in4_addr addr;
+
+    addr = g_htonl(3325256904);
+    expect = "198.51.100.200";
+    ip_addr_to_str_buf(&addr, result, sizeof(result));
+
+    g_assert_cmpstr(result, ==, expect);
 }
 
 #include "str_util.h"
@@ -854,6 +868,7 @@ int main(int argc, char **argv)
     g_test_add_func("/to_str/uint64_to_str_back_len", test_uint64_to_str_back_len);
     g_test_add_func("/to_str/int_to_str_back", test_int_to_str_back);
     g_test_add_func("/to_str/int64_to_str_back", test_int64_to_str_back);
+    g_test_add_func("/to_str/ip_addr_to_str_test1", test_ip_addr_to_str_test1);
 
     g_test_add_func("/nstime/from_iso8601", test_nstime_from_iso8601);
 
