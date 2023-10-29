@@ -1554,9 +1554,9 @@ static int dissect_rf4ce_profile_common(tvbuff_t *tvb, packet_info *pinfo, proto
     guint8 fcf = tvb_get_guint8(tvb, offset);
     guint8 cmd_id = fcf & RF4CE_PROFILE_FCF_CMD_ID_MASK;
     gboolean is_cmd_frame = fcf & RF4CE_PROFILE_FCF_CMD_FRAME_MASK;
-    gboolean is_gdp = !memcmp("GDP", (char *)data, 3);
-    gboolean is_zrc20 = !memcmp("ZRC 2.0", (char *)data, 7);
-    gboolean is_zrc10 = !memcmp("ZRC 1.0", (char *)data, 7);
+    gboolean is_gdp = !strncmp("GDP", (char *)data, 3);
+    gboolean is_zrc20 = !strncmp("ZRC 2.0", (char *)data, 7);
+    gboolean is_zrc10 = !strncmp("ZRC 1.0", (char *)data, 7);
 
     char protocol_str[14] = {0};
 
@@ -1601,7 +1601,7 @@ static int dissect_rf4ce_profile_common(tvbuff_t *tvb, packet_info *pinfo, proto
     }
 
     snprintf(protocol_str, sizeof(protocol_str), "%s %s", "RF4CE", (char *)data);
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, protocol_str);
+    col_add_str(pinfo->cinfo, COL_PROTOCOL, protocol_str);
 
     if (is_gdp || is_zrc20 || is_zrc10)
     {
@@ -1621,8 +1621,8 @@ static int dissect_rf4ce_profile_common(tvbuff_t *tvb, packet_info *pinfo, proto
 static void dissect_rf4ce_profile_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint8 cmd_id, char *profile_str, gboolean is_cmd_frame)
 {
     proto_tree *profile_cmd_tree;
-    gboolean is_zrc10 = !memcmp("ZRC 1.0", profile_str, 7);
-    gboolean is_zrc20 = !memcmp("ZRC 2.0", profile_str, 7);
+    gboolean is_zrc10 = !strncmp("ZRC 1.0", profile_str, 7);
+    gboolean is_zrc20 = !strncmp("ZRC 2.0", profile_str, 7);
 
     profile_cmd_tree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_profile_cmd_frame, NULL, "Profile Command Frame");
 
