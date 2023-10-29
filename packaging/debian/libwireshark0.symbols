@@ -281,21 +281,40 @@ libwireshark.so.0 libwireshark0 #MINVER#
  delete_itu_tcap_subdissector@Base 1.9.1
  deregister_depend_dissector@Base 2.1.0
  destroy_print_stream@Base 1.12.0~rc1
+ df_cell_append@Base 4.3.0
+ df_cell_array@Base 4.3.0
+ df_cell_clear@Base 4.3.0
+ df_cell_init@Base 4.3.0
+ df_cell_is_empty@Base 4.3.0
+ df_cell_is_null@Base 4.3.0
+ df_cell_iter_init@Base 4.3.0
+ df_cell_iter_next@Base 4.3.0
+ df_cell_ref@Base 4.3.0
+ df_cell_size@Base 4.3.0
  df_error_free@Base 4.1.0
+ df_func_deregister@Base 4.3.0
+ df_func_lookup@Base 4.3.0
+ df_func_name_list@Base 4.3.0
+ df_func_register@Base 4.3.0
+ df_semcheck_param@Base 4.3.0
  dfilter_apply_edt@Base 1.9.1
  dfilter_compile_full@Base 4.1.0
  dfilter_deprecated_tokens@Base 1.9.1
  dfilter_dump@Base 1.9.1
  dfilter_expand@Base 3.7.0
+ dfilter_fail@Base 4.3.0
+ dfilter_fail_throw@Base 4.3.0
  dfilter_free@Base 1.9.1
  dfilter_get_warnings@Base 4.1.0
  dfilter_load_field_references@Base 3.7.0
  dfilter_load_field_references_edt@Base 4.1.0
  dfilter_log_full@Base 3.7.0
  dfilter_macro_get_uat@Base 1.9.1
+ dfilter_plugins_register@Base 4.3.0
  dfilter_requires_columns@Base 4.1.0
  dfilter_syntax_tree@Base 3.7.0
  dfilter_text@Base 3.7.0
+ dfilter_vfail@Base 4.3.0
  disable_name_resolution@Base 1.99.9
  dissect_IDispatch_GetIDsOfNames_resp@Base 1.9.1
  dissect_IDispatch_GetIDsOfNames_rqst@Base 1.9.1
@@ -750,13 +769,21 @@ libwireshark.so.0 libwireshark0 #MINVER#
  free_srt_table@Base 1.99.8
  free_srt_table_data@Base 1.99.8
  free_stat_tables@Base 1.99.9
+ ftype_can_add@Base 4.3.0
+ ftype_can_bitwise_and@Base 4.3.0
  ftype_can_cmp@Base 3.7.0
  ftype_can_contains@Base 1.9.1
+ ftype_can_divide@Base 4.3.0
  ftype_can_eq@Base 1.9.1
  ftype_can_is_negative@Base 3.7.0
  ftype_can_is_zero@Base 3.7.0
+ ftype_can_length@Base 4.3.0
  ftype_can_matches@Base 1.9.1
+ ftype_can_modulo@Base 4.3.0
+ ftype_can_multiply@Base 4.3.0
  ftype_can_slice@Base 1.9.1
+ ftype_can_subtract@Base 4.3.0
+ ftype_can_unary_minus@Base 4.3.0
  ftype_can_val_to_sinteger64@Base 3.7.2
  ftype_can_val_to_sinteger@Base 3.7.2
  ftype_can_val_to_uinteger64@Base 3.7.2
@@ -774,12 +801,23 @@ libwireshark.so.0 libwireshark0 #MINVER#
  funnel_register_packet_menu@Base 4.1.0
  funnel_reload_menus@Base 1.99.9
  funnel_set_funnel_ops@Base 1.9.1
+ fvalue_add@Base 4.3.0
+ fvalue_bitwise_and@Base 4.3.0
+ fvalue_cleanup@Base 4.3.0
+ fvalue_contains@Base 4.3.0
+ fvalue_divide@Base 4.3.0
+ fvalue_dup@Base 4.3.0
+ fvalue_eq@Base 4.3.0
+ fvalue_equal@Base 4.3.0
+ fvalue_free@Base 4.3.0
  fvalue_from_literal@Base 3.7.0
+ fvalue_ge@Base 4.3.0
  fvalue_get_bytes@Base 3.7.1rc0
  fvalue_get_bytes_data@Base 4.1.0
  fvalue_get_bytes_size@Base 4.1.0
  fvalue_get_floating@Base 1.9.1
  fvalue_get_guid@Base 3.7.1rc0
+ fvalue_get_ipv4@Base 4.3.0
  fvalue_get_ipv6@Base 4.1.0
  fvalue_get_protocol@Base 3.7.1rc0
  fvalue_get_sinteger64@Base 1.99.3
@@ -789,12 +827,49 @@ libwireshark.so.0 libwireshark0 #MINVER#
  fvalue_get_time@Base 3.7.1rc0
  fvalue_get_uinteger64@Base 1.99.3
  fvalue_get_uinteger@Base 1.9.1
+ fvalue_gt@Base 4.3.0
+ fvalue_hash@Base 4.3.0
+ fvalue_init@Base 4.3.0
+ fvalue_is_negative@Base 4.3.0
+ fvalue_is_zero@Base 4.3.0
+ fvalue_le@Base 4.3.0
+ fvalue_length2@Base 4.3.0
+ fvalue_lt@Base 4.3.0
+ fvalue_matches@Base 4.3.0
+ fvalue_modulo@Base 4.3.0
+ fvalue_multiply@Base 4.3.0
+ fvalue_ne@Base 4.3.0
+ fvalue_new@Base 4.3.0
+ fvalue_set_ax25@Base 4.3.0
+ fvalue_set_byte_array@Base 4.3.0
+ fvalue_set_bytes@Base 4.3.0
+ fvalue_set_bytes_data@Base 4.3.0
+ fvalue_set_ether@Base 4.3.0
+ fvalue_set_fcwwn@Base 4.3.0
+ fvalue_set_floating@Base 4.3.0
+ fvalue_set_guid@Base 4.3.0
+ fvalue_set_ipv4@Base 4.3.0
+ fvalue_set_ipv6@Base 4.3.0
+ fvalue_set_protocol@Base 4.3.0
+ fvalue_set_sinteger64@Base 4.3.0
+ fvalue_set_sinteger@Base 4.3.0
+ fvalue_set_strbuf@Base 4.3.0
+ fvalue_set_string@Base 4.3.0
+ fvalue_set_time@Base 4.3.0
+ fvalue_set_uinteger64@Base 4.3.0
+ fvalue_set_uinteger@Base 4.3.0
+ fvalue_set_vines@Base 4.3.0
+ fvalue_slice@Base 4.3.0
+ fvalue_subtract@Base 4.3.0
+ fvalue_to_double@Base 4.3.0
  fvalue_to_sinteger64@Base 3.7.2
  fvalue_to_sinteger@Base 3.7.2
  fvalue_to_string_repr@Base 1.9.1
  fvalue_to_uinteger64@Base 3.7.2
  fvalue_to_uinteger@Base 3.7.2
  fvalue_type_ftenum@Base 1.12.0~rc1
+ fvalue_type_name@Base 4.3.0
+ fvalue_unary_minus@Base 4.3.0
  gbl_resolv_flags@Base 1.9.1
  gcamel_StatSRT@Base 1.9.1
  gcp_cmd_type@Base 1.9.1
@@ -1675,6 +1750,25 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stats_tree_sort_compare@Base 1.12.0~rc1
  stats_tree_tick_pivot@Base 1.9.1
  stats_tree_tick_range@Base 1.9.1
+ stnode_clear@Base 4.3.0
+ stnode_data@Base 4.3.0
+ stnode_dup@Base 4.3.0
+ stnode_free@Base 4.3.0
+ stnode_get_flags@Base 4.3.0
+ stnode_init@Base 4.3.0
+ stnode_location@Base 4.3.0
+ stnode_new@Base 4.3.0
+ stnode_new_empty@Base 4.3.0
+ stnode_op_name@Base 4.3.0
+ stnode_replace@Base 4.3.0
+ stnode_set_flags@Base 4.3.0
+ stnode_set_location@Base 4.3.0
+ stnode_steal_data@Base 4.3.0
+ stnode_string@Base 4.3.0
+ stnode_token@Base 4.3.0
+ stnode_tostr@Base 4.3.0
+ stnode_type_id@Base 4.3.0
+ stnode_type_name@Base 4.3.0
  str_to_ip6@Base 2.1.0
  str_to_ip@Base 2.1.0
  str_to_str@Base 1.9.1
@@ -1686,6 +1780,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stream_process_reassembled@Base 1.9.1
  streaming_reassembly_info_new@Base 4.1.0
  string_to_name_resolve@Base 1.9.1
+ sttype_name@Base 4.3.0
  sua_co_class_type_acro_values@Base 1.9.1
  t30_facsimile_control_field_vals_ext@Base 1.12.0~rc1
  t30_facsimile_control_field_vals_short_ext@Base 1.12.0~rc1
@@ -2154,6 +2249,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  write_psml_finale@Base 1.12.0~rc1
  write_psml_preamble@Base 1.12.0~rc1
  ws_find_media_type_parameter@Base 2.2.0
+ ws_ipv4_addr_and_mask_contains@Base 4.3.0
+ ws_ipv4_addr_and_mask_init@Base 4.3.0
+ ws_ipv4_special_block_lookup@Base 4.3.0
+ ws_ipv6_addr_and_prefix_contains@Base 4.3.0
+ ws_ipv6_special_block_lookup@Base 4.3.0
  ws_label_strcat@Base 4.1.0
  ws_label_strcpy@Base 4.1.0
  ws_manuf_block_str@Base 4.1.0
