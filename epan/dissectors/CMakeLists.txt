@@ -445,6 +445,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-isl.h
 	packet-iso10681.h
 	packet-iso15765.h
+	packet-isobus.h
 	packet-isobus-parameters.h
 	packet-isup.h
 	packet-its.h

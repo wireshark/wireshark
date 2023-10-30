@@ -1,7 +1,7 @@
 /* packet-signal-pdu.c
  * Signal PDU dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2020-2022 Dr. Lars Voelker
+ * Copyright 2020-2023 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -36,7 +36,7 @@
 #include "packet-autosar-ipdu-multiplexer.h"
 #include "packet-dlt.h"
 #include "packet-uds.h"
-
+#include "packet-isobus.h"
 
 /*
  * Dissector for CAN, FlexRay, and other message payloads.
@@ -67,6 +67,7 @@
 #define DATAFILE_SPDU_IPDUM_MAPPING                         "Signal_PDU_Binding_AUTOSAR_IPduM"
 #define DATAFILE_SPDU_DLT_MAPPING                           "Signal_PDU_Binding_DLT"
 #define DATAFILE_SPDU_UDS_MAPPING                           "Signal_PDU_Binding_UDS"
+#define DATAFILE_SPDU_ISOBUS_MAPPING                        "Signal_PDU_Binding_ISOBUS"
 
 /* ID wireshark identifies the dissector by */
 static int proto_signal_pdu                                 = -1;
@@ -77,6 +78,7 @@ static dissector_handle_t signal_pdu_handle_flexray         = NULL;
 static dissector_handle_t signal_pdu_handle_lin             = NULL;
 static dissector_handle_t signal_pdu_handle_pdu_transport   = NULL;
 static dissector_handle_t signal_pdu_handle_ipdum           = NULL;
+static dissector_handle_t signal_pdu_handle_isobus          = NULL;
 
 static int hf_pdu_name                                      = -1;
 static int hf_payload_unparsed                              = -1;
@@ -106,6 +108,7 @@ static GHashTable *data_spdu_pdu_transport_mappings         = NULL;
 static GHashTable *data_spdu_ipdum_mappings                 = NULL;
 static GHashTable *data_spdu_dlt_mappings                   = NULL;
 static GHashTable *data_spdu_uds_mappings                   = NULL;
+static GHashTable *data_spdu_isobus_mappings                = NULL;
 
 static hf_register_info *dynamic_hf_base_raw                = NULL;
 static hf_register_info *dynamic_hf_agg_sum                 = NULL;
@@ -315,6 +318,14 @@ typedef struct _spdu_uds_mapping {
 typedef spdu_uds_mapping_t spdu_uds_mapping_uat_t;
 
 
+typedef struct _spdu_isobus_mapping {
+    guint32     pgn;
+    guint32     bus_id;
+    guint32     message_id;
+} spdu_isobus_mapping_t;
+typedef spdu_isobus_mapping_t spdu_isobus_mapping_uat_t;
+
+
 static generic_one_id_string_t *spdu_message_ident = NULL;
 static guint spdu_message_ident_num = 0;
 
@@ -348,6 +359,8 @@ static guint spdu_dlt_mapping_num = 0;
 static spdu_uds_mapping_t *spdu_uds_mapping = NULL;
 static guint spdu_uds_mapping_num = 0;
 
+static spdu_isobus_mapping_t *spdu_isobus_mapping = NULL;
+static guint spdu_isobus_mapping_num = 0;
 
 void proto_register_signal_pdu(void);
 void proto_reg_handoff_signal_pdu(void);
@@ -449,7 +462,7 @@ register_signal_pdu_pdu_transport(void) {
 }
 
 static void
-register_signal_pdu_ipdum_ids(void) {
+register_signal_pdu_ipdum(void) {
     if (signal_pdu_handle_ipdum == NULL) {
         return;
     }
@@ -464,6 +477,28 @@ register_signal_pdu_ipdum_ids(void) {
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
             gint64 *id = (gint64 *)tmp->data;
             dissector_add_uint("ipdum.pdu.id", ((guint32)((guint64)(*id)) & 0xffffffff), signal_pdu_handle_ipdum);
+        }
+
+        g_list_free(keys);
+    }
+}
+
+static void
+register_signal_pdu_isobus(void) {
+    if (signal_pdu_handle_isobus == NULL) {
+        return;
+    }
+
+    dissector_delete_all("isobus.pgn", signal_pdu_handle_isobus);
+
+    /* ISOBUS: loop over all messages IDs in HT */
+    if (data_spdu_isobus_mappings != NULL) {
+        GList *keys = g_hash_table_get_keys(data_spdu_isobus_mappings);
+
+        GList *tmp;
+        for (tmp = keys; tmp != NULL; tmp = tmp->next) {
+            gint64 *id = (gint64 *)tmp->data;
+            dissector_add_uint("isobus.pgn", ((guint32)((guint64)(*id)) & 0xffffffff), signal_pdu_handle_isobus);
         }
 
         g_list_free(keys);
@@ -677,7 +712,7 @@ update_spdu_signal_list(void *r, char **err) {
     }
 
     if (rec->pos >= rec->num_of_params) {
-        *err = ws_strdup_printf("Position >= Number of Parameters");
+        *err = ws_strdup_printf("Position %u >= Number of Parameters %u (ID: 0x%x)", rec->pos, rec->num_of_params, rec->id);
         return FALSE;
     }
 
@@ -1536,7 +1571,7 @@ get_flexray_mapping(guint8 channel, guint8 cycle, guint16 flexray_id) {
         return NULL;
     }
 
-    gint64 key = (channel << 24) | (cycle << 16) | flexray_id;
+    gint64 key = ((gint64)channel << 24) | ((gint64)cycle << 16) | (gint64)flexray_id;
     return (spdu_flexray_mapping_t *)g_hash_table_lookup(data_spdu_flexray_mappings, &key);
 }
 
@@ -1743,7 +1778,7 @@ post_update_spdu_ipdum_mapping_cb(void) {
     }
 
     /* we need to make sure we register again */
-    register_signal_pdu_ipdum_ids();
+    register_signal_pdu_ipdum();
 }
 
 static spdu_ipdum_mapping_uat_t *
@@ -1931,6 +1966,83 @@ get_uds_mapping(uds_info_t *uds_info) {
     }
 
     wmem_free(wmem_epan_scope(), key);
+
+    return tmp;
+}
+
+/* UAT: ISOBUS Mapping */
+UAT_HEX_CB_DEF(spdu_isobus_mapping, pgn, spdu_isobus_mapping_uat_t)
+UAT_HEX_CB_DEF(spdu_isobus_mapping, bus_id, spdu_isobus_mapping_uat_t)
+UAT_HEX_CB_DEF(spdu_isobus_mapping, message_id, spdu_isobus_mapping_uat_t)
+
+static void *
+copy_spdu_isobus_mapping_cb(void *n, const void *o, size_t size _U_) {
+    spdu_isobus_mapping_uat_t *new_rec = (spdu_isobus_mapping_uat_t *)n;
+    const spdu_isobus_mapping_uat_t *old_rec = (const spdu_isobus_mapping_uat_t *)o;
+
+    new_rec->pgn = old_rec->pgn;
+    new_rec->bus_id = old_rec->bus_id;
+    new_rec->message_id = old_rec->message_id;
+
+    return new_rec;
+}
+
+static bool
+update_spdu_isobus_mapping(void *r, char **err) {
+    spdu_isobus_mapping_uat_t *rec = (spdu_isobus_mapping_uat_t *)r;
+
+    if (rec->pgn > 0x03ffff) {
+        *err = g_strdup_printf("PGN %u > %u!", rec->pgn, 0x03ffff);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void
+post_update_spdu_isobus_mapping_cb(void) {
+    /* destroy old hash table, if it exists */
+    if (data_spdu_isobus_mappings) {
+        g_hash_table_destroy(data_spdu_isobus_mappings);
+        data_spdu_isobus_mappings = NULL;
+    }
+
+    /* we don't need to free the data as long as we don't alloc it first */
+    data_spdu_isobus_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
+
+    if (data_spdu_isobus_mappings == NULL || spdu_isobus_mapping == NULL) {
+        return;
+    }
+
+    if (spdu_isobus_mapping_num > 0) {
+        guint i;
+        for (i = 0; i < spdu_isobus_mapping_num; i++) {
+            gint64 *key = wmem_new(wmem_epan_scope(), gint64);
+            *key = spdu_isobus_mapping[i].pgn;
+            *key |= ((gint64)(spdu_isobus_mapping[i].bus_id & 0xffff)) << 32;
+
+            g_hash_table_insert(data_spdu_isobus_mappings, key, &spdu_isobus_mapping[i]);
+        }
+    }
+
+    /* we need to make sure we register again */
+    register_signal_pdu_isobus();
+}
+
+static spdu_isobus_mapping_uat_t *
+get_isobus_mapping(guint32 pgn, guint16 bus_id) {
+    if (data_spdu_isobus_mappings == NULL) {
+        return NULL;
+    }
+
+    /* key is PGN */
+    gint64 key = ((gint64)pgn) | ((gint64)bus_id << 32);
+    spdu_isobus_mapping_t *tmp = (spdu_isobus_mapping_t *)g_hash_table_lookup(data_spdu_isobus_mappings, &key);
+    if (tmp == NULL) {
+        /* try again without Bus ID set */
+        key = (gint64)pgn;
+        tmp = (spdu_isobus_mapping_t *)g_hash_table_lookup(data_spdu_isobus_mappings, &key);
+    }
 
     return tmp;
 }
@@ -2533,6 +2645,20 @@ dissect_spdu_message_uds_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return dissect_spdu_payload(tvb, pinfo, tree, uds_mapping->message_id, FALSE) != 0;
 }
 
+static int
+dissect_spdu_message_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    isobus_info_t *isobus_info = (isobus_info_t *)data;
+    DISSECTOR_ASSERT(isobus_info);
+
+    spdu_isobus_mapping_t *isobus_mapping = get_isobus_mapping(isobus_info->pgn, isobus_info->bus_id);
+
+    if (isobus_mapping == NULL) {
+        return 0;
+    }
+
+    return dissect_spdu_payload(tvb, pinfo, tree, isobus_mapping->message_id, TRUE);
+}
+
 /**************************************
  ********  Register Dissector  ********
  **************************************/
@@ -2558,6 +2684,7 @@ proto_register_signal_pdu(void) {
     uat_t *spdu_ipdum_mapping_uat;
     uat_t *spdu_dlt_mapping_uat;
     uat_t *spdu_uds_mapping_uat;
+    uat_t *spdu_isobus_mapping_uat;
 
     /* data fields */
     static hf_register_info hf[] = {
@@ -2669,6 +2796,13 @@ proto_register_signal_pdu(void) {
         UAT_FLD_BOOL(spdu_uds_mapping, reply,                           "Reply",                 "Reply [FALSE|TRUE]"),
         UAT_FLD_HEX(spdu_uds_mapping, id,                               "ID",                    "ID (16bit hex without leading 0x)"),
         UAT_FLD_HEX(spdu_uds_mapping, message_id,                       "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
+        UAT_END_FIELDS
+    };
+
+    static uat_field_t spdu_isobus_mapping_uat_fields[] = {
+        UAT_FLD_HEX(spdu_isobus_mapping, pgn,                           "PGN",                   "PGN (18bit hex without leading 0x)"),
+        UAT_FLD_HEX(spdu_isobus_mapping, bus_id,                        "Bus ID",                "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
+        UAT_FLD_HEX(spdu_isobus_mapping, message_id,                    "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
         UAT_END_FIELDS
     };
 
@@ -2940,6 +3074,26 @@ proto_register_signal_pdu(void) {
         "A table to map UDS payloads to Signal PDUs", spdu_uds_mapping_uat);
 
 
+    spdu_isobus_mapping_uat = uat_new("ISOBUS",
+        sizeof(spdu_isobus_mapping_uat_t),                 /* record size           */
+        DATAFILE_SPDU_ISOBUS_MAPPING,                      /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_isobus_mapping,                     /* data_ptr              */
+        &spdu_isobus_mapping_num,                          /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_isobus_mapping_cb,                       /* copy callback         */
+        update_spdu_isobus_mapping,                        /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_spdu_isobus_mapping_cb,                /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_isobus_mapping_uat_fields                     /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(spdu_module, "_spdu_isobus_mapping", "ISOBUS Mappings",
+        "A table to map ISOBUS payloads to Signal PDUs", spdu_isobus_mapping_uat);
+
+
     /* Aggregation Feature */
     spdu_aggregation_data = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
@@ -2968,6 +3122,8 @@ proto_reg_handoff_signal_pdu(void) {
         heur_dissector_add("dlt", dissect_spdu_message_dlt_heur, "Signal PDU over DLT", "signal_pdu_dlt_heur", proto_signal_pdu, HEURISTIC_ENABLE);
 
         heur_dissector_add("uds", dissect_spdu_message_uds_heur, "Signal PDU over UDS", "signal_pdu_uds_heur", proto_signal_pdu, HEURISTIC_ENABLE);
+
+        signal_pdu_handle_isobus = register_dissector("signal_pdu_over_ISOBUS", dissect_spdu_message_isobus, proto_signal_pdu);
 
         initialized = TRUE;
     }
