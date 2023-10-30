@@ -246,11 +246,30 @@ static int hf_msg_version_timestamp = -1;
 static int hf_msg_version_user_agent = -1;
 static int hf_msg_version_version = -1;
 static int hf_services_network = -1;
+static int hf_services_getutxo = -1;
+static int hf_services_bloom = -1;
+static int hf_services_witness = -1;
+static int hf_services_xthin = -1;
+static int hf_services_compactfilters = -1;
+static int hf_services_networklimited = -1;
+static int hf_services_p2pv2 = -1;
 static int hf_string_value = -1;
 static int hf_string_varint_count16 = -1;
 static int hf_string_varint_count32 = -1;
 static int hf_string_varint_count64 = -1;
 static int hf_string_varint_count8 = -1;
+
+static int * const services_hf_flags[] = {
+  &hf_services_network,
+  &hf_services_getutxo,
+  &hf_services_bloom,
+  &hf_services_witness,
+  &hf_services_xthin,
+  &hf_services_compactfilters,
+  &hf_services_networklimited,
+  &hf_services_p2pv2,
+  NULL
+};
 
 static gint ett_bitcoin = -1;
 static gint ett_bitcoin_msg = -1;
@@ -292,33 +311,6 @@ format_feefilter_value(gchar *buf, gint64 value) {
 }
 
 /**
- * Create a services sub-tree for bit-by-bit display
- */
-static proto_tree *
-create_services_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
-{
-  proto_tree *tree;
-  guint64 services;
-
-  tree = proto_item_add_subtree(ti, ett_services);
-
-  /* start of services */
-  /* NOTE:
-   *  - 2011-06-05
-   *    Currently the boolean tree only supports a maximum of
-   *    32 bits - so we split services in two
-   */
-  services = tvb_get_letoh64(tvb, offset);
-
-  /* service = NODE_NETWORK */
-  proto_tree_add_boolean(tree, hf_services_network, tvb, offset, 4, (guint32)services);
-
-  /* end of services */
-
-  return tree;
-}
-
-/**
  * Create a sub-tree and fill it with a net_addr structure
  */
 static proto_tree *
@@ -329,8 +321,8 @@ create_address_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
   tree = proto_item_add_subtree(ti, ett_address);
 
   /* services */
-  ti = proto_tree_add_item(tree, hf_address_services, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-  create_services_tree(tvb, ti, offset);
+  proto_tree_add_bitmask(tree, tvb, offset, hf_address_services,
+                         ett_services, services_hf_flags, ENC_LITTLE_ENDIAN);
   offset += 8;
 
   /* IPv6 address */
@@ -504,8 +496,8 @@ dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   proto_tree_add_item(tree, hf_msg_version_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  ti = proto_tree_add_item(tree, hf_msg_version_services, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-  create_services_tree(tvb, ti, offset);
+  proto_tree_add_bitmask(tree, tvb, offset, hf_msg_version_services,
+                         ett_services, services_hf_flags, ENC_LITTLE_ENDIAN);
   offset += 8;
 
   proto_tree_add_item(tree, hf_msg_version_timestamp, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
@@ -2055,6 +2047,41 @@ proto_register_bitcoin(void)
     { &hf_services_network,
       { "Network node", "bitcoin.services.network",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x1,
+        NULL, HFILL }
+    },
+    { &hf_services_getutxo,
+      { "Getutxo node", "bitcoin.services.getutxo",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x2,
+        NULL, HFILL }
+    },
+    { &hf_services_bloom,
+      { "Bloom filter node", "bitcoin.services.bloom",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x4,
+        NULL, HFILL }
+    },
+    { &hf_services_witness,
+      { "Witness node", "bitcoin.services.witness",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x8,
+        NULL, HFILL }
+    },
+    { &hf_services_xthin,
+      { "Xtreme Thinblocks node", "bitcoin.services.xthin",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_services_compactfilters,
+      { "Compact filters node", "bitcoin.services.compactfilters",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_services_networklimited,
+      { "Limited network node", "bitcoin.services.networklimited",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x400,
+        NULL, HFILL }
+    },
+    { &hf_services_p2pv2,
+      { "Version 2 P2P node", "bitcoin.services.p2pv2",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x800,
         NULL, HFILL }
     },
     { &hf_address_services,
