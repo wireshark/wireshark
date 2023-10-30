@@ -71,7 +71,7 @@ class IPv4SpecialBlock(ipaddress.IPv4Network):
     def __str__(self):
         addr = self.network_address
         mask = self.prefixlen
-        line = '{{ {:#x}, {:#010x} }}'.format(addr, self.ip_get_subnet_mask(mask))
+        line = '{{ .ipv4 = {{ {:#x}, {:#010x} }} }}'.format(addr, self.ip_get_subnet_mask(mask))
         return line
 
 class IPv6SpecialBlock(ipaddress.IPv6Network):
@@ -85,7 +85,7 @@ class IPv6SpecialBlock(ipaddress.IPv6Network):
     def __str__(self):
         addr = self.network_address.packed
         mask = self.prefixlen
-        line = '{{ {}, {} }}'.format(self.addr_c_array(addr), mask)
+        line = '{{ .ipv6 = {{ {}, {} }} }}'.format(self.addr_c_array(addr), mask)
         return line
 
 class IPRegistry(list):
@@ -129,9 +129,9 @@ class IPv4Registry(IPRegistry):
 
     def dump(self, fd):
         self.sort()
-        fd.write('_U_ static const struct ws_ipv4_special_block __ipv4_special_block[] = {\n')
+        fd.write('_U_ static const struct ws_iana_ip_special_block __ipv4_special_block[] = {\n')
         for row in self:
-            line = '    {{ {}, {}, {}, {}, {}, {}, {} }},\n'.format(*row)
+            line = '    {{ 4, {}, {}, {}, {}, {}, {}, {} }},\n'.format(*row)
             fd.write(line)
         fd.write('};\n')
 
@@ -152,10 +152,10 @@ class IPv6Registry(IPRegistry):
         self.sort()
         fd.write('// GCC bug?\n')
         fd.write('DIAG_OFF(missing-braces)\n')
-        fd.write('_U_ static const struct ws_ipv6_special_block __ipv6_special_block[] = {\n')
+        fd.write('_U_ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {\n')
         for row in self:
             line = \
-'''    {{ {},
+'''    {{ 6, {},
             {}, {}, {}, {}, {}, {} }},\n'''.format(*row)
             fd.write(line)
         fd.write('};\n')

@@ -14,23 +14,23 @@
 static int
 compare_ipv4_block(const void *key, const void *element)
 {
-    const ws_in4_addr *addr = key;
-    const struct ws_ipv4_special_block *ptr = element;
+    const uint32_t *ipnum = key;
+    const struct ws_iana_ip_special_block *ptr = element;
 
-    uint32_t val = g_ntohl(*addr) & ptr->block.nmask;
+    uint32_t val = *ipnum & ptr->u_ip.ipv4.nmask;
 
-    if (val < ptr->block.addr)
+    if (val < ptr->u_ip.ipv4.addr)
         return -1;
-    if (val > ptr->block.addr)
+    if (val > ptr->u_ip.ipv4.addr)
         return 1;
     return 0;
 }
 
-const struct ws_ipv4_special_block *
-ws_ipv4_special_block_lookup(const ws_in4_addr *addr)
+const struct ws_iana_ip_special_block *
+ws_iana_ipv4_special_block_lookup(uint32_t ipnum)
 {
-    return bsearch(addr, __ipv4_special_block, G_N_ELEMENTS(__ipv4_special_block),
-                    sizeof(struct ws_ipv4_special_block), compare_ipv4_block);
+    return bsearch(&ipnum, __ipv4_special_block, G_N_ELEMENTS(__ipv4_special_block),
+                    sizeof(struct ws_iana_ip_special_block), compare_ipv4_block);
 }
 
 static const uint8_t bitmasks[9] =
@@ -40,16 +40,16 @@ static int
 compare_ipv6_block(const void *key, const void *element)
 {
     const ws_in6_addr *addr = key;
-    const struct ws_ipv6_special_block *ptr = element;
+    const struct ws_iana_ip_special_block *ptr = element;
     uint32_t prefix;
     int pos = 0;
     int byte_a, byte_b;
 
-    prefix = ptr->block.prefix;
+    prefix = ptr->u_ip.ipv6.prefix;
 
     while (prefix >= 8) {
         byte_a = addr->bytes[pos];
-        byte_b = ptr->block.addr.bytes[pos];
+        byte_b = ptr->u_ip.ipv6.addr.bytes[pos];
         if (byte_a != byte_b)
             return byte_a - byte_b;
 
@@ -59,7 +59,7 @@ compare_ipv6_block(const void *key, const void *element)
 
     if (prefix != 0) {
         byte_a = addr->bytes[pos] & bitmasks[prefix];
-        byte_b = ptr->block.addr.bytes[pos];
+        byte_b = ptr->u_ip.ipv6.addr.bytes[pos];
         if (byte_a != byte_b)
             return byte_a - byte_b;
     }
@@ -67,9 +67,9 @@ compare_ipv6_block(const void *key, const void *element)
     return 0;
 }
 
-const struct ws_ipv6_special_block *
-ws_ipv6_special_block_lookup(const ws_in6_addr *addr)
+const struct ws_iana_ip_special_block *
+ws_iana_ipv6_special_block_lookup(const ws_in6_addr *addr)
 {
     return bsearch(addr, __ipv6_special_block, G_N_ELEMENTS(__ipv6_special_block),
-                    sizeof(struct ws_ipv6_special_block), compare_ipv6_block);
+                    sizeof(struct ws_iana_ip_special_block), compare_ipv6_block);
 }

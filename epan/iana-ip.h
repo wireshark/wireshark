@@ -10,34 +10,36 @@
 #define __IANA_IP_H__
 
 #include <wireshark.h>
-#include <ipv4.h>
-#include <ipv6.h>
+#include <epan/ipv4.h>
+#include <epan/ipv6.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-struct ws_ipv4_special_block {
-    ipv4_addr_and_mask block;
-    const char *name;
-    /* true = 1; false = 0; n/a = -1 */
-    int source, destination, forwardable, global, reserved;
+enum iana_ip {
+    WS_IANA_IPv4 = 4,
+    WS_IANA_IPv6 = 6,
 };
 
-struct ws_ipv6_special_block {
-    ipv6_addr_and_prefix block;
+struct ws_iana_ip_special_block {
+    enum iana_ip type;
+    union {
+        ipv4_addr_and_mask ipv4;
+        ipv6_addr_and_prefix ipv6;
+    } u_ip;
     const char *name;
     /* true = 1; false = 0; n/a = -1 */
     int source, destination, forwardable, global, reserved;
 };
 
 WS_DLL_PUBLIC
-const struct ws_ipv4_special_block *
-ws_ipv4_special_block_lookup(const ws_in4_addr *addr);
+const struct ws_iana_ip_special_block *
+ws_iana_ipv4_special_block_lookup(uint32_t ipnum);
 
 WS_DLL_PUBLIC
-const struct ws_ipv6_special_block *
-ws_ipv6_special_block_lookup(const ws_in6_addr *addr);
+const struct ws_iana_ip_special_block *
+ws_iana_ipv6_special_block_lookup(const ws_in6_addr *addr);
 
 #ifdef __cplusplus
 }

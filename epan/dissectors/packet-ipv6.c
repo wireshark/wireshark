@@ -3106,11 +3106,11 @@ add_ipv6_address_detail(packet_info *pinfo, proto_item *vis, proto_item *invis,
 
     /* Check for IPv6 address special-purpose ranges. */
     const ws_in6_addr *addr = tvb_get_ptr_ipv6(tvb, offset);
-    const struct ws_ipv6_special_block *block;
+    const struct ws_iana_ip_special_block *block;
     proto_tree *vtree2;
     proto_tree *itree2;
 
-    if ((block = ws_ipv6_special_block_lookup(addr)) != NULL) {
+    if ((block = ws_iana_ipv6_special_block_lookup(addr)) != NULL) {
         ti = proto_tree_add_string(vtree, *addr_info->hf_special_purpose, tvb, offset, IPv6_ADDR_SIZE, block->name);
         proto_item_set_generated(ti);
         vtree2 = proto_item_add_subtree(ti, ett_ipv6_detail_special_purpose);
