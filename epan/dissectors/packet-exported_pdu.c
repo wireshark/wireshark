@@ -75,6 +75,8 @@ static dissector_handle_t exported_pdu_handle;
 static expert_field ei_exported_pdu_unsupported_version = EI_INIT;
 static expert_field ei_exported_pdu_unknown_tag = EI_INIT;
 
+static const gchar *user_data_pdu = "data";
+
 #define EXPORTED_PDU_NEXT_DISSECTOR_STR      0
 #define EXPORTED_PDU_NEXT_HEUR_DISSECTOR_STR 1
 #define EXPORTED_PDU_NEXT_DIS_TABLE_STR      2
@@ -109,6 +111,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_TCP_INFO_DATA,         "TCP Dissector Data" },
    { EXP_PDU_TAG_P2P_DIRECTION,         "P2P direction" },
    { EXP_PDU_TAG_COL_INFO_TEXT,         "Column Information String" },
+   { EXP_PDU_TAG_USER_DATA_PDU,         "User Data PDU" },
 
    { 0,        NULL   }
 };
@@ -355,6 +358,10 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 break;
             case EXP_PDU_TAG_COL_INFO_TEXT:
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_col_info_str, tvb, offset, tag_len, ENC_UTF_8 | ENC_NA, pinfo->pool, &col_info_str);
+                break;
+            case EXP_PDU_TAG_USER_DATA_PDU:
+                next_proto_type = EXPORTED_PDU_NEXT_DISSECTOR_STR;
+                proto_name = user_data_pdu;
                 break;
             case EXP_PDU_TAG_END_OF_OPT:
                 break;
@@ -615,9 +622,10 @@ proto_register_exported_pdu(void)
         },
     };
     expert_module_t *expert_exported_pdu;
+    module_t *exported_pdu_module;
 
     /* Register the protocol name and description */
-    proto_exported_pdu = proto_register_protocol("EXPORTED_PDU", "exported_pdu", "exported_pdu");
+    proto_exported_pdu = proto_register_protocol("EXPORTED_PDU", "Exported PDU", "exported_pdu");
 
     expert_exported_pdu = expert_register_protocol(proto_exported_pdu);
     expert_register_field_array(expert_exported_pdu, ei, array_length(ei));
@@ -627,6 +635,11 @@ proto_register_exported_pdu(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_exported_pdu, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register configuration preferences */
+    exported_pdu_module = prefs_register_protocol(proto_exported_pdu, NULL);
+    prefs_register_string_preference(exported_pdu_module, "user_data_pdu",
+        "User Data PDU dissector", "The dissector to use for User Data PDU", &user_data_pdu);
 
     /* Register for tapping
      * The tap is registered here but it is to be used by dissectors that
