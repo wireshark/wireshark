@@ -2411,6 +2411,7 @@ const val64_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_GOOGLE_CONNECTION_OPTIONS, "google_connection_options" },
     { SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY, "facebook_partial_reliability" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY_DRAFT_V1, "min_ack_delay (draft-01)" },
+    { SSL_HND_QUIC_TP_MIN_ACK_DELAY_DRAFT05, "min_ack_delay (draft-05)" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY, "min_ack_delay" },
     { SSL_HND_QUIC_TP_ENABLE_MULTIPATH_DRAFT04, "enable_multipath (draft-04)" },
     { SSL_HND_QUIC_TP_ENABLE_MULTIPATH, "enable_multipath" },
@@ -8328,7 +8329,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             break;
             case SSL_HND_QUIC_TP_MIN_ACK_DELAY_OLD:
             case SSL_HND_QUIC_TP_MIN_ACK_DELAY_DRAFT_V1:
-            case SSL_HND_QUIC_TP_MIN_ACK_DELAY  :
+            case SSL_HND_QUIC_TP_MIN_ACK_DELAY_DRAFT05:
+            case SSL_HND_QUIC_TP_MIN_ACK_DELAY:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_min_ack_delay,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 proto_item_append_text(parameter_tree, " %" PRIu64, value);
