@@ -111,7 +111,7 @@ blf_free_channel_to_iface_entry(gpointer data) {
 
 static gint64
 blf_calc_key_value(int pkt_encap, guint16 channel, guint16 hwchannel) {
-    return ((gint64)pkt_encap << 32) | ((gint64)hwchannel << 16) | channel;
+    return (gint64)(((guint64)pkt_encap << 32) | ((guint64)hwchannel << 16) | (guint64)channel);
 }
 
 static void add_interface_name(wtap_block_t *int_data, int pkt_encap, guint16 channel, guint16 hwchannel, gchar *name) {
