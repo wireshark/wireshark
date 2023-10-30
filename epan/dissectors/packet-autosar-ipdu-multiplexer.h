@@ -1,7 +1,7 @@
 /* packet-autosar-ipdu-multiplexer.h
  * Definitions for AUTOSAR I-PDU Multiplexer dissector
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2021-2021 Dr. Lars Voelker
+ * Copyright 2021-2023 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -10,9 +10,14 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#ifndef __PACKET_AUTOSAR_IPDU_MULTIPLEXER_H__
+#define __PACKET_AUTOSAR_IPDU_MULTIPLEXER_H__
+
 typedef struct _autosar_ipdu_multiplexer {
     guint32 pdu_id;
 } autosar_ipdu_multiplexer_info_t;
+
+#endif /* __PACKET_AUTOSAR_IPDU_MULTIPLEXER_H__ */
 
 /*
  * Editor modelines
