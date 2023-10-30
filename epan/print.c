@@ -1695,7 +1695,7 @@ write_carrays_hex_data(guint32 num, FILE *fh, epan_dissect_t *edt)
 
         name = get_data_source_name(src);
         if (name) {
-            fprintf(fh, "/* %s */\n", name);
+            fprintf(fh, "// %s\n", name);
             wmem_free(NULL, name);
         }
         if (src_num) {
@@ -1719,12 +1719,12 @@ write_carrays_hex_data(guint32 num, FILE *fh, epan_dissect_t *edt)
                     for ( j = 0; j < 8 - rem; j++ )
                         fprintf(fh, "      ");
                 }
-                fprintf(fh, "  /* %s */\n};\n\n", ascii);
+                fprintf(fh, "  // %s\n};\n\n", ascii);
                 break;
             }
 
             if (!((i + 1) % 8)) {
-                fprintf(fh, ", /* %s */\n", ascii);
+                fprintf(fh, ", // %s\n", ascii);
                 memset(ascii, 0, sizeof(ascii));
             } else {
                 fprintf(fh, ", ");
