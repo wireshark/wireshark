@@ -703,7 +703,9 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_ACK_MP                   0x15228c00
 #define FT_ACK_MP_ECN               0x15228c01
 #define FT_PATH_ABANDON             0x15228c05
-#define FT_PATH_STATUS              0x15228c06
+#define FT_PATH_STATUS              0x15228c06 /* multipath-draft-05 */
+#define FT_PATH_STANDBY             0x15228c07 /* multipath-draft-06 */
+#define FT_PATH_AVAILABLE           0x15228c08 /* multipath-draft-06 */
 #define FT_TIME_STAMP               0x02F5
 
 static const range_string quic_frame_type_vals[] = {
@@ -746,7 +748,9 @@ static const range_string quic_frame_type_vals[] = {
     { 0xbaba06, 0xbaba06, "PATH_STATUS" }, /* multipath-draft-04 */
     { 0x15228c00, 0x15228c01, "ACK_MP" }, /* >= multipath-draft-05 */
     { 0x15228c05, 0x15228c05, "PATH_ABANDON" }, /* >= multipath-draft-05 */
-    { 0x15228c06, 0x15228c06, "PATH_STATUS" }, /* >= multipath-draft-05 */
+    { 0x15228c06, 0x15228c06, "PATH_STATUS" }, /* = multipath-draft-05 */
+    { 0x15228c07, 0x15228c07, "PATH_STANDBY" }, /* >= multipath-draft-06 */
+    { 0x15228c08, 0x15228c08, "PATH_AVAILABLE" }, /* >= multipath-draft-06 */
     { 0,    0,        NULL },
 };
 
@@ -2856,7 +2860,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_PATH_STATUS_DRAFT04:
-        case FT_PATH_STATUS:{
+        case FT_PATH_STATUS:
+        case FT_PATH_STANDBY:
+        case FT_PATH_AVAILABLE:{
             gint32 length;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", PS");
@@ -2866,8 +2872,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_status_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_status, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
-            offset += (guint32)length;
+            if (frame_type == FT_PATH_STATUS || frame_type == FT_PATH_STATUS_DRAFT04) {
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_status, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+                offset += (guint32)length;
+            }
         }
         break;
         default:
