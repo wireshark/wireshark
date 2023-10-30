@@ -16,12 +16,15 @@
 #include <epan/reassemble.h>
 #include "packet-socketcan.h"
 #include <epan/wmem_scopes.h>
+#include "packet-isobus.h"
 #include "packet-isobus-parameters.h"
 
 void proto_register_isobus(void);
 void proto_reg_handoff_isobus(void);
 
 static dissector_handle_t isobus_handle;
+static dissector_table_t subdissector_table_pdu_format;
+static dissector_table_t subdissector_table_pgn;
 
 /* Initialize the protocol and registered fields */
 static int proto_isobus = -1;
@@ -34,6 +37,7 @@ static int hf_isobus_pdu_format_dp1 = -1;
 static int hf_isobus_group_extension = -1;
 static int hf_isobus_src_addr = -1;
 static int hf_isobus_dst_addr = -1;
+static int hf_isobus_pgn = -1;
 static int hf_isobus_payload = -1;
 
 static int hf_isobus_req_requested_pgn = -1;
@@ -82,8 +86,6 @@ static int hf_msg_reassembled_data = -1;
 static reassembly_table isobus_reassembly_table;
 static unsigned int reassembly_total_size;
 static unsigned int reassembly_current_size;
-
-static dissector_table_t subdissector_table;
 
 #define VT_TO_ECU 230
 #define ECU_TO_VT 231
@@ -335,16 +337,41 @@ proto_item_append_conditional(proto_item *ti, const gchar *str) {
     }
 }
 
+static int
+call_isobus_subdissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name,
+                         guint8 priority, guint8 pdu_format, guint pgn, guint8 source_addr, void *data)
+{
+    can_info_t *can_info = (can_info_t *)data;
+
+    isobus_info_t isobus_info;
+    isobus_info.can_id = can_info->id;
+    isobus_info.bus_id = can_info->bus_id;
+    isobus_info.pdu_format = pdu_format;
+    isobus_info.pgn = pgn;
+    isobus_info.priority = priority;
+    isobus_info.source_addr = source_addr;
+
+    /* try PGN */
+    int ret = dissector_try_uint_new(subdissector_table_pgn, pgn, tvb, pinfo, tree, add_proto_name, &isobus_info);
+    if (ret > 0) {
+        return ret;
+    }
+
+    /* try PDU Format */
+    return dissector_try_uint_new(subdissector_table_pdu_format, pdu_format, tvb, pinfo, tree, add_proto_name, &isobus_info);
+}
+
 /* Code to actually dissect the packets */
 static int
 dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    /* guint        priority; */
+    guint8       priority;
     /* guint        ext_data_page; */
     guint        src_addr;
     guint        data_page;
-    guint        pdu_format;
-    guint        pdu_specific;
+    guint8       pdu_format;
+    guint8       pdu_specific;
+    guint        pgn;
     struct can_info can_info;
     char str_dst[10];
     char str_src[4];
@@ -373,12 +400,18 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISObus");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    /*priority      = (can_info.id >> 26) & 0x07;*/
+    priority      = (can_info.id >> 26) & 0x07;
     /*ext_data_page = (can_info.id >> 25) & 0x01;*/
     data_page     = (can_info.id >> 24) & 0x01;
     pdu_format    = (can_info.id >> 16) & 0xff;
     pdu_specific  = (can_info.id >> 8) & 0xff;
     src_addr      = (can_info.id >> 0 ) & 0xff;
+
+    if (pdu_format < 240) {
+        pgn = (can_info.id >> 8) & 0x03ff00;
+    } else {
+        pgn = (can_info.id >> 8) & 0x03ffff;
+    }
 
     ti = proto_tree_add_item(tree, proto_isobus, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     isobus_tree = proto_item_add_subtree(ti, ett_isobus);
@@ -444,6 +477,8 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         snprintf(str_dst, 10, "%d (grp)", pdu_specific);
         alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_STRINGZ, (int)strlen(str_dst) + 1, str_dst);
     }
+
+    proto_tree_add_uint(isobus_tree, hf_isobus_pgn, tvb, 0, 0, pgn);
 
     switch(data_page)
     {
@@ -639,14 +674,23 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             reassembly_current_size += fragment_size;
 
             reassembled_data = process_reassembled_data(tvb, 0, pinfo, "Reassembled data",
-                fg_head, &isobus_frag_items, NULL, tree);
+                fg_head, &isobus_frag_items, NULL, isobus_tree);
             if (reassembled_data)
             {
-                guint8 pdu_format_reassembled = tvb_get_guint8(reassembled_data, 1);
+                guint32 id_reassembled = tvb_get_guint24(reassembled_data, 0, ENC_BIG_ENDIAN);
+                guint8 pdu_format_reassembled = (guint8)((id_reassembled >> 8) & 0xff);
 
-                if (dissector_try_uint_new(subdissector_table, pdu_format_reassembled,
-                    tvb_new_subset_remaining(reassembled_data, 3), pinfo,
-                    isobus_tree, FALSE, NULL) == 0)
+                guint32 pgn_reassembled;
+                if (pdu_format < 240) {
+                    pgn_reassembled = id_reassembled & 0x03ff00;
+                } else {
+                    pgn_reassembled = id_reassembled & 0x03ffff;
+                }
+
+                proto_tree_add_uint(isobus_tree, hf_isobus_pgn, reassembled_data, 0, 3, pgn_reassembled);
+
+                if (call_isobus_subdissector(tvb_new_subset_remaining(reassembled_data, 3), pinfo, isobus_tree, FALSE,
+                    0, pdu_format_reassembled, pgn_reassembled, src_addr, data) == 0)
                 {
                     col_append_fstr(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
                 }
@@ -663,10 +707,10 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
     else if (pdu_format == REQUEST)
     {
-        guint32 pgn;
-        proto_tree_add_item_ret_uint(isobus_tree, hf_isobus_req_requested_pgn, tvb, 0, 3, ENC_LITTLE_ENDIAN, &pgn);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Requesting PGN: %u", pgn);
-        const gchar *tmp = isobus_lookup_pgn(pgn);
+        guint32 req_pgn;
+        proto_tree_add_item_ret_uint(isobus_tree, hf_isobus_req_requested_pgn, tvb, 0, 3, ENC_LITTLE_ENDIAN, &req_pgn);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Requesting PGN: %u", req_pgn);
+        const gchar *tmp = isobus_lookup_pgn(req_pgn);
         if (tmp != NULL) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", tmp);
         }
@@ -710,7 +754,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             col_append_fstr(pinfo->cinfo, COL_INFO, "Address claimed %u", address_claimed);
         }
     }
-    else if(dissector_try_uint_new(subdissector_table, pdu_format, tvb, pinfo, isobus_tree, FALSE, data) == 0)
+    else if(call_isobus_subdissector(tvb, pinfo, isobus_tree, FALSE, priority, pdu_format, pgn, src_addr, data) == 0)
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
         proto_tree_add_item(isobus_tree, hf_isobus_payload, tvb, 0, tvb_captured_length(tvb), ENC_NA);
@@ -779,6 +823,11 @@ proto_register_isobus(void)
         { &hf_isobus_src_addr,
           { "Source Address", "isobus.src_addr",
             FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(address_range), 0xff,
+            NULL, HFILL }
+        },
+        { &hf_isobus_pgn,
+          { "PGN", "isobus.pgn",
+            FT_UINT24, BASE_DEC_HEX, VALS(isobus_pgn_names), 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_payload,
@@ -1006,8 +1055,8 @@ proto_register_isobus(void)
 
     addressIdentifierTable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), address_combination_hash, address_combination_equal);
 
-    subdissector_table = register_dissector_table("isobus.pdu_format",
-        "PDU format", proto_isobus, FT_UINT8, BASE_DEC);
+    subdissector_table_pdu_format = register_dissector_table("isobus.pdu_format", "PDU format", proto_isobus, FT_UINT8, BASE_DEC);
+    subdissector_table_pgn = register_dissector_table("isobus.pgn", "PGN", proto_isobus, FT_UINT32, BASE_DEC);
 
     isobus_handle = register_dissector("isobus",  dissect_isobus, proto_isobus );
 }

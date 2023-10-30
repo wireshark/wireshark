@@ -4321,16 +4321,14 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 }
 
 static int
-dissect_vt_to_ecu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_vt_to_ecu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    (void)data;
     return dissect_vt(tvb, pinfo, tree, vt_to_ecu);
 }
 
 static int
-dissect_ecu_to_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_ecu_to_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    (void)data;
     return dissect_vt(tvb, pinfo, tree, ecu_to_vt);
 }
 
@@ -5996,7 +5994,7 @@ proto_register_isobus_vt(void)
     /* register preferences */
     vt_module = prefs_register_protocol(proto_vt, NULL);
 
-    /* file to translate opject ids to names, format should be separate line for each object.
+    /* file to translate object ids to names, format should be separate line for each object.
      * objects should be specified in the following way: <object ID number>,<object ID name>
      */
     prefs_register_filename_preference(vt_module, "object_ids", "Object ID Translation",
