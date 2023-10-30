@@ -67,6 +67,10 @@ The following features are new (or have been significantly updated) since versio
   ** Added new display filter functions to test various IP address properties.
      Check the wireshark-filter(5) manpage for more information.
 
+  ** Display filter macros can be written using a function-like notation.
+     The macro `${mymacro:arg1; ...; argN}` can be written
+     $mymacro(arg1, ..., argN)`.
+
 * Display filter autocompletions now also include display filter functions.
 
 * The display filter macro configuration file has changed format. It now uses

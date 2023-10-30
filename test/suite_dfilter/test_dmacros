@@ -1,0 +1,4 @@
+# Display filter macro test file.
+"private_ipv4" $1 == 192.168.0.0/16 or $1 == 172.16.0.0/12 or $1 == 10.0.0.0/8
+"private_ethernet" $1[0] & 0x0F == 2
+"private_ipv6" ipv6 && $1 == fc00::/7

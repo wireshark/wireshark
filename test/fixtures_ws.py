@@ -14,6 +14,7 @@ import subprocess
 import sys
 import types
 import pytest
+import shutil
 
 @pytest.fixture(scope='session')
 def capture_interface(request, cmd_dumpcap):
@@ -196,6 +197,7 @@ def dirs():
         lua_dir=os.path.join(this_dir, 'lua'),
         protobuf_lang_files_dir=os.path.join(this_dir, 'protobuf_lang_files'),
         tools_dir=os.path.join(this_dir, '..', 'tools'),
+        dfilter_dir=os.path.join(this_dir, 'suite_dfilter'),
     )
 
 
@@ -333,6 +335,16 @@ def test_env_80211_user_tk(base_env, conf_path, request, dirs):
         # Windows it unfortunately crashes (Qt 5.12.0).
         env['QT_QPA_PLATFORM'] = 'minimal'
 
+    return env
+
+@pytest.fixture
+def dfilter_env(base_env, conf_path, request, dirs):
+    '''A process environment with a populated configuration directory.'''
+    src_macro_path = os.path.join(dirs.dfilter_dir, 'test_dmacros')
+    dst_macro_path = os.path.join(conf_path, 'dmacros')
+    shutil.copy(src_macro_path, dst_macro_path)
+
+    env = base_env
     return env
 
 @pytest.fixture

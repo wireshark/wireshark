@@ -167,12 +167,43 @@ There is also a set of functions to test IP addresses:
                                     4 3 2 1 0
                                     ---------
                                     S D F G R
-                                S = source, D = Destination, F = Forwardable, G = Globally-reachable, R = Reserved-by-protocol
+                                S = Source, D = Destination, F = Forwardable, G = Globally-reachable, R = Reserved-by-protocol
 
     ip_linklocal(ip)          - true if the IPv4 or IPv6 address is link-local
     ip_multicast(ip)          - true if the IPv4 or IPv6 address is multicast
     ip_rfc1918(ipv4)          - true if the IPv4 address is private-use (from the allocation in RFC 1918)
     ip_ula(ipv6)              - true if the IPv6 address is unique-local (ULA) as in RFC 4193
+
+=== Macros
+
+It is possible to define display filter macros. Macro are names that are
+replaced with the associated expression, possibly performing argument substitution.
+Macro expansions are purely textual replacements and performed recursively before compilation.
+They allow replacing long and often used expressions with easy to use names.
+
+Macros are defined using the GUI or directly in the "dmacros" configuration
+file. For example the definition
+
+    "addplusone" {$1 + $2 + 1}
+
+creates a macro called `addplusone` that takes two arguments and expands to the given expression.
+Arguments in the replacement expression are given using the dollar sign.
+
+Macros are invoked like function but preceded with a dollar sign
+(sometimes also called a sigil):
+
+    $addplusone(udp.src_port, udp.dst_port)
+
+results in the expression
+
+    {udp.src_port + udp.dst_port + 1}
+
+after argument substitution. There is an older alternative notation to invoke macros:
+
+    ${addplusone: udp.src_port; udp.dst_port}
+
+Both forms are equivalent and can be used interchangibly as a matter of
+preference.
 
 === Protocol field types
 

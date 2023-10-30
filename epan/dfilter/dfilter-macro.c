@@ -124,13 +124,25 @@ static bool start_is_field_reference(const char *start)
 	return true;
 }
 
+static inline char
+close_char(int c)
+{
+	switch (c) {
+		case '(': return ')';
+		case '{': return '}';
+		default: break;
+	}
+	ws_assert_not_reached();
+}
+
 static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_error_t** error) {
-	enum { OUTSIDE, STARTING, NAME, ARGS } state = OUTSIDE;
+	enum { OUTSIDE, STARTING, NAME, NAME_PARENS, ARGS } state = OUTSIDE;
 	GString* out;
 	GString* name = NULL;
 	GString* arg = NULL;
 	GPtrArray* args = NULL;
 	char c;
+	char open_c = 0; // parenthesis or curly brace
 	const char* r = text;
 	bool changed = false;
 	char* resolved;
@@ -152,7 +164,10 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 			g_ptr_array_free(args,true); \
 			args = NULL; \
 		} \
+		open_c = 0; \
 	} while(0)
+
+#define NAME_PARENS_CHAR(c) (g_ascii_isalnum(c) || (c) == '_')
 
 	if (error != NULL)
 		*error = NULL;
@@ -193,6 +208,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 						name = g_string_sized_new(32);
 
 						state = NAME;
+						open_c = c;
 
 						break;
 					case '\0':
@@ -200,10 +216,20 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 
 						goto finish;
 					default:
-						g_string_append_c(out,'$');
-						g_string_append_c(out,c);
-
-						state = OUTSIDE;
+						if (NAME_PARENS_CHAR(c)) {
+							/* Possible macro of the form $macro_name() */
+							args = g_ptr_array_new();
+							arg = g_string_sized_new(32);
+							name = g_string_sized_new(32);
+							g_string_append_c(name,c);
+							state = NAME_PARENS;
+						}
+						else {
+							/* Not a macro. */
+							g_string_append_c(out,'$');
+							g_string_append_c(out,c);
+							state = OUTSIDE;
+						}
 
 						break;
 				}
@@ -241,6 +267,25 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 				}
 				break;
 			}
+			case NAME_PARENS:
+			{
+				if (NAME_PARENS_CHAR(c)) {
+					g_string_append_c(name,c);
+				} else if ( c == '(' || c == '{') {
+					state = ARGS;
+					open_c = c;
+				} else {
+					/* Not a macro, walk back */
+					g_string_append_c(out,'$');
+					g_string_append(out,name->str);
+					g_string_append_c(out,c);
+					FREE_ALL();
+					if (c == '\0')
+						goto finish;
+					state = OUTSIDE;
+				}
+				break;
+			}
 			case ARGS:
 			{
 				switch(c) {
@@ -249,6 +294,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 							*error = df_error_new_msg("end of filter in the middle of a macro expression");
 						goto on_error;
 					case ';':
+					case ',':
 						g_ptr_array_add(args,g_string_free(arg,false));
 
 						arg = g_string_sized_new(32);
@@ -264,6 +310,13 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 							goto on_error;
 						}
 					case '}':
+					case ')':
+						if (c != close_char(open_c)) {
+							/* Accept character and continue parsing args. */
+							g_string_append_c(arg,c);
+							break;
+						}
+
 						g_ptr_array_add(args,g_string_free(arg,false));
 						g_ptr_array_add(args,NULL);
 
