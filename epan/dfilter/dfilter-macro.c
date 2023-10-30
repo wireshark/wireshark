@@ -327,8 +327,9 @@ char* dfilter_macro_apply(const char* text, df_error_t** error) {
 	return dfilter_macro_apply_recurse(text, 0, error);
 }
 
-static bool macro_update(void* mp, gchar** error) {
-	dfilter_macro_t* m = (dfilter_macro_t*)mp;
+/* Parses the text into its parts and arguments. Needs to
+ * be called before a macro can be used. */
+static void macro_parse(dfilter_macro_t* m) {
 	GPtrArray* parts;
 	GArray* args_pos;
 	const char* r;
@@ -337,12 +338,6 @@ static bool macro_update(void* mp, gchar** error) {
 	int argc = 0;
 
 	DUMP_MACRO(m);
-
-	*error = NULL;
-
-	/* Invalidate the display filter in case it's in use */
-	if (dfilter_macro_uat && dfilter_macro_uat->post_update_cb)
-	  dfilter_macro_uat->post_update_cb();
 
 	parts = g_ptr_array_new();
 	args_pos = g_array_new(false,false,sizeof(int));
@@ -411,8 +406,6 @@ done:
 	m->usable = true;
 
 	DUMP_MACRO(m);
-
-	return true;
 }
 
 static void macro_free(void* r) {
@@ -500,6 +493,13 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 	return d;
 }
 
+static void macro_post_update(void) {
+
+	for (unsigned i = 0; i < num_macros; i++) {
+		macro_parse(&macros[i]);
+	}
+}
+
 static bool macro_name_chk(void *mp, const char *in_name, unsigned name_len,
 		const void *u1 _U_, const void *u2 _U_, char **error) {
 	dfilter_macro_t* m = (dfilter_macro_t*)mp;
@@ -558,9 +558,11 @@ void dfilter_macro_init(void) {
 				    UAT_AFFECTS_FIELDS,
 				    "ChDisplayFilterMacrosSection",
 				    macro_copy,
-				    macro_update,
+				    NULL, /* update optional; macro is always
+					   * valid if name and text are valid.
+					   */
 				    macro_free,
-				    NULL, /* Note: This is set in macros_init () */
+				    macro_post_update,
 				    NULL,
 				    uat_fields);
 }

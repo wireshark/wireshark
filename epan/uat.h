@@ -115,6 +115,10 @@ typedef void (*uat_reset_cb_t)(void);
  * It must return true if the contents are considered valid and false otherwise
  * in which case the failure reason is set in 'error'. The error string will be
  * freed by g_free.
+ *
+ * XXX: This should only validate the record. Any changes to the record
+ * made here will *not* be persistent if the UAT is saved again.
+ * It should probably be made into a const void* to make that clear.
  */
 typedef bool (*uat_update_cb_t)(void *record, char **error);
 
