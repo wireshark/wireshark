@@ -716,6 +716,9 @@ typedef struct blf_ethernet_phystate {
 #define BLF_OBJTYPE_A429_BUS_STATISTIC          112
 #define BLF_OBJTYPE_A429_MESSAGE                113
 #define BLF_OBJTYPE_ETHERNET_STATISTIC          114
+#define BLF_OBJTYPE_RESERVED5                   115
+#define BLF_OBJTYPE_RESERVED6                   116
+#define BLF_OBJTYPE_RESERVED7                   117
 #define BLF_OBJTYPE_TEST_STRUCTURE              118
 #define BLF_OBJTYPE_DIAG_REQUEST_INTERPRETATION 119
 #define BLF_OBJTYPE_ETHERNET_FRAME_EX           120

@@ -2798,9 +2798,20 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
             return blf_read_ethernet_phystate(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
             break;
 
-        default:
-            ws_debug("unknown object type 0x%04x", header.object_type);
+        case BLF_OBJTYPE_ENV_INTEGER:
+        case BLF_OBJTYPE_ENV_DOUBLE:
+        case BLF_OBJTYPE_ENV_STRING:
+        case BLF_OBJTYPE_ENV_DATA:
+        case BLF_OBJTYPE_SYS_VARIABLE:
+        case BLF_OBJTYPE_RESERVED5: /* Despite the name, this is actually used. Maybe it's worth investigating the content. */
+        case BLF_OBJTYPE_TEST_STRUCTURE:
+            ws_debug("skipping unsupported object type 0x%04x", header.object_type);
             start_pos += MAX(MAX(16, header.object_length), header.header_length);
+            break;
+        default:
+            ws_info("unknown object type 0x%04x", header.object_type);
+            start_pos += MAX(MAX(16, header.object_length), header.header_length);
+            break;
         }
     }
     return TRUE;
