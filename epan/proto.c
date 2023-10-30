@@ -1093,8 +1093,8 @@ label_strcat_flags(const header_field_info *hfinfo)
 }
 
 static char *
-format_bytes_hfinfo(wmem_allocator_t *scope, const header_field_info *hfinfo,
-    const guint8 *bytes, guint length)
+format_bytes_hfinfo_maxlen(wmem_allocator_t *scope, const header_field_info *hfinfo,
+    const guint8 *bytes, guint length, size_t max_str_len)
 {
 	char *str = NULL;
 	const guint8 *p;
@@ -1143,23 +1143,23 @@ format_bytes_hfinfo(wmem_allocator_t *scope, const header_field_info *hfinfo,
 		 */
 		switch (FIELD_DISPLAY(hfinfo->display)) {
 		case SEP_DOT:
-			str = bytes_to_str_punct(scope, bytes, length, '.');
+			str = bytes_to_str_punct_maxlen(scope, bytes, length, '.', max_str_len/3);
 			break;
 		case SEP_DASH:
-			str = bytes_to_str_punct(scope, bytes, length, '-');
+			str = bytes_to_str_punct_maxlen(scope, bytes, length, '-', max_str_len/3);
 			break;
 		case SEP_COLON:
-			str = bytes_to_str_punct(scope, bytes, length, ':');
+			str = bytes_to_str_punct_maxlen(scope, bytes, length, ':', max_str_len/3);
 			break;
 		case SEP_SPACE:
-			str = bytes_to_str_punct(scope, bytes, length, ' ');
+			str = bytes_to_str_punct_maxlen(scope, bytes, length, ' ', max_str_len/3);
 			break;
 		case BASE_NONE:
 		default:
 			if (prefs.display_byte_fields_with_spaces) {
-				str = bytes_to_str_punct(scope, bytes, length, ' ');
+				str = bytes_to_str_punct_maxlen(scope, bytes, length, ' ', max_str_len/3);
 			} else {
-				str = bytes_to_str(scope, bytes, length);
+				str = bytes_to_str_maxlen(scope, bytes, length, max_str_len/2);
 			}
 			break;
 		}
@@ -1172,6 +1172,13 @@ format_bytes_hfinfo(wmem_allocator_t *scope, const header_field_info *hfinfo,
 		}
 	}
 	return str;
+}
+
+static char *
+format_bytes_hfinfo(wmem_allocator_t *scope, const header_field_info *hfinfo,
+    const guint8 *bytes, guint length)
+{
+	return format_bytes_hfinfo_maxlen(scope, hfinfo, bytes, length, ITEM_LABEL_LENGTH);
 }
 
 static void
@@ -6839,10 +6846,11 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 
 		case FT_UINT_BYTES:
 		case FT_BYTES:
-			tmp_str = format_bytes_hfinfo(NULL,
+			tmp_str = format_bytes_hfinfo_maxlen(NULL,
 				hfinfo,
 				fvalue_get_bytes_data(finfo->value),
-				(guint)fvalue_length2(finfo->value));
+				(guint)fvalue_length2(finfo->value),
+				label_str_size);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
