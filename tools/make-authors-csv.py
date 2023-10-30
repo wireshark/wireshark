@@ -32,7 +32,7 @@ def remove_tasks(stdinu8):
         elif '}' in line:
             in_subinfo = False
             nextline = next(stdinu8)
-            if not re.match('^\s*$', nextline):
+            if not re.match(r'^\s*$', nextline):
                 # if '{' in nextline:
                 #    stderru8.write("No blank line after '}', found " + nextline)
                 all_lines.append(nextline)
