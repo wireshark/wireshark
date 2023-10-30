@@ -22,7 +22,7 @@
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
- * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-04
+ * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-07 (and also draft-04/05)
  * https://tools.ietf.org/html/draft-deconinck-quic-multipath-06
  * https://tools.ietf.org/html/draft-banks-quic-cibir-01
  * https://tools.ietf.org/html/draft-ietf-quic-multipath-05 (and also draft-04)
@@ -681,6 +681,7 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_RETIRE_CONNECTION_ID     0x19
 #define FT_PATH_CHALLENGE           0x1a
 #define FT_PATH_RESPONSE            0x1b
+#define FT_IMMEDIATE_ACK            0x1f
 #define FT_CONNECTION_CLOSE_TPT     0x1c
 #define FT_CONNECTION_CLOSE_APP     0x1d
 #define FT_HANDSHAKE_DONE           0x1e
@@ -693,8 +694,8 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_REMOVE_ADDRESS           0x45
 #define FT_UNIFLOWS                 0x46
 #define FT_DATAGRAM_LENGTH          0x31
-#define FT_IMMEDIATE_ACK            0xAC
-#define FT_ACK_FREQUENCY            0xAF
+#define FT_IMMEDIATE_ACK_DRAFT05    0xac /* ack-frequency-draft-05 */
+#define FT_ACK_FREQUENCY            0xaf
 #define FT_ACK_MP_DRAFT04           0xbaba00 /* multipath-draft-04 */
 #define FT_ACK_MP_ECN_DRAFT04       0xbaba01 /* multipath-draft-04 */
 #define FT_PATH_ABANDON_DRAFT04     0xbaba05 /* multipath-draft-04 */
@@ -729,6 +730,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x1c, 0x1c,   "CONNECTION_CLOSE (Transport)" },
     { 0x1d, 0x1d,   "CONNECTION_CLOSE (Application)" },
     { 0x1e, 0x1e,   "HANDSHAKE_DONE" },
+    { 0x1f, 0x1f,   "IMMEDIATE_ACK" },
     { 0x30, 0x31,   "DATAGRAM" },
     { 0x40, 0x40,   "MP_NEW_CONNECTION_ID" },
     { 0x41, 0x41,   "MP_RETIRE_CONNECTION_ID" },
@@ -736,7 +738,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x44, 0x44,   "ADD_ADDRESS" },
     { 0x45, 0x45,   "REMOVE_ADDRESS" },
     { 0x46, 0x46,   "UNIFLOWS" },
-    { 0xAC, 0xAC,   "IMMEDIATE_ACK" },
+    { 0xac, 0xac,   "IMMEDIATE_ACK (draft05)" }, /* ack-frequency-draft-05 */
     { 0xaf, 0xaf,   "ACK_FREQUENCY" },
     { 0x02f5, 0x02f5, "TIME_STAMP" },
     { 0xbaba00, 0xbaba01, "ACK_MP" }, /* multipath-draft-04 */
@@ -2704,6 +2706,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += (guint32)length;
         }
         break;
+        case FT_IMMEDIATE_ACK_DRAFT05:
         case FT_IMMEDIATE_ACK:
             col_append_fstr(pinfo->cinfo, COL_INFO, ", IA");
         break;
