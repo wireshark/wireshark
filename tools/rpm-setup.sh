@@ -71,38 +71,42 @@ then
 	exit 1
 fi
 
-BASIC_LIST="cmake \
-	gcc \
-	gcc-c++ \
-	flex \
-	python3 \
-	desktop-file-utils \
-	git \
-	glib2-devel \
-	libpcap-devel \
-	pcre2-devel \
-	zlib-devel \
-	libgcrypt-devel"
+BASIC_LIST="
+	cmake
+	desktop-file-utils
+	flex
+	gcc
+	gcc-c++
+	git
+	glib2-devel
+	libgcrypt-devel
+	libpcap-devel
+	pcre2-devel
+	python3
+	zlib-devel
+	"
 
-ADDITIONAL_LIST="libcap-devel \
-	libssh-devel \
-	krb5-devel \
-	perl-Parse-Yapp \
-	snappy-devel \
-	minizip-devel \
-	lz4 \
-	libxml2-devel \
-	perl \
-	spandsp-devel \
-	systemd-devel \
-	python3-pytest \
-	python3-pytest-xdist"
+ADDITIONAL_LIST="
+	krb5-devel
+	libcap-devel
+	libssh-devel
+	libxml2-devel
+	lz4
+	minizip-devel
+	perl
+	perl-Parse-Yapp
+	python3-pytest
+	python3-pytest-xdist
+	snappy-devel
+	spandsp-devel
+	systemd-devel
+	"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
-# ADDITIONAL_LIST="$ADDITIONAL_LIST \
-#	advancecomp \
-#	optipng \
-#	oxipng \
+# ADDITIONAL_LIST="$ADDITIONAL_LIST
+#	advancecomp
+#	optipng
+#	oxipng
 #	pngcrush"
 
 # XXX
