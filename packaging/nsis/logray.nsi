@@ -194,7 +194,7 @@ DirText "Choose a directory in which to install ${PROGRAM_NAME}."
 InstallDir $PROGRAMFILES64\${PROGRAM_NAME}
 
 ; See if this is an upgrade; if so, use the old InstallDir as default
-InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\${PROGRAM_NAME} "InstallDir"
+InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\${PROGRAM_NAME} InstallDir
 
 
 ; ============================================================================
@@ -798,6 +798,9 @@ File "${STAGING_DIR}\protobuf\*.proto"
 ; of the installation directory.
 SetOutPath $INSTDIR\tpncp
 File "${STAGING_DIR}\tpncp\tpncp.dat"
+
+; Write the installation path into the registry for InstallDirRegKey
+WriteRegStr HKEY_LOCAL_MACHINE SOFTWARE\${PROGRAM_NAME} InstallDir "$INSTDIR"
 
 ; Write the uninstall keys for Windows
 ; https://nsis.sourceforge.io/Add_uninstall_information_to_Add/Remove_Programs
