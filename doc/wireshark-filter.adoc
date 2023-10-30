@@ -160,6 +160,20 @@ gives you all the odd packets.
 max() and min() take any number of arguments and returns one value, respectively
 the largest/smallest. The arguments must all have the same type.
 
+There is also a set of functions to test IP addresses:
+
+    ip_special_name(ip)       - Returns the IP special-purpose block name as a string
+    ip_special_mask(ip)       - Returns the IP special-purpose block flags as a mask. The bits are:
+                                    4 3 2 1 0
+                                    ---------
+                                    S D F G R
+                                S = source, D = Destination, F = Forwardable, G = Globally-reachable, R = Reserved-by-protocol
+
+    ip_linklocal(ip)          - true if the IPv4 or IPv6 address is link-local
+    ip_multicast(ip)          - true if the IPv4 or IPv6 address is multicast
+    ip_rfc1918(ipv4)          - true if the IPv4 address is private-use (from the allocation in RFC 1918)
+    ip_ula(ipv6)              - true if the IPv6 address is unique-local (ULA) as in RFC 4193
+
 === Protocol field types
 
 Each protocol field is typed. The types are:

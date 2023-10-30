@@ -100,4 +100,9 @@ static inline bool in6_addr_is_multicast(const ws_in6_addr *a)
     return a->bytes[0] == 0xff;
 }
 
+static inline bool in6_addr_is_uniquelocal(const ws_in6_addr *a)
+{
+    return (a->bytes[0] & 0xfe) == 0xfc;
+}
+
 #endif
