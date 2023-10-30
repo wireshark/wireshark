@@ -177,6 +177,9 @@
 
 #define EXP_PDU_TAG_COL_INFO_TEXT  36 /**< UTF-8 text string to put in COL_INFO, useful when puting meta data into the packet list.
                                         */
+
+#define EXP_PDU_TAG_USER_DATA_PDU  37 /**< Raw user data PDU which can be dissected as any protocol. */
+
 #define EXP_PDU_TAG_IPV4_LEN            4
 #define EXP_PDU_TAG_IPV6_LEN            16
 
