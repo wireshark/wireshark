@@ -540,12 +540,16 @@ Do not confuse this usage of curly brackets with set membership.
 
 === Protocol field references
 
-A variable using a sigil with the form ${some.proto.field} is called a field
+A variable using a sigil with the form $some.proto.field or ${some.proto.field} is called a field
 reference. A field reference is a field value read from the currently
 selected frame in the GUI. This is useful to build dynamic filters such as,
 frames since the last five minutes to the selected frame:
 
     frame.time_relative >= ${frame.time_relative} - 300
+
+or more simply
+
+    frame.time_relative >= $frame.time_relative - 300
 
 Field references share a similar notation to macros but are distinct
 syntactical elements in the filter language.

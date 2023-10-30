@@ -61,6 +61,9 @@ The following features are new (or have been significantly updated) since versio
      "bool_test(some.field)" instead of having to write "bool_test(some.field) == True"
      (both forms are now valid).
 
+  ** Display filter references can be written without curly braces. It
+     is now possible to write `$frame.number` instead of `${frame.number}` for example.
+
 * Display filter autocompletions now also include display filter functions.
 
 //=== Removed Features and Support

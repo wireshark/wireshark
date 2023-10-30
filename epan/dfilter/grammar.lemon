@@ -21,6 +21,9 @@
 #endif
 
 static stnode_t *
+new_reference(dfsyntax_t *dfs, stnode_t *node);
+
+static stnode_t *
 new_function(dfsyntax_t *dfs, stnode_t *node);
 
 #define FAIL(dfs, node, ...) \
@@ -205,16 +208,33 @@ rawable_field(X) ::= ATSIGN(A) layered_field(F).
     stnode_free(A);
 }
 
+%code {
+    static stnode_t *
+    new_reference(dfsyntax_t *dfs _U_, stnode_t *node)
+    {
+        /* convert field to reference */
+        stnode_t *ref = stnode_new(STTYPE_REFERENCE, sttype_field_hfinfo(node), NULL, stnode_location(node));
+        sttype_field_set_drange(ref, sttype_field_drange_steal(node));
+        sttype_field_set_raw(ref, sttype_field_raw(node));
+        return ref;
+    }
+}
+
 reference(X) ::= DOLLAR(D) LBRACE rawable_field(F) RBRACE(R).
 {
-    /* convert field to reference */
-    X = stnode_new(STTYPE_REFERENCE, sttype_field_hfinfo(F), NULL, stnode_location(F));
-    sttype_field_set_drange(X, sttype_field_drange_steal(F));
-    sttype_field_set_raw(X, sttype_field_raw(F));
+    X = new_reference(dfs, F);
     stnode_merge_location(X, D, R);
     stnode_free(F);
     stnode_free(D);
     stnode_free(R);
+}
+
+reference(X) ::= DOLLAR(D) rawable_field(F).
+{
+    X = new_reference(dfs, F);
+    stnode_merge_location(X, D, F);
+    stnode_free(F);
+    stnode_free(D);
 }
 
 entity(E) ::= atom(A).          { E = A; }
