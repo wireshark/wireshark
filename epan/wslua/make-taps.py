@@ -81,7 +81,7 @@ def get_tap_info(tap_name, header_file, struct_name, enum_types):
         if m:
             types[enum] = f'lua_pushnumber(L,(lua_Number)v->STR); /* {enum} */'
             econsts = m.group(1).splitlines()
-            econsts = [re.sub('\s+', '', item) for item in econsts]
+            econsts = [re.sub(r'\s+', '', item) for item in econsts]
             econsts = [re.sub(',', '', item) for item in econsts]
             econsts = [item for item in econsts if item]
             enums[enum] = econsts
