@@ -299,7 +299,7 @@ void proto_reg_handoff_uds(void);
  */
 
 /* Services */
-static const value_string uds_services[]= {
+static const value_string _uds_services[]= {
     {OBD_SERVICES_0x01,  "OBD - Request Current Powertrain Diagnostic Data"},
     {OBD_SERVICES_0x02,  "OBD - Request Powertrain Freeze Frame Data"},
     {OBD_SERVICES_0x03,  "OBD - Request Emission-Related Diagnostic Trouble Codes"},
@@ -345,8 +345,10 @@ static const value_string uds_services[]= {
     {UDS_SERVICES_LC,    "Link Control"},
     {0, NULL}
 };
+static value_string_ext uds_services_ext = VALUE_STRING_EXT_INIT(_uds_services);
+
 /* Response code */
-static const value_string uds_response_codes[]= {
+static const value_string _uds_response_codes[]= {
     {UDS_RESPONSE_CODES_GR,      "General reject"},
     {UDS_RESPONSE_CODES_SNS,     "Service not supported"},
     {UDS_RESPONSE_CODES_SFNS,    "SubFunction Not Supported"},
@@ -408,6 +410,7 @@ static const value_string uds_response_codes[]= {
     {UDS_RESPONSE_CODES_RTNA,    "Resource Temporarily Not Available"},
     {0, NULL}
 };
+static value_string_ext uds_response_codes_ext = VALUE_STRING_EXT_INIT(_uds_response_codes);
 
 /* DSC */
 static const value_string uds_dsc_types[] = {
@@ -440,7 +443,7 @@ static const value_string uds_cdtci_group_of_dtc[] = {
 };
 
 /* RDTCI */
-static const value_string uds_rdtci_types[] = {
+static const value_string _uds_rdtci_types[] = {
     {UDS_RDTCI_TYPES_NUMBER_BY_STATUS_MASK,     "Report Number of DTC by Status Mask"},
     {UDS_RDTCI_TYPES_BY_STATUS_MASK,            "Report DTC by Status Mask"},
     {UDS_RDTCI_TYPES_SNAPSHOT_IDENTIFICATION,   "Report DTC Snapshot Identification"},
@@ -472,6 +475,7 @@ static const value_string uds_rdtci_types[] = {
     {UDS_RDTCI_TYPES_WWH_OBD_BY_GROUP_READY,    "Report WWH-OBD DTC By Readiness Group Identifier"},
     {0, NULL}
 };
+static value_string_ext uds_rdtci_types_ext = VALUE_STRING_EXT_INIT(_uds_rdtci_types);
 
 static const value_string uds_rdtci_format_id_types[] = {
     {0x00, "SAE J2012-DA DTC Format 00"},
@@ -513,7 +517,7 @@ static const value_string uds_rsdbi_formulas[] = {
     {0, NULL}
 };
 
-static const value_string uds_rsdbi_units[] = {
+static const value_string _uds_rsdbi_units[] = {
     {0x00, "No unit, no prefix"},
     {0x01, "Metre [m]"},
     {0x02, "Foot [ft]"},
@@ -611,6 +615,7 @@ static const value_string uds_rsdbi_units[] = {
     {0x59, "DateAndTime4 (Second/Minute/Hour/Month/Day/Year/Local minute offset/Local hour offset)"},
     {0, NULL}
 };
+static value_string_ext uds_rsdbi_units_ext = VALUE_STRING_EXT_INIT(_uds_rsdbi_units);
 
 /* CC */
 static const value_string uds_cc_types[] = {
@@ -746,7 +751,7 @@ static const value_string uds_lc_lcmi_types[] = {
 };
 
 /* DIDS */
-static const value_string uds_standard_did_types[] = {
+static const value_string _uds_standard_did_types[] = {
     {UDS_DID_BSIDID,        "BootSoftwareIdentificationDataIdentifier"},
     {UDS_DID_ASIDID,        "applicationSoftwareIdentificationDataIdentifier"},
     {UDS_DID_ADIDID,        "applicationDataIdentificationDataIdentifier"},
@@ -802,6 +807,7 @@ static const value_string uds_standard_did_types[] = {
     {UDS_DID_RESRVDCPADLC,  "ReservedForISO15765-5 (CAN, CAN-FD, CAN+CAN-FD, ...)"},
     {0, NULL}
 };
+static value_string_ext uds_standard_did_types_ext = VALUE_STRING_EXT_INIT(_uds_standard_did_types);
 
 /* ReservedForISO15765 */
 static const value_string uds_did_resrvdcpadlc_types[] = {
@@ -1338,7 +1344,7 @@ uds_lookup_data_name(guint32 addr, guint16 id) {
     const char *tmp = generic_lookup_addr_id(addr, id, uds_ht_data_ids);
 
     if (tmp == NULL) {
-        tmp = try_val_to_str(id, uds_standard_did_types);
+        tmp = try_val_to_str_ext(id, &uds_standard_did_types_ext);
     }
 
     return tmp;
@@ -1707,7 +1713,7 @@ dissect_uds_rdtci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, guint
     guint32     enum_val;
 
     proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_rdtci_types, "Unknown (0x%02x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_ext(enum_val, &uds_rdtci_types_ext, "Unknown (0x%02x)"));
     offset += 1;
 
     if (sid & UDS_REPLY_MASK) {
@@ -2238,7 +2244,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
         return call_dissector(obd_ii_handle, tvb_new_subset_length_caplen(tvb, offset, -1, -1), pinfo, tree);
     }
 
-    service_name = val_to_str(service, uds_services, "Unknown (0x%02x)");
+    service_name = val_to_str_ext(service, &uds_services_ext, "Unknown (0x%02x)");
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%-7s   %-36s", (sid & UDS_REPLY_MASK)? "Reply": "Request", service_name);
 
@@ -3077,11 +3083,11 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
         case UDS_SERVICES_ERR:
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_sid, tvb, offset, 1, ENC_NA, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_services, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_ext(enum_val, &uds_services_ext, "Unknown (0x%02x)"));
             offset += 1;
 
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_code, tvb, offset, 1, ENC_NA, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (NRC: %s)", val_to_str(enum_val, uds_response_codes, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (NRC: %s)", val_to_str_ext(enum_val, &uds_response_codes_ext, "Unknown (0x%02x)"));
             offset += 1;
             break;
 
@@ -3269,7 +3275,7 @@ proto_register_uds(void) {
         { &hf_uds_diag_target_addr_name, {
             "Diagnostic Target Address Name", "uds.diag_addr_target_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_service, {
-            "Service Identifier", "uds.sid", FT_UINT8,  BASE_HEX, VALS(uds_services), UDS_SID_MASK, NULL, HFILL } },
+            "Service Identifier", "uds.sid", FT_UINT8,  BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_services_ext), UDS_SID_MASK, NULL, HFILL } },
         { &hf_uds_reply, {
             "Reply Flag", "uds.reply", FT_UINT8, BASE_HEX, NULL, UDS_REPLY_MASK, NULL, HFILL } },
 
@@ -3320,7 +3326,7 @@ proto_register_uds(void) {
             "Memory Selection", "uds.cdtci.memory_selection", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_rdtci_subfunction, {
-            "SubFunction", "uds.rdtci.subfunction", FT_UINT8, BASE_HEX, VALS(uds_rdtci_types), 0x0, NULL, HFILL } },
+            "SubFunction", "uds.rdtci.subfunction", FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_rdtci_types_ext), 0x0, NULL, HFILL } },
         { &hf_uds_rdtci_dtc_status_mask, {
             "DTC Status Mask", "uds.rdtci.dtc_status_mask", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_rdtci_dtc_status_mask_tf, {
@@ -3438,7 +3444,7 @@ proto_register_uds(void) {
         { &hf_uds_rsdbi_formula_constant_mantissa, {
             "Constant", "uds.rsdbi.scaling_byte_ext.formulat_constant", FT_UINT16, BASE_HEX, NULL, 0x0FFF, NULL, HFILL } },
         { &hf_uds_rsdbi_unit, {
-            "Unit Identifier", "uds.rsdbi.scaling_byte_ext.unit", FT_UINT8, BASE_HEX, VALS(uds_rsdbi_units), 0x0, NULL, HFILL } },
+            "Unit Identifier", "uds.rsdbi.scaling_byte_ext.unit", FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_rsdbi_units_ext), 0x0, NULL, HFILL } },
 
         { &hf_uds_sa_subfunction, {
             "SubFunction", "uds.sa.subfunction", FT_UINT8, BASE_CUSTOM, CF_FUNC(uds_sa_subfunction_format), 0x0, NULL, HFILL } },
@@ -3592,9 +3598,9 @@ proto_register_uds(void) {
             "SubFunction (without Suppress)", "uds.tp.subfunction_without_suppress", FT_UINT8, BASE_HEX, NULL, UDS_SUBFUNCTION_MASK, NULL, HFILL } },
 
         { &hf_uds_err_sid,  {
-            "Service Identifier", "uds.err.sid", FT_UINT8, BASE_HEX, VALS(uds_services), 0x0, NULL, HFILL } },
+            "Service Identifier", "uds.err.sid", FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_services_ext), 0x0, NULL, HFILL } },
         { &hf_uds_err_code, {
-            "Code", "uds.err.code",  FT_UINT8, BASE_HEX, VALS(uds_response_codes), 0x0, NULL, HFILL }  },
+            "Code", "uds.err.code",  FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_response_codes_ext), 0x0, NULL, HFILL }  },
 
         { &hf_uds_sdt_administrative_param, {
             "Administrative Parameter", "uds.sdt.admin_param",  FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -3617,7 +3623,7 @@ proto_register_uds(void) {
         { &hf_uds_sdt_encapsulated_message, {
             "Encapsulated Message", "uds.sdt.encapsulated_message",  FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_sdt_encapsulated_message_sid, {
-            "Service Identifier", "uds.sdt.encapsulated_message.sid",  FT_UINT8, BASE_HEX, VALS(uds_services), UDS_SID_MASK, NULL, HFILL } },
+            "Service Identifier", "uds.sdt.encapsulated_message.sid",  FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&uds_services_ext), UDS_SID_MASK, NULL, HFILL } },
         { &hf_uds_sdt_encapsulated_message_sid_reply, {
             "Reply Flag", "uds.sdt.encapsulated_message.reply", FT_UINT8, BASE_HEX, NULL, UDS_REPLY_MASK, NULL, HFILL } },
         { &hf_uds_sdt_signature_mac, {
