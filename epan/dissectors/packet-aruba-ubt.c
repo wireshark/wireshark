@@ -15,6 +15,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include "packet-ipv6.h"
 
 /* This is not IANA assigned nor registered */
 #define PORT_UBT 15560

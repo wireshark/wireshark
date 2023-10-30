@@ -27,6 +27,7 @@
 #include <epan/etypes.h>
 #include "packet-6lowpan.h"
 #include "packet-btl2cap.h"
+#include "packet-ipv6.h"
 #include "packet-zbee.h"
 
 void proto_register_6lowpan(void);
@@ -2343,7 +2344,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
      *=====================================================
      */
     if (tvb_get_bits8(tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS) == LOWPAN_NHC_PATTERN_EXT) {
-        struct ip6_ext  ipv6_ext = {0, 0};
+        struct ws_ip6_ext  ipv6_ext = {0, 0};
         guint8          ext_flags;
         guint8          ext_hlen;
         guint8          ext_len;
@@ -2376,14 +2377,14 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         if (ext_proto == IP_PROTO_FRAGMENT) {
             /* Fragment header has a reserved byte in place of the Length field. */
             ext_hlen = 1;
-            length = (guint8)sizeof(struct ip6_frag);
+            length = (guint8)sizeof(struct ws_ip6_frag);
             ext_len = length - ext_hlen;
 
             proto_tree_add_item(nhc_tree, hf_6lowpan_nhc_ext_reserved, tvb, offset, 1, ENC_NA);
 
         } else {
             /* Get and display the extension header length. */
-            ext_hlen = (guint8)sizeof(struct ip6_ext);
+            ext_hlen = (guint8)sizeof(struct ws_ip6_ext);
             ext_len = tvb_get_guint8(tvb, offset);
             ti_ext_len = proto_tree_add_uint(nhc_tree, hf_6lowpan_nhc_ext_length, tvb, offset, 1, ext_len);
             offset += 1;

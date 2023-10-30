@@ -7,6 +7,8 @@
 #ifndef __PACKET_6LOWPAN_H__
 #define __PACKET_6LOWPAN_H__
 
+#include <wsutil/inet_ipv6.h>
+
 /* Inserts new compression context information into the 6LoWPAN context table.
  * The compression context is distributed via some options added to the neighbor
  * discovery protocol, so the ICMPv6 dissector needs to call this routine.

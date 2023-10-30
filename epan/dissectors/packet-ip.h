@@ -13,6 +13,7 @@
 #define __PACKET_IP_H__
 
 #include "ws_symbol_export.h"
+#include "packet-ipv6.h"
 
 /*
  * IP Version numbers, from
@@ -77,7 +78,7 @@ typedef struct _ws_ip6
 #define WS_IP6_PTR(p)         ((ws_ip6 *)(((p) && *(guint8 *)(p) == 6) ? (p) : NULL))
 
 struct ws_rthdr {
-    struct ip6_rthdr hdr;
+    struct ws_ip6_rthdr hdr;
     proto_item *ti_len;
     proto_item *ti_type;
     proto_item *ti_segleft;

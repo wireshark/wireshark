@@ -19,6 +19,7 @@
 
 #include "packet-netmon.h"
 #include "packet-windows-common.h"
+#include "packet-ipv6.h"
 
 void proto_register_message_analyzer(void);
 void proto_reg_handoff_message_analyzer(void);

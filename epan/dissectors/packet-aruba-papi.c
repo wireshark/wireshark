@@ -16,8 +16,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
-#include <wsutil/inet_ipv4.h>
-#include <wsutil/inet_ipv6.h>
+#include "packet-ipv6.h"
 
 /* This is not IANA assigned nor registered */
 #define UDP_PORT_PAPI 8211
