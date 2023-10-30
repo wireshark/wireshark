@@ -163,6 +163,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  int_to_str_back@Base 3.5.1
  ip6_to_str@Base 3.5.1
  ip6_to_str_buf@Base 3.5.1
+ ip_addr_to_str@Base 4.3.0
+ ip_addr_to_str_buf@Base 4.3.0
+ ip_num_to_str@Base 4.3.0
+ ip_num_to_str_buf@Base 4.3.0
  ip_to_str@Base 3.5.1
  ip_to_str_buf@Base 3.5.1
  ipxnet_to_str_punct@Base 3.5.1
