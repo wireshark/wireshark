@@ -647,7 +647,9 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     // Code for custom context menus from Lua's register_packet_menu()
     MainWindow * mainWindow = qobject_cast<MainWindow *>(mainApp->mainWindow());
-    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree && mainWindow) {
+    // N.B., Only want to call for a single frame selection.
+    // Testing finfo_array as a proxy, because mainWindow->hasUniqueSelection() doesn't detect multiple selections...
+    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree && mainWindow && finfo_array) {
         bool insertedPacketMenu = mainWindow->addPacketMenus(ctx_menu, finfo_array);
         if (insertedPacketMenu) {
             ctx_menu->addSeparator();
