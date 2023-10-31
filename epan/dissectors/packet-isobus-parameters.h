@@ -8,7 +8,7 @@
  *
  */
 
-static const value_string isobus_industry_groups[] = {
+static const value_string _isobus_industry_groups[] = {
     { 0, "Global, applies to all" },
     { 1, "On-Highway Equipment" },
     { 2, "Agricultural and Forestry Equipment" },
@@ -19,9 +19,10 @@ static const value_string isobus_industry_groups[] = {
     { 7, "Reserved for future assignment by SAE" },
     { 0, NULL }
 };
+static value_string_ext isobus_industry_groups_ext = VALUE_STRING_EXT_INIT(_isobus_industry_groups);
 
 /* key: 256 * Industry-Group-ID + Vehicle-Group-ID */
-static const value_string isobus_vehicle_systems[] = {
+static const value_string _isobus_vehicle_systems[] = {
     { 0x0, "Non-specific System" },
     { 0x7f, "Not Available" },
     { 0x100, "Non-specific System" },
@@ -93,8 +94,9 @@ static const value_string isobus_vehicle_systems[] = {
     { 0x57f, "Not Available" },
     { 0, NULL }
 };
+static value_string_ext isobus_vehicle_systems_ext = VALUE_STRING_EXT_INIT(_isobus_vehicle_systems);
 
-static const value_string isobus_global_name_functions[] = {
+static const value_string _isobus_global_name_functions[] = {
     { 0, "Engine" },
     { 1, "Auxiliary Power Unit (APU)" },
     { 2, "Electric Propulsion Control" },
@@ -191,9 +193,10 @@ static const value_string isobus_global_name_functions[] = {
     { 93, "" },
     { 0, NULL }
 };
+static value_string_ext isobus_global_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_global_name_functions);
 
 /* key: 65536 * Industry-Group-ID + 256 * Vehicle-System-ID + Function-ID */
-static const value_string isobus_ig_specific_name_functions[] = {
+static const value_string _isobus_ig_specific_name_functions[] = {
     { 0x80, "Reserved" },
     { 0x81, "Off-board diagnostic-service tool" },
     { 0x82, "On-board data logger" },
@@ -479,8 +482,9 @@ static const value_string isobus_ig_specific_name_functions[] = {
     { 0x57fff, "Not Available" },
     { 0, NULL }
 };
+static value_string_ext isobus_ig_specific_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_ig_specific_name_functions);
 
-static const value_string isobus_manufacturers[] = {
+static const value_string _isobus_manufacturers[] = {
     { 0, "Reserved" },
     { 1, "Bendix Commercial Vehicle Systems LLC (formerly Allied Signal Inc.)" },
     { 2, "Allison Transmission, Inc." },
@@ -1879,8 +1883,9 @@ static const value_string isobus_manufacturers[] = {
     { 1863, "Thomas G. Faria Co." },
     { 0, NULL }
 };
+static value_string_ext isobus_manufacturers_ext = VALUE_STRING_EXT_INIT(_isobus_manufacturers);
 
-static const value_string isobus_pgn_names[] = {
+static const value_string _isobus_pgn_names[] = {
     { 0, "Torque/Speed Control 1" },
     { 256, "Transmission Control 1" },
     { 512, "Electronic Brake System #1/1" },
@@ -4371,3 +4376,4 @@ static const value_string isobus_pgn_names[] = {
     { 130586, "Entertainment - Zone Configuration Status" },
     { 0, NULL }
 };
+static value_string_ext isobus_pgn_names_ext = VALUE_STRING_EXT_INIT(_isobus_pgn_names);

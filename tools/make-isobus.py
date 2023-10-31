@@ -154,60 +154,71 @@ def main():
 ''')
 
     # Write Industries
-    output_fd.write("static const value_string isobus_industry_groups[] = {\n")
+    output_fd.write("static const value_string _isobus_industry_groups[] = {\n")
 
     for row in indust_csv:
         output_fd.write(f"    {{ {row[0]}, \"{row[1]}\" }},\n")
 
     output_fd.write("    { 0, NULL }\n")
-    output_fd.write("};\n\n")
+    output_fd.write("};\n")
+    output_fd.write("static value_string_ext isobus_industry_groups_ext = VALUE_STRING_EXT_INIT(_isobus_industry_groups);\n");
+    output_fd.write("\n");
 
     # Write Vehicle System Names
     output_fd.write("/* key: 256 * Industry-Group-ID + Vehicle-Group-ID */\n")
-    output_fd.write("static const value_string isobus_vehicle_systems[] = {\n")
+    output_fd.write("static const value_string _isobus_vehicle_systems[] = {\n")
 
     for key in sorted(vehicle_system_names):
         output_fd.write(f"    {{ {hex(key)}, \"{vehicle_system_names[key]}\" }},\n")
 
     output_fd.write("    { 0, NULL }\n")
-    output_fd.write("};\n\n")
+    output_fd.write("};\n")
+    output_fd.write("static value_string_ext isobus_vehicle_systems_ext = VALUE_STRING_EXT_INIT(_isobus_vehicle_systems);\n");
+    output_fd.write("\n");
 
     # Write Global Name Functions
-    output_fd.write("static const value_string isobus_global_name_functions[] = {\n")
+    output_fd.write("static const value_string _isobus_global_name_functions[] = {\n")
 
     for row in glbl_name_functions_csv:
         output_fd.write(f"    {{ {row[0]}, \"{row[1]}\" }},\n")
 
     output_fd.write("    { 0, NULL }\n")
-    output_fd.write("};\n\n")
+    output_fd.write("};\n")
+    output_fd.write("static value_string_ext isobus_global_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_global_name_functions);\n");
+    output_fd.write("\n");
 
      # IG Specific Global Name Functions
     output_fd.write("/* key: 65536 * Industry-Group-ID + 256 * Vehicle-System-ID + Function-ID */\n")
-    output_fd.write("static const value_string isobus_ig_specific_name_functions[] = {\n")
+    output_fd.write("static const value_string _isobus_ig_specific_name_functions[] = {\n")
 
     for key in sorted(specific_functions):
         output_fd.write(f"    {{ {hex(key)}, \"{specific_functions[key]}\" }},\n")
 
     output_fd.write("    { 0, NULL }\n")
-    output_fd.write("};\n\n")
+    output_fd.write("};\n")
+    output_fd.write("static value_string_ext isobus_ig_specific_name_functions_ext = VALUE_STRING_EXT_INIT(_isobus_ig_specific_name_functions);\n");
+    output_fd.write("\n");
 
     # Write Manufacturers
-    output_fd.write("static const value_string isobus_manufacturers[] = {\n")
+    output_fd.write("static const value_string _isobus_manufacturers[] = {\n")
 
     for row in manuf_csv:
         output_fd.write(f"    {{ {row[0]}, \"{row[1]}\" }},\n")
 
     output_fd.write("    { 0, NULL }\n")
-    output_fd.write("};\n\n")
+    output_fd.write("};\n")
+    output_fd.write("static value_string_ext isobus_manufacturers_ext = VALUE_STRING_EXT_INIT(_isobus_manufacturers);\n");
+    output_fd.write("\n");
 
     # PGN Names
-    output_fd.write("static const value_string isobus_pgn_names[] = {\n")
+    output_fd.write("static const value_string _isobus_pgn_names[] = {\n")
 
     for key in sorted(pgn_names):
         output_fd.write(f"    {{ {key}, \"{pgn_names[key]}\" }},\n")
 
     output_fd.write("    { 0, NULL }\n")
     output_fd.write("};\n")
+    output_fd.write("static value_string_ext isobus_pgn_names_ext = VALUE_STRING_EXT_INIT(_isobus_pgn_names);\n");
 
 if __name__ == '__main__':
     main()
