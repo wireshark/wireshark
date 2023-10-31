@@ -2752,7 +2752,7 @@ de_bssgp_trg_to_src_transp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 /*
  * 11.3.87  RNC Identifier
  */
-static guint16
+guint16
 de_bssgp_rnc_identifier(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32 curr_offset;
@@ -3141,7 +3141,7 @@ de_bssgp_flow_control_gran(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 /*
  * 11.3.103     eNB Identifier
  */
-static guint16
+guint16
 de_bssgp_enb_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     tvbuff_t    *new_tvb;

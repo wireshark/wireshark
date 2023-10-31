@@ -70,6 +70,7 @@
 #include "packet-pdcp-nr.h"
 #include "packet-pdcp-lte.h"
 #include "packet-rohc.h"
+#include "packet-s1ap.h"
 
 void proto_register_gtp(void);
 void proto_reg_handoff_gtp(void);
@@ -501,6 +502,7 @@ static gint ett_gtp_trace_loi_bm_sc = -1;
 static gint ett_gtp_bss_cont = -1;
 static gint ett_gtp_lst_set_up_pfc = -1;
 static gint ett_gtp_rrc_cont = -1;
+static gint ett_gtp_rim_routing_adr = -1;
 
 static expert_field ei_gtp_ext_hdr_pdcpsn = EI_INIT;
 static expert_field ei_gtp_ext_length_mal = EI_INIT;
@@ -587,7 +589,23 @@ static int hf_nrup_dl_delay_du_result = -1;
 
 static gint ett_nrup = -1;
 
+typedef struct {
+    int8_t rim_routing_addr_disc;
+} gtp_private_data_t;
 
+
+static gtp_private_data_t*
+gtp_get_private_data(packet_info *pinfo)
+{
+    gtp_private_data_t *gtp_data = (gtp_private_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gtp, 0);
+
+    if (!gtp_data) {
+        gtp_data = wmem_new(wmem_file_scope(), gtp_private_data_t);
+        gtp_data->rim_routing_addr_disc = -1;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_gtp, 0, gtp_data);
+    }
+    return gtp_data;
+}
 
 /* --- PDCP DECODE ADDITIONS --- */
 static bool
@@ -7273,11 +7291,12 @@ decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
  * RIM Routing Address
  */
 static int
-decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
     proto_tree *ext_tree;
+    proto_item *pi;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_RIM_RA], NULL,
@@ -7290,7 +7309,26 @@ decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
     /*
      * Octets 4-n are coded according to 3GPP TS 48.018 [20] 11.3.77 RIM Routing Information IE octets 4-n.
      */
-    proto_tree_add_item(ext_tree, hf_gtp_rim_routing_addr, tvb, offset, length, ENC_NA);
+    pi = proto_tree_add_item(ext_tree, hf_gtp_rim_routing_addr, tvb, offset, length, ENC_NA);
+    if (PINFO_FD_VISITED(pinfo)) {
+        gtp_private_data_t *gtp_data = gtp_get_private_data(pinfo);
+        proto_tree *addr_tree = proto_item_add_subtree(pi, ett_gtp_rim_routing_adr);
+
+        switch (gtp_data->rim_routing_addr_disc) {
+        case 0:
+            de_bssgp_cell_id(tvb, addr_tree, pinfo, offset, length, NULL, 0);
+            break;
+        case -1:
+        case 1:
+            de_bssgp_rnc_identifier(tvb, addr_tree, pinfo, offset, length, NULL, 0);
+            break;
+        case 2:
+            de_bssgp_enb_id(tvb, addr_tree, pinfo, offset, length, NULL, 0);
+            break;
+        default:
+            break;
+        }
+    }
 
     return 3 + length;
 
@@ -8072,11 +8110,13 @@ static const value_string gtp_bssgp_ra_discriminator_vals[] = {
 };
 
 static int
-decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
     proto_tree *ext_tree;
+    guint32 val;
+    gtp_private_data_t *gtp_data = gtp_get_private_data(pinfo);
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_RIM_ROUTING_ADDR_DISC], NULL,
@@ -8089,7 +8129,8 @@ decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
      * RIM Routing Information IE octet 3 bits 4 - 1.
      * Bits 8 - 5 are coded "0000".
      */
-    proto_tree_add_item(ext_tree, hf_gtp_bssgp_ra_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_bssgp_ra_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
+    gtp_data->rim_routing_addr_disc = (int8_t)val;
 
     return 3 + length;
 
@@ -12636,7 +12677,7 @@ proto_register_gtp(void)
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    38
+#define GTP_NUM_INDIVIDUAL_ELEMS    39
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -12676,7 +12717,8 @@ proto_register_gtp(void)
     ett_gtp_array[34] = &ett_gtp_bss_cont;
     ett_gtp_array[35] = &ett_gtp_lst_set_up_pfc;
     ett_gtp_array[36] = &ett_gtp_rrc_cont;
-    ett_gtp_array[37] = &ett_nrup;
+    ett_gtp_array[37] = &ett_gtp_rim_routing_adr;
+    ett_gtp_array[38] = &ett_nrup;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
