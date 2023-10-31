@@ -2408,15 +2408,12 @@ static const value_string gtp_ext_hdr_pdu_ses_cont_pdu_type_vals[] = {
 #define MM_PROTO_SESSION_MGMT           0x0A
 #define MM_PROTO_NON_CALL_RELATED       0x0B
 
-static GHashTable *gtpstat_msg_idx_hash = NULL;
+static wmem_map_t *gtpstat_msg_idx_hash = NULL;
 
 static void
 gtpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
-    if (gtpstat_msg_idx_hash != NULL) {
-        g_hash_table_destroy(gtpstat_msg_idx_hash);
-    }
-    gtpstat_msg_idx_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+    gtpstat_msg_idx_hash = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
     init_srt_table("GTP Requests", NULL, srt_array, 0, NULL, NULL, NULL);
 }
@@ -2446,12 +2443,12 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
     gtp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
 
-    idx = GPOINTER_TO_UINT(g_hash_table_lookup(gtpstat_msg_idx_hash, GUINT_TO_POINTER(gtp->msgtype)));
+    idx = GPOINTER_TO_UINT(wmem_map_lookup(gtpstat_msg_idx_hash, GUINT_TO_POINTER(gtp->msgtype)));
 
     /* Store the value incremented by 1 to avoid confusing index 0 with NULL */
     if (idx == 0) {
-        idx = g_hash_table_size(gtpstat_msg_idx_hash);
-        g_hash_table_insert(gtpstat_msg_idx_hash, GUINT_TO_POINTER(gtp->msgtype), GUINT_TO_POINTER(idx + 1));
+        idx = wmem_map_size(gtpstat_msg_idx_hash);
+        wmem_map_insert(gtpstat_msg_idx_hash, GUINT_TO_POINTER(gtp->msgtype), GUINT_TO_POINTER(idx + 1));
         init_srt_table_row(gtp_srt_table, idx, val_to_str_ext(gtp->msgtype, &gtp_message_type_ext, "Unknown (%d)"));
     } else {
         idx -= 1;
@@ -2482,7 +2479,7 @@ static int proto_pdcp_lte = -1;
 guint32 gtp_session_count;
 
 /* Relation between frame -> session */
-GHashTable* session_table;
+wmem_map_t* session_table;
 /* Relation between <teid,ip> -> frame */
 wmem_map_t* frame_map;
 
@@ -2546,7 +2543,7 @@ remove_frame_info(guint32 f) {
 void
 add_gtp_session(guint32 frame, guint32 session) {
 
-    g_hash_table_insert(session_table, GUINT_TO_POINTER(frame), GUINT_TO_POINTER(session));
+    wmem_map_insert(session_table, GUINT_TO_POINTER(frame), GUINT_TO_POINTER(session));
 }
 
 gboolean
@@ -2579,12 +2576,24 @@ ip_exists(address ip, wmem_list_t *ip_list) {
     return found;
 }
 
+
+/* wmem_map_foreach() callback used in fill_map() */
+static void
+remove_session_from_table(void *key, void *val, void *userdata) {
+    unsigned fr = GPOINTER_TO_UINT(key);
+    unsigned session = GPOINTER_TO_UINT(val);
+    unsigned remove_session = GPOINTER_TO_UINT(userdata);
+
+    /* If it's the session we are looking for, we remove all the frame information */
+    if (session == remove_session) {
+        remove_frame_info(fr);
+    }
+}
+
 void
 fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame) {
     wmem_list_frame_t *elem_ip, *elem_teid;
     gtp_info_t *gtp_info;
-    gpointer session_p, fr_p;
-    GHashTableIter iter;
     guint32 teid, session;
     address *ip;
 
@@ -2610,16 +2619,10 @@ fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame) {
                 /* If the teid and ip already maps to a session, that means
                  * that we need to remove old info about that session */
                 /* We look for its session ID */
-                session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(frame)));
+                session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame)));
                 if (session) {
-                    g_hash_table_iter_init(&iter, session_table);
-                    while (g_hash_table_iter_next(&iter, &fr_p, &session_p)) {
-                        /* If the msg has the same session ID and it's not the upd req we have to remove its info */
-                        if (GPOINTER_TO_UINT(session_p) == session) {
-                            /* If it's the session we are looking for, we remove all the frame information */
-                            remove_frame_info(GPOINTER_TO_UINT(fr_p));
-                        }
-                    }
+                    /* If the msg has the same session ID and it's not the upd req we have to remove its info */
+                    wmem_map_foreach(session_table, remove_session_from_table, GUINT_TO_POINTER(session));
                 }
             }
             wmem_map_insert(frame_map, gtp_info, GUINT_TO_POINTER(frame));
@@ -4178,8 +4181,8 @@ static _gtp_mess_items umts_mess_items[] = {
  */
 typedef struct gtp_conv_info_t {
     struct gtp_conv_info_t *next;
-    GHashTable             *unmatched;
-    GHashTable             *matched;
+    wmem_map_t             *unmatched;
+    wmem_map_t             *matched;
 } gtp_conv_info_t;
 
 static gtp_conv_info_t *gtp_info_items = NULL;
@@ -4279,7 +4282,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         break;
     }
 
-    gcrp = (gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->matched, &gcr);
+    gcrp = (gtp_msg_hash_t *)wmem_map_lookup(gtp_info->matched, &gcr);
 
     if (gcrp) {
 
@@ -4300,9 +4303,9 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MSG_IDENT_REQ:
             gcr.seq_nr=seq_nr;
 
-            gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
+            gcrp=(gtp_msg_hash_t *)wmem_map_lookup(gtp_info->unmatched, &gcr);
             if (gcrp) {
-                g_hash_table_remove(gtp_info->unmatched, gcrp);
+                wmem_map_remove(gtp_info->unmatched, gcrp);
             }
             /* if we can't reuse the old one, grab a new chunk */
             if (!gcrp) {
@@ -4314,7 +4317,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
             gcrp->rep_frame = 0;
             gcrp->msgtype = msgtype;
             gcrp->is_request = TRUE;
-            g_hash_table_insert(gtp_info->unmatched, gcrp, gcrp);
+            wmem_map_insert(gtp_info->unmatched, gcrp, gcrp);
             return NULL;
             break;
         case GTP_MSG_ECHO_RESP:
@@ -4327,14 +4330,14 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MS_INFO_CNG_NOT_RES:
         case GTP_MSG_IDENT_RESP:
             gcr.seq_nr=seq_nr;
-            gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
+            gcrp=(gtp_msg_hash_t *)wmem_map_lookup(gtp_info->unmatched, &gcr);
 
             if (gcrp) {
                 if (!gcrp->rep_frame) {
-                    g_hash_table_remove(gtp_info->unmatched, gcrp);
+                    wmem_map_remove(gtp_info->unmatched, gcrp);
                     gcrp->rep_frame=pinfo->num;
                     gcrp->is_request=FALSE;
-                    g_hash_table_insert(gtp_info->matched, gcrp, gcrp);
+                    wmem_map_insert(gtp_info->matched, gcrp, gcrp);
                 }
             }
             break;
@@ -4363,9 +4366,9 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
                 if (!PINFO_FD_VISITED(pinfo) && gtp_version == 1) {
                     /* GTP session */
                     /* If it does not have any session assigned yet */
-                    session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
+                    session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
                     if (!session) {
-                        session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(gcrp->req_frame)));
+                        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(gcrp->req_frame)));
                         if (session) {
                             add_gtp_session(pinfo->num, session);
                         }
@@ -9772,7 +9775,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
 
     /* GTP session */
     if (tree) {
-        session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
+        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
         if (session) {
             it = proto_tree_add_uint(tree, hf_gtp_session, tvb, 0, 0, session);
             proto_item_set_generated(it);
@@ -9782,7 +9785,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
 
     if (!PINFO_FD_VISITED(pinfo) && gtp_version == 1) {
         /* If the message does not have any session ID */
-        session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
+        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
         if (!session) {
             /* If the message is not a CPDPCRES, CPDPCREQ, UPDPREQ, UPDPRES
              * then we remove its information from teid and ip lists
@@ -9808,7 +9811,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
                 /* If this is an error indication then we have to check the session id that belongs to the message with the same data teid and ip */
                 if (gtp_hdr->message == GTP_MSG_ERR_IND) {
                     if (get_frame(last_ip, last_teid, &frame_teid_cp) == 1) {
-                        session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
+                        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
                         if (session) {
                             /* We add the corresponding session to the session list*/
                             add_gtp_session(pinfo->num, session);
@@ -9820,7 +9823,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
                     the corresponding session ID */
                     if ((get_frame(pinfo->dst, (guint32)gtp_hdr->teid, &frame_teid_cp) == 1)) {
                         /* Then we have to set its session ID */
-                        session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
+                        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
                         if (session) {
                             /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
                             add_gtp_session(pinfo->num, session);
@@ -10257,8 +10260,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         */
         gtp_info = wmem_new(wmem_file_scope(), gtp_conv_info_t);
         /*Request/response matching tables*/
-        gtp_info->matched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_matched);
-        gtp_info->unmatched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_unmatched);
+        gtp_info->matched = wmem_map_new(wmem_file_scope(), gtp_sn_hash, gtp_sn_equal_matched);
+        gtp_info->unmatched = wmem_map_new(wmem_file_scope(), gtp_sn_hash, gtp_sn_equal_unmatched);
 
         conversation_add_proto_data(conversation, proto_gtp, gtp_info);
 
@@ -10867,35 +10870,27 @@ static void
 gtp_init(void)
 {
     gtp_session_count = 1;
-    session_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+    session_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     frame_map = wmem_map_new(wmem_file_scope(), gtp_info_hash, gtp_info_equal);
 }
 
 static void
 gtp_cleanup(void)
 {
+    /* our structures are in file-scoped wmem_map_t's which will be
+     * automatically freed when the capture file is closed; here we just null
+     * out our pointers to prevent potential references to freed memory.
+     */
     gtp_conv_info_t *gtp_info;
 
-    /* Free up state attached to the gtp_info structures */
-    for (gtp_info = gtp_info_items; gtp_info != NULL; ) {
-        gtp_conv_info_t *next;
-
-        g_hash_table_destroy(gtp_info->matched);
+    for (gtp_info = gtp_info_items; gtp_info != NULL; gtp_info = gtp_info->next) {
         gtp_info->matched=NULL;
-        g_hash_table_destroy(gtp_info->unmatched);
         gtp_info->unmatched=NULL;
-
-        next = gtp_info->next;
-        gtp_info = next;
     }
 
-    /* Free up state attached to the gtp session structures */
     gtp_info_items = NULL;
-
-    if (session_table != NULL) {
-        g_hash_table_destroy(session_table);
-    }
     session_table = NULL;
+    frame_map = NULL;
 }
 
 void

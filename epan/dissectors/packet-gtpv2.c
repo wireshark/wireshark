@@ -1561,15 +1561,12 @@ gtpv2_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
     return key1->seq_nr == key2->seq_nr;
 }
 
-static GHashTable *gtpv2_stat_msg_idx_hash = NULL;
+static wmem_map_t *gtpv2_stat_msg_idx_hash = NULL;
 
 static void
 gtpv2_stat_init(struct register_srt* srt _U_, GArray*srt_array)
 {
-    if (gtpv2_stat_msg_idx_hash != NULL) {
-        g_hash_table_destroy(gtpv2_stat_msg_idx_hash);
-    }
-    gtpv2_stat_msg_idx_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+    gtpv2_stat_msg_idx_hash = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
     init_srt_table("GTPv2 Requests", NULL, srt_array, 0, NULL, NULL, NULL);
 }
@@ -1599,12 +1596,12 @@ gtpv2_stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const 
      * (requests and responses have different message types, and we
      * only use the request value.)
      */
-    idx = GPOINTER_TO_UINT(g_hash_table_lookup(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype)));
+    idx = GPOINTER_TO_UINT(wmem_map_lookup(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype)));
 
     /* Store the row value incremented by 1 to distinguish 0 from NULL */
     if (idx == 0) {
-        idx = g_hash_table_size(gtpv2_stat_msg_idx_hash);
-        g_hash_table_insert(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype), GUINT_TO_POINTER(idx + 1));
+        idx = wmem_map_size(gtpv2_stat_msg_idx_hash);
+        wmem_map_insert(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype), GUINT_TO_POINTER(idx + 1));
         init_srt_table_row(gtpv2_srt_table, idx, val_to_str_ext(gcrp->msgtype, &gtpv2_message_type_vals_ext, "Unknown (%d)"));
     } else {
         idx -= 1;
@@ -3502,7 +3499,7 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     }
 
     if (g_gtp_session && args) {
-        session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
+        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
         if (!session) {
             /* We save the teid so that we could assignate its corresponding session ID later */
             args->last_teid = teid_cp;
@@ -8800,9 +8797,9 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
             if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
                 /* GTP session */
                 /* If it's not already in the list */
-                session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
+                session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
                 if (!session) {
-                    session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(gcrp->req_frame)));
+                    session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(gcrp->req_frame)));
                     if (session) {
                         add_gtp_session(pinfo->num, session);
                     }
@@ -8826,7 +8823,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
 
     /* GTP session */
     if (tree) {
-        session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
+        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
         if (session) {
             it = proto_tree_add_uint(tree, hf_gtpv2_session, tvb, 0, 0, session);
             proto_item_set_generated(it);
@@ -8835,7 +8832,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
 
     if (!PINFO_FD_VISITED(pinfo)) {
         /* If the message does not have any session ID */
-        session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
+        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
         if (!session) {
             /* If the message is not a CSESRES, CSESREQ, UBEAREQ, UBEARES, CBEAREQ, CBEARES, MBEAREQ or MBEARES then we remove its information from teid and ip lists */
             if ((gtpv2_hdr->message != GTPV2_CREATE_SESSION_RESPONSE && gtpv2_hdr->message != GTPV2_CREATE_SESSION_REQUEST && gtpv2_hdr->message != GTPV2_UPDATE_BEARER_RESPONSE
@@ -8856,7 +8853,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                 the corresponding session ID */
                 if ((get_frame(pinfo->dst, (guint32)gtpv2_hdr->teid, &frame_teid_cp) == 1)) {
                     /* Then we have to set its session ID */
-                    session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
+                    session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
                     if (session) {
                         /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
                         add_gtp_session(pinfo->num, session);
