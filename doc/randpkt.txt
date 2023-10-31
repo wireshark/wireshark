@@ -52,7 +52,7 @@ in the following locations.
 2) Type in the bytes from your sample packet
 
 	/* Ethernet, indicating ARP */
-	guint8 pkt_arp[] = {
+	uint8_t pkt_arp[] = {
 		0xff, 0xff, 0xff, 0xff,
 		0xff, 0xff, 0x00, 0x00,
 		0x32, 0x25, 0x0f, 0xff,

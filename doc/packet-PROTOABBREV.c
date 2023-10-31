@@ -329,7 +329,7 @@ proto_reg_handoff_PROTOABBREV(void)
          */
         dissector_add_uint_range_with_preference("tcp.port", PROTOABBREV_TCP_PORTS, PROTOABBREV_handle);
 
-        initialized = TRUE;
+        initialized = true;
     } else {
         /* If you perform registration functions which are dependent upon
          * prefs then you should de-register everything which was associated

@@ -48,8 +48,8 @@ each request/response pair, this is a good place to store other additional
 data you may want to keep track of from a request to a response.
 
 	typedef struct _pana_transaction_t {
-	        guint32 req_frame;
-	        guint32 rep_frame;
+	        uint32_t req_frame;
+	        uint32_t rep_frame;
 	        nstime_t req_time;
 	} pana_transaction_t;
 
@@ -71,7 +71,7 @@ Finally for the meat of it, add the conversation and tracking code to the
 actual dissector.
 
 	...
-	guint32 seq_num;
+	uint32_t seq_num;
 	conversation_t *conversation;
 	pana_conv_info_t *pana_info;
 	pana_transaction_t *pana_trans;

@@ -281,7 +281,7 @@ Then we add the following to the conformance file:
 ----
 #.FN_BODY AlgorithmIdentifier/algorithmId
 
-offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+offset = dissect_ber_object_identifier(false, pinfo, tree, tvb, offset,
     hf_x509af_algorithm_id, algorithm_id);
 
 #.FN_BODY AlgorithmIdentifier/parameters
@@ -318,10 +318,10 @@ Until Asn2wrs is enhanced to handle these constructs you MUST add a workaround f
 ----
 #.FN_BODY Degree-Of-Overlap
 
-gint8 class;
-gboolean pc, ind_field;
-gint32 tag;
-gint32 len1;
+int8_t class;
+bool pc, ind_field;
+int32_t tag;
+int32_t len1;
 
 /*
  * XXX asn2wrs can not yet handle tagged assignment yes so this
@@ -330,7 +330,7 @@ gint32 len1;
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index, NULL);
+offset = dissect_ber_integer(true, pinfo, tree, tvb, offset, hf_index, NULL);
 ----
 
 This tells Asn2wrs to not
@@ -338,10 +338,10 @@ autogenerate any code at all for the Degree-Of-Overlap object instead it
 should use the code specified here. Note that we
 do have to specify the implicit_tag value explicitly and we can NOT use
 the parameter passed to the function from the caller (also due to the
-bug in Asn2wrs) this is the TRUE parameter in the call to
-dissect_ber_integer(). We specify TRUE here since
+bug in Asn2wrs) this is the true parameter in the call to
+dissect_ber_integer(). We specify true here since
 the definition of Degree-Of-Overlap was using IMPLICIT tags and would
-have specified FALSE if it was not.
+have specified false if it was not.
 
 The code above can be easily cut-n-pasted into the conformance file with
 the exception of the last line that actually calls the next dissector
@@ -350,7 +350,7 @@ The easiest way to find out exactly what this
 final line should look like in the conformance file; just generate the
 dissector first without this workaround and look at what call was
 generated. Then put that line in the conformance directive and replace
-`implicit_tag` with either TRUE or FALSE depending on whether IMPLICIT
+`implicit_tag` with either true or false depending on whether IMPLICIT
 is used or not.
 
 [#UntaggedCHOICEs]
@@ -597,7 +597,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* create the foo protocol tree */
     if (tree) {
-        foo_item = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
+        foo_item = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
         foo_tree = proto_item_add_subtree(foo_item, ett_foo);
 
         dissect_FOO_MESSAGE_PDU(tvb, pinfo, foo_tree);
@@ -613,7 +613,7 @@ void proto_register_foo(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
                   &ett_foo,
 #include "packet-foo-ettarr.c"
   };
@@ -632,7 +632,7 @@ void proto_register_foo(void) {
 void
 proto_reg_handoff_foo(void)
 {
-    static gboolean inited = FALSE;
+    static bool inited = false;
 
     if( !inited ) {
 
@@ -640,7 +640,7 @@ proto_reg_handoff_foo(void)
                                                      proto_foo);
         dissector_add("udp.port", global_foo_port, foo_handle);
 
-        inited = TRUE;
+        inited = true;
     }
 
 }
@@ -910,7 +910,7 @@ void proto_register_protocol(void) {
   };
 
   /* List of subtrees */
-  static gint *ett[] = {
+  static int *ett[] = {
 #include "packet-protocol-ettarr.c"
   };
 
@@ -1017,7 +1017,7 @@ up. Then we add to the conformance file:
 
 ----
 #.FN_BODY AlgorithmIdentifier/algorithmId
-    offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+    offset = dissect_ber_object_identifier(false, pinfo, tree, tvb, offset,
         hf_x509af_algorithm_id, algorithm_id);
 
 #.FN_BODY AlgorithmIdentifier/parameters
@@ -1196,7 +1196,7 @@ This will result in Asn2wrs creating this wrapper function in the packet-foo.c d
 [source,c]
 ----
 static void dissect_SomeObject_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    dissect_foo_SomeObject(FALSE, ...
+    dissect_foo_SomeObject(false, ...
 }
 ----
 

@@ -209,7 +209,7 @@ strips the parts outlined below:
     o Removed the definition:
 
         #ifndef ENABLE_STATIC
-        WS_DLL_PUBLIC_DEF gchar version[] = VERSION;
+        WS_DLL_PUBLIC_DEF char version[] = VERSION;
         #endif
 
     o Move relevant code from the blocks and delete these functions:
@@ -258,8 +258,8 @@ provide userdata to each entry. The pointer must utilize WS_DLL_PUBLIC_DEF
 and has the following structure:
 
     WS_DLL_PUBLIC_DEF void
-    menu_cb(ext_menubar_gui_type gui_type, gpointer gui_data,
-            gpointer user_data _U_)
+    menu_cb(ext_menubar_gui_type gui_type, void *gui_data,
+            void *user_data _U_)
     {
         ... Do something ...
     }
@@ -269,7 +269,7 @@ The menu entries themselves are generated with the following code structure:
     ext_menu_t * ext_menu, *os_menu = NULL;
 
     ext_menu = ext_menubar_register_menu (
-            <your_proto_item>, "Some Menu Entry", TRUE );
+            <your_proto_item>, "Some Menu Entry", true );
     ext_menubar_add_entry(ext_menu, "Test Entry 1",
             "This is a tooltip", menu_cb, <user_data>);
     ext_menubar_add_entry(ext_menu, "Test Entry 2",
@@ -293,14 +293,14 @@ The following methods exist so far:
 
 	/* Applies the given filter string as display filter */
 	WS_DLL_PUBLIC void plugin_if_apply_filter
-		(const char * filter_string, gboolean force);
+		(const char * filter_string, bool force);
 
 	/* Saves the given preference to the main preference storage */
 	WS_DLL_PUBLIC void plugin_if_save_preference
 		(const char * pref_module, const char * pref_key, const char * pref_value);
 
 	/* Jumps to the given frame number */
-	WS_DLL_PUBLIC void plugin_if_goto_frame(guint32 framenr);
+	WS_DLL_PUBLIC void plugin_if_goto_frame(uint32_t framenr);
 
 6.3 Implement a plugin specific toolbar
 
@@ -329,9 +329,9 @@ To add items to the toolbar, 4 different types of elements do exist.
 
 To add an element to the toolbar, the following function is being used:
 
-    ext_toolbar_add_entry( ext_toolbar_t * parent, ext_toolbar_item_t type, const gchar *label,
-        const gchar *defvalue, const gchar *tooltip, gboolean capture_only, GList * value_list,
-        gboolean is_required, const gchar * regex, ext_toolbar_action_cb callback, gpointer user_data)
+    ext_toolbar_add_entry( ext_toolbar_t * parent, ext_toolbar_item_t type, const char *label,
+        const char *defvalue, const char *tooltip, bool capture_only, GList * value_list,
+        bool is_required, const char * regex, ext_toolbar_action_cb callback, void *user_data)
 
     parent_bar - the parent toolbar for this entry, to be registered by ext_toolbar_register_toolbar
     name - the entry name (the internal used one) for the item, used to send updates to the element
@@ -352,16 +352,16 @@ In case of the toolbar type EXT_TOOLBAR_SELECTOR a value list has to be provided
 is generated using ext_toolbar_add_val():
 
     GList * entries = 0;
-    entries = ext_toolbar_add_val(entries, "1", "ABCD", FALSE );
-    entries = ext_toolbar_add_val(entries, "2", "EFG", FALSE );
-    entries = ext_toolbar_add_val(entries, "3", "HIJ", TRUE );
-    entries = ext_toolbar_add_val(entries, "4", "KLM", FALSE );
+    entries = ext_toolbar_add_val(entries, "1", "ABCD", false );
+    entries = ext_toolbar_add_val(entries, "2", "EFG", false );
+    entries = ext_toolbar_add_val(entries, "3", "HIJ", true );
+    entries = ext_toolbar_add_val(entries, "4", "KLM", false );
 
 6.3.2 Callback for activation of an item
 
 If an item has been activated, the provided callback is being triggered.
 
-    void toolbar_cb(gpointer toolbar_item, gpointer item_data, gpointer user_data)
+    void toolbar_cb(void *toolbar_item, void *item_data, void *user_data)
 
 For EXT_TOOLBAR_BUTTON the callback is triggered upon a click on the button, for
 EXT_TOOLBAR_BOOLEAN and EXT_TOOLBAR_SELECTOR the callback is triggered with every change
@@ -387,7 +387,7 @@ The parameters of the callback are defined as follows:
 A plugin may send updates to the toolbar entry, using one of the following methods. The parameter
 silent defines, if the registered toolbar callback is triggered by the update or not.
 
-    void ext_toolbar_update_value(ext_toolbar_t * entry, gpointer data, gboolean silent)
+    void ext_toolbar_update_value(ext_toolbar_t * entry, void *data, bool silent)
 
     - EXT_TOOLBAR_BUTTON, EXT_TOOLBAR_STRING - the displayed text (on the button or in the textbox)
         are being changed, in that case data is expected to be a string
@@ -396,16 +396,16 @@ silent defines, if the registered toolbar callback is triggered by the update or
     - EXT_TOOLBAR_SELECTOR - the display text to be changed. If no element exists with this text,
         nothing will happen
 
-    void ext_toolbar_update_data(ext_toolbar_t * entry, gpointer data, gboolean silent)
+    void ext_toolbar_update_data(ext_toolbar_t * entry, void *data, bool silent)
 
     - EXT_TOOLBAR_SELECTOR - change the value list to the one provided with data. Attention! this
         does not change the list stored within the item just the one in the displayed combobox
 
-    void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, gpointer data, gpointer value,
-        gboolean silent)
+    void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, void *data, void *value,
+        bool silent)
 
     - EXT_TOOLBAR_SELECTOR - change the display text for the entry with the provided value. Both
-        data and value must be gchar * pointer.
+        data and value must be char * pointer.
 
 
 ----------------

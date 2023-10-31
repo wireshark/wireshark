@@ -59,7 +59,7 @@ Only 4 callbacks and two functions.
 The two functions to start or stop tapping are
 
 register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
-	guint flags,
+	unsigned flags,
 	void (*reset)(void *tapdata),
         tap_packet_status (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data),
 	void (*draw)(void *tapdata),

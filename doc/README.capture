@@ -104,13 +104,13 @@ Capture child (Loop)
 --------------------
 The capture child will open the target capture file, prepare pcap things,
 init stop conditions, init the capture statistic dialog (if not hidden) and
-start a loop which is running until the flag ld.go is FALSE.
+start a loop which is running until the flag ld.go is false.
 
 Inside this loop,
 
 -Qt main things are updated
 -pcap_dispatch(capture_pcap_cb) is called
--the capture stop conditions are checked (ld.go is set to FALSE to finish)
+-the capture stop conditions are checked (ld.go is set to false to finish)
 -update the capture statistic dialog (if not hidden)
 
 While this loop is running, the pcap_dispatch() will call capture_pcap_cb()
@@ -120,7 +120,7 @@ do some basic dissecting (for the statistic window), by calling the
 appropriate capture_xxx function.
 
 When the user triggered a capture stop or one of the capture stop conditions
-matched, the ld.go flag is set to FALSE, and the loop will stop shortly after.
+matched, the ld.go flag is set to false, and the loop will stop shortly after.
 
 
 Capture parent
