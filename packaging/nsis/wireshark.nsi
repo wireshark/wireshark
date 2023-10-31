@@ -1038,10 +1038,8 @@ File "${STAGING_DIR}\tshark.exe"
 File "${STAGING_DIR}\tshark.html"
 SectionEnd
 
-SectionGroup "Plugins & Extensions" SecPluginsGroup
+Section "-Plugins & Extensions"
 
-Section "Codec Plugins" SecCodec
-;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\g711.dll"
 !ifdef SPANDSP_FOUND
@@ -1061,10 +1059,7 @@ File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\ilbc.dll"
 !ifdef OPUS_FOUND
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\opus_dec.dll"
 !endif
-SectionEnd
 
-Section "Configuration Profiles" SecProfiles
-;-------------------------------------------
 ; This should be a function or macro
 SetOutPath '$INSTDIR\profiles\Bluetooth'
 File "${STAGING_DIR}\profiles\Bluetooth\colorfilters"
@@ -1073,10 +1068,7 @@ SetOutPath '$INSTDIR\profiles\Classic'
 File "${STAGING_DIR}\profiles\Classic\colorfilters"
 SetOutPath '$INSTDIR\profiles\No Reassembly'
 File "${STAGING_DIR}\profiles\No Reassembly\preferences"
-SectionEnd
 
-Section "Dissector Plugins" SecPlugins
-;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\ethercat.dll"
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\gryphon.dll"
@@ -1088,23 +1080,14 @@ File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimax.dll"
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimaxasncp.dll"
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimaxmacphy.dll"
 !include "custom_plugins.txt"
-SectionEnd
 
-Section "File Type Plugins - capture file support" SecWiretap
-;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\wiretap'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\wiretap\usbdump.dll"
-SectionEnd
 
-Section "Mate - Meta Analysis and Tracing Engine" SecMate
-;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
-SectionEnd
 
 !ifdef SMI_DIR
-Section "SNMP MIBs" SecMIBs
-;-------------------------------------------
 SetOutPath '$INSTDIR\snmp\mibs'
 File "${SMI_DIR}\share\mibs\iana\*"
 File "${SMI_DIR}\share\mibs\ietf\*"
@@ -1113,94 +1096,51 @@ File "${SMI_DIR}\share\mibs\tubs\*"
 File "${SMI_DIR}\share\pibs\*"
 File "${SMI_DIR}\share\yang\*.yang"
 !include "custom_mibs.txt"
-SectionEnd
 !endif
 
-Section "TRANSUM - performance analysis" SecTransum
-;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\transum.dll"
-SectionEnd
 
-Section "Tree Statistics Plugin" SecStatsTree
-;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\stats_tree.dll"
-SectionEnd
 
-SectionGroupEnd ; "Plugins / Extensions"
+SectionEnd ; "Plugins / Extensions"
 
-SectionGroup "Tools" SecToolsGroup
+Section "-Additional command line tools"
 
-Section "Capinfos" SecCapinfos
-;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\capinfos.exe"
 File "${STAGING_DIR}\capinfos.html"
-SectionEnd
 
-Section "Captype" SecCaptype
-;-------------------------------------------
-SetOutPath $INSTDIR
 File "${STAGING_DIR}\captype.exe"
 File "${STAGING_DIR}\captype.html"
-SectionEnd
 
-Section "Editcap" SecEditcap
-;-------------------------------------------
-SetOutPath $INSTDIR
 File "${STAGING_DIR}\editcap.exe"
 File "${STAGING_DIR}\editcap.html"
-SectionEnd
 
-Section "Mergecap" SecMergecap
-;-------------------------------------------
-SetOutPath $INSTDIR
 File "${STAGING_DIR}\mergecap.exe"
 File "${STAGING_DIR}\mergecap.html"
-SectionEnd
 
 !ifdef MMDBRESOLVE_EXE
-Section "MMDBResolve" SecMMDBResolve
-;-------------------------------------------
-SetOutPath $INSTDIR
 File "${STAGING_DIR}\mmdbresolve.html"
-SetOutPath $INSTDIR
 File "${STAGING_DIR}\mmdbresolve.exe"
-SectionEnd
 !endif
 
-Section /o "Randpkt" SecRandpkt
-;-------------------------------------------
-SetOutPath $INSTDIR
 File "${STAGING_DIR}\randpkt.exe"
 File "${STAGING_DIR}\randpkt.html"
-SectionEnd
 
-Section "Rawshark" SecRawshark
-;-------------------------------------------
-SetOutPath $INSTDIR
 File "${STAGING_DIR}\rawshark.exe"
 File "${STAGING_DIR}\rawshark.html"
-SectionEnd
 
-Section "Reordercap" SecReordercap
-;-------------------------------------------
-SetOutPath $INSTDIR
 File "${STAGING_DIR}\reordercap.exe"
 File "${STAGING_DIR}\reordercap.html"
-SectionEnd
 
-Section "Text2Pcap" SecText2Pcap
-;-------------------------------------------
-SetOutPath $INSTDIR
 File "${STAGING_DIR}\text2pcap.exe"
 File "${STAGING_DIR}\text2pcap.html"
-SectionEnd
 
-SectionGroupEnd ; "Tools"
+SectionEnd ; "Tools"
 
-SectionGroup "External Capture (extcap)" SecExtcapGroup
+SectionGroup /e "External capture tools (extcap)" SecExtcapGroup
 
 Section /o "Androiddump" SecAndroiddump
 ;-------------------------------------------
@@ -1248,8 +1188,8 @@ SectionEnd
 
 !ifdef DOCBOOK_DIR
 !ifdef DOC_DIR
-Section "Documentation" SecDocumentation
-;-------------------------------------------
+Section "-Documentation"
+
 SetOutPath "$INSTDIR\Wireshark User's Guide"
 File /r "${DOCBOOK_DIR}\wsug_html_chunked\*.*"
 
@@ -1565,32 +1505,6 @@ SectionEnd
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "Text based network protocol analyzer."
 
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Plugins and extensions for both ${PROGRAM_NAME} and TShark."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecCodec} "Additional codec support."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecProfiles} "Additional configuration profiles."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Additional protocol dissectors."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiretap} "Extend wiretap support for capture file types. (e.g. usbdump)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin that allows the user to specify how different frames are related to each other."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Extended statistics. (see stats_tree in WSDG; Packet Lengths in WSUG)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecTransum} "Plugin to calculate Response Time Element (RTE) statistics."
-
-!ifdef SMI_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
-!endif
-
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Print information about capture files."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecCaptype} "Print the type(format) of capture files."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimming packets, omitting them, or saving to a different format."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file."
-  !ifdef MMDBRESOLVE_EXE
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool - read IPv4 and IPv6 addresses and print their IP geolocation information."
-  !endif
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpkt} "Create a pcap trace file full of random packets. (randpkt produces very bad packets)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Dump and analyze raw pcap data."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Copy packets to a new file, sorted by time."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Generate a capture file from an ASCII hexdump of packets."
-
   !insertmacro MUI_DESCRIPTION_TEXT ${SecExtcapGroup} "External Capture Interfaces"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecAndroiddump} "Provide capture interfaces from Android devices."
   !ifdef BUILD_etwdump
@@ -1602,9 +1516,6 @@ SectionEnd
   !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdump} "Provide capture interface to receive UDP packets streamed from network devices."
 
-!ifdef DOC_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install an offline copy of the User's Guide and FAQ."
-!endif
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
