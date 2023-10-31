@@ -238,10 +238,23 @@ static const value_string rf4ce_nwk_channel_designators[] = {
 };
 
 /* Profile IDs */
-#define RF4CE_NWK_PROFILE_ID_GDP   0x00
-#define RF4CE_NWK_PROFILE_ID_ZRC10 0x01
-#define RF4CE_NWK_PROFILE_ID_ZID   0x02
-#define RF4CE_NWK_PROFILE_ID_ZRC20 0x03
+#define RF4CE_NWK_PROFILE_ID_GDP            0x00
+#define RF4CE_NWK_PROFILE_ID_ZRC10          0x01
+#define RF4CE_NWK_PROFILE_ID_ZID            0x02
+#define RF4CE_NWK_PROFILE_ID_ZRC20          0x03
+#define RF4CE_NWK_PROFILE_ID_WILDCARD       0xff
+
+/* Vendor IDs */
+#define RF4CE_VENDOR_ID_PANASONIC           0x0001
+#define RF4CE_VENDOR_ID_SONY                0x0002
+#define RF4CE_VENDOR_ID_SAMSUNG             0x0003
+#define RF4CE_VENDOR_ID_PHILIPS             0x0004
+#define RF4CE_VENDOR_ID_FREESCALE           0x0005
+#define RF4CE_VENDOR_ID_OKI                 0x0006
+#define RF4CE_VENDOR_ID_TEXAS_INSTRUMENTS   0x0007
+#define RF4CE_VENDOR_ID_TEST_1              0xfff1
+#define RF4CE_VENDOR_ID_TEST_2              0xfff2
+#define RF4CE_VENDOR_ID_TEST_3              0xfff3
 
 static const value_string rf4ce_nwk_profile_ids[] = {
     { RF4CE_NWK_PROFILE_ID_GDP,   "GDP" },
@@ -611,10 +624,103 @@ static void uat_sec_record_post_update(void)
 
 static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    guint reported_length = tvb_reported_length(tvb);
     guint length = tvb_captured_length(tvb);
+    guint8 fcf;
+    guint8 frame_type;
+    guint8 reserved;
+    guint8 profile_id;
+    guint16 vendor_id;
+    guint8 command_id;
 
-    if (length >= RF4CE_MIN_NWK_LENGTH && length <= RF4CE_MAX_NWK_LENGTH)
+    if (reported_length >= RF4CE_MIN_NWK_LENGTH && reported_length <= RF4CE_MAX_NWK_LENGTH)
     {
+        if (length < RF4CE_MIN_NWK_LENGTH)
+        {
+            return FALSE;
+        }
+        fcf = tvb_get_guint8(tvb, 0);
+        frame_type = fcf & RF4CE_NWK_FCF_FRAME_TYPE_MASK;
+        reserved = (fcf & RF4CE_NWK_FCF_RESERVED_MASK) >> 5;
+
+        switch (frame_type)
+        {
+            case RF4CE_NWK_FCF_FRAME_TYPE_DATA:
+            case RF4CE_NWK_FCF_FRAME_TYPE_CMD:
+            case RF4CE_NWK_FCF_FRAME_TYPE_VENDOR_SPECIFIC:
+                /* Accepted frame types */
+                break;
+
+            default:
+                return FALSE;
+        }
+        /* Reserved value must be 1 */
+        if (reserved != 1)
+        {
+            return FALSE;
+        }
+        if((frame_type == RF4CE_NWK_FCF_FRAME_TYPE_DATA) || (frame_type == RF4CE_NWK_FCF_FRAME_TYPE_VENDOR_SPECIFIC))
+        {
+            if (length < 6)
+            {
+                return FALSE;
+            }
+            profile_id = tvb_get_guint8(tvb, 5);
+            if ((profile_id >= 0x04) && (profile_id <= 0xbf))
+            {
+                return FALSE;
+            }
+            if (frame_type == RF4CE_NWK_FCF_FRAME_TYPE_VENDOR_SPECIFIC)
+            {
+                if (length < 8)
+                {
+                    return FALSE;
+                }
+                vendor_id = tvb_get_letohs(tvb, 6);
+                switch (vendor_id)
+                {
+                    case RF4CE_VENDOR_ID_PANASONIC:
+                    case RF4CE_VENDOR_ID_SONY:
+                    case RF4CE_VENDOR_ID_SAMSUNG:
+                    case RF4CE_VENDOR_ID_PHILIPS:
+                    case RF4CE_VENDOR_ID_FREESCALE:
+                    case RF4CE_VENDOR_ID_OKI:
+                    case RF4CE_VENDOR_ID_TEXAS_INSTRUMENTS:
+                    case RF4CE_VENDOR_ID_TEST_1:
+                    case RF4CE_VENDOR_ID_TEST_2:
+                    case RF4CE_VENDOR_ID_TEST_3:
+                        /* Allowed vendor IDs */
+                        break;
+
+                    default:
+                        return FALSE;
+                }
+            }
+        }
+        else if(frame_type == RF4CE_NWK_FCF_FRAME_TYPE_CMD)
+        {
+            if (length < 6)
+            {
+                return FALSE;
+            }
+            command_id = tvb_get_guint8(tvb, 5);
+            switch (command_id)
+            {
+                case RF4CE_NWK_CMD_DISCOVERY_REQ:
+                case RF4CE_NWK_CMD_DISCOVERY_RSP:
+                case RF4CE_NWK_CMD_PAIR_REQ:
+                case RF4CE_NWK_CMD_PAIR_RSP:
+                case RF4CE_NWK_CMD_UNPAIR_REQ:
+                case RF4CE_NWK_CMD_KEY_SEED:
+                case RF4CE_NWK_CMD_PING_REQ:
+                case RF4CE_NWK_CMD_PING_RSP:
+                    /* Allowed command IDs */
+                    break;
+
+                default:
+                    return FALSE;
+            }
+        }
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RF4CE NWK");
         col_clear(pinfo->cinfo, COL_INFO);
 
@@ -622,7 +728,6 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
 
         return TRUE;
     }
-
     return FALSE;
 }
 
