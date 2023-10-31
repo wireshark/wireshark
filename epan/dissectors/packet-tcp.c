@@ -7922,7 +7922,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             tcph->th_seglen = reported_len - tcph->th_hlen;
             tcph->th_have_seglen = TRUE;
 
-            pi = proto_tree_add_uint(ti, hf_tcp_len, tvb, offset+12, 1, tcph->th_seglen);
+            pi = proto_tree_add_uint(ti, hf_tcp_len, tvb, 0, 0, tcph->th_seglen);
             proto_item_set_generated(pi);
 
             /* initialize base_seq numbers */
