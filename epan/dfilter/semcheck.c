@@ -779,34 +779,58 @@ check_slice(dfwork_t *dfw, stnode_t *st, ftenum_t logical_ftype)
 {
 	stnode_t		*entity1;
 	header_field_info	*hfinfo1;
-	ftenum_t		ftype1;
+	sttype_id_t		sttype1;
+	ftenum_t		ftype1 = FT_NONE;
 
 	LOG_NODE(st);
 
 	entity1 = sttype_slice_entity(st);
 	ws_assert(entity1);
+	sttype1 = stnode_type_id(entity1);
 
-	if (stnode_type_id(entity1) == STTYPE_FIELD) {
-		dfw->field_count++;
-		hfinfo1 = sttype_field_hfinfo(entity1);
-		ftype1 = sttype_field_ftenum(entity1);
+	switch (sttype1) {
+		case STTYPE_FIELD:
+			dfw->field_count++;
+			/* fall-through */
+		case STTYPE_REFERENCE:
+			hfinfo1 = sttype_field_hfinfo(entity1);
+			ftype1 = sttype_field_ftenum(entity1);
 
-		if (!ftype_can_slice(ftype1)) {
-			FAIL(dfw, entity1, "\"%s\" is a %s and cannot be sliced into a sequence of bytes.",
-					hfinfo1->abbrev, ftype_pretty_name(ftype1));
-		}
-	} else if (stnode_type_id(entity1) == STTYPE_FUNCTION) {
-		ftype1 = check_function(dfw, entity1, logical_ftype);
+			if (!ftype_can_slice(ftype1)) {
+				FAIL(dfw, entity1, "\"%s\" is a %s and cannot be sliced into a sequence of bytes.",
+						hfinfo1->abbrev, ftype_pretty_name(ftype1));
+			}
+			break;
 
-		if (!ftype_can_slice(ftype1)) {
-			FAIL(dfw, entity1, "Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
-					sttype_function_name(entity1), ftype_pretty_name(ftype1));
-		}
-	} else if (stnode_type_id(entity1) == STTYPE_SLICE) {
-		ftype1 = check_slice(dfw, entity1, logical_ftype);
-	} else {
-		FAIL(dfw, entity1, "Range is not supported for entity %s",
-					stnode_todisplay(entity1));
+		case STTYPE_FUNCTION:
+			ftype1 = check_function(dfw, entity1, logical_ftype);
+
+			if (!ftype_can_slice(ftype1)) {
+				FAIL(dfw, entity1, "Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
+						sttype_function_name(entity1), ftype_pretty_name(ftype1));
+			}
+			break;
+
+		case STTYPE_SLICE:
+			ftype1 = check_slice(dfw, entity1, logical_ftype);
+			break;
+
+		case STTYPE_LITERAL:
+		case STTYPE_STRING:
+		case STTYPE_CHARCONST:
+		case STTYPE_NUMBER:
+			FAIL(dfw, entity1, "Range is not supported for entity %s",
+						stnode_todisplay(entity1));
+
+		case STTYPE_UNINITIALIZED:
+		case STTYPE_NUM_TYPES:
+		case STTYPE_PCRE:
+		case STTYPE_FVALUE:
+		case STTYPE_TEST:
+		case STTYPE_ARITHMETIC:
+		case STTYPE_SET:
+			ASSERT_STTYPE_NOT_REACHED(sttype1);
+
 	}
 
 	return FT_IS_STRING(ftype1) ? FT_STRING : FT_BYTES;
