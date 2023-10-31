@@ -437,11 +437,39 @@ WS_DLL_PUBLIC guint32 tvb_get_ipv4(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC void tvb_get_ipv6(tvbuff_t *tvb, const gint offset,
     ws_in6_addr *addr);
 
+/**
+* Fetches an IPv4 address from a tvbuff and
+* masks out bits other than those covered by a prefix length
+*
+* @param tvb tvbuff to read an IPv4 address from
+* @param offset offset in the tvbuff to read the IPv4 address from
+* @param addr memory location where the IPv4 address read should be stored
+* @param prefix_len the length of the prefix (in bits)
+* @return the length (in bytes) of the address on success, or -1 on failure
+*/
+extern int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
+    ws_in4_addr *addr, guint32 prefix_len);
+
+/**
+* Fetches an IPv6 address from a tvbuff and
+* masks out bits other than those covered by a prefix length
+*
+* @param tvb tvbuff to read an IPv6 address from
+* @param offset offset in the tvbuff to read the IPv6 address from
+* @param addr memory location where the IPv6 address read should be stored
+* @param prefix_len the length of the prefix (in bits)
+* @return the length (in bytes) of the address on success, or -1 on failure
+*/
+extern int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset,
+    ws_in6_addr *addr, guint32 prefix_len);
+
 /* Fetch a GUID. */
 WS_DLL_PUBLIC void tvb_get_ntohguid(tvbuff_t *tvb, const gint offset,
     e_guid_t *guid);
+
 WS_DLL_PUBLIC void tvb_get_letohguid(tvbuff_t *tvb, const gint offset,
     e_guid_t *guid);
+
 WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const gint offset,
     e_guid_t *guid, const guint encoding);
 
@@ -456,12 +484,15 @@ WS_DLL_PUBLIC guint8* tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb,
 /* get 1 - 8 bits returned in a guint8 */
 WS_DLL_PUBLIC guint8 tvb_get_bits8(tvbuff_t *tvb, guint bit_offset,
     const gint no_of_bits);
+
 /* get 1 - 16 bits returned in a guint16 */
 WS_DLL_PUBLIC guint16 tvb_get_bits16(tvbuff_t *tvb, guint bit_offset,
     const gint no_of_bits, const guint encoding);
+
 /* get 1 - 32 bits returned in a guint32 */
 WS_DLL_PUBLIC guint32 tvb_get_bits32(tvbuff_t *tvb, guint bit_offset,
     const gint no_of_bits, const guint encoding);
+
 /* get 1 - 64 bits returned in a guint64 */
 WS_DLL_PUBLIC guint64 tvb_get_bits64(tvbuff_t *tvb, guint bit_offset,
     const gint no_of_bits, const guint encoding);

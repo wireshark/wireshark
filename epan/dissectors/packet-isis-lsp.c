@@ -27,7 +27,6 @@
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include <epan/addr_resolv.h>
-#include <epan/addr_and_mask.h>
 
 /*
  * Declarations for L1/L2 LSP base header.

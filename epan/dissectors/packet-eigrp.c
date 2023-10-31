@@ -16,7 +16,6 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/addr_and_mask.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 

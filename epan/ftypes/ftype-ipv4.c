@@ -11,7 +11,6 @@
 #include <string.h>
 
 #include <ftypes-int.h>
-#include <epan/addr_and_mask.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/bits_count_ones.h>
 #include <wsutil/strtoi.h>
