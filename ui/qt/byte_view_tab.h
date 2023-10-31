@@ -47,6 +47,7 @@ signals:
     void fieldSelected(FieldInformation *);
     void fieldHighlight(FieldInformation *);
     void byteViewSettingsChanged(void);
+    void byteViewUnmarkField(void);
     void detachData(void);
 
 private:

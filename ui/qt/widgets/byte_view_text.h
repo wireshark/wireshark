@@ -55,6 +55,7 @@ public slots:
     void markProtocol(int start, int length);
     void markField(int start, int length, bool scroll_to = true);
     void markAppendix(int start, int length);
+    void unmarkField();
 
 protected:
     virtual void paintEvent(QPaintEvent *);
