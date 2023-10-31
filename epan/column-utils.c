@@ -33,7 +33,7 @@
 #include <epan/epan.h>
 #include <epan/dfilter/dfilter.h>
 
-#include <wsutil/inet_netw.h>
+#include <wsutil/inet_cidr.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/unicode-utils.h>

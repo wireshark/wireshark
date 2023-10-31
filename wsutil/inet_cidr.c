@@ -7,11 +7,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "inet_netw.h"
+#include "inet_cidr.h"
 
 
-guint32
-ws_ipv4_get_subnet_mask(const guint32 mask_length)
+uint32_t
+ws_ipv4_get_subnet_mask(const uint32_t mask_length)
 {
 	static const guint32 masks[33] = {
 		0x00000000,

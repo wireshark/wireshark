@@ -40,8 +40,8 @@ typedef struct {
 * @return the subnet mask of the specified length
 */
 WS_DLL_PUBLIC
-guint32
-ws_ipv4_get_subnet_mask(const guint32 mask_length);
+uint32_t
+ws_ipv4_get_subnet_mask(const uint32_t mask_length);
 
 WS_DLL_PUBLIC
 void

@@ -22,7 +22,7 @@
 
 #include <epan/address.h>
 #include <epan/tvbuff.h>
-#include <wsutil/inet_netw.h>
+#include <wsutil/inet_cidr.h>
 #include <epan/to_str.h>
 #include <wiretap/wtap.h>
 #include "ws_symbol_export.h"

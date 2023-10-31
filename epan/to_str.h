@@ -14,7 +14,7 @@
 #include <glib.h>
 
 #include "wsutil/nstime.h"
-#include <wsutil/inet_netw.h>
+#include <wsutil/inet_cidr.h>
 #include <epan/proto.h>
 #include <epan/packet_info.h>
 #include "ws_symbol_export.h"

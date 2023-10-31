@@ -31,7 +31,7 @@
 #include <epan/oids.h>
 #include <epan/secrets.h>
 
-#include <wsutil/inet_netw.h>
+#include <wsutil/inet_cidr.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>

@@ -88,7 +88,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/file_util.h>
 #include <wsutil/pint.h>
-#include <wsutil/inet_netw.h>
+#include <wsutil/inet_cidr.h>
 
 #include <epan/strutil.h>
 #include <epan/to_str.h>

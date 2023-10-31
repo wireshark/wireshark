@@ -14,7 +14,7 @@
 #include <epan/addr_resolv.h>
 #include <wsutil/bits_count_ones.h>
 #include <wsutil/strtoi.h>
-#include <wsutil/inet_netw.h>
+#include <wsutil/inet_cidr.h>
 
 static void
 value_set_ipv4(fvalue_t *fv, const ipv4_addr_and_mask *ipv4)

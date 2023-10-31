@@ -25,7 +25,7 @@
 #include <epan/guid-utils.h>
 #include <epan/wmem_scopes.h>
 
-#include <wsutil/inet_netw.h>
+#include <wsutil/inet_cidr.h>
 #include <wsutil/nstime.h>
 #include "wsutil/ws_mempbrk.h"
 

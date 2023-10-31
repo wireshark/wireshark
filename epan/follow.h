@@ -15,7 +15,7 @@
 
 #include <epan/epan.h>
 #include <epan/packet.h>
-#include <wsutil/inet_netw.h>
+#include <wsutil/inet_cidr.h>
 #include <epan/tap.h>
 #include <epan/wmem_scopes.h>
 #include "ws_symbol_export.h"

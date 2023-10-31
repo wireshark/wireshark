@@ -286,7 +286,7 @@ ftype_can_val_to_uinteger64(enum ftenum ftype);
 
 /* ---------------- FVALUE ----------------- */
 
-#include <wsutil/inet_netw.h>
+#include <wsutil/inet_cidr.h>
 #include <epan/guid-utils.h>
 
 #include <epan/tvbuff.h>
