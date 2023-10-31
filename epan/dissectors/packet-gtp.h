@@ -161,7 +161,7 @@ typedef struct session_args {
 } session_args_t;
 
 /* Relation between frame -> session */
-extern GHashTable* session_table;
+extern wmem_map_t* session_table;
 
 /* Relation between <teid,ip> -> frame */
 extern wmem_map_t* frame_map;
