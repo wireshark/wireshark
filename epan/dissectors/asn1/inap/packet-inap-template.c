@@ -54,6 +54,7 @@ static dissector_handle_t	inap_handle;
 static guint32 opcode=0;
 static guint32 errorCode=0;
 static const char *obj_id = NULL;
+static gboolean is_ExtensionField =FALSE;
 
 static int inap_opcode_type;
 #define INAP_OPCODE_INVOKE        1
@@ -154,6 +155,7 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   /* Get the length and add 2 */
   inap_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
   opcode = 0;
+  is_ExtensionField =FALSE;
   dissect_inap_ROS(TRUE, tvb, offset, &asn1_ctx, tree, -1);
 
   return inap_pdu_size;
