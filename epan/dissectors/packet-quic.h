@@ -86,6 +86,8 @@ quic_add_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, gint offset, c
 void
 quic_add_multipath(packet_info *pinfo);
 void
+quic_add_grease_quic_bit(packet_info *pinfo);
+void
 quic_proto_tree_add_version(tvbuff_t *tvb, proto_tree *tree, int hfindex, guint offset);
 
 /**

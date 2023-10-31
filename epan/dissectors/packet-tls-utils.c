@@ -8445,6 +8445,10 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                     offset += 4;
                 }
             break;
+            case SSL_HND_QUIC_TP_GREASE_QUIC_BIT:
+                /* No Payload */
+                quic_add_grease_quic_bit(pinfo);
+            break;
             case SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_facebook_partial_reliability,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
