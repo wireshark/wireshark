@@ -7,7 +7,7 @@
 #ifndef __PACKET_6LOWPAN_H__
 #define __PACKET_6LOWPAN_H__
 
-#include <wsutil/inet_ipv6.h>
+#include <wsutil/inet_addr.h>
 
 /* Inserts new compression context information into the 6LoWPAN context table.
  * The compression context is distributed via some options added to the neighbor

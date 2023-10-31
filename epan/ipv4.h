@@ -17,7 +17,7 @@
 #define __IPV4_H__
 
 #include <wireshark.h>
-#include <wsutil/inet_ipv4.h>
+#include <wsutil/inet_addr.h>
 
 typedef struct {
 	guint32	addr;	/* stored in host order */

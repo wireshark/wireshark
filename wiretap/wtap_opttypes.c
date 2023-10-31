@@ -20,7 +20,6 @@
 #include <wsutil/ws_assert.h>
 
 #include <wsutil/glib-compat.h>
-#include <wsutil/inet_ipv6.h>
 #include <wsutil/unicode-utils.h>
 
 #if 0

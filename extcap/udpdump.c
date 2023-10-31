@@ -253,7 +253,7 @@ static int dump_packet(const char* proto_name, const uint16_t listenport, const 
 
 	add_proto_name(mbuf, &offset, proto_name);
 	add_ip_source_address(mbuf, &offset, clientaddr.sin_addr.s_addr);
-	add_ip_dest_address(mbuf, &offset, WS_IN4_LOOPBACK);
+	add_ip_dest_address(mbuf, &offset, g_htonl(INADDR_LOOPBACK));
 	add_udp_source_port(mbuf, &offset, clientaddr.sin_port);
 	add_udp_dst_port(mbuf, &offset, listenport);
 	add_end_options(mbuf, &offset);

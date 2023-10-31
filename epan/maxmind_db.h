@@ -14,8 +14,7 @@
 #define __MAXMIND_DB_H__
 
 #include <epan/prefs.h>
-#include <wsutil/inet_ipv4.h>
-#include <wsutil/inet_ipv6.h>
+#include <wsutil/inet_addr.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

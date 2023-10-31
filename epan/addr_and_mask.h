@@ -14,8 +14,7 @@
 #define __ADDR_AND_MASK_H__
 
 #include <epan/tvbuff.h>
-#include <wsutil/inet_ipv4.h>
-#include <wsutil/inet_ipv6.h>
+#include <wsutil/inet_addr.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -14,7 +14,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
-#include <wsutil/inet_ipv6.h>
 #include <wsutil/utf8_entities.h>
 
 #include "packet-netmon.h"

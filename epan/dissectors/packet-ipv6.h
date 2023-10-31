@@ -11,7 +11,7 @@
 #define __PACKET_IPV6_H__
 
 #include <inttypes.h>
-#include <wsutil/inet_ipv6.h>
+#include <wsutil/inet_addr.h>
 
 #define IPv6_ADDR_SIZE          16
 #define IPv6_HDR_SIZE           40

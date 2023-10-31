@@ -18,7 +18,7 @@
 #define __IPV6_UTILS_H__
 
 #include <wireshark.h>
-#include <wsutil/inet_ipv6.h>
+#include <wsutil/inet_addr.h>
 
 typedef struct {
 	ws_in6_addr addr;

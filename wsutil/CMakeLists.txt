@@ -102,8 +102,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	filesystem.h
 	g711.h
 	inet_addr.h
-	inet_ipv4.h
-	inet_ipv6.h
 	interface.h
 	introspection.h
 	jsmn.h
