@@ -510,10 +510,10 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 		if (strcmp(name, "frame")) {
 			col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "JSON");
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "JavaScript Object Notation");
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "JSON");
 		} else {
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "JSON");
-			col_set_str(pinfo->cinfo, COL_INFO, "JavaScript Object Notation");
+			col_set_str(pinfo->cinfo, COL_INFO, "JSON");
 		}
 	}
 
