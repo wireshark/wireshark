@@ -83,14 +83,13 @@
 
 #include "packet.h"
 #include "addr_and_mask.h"
-#include "ipv6.h"
 #include "addr_resolv.h"
 #include "wsutil/filesystem.h"
 
 #include <wsutil/report_message.h>
 #include <wsutil/file_util.h>
 #include <wsutil/pint.h>
-#include <wsutil/inet_addr.h>
+#include <wsutil/inet_netw.h>
 
 #include <epan/strutil.h>
 #include <epan/to_str.h>
@@ -2727,7 +2726,7 @@ subnet_name_lookup_init(void)
 
         subnet_length_entries[i].subnet_addresses  = NULL;
         subnet_length_entries[i].mask_length  = length;
-        subnet_length_entries[i].mask = g_htonl(ip_get_subnet_mask(length));
+        subnet_length_entries[i].mask = g_htonl(ws_ipv4_get_subnet_mask(length));
     }
 
     /* Check profile directory before personal configuration */

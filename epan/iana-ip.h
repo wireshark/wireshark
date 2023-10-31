@@ -10,8 +10,7 @@
 #define __IANA_IP_H__
 
 #include <wireshark.h>
-#include <epan/ipv4.h>
-#include <epan/ipv6.h>
+#include <wsutil/inet_netw.h>
 
 #ifdef __cplusplus
 extern "C" {

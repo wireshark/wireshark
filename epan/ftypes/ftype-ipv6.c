@@ -11,9 +11,9 @@
 #include <string.h>
 
 #include <ftypes-int.h>
-#include <epan/ipv6.h>
 #include <epan/addr_resolv.h>
 #include <epan/to_str.h>
+#include <wsutil/inet_netw.h>
 #include <wsutil/strtoi.h>
 
 static bool

@@ -29,7 +29,7 @@
 
 #include <epan/wmem_scopes.h>
 
-#include "ipv4.h"
+#include "wsutil/inet_netw.h"
 #include "wsutil/nstime.h"
 #include "tvbuff.h"
 #include "value_string.h"

@@ -56,14 +56,6 @@ extern int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
 extern int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset,
     ws_in6_addr *addr, guint32 prefix_len);
 
-/**
-* Returns the IPv4 subnet mask of the specified length
-*
-* @param mask_length the number of bits in the subnet mask (max of 32)
-* @return the subnet mask of the specified length
-*/
-guint32 ip_get_subnet_mask(const guint32 mask_length);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

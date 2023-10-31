@@ -102,6 +102,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	filesystem.h
 	g711.h
 	inet_addr.h
+	inet_netw.h
 	interface.h
 	introspection.h
 	jsmn.h
@@ -172,6 +173,7 @@ set(WSUTIL_COMMON_FILES
 	filter_files.c
 	g711.c
 	inet_addr.c
+	inet_netw.c
 	interface.c
 	introspection.c
 	jsmn.c

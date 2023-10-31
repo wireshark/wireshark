@@ -103,8 +103,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	iana-ip.h
 	ip_opts.h
 	ipproto.h
-	ipv4.h
-	ipv6.h
 	lapd_sapi.h
 	llcsaps.h
 	maxmind_db.h
@@ -216,8 +214,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	in_cksum.c
 	introspection.c
 	ipproto.c
-	ipv4.c
-	ipv6.c
 	manuf.c
 	maxmind_db.c
 	media_params.c

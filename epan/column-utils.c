@@ -23,7 +23,6 @@
 #include "wsutil/pint.h"
 #include "addr_resolv.h"
 #include "address_types.h"
-#include "ipv6.h"
 #include "osi-utils.h"
 #include "value_string.h"
 #include "column-info.h"
@@ -34,6 +33,7 @@
 #include <epan/epan.h>
 #include <epan/dfilter/dfilter.h>
 
+#include <wsutil/inet_netw.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/unicode-utils.h>

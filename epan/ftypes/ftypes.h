@@ -286,8 +286,7 @@ ftype_can_val_to_uinteger64(enum ftenum ftype);
 
 /* ---------------- FVALUE ----------------- */
 
-#include <epan/ipv4.h>
-#include <epan/ipv6.h>
+#include <wsutil/inet_netw.h>
 #include <epan/guid-utils.h>
 
 #include <epan/tvbuff.h>

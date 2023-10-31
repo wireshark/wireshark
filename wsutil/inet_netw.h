@@ -24,6 +24,25 @@ typedef struct {
 	guint32	nmask;	/* stored in host order */
 } ipv4_addr_and_mask;
 
+typedef struct {
+	ws_in6_addr addr;
+	guint32 prefix;
+} ipv6_addr_and_prefix;
+
+/*
+ ********** IPv4 *********
+ */
+
+/**
+* Returns the IPv4 subnet mask of the specified length
+*
+* @param mask_length the number of bits in the subnet mask (max of 32)
+* @return the subnet mask of the specified length
+*/
+WS_DLL_PUBLIC
+guint32
+ws_ipv4_get_subnet_mask(const guint32 mask_length);
+
 WS_DLL_PUBLIC
 void
 ws_ipv4_addr_and_mask_init(ipv4_addr_and_mask *dst, ws_in4_addr src_addr, int src_bits);
@@ -31,5 +50,13 @@ ws_ipv4_addr_and_mask_init(ipv4_addr_and_mask *dst, ws_in4_addr src_addr, int sr
 WS_DLL_PUBLIC
 bool
 ws_ipv4_addr_and_mask_contains(const ipv4_addr_and_mask *ipv4, const ws_in4_addr *addr);
+
+/*
+ ********** IPv6 *********
+ */
+
+WS_DLL_PUBLIC
+bool
+ws_ipv6_addr_and_prefix_contains(const ipv6_addr_and_prefix *ipv6, const ws_in6_addr *addr);
 
 #endif

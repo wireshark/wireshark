@@ -24,8 +24,8 @@
 #include <glib.h>
 #include <epan/guid-utils.h>
 #include <epan/wmem_scopes.h>
-#include <epan/ipv6.h>
 
+#include <wsutil/inet_netw.h>
 #include <wsutil/nstime.h>
 #include "wsutil/ws_mempbrk.h"
 

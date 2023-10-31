@@ -14,10 +14,9 @@
 #include <glib.h>
 
 #include "wsutil/nstime.h"
-#include <wsutil/inet_addr.h>
+#include <wsutil/inet_netw.h>
 #include <epan/proto.h>
 #include <epan/packet_info.h>
-#include <epan/ipv6.h>
 #include "ws_symbol_export.h"
 #include <epan/wmem_scopes.h>
 #include <wsutil/to_str.h>

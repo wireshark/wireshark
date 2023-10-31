@@ -17,7 +17,7 @@
 #include "tvbuff.h"
 #include <epan/wmem_scopes.h>
 #include <wsutil/ws_assert.h>
-#include <epan/ipv4.h>
+#include <wsutil/inet_netw.h>
 
 #ifdef __cplusplus
 extern "C" {

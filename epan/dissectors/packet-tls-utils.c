@@ -25,13 +25,13 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
-#include <epan/ipv6.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <epan/oids.h>
 #include <epan/secrets.h>
 
+#include <wsutil/inet_netw.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>

@@ -11,11 +11,11 @@
 #include <string.h>
 
 #include <ftypes-int.h>
-#include <epan/ipv4.h>
 #include <epan/addr_and_mask.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/bits_count_ones.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/inet_netw.h>
 
 static void
 value_set_ipv4(fvalue_t *fv, const ipv4_addr_and_mask *ipv4)
@@ -84,11 +84,11 @@ val_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char
 			}
 			return false;
 		}
-		fv->value.ipv4.nmask = ip_get_subnet_mask(nmask_bits);
+		fv->value.ipv4.nmask = ws_ipv4_get_subnet_mask(nmask_bits);
 	}
 	else {
 		/* Not CIDR; mask covers entire address. */
-		fv->value.ipv4.nmask = ip_get_subnet_mask(32);
+		fv->value.ipv4.nmask = ws_ipv4_get_subnet_mask(32);
 	}
 
 	return true;
