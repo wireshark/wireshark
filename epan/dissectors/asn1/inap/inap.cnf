@@ -170,6 +170,7 @@ static const inap_err_t inap_err_tab[] = {
 
 #.FN_BODY Code/local  VAL_PTR = &opcode
   %(DEFAULT_BODY)s
+  if (is_ExtensionField == FALSE){
     if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
       errorCode = opcode;
       col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%%u)"));
@@ -180,6 +181,7 @@ static const inap_err_t inap_err_tab[] = {
       col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
       col_set_fence(actx->pinfo->cinfo, COL_INFO);
     }
+ }
 
 #.FN_HDR Invoke
 
@@ -228,6 +230,7 @@ static const inap_err_t inap_err_tab[] = {
 
 #.FN_HDR ExtensionField
   obj_id = NULL;
+  is_ExtensionField =TRUE;
 
 #.FN_PARS Code/global FN_VARIANT = _str  VAL_PTR = &obj_id
 
@@ -240,6 +243,7 @@ static const inap_err_t inap_err_tab[] = {
     call_data_dissector(tvb, actx->pinfo, ext_tree);
     offset = tvb_reported_length_remaining(tvb,offset);
   }
+  is_ExtensionField = FALSE;
 
 
 

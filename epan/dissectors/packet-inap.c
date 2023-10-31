@@ -1010,6 +1010,7 @@ static dissector_handle_t	inap_handle;
 static guint32 opcode=0;
 static guint32 errorCode=0;
 static const char *obj_id = NULL;
+static gboolean is_ExtensionField =FALSE;
 
 static int inap_opcode_type;
 #define INAP_OPCODE_INVOKE        1
@@ -1438,6 +1439,7 @@ dissect_inap_T_code_local(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &opcode);
 
+  if (is_ExtensionField == FALSE){
     if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
       errorCode = opcode;
       col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%u)"));
@@ -1448,6 +1450,7 @@ dissect_inap_T_code_local(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
       col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
       col_set_fence(actx->pinfo->cinfo, COL_INFO);
     }
+ }
 
 
   return offset;
@@ -1496,6 +1499,7 @@ dissect_inap_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
     call_data_dissector(tvb, actx->pinfo, ext_tree);
     offset = tvb_reported_length_remaining(tvb,offset);
   }
+  is_ExtensionField = FALSE;
 
 
 
@@ -1514,6 +1518,7 @@ static const ber_sequence_t ExtensionField_sequence[] = {
 static int
 dissect_inap_ExtensionField(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   obj_id = NULL;
+  is_ExtensionField =TRUE;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ExtensionField_sequence, hf_index, ett_inap_ExtensionField);
@@ -9379,6 +9384,7 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   /* Get the length and add 2 */
   inap_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
   opcode = 0;
+  is_ExtensionField =FALSE;
   dissect_inap_ROS(TRUE, tvb, offset, &asn1_ctx, tree, -1);
 
   return inap_pdu_size;
