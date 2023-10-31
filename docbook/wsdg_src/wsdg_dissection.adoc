@@ -753,7 +753,7 @@ effect.
     offset ++;
     if (flags & FLAG_COMPRESSED) { /* the remainder of the packet is compressed */
         uint16_t orig_size = tvb_get_ntohs(tvb, offset);
-        guchar *decompressed_buffer = (guchar*)wmem_alloc(pinfo->pool, orig_size);
+        unsigned char *decompressed_buffer = (unsigned char*)wmem_alloc(pinfo->pool, orig_size);
         offset += 2;
         decompress_packet(tvb_get_ptr(tvb, offset, -1),
                 tvb_captured_length_remaining(tvb, offset),

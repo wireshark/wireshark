@@ -43,7 +43,7 @@ definition, which is the enum of all possible ftypes:
 enum ftenum {
 	FT_NONE,	/* used for text labels with no value */
 	FT_PROTOCOL,
-	FT_BOOLEAN,	/* TRUE and FALSE come from <glib.h> */
+	FT_BOOLEAN,
 	FT_CHAR,	/* 1-octet character as 0-255 */
 	FT_UINT8,
 	FT_UINT16,
@@ -67,11 +67,11 @@ typedef struct _fvalue_t {
 	ftype_t	*ftype;
 	union {
 		/* Put a few basic types in here */
-		guint32			uinteger;
-		gint32			sinteger;
-		guint64			uinteger64;
-		gint64			sinteger64;
-		gdouble			floating;
+		uint32_t		uinteger;
+		int32_t			sinteger;
+		uint64_t		uinteger64;
+		int64_t			sinteger64;
+		double			floating;
 		wmem_strbuf_t		*strbuf;
 		GByteArray		*bytes;
 		ipv4_addr_and_mask	ipv4;
@@ -79,8 +79,8 @@ typedef struct _fvalue_t {
 		e_guid_t		guid;
 		nstime_t		time;
 		protocol_value_t 	protocol;
-		guint16			sfloat_ieee_11073;
-		guint32			float_ieee_11073;
+		uint16_t		sfloat_ieee_11073;
+		uint32_t		float_ieee_11073;
 	} value;
 } fvalue_t;
 
@@ -297,7 +297,7 @@ faster.
 
 The dfilter_apply() function runs a single pre-compiled
 display filter against a single proto_tree function, and returns
-TRUE or FALSE, meaning that the filter matched or not.
+true or false, meaning that the filter matched or not.
 
 That function calls dfvm_apply(), which runs across the DFVM
 instructions, loading protocol field values into DFVM registers
@@ -339,7 +339,7 @@ This is what happens in this example:
 
 Any ip.addr fields in the proto_tree are loaded into register 0. Yes,
 multiple values can be loaded into a single register. As a result
-of this READ_TREE, the accumulator will hold TRUE or FALSE, indicating
+of this READ_TREE, the accumulator will hold true or false, indicating
 if any field's value was loaded, or not.
 
 00001 IF-FALSE-GOTO     3
@@ -353,12 +353,12 @@ This checks to see if any of the fields in register 1
 (which has the pre-loaded constant value of 127.0.0.1) are equal
 to any of the fields in register 0 (which are all of the ip.addr
 fields in the proto tree). The resulting value in the
-accumulator will be TRUE if any of the fields match, or FALSE
+accumulator will be true if any of the fields match, or false
 if none match.
 
 00003 RETURN
 
-This returns the accumulator's value, either TRUE or FALSE.
+This returns the accumulator's value, either true or false.
 
 In addition to dftest, there is also a unit-test script for the
 display filter engine - test/suite_dfilter/dfiltertest.py.
@@ -378,8 +378,8 @@ typedef struct {
     char            *name;
     DFFuncType      function;
     ftenum_t        retval_ftype;
-    guint           min_nargs;
-    guint           max_nargs;
+    unsigned        min_nargs;
+    unsigned        max_nargs;
     DFSemCheckType  semcheck_param_function;
 } df_func_def_t;
 
@@ -398,10 +398,10 @@ semcheck_param_function - called during the semantic check of the
 
 DFFuncType function
 -------------------
-typedef gboolean (*DFFuncType)(GList *arg1list, GList *arg2list, GList **retval);
+typedef bool (*DFFuncType)(GList *arg1list, GList *arg2list, GList **retval);
 
-The return value of your function is a gboolean; TRUE if processing went fine,
-or FALSE if there was some sort of exception.
+The return value of your function is a bool; true if processing went fine,
+or false if there was some sort of exception.
 
 For now, display filter functions can accept a maximum of 2 arguments.
 The "arg1list" parameter is the GList for the first argument. The
@@ -411,7 +411,7 @@ filter language a protocol field may have multiple instances. For example,
 a field like "ip.addr" will exist more than once in a single frame. So
 when the user invokes this display filter:
 
-    somefunc(ip.addr) == TRUE
+    somefunc(ip.addr) == true
 
 even though "ip.addr" is a single argument, the "somefunc" function will
 receive a GList of *all* the values of "ip.addr" in the frame.

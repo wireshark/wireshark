@@ -265,149 +265,149 @@ The accessors are:
 
 Bit accessors for a maximum of 8-bits, 16-bits 32-bits and 64-bits:
 
-guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits);
-guint16 tvb_get_bits16(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding);
-guint32 tvb_get_bits32(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding);
-guint64 tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding);
+uint8_t tvb_get_bits8(tvbuff_t *tvb, int bit_offset, const int no_of_bits);
+uint16_t tvb_get_bits16(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const unsigned encoding);
+uint32_t tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const unsigned encoding);
+uint64_t tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const unsigned encoding);
 
-Single-byte accessors for 8-bit unsigned integers (guint8) and 8-bit
-signed integers (gint8):
+Single-byte accessors for 8-bit unsigned integers (uint8_t) and 8-bit
+signed integers (int8_t):
 
-guint8  tvb_get_guint8(tvbuff_t *tvb, const gint offset);
-gint8  tvb_get_gint8(tvbuff_t *tvb, const gint offset);
+uint8_t tvb_get_guint8(tvbuff_t *tvb, const int offset);
+int8_t tvb_get_gint8(tvbuff_t *tvb, const int offset);
 
 Network-to-host-order accessors:
 
-16-bit unsigned (guint16) and signed (gint16) integers:
+16-bit unsigned (uint16_t) and signed (int16_t) integers:
 
-guint16 tvb_get_ntohs(tvbuff_t *tvb, const gint offset);
-gint16 tvb_get_ntohis(tvbuff_t *tvb, const gint offset);
+uint16_t tvb_get_ntohs(tvbuff_t *tvb, const int offset);
+int16_t tvb_get_ntohis(tvbuff_t *tvb, const int offset);
 
 24-bit unsigned and signed integers:
 
-guint32 tvb_get_ntoh24(tvbuff_t *tvb, const gint offset);
-gint32 tvb_get_ntohi24(tvbuff_t *tvb, const gint offset);
+uint32_t tvb_get_ntoh24(tvbuff_t *tvb, const int offset);
+int32_t tvb_get_ntohi24(tvbuff_t *tvb, const int offset);
 
-32-bit unsigned (guint32) and signed (gint32) integers:
+32-bit unsigned (uint32_t) and signed (int32_t) integers:
 
-guint32 tvb_get_ntohl(tvbuff_t *tvb, const gint offset);
-gint32 tvb_get_ntohil(tvbuff_t *tvb, const gint offset);
+uint32_t tvb_get_ntohl(tvbuff_t *tvb, const int offset);
+int32_t tvb_get_ntohil(tvbuff_t *tvb, const int offset);
 
 40-bit unsigned and signed integers:
 
-guint64 tvb_get_ntoh40(tvbuff_t *tvb, const gint offset);
-gint64 tvb_get_ntohi40(tvbuff_t *tvb, const gint offset);
+uint64_t tvb_get_ntoh40(tvbuff_t *tvb, const int offset);
+int64_t tvb_get_ntohi40(tvbuff_t *tvb, const int offset);
 
 48-bit unsigned and signed integers:
 
-guint64 tvb_get_ntoh48(tvbuff_t *tvb, const gint offset);
-gint64 tvb_get_ntohi48(tvbuff_t *tvb, const gint offset);
+uint64_t tvb_get_ntoh48(tvbuff_t *tvb, const int offset);
+int64_t tvb_get_ntohi48(tvbuff_t *tvb, const int offset);
 
 56-bit unsigned and signed integers:
 
-guint64 tvb_get_ntoh56(tvbuff_t *tvb, const gint offset);
-gint64 tvb_get_ntohi56(tvbuff_t *tvb, const gint offset);
+uint64_t tvb_get_ntoh56(tvbuff_t *tvb, const int offset);
+int64_t tvb_get_ntohi56(tvbuff_t *tvb, const int offset);
 
-64-bit unsigned (guint64) and signed (gint64) integers:
+64-bit unsigned (uint64_t) and signed (int64_t) integers:
 
-guint64 tvb_get_ntoh64(tvbuff_t *tvb, const gint offset);
-gint64 tvb_get_ntohi64(tvbuff_t *tvb, const gint offset);
+uint64_t tvb_get_ntoh64(tvbuff_t *tvb, const int offset);
+int64_t tvb_get_ntohi64(tvbuff_t *tvb, const int offset);
 
 Single-precision and double-precision IEEE floating-point numbers:
 
-gfloat tvb_get_ntohieee_float(tvbuff_t *tvb, const gint offset);
-gdouble tvb_get_ntohieee_double(tvbuff_t *tvb, const gint offset);
+float tvb_get_ntohieee_float(tvbuff_t *tvb, const int offset);
+double tvb_get_ntohieee_double(tvbuff_t *tvb, const int offset);
 
 Little-Endian-to-host-order accessors:
 
-16-bit unsigned (guint16) and signed (gint16) integers:
+16-bit unsigned (uint16_t) and signed (int16_t) integers:
 
-guint16 tvb_get_letohs(tvbuff_t *tvb, const gint offset);
-gint16 tvb_get_letohis(tvbuff_t *tvb, const gint offset);
+uint16_t tvb_get_letohs(tvbuff_t *tvb, const int offset);
+int16_t tvb_get_letohis(tvbuff_t *tvb, const int offset);
 
 24-bit unsigned and signed integers:
 
-guint32 tvb_get_letoh24(tvbuff_t *tvb, const gint offset);
-gint32 tvb_get_letohi24(tvbuff_t *tvb, const gint offset);
+uint32_t tvb_get_letoh24(tvbuff_t *tvb, const int offset);
+int32_t tvb_get_letohi24(tvbuff_t *tvb, const int offset);
 
-32-bit unsigned (guint32) and signed (gint32) integers:
+32-bit unsigned (uint32_t) and signed (int32_t) integers:
 
-guint32 tvb_get_letohl(tvbuff_t *tvb, const gint offset);
-gint32 tvb_get_letohil(tvbuff_t *tvb, const gint offset);
+uint32_t tvb_get_letohl(tvbuff_t *tvb, const int offset);
+int32_t tvb_get_letohil(tvbuff_t *tvb, const int offset);
 
 40-bit unsigned and signed integers:
 
-guint64 tvb_get_letoh40(tvbuff_t *tvb, const gint offset);
-gint64 tvb_get_letohi40(tvbuff_t *tvb, const gint offset);
+uint64_t tvb_get_letoh40(tvbuff_t *tvb, const int offset);
+int64_t tvb_get_letohi40(tvbuff_t *tvb, const int offset);
 
 48-bit unsigned and signed integers:
 
-guint64 tvb_get_letoh48(tvbuff_t *tvb, const gint offset);
-gint64 tvb_get_letohi48(tvbuff_t *tvb, const gint offset);
+uint64_t tvb_get_letoh48(tvbuff_t *tvb, const int offset);
+int64_t tvb_get_letohi48(tvbuff_t *tvb, const int offset);
 
 56-bit unsigned and signed integers:
 
-guint64 tvb_get_letoh56(tvbuff_t *tvb, const gint offset);
-gint64 tvb_get_letohi56(tvbuff_t *tvb, const gint offset);
+uint64_t tvb_get_letoh56(tvbuff_t *tvb, const int offset);
+int64_t tvb_get_letohi56(tvbuff_t *tvb, const int offset);
 
-64-bit unsigned (guint64) and signed (gint64) integers:
+64-bit unsigned (uint64_t) and signed (int64_t) integers:
 
-guint64 tvb_get_letoh64(tvbuff_t *tvb, const gint offset);
-gint64 tvb_get_letohi64(tvbuff_t *tvb, const gint offset);
+uint64_t tvb_get_letoh64(tvbuff_t *tvb, const int offset);
+int64_t tvb_get_letohi64(tvbuff_t *tvb, const int offset);
 
 NOTE: Although each of the integer accessors above return types with
 specific sizes, the returned values are subject to C's integer promotion
-rules. It's often safer and more useful to use int or guint for 32-bit
-and smaller types, and gint64 or guint64 for 40-bit and larger types.
+rules. It's often safer and more useful to use int or unsigned for 32-bit
+and smaller types, and int64_t or uint64_t for 40-bit and larger types.
 Just because a value occupied 16 bits on the wire or over the air
 doesn't mean it will within Wireshark.
 
 Single-precision and double-precision IEEE floating-point numbers:
 
-gfloat tvb_get_letohieee_float(tvbuff_t *tvb, const gint offset);
-gdouble tvb_get_letohieee_double(tvbuff_t *tvb, const gint offset);
+float tvb_get_letohieee_float(tvbuff_t *tvb, const int offset);
+double tvb_get_letohieee_double(tvbuff_t *tvb, const int offset);
 
 Encoding-to_host-order accessors:
 
-16-bit unsigned (guint16) and signed (gint16) integers:
+16-bit unsigned (uint16_t) and signed (int16_t) integers:
 
-guint16 tvb_get_guint16(tvbuff_t *tvb, const gint offset, const guint encoding);
-gint16 tvb_get_gint16(tvbuff_t *tvb, const gint offset, const guint encoding);
+uint16_t tvb_get_guint16(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int16_t tvb_get_gint16(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 24-bit unsigned and signed integers:
 
-guint32 tvb_get_guint24(tvbuff_t *tvb, const gint offset, const guint encoding);
-gint32 tvb_get_gint24(tvbuff_t *tvb, const gint offset, const guint encoding);
+uint32_t tvb_get_guint24(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int32_t tvb_get_gint24(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
-32-bit unsigned (guint32) and signed (gint32) integers:
+32-bit unsigned (uint32_t) and signed (int32_t) integers:
 
-guint32 tvb_get_guint32(tvbuff_t *tvb, const gint offset, const guint encoding);
-gint32 tvb_get_gint32(tvbuff_t *tvb, const gint offset, const guint encoding);
+uint32_t tvb_get_guint32(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int32_t tvb_get_gint32(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 40-bit unsigned and signed integers:
 
-guint64 tvb_get_guint40(tvbuff_t *tvb, const gint offset, const guint encoding);
-gint64 tvb_get_gint40(tvbuff_t *tvb, const gint offset, const guint encoding);
+uint64_t tvb_get_guint40(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int64_t tvb_get_gint40(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 48-bit unsigned and signed integers:
 
-guint64 tvb_get_guint48(tvbuff_t *tvb, const gint offset, const guint encoding);
-gint64 tvb_get_gint48(tvbuff_t *tvb, const gint offset, const guint encoding);
+uint64_t tvb_get_guint48(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int64_t tvb_get_gint48(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 56-bit unsigned and signed integers:
 
-guint64 tvb_get_guint56(tvbuff_t *tvb, const gint offset, const guint encoding);
-gint64 tvb_get_gint56(tvbuff_t *tvb, const gint offset, const guint encoding);
+uint64_t tvb_get_guint56(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int64_t tvb_get_gint56(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
-64-bit unsigned (guint64) and signed (gint64) integers:
+64-bit unsigned (uint64_t) and signed (int64_t) integers:
 
-guint64 tvb_get_guint64(tvbuff_t *tvb, const gint offset, const guint encoding);
-gint64 tvb_get_gint64(tvbuff_t *tvb, const gint offset, const guint encoding);
+uint64_t tvb_get_guint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int64_t tvb_get_gint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 Single-precision and double-precision IEEE floating-point numbers:
 
-gfloat tvb_get_ieee_float(tvbuff_t *tvb, const gint offset, const guint encoding);
-gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, const guint encoding);
+float tvb_get_ieee_float(tvbuff_t *tvb, const int offset, const unsigned encoding);
+double tvb_get_ieee_double(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 "encoding" should be ENC_BIG_ENDIAN for Network-to-host-order,
 ENC_LITTLE_ENDIAN for Little-Endian-to-host-order, or ENC_HOST_ENDIAN
@@ -415,8 +415,8 @@ for host order.
 
 Accessors for IPv4 and IPv6 addresses:
 
-guint32 tvb_get_ipv4(tvbuff_t *tvb, const gint offset);
-void tvb_get_ipv6(tvbuff_t *tvb, const gint offset, ws_in6_addr *addr);
+uint32_t tvb_get_ipv4(tvbuff_t *tvb, const int offset);
+void tvb_get_ipv6(tvbuff_t *tvb, const int offset, ws_in6_addr *addr);
 
 NOTE: IPv4 addresses are not to be converted to host byte order before
 being passed to "proto_tree_add_ipv4()". You should use "tvb_get_ipv4()"
@@ -426,21 +426,21 @@ wrong answer on the PC on which you're doing development, and try
 "tvb_get_letohl()" instead, as "tvb_get_letohl()" will give the wrong
 answer on big-endian machines.
 
-gchar *tvb_ip_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
-gchar *tvb_ip6_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
+char *tvb_ip_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset)
+char *tvb_ip6_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset)
 
 Returns a null-terminated buffer containing a string with IPv4 or IPv6 Address
 from the specified tvbuff, starting at the specified offset.
 
 Accessors for GUID:
 
-void tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
-void tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
-void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint encoding);
+void tvb_get_ntohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid);
+void tvb_get_letohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid);
+void tvb_get_guid(tvbuff_t *tvb, const int offset, e_guid_t *guid, const unsigned encoding);
 
 String accessors:
 
-guint8 *tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
+uint8_t *tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int length, const unsigned encoding);
 
 Returns a null-terminated buffer allocated from the specified scope, containing
 data from the specified tvbuff, starting at the specified offset, and containing
@@ -450,7 +450,7 @@ and produces UTF-8 in the buffer. See below for a list of input encoding values.
 The buffer is allocated in the given wmem scope (see README.wmem for more
 information).
 
-guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
+uint8_t *tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int *lengthp, const unsigned encoding);
 
 Returns a null-terminated buffer allocated from the specified scope,
 containing data from the specified tvbuff, starting at the specified
@@ -463,8 +463,8 @@ the string, including the terminating null.
 The buffer is allocated in the given wmem scope (see README.wmem for more
 information).
 
-gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
-gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
+int tvb_get_nstringz(tvbuff_t *tvb, const int offset, const unsigned bufsize, uint8_t* buffer);
+int tvb_get_nstringz0(tvbuff_t *tvb, const int offset, const unsigned bufsize, uint8_t* buffer);
 
 Copies bufsize bytes, including the terminating NULL, to buffer. If a NULL
 terminator is found before reaching bufsize, only the bytes up to and including
@@ -476,8 +476,8 @@ tvb_get_nstringz0() works like tvb_get_nstringz(), but never returns -1 since
 the string is guaranteed to have a terminating NULL. If the string was truncated
 when copied into buffer, a NULL is placed at the end of buffer to terminate it.
 
-gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
-                                      const gint bit_offset, gint no_of_chars);
+char *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
+                                      const int bit_offset, int no_of_chars);
 
 tvb_get_ts_23_038_7bits_string() returns a string of a given number of
 characters and encoded according to 3GPP TS 23.038 7 bits alphabet.
@@ -487,7 +487,7 @@ information).
 
 Byte Array Accessors:
 
-gchar *tvb_bytes_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint len);
+char *tvb_bytes_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int len);
 
 Formats a bunch of data from a tvbuff as bytes, returning a pointer
 to the string with the data formatted as two hex digits for each byte.
@@ -496,14 +496,14 @@ depending on its scope (typically pinfo->pool which is freed after the frame).
 The formatted string will contain the hex digits for at most the first 16 bytes of
 the data. If len is greater than 16 bytes, a trailing "..." will be added to the string.
 
-gchar *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb,
-                              const gint offset, const gint len, const gchar punct);
+char *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb,
+                              const int offset, const int len, const char punct);
 
 This function is similar to tvb_bytes_to_str(...) except that 'punct' is inserted
 between the hex representation of each byte.
 
-GByteArray *tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
-                                 const guint encoding, GByteArray* bytes, gint *endoff)
+GByteArray *tvb_get_string_bytes(tvbuff_t *tvb, const int offset, const int length,
+                                 const unsigned encoding, GByteArray* bytes, int *endoff)
 
 Given a tvbuff, an offset into the tvbuff, and a length that starts
 at that offset (which may be -1 for "all the way to the end of the
@@ -512,7 +512,7 @@ passed-in 'bytes' array, based on the passed-in encoding. In other
 words, convert from a hex-ascii string in tvbuff, into the supplied
 GByteArray.
 
-gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
+char *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const int offset, const int len, dgt_set_t *dgt, bool skip_first);
 
 Given a tvbuff, an offset into the tvbuff, and a length that starts
 at that offset (which may be -1 for "all the way to the end of the
@@ -523,12 +523,12 @@ A pointer to the packet scope allocated string will be returned.
 Note: a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
 
 Copying memory:
-void* tvb_memcpy(tvbuff_t *tvb, void* target, const gint offset, size_t length);
+void* tvb_memcpy(tvbuff_t *tvb, void* target, const int offset, size_t length);
 
 Copies into the specified target the specified length's worth of data
 from the specified tvbuff, starting at the specified offset.
 
-void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, size_t length);
+void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, size_t length);
 
 Returns a buffer containing a copy of the given TVB bytes. The buffer is
 allocated in the given wmem scope (see README.wmem for more information).
@@ -539,17 +539,17 @@ Pointer-retrieval:
  * no guarantee that the user will honor the 'length' and not overstep the
  * boundaries of the buffer. Also see the warning in the Portability section.
  */
-const guint8* tvb_get_ptr(tvbuff_t *tvb, const gint offset, const gint length);
+const uint8_t* tvb_get_ptr(tvbuff_t *tvb, const int offset, const int length);
 
 Length query:
 Get amount of captured data in the buffer (which is *NOT* necessarily the
 length of the packet). You probably want tvb_reported_length instead:
 
-    guint tvb_captured_length(const tvbuff_t *tvb);
+    unsigned tvb_captured_length(const tvbuff_t *tvb);
 
 Get reported length of buffer:
 
-    guint tvb_reported_length(const tvbuff_t *tvb);
+    unsigned tvb_reported_length(const tvbuff_t *tvb);
 
 
 1.4 Functions to handle columns in the traffic summary window.
@@ -642,7 +642,7 @@ Therefore, before a dissector fetches any data whatsoever from the
 packet (unless it's a heuristic dissector fetching data to determine
 whether the packet is one that it should dissect, in which case it
 should check, before fetching the data, whether there's any data to
-fetch; if there isn't, it should return FALSE), it should set the
+fetch; if there isn't, it should return false), it should set the
 Protocol column and the Info column.
 
 If the Protocol column will ultimately be set to, for example, a value
@@ -829,7 +829,7 @@ struct header_field_info {
     enum ftenum     type;
     int             display;
     const void      *strings;
-    guint64         bitmask;
+    uint64_t        bitmask;
     const char      *blurb;
     .....
 };
@@ -1013,12 +1013,12 @@ format the value.
 For 32-bit and smaller values, custom_fmt_func_t can be used to declare
 the callback function pointer. Specifically, this is defined as:
 
-    void func(gchar *, guint32);
+    void func(char *, uint32_t);
 
 For values larger than 32-bits, custom_fmt_func_64_t can be used to declare
 the callback function pointer. Specifically, this is defined as:
 
-    void func(gchar *, guint64);
+    void func(char *, uint64_t);
 
 The first argument is a pointer to a buffer of the ITEM_LABEL_LENGTH size
 and the second argument is the value to be formatted.
@@ -1070,8 +1070,8 @@ enumerated data type, rather than an integral data type.
 A 'value_string' structure is a way to map values to strings.
 
     typedef struct _value_string {
-        guint32  value;
-        gchar   *strptr;
+        uint32_t value;
+        char    *strptr;
     } value_string;
 
 For fields of that type, you would declare an array of "value_string"s:
@@ -1135,7 +1135,7 @@ field must be ORed with 'BASE_EXT_STRING' (e.g. BASE_DEC|BASE_EXT_STRING).
 -- val64_string
 
 val64_strings are like value_strings, except that the integer type
-used is a guint64 (instead of guint32). Instead of using the VALS()
+used is a uint64_t (instead of uint32_t). Instead of using the VALS()
 macro for the 'strings' field in the header_field_info struct array,
 'VALS64()' is used.
 
@@ -1144,7 +1144,7 @@ BASE_SPECIAL_VALS can also be used for val64_string.
 -- val64_string_ext
 
 val64_string_ext is like value_string_ext, except that the integer type
-used is a guint64 (instead of guint32).
+used is a uint64_t (instead of uint32_t).
 
 Use this macro to initialize the extended val64_string at compile time:
 
@@ -1195,9 +1195,9 @@ one can use a range_string struct.
 Thus a 'range_string' structure is a way to map ranges to strings.
 
         typedef struct _range_string {
-                guint32        value_min;
-                guint32        value_max;
-                const gchar   *strptr;
+                uint32_t       value_min;
+                uint32_t       value_max;
+                const char    *strptr;
         } range_string;
 
 For fields of that type, you would declare an array of "range_string"s:
@@ -1397,10 +1397,10 @@ Subtree types are integers, assigned by
 array of pointers to "gint" variables to hold the subtree type values to
 "proto_register_subtree_array()":
 
-    static gint ett_eg = -1;
-    static gint ett_field_a = -1;
+    static int ett_eg = -1;
+    static int ett_field_a = -1;
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_eg,
         &ett_field_a
     };
@@ -1435,10 +1435,10 @@ protocol or field labels to the proto_tree, for example:
         value, format, ...);
 
     proto_item *
-    proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+    proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
         const int hf_checksum, const int hf_checksum_status,
         struct expert_field* bad_checksum_expert, packet_info *pinfo,
-        guint32 computed_checksum, const guint encoding, const guint flags);
+        uint32_t computed_checksum, const unsigned encoding, const unsigned flags);
 
     proto_item *
     proto_tree_add_bitmask(tree, tvb, start, header, ett, fields,
@@ -2020,7 +2020,7 @@ Example: (from the SCSI dissector)
     static int hf_scsi_inq_qualifier         = -1;
     static int hf_scsi_inq_devtype           = -1;
     ...
-    static gint ett_scsi_inq_peripheral = -1;
+    static int ett_scsi_inq_peripheral = -1;
     ...
     static int * const peripheral_fields[] = {
         &hf_scsi_inq_qualifier,
@@ -2196,8 +2196,8 @@ to generate a COL_INFO line for a frame.
 
 val_to_str() handles the most common case:
 
-    const gchar*
-    val_to_str(guint32 val, const value_string *vs, const char *fmt)
+    const char*
+    val_to_str(uint32_t val, const value_string *vs, const char *fmt)
 
 If the value 'val' is found in the 'value_string' table pointed to by
 'vs', 'val_to_str' will return the corresponding string; otherwise, it
@@ -2214,8 +2214,8 @@ unmodified when 'val' isn't found.
 If you need to handle the failure case in some custom way, try_val_to_str()
 will return NULL if val isn't found:
 
-    const gchar*
-    try_val_to_str(guint32 val, const value_string *vs)
+    const char*
+    try_val_to_str(uint32_t val, const value_string *vs)
 
 Note that, you must check whether 'try_val_to_str()' returns NULL, and arrange
 that its return value not be dereferenced if it's NULL. 'try_val_to_str_idx()'
@@ -2234,17 +2234,17 @@ functions.
 
 To handle 64-bit values, there are an equivalent set of functions. These are:
 
-    const gchar *
-    val64_to_str(const guint64 val, const val64_string *vs, const char *fmt)
+    const char *
+    val64_to_str(const uint64_t val, const val64_string *vs, const char *fmt)
 
-    const gchar *
-    val64_to_str_const(const guint64 val, const val64_string *vs, const char *unknown_str);
+    const char *
+    val64_to_str_const(const uint64_t val, const val64_string *vs, const char *unknown_str);
 
-    const gchar *
-    try_val64_to_str(const guint64 val, const val64_string *vs);
+    const char *
+    try_val64_to_str(const uint64_t val, const val64_string *vs);
 
-    const gchar *
-    try_val64_to_str_idx(const guint64 val, const val64_string *vs, gint *idx);
+    const char *
+    try_val64_to_str_idx(const uint64_t val, const val64_string *vs, int *idx);
 
 
 1.6.2 rval_to_str, try_rval_to_str and try_rval_to_str_idx
@@ -2332,13 +2332,13 @@ table is a list of subdissectors grouped by a common identifier (integer or
 string) in a dissector. Subdissectors will register themselves with the dissector
 table using their unique identifier using one of the following APIs:
 
-    void dissector_add_uint(const char *abbrev, const guint32 pattern,
+    void dissector_add_uint(const char *abbrev, const uint32_t pattern,
                             dissector_handle_t handle);
 
     void dissector_add_uint_range(const char *abbrev, struct epan_range *range,
                             dissector_handle_t handle);
 
-    void dissector_add_string(const char *name, const gchar *pattern,
+    void dissector_add_string(const char *name, const char *pattern,
                             dissector_handle_t handle);
 
     void dissector_add_for_decode_as(const char *name,
@@ -2352,14 +2352,14 @@ Then when the dissector hits the common identifier field, it will use one of the
 following APIs to invoke the subdissector:
 
     int dissector_try_uint(dissector_table_t sub_dissectors,
-        const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo,
+        const uint32_t uint_val, tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree);
 
     int dissector_try_uint_new(dissector_table_t sub_dissectors,
-        const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, const gboolean add_proto_name, void *data);
+        const uint32_t uint_val, tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, const bool add_proto_name, void *data);
 
-    int dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
+    int dissector_try_string(dissector_table_t sub_dissectors, const char *string,
         tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 These pass a subset of the remaining packet (typically the rest of the
@@ -2488,18 +2488,18 @@ are known when conversation_new is called. See section 2.4 for more
 information on usage of the options parameter.
 
 The conversation_new prototype:
-    conversation_t *conversation_new(guint32 setup_frame, address *addr1,
-        address *addr2, conversation_type ctype, guint32 port1, guint32 port2,
-        guint options);
+    conversation_t *conversation_new(uint32_t setup_frame, address *addr1,
+        address *addr2, conversation_type ctype, uint32_t port1, uint32_t port2,
+        unsigned options);
 
 Where:
-    guint32 setup_frame     = The lowest numbered frame for this conversation
+    uint32_t setup_frame     = The lowest numbered frame for this conversation
     address* addr1          = first data packet address
     address* addr2          = second data packet address
     conversation_type ctype = conversation type, defined in conversation.h
-    guint32 port1           = first data packet port
-    guint32 port2           = second data packet port
-    guint options           = conversation options, NO_ADDR2 and/or NO_PORT2
+    uint32_t port1           = first data packet port
+    uint32_t port2           = second data packet port
+    unsigned options           = conversation options, NO_ADDR2 and/or NO_PORT2
 
 setup_frame indicates the first frame for this conversation, and is used to
 distinguish multiple conversations with the same addr1/port1 and addr2/port2
@@ -2529,11 +2529,11 @@ integers, or unsigned 64-bit integers. Unlike conversation_new, element
 lists are matched strictly; wildcards aren't (yet) supported.
 
 The conversation_new_full prototype:
-    conversation_t *conversation_new_full(const guint32 setup_frame,
+    conversation_t *conversation_new_full(const uint32_t setup_frame,
         conversation_element_t *elements);
 
 Where:
-    guint32 setup_frame              = The lowest numbered frame for
+    uint32_t setup_frame              = The lowest numbered frame for
         this conversation
     conversation_element_t *elements = An array of data types and
         values which identify this conversation. The array MUST be
@@ -2546,18 +2546,18 @@ the routine will return a NULL value.
 
 The find_conversation prototype:
 
-    conversation_t *find_conversation(guint32 frame_num, address *addr_a,
-        address *addr_b, conversation_type ctype, guint32 port_a, guint32 port_b,
-        guint options);
+    conversation_t *find_conversation(uint32_t frame_num, address *addr_a,
+        address *addr_b, conversation_type ctype, uint32_t port_a, uint32_t port_b,
+        unsigned options);
 
 Where:
-    guint32 frame_num       = a frame number to match
+    uint32_t frame_num       = a frame number to match
     address* addr_a         = first address
     address* addr_b         = second address
     conversation_type ctype = conversation type
-    guint32 port_a          = first data packet port
-    guint32 port_b          = second data packet port
-    guint options           = conversation options, NO_ADDR_B and/or NO_PORT_B
+    uint32_t port_a          = first data packet port
+    uint32_t port_b          = second data packet port
+    unsigned options           = conversation options, NO_ADDR_B and/or NO_PORT_B
 
 frame_num is a frame number to match. The conversation returned is where
     (frame_num >= conversation->setup_frame
@@ -2595,11 +2595,11 @@ no conversation is found, the routine will return a NULL value.
 
 The find_conversation_full prototype:
 
-    conversation_t *find_conversation_full(guint32 frame_num,
+    conversation_t *find_conversation_full(uint32_t frame_num,
         conversation_element_t *elements);
 
 Where:
-    guint32 setup_frame              = The lowest numbered frame for
+    uint32_t setup_frame              = The lowest numbered frame for
         this conversation
     conversation_element_t *elements = An array of data types and
         values which identify this conversation. The array MUST be
@@ -2613,11 +2613,11 @@ find_conversation())
 The find_conversation_pinfo prototype:
 
     extern conversation_t *find_conversation_pinfo(packet_info *pinfo,
-        const guint options);
+        const unsigned options);
 
 Where:
     packet_info *pinfo  = the packet_info structure
-    const guint options = conversation options, NO_ADDR_B and/or NO_PORT_B
+    const unsigned options = conversation options, NO_ADDR_B and/or NO_PORT_B
 
 The frame number and the addresses necessary for find_conversation() are
 taken from the addresses and ports in the pinfo structure,
@@ -3019,7 +3019,7 @@ the same socketpair.
 There are two support routines that will allow the second port and/or
 address to be set later.
 
-conversation_set_port2( conversation_t *conv, guint32 port);
+conversation_set_port2( conversation_t *conv, uint32_t port);
 conversation_set_addr2( conversation_t *conv, address addr);
 
 These routines will change the second address or port for the
@@ -3082,9 +3082,9 @@ It is also used to provide packet data for Decode As dialog (packet scope).
 These functions are declared in <epan/proto_data.h>.
 
 void
-p_add_proto_data(wmem_allocator_t *scope, packet_info *pinfo, int proto, guint32 key, void *proto_data)
+p_add_proto_data(wmem_allocator_t *scope, packet_info *pinfo, int proto, uint32_t key, void *proto_data)
 void *
-p_get_proto_data(wmem_allocator_t *scope, packet_info *pinfo, int proto, guint32 key)
+p_get_proto_data(wmem_allocator_t *scope, packet_info *pinfo, int proto, uint32_t key)
 
 Where:
     scope      - Lifetime of the data to be stored, typically wmem_file_scope()
@@ -3122,16 +3122,16 @@ routines -
 
     /* Register a preference with an unsigned integral value. */
     void prefs_register_uint_preference(module_t *module, const char *name,
-        const char *title, const char *description, guint base, guint *var);
+        const char *title, const char *description, unsigned base, unsigned *var);
 
     /* Register a preference with an Boolean value. */
     void prefs_register_bool_preference(module_t *module, const char *name,
-        const char *title, const char *description, gboolean *var);
+        const char *title, const char *description, bool *var);
 
     /* Register a preference with an enumerated value. */
     void prefs_register_enum_preference(module_t *module, const char *name,
-        const char *title, const char *description, gint *var,
-        const enum_val_t *enumvals, gboolean radio_buttons)
+        const char *title, const char *description, int *var,
+        const enum_val_t *enumvals, bool radio_buttons)
 
     /* Register a preference with a character-string value. */
     void prefs_register_string_preference(module_t *module, const char *name,
@@ -3145,18 +3145,18 @@ routines -
     /* Register a preference with a file name (string) value.
     * File name preferences are basically like string preferences
     * except that the GUI gives the user the ability to browse for the
-    * file. Set for_writing TRUE to show a Save dialog instead of normal Open.
+    * file. Set for_writing true to show a Save dialog instead of normal Open.
     */
     void prefs_register_filename_preference(module_t *module, const char *name,
         const char *title, const char *description, char **var,
-        gboolean for_writing)
+        bool for_writing)
 
     /* Register a preference with a range of unsigned integers (e.g.,
      * "1-20,30-40").
      */
     void prefs_register_range_preference(module_t *module, const char *name,
         const char *title, const char *description, range_t *var,
-        guint32 max_value)
+        uint32_t max_value)
 
 Where: module - Returned by the prefs_register_protocol routine
      name     - This is appended to the name of the protocol, with a
@@ -3193,9 +3193,9 @@ Where: module - Returned by the prefs_register_protocol routine
 
             the numerical value corresponding to that name
             and description
-     radio_buttons - TRUE if the field is to be displayed in the
+     radio_buttons - true if the field is to be displayed in the
              preferences dialog as a set of radio buttons,
-             FALSE if it is to be displayed as an option
+             false if it is to be displayed as an option
              menu
      max_value - The maximum allowed value for a range (0 is the minimum).
 
@@ -3288,7 +3288,7 @@ The arguments to tcp_dissect_pdus are:
     the tvbuff pointer, packet_info pointer, and proto_tree pointer
     passed to the dissector;
 
-    a gboolean flag indicating whether desegmentation is enabled for
+    a bool flag indicating whether desegmentation is enabled for
     your protocol;
 
     the number of bytes of PDU data required to determine the length
@@ -3361,10 +3361,10 @@ static hf_register_info hf[] = {
 **/
 static int dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data _U_)
 {
-    guint offset = 0;
+    unsigned offset = 0;
     while(offset < tvb_reported_length(tvb)) {
-        gint available = tvb_reported_length_remaining(tvb, offset);
-        gint len = tvb_strnlen(tvb, offset, available);
+        int available = tvb_reported_length_remaining(tvb, offset);
+        int len = tvb_strnlen(tvb, offset, available);
 
         if( -1 == len ) {
             /* we ran out of data: ask for more */
@@ -3380,7 +3380,7 @@ static int dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         if (tree) {
             proto_tree_add_item(tree, hf_cstring, tvb, offset, len, ENC_ASCII);
         }
-        offset += (guint)len;
+        offset += (unsigned)len;
     }
 
     /* if we get here, then the end of the tvb coincided with the end of a
@@ -3431,11 +3431,11 @@ are called to handle PDU data.
     static int
     dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     {
-        if (!check_dnp3_header(tvb, FALSE)) {
+        if (!check_dnp3_header(tvb, false)) {
             return 0;
         }
 
-        tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DNP_HDR_LEN,
+        tcp_dissect_pdus(tvb, pinfo, tree, true, DNP_HDR_LEN,
                    get_dnp3_message_len, dissect_dnp3_message, data);
 
         return tvb_captured_length(tvb);
@@ -3455,7 +3455,7 @@ The arguments to udp_dissect_pdus are:
     an optional routine (passing NULL is okay) that takes as arguments a
     packet_info pointer, a tvbuff pointer and an offset value representing the
     offset into the tvbuff at which a PDU begins, and a void pointer for user
-    data, and should return TRUE if the packet belongs to the dissector.
+    data, and should return true if the packet belongs to the dissector.
     The routine must not throw exceptions (it is guaranteed that the
     number of bytes specified by the previous argument to
     udp_dissect_pdus is available, but more data might not be available,
@@ -3580,13 +3580,13 @@ instead, the API description here should be good enough.
 2.11.1 ptvcursor API.
 
 ptvcursor_t*
-ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, gint offset)
+ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, int offset)
     This creates a new ptvcursor_t object for iterating over a tvbuff.
 You must call this and use this ptvcursor_t object so you can use the
 ptvcursor API.
 
 proto_item*
-ptvcursor_add(ptvcursor_t* ptvc, int hf, gint length, const guint encoding)
+ptvcursor_add(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding)
     This will extract 'length' bytes from the tvbuff and place it in
 the proto_tree as field 'hf', which is a registered header_field. The
 pointer to the proto_item that is created is passed back to you. Internally,
@@ -3595,27 +3595,27 @@ starts where this call finished. The 'encoding' parameter is relevant for
 certain type of fields (See above under proto_tree_add_item()).
 
 proto_item*
-ptvcursor_add_ret_uint(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, guint32 *retval);
+ptvcursor_add_ret_uint(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, uint32_t *retval);
     Like ptvcursor_add, but returns uint value retrieved
 
 proto_item*
-ptvcursor_add_ret_int(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, gint32 *retval);
+ptvcursor_add_ret_int(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, int32_t *retval);
     Like ptvcursor_add, but returns int value retrieved
 
 proto_item*
-ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, wmem_allocator_t *scope, const guint8 **retval);
+ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, wmem_allocator_t *scope, const uint8_t **retval);
     Like ptvcursor_add, but returns string retrieved
 
 proto_item*
-ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, gboolean *retval);
+ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, bool *retval);
     Like ptvcursor_add, but returns boolean value retrieved
 
 proto_item*
-ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length, const guint encoding)
+ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding)
     Like ptvcursor_add, but does not advance the internal cursor.
 
 void
-ptvcursor_advance(ptvcursor_t* ptvc, gint length)
+ptvcursor_advance(ptvcursor_t* ptvc, int length)
     Advances the internal cursor without adding anything to the proto_tree.
 
 void
@@ -3625,7 +3625,7 @@ after your dissection with the ptvcursor API is completed.
 
 
 proto_tree*
-ptvcursor_push_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree)
+ptvcursor_push_subtree(ptvcursor_t* ptvc, proto_item* it, int ett_subtree)
     Pushes the current subtree in the tree stack of the cursor, creates a new
 one and sets this one as the working tree.
 
@@ -3634,16 +3634,16 @@ ptvcursor_pop_subtree(ptvcursor_t* ptvc);
     Pops a subtree in the tree stack of the cursor
 
 proto_tree*
-ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, gint length,
-                            const guint encoding, gint ett_subtree);
+ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, int length,
+                            const unsigned encoding, int ett_subtree);
     Adds an item to the tree and creates a subtree.
 If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
 In this case, at the next pop, the item length will be equal to the advancement
 of the cursor since the creation of the subtree.
 
 proto_tree*
-ptvcursor_add_text_with_subtree(ptvcursor_t* ptvc, gint length,
-                                gint ett_subtree, const char* format, ...);
+ptvcursor_add_text_with_subtree(ptvcursor_t* ptvc, int length,
+                                int ett_subtree, const char* format, ...);
     Add a text node to the tree and create a subtree.
 If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
 In this case, at the next pop, the item length will be equal to the advancement
@@ -3655,7 +3655,7 @@ tvbuff_t*
 ptvcursor_tvbuff(ptvcursor_t* ptvc)
     Returns the tvbuff associated with the ptvcursor.
 
-gint
+int
 ptvcursor_current_offset(ptvcursor_t* ptvc)
     Returns the current offset.
 
@@ -3668,7 +3668,7 @@ ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree)
     Sets a new proto_tree for the ptvcursor.
 
 proto_tree*
-ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
+ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, int ett_subtree);
     Creates a subtree and adds it to the cursor as the working tree but does
 not save the old working tree.
 

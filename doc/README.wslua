@@ -365,7 +365,7 @@ Example:
     WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
         /* Obtains a dissector reference by name */
     #define WSLUA_ARG_Dissector_get_NAME 1 /* The name of the dissector */
-        const gchar* name = luaL_checkstring(L,WSLUA_ARG_Dissector_get_NAME);
+        const char* name = luaL_checkstring(L,WSLUA_ARG_Dissector_get_NAME);
         Dissector d;
 
         if (!name)
@@ -410,13 +410,13 @@ Example:
     WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes */
         NSTime time1 = checkNSTime(L,1);
         NSTime time2 = checkNSTime(L,2);
-        gboolean result = FALSE;
+        bool result = false;
 
         if (!time1 || !time2)
           WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
 
         if (nstime_cmp(time1, time2) == 0)
-            result = TRUE;
+            result = true;
 
         lua_pushboolean(L,result);
 

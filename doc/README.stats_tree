@@ -58,12 +58,12 @@ A small example of a very basic stats_tree plugin follows.
 #include <epan/dissectors/udp.h>
 
 static int st_udp_term;
-static gchar* st_str_udp_term = "UDP terminations";
+static char* st_str_udp_term = "UDP terminations";
 
 /* this one initializes the tree, creating the root nodes */
 extern void udp_term_stats_tree_init(stats_tree* st) {
 	/* we create a node under which we'll add every termination */
-	st_udp_term = stats_tree_create_node(st, st_str_udp_term, 0, STAT_DT_INT, TRUE);
+	st_udp_term = stats_tree_create_node(st, st_str_udp_term, 0, STAT_DT_INT, true);
 }
 
 /* this one will be called with every udp packet */
@@ -73,25 +73,25 @@ udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to us */
                            epan_dissect_t *edt _U_, /* unused */
                            const void *p) /* we'll use this to fetch the ports */
 {
-	static guint8 str[128];
+	static uint8_t str[128];
 	e_udphdr* udphdr = (e_udphdr*) p;
 
 	/* we increment by one (tick) the root node */
-	tick_stat_node(st, st_str_udp_term, 0, FALSE);
+	tick_stat_node(st, st_str_udp_term, 0, false);
 
 	/* we then tick a node for this src_addr:src_port
 	   if the node doesn't exists it will be created */
 	snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_src),udphdr->sport);
-	tick_stat_node(st, str, st_udp_term, FALSE);
+	tick_stat_node(st, str, st_udp_term, false);
 
 	/* same thing for dst */
 	snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_dst),udphdr->dport);
-	tick_stat_node(st, str, st_udp_term, FALSE);
+	tick_stat_node(st, str, st_udp_term, false);
 
 	return 1;
 }
 
-WS_DLL_PUBLIC_DEF const gchar version[] = "0.0";
+WS_DLL_PUBLIC_DEF const char version[] = "0.0";
 
 WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void) {
 
@@ -136,7 +136,7 @@ stats_tree_create_node(st, name, parent_id, datatype, with_children)
     parent_id: the id of the parent_node (NULL for root)
     datatype: datatype of the new node, STAT_DT_INT or STAT_DT_FLOAT. The only
               methods implemented for floats are averages.
-    with_children: TRUE if this node will have "dynamically created" children
+    with_children: true if this node will have "dynamically created" children
                    (i.e. it will be a candidate parent)
 
 

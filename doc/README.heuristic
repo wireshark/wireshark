@@ -92,7 +92,7 @@ its users here - and improving the heuristic is always possible if it turns out
 that it's not good enough to distinguish between two given protocols.
 
 Note: The heuristic code in a dissector *must not* cause an exception
-      (before returning FALSE) as this will prevent following
+      (before returning false) as this will prevent following
       heuristic dissector handoffs. In practice, this normally means
       that a test must be done to verify that the required data is
       available in the tvb before fetching from the tvb. (See the
@@ -117,32 +117,32 @@ static dissector_handle_t PROTOABBREV_tcp_handle;
 static dissector_handle_t PROTOABBREV_pdu_handle;
 
 /* Heuristics test */
-static gboolean
+static bool
 test_PROTOABBREV(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
 {
     /* 0) Verify needed bytes available in tvb so tvb_get...() doesn't cause exception.
     if (tvb_captured_length(tvb) < 5)
-        return FALSE;
+        return false;
 
     /* 1) first byte must be 0x42 */
     if ( tvb_get_guint8(tvb, 0) != 0x42 )
-        return FALSE;
+        return false;
 
     /* 2) second byte is a type field and only can contain values between 0x20-0x33 */
     if ( tvb_get_guint8(tvb, 1) < 0x20 || tvb_get_guint8(tvb, 1) > 0x33 )
-        return FALSE;
+        return false;
 
     /* 3) third byte is a flag field, where the lower 4 bits always contain the value 0 */
     if ( tvb_get_guint8(tvb, 2) & 0x0f )
-        return FALSE;
+        return false;
 
     /* 4) fourth and fifth bytes contains a 16 bit length field, where the value can't be longer than 10000 bytes */
     /* Assumes network byte order */
     if ( tvb_get_ntohs(tvb, 3) > 10000 )
-        return FALSE;
+        return false;
 
     /* Assume it's your packet ... */
-    return TRUE;
+    return true;
 }
 
 /* Dissect the complete PROTOABBREV pdu */
@@ -155,25 +155,25 @@ dissect_PROTOABBREV_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 /* For tcp_dissect_pdus() */
-static guint
+static unsigned
 get_PROTOABBREV_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return (guint) tvb_get_ntohs(tvb, offset+3);
+    return (unsigned) tvb_get_ntohs(tvb, offset+3);
 }
 
 static int
 dissect_PROTOABBREV_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 5,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 5,
                      get_PROTOABBREV_len, dissect_PROTOABBREV_pdu, data);
     return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_PROTOABBREV_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (!test_PROTOABBREV(pinfo, tvb, 0, data))
-        return FALSE;
+        return false;
 
     /* specify that dissect_PROTOABBREV is to be called directly from now on for
      * packets for this "connection" ... but only do this if your heuristic sits directly
@@ -187,23 +187,23 @@ dissect_PROTOABBREV_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /*   and do the dissection */
     dissect_PROTOABBREV_tcp(tvb, pinfo, tree, data);
 
-    return (TRUE);
+    return (true);
 }
 
 static int
 dissect_PROTOABBREV_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    udp_dissect_pdus(tvb, pinfo, tree, TRUE, 5, NULL,
+    udp_dissect_pdus(tvb, pinfo, tree, true, 5, NULL,
                      get_PROTOABBREV_len, dissect_PROTOABBREV_pdu, data);
     return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_PROTOABBREV_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 ...
     /*   and do the dissection */
-    return (udp_dissect_pdus(tvb, pinfo, tree, TRUE, 5, test_PROTOABBREV,
+    return (udp_dissect_pdus(tvb, pinfo, tree, true, 5, test_PROTOABBREV,
                      get_PROTOABBREV_len, dissect_PROTOABBREV_pdu, data) != 0);
 }
 
