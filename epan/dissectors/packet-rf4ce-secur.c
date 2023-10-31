@@ -11,7 +11,9 @@
 
 #include "packet-rf4ce-secur.h"
 #include "packet-zbee-security.h"
+#include "packet-ieee802154.h"
 #include <wsutil/wsgcrypt.h>
+#include <epan/proto_data.h>
 
 #ifdef RF4CE_DEBUG_EN
 void rf4ce_print_arr(const gchar *str, guint8 *ptr, guint16 len);
@@ -129,8 +131,8 @@ void keypair_context_update_seed(guint8 *seed, guint8 seed_seqn)
             nwk_key,
             controller_addr_ent,
             target_addr_ent,
-            false, /* key from commissioning session */
-            true); /* is_pairing_key                 */
+            FALSE, /* key from commissioning session */
+            TRUE); /* is_pairing_key                 */
     }
 }
 
@@ -170,7 +172,7 @@ void nwk_key_storage_add_entry(guint8 *nwk_key, addr_entry_t *controller_addr_en
                 nwk_key_storage[idx].controller_addr_ent = controller_addr_ent;
                 nwk_key_storage[idx].target_addr_ent = target_addr_ent;
                 nwk_key_storage[idx].key_from_gui = key_from_gui;
-                nwk_key_storage[idx].is_used = true;
+                nwk_key_storage[idx].is_used = TRUE;
                 nwk_key_storage[idx].is_pairing_key = is_pairing_key;
                 break;
             }
@@ -186,7 +188,7 @@ void nwk_key_storage_release_entry(guint8 *nwk_key, gboolean key_from_gui)
 
     if (nwk_key_entry != NULL)
     {
-        nwk_key_entry->is_used = false;
+        nwk_key_entry->is_used = FALSE;
     }
 }
 
@@ -216,48 +218,78 @@ void rf4ce_addr_table_add_addrs(const void *ieee_addr, guint16 short_addr)
     {
         memcpy(addr_table[idx].ieee_addr, ieee_addr, RF4CE_IEEE_ADDR_LEN);
         addr_table[idx].short_addr = short_addr;
-        addr_table[idx].is_used = true;
+        addr_table[idx].is_used = TRUE;
     }
 }
 
-gboolean rf4ce_addr_table_get_ieee_addr(guint8 *dst_addr, address *src_addr)
+gboolean rf4ce_addr_table_get_ieee_addr(guint8 *ieee_addr, packet_info *pinfo, gboolean is_src)
 {
-    gboolean addr_found = false;
+    gboolean addr_found = FALSE;
+    address_type addr_type;
+    ieee802154_hints_t *hints;
+    const void *p_addr = NULL;
     guint16 short_addr = 0xffff;
-    guint idx = 0;
 
-    if (src_addr->type != AT_EUI64)
+    /* Check inputs */
+    if ((ieee_addr == NULL) || (pinfo == NULL))
     {
-        memcpy(&short_addr, src_addr->data, RF4CE_SHORT_ADDR_LEN);
+        return FALSE;
     }
-
-    while (idx < RF4CE_ADDR_TABLE_SIZE)
+    if (is_src)
+    {
+        addr_type = pinfo->dl_src.type;
+        p_addr = pinfo->dl_src.data;
+    }
+    else
+    {
+        addr_type = pinfo->dl_dst.type;
+        p_addr = pinfo->dl_dst.data;
+    }
+    if (addr_type == AT_EUI64)
+    {
+        if (p_addr == NULL)
+        {
+            return FALSE;
+        }
+    }
+    else
+    {
+        /* Get addresses */
+        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(),
+                                                       pinfo,
+                                                       proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN),
+                                                       0
+        );
+        if (hints == NULL)
+        {
+            return FALSE;
+        }
+        short_addr = (is_src) ? hints->src16 : hints->dst16;
+    }
+    /* Search address in address table */
+    for (guint idx = 0; idx < RF4CE_ADDR_TABLE_SIZE; idx++)
     {
         if (addr_table[idx].is_used)
         {
-            gboolean ieee_addr_eq = false;
-            gboolean short_addr_eq = false;
+            gboolean ieee_addr_eq = FALSE;
+            gboolean short_addr_eq = FALSE;
 
-            if (src_addr->type == AT_EUI64)
+            if (addr_type == AT_EUI64)
             {
-                ieee_addr_eq = memcmp(addr_table[idx].ieee_addr, src_addr->data, RF4CE_IEEE_ADDR_LEN) == 0;
+                ieee_addr_eq = memcmp(addr_table[idx].ieee_addr, p_addr, RF4CE_IEEE_ADDR_LEN) == 0;
             }
             else
             {
                 short_addr_eq = addr_table[idx].short_addr == short_addr;
             }
-
             if (ieee_addr_eq || short_addr_eq)
             {
-                addr_found = true;
-                memcpy(dst_addr, addr_table[idx].ieee_addr, RF4CE_IEEE_ADDR_LEN);
+                addr_found = TRUE;
+                memcpy(ieee_addr, addr_table[idx].ieee_addr, RF4CE_IEEE_ADDR_LEN);
                 break;
             }
         }
-
-        idx++;
     }
-
     return addr_found;
 }
 
@@ -292,7 +324,7 @@ void key_exchange_context_start_procedure(void)
 {
     if (!key_exchange_context.is_proc_started)
     {
-        key_exchange_context.is_proc_started = true;
+        key_exchange_context.is_proc_started = TRUE;
     }
 }
 
@@ -300,7 +332,7 @@ void key_exchange_context_stop_procedure(void)
 {
     if (key_exchange_context.is_proc_started)
     {
-        key_exchange_context.is_proc_started = false;
+        key_exchange_context.is_proc_started = FALSE;
     }
 }
 
@@ -410,15 +442,15 @@ static gboolean calc_key_cmac(guint8 *secret, guint8 *nwk_key, guint32 tag_b_pac
     if (tag_b_pack == tag_b_calc)
     {
         memcpy(key_out, new_key, KEY_LEN);
-        return true;
+        return TRUE;
     }
 
-    return false;
+    return FALSE;
 }
 
 static gboolean key_exchange_calc_key_cont(guint8 *secret, guint32 tag_b_pack, gboolean try_pairing_key, guint8 *new_key_out)
 {
-    gboolean is_new_key_found = false;
+    gboolean is_new_key_found = FALSE;
 
     for (guint i = 0; i < RF4CE_NWK_KEY_STORAGE_SIZE; i++)
     {
@@ -447,7 +479,7 @@ void key_exchange_calc_key(guint32 tag_b_pack)
     guint8 *secret;
 
     guint8 new_key[KEY_LEN];
-    gboolean is_new_key_found = false;
+    gboolean is_new_key_found = FALSE;
 
     for (guint i = 0; i < RF4CE_VENDOR_SECRET_STORAGE_SIZE; i++)
     {
@@ -459,12 +491,12 @@ void key_exchange_calc_key(guint32 tag_b_pack)
         secret = vendor_secret_storage[i].secret;
 
         /* try all the pairing keys first */
-        is_new_key_found = key_exchange_calc_key_cont(secret, tag_b_pack, true, new_key);
+        is_new_key_found = key_exchange_calc_key_cont(secret, tag_b_pack, TRUE, new_key);
 
         /* try other keys */
         if (!is_new_key_found)
         {
-            is_new_key_found = key_exchange_calc_key_cont(secret, tag_b_pack, false, new_key);
+            is_new_key_found = key_exchange_calc_key_cont(secret, tag_b_pack, FALSE, new_key);
         }
 
         if (is_new_key_found)
@@ -473,8 +505,8 @@ void key_exchange_calc_key(guint32 tag_b_pack)
                 new_key,
                 controller_addr_ent,
                 target_addr_ent,
-                false,  /* key from the Key Exchange procedure */
-                false); /* !is_pairing_key */
+                FALSE,  /* key from the Key Exchange procedure */
+                FALSE); /* !is_pairing_key */
 
             break;
         }
@@ -518,7 +550,7 @@ void vendor_secret_storage_add_entry(guint8 *secret)
     if (idx < RF4CE_VENDOR_SECRET_STORAGE_SIZE)
     {
         memcpy(vendor_secret_storage[idx].secret, secret, SEC_STR_LEN);
-        vendor_secret_storage[idx].is_used = true;
+        vendor_secret_storage[idx].is_used = TRUE;
     }
 }
 
@@ -528,7 +560,7 @@ void vendor_secret_storage_release_entry(guint8 *secret)
 
     if (entry != NULL)
     {
-        entry->is_used = false;
+        entry->is_used = FALSE;
     }
 }
 
@@ -543,7 +575,7 @@ void rf4ce_secur_cleanup(void)
     {
         if (nwk_key_storage[idx].is_used && !nwk_key_storage[idx].key_from_gui)
         {
-            nwk_key_storage[idx].is_used = false;
+            nwk_key_storage[idx].is_used = FALSE;
         }
 
         idx++;
@@ -564,13 +596,13 @@ gboolean decrypt_data(
     guint16 *len,
     guint8 src_ieee[RF4CE_IEEE_ADDR_LEN], guint8 dst_ieee[RF4CE_IEEE_ADDR_LEN])
 {
-    gboolean ret = false;
+    gboolean ret = FALSE;
     guint8 frame_control = *in;
     int idx = 0;
 
     if (*len < RF4CE_MIN_NWK_LENGTH || *len > RF4CE_MAX_NWK_LENGTH)
     {
-        return false;
+        return FALSE;
     }
 
     while (idx < RF4CE_NWK_KEY_STORAGE_SIZE)

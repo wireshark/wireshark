@@ -151,7 +151,7 @@ void nwk_key_storage_add_entry(guint8 *nwk_key, addr_entry_t *controller_addr_en
 void nwk_key_storage_release_entry(guint8 *nwk_key, gboolean key_from_gui);
 
 void rf4ce_addr_table_add_addrs(const void *ieee_addr, guint16 short_addr);
-gboolean rf4ce_addr_table_get_ieee_addr(guint8 *dst_addr, address *src_addr);
+gboolean rf4ce_addr_table_get_ieee_addr(guint8 *ieee_addr, packet_info *pinfo, gboolean is_src);
 addr_entry_t *rf4ce_addr_table_get_addr_entry_by_ieee(guint8 *ieee_addr);
 
 void key_exchange_context_init(void);

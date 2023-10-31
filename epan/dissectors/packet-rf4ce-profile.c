@@ -10,13 +10,13 @@
  */
 
 #include <stdbool.h>
+#include <stdio.h>
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/reassemble.h>
 #include "packet-ieee802154.h"
-#include <stdio.h>
 #include "packet-rf4ce-secur.h"
 
 /* TLV Node-elements */
@@ -1718,7 +1718,7 @@ static void dissect_rf4ce_profile_cmd_heartbeat(tvbuff_t *tvb, proto_tree *tree,
 
 static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 attr_id)
 {
-    gboolean is_parsed = true;
+    gboolean is_parsed = TRUE;
 
     if (attr_id == RF4CE_GDP_ATTR_IDENTIFICATION_CAPABILITIES)
     {
@@ -1818,7 +1818,7 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
 #endif
     else
     {
-        is_parsed = false;
+        is_parsed = FALSE;
     }
 
     return is_parsed;
@@ -1826,7 +1826,7 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
 
 static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 attr_id, guint8 attr_length)
 {
-    gboolean is_parsed = true;
+    gboolean is_parsed = TRUE;
 
     if (attr_id == RF4CE_ZRC20_ATTR_MAPPABLE_ACTIONS)
     {
@@ -1904,7 +1904,7 @@ static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tre
 
             if (action_data_len > 0)
             {
-                dissect_rf4ce_profile_zrc20_action_data(tvb, rf_desc_subtree, offset, false /* do not dissect the Action Control field */);
+                dissect_rf4ce_profile_zrc20_action_data(tvb, rf_desc_subtree, offset, FALSE /* do not dissect the Action Control field */);
             }
         }
 
@@ -1954,7 +1954,7 @@ static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tre
     }
     else
     {
-        is_parsed = false;
+        is_parsed = FALSE;
     }
 
     return is_parsed;
@@ -2144,6 +2144,7 @@ static void dissect_rf4ce_profile_cmd_client_notification(tvbuff_t *tvb, proto_t
 static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
     guint8 sub_type = tvb_get_guint8(tvb, *offset);
+
     proto_tree_add_item(tree, hf_rf4ce_profile_cmd_key_exchange_sub_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
@@ -2172,7 +2173,7 @@ static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *p
 
         if (!key_exchange_context_is_procedure_started())
         {
-            if (rf4ce_addr_table_get_ieee_addr(target_addr, &pinfo->dl_src))
+            if (rf4ce_addr_table_get_ieee_addr(target_addr, pinfo, TRUE))
             {
                 key_exchange_context_init();
 
@@ -2201,7 +2202,7 @@ static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *p
 
         if (key_exchange_context_is_procedure_started())
         {
-            if (rf4ce_addr_table_get_ieee_addr(controller_addr, &pinfo->dl_src))
+            if (rf4ce_addr_table_get_ieee_addr(controller_addr, pinfo, TRUE))
             {
                 key_exchange_context_set_rand_b(rand_b);
                 key_exchange_context_set_mac_b(controller_addr);
@@ -2225,15 +2226,15 @@ static void dissect_rf4ce_profile_zrc10_cmd(tvbuff_t *tvb, proto_tree *tree, gui
     switch (cmd_id)
     {
     case RF4CE_ZRC10_FCF_CMD_ID_USER_CONTROL_PRESSED:
-        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, true);
+        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, TRUE);
         break;
 
     case RF4CE_ZRC10_FCF_CMD_ID_USER_CONTROL_REPEATED:
-        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, true);
+        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, TRUE);
         break;
 
     case RF4CE_ZRC10_FCF_CMD_ID_USER_CONTROL_RELEASED:
-        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, false);
+        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, FALSE);
         break;
 
     case RF4CE_ZRC10_FCF_CMD_ID_USER_CONTROL_CMD_DISCOVERY_REQ:
@@ -2292,7 +2293,7 @@ static void dissect_rf4ce_profile_zrc20_cmd(tvbuff_t *tvb, proto_tree *tree, gui
 
             while (remaining_length > 0)
             {
-                dissect_rf4ce_profile_zrc20_action_data(tvb, action_records_tree, offset, true /* dissect the Action Control field */);
+                dissect_rf4ce_profile_zrc20_action_data(tvb, action_records_tree, offset, TRUE /* dissect the Action Control field */);
                 remaining_length = tvb_reported_length_remaining(tvb, *offset);
             }
         }

@@ -549,15 +549,15 @@ static bool uat_sec_record_update_cb(void *r, char **err)
                 sec_str,
                 NULL, /* controller addr */
                 NULL, /* target addr     */
-                true, /* key from GUI    */
-                0 /* packet number   */);
+                TRUE, /* key from GUI    */
+                FALSE /* packet number   */);
 
             vendor_secret_storage_release_entry(sec_str);
         }
         else
         {
             vendor_secret_storage_add_entry(sec_str);
-            nwk_key_storage_release_entry(sec_str, true /* key from GUI */);
+            nwk_key_storage_release_entry(sec_str, TRUE /* key from GUI */);
         }
     }
     else
@@ -579,7 +579,7 @@ static void uat_sec_record_free_cb(void *r)
     {
         if (sec_record->type == RF4CE_SEC_STR_TYPE_NWK_KEY)
         {
-            nwk_key_storage_release_entry(sec_str, true /* key from GUI */);
+            nwk_key_storage_release_entry(sec_str, TRUE /* key from GUI */);
         }
         else
         {
@@ -608,15 +608,15 @@ static void uat_sec_record_post_update(void)
                     sec_str,
                     NULL, /* controller addr */
                     NULL, /* target addr     */
-                    true, /* key from GUI    */
-                    0 /* packet number   */);
+                    TRUE, /* key from GUI    */
+                    FALSE /* packet number   */);
 
                 vendor_secret_storage_release_entry(sec_str);
             }
             else
             {
                 vendor_secret_storage_add_entry(sec_str);
-                nwk_key_storage_release_entry(sec_str, true /* key from GUI */);
+                nwk_key_storage_release_entry(sec_str, TRUE /* key from GUI */);
             }
         }
     }
@@ -742,6 +742,7 @@ static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint8 fcf = 0xff;
     guint8 frame_type = 0xff;
     guint8 profile_id = 0xff;
+    guint16 size;
 
     proto_item *ti = proto_tree_add_item(tree, proto_rf4ce_nwk, tvb, 0, -1, ENC_LITTLE_ENDIAN);
     proto_tree *rf4ce_nwk_tree = proto_item_add_subtree(ti, ett_rf4ce_nwk);
@@ -776,10 +777,10 @@ static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         offset += 2;
     }
 
-    rf4ce_addr_table_get_ieee_addr(src_addr, &pinfo->dl_src);
-    rf4ce_addr_table_get_ieee_addr(dst_addr, &pinfo->dl_dst);
+    rf4ce_addr_table_get_ieee_addr(src_addr, pinfo, TRUE);
+    rf4ce_addr_table_get_ieee_addr(dst_addr, pinfo, FALSE);
 
-    guint16 size = tvb_reported_length_remaining(tvb, 0);
+    size = tvb_reported_length_remaining(tvb, 0);
 
     if (fcf & RF4CE_NWK_FCF_SECURITY_MASK)
     {
@@ -795,7 +796,7 @@ static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     {
         size -= offset;
         memcpy(decrypted, tvb_get_ptr(tvb, 0, size) + offset, size);
-        success = true;
+        success = TRUE;
     }
 
     if (success)
