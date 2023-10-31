@@ -108,6 +108,11 @@ set_address_ipv4(address *addr, const ipv4_addr_and_mask *ipv4) {
     addr->data = addr->priv;
 }
 
+static inline void
+set_address_ipv6(address *addr, const ipv6_addr_and_prefix *ipv6) {
+    set_address(addr, AT_IPv6, sizeof(ws_in6_addr), &ipv6->addr);
+}
+
 /** Initialize an address from TVB data.
  *
  * Same as set_address but it takes a TVB and an offset. This is preferred

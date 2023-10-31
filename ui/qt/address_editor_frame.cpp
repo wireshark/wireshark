@@ -55,6 +55,7 @@ AddressEditorFrame::~AddressEditorFrame()
 QString AddressEditorFrame::addressToString(const FieldInformation& finfo)
 {
     address addr;
+    QString addr_str;
     const ipv4_addr_and_mask *ipv4;
     const ipv6_addr_and_prefix *ipv6;
 
@@ -71,14 +72,19 @@ QString AddressEditorFrame::addressToString(const FieldInformation& finfo)
         // available and enabled. We want the unresolved string.
         ipv4 = fvalue_get_ipv4(finfo.fieldInfo()->value);
         set_address_ipv4(&addr, ipv4);
-        return gchar_free_to_qstring(address_to_str(NULL, &addr));
+        addr_str = gchar_free_to_qstring(address_to_str(NULL, &addr));
+        free_address(&addr);
+        break;
     case FT_IPv6:
         ipv6 = fvalue_get_ipv6(finfo.fieldInfo()->value);
-        set_address(&addr, AT_IPv6, sizeof(ws_in6_addr), &ipv6->addr);
-        return gchar_free_to_qstring(address_to_str(NULL, &addr));
+        set_address_ipv6(&addr, ipv6);
+        addr_str = gchar_free_to_qstring(address_to_str(NULL, &addr));
+        free_address(&addr);
+        break;
     default:
-        return QString();
+        addr_str = QString();
     }
+    return addr_str;
 }
 
 void AddressEditorFrame::addAddresses(const ProtoNode& node, QStringList& addresses)
