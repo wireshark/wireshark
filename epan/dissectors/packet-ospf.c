@@ -4248,6 +4248,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     case OSPF_V3_LSTYPE_OPAQUE_RI:
         dissect_ospf_lsa_opaque_ri(tvb, pinfo, offset, ospf_lsa_tree, ls_length);
+        offset += ls_length;
         break;
 
     default:
