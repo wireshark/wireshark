@@ -20,6 +20,7 @@
 #include "geometry_state_dialog.h"
 
 class QComboBox;
+class QAbstractButton;
 
 namespace Ui {
 class PreferencesDialog;
@@ -44,6 +45,8 @@ protected:
     void showEvent(QShowEvent *evt);
 
 private:
+    void apply();
+
     Ui::PreferencesDialog *pd_ui_;
 
     QHash<QString, QWidget*> prefs_pane_to_item_;
@@ -65,6 +68,7 @@ private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
+    void on_buttonBox_clicked(QAbstractButton *button);
 
     /**
      * Update search results from the advancedSearchLineEdit field

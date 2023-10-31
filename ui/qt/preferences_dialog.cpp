@@ -245,7 +245,7 @@ void PreferencesDialog::on_showChangedValuesCheckBox_toggled(bool checked)
     pd_ui_->advancedView->expandAll();
 }
 
-void PreferencesDialog::on_buttonBox_accepted()
+void PreferencesDialog::apply()
 {
     char* err = NULL;
     unsigned int redissect_flags = 0;
@@ -314,32 +314,38 @@ void PreferencesDialog::on_buttonBox_accepted()
     mainApp->setMonospaceFont(prefs.gui_font_name);
 
     if (redissect_flags & (PREF_EFFECT_GUI_COLOR)) {
-        mainApp->queueAppSignal(MainApplication::ColorsChanged);
+        mainApp->emitAppSignal(MainApplication::ColorsChanged);
     }
 
     if (redissect_flags & PREF_EFFECT_FIELDS) {
-        mainApp->queueAppSignal(MainApplication::FieldsChanged);
+        mainApp->emitAppSignal(MainApplication::FieldsChanged);
     }
 
     if (redissect_flags & PREF_EFFECT_DISSECTION) {
         // Freeze the packet list early to avoid updating column data before doing a
         // full redissection. The packet list will be thawed when redissection is done.
-        mainApp->queueAppSignal(MainApplication::FreezePacketList);
+        mainApp->emitAppSignal(MainApplication::FreezePacketList);
 
         /* Redissect all the packets, and re-evaluate the display filter. */
-        mainApp->queueAppSignal(MainApplication::PacketDissectionChanged);
+        mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
     }
 
     if (redissect_flags) {
-        mainApp->queueAppSignal(MainApplication::PreferencesChanged);
+        mainApp->emitAppSignal(MainApplication::PreferencesChanged);
     }
 
     if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
-        mainApp->queueAppSignal(MainApplication::RecentPreferencesRead);
+        mainApp->emitAppSignal(MainApplication::RecentPreferencesRead);
     }
 
     if (prefs.capture_no_extcap != saved_capture_no_extcap_)
         mainApp->refreshLocalInterfaces();
+}
+
+void PreferencesDialog::on_buttonBox_accepted()
+{
+    apply();
+    accept();
 }
 
 void PreferencesDialog::on_buttonBox_rejected()
@@ -350,6 +356,14 @@ void PreferencesDialog::on_buttonBox_rejected()
 #ifdef HAVE_LIBGNUTLS
     pd_ui_->rsaKeysFrame->rejectChanges();
 #endif
+    reject();
+}
+
+void PreferencesDialog::on_buttonBox_clicked(QAbstractButton *button)
+{
+    if (pd_ui_->buttonBox->buttonRole(button) == QDialogButtonBox::ApplyRole) {
+        apply();
+    }
 }
 
 void PreferencesDialog::on_buttonBox_helpRequested()
