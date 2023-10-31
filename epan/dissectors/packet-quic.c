@@ -4042,7 +4042,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             if (from_server) {
                 expert_add_info_format(pinfo, ti, &ei_quic_protocol_violation,
                             "Initial packets sent by the server must set the Token Length field to 0");
-            } else {
+            } else if (conn) {
                 /* The client [may] know that the server supports greasing the
                  * QUIC bit, and perhaps will do so. (We can't really test if
                  * this token came less than 7 days ago from a server that
