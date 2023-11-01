@@ -728,9 +728,10 @@ You can combine filter expressions in Wireshark using the logical operators show
 |===
 
 ==== Slice Operator
-Wireshark allows you to select a subsequence of a sequence in rather elaborate
-ways. After a label you can place a pair of brackets [] containing a comma
-separated list of range specifiers.
+Wireshark allows you to select a subsequence of byte arrays (including
+protocols) or text strings in rather elaborate ways. After a label you can
+place a pair of brackets [] containing a comma separated list of range
+specifiers.
 ----
 eth.src[0:3] == 00:00:83
 ----
@@ -763,6 +764,32 @@ eth.src[0:3,1-2,:4,4:,2] ==
 Wireshark allows you to string together single ranges in a comma separated list
 to form compound ranges as shown above.
 
+You can use the slice operator on a protocol name, too, to slice the
+bytes associated with that protocol. The `+frame+` protocol can be useful,
+encompassing all the captured data (not including secondary data sources
+like decrypted data.)
+
+Offsets can be negative, indicating an offset from the end of a field.
+----
+frame[-4:4] == 0.1.2.3
+frame[-4] == 0.1.2.3
+----
+The two examples above both check the last four bytes of a frame.
+
+Slices of string fields yield strings, and are indexed on codepoint
+boundaries after conversation of the string to UTF-8, not bytes.
+----
+http.content_type[0:4] == "text"
+smpp.message_text[:10] == "Абвгдеёжзи"
+----
+The second example above will match regardless of whether the original
+string was in Windows-1251, UTF-8, or UTF-16, so long as the converted
+string starts with those ten characters.
+
+Byte slices can be directly compared to strings; this converts the
+string to the corresponding UTF-8 byte sequence. To compare string
+slices with byte sequences, use the @ operator, below.
+
 ==== The Layer Operator
 
 A field can be restricted to a certain layer in the protocol stack using the
@@ -780,6 +807,67 @@ For more complicated ranges the same syntax used with slices is valid:
 
 means layers number 2, 3 or 4 inclusive. The hash symbol is required to
 distinguish a layer range from a slice.
+
+==== The At Operator
+By prefixing the field name with an at sign (@) the comparison is done against
+the raw packet data for the field.
+
+A character string must be decoded from a source encoding during dissection.
+If there are decoding errors the resulting string will usually contain
+replacement characters:
+
+[subs="replacements"]
+----
+browser.comment == "string is &#xFFFD;&#xFFFD;&#xFFFD;&#xFFFD;"
+----
+
+The at operator allows testing the raw undecoded data:
+----
+@browser.comment == 73:74:72:69:6e:67:20:69:73:20:aa:aa:aa:aa
+----
+
+The syntactical rules for a bytes field type apply to the second example.
+
+[NOTE]
+====
+When a bytes field is compared with a literal string, it is compared
+with the UTF-8 representation of that string. The at operator compares
+a string field with the actual byte representation in the original encoding,
+which may not be UTF-8.
+
+As an example, SMPP has a bytes field, `+smpp.message+`, and a string
+field, `+smpp.message_text+`, that refer to the same data. If the
+first four characters of the message is the string "Text" in the UTF-16
+encoding, the following filters all match.
+
+----
+smpp.message[:8] == 00:54:00:65:00:73:00:74
+smpp.message[:8] == "\x00T\x00e\x00s\x00t"
+smpp.message_text[:4] == "Test"
+smpp.message_text[:4] == "\x54\x65\x73\x74"
+@smpp.message_text[:8] == 00:54:00:65:00:73:00:74
+@smpp.message_text[:8] == "\x00T\x00e\x00s\x00t"
+----
+
+The following filters do *NOT* match.
+
+----
+@smpp.message_text[:4] == "\x00T\x00e\x00s\x00t"
+smpp.message[:4] == "Test"
+smpp.message[:8] == "Test"
+@smpp.message_text[:4] == "Test"
+@smpp.message_text[:8] == "Test"
+----
+
+The first filter above does not match because of operator precedence
+left-to-right; `+@smpp.message_text` is converted to bytes before the
+slice operator is applied, so the length of the necessary slice is 8.
+The other filters do not match because the literal string "Test" is
+always converted to its 4 octet UTF-8 representation when comparing
+against bytes, and it does not match the UTF-16 representation of
+the field bytes.
+
+====
 
 ==== Membership Operator
 Wireshark allows you to test a field for membership in a set of values or
@@ -901,6 +989,31 @@ and returns the largest/smallest respectively of the set.
 ----
 max(tcp.srcport, tcp.dstport) <= 1024
 ----
+
+==== Field References
+
+An expression of the form ${some.proto.field} is called a field reference.
+Its value is read from the corresponding field in the currently selected
+field in the GUI. This is a powerful way to build dynamic filters, such
+as frames since the last five minutes to the selected frame:
+
+----
+frame.time_relative >= ${frame.time_relative} - 300
+----
+
+or all HTTP packets whose `+ip.dst` value equals the "A" record of
+the DNS response in the current frame:
+
+----
+http && ip.dst eq ${dns.a}
+----
+
+The notation of field references is similar to that of
+<<ChDisplayFilterMacrosSection,macros>> but they are syntactically
+distinct. Field references, like other complex filters, make excellent
+use cases for <<ChWorkDefineFilterMacrosSection,macros>>,
+<<ChWorkDefineFilterSection,saved filters>>, and
+<<ChCustFilterButtons,filter buttons>>
 
 [#ChWorkBuildDisplayFilterTransitional]
 
