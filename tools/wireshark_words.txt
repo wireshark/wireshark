@@ -130,6 +130,7 @@ backend
 backhaul
 backoff
 bacnet
+barbados
 batched
 baudrate
 bayer
@@ -244,6 +245,7 @@ chmod
 choco
 chocolatey
 choplen
+chroma
 chromaticities
 chromaticity
 chunked
@@ -404,6 +406,7 @@ defragmented
 defragmenting
 dehumidification
 deinterleaved
+delimit
 delimited
 delimiters
 delimiting
@@ -576,9 +579,11 @@ eutra
 eutran
 eventlog
 evolutions
+exclusions
 executables
 exflags
 exocet
+expansions
 extattr
 extcap
 extensibility
@@ -651,6 +656,7 @@ geran
 getattr
 getentrybyname
 getgroupinfo
+getimageinfo
 getnext
 getter
 gidaddr
@@ -678,6 +684,7 @@ groupadd
 groupb
 groupcast
 groupmod
+gryphon
 gssapi
 gtalk
 guint
@@ -745,6 +752,7 @@ implementor
 inactivated
 inband
 incits
+inconsistently
 incremented
 incrementing
 indenting
@@ -769,12 +777,14 @@ initializer
 initializers
 initializes
 initializing
+inkey
 inline
 inode
 inodes
 inspiron
 installers
 instantiate
+instantiated
 instdir
 instrumented
 interferer
@@ -787,7 +797,9 @@ intra
 intval
 inuse
 invalidation
+invalidity
 invalidly
+invariant
 ioctl
 ioerr
 ioflag
@@ -962,6 +974,7 @@ modepage
 modespecificinfo
 modifier
 modulo
+modulus
 motorola
 mozilla
 mpeg4
@@ -1015,6 +1028,7 @@ mydns
 myhost
 mysql
 nacks
+nagle
 namelen
 namespace
 naptr
@@ -1042,6 +1056,7 @@ newpw
 nexthop
 nextseq
 nfs2err
+nfs3err
 nfs4err
 nghttp
 ngran
@@ -1130,6 +1145,7 @@ opflags
 oplock
 opnum
 optimisation
+optimised
 optimizations
 optimizer
 optiplex
@@ -1181,6 +1197,7 @@ peeraddr
 peerkey
 periodicities
 periodicity
+peripherals
 peristency
 persistency
 pfname
@@ -1205,6 +1222,7 @@ pluginsdir
 pmconfig
 pname
 polestar
+polygon
 popup
 portcounters
 portid
@@ -1234,6 +1252,8 @@ prepay
 prepend
 preshared
 printf
+prioritised
+prioritising
 prioritization
 prioritized
 privkey
@@ -1277,10 +1297,13 @@ qsearch
 quadlet
 quadrature
 quadro
+quadruplets
 quantifiers
 quantization
+quantized
 queryhit
 queryset
+quiesce
 quiescing
 quintuplet
 quintuplets
@@ -1299,6 +1322,7 @@ raster
 rdpudp
 rdtci
 reachability
+readdir
 readme
 realloc
 realtek
@@ -1344,6 +1368,7 @@ redir
 redirection
 redirector
 redirects
+redist
 redistributable
 redistributables
 reencyption
@@ -1459,6 +1484,7 @@ sanicap
 sanitize
 sapgui
 satisfiable
+savvius
 scalability
 scalable
 scaleout
@@ -1477,6 +1503,7 @@ sectorization
 sectorized
 segmenting
 segno
+selectivity
 semaphores
 semiautomatic
 sendto
@@ -1485,6 +1512,7 @@ separators
 seqno
 seqnr
 seqnum
+seqpkt
 sequenceno
 sercos
 serialised
@@ -1517,11 +1545,13 @@ signaling
 signon
 simulcast
 sistemas
+sizeof
 skippable
 skype
 slaac
 slimp
 slsch
+smpdirected
 smpte
 smrse
 sname
@@ -1552,6 +1582,7 @@ spline
 spnego
 spoofing
 spooled
+sqlwarn
 srbid
 srcport
 srtcp
@@ -1679,6 +1710,7 @@ timestamp
 timestamps
 timezone
 tipcv
+tobago
 toggled
 toggling
 toolbar
@@ -1743,6 +1775,7 @@ uint32
 uint8
 ulmap
 ulsch
+umask
 unack
 unacked
 unadmitted
@@ -1849,6 +1882,7 @@ unreportable
 unresolvable
 unresponded
 unroutable
+unsaved
 unsecure
 unsegmented
 unsequenced

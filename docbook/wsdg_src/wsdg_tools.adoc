@@ -131,7 +131,7 @@ after the cmake run. To only view the current cache, add option `-N`.
 
 Depending on your needs, it might be useful to save your CMake configuration options in a file outside your build directory.
 CMake supports this via its https://cmake.org/cmake/help/v3.23/manual/cmake-presets.7.html[presets] option.
-For example, adding the follwing to `CMakeUserPresets.json` would let you build using Ninja in the `build` directory, enable ccache, and set a custom Qt directory by running `cmake --preset mydev`:
+For example, adding the following to `CMakeUserPresets.json` would let you build using Ninja in the `build` directory, enable ccache, and set a custom Qt directory by running `cmake --preset mydev`:
 
 [source,json]
 ----

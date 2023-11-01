@@ -127,7 +127,7 @@ static gint ett_ws_fragment = -1;
 
 static expert_field ei_ws_payload_unknown = EI_INIT;
 static expert_field ei_ws_decompression_failed = EI_INIT;
-static expert_field ei_ws_not_fully_unmased = EI_INIT;
+static expert_field ei_ws_not_fully_unmasked = EI_INIT;
 
 #define WS_CONTINUE 0x0
 #define WS_TEXT     0x1
@@ -537,7 +537,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
   pl_tree = proto_item_add_subtree(ti, ett_ws_pl);
 
   if (masked_payload_length > capture_length) {
-    expert_add_info_format(pinfo, ti, &ei_ws_not_fully_unmased, "Payload not fully unmaked. "
+    expert_add_info_format(pinfo, ti, &ei_ws_not_fully_unmasked, "Payload not fully unmasked. "
       "%u bytes not yet unmasked due to the preference of max unmasked length limit (%u bytes).",
       masked_payload_length - capture_length, pref_max_unmasked_len);
   }
@@ -998,7 +998,7 @@ proto_register_websocket(void)
   static ei_register_info ei[] = {
     { &ei_ws_payload_unknown, { "websocket.payload.unknown.expert", PI_UNDECODED, PI_NOTE, "Dissector for Websocket Opcode", EXPFILL }},
     { &ei_ws_decompression_failed, { "websocket.decompression.failed.expert", PI_PROTOCOL, PI_WARN, "Decompression failed", EXPFILL }},
-    { &ei_ws_not_fully_unmased, { "websocket.payload.not.fully.unmasked", PI_UNDECODED, PI_NOTE, "Payload not fully unmasked", EXPFILL }},
+    { &ei_ws_not_fully_unmasked, { "websocket.payload.not.fully.unmasked", PI_UNDECODED, PI_NOTE, "Payload not fully unmasked", EXPFILL }},
   };
 
   static const enum_val_t text_types[] = {

@@ -23,7 +23,7 @@
 #include "packet-pkix1explicit.h"
 #include "packet-x509ce.h"
 
-#define PNAME  "PKIX1Implitit"
+#define PNAME  "PKIX1Implicit"
 #define PSNAME "PKIX1IMPLICIT"
 #define PFNAME "pkix1implicit"
 
