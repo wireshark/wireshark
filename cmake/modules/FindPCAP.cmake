@@ -238,10 +238,14 @@ if(PCAP_FOUND)
     # isn't found in the system libpcap.
     #
     # Protecting calls to those APIs with __builtin_available()
-    # does not appear to prevent this, for some unknown reason,
-    # and it doesn't even allow the program to compile with
-    # versions of Xcode prior to Xcode 15, as the pcap.h file
-    # doesn't specify minimum OS versions for those functions.
+    # does not prevent this, because the libpcap header files
+    # in the Sonoma SDK mark them as being first available
+    # in macOS 10.13, just like all the other routines introduced
+    # in libpcap 1.9, even though they're only available if libpcap
+    # is built with remote capture enabled or stub routines are
+    # provided.  (A fix to enable this has been checked into the
+    # libpcap repository, and may end up in a later version of
+    # the SDK.)
     #
     # Given all that, and given that the versions of the
     # remote-capture APIs in Sonoma are stubs that always fail,
