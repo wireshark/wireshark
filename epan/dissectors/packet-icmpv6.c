@@ -83,6 +83,7 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 8335: PROBE: A Utility for Probing Interfaces
  * RFC 8781: Discovering PREF64 in Router Advertisements
  * RFC 8505: Registration Extensions for IPv6 over Low-Power Wireless Personal Area Network (6LoWPAN) Neighbor Discovery
+ * RFC 8801: Discovering Provisioning Domain Names and Data
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2016-02-24)
  */
 
@@ -172,6 +173,14 @@ static int hf_icmpv6_opt_nrpi_prefix_len = -1;
 static int hf_icmpv6_opt_nrpi_prefix = -1;
 static int hf_icmpv6_opt_lla_option_code = -1;
 static int hf_icmpv6_opt_lla_bytes = -1;
+static int hf_icmpv6_opt_pvd_id_flags = -1;
+static int hf_icmpv6_opt_pvd_id_flags_h = -1;
+static int hf_icmpv6_opt_pvd_id_flags_l = -1;
+static int hf_icmpv6_opt_pvd_id_flags_r = -1;
+static int hf_icmpv6_opt_pvd_id_flags_reserved = -1;
+static int hf_icmpv6_opt_pvd_id_delay = -1;
+static int hf_icmpv6_opt_pvd_id_sequence_number = -1;
+static int hf_icmpv6_opt_pvd_id_fqdn = -1;
 static int hf_icmpv6_opt_map_dist = -1;
 static int hf_icmpv6_opt_map_pref = -1;
 static int hf_icmpv6_opt_map_flag = -1;
@@ -583,6 +592,7 @@ static gint ett_icmpv6_opt = -1;
 static gint ett_icmpv6_mar = -1;
 static gint ett_icmpv6_flag_prefix = -1;
 static gint ett_icmpv6_flag_map = -1;
+static gint ett_icmpv6_flag_pvd_id = -1;
 static gint ett_icmpv6_flag_route_info = -1;
 static gint ett_icmpv6_flag_6lowpan = -1;
 static gint ett_icmpv6_flag_efo = -1;
@@ -946,6 +956,7 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_NEW_ROUTER_PREFIX_INFO   18
 #define ND_OPT_LINK_LAYER_ADDRESS       19
 #define ND_OPT_NEIGHBOR_ADV_ACK         20
+#define ND_OPT_PVD_ID                   21
 #define ND_OPT_MAP                      23
 #define ND_OPT_ROUTE_INFO               24
 #define ND_OPT_RECURSIVE_DNS_SERVER     25
@@ -984,7 +995,8 @@ static const value_string option_vals[] = {
 /* 18 */   { ND_OPT_NEW_ROUTER_PREFIX_INFO,    "New Router Prefix Information" },          /* [RFC4068] OBSO */
 /* 19 */   { ND_OPT_LINK_LAYER_ADDRESS,        "Link-layer Address" },                     /* [RFC5568] */
 /* 20 */   { ND_OPT_NEIGHBOR_ADV_ACK,          "Neighbor Advertisement Acknowledgment" },  /* [RFC5568] */
-/* 21-22   Unassigned */
+/* 21 */   { ND_OPT_PVD_ID,                    "PvD ID" },                                 /* [RFC8801] */
+/* 22   Unassigned */
 /* 23 */   { ND_OPT_MAP,                       "MAP" },                                    /* [RFC4140] */
 /* 24 */   { ND_OPT_ROUTE_INFO,                "Route Information" },                      /* [RFC4191] */
 /* 25 */   { ND_OPT_RECURSIVE_DNS_SERVER,      "Recursive DNS Server" },                   /* [RFC6106] */
@@ -2165,6 +2177,63 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, opt_len - 4, ENC_NA);
                     opt_offset += opt_len - 4;
                 }
+                break;
+            }
+            case ND_OPT_PVD_ID: /* PvD ID (21) */
+            {
+                int dns_len;
+                const gchar *dns_name, *name_out;
+                guint64 flags;
+
+                static int * const pvd_id_flags[] = {
+                    &hf_icmpv6_opt_pvd_id_flags_h,
+                    &hf_icmpv6_opt_pvd_id_flags_l,
+                    &hf_icmpv6_opt_pvd_id_flags_r,
+                    &hf_icmpv6_opt_pvd_id_flags_reserved,
+                    NULL
+                };
+
+                /* Flags */
+                proto_tree_add_bitmask_with_flags_ret_uint64(icmp6opt_tree, tvb, opt_offset, hf_icmpv6_opt_pvd_id_flags,
+                  ett_icmpv6_flag_pvd_id, pvd_id_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
+
+                /* Delay */
+                proto_tree_add_item(tree, hf_icmpv6_opt_pvd_id_delay, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                opt_offset += 2;
+
+                /* Sequence Number */
+                proto_tree_add_item(tree, hf_icmpv6_opt_pvd_id_sequence_number, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                opt_offset += 2;
+
+                /* PvD ID FQDN */
+                used_bytes = get_dns_name(tvb, opt_offset, 0, opt_offset, &dns_name, &dns_len);
+                name_out = format_text(pinfo->pool, dns_name, dns_len);
+                proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_pvd_id_fqdn, tvb, opt_offset, used_bytes, name_out);
+                opt_offset += used_bytes;
+
+                /* Padding */
+                if (opt_offset & 0x07) {
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, 8 - (opt_offset & 0x07), ENC_NA);
+                    opt_offset += 8 - (opt_offset & 0x07);
+                }
+
+                /*
+                 * When the R-flag is set, a full Router Advertisement message header as specified in [RFC4861].
+                 * The sender MUST set the Type field to 134 (the value for "Router Advertisement") and set the Code field to 0.
+                 * Receivers MUST ignore both of these fields. The Checksum field MUST be set to 0 by the sender;
+                 * non-zero checksums MUST be ignored by the receiver without causing the processing of the message to fail.
+                 * All other fields are to be set and parsed as specified in [RFC4861] or any updating documents.
+                 */
+                if(flags & 0x200) {
+                    tvbuff_t *ra_tvb;
+                    ra_tvb = tvb_new_subset_length(tvb, opt_offset, 16);
+                    call_dissector(icmpv6_handle, ra_tvb, pinfo, icmp6opt_tree);
+                    opt_offset += 16;
+                }
+
+                /* Options */
+                opt_offset = dissect_icmpv6_nd_opt(tvb, opt_offset, pinfo, icmp6opt_tree);
+
                 break;
             }
             case ND_OPT_MAP: /* MAP Option (23) */
@@ -5124,6 +5193,33 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_naack_supplied_ncoa,
           { "Supplied NCoA", "icmpv6.opt.naack.supplied_ncoa", FT_IPv6, BASE_NONE, NULL, 0x00,
             NULL, HFILL }},
+
+        { &hf_icmpv6_opt_pvd_id_flags,
+          { "Flags", "icmpv6.opt.pvd_id.flags", FT_UINT16, BASE_HEX, NULL, 0xFFF0,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_pvd_id_flags_h,
+          { "H Flag", "icmpv6.opt.pvd_id.flags.h", FT_BOOLEAN, 16, NULL, 0x8000,
+            "'HTTP' flag stating whether some PvD Additional Information is made available through HTTP over TLS", HFILL }},
+        { &hf_icmpv6_opt_pvd_id_flags_l,
+          { "L Flag", "icmpv6.opt.pvd_id.flags.l", FT_BOOLEAN, 16, NULL, 0x4000,
+            "'Legacy' flag stating whether the PvD is associated with IPv4 information assigned using DHCPv4", HFILL }},
+        { &hf_icmpv6_opt_pvd_id_flags_r,
+          { "R Flag", "icmpv6.opt.pvd_id.flags.r", FT_BOOLEAN, 16, NULL, 0x2000,
+            "'Router Advertisement' flag stating whether the PvD Option header is followed (right after padding to the next 64-bit boundary) by a Router Advertisement message header", HFILL }},
+        { &hf_icmpv6_opt_pvd_id_flags_reserved,
+          { "Reserved", "icmpv6.opt.pvd_id.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0x1FF0,
+            "Must be 0", HFILL }},
+        { &hf_icmpv6_opt_pvd_id_delay,
+          { "Delay", "icmpv6.opt.pvd_id.delay", FT_UINT8, BASE_DEC, NULL, 0x000F,
+            "Unsigned integer used to delay HTTP GET queries from hosts by a randomized backoff", HFILL }},
+        { &hf_icmpv6_opt_pvd_id_sequence_number,
+          { "Sequence Number", "icmpv6.opt.pvd_id.sequence_number", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Sequence number for the PvD Additional Information", HFILL }},
+        { &hf_icmpv6_opt_pvd_id_fqdn,
+          { "PvD ID FQDN", "icmpv6.opt.pvd_id.fqdn", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+
         { &hf_icmpv6_opt_map_dist,
           { "Distance", "icmpv6.opt.map.distance", FT_UINT8, BASE_DEC, NULL, 0xF0,
             "Identifying the distance between MAP and the receiver of the advertisement (in the number of hops)", HFILL }},
@@ -6251,6 +6347,7 @@ proto_register_icmpv6(void)
         &ett_icmpv6_mar,
         &ett_icmpv6_flag_prefix,
         &ett_icmpv6_flag_map,
+        &ett_icmpv6_flag_pvd_id,
         &ett_icmpv6_flag_route_info,
         &ett_icmpv6_flag_earo,
         &ett_icmpv6_flag_6lowpan,
