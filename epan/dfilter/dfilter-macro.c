@@ -141,6 +141,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 	char c;
 	const char* r = text;
 	bool changed = false;
+	char* resolved;
 
 	if ( depth > 31) {
 		if (error != NULL)
@@ -169,22 +170,24 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 		c = *r++;
 
 		switch(state) {
-			case OUTSIDE: {
+			case OUTSIDE:
+			{
 				switch(c) {
-					case '\0': {
+					case '\0':
 						goto finish;
-					} case '$': {
+					case '$':
 						state = STARTING;
 						break;
-					} default: {
+					default:
 						g_string_append_c(out,c);
 						break;
-					}
 				}
 				break;
-			} case STARTING: {
+			}
+			case STARTING:
+			{
 				switch (c) {
-					case '{': {
+					case '{':
 						if (start_is_field_reference(r)) {
 							/* We have a field reference, preserve the name with ${} and bail. */
 							g_string_append(out,"${");
@@ -200,28 +203,27 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 						state = NAME;
 
 						break;
-					} case '\0': {
+					case '\0':
 						g_string_append_c(out,'$');
 
 						goto finish;
-					} default: {
+					default:
 						g_string_append_c(out,'$');
 						g_string_append_c(out,c);
 
 						state = OUTSIDE;
 
 						break;
-					}
 				}
 				break;
-			} case NAME: {
+			}
+			case NAME:
+			{
 				if ( g_ascii_isalnum(c) || c == '_' || c == '-' || c == '.' ) {
 					g_string_append_c(name,c);
 				} else if ( c == ':') {
 					state = ARGS;
 				} else if ( c == '}') {
-					char* resolved;
-
 					g_ptr_array_add(args,NULL);
 
 					resolved = dfilter_macro_resolve(name->str, (char**)args->pdata, error);
@@ -246,18 +248,20 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 					goto on_error;
 				}
 				break;
-			} case ARGS: {
+			}
+			case ARGS:
+			{
 				switch(c) {
-					case '\0': {
+					case '\0':
 						if (error != NULL)
 							*error = df_error_new_msg("end of filter in the middle of a macro expression");
 						goto on_error;
-					} case ';': {
+					case ';':
 						g_ptr_array_add(args,g_string_free(arg,false));
 
 						arg = g_string_sized_new(32);
 						break;
-					} case '\\': {
+					case '\\':
 						c = *r++;
 						if (c) {
 							g_string_append_c(arg,c);
@@ -267,11 +271,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 								*error = df_error_new_msg("end of filter in the middle of a macro expression");
 							goto on_error;
 						}
-					} default: {
-						g_string_append_c(arg,c);
-						break;
-					} case '}': {
-						char* resolved;
+					case '}':
 						g_ptr_array_add(args,g_string_free(arg,false));
 						g_ptr_array_add(args,NULL);
 
@@ -290,7 +290,9 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 
 						state = OUTSIDE;
 						break;
-					}
+					default:
+						g_string_append_c(arg,c);
+						break;
 				}
 				break;
 			}
@@ -302,7 +304,7 @@ finish:
 		FREE_ALL();
 
 		if (changed) {
-			char* resolved = dfilter_macro_apply_recurse(out->str, depth + 1, error);
+			resolved = dfilter_macro_apply_recurse(out->str, depth + 1, error);
 			g_string_free(out,true);
 			return resolved;
 		} else {
@@ -360,7 +362,8 @@ static void macro_parse(dfilter_macro_t* m) {
 				if(*r)
 					*(w++) = *(r++);
 				break;
-			case '$': {
+			case '$':
+			{
 				int cnt = 0;
 				int arg_pos = 0;
 				do {
