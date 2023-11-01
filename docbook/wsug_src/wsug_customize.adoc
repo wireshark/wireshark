@@ -841,9 +841,6 @@ The _DNS Servers_ btn:[Edit...] button provides access to the dialog to manage t
 
 The _Maximum concurrent requests_ input field allows you to limit the amount of DNS queries made at the same time.
 
-Selecting _Only use the profile "hosts" file_ causes the system host file to be ignored.
-This may be helpful if conflicting entries cause mis-identification of hosts.
-
 Selecting _Resolve VLAN IDs_ causes the file "vlans" to be read and used to name VLANs.
 This file has the simple format of one line per VLAN, starting wit VLAN ID, a tab character, followed by the name of the VLAN.
 

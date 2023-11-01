@@ -40,14 +40,13 @@ def nameres_setup(program_path, conf_path):
 
 @pytest.fixture
 def check_name_resolution(cmd_tshark, capture_file, nameres_setup, test_env):
-    def check_name_resolution_real(o_net_name, o_external_name_res, o_hosts_file, custom_profile, grep_str, fail_on_match=False):
+    def check_name_resolution_real(o_net_name, o_external_name_res, custom_profile, grep_str, fail_on_match=False):
         if grep_str.startswith('global') and not nameres_setup:
             pytest.skip('Global name resolution tests would require modifying the application bundle')
         tshark_cmd = (cmd_tshark,
             '-r', capture_file('dns+icmp.pcapng.gz'),
             '-o', 'nameres.network_name: ' + tf_str[o_net_name],
             '-o', 'nameres.use_external_name_resolver: ' + tf_str[o_external_name_res],
-            '-o', 'nameres.hosts_file_handling: ' + tf_str[o_hosts_file],
             )
         if custom_profile:
             tshark_cmd += ('-C', custom_profile_name)
@@ -62,52 +61,25 @@ def check_name_resolution(cmd_tshark, capture_file, nameres_setup, test_env):
 class TestNameResolution:
 
     def test_name_resolution_net_t_ext_f_hosts_f_global(self, check_name_resolution):
-        '''Name resolution, no external, no profile hosts, global profile.'''
+        '''Name resolution, no external, global profile.'''
         # nameres.network_name: True
         # nameres.use_external_name_resolver: False
-        # nameres.hosts_file_handling: False
         # Profile: Default
-        check_name_resolution(True, False, False, False, 'global-8-8-8-8')
+        check_name_resolution(True, False, False, 'global-8-8-8-8')
 
     def test_name_resolution_net_t_ext_f_hosts_f_personal(self, check_name_resolution):
-        '''Name resolution, no external, no profile hosts, personal profile.'''
+        '''Name resolution, no external, personal profile.'''
         # nameres.network_name: True
         # nameres.use_external_name_resolver: False
-        # nameres.hosts_file_handling: False
         # Profile: Default
-        check_name_resolution(True, False, False, False, 'personal-8-8-4-4')
+        check_name_resolution(True, False, False, 'personal-8-8-4-4')
 
     def test_name_resolution_net_t_ext_f_hosts_f_custom(self, check_name_resolution):
         '''Name resolution, no external, no profile hosts, custom profile.'''
         # nameres.network_name: True
         # nameres_use_external_name_resolver: False
-        # nameres.hosts_file_handling: False
         # Profile: Custom
-        check_name_resolution(True, False, False, True, 'custom-4-2-2-2')
-
-    def test_name_resolution_net_t_ext_f_hosts_t_global(self, check_name_resolution):
-        '''Name resolution, no external, profile hosts, global profile.'''
-        # nameres.network_name: True
-        # nameres.use_external_name_resolver: False
-        # nameres.hosts_file_handling: True
-        # Profile: Default
-        check_name_resolution(True, False, True, False, 'global-8-8-8-8', True)
-
-    def test_name_resolution_net_t_ext_f_hosts_t_personal(self, check_name_resolution):
-        '''Name resolution, no external, profile hosts, personal profile.'''
-        # nameres.network_name: True
-        # nameres.use_external_name_resolver: False
-        # nameres.hosts_file_handling: True
-        # Profile: Default
-        check_name_resolution(True, False, True, False, 'personal-8-8-4-4')
-
-    def test_name_resolution_net_t_ext_f_hosts_t_custom(self, check_name_resolution):
-        '''Name resolution, no external, profile hosts, custom profile.'''
-        # nameres.network_name: True
-        # nameres_use_external_name_resolver: False
-        # nameres.hosts_file_handling: True
-        # Profile: Custom
-        check_name_resolution(True, False, True, True, 'custom-4-2-2-2')
+        check_name_resolution(True, False, True, 'custom-4-2-2-2')
 
     def test_hosts_any(self, cmd_tshark, capture_file):
         stdout = subprocess.check_output((cmd_tshark,
