@@ -43,6 +43,12 @@ static int hf_lin_header_tx_error = -1;
 static int hf_lin_tx_error = -1;
 static int hf_lin_rx_error = -1;
 static int hf_lin_rx_no_response = -1;
+static int hf_flexray_bus_synchronous = -1;
+static int hf_flexray_normal_active = -1;
+static int hf_flexray_syntax_error = -1;
+static int hf_flexray_content_error = -1;
+static int hf_flexray_boundary_violation = -1;
+static int hf_flexray_tx_conflict = -1;
 static int hf_network_id = -1;
 static int hf_network_state = -1;
 static int hf_frame_id = -1;
@@ -50,6 +56,11 @@ static int hf_can_id_type = -1;
 static int hf_can_frame_type = -1;
 static int hf_can_id = -1;
 static int hf_lin_pid = -1;
+static int hf_flexray_channel_b = -1;
+static int hf_flexray_channel_a = -1;
+static int hf_flexray_slot_valid = -1;
+static int hf_flexray_slot_id = -1;
+static int hf_flexray_cycle = -1;
 static int hf_payload_length = -1;
 static int hf_payload = -1;
 static int ett_busmirroring = -1;
@@ -165,6 +176,15 @@ dissect_busmirroring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
                 proto_tree_add_item(ns_tree, hf_lin_rx_no_response, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             break;
+            case NETWORK_TYPE_FLEXRAY:
+            {
+                proto_tree_add_item(ns_tree, hf_flexray_bus_synchronous, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_flexray_normal_active, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_flexray_syntax_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_flexray_content_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_flexray_boundary_violation, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ns_tree, hf_flexray_tx_conflict, tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
             default:
                 break;
             }
@@ -194,8 +214,15 @@ dissect_busmirroring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
             break;
             case NETWORK_TYPE_FLEXRAY:
             {
-                proto_tree_add_item(data_item, hf_frame_id, tvb, offset, 3, ENC_BIG_ENDIAN);
-                offset += 3;
+                proto_item* frame_id_item = proto_tree_add_item(data_item, hf_frame_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+                proto_tree *frame_id_tree = proto_item_add_subtree(frame_id_item, ett_frame_id);
+                proto_tree_add_item(frame_id_tree, hf_flexray_channel_b, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(frame_id_tree, hf_flexray_channel_a, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(frame_id_tree, hf_flexray_slot_valid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(frame_id_tree, hf_flexray_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(frame_id_tree, hf_flexray_cycle, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
             }
             break;
             default:
@@ -336,6 +363,36 @@ void proto_register_busmirroring(void)
           FT_BOOLEAN, 8,
           NULL, 0x01,
           NULL, HFILL}},
+        {&hf_flexray_bus_synchronous,
+         {"Bus Synchronous", "busmirroring.flexray_bus_synchronous",
+          FT_BOOLEAN, 8,
+          NULL, 0x20,
+          NULL, HFILL}},
+        {&hf_flexray_normal_active,
+         {"Normal Active", "busmirroring.flexray_normal_active",
+          FT_BOOLEAN, 8,
+          NULL, 0x10,
+          NULL, HFILL}},
+        {&hf_flexray_syntax_error,
+         {"Syntax Error", "busmirroring.flexray_syntax_error",
+          FT_BOOLEAN, 8,
+          NULL, 0x08,
+          NULL, HFILL}},
+        {&hf_flexray_content_error,
+         {"Content Error", "busmirroring.flexray_content_error",
+          FT_BOOLEAN, 8,
+          NULL, 0x04,
+          NULL, HFILL}},
+        {&hf_flexray_boundary_violation,
+         {"Boundary Violation", "busmirroring.flexray_boundary_violation",
+          FT_BOOLEAN, 8,
+          NULL, 0x02,
+          NULL, HFILL}},
+        {&hf_flexray_tx_conflict,
+         {"Tx Conflict", "busmirroring.flexray_tx_conflict",
+          FT_BOOLEAN, 8,
+          NULL, 0x01,
+          NULL, HFILL}},
         {&hf_frame_id,
          {"Frame ID", "busmirroring.frame_id",
           FT_UINT32, BASE_HEX,
@@ -359,6 +416,31 @@ void proto_register_busmirroring(void)
         {&hf_lin_pid,
          {"LIN PID", "busmirroring.lin_pid",
           FT_UINT8, BASE_HEX_DEC,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_flexray_channel_b,
+         {"Channel B", "busmirroring.flexray_channel_b",
+          FT_BOOLEAN, 16,
+          TFS(&tfs_available_not_available), 0x8000,
+          NULL, HFILL}},
+        {&hf_flexray_channel_a,
+         {"Channel A", "busmirroring.flexray_channel_a",
+          FT_BOOLEAN, 16,
+          TFS(&tfs_available_not_available), 0x4000,
+          NULL, HFILL}},
+        {&hf_flexray_slot_valid,
+         {"Slot", "busmirroring.flexray_slot_valid",
+          FT_BOOLEAN, 16,
+          TFS(&tfs_valid_not_valid), 0x0800,
+          NULL, HFILL}},
+        {&hf_flexray_slot_id,
+         {"Slot ID", "busmirroring.flexray_slot_id",
+          FT_UINT16, BASE_HEX_DEC,
+          NULL, 0x07FF,
+          NULL, HFILL}},
+        {&hf_flexray_cycle,
+         {"Cycle", "busmirroring.flexray_cycle",
+          FT_UINT8, BASE_DEC,
           NULL, 0x0,
           NULL, HFILL}},
         {&hf_payload_length,
