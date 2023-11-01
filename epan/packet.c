@@ -3268,6 +3268,10 @@ dissector_handle_get_protocol_index(const dissector_handle_t handle)
 GList*
 get_dissector_names(void)
 {
+	if (!registered_dissectors) {
+		return NULL;
+	}
+
 	return g_hash_table_get_keys(registered_dissectors);
 }
 

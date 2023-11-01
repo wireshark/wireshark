@@ -487,6 +487,7 @@ bool AdvancedPrefsModel::setData(const QModelIndex &dataindex, const QVariant &v
             prefs_set_enum_value(item->getPref(), value.toInt(), pref_stashed);
             break;
         case PREF_STRING:
+        case PREF_DISSECTOR:
             prefs_set_string_value(item->getPref(), value.toString().toStdString().c_str(), pref_stashed);
             break;
         case PREF_PASSWORD:

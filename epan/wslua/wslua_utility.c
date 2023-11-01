@@ -180,6 +180,7 @@ WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
             case PREF_SAVE_FILENAME:
             case PREF_OPEN_FILENAME:
             case PREF_DIRNAME:
+            case PREF_DISSECTOR:
             {
                 const gchar *string_value = prefs_get_string_value(pref, pref_current);
                 lua_pushstring(L,string_value);
@@ -256,6 +257,7 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
             case PREF_SAVE_FILENAME:
             case PREF_OPEN_FILENAME:
             case PREF_DIRNAME:
+            case PREF_DISSECTOR:
             {
                 const gchar *string_value = luaL_checkstring(L,WSLUA_ARG_set_preference_VALUE);
                 changed = prefs_set_string_value(pref, string_value, pref_current);

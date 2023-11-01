@@ -270,6 +270,7 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     case PREF_DECODE_AS_UINT:
     case PREF_DECODE_AS_RANGE:
     case PREF_PASSWORD:
+    case PREF_DISSECTOR:
     {
         EditorPreferenceAction *epa = new EditorPreferenceAction(pref, this);
         addAction(epa);

@@ -108,6 +108,8 @@ struct pref_custom_cbs {
  */
 #define PREF_PROTO_TCP_SNDAMB_ENUM   (1u << 16)
 
+#define PREF_DISSECTOR        (1u << 17) /* like string, but with dissector name syntax check */
+
 /* read_prefs_file: read in a generic config file and do a callback to */
 /* pref_set_pair_fct() for every key/value pair found */
 /**

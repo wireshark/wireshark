@@ -333,6 +333,7 @@ free_pref(gpointer data, gpointer user_data _U_)
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
     case PREF_PASSWORD:
+    case PREF_DISSECTOR:
         free_string_like_preference(pref);
         break;
     case PREF_RANGE:
@@ -1969,6 +1970,19 @@ DIAG_OFF(cast-qual)
 DIAG_ON(cast-qual)
 }
 
+/*
+ * Register a preference with a dissector name.
+ */
+void
+prefs_register_dissector_preference(module_t *module, const char *name,
+                                    const char *title, const char *description,
+                                    const char **var)
+{
+DIAG_OFF(cast-qual)
+    register_string_like_preference(module, name, title, description,
+                                    (char **)var, PREF_DISSECTOR, NULL, FALSE);
+DIAG_ON(cast-qual)
+}
 
 gboolean prefs_add_decode_as_value(pref_t *pref, guint value, gboolean replace)
 {
@@ -2091,6 +2105,7 @@ pref_stash(pref_t *pref, gpointer unused _U_)
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
     case PREF_PASSWORD:
+    case PREF_DISSECTOR:
         g_free(pref->stashed_val.string);
         pref->stashed_val.string = g_strdup(*pref->varp.string);
         break;
@@ -2194,6 +2209,7 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
     case PREF_PASSWORD:
+    case PREF_DISSECTOR:
         if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
             g_free(*pref->varp.string);
@@ -2301,6 +2317,7 @@ reset_stashed_pref(pref_t *pref) {
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
     case PREF_PASSWORD:
+    case PREF_DISSECTOR:
         g_free(pref->stashed_val.string);
         pref->stashed_val.string = g_strdup(pref->default_val.string);
         break;
@@ -2353,6 +2370,7 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
     case PREF_PASSWORD:
+    case PREF_DISSECTOR:
         if (pref->stashed_val.string != NULL) {
             g_free(pref->stashed_val.string);
             pref->stashed_val.string = NULL;
@@ -4357,6 +4375,7 @@ reset_pref(pref_t *pref)
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
     case PREF_PASSWORD:
+    case PREF_DISSECTOR:
         reset_string_like_preference(pref);
         break;
 
@@ -6136,6 +6155,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         case PREF_SAVE_FILENAME:
         case PREF_OPEN_FILENAME:
         case PREF_DIRNAME:
+        case PREF_DISSECTOR:
             containing_module->prefs_changed_flags |= prefs_set_string_value(pref, value, pref_current);
             break;
 
@@ -6339,6 +6359,10 @@ prefs_pref_type_name(pref_t *pref)
     case PREF_PASSWORD:
         type_name = "Password";
         break;
+
+    case PREF_DISSECTOR:
+        type_name = "Dissector";
+        break;
     }
     return type_name;
 }
@@ -6490,6 +6514,10 @@ prefs_pref_type_description(pref_t *pref)
         type_desc = "Password (never stored on disk)";
         break;
 
+    case PREF_DISSECTOR:
+        type_desc = "A dissector name";
+        break;
+
     default:
         break;
     }
@@ -6537,6 +6565,7 @@ prefs_pref_is_default(pref_t *pref)
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
     case PREF_PASSWORD:
+    case PREF_DISSECTOR:
         if (!(g_strcmp0(pref->default_val.string, *pref->varp.string)))
             return TRUE;
         break;
@@ -6656,6 +6685,8 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
+    case PREF_PASSWORD:
+    case PREF_DISSECTOR:
         return g_strdup(*(const char **) valp);
 
     case PREF_DECODE_AS_RANGE:
@@ -6691,9 +6722,6 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
             pref_text = "[Managed in an unknown file]";
         break;
     }
-
-    case PREF_PASSWORD:
-        return g_strdup(*(const char **) valp);
 
     default:
         break;

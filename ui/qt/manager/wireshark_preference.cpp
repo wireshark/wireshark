@@ -80,6 +80,7 @@ public:
 };
 REGISTER_PREFERENCE_TYPE(PREF_STRING, StringPreference)
 REGISTER_PREFERENCE_TYPE(PREF_CUSTOM, StringPreference)
+REGISTER_PREFERENCE_TYPE(PREF_DISSECTOR, StringPreference)
 
 class PasswordPreference : public StringPreference
 {

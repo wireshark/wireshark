@@ -10,6 +10,7 @@
 #include "module_preferences_scroll_area.h"
 #include <ui_module_preferences_scroll_area.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
+#include <ui/qt/widgets/dissector_syntax_line_edit.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "uat_dialog.h"
@@ -166,6 +167,21 @@ pref_show(pref_t *pref, gpointer user_data)
         string_le->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         string_le->setMinimumWidth(string_le->fontMetrics().height() * 20);
         string_le->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+        hb->addWidget(string_le);
+        hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        vb->addLayout(hb);
+        break;
+    }
+    case PREF_DISSECTOR:
+    {
+        QHBoxLayout *hb = new QHBoxLayout();
+        QLabel *label = new QLabel(prefs_get_title(pref));
+        label->setToolTip(tooltip);
+        hb->addWidget(label);
+        QLineEdit *string_le = new DissectorSyntaxLineEdit();
+        string_le->setToolTip(tooltip);
+        string_le->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
+        string_le->setMinimumWidth(string_le->fontMetrics().height() * 20);
         hb->addWidget(string_le);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
         vb->addLayout(hb);
@@ -333,6 +349,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         case PREF_OPEN_FILENAME:
         case PREF_DIRNAME:
         case PREF_PASSWORD:
+        case PREF_DISSECTOR:
             connect(le, &QLineEdit::textEdited, this, &ModulePreferencesScrollArea::stringLineEditTextEdited);
             break;
         case PREF_RANGE:

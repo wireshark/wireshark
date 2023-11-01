@@ -763,6 +763,30 @@ WS_DLL_PUBLIC void prefs_register_password_preference(module_t *module, const ch
     const char *title, const char *description, const char **var);
 
 /**
+ * Register a preference with a dissector name.
+ * @param module the preferences module returned by prefs_register_protocol() or
+ *               prefs_register_protocol_subtree()
+ * @param name the preference's identifier. This is appended to the name of the
+ *             protocol, with a "." between them, to create a unique identifier.
+ *             The identifier should not include the protocol name, as the name in
+ *             the preference file will already have it. Make sure that
+ *             only lower-case ASCII letters, numbers, underscores and
+ *             dots appear in the preference name.
+ * @param title Field's title in the preferences dialog
+ * @param description description to include in the preferences file
+ *                    and shown as tooltip in the GUI, or NULL
+ * @param var pointer to the storage location that is updated when the
+ *                    field is changed in the preference dialog box. Note that
+ *          with string preferences the given pointer is overwritten
+ *          with a pointer to a new copy of the string during the
+ *          preference registration. The passed-in string may be
+ *          freed, but you must keep another pointer to the string
+ *          in order to free it
+ */
+WS_DLL_PUBLIC void prefs_register_dissector_preference(module_t *module, const char *name,
+    const char *title, const char *description, const char **var);
+
+/**
  * Register a preference that used to be supported but no longer is.
  *
  * Note that a warning will pop up if you've saved such preference to the

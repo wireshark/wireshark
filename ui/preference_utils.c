@@ -93,7 +93,7 @@ prefs_store_ext_helper(const char * module_name, const char *pref_name, const ch
     if (!pref)
         return 0;
 
-    if (prefs_get_type(pref) == PREF_STRING )
+    if (prefs_get_type(pref) == PREF_STRING || prefs_get_type(pref) == PREF_DISSECTOR)
     {
         pref_changed |= prefs_set_string_value(pref, pref_value, pref_stashed);
         if ( !pref_changed || prefs_get_string_value(pref, pref_stashed) != 0 )
