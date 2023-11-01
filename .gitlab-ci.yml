@@ -57,7 +57,7 @@ variables:
 # wireshark/wireshark, e.g. wireshark-windows-*. Run automatically in
 # the main repo and allow manual runs in the web UI.
 .if-w-w-only-merged:
-  - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+  - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "release-4.2" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
   - if: '$CI_PIPELINE_SOURCE == "web"'
   - if: '$CI_PIPELINE_SOURCE == "api"'
 # Incoming merge requests.
@@ -80,6 +80,10 @@ variables:
   stage: build
   tags:
     - docker
+  before_script:
+    - printf "\e[0Ksection_start:%s:ci_env_section[collapsed=true]\r\e[0KCI environment variables" "$(date +%s)"
+    - env | grep ^CI | sort
+    - printf "\e[0Ksection_end:%s:ci_env_section\r\e[0K" "$(date +%s)"
   after_script:
     - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build obj-*; do [ ! -d "$builddir/run" ] || break; done
     - if [[ "$CI_JOB_NAME" == "build:rpm-opensuse-"* ]]; then export LD_LIBRARY_PATH=$builddir/run; fi
@@ -594,7 +598,7 @@ Documentation:
   extends: .build-linux
   image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "release-4.2" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
       changes:
         - "docbook/**/*"
         - "epan/wslua/**/*"
