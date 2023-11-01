@@ -117,7 +117,9 @@ typedef void (*uat_reset_cb_t)(void);
  * freed by g_free.
  *
  * XXX: This should only validate the record. Any changes to the record
- * made here will *not* be persistent if the UAT is saved again.
+ * made here will *not* be persistent if the UAT is saved again, unless
+ * the same changes are also done to a new record created by the copy cb,
+ * e.g. by having the the copy callback call this.
  * It should probably be made into a const void* to make that clear.
  */
 typedef bool (*uat_update_cb_t)(void *record, char **error);
