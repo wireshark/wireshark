@@ -295,15 +295,22 @@ value_type_tostr(dfvm_value_t *v, bool show_ftype)
 }
 
 static GSList *
-dump_str_stack_push(GSList *stack, const char *str)
+dump_str_stack_push(GSList *stack, const char *arg, const char *arg_type)
 {
-	return g_slist_prepend(stack, g_strdup(str));
+	stack = g_slist_prepend(stack, g_strdup(arg));
+	stack = g_slist_prepend(stack, g_strdup(arg_type));
+	return stack;
 }
 
 static GSList *
 dump_str_stack_pop(GSList *stack, uint32_t count)
 {
 	while (stack && count-- > 0) {
+		/* For each argument count we need to pop two elements from the stack,
+		 * the argument string itself and the argument type string.
+		 * They always come in pairs. */
+		g_free(stack->data);
+		stack = g_slist_delete_link(stack, stack);
 		g_free(stack->data);
 		stack = g_slist_delete_link(stack, stack);
 	}
@@ -323,7 +330,11 @@ append_call_function(wmem_strbuf_t *buf, const char *func, const char *func_type
 	if (nargs > 0) {
 		gs = g_string_new(NULL);
 		for (l = stack_print, idx = 0; l != NULL && idx < nargs; idx++, l = l->next) {
+			/* Argument strings always come in pairs, string + type string. Type comes first
+			 * (top to bottom). */
 			g_string_prepend(gs, sep);
+			g_string_prepend(gs, l->data);
+			l = l->next;
 			g_string_prepend(gs, l->data);
 			sep = ", ";
 		}
@@ -425,12 +436,12 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
 			break;
 
 		case DFVM_STACK_PUSH:
-			wmem_strbuf_append_printf(buf, "%s", arg1_str);
-			*stack_print = dump_str_stack_push(*stack_print, arg1_str);
+			wmem_strbuf_append_printf(buf, "%s%s", arg1_str, arg1_str_type);
+			*stack_print = dump_str_stack_push(*stack_print, arg1_str, arg1_str_type);
 			break;
 
 		case DFVM_STACK_POP:
-			wmem_strbuf_append_printf(buf, "%s", arg1_str);
+			wmem_strbuf_append_printf(buf, "[%s]", arg1_str);
 			*stack_print = dump_str_stack_pop(*stack_print, arg1->value.numeric);
 			break;
 
