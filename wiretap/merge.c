@@ -518,7 +518,6 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     shb_data = (wtapng_section_mandatory_t*)wtap_block_get_mandatory_data(shb_hdr);
     shb_data->section_length = -1;
     /* TODO: handle comments from each file being merged */
-    opt_len = comment_gstr->len;
     /* XXX: 65535 is the maximum size for an option (hence comment) in pcapng.
      * Truncate it? Let wiretap/pcapng.c decide what to do? (Currently it
      * writes nothing without reporting an error.) What if we support other
