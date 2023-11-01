@@ -652,7 +652,14 @@ Commit Check:
     - (cd /tmp ; curl -JLO https://gitlab.com/gitlab-org/cli/-/releases/v1.34.0/downloads/glab_1.34.0_Linux_x86_64.deb)
     - dpkg --install /tmp/glab_1.34.0_Linux_x86_64.deb
     - glab auth status
-    - if [[ $NUM_COMMITS > 1 ]] ; then glab mr note $CI_MERGE_REQUEST_IID --unique --message "ℹ️ This merge request has multiple commits." ; fi
+    - >
+      if [[ $NUM_COMMITS > 1 ]] ; then
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "ℹ️ This merge request has more than one commit:
+        ~~~
+        $(git log --oneline --no-decorate "${CI_COMMIT_SHA}~$NUM_COMMITS..${CI_COMMIT_SHA}")
+        ~~~
+        "
+      fi
     # build-ubuntu puts us in `build`.
     - cd ..
     - git status
