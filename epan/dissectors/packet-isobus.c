@@ -69,6 +69,7 @@ static int hf_isobus_transportprotocol_connabort_pgn = -1;
 static int hf_isobus_transportprotocol_broadcastannouncemessage_totalsize = -1;
 static int hf_isobus_transportprotocol_broadcastannouncemessage_numberofpackets = -1;
 static int hf_isobus_transportprotocol_broadcastannouncemessage_pgn = -1;
+static int hf_isobus_transportprotocol_reserved = -1;
 
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;
@@ -141,10 +142,10 @@ static const value_string pdu_format_dp0_short[] = {
     { VT_TO_ECU, "VT2ECU" },
     { ECU_TO_VT, "ECU2VT" },
     { 232, "ACK" },
-    { 234, "REQ" },
+    { REQUEST, "REQ" },
     { TP_DATA_TRANSFER, "TP.DT" },
     { TP_DATA_MANAGEMENT, "TP.CM" },
-    { 238, "AC" },
+    { ADDRESS_CLAIM, "AC" },
     { 239, "PR.A" },
     { 253, "Cert/OS" },
     { 254, "PAR.G" },
@@ -222,40 +223,33 @@ static const fragment_items isobus_frag_items = {
     "Message fragments"
 };
 
-struct address_combination
-{
+struct address_combination {
     guint8 src_address;
     guint8 dst_address;
 };
 
-struct reassemble_identifier
-{
+struct reassemble_identifier {
     guint32 startFrameId;
     guint32 endFrameId;
     guint32 identifier;
 };
 
-struct address_reassemble_table
-{
-    wmem_list_t* reassembleIdentifierTable;
+struct address_reassemble_table {
+    wmem_list_t *reassembleIdentifierTable;
     guint32 identifierCounter;
 };
 
 static wmem_map_t *addressIdentifierTable = NULL;
 
-static struct reassemble_identifier* findIdentifierFor(wmem_list_t* reassembleIdentifierTable, guint32 frameIndex)
-{
-    wmem_list_frame_t* currentItem = wmem_list_head(reassembleIdentifierTable);
+static struct reassemble_identifier * findIdentifierFor(wmem_list_t *reassembleIdentifierTable, guint32 frameIndex) {
+    wmem_list_frame_t *currentItem = wmem_list_head(reassembleIdentifierTable);
 
-    while (currentItem != NULL)
-    {
-        struct reassemble_identifier* currentData = (struct reassemble_identifier*)wmem_list_frame_data(currentItem);
+    while (currentItem != NULL) {
+        struct reassemble_identifier *currentData = (struct reassemble_identifier *)wmem_list_frame_data(currentItem);
         if (frameIndex <= currentData->endFrameId && frameIndex >= currentData->startFrameId)
         {
             return currentData;
-        }
-        else
-        {
+        } else {
             currentItem = wmem_list_frame_next(currentItem);
         }
     }
@@ -263,48 +257,37 @@ static struct reassemble_identifier* findIdentifierFor(wmem_list_t* reassembleId
 }
 
 static gboolean
-address_combination_equal(gconstpointer p1, gconstpointer p2)
-{
-    const struct address_combination* addr_combi1 = (const struct address_combination*)p1;
-    const struct address_combination* addr_combi2 = (const struct address_combination*)p2;
+address_combination_equal(gconstpointer p1, gconstpointer p2) {
+    const struct address_combination *addr_combi1 = (const struct address_combination *)p1;
+    const struct address_combination *addr_combi2 = (const struct address_combination *)p2;
 
-    if (addr_combi1->src_address == addr_combi2->src_address &&
-        addr_combi1->dst_address == addr_combi2->dst_address)
-    {
+    if (addr_combi1->src_address == addr_combi2->src_address && addr_combi1->dst_address == addr_combi2->dst_address) {
         return TRUE;
-    }
-    else
-    {
+    } else {
         return FALSE;
     }
 }
 
 static guint
-address_combination_hash(gconstpointer p)
-{
-    const struct address_combination* addr_combi = (const struct address_combination*)p;
+address_combination_hash(gconstpointer p) {
+    const struct address_combination *addr_combi = (const struct address_combination *)p;
     return (addr_combi->src_address * 256) + (addr_combi->dst_address);
 }
 
-static struct address_reassemble_table* findAddressIdentifierFor(guint8 src_address, guint8 dst_address)
-{
-    struct address_combination* addrCombi = wmem_new(wmem_file_scope(), struct address_combination);
-
-    struct address_reassemble_table* foundItem;
+static struct address_reassemble_table * findAddressIdentifierFor(guint8 src_address, guint8 dst_address) {
+    struct address_combination *addrCombi = wmem_new(wmem_file_scope(), struct address_combination);
+    struct address_reassemble_table *foundItem;
 
     addrCombi->src_address = src_address;
     addrCombi->dst_address = dst_address;
 
-    foundItem = (struct address_reassemble_table*)wmem_map_lookup(addressIdentifierTable, addrCombi);
+    foundItem = (struct address_reassemble_table *)wmem_map_lookup(addressIdentifierTable, addrCombi);
 
-    if(foundItem != NULL)
-    {
+    if (foundItem != NULL) {
         return foundItem;
-    }
-    else
-    {
+    } else {
         /* nothing found so create a new one */
-        struct address_reassemble_table* newItem;
+        struct address_reassemble_table *newItem;
         newItem = wmem_new(wmem_file_scope(), struct address_reassemble_table);
         newItem->identifierCounter = 0;
         newItem->reassembleIdentifierTable = wmem_list_new(wmem_file_scope());
@@ -339,8 +322,7 @@ proto_item_append_conditional(proto_item *ti, const gchar *str) {
 
 static int
 call_isobus_subdissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name,
-                         guint8 priority, guint8 pdu_format, guint pgn, guint8 source_addr, void *data)
-{
+                         guint8 priority, guint8 pdu_format, guint pgn, guint8 source_addr, void *data) {
     can_info_t *can_info = (can_info_t *)data;
 
     isobus_info_t isobus_info;
@@ -363,8 +345,7 @@ call_isobus_subdissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, co
 
 /* Code to actually dissect the packets */
 static int
-dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
-{
+dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     guint8       priority;
     /* guint        ext_data_page; */
     guint        src_addr;
@@ -384,15 +365,13 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree *isobus_tree;
     proto_tree *isobus_can_id_tree;
 
-    struct reassemble_identifier* identifier = NULL;
-    struct address_reassemble_table* address_reassemble_table_item = NULL;
+    struct reassemble_identifier *identifier = NULL;
+    struct address_reassemble_table *address_reassemble_table_item = NULL;
 
     DISSECTOR_ASSERT(data);
     can_info = *((struct can_info*)data);
 
-    if ((can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) ||
-        !(can_info.id & CAN_EFF_FLAG))
-    {
+    if ((can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) || !(can_info.id & CAN_EFF_FLAG)) {
         /* Error, RTR and frames with standard ids are not for us. */
         return 0;
     }
@@ -433,8 +412,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item_set_generated(ti);
 
     /* add pdu format */
-    switch(data_page)
-    {
+    switch(data_page) {
     case 0:
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_pdu_format_dp0, tvb, 0, 0, can_info.id);
         proto_item_set_generated(ti);
@@ -446,13 +424,10 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
 
     /* add pdu specific */
-    if(pdu_format <= 239)
-    {
+    if (pdu_format <= 239) {
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_dst_addr, tvb, 0, 0, can_info.id);
             proto_item_set_generated(ti);
-    }
-    else
-    {
+    } else {
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_group_extension, tvb, 0, 0, can_info.id);
             proto_item_set_generated(ti);
     }
@@ -465,14 +440,11 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     snprintf(str_src, 4, "%d", src_addr);
     alloc_address_wmem(pinfo->pool, &pinfo->src, AT_STRINGZ, (int)strlen(str_src) + 1, str_src);
 
-    if(pdu_format <= 239) /* PDU1 format */
-    {
+    if (pdu_format <= 239) {
         /* put destination address in address field */
         snprintf(str_dst, 4, "%d", pdu_specific);
         alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_STRINGZ, (int)strlen(str_dst) + 1, str_dst);
-    }
-    else
-    {
+    } else {
         /* put group destination address in address field and add (grp) to it */
         snprintf(str_dst, 10, "%d (grp)", pdu_specific);
         alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_STRINGZ, (int)strlen(str_dst) + 1, str_dst);
@@ -480,27 +452,21 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     proto_tree_add_uint(isobus_tree, hf_isobus_pgn, tvb, 0, 0, pgn);
 
-    switch(data_page)
-    {
+    switch(data_page) {
     case 0:
-        col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ",
-            val_to_str_const(pdu_format, pdu_format_dp0_short, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ", val_to_str_const(pdu_format, pdu_format_dp0_short, "Unknown"));
         break;
     case 1:
-        col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ",
-            val_to_str_const(pdu_format, pdu_format_dp1_short, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ", val_to_str_const(pdu_format, pdu_format_dp1_short, "Unknown"));
         break;
     }
 
-    if (pdu_format == TP_DATA_MANAGEMENT  || pdu_format == TP_DATA_TRANSFER ||
-        pdu_format == ETP_DATA_MANAGEMENT || pdu_format == ETP_DATA_TRANSFER)
-    {
+    if (pdu_format == TP_DATA_MANAGEMENT  || pdu_format == TP_DATA_TRANSFER || pdu_format == ETP_DATA_MANAGEMENT || pdu_format == ETP_DATA_TRANSFER) {
         gboolean isReply = FALSE;
-        if(pdu_format == TP_DATA_MANAGEMENT)
-        {
+
+        if (pdu_format == TP_DATA_MANAGEMENT) {
             guint8 control_byte = tvb_get_guint8(tvb, data_offset);
-            switch(control_byte)
-            {
+            switch(control_byte) {
                 case 17:
                 case 19:
                     isReply = TRUE;
@@ -511,29 +477,22 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     break;
             }
         }
-        if(isReply)
-        {
-            address_reassemble_table_item =
-                findAddressIdentifierFor(pdu_specific, src_addr);
+
+        if (isReply) {
+            address_reassemble_table_item = findAddressIdentifierFor(pdu_specific, src_addr);
+        } else {
+            address_reassemble_table_item = findAddressIdentifierFor(src_addr, pdu_specific);
         }
-        else
-        {
-            address_reassemble_table_item =
-                findAddressIdentifierFor(src_addr, pdu_specific);
-        }
-        identifier = findIdentifierFor(
-            address_reassemble_table_item->reassembleIdentifierTable,
-            pinfo->num);
+
+        identifier = findIdentifierFor(address_reassemble_table_item->reassembleIdentifierTable, pinfo->num);
     }
 
-    if(pdu_format == TP_DATA_MANAGEMENT)
-    {
+    if (pdu_format == TP_DATA_MANAGEMENT) {
         guint32 control_byte;
         proto_tree_add_item_ret_uint(tree, hf_isobus_transportprotocol_controlbyte, tvb, data_offset, 1, ENC_LITTLE_ENDIAN, &control_byte);
         data_offset += 1;
 
-        if (control_byte == 16)
-        {
+        if (control_byte == 16) {
             guint32 total_size, number_of_packets;
 
             proto_tree_add_item_ret_uint(tree, hf_isobus_transportprotocol_requesttosend_totalsize, tvb, data_offset, 2, ENC_LITTLE_ENDIAN, &total_size);
@@ -547,14 +506,10 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             proto_tree_add_item(tree, hf_isobus_transportprotocol_requesttosend_pgn, tvb, data_offset, 3, ENC_LITTLE_ENDIAN);
 
-            if (identifier)
-            {
+            if (identifier) {
                 seqnr = identifier->identifier;
-            }
-            else
-            {
-                struct reassemble_identifier* reassembleIdentifierTableEntry =
-                    wmem_new(wmem_file_scope(), struct reassemble_identifier);
+            } else {
+                struct reassemble_identifier *reassembleIdentifierTableEntry = wmem_new(wmem_file_scope(), struct reassemble_identifier);
                 seqnr = ++address_reassemble_table_item->identifierCounter;
                 reassembleIdentifierTableEntry->identifier = seqnr;
                 reassembleIdentifierTableEntry->startFrameId = pinfo->num;
@@ -563,18 +518,13 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 wmem_list_append(address_reassemble_table_item->reassembleIdentifierTable, reassembleIdentifierTableEntry);
             }
 
-            fragment_add_seq(&isobus_reassembly_table, tvb, 5, pinfo,
-                seqnr, NULL, 0, 3, TRUE, 0);
-            fragment_set_tot_len(&isobus_reassembly_table, pinfo,
-                seqnr, NULL, number_of_packets);
+            fragment_add_seq(&isobus_reassembly_table, tvb, 5, pinfo, seqnr, NULL, 0, 3, TRUE, 0);
+            fragment_set_tot_len(&isobus_reassembly_table, pinfo, seqnr, NULL, number_of_packets);
             reassembly_current_size = 3;
             reassembly_total_size = total_size + 3;
 
-
             col_append_fstr(pinfo->cinfo, COL_INFO, "Request to send message of %u bytes in %u fragments", total_size, number_of_packets);
-        }
-        else if (control_byte == 17)
-        {
+        } else if (control_byte == 17) {
             guint32 number_of_packets_can_be_sent, next_packet_number;
 
             proto_tree_add_item_ret_uint(tree, hf_isobus_transportprotocol_cleartosend_numberofpacketscanbesent, tvb, data_offset, 1, ENC_LITTLE_ENDIAN, &number_of_packets_can_be_sent);
@@ -583,14 +533,13 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             proto_tree_add_item_ret_uint(tree, hf_isobus_transportprotocol_cleartosend_nextpacketnumber, tvb, data_offset, 1, ENC_LITTLE_ENDIAN, &next_packet_number);
             data_offset += 1;
 
+            proto_tree_add_item(tree, hf_isobus_transportprotocol_reserved, tvb, data_offset, 2, ENC_NA);
             data_offset += 2;
 
             proto_tree_add_item(tree, hf_isobus_transportprotocol_cleartosend_pgn, tvb, data_offset, 3, ENC_LITTLE_ENDIAN);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Clear to send, can receive %u packets, next packet is %u", number_of_packets_can_be_sent, next_packet_number);
-        }
-        else if (control_byte == 19)
-        {
+        } else if (control_byte == 19) {
             guint32 total_size, number_of_packets;
 
             proto_tree_add_item_ret_uint(tree, hf_isobus_transportprotocol_endofmsgack_totalsize, tvb, data_offset, 2, ENC_LITTLE_ENDIAN, &total_size);
@@ -599,28 +548,25 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             proto_tree_add_item_ret_uint(tree, hf_isobus_transportprotocol_endofmsgack_numberofpackets, tvb, data_offset, 1, ENC_LITTLE_ENDIAN, &number_of_packets);
             data_offset += 1;
 
+            proto_tree_add_item(tree, hf_isobus_transportprotocol_reserved, tvb, data_offset, 1, ENC_NA);
             data_offset += 1;
 
             proto_tree_add_item(tree, hf_isobus_transportprotocol_endofmsgack_pgn, tvb, data_offset, 3, ENC_LITTLE_ENDIAN);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "End of Message Acknowledgment, %u bytes sent in %u packets", total_size, number_of_packets);
-        }
-        else if (control_byte == 255)
-        {
+        } else if (control_byte == 255) {
             guint32 connection_abort_reason;
 
             proto_tree_add_item_ret_uint(tree, hf_isobus_transportprotocol_connabort_abortreason, tvb, data_offset, 1, ENC_LITTLE_ENDIAN, &connection_abort_reason);
             data_offset += 1;
 
+            proto_tree_add_item(tree, hf_isobus_transportprotocol_reserved, tvb, data_offset, 3, ENC_NA);
             data_offset += 3;
 
             proto_tree_add_item(tree, hf_isobus_transportprotocol_connabort_pgn, tvb, data_offset, 3, ENC_LITTLE_ENDIAN);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Connection Abort, %s",
-                            rval_to_str_const(connection_abort_reason, connection_abort_reasons, "unknown reason"));
-        }
-        else if (control_byte == 32)
-        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Connection Abort, %s", rval_to_str_const(connection_abort_reason, connection_abort_reasons, "unknown reason"));
+        } else if (control_byte == 32) {
             guint32 total_size, number_of_packets;
 
             proto_tree_add_item_ret_uint(tree, hf_isobus_transportprotocol_broadcastannouncemessage_totalsize, tvb, data_offset, 2, ENC_LITTLE_ENDIAN, &total_size);
@@ -629,6 +575,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             proto_tree_add_item_ret_uint(tree, hf_isobus_transportprotocol_broadcastannouncemessage_numberofpackets, tvb, data_offset, 1, ENC_LITTLE_ENDIAN, &number_of_packets);
             data_offset += 1;
 
+            proto_tree_add_item(tree, hf_isobus_transportprotocol_reserved, tvb, data_offset, 1, ENC_NA);
             data_offset += 1;
 
             proto_tree_add_item(tree, hf_isobus_transportprotocol_broadcastannouncemessage_pgn, tvb, data_offset, 3, ENC_LITTLE_ENDIAN);
@@ -637,7 +584,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         }
     }
 
-    //if reassemble has not started yet don't parse the message
+    /* if reassemble has not started yet don't parse the message */
     else if (pdu_format == TP_DATA_TRANSFER && address_reassemble_table_item->reassembleIdentifierTable != NULL)
     {
         tvbuff_t *reassembled_data;
@@ -645,38 +592,32 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         gboolean lastPacket;
         guint8 sequenceId = tvb_get_guint8(tvb, 0);
         fragment_head *fg_head;
-        if (identifier == NULL)
-        {
-            wmem_list_frame_t* lastItem = wmem_list_tail(address_reassemble_table_item->reassembleIdentifierTable);
-            if(lastItem != NULL)
-            {
-                struct reassemble_identifier* lastIdentifier = (struct reassemble_identifier*)wmem_list_frame_data(lastItem);
+
+        if (identifier == NULL) {
+            wmem_list_frame_t *lastItem = wmem_list_tail(address_reassemble_table_item->reassembleIdentifierTable);
+
+            if (lastItem != NULL) {
+                struct reassemble_identifier *lastIdentifier = (struct reassemble_identifier *)wmem_list_frame_data(lastItem);
                 lastIdentifier->endFrameId = pinfo->num;
                 identifier = lastIdentifier;
             }
         }
 
-        if(identifier != NULL)
-        {
-            if(reassembly_total_size > reassembly_current_size + 7)
-            {
+        if (identifier != NULL) {
+            if (reassembly_total_size > reassembly_current_size + 7) {
                 fragment_size = 7;
                 lastPacket = FALSE;
-            }
-            else
-            {
+            } else {
                 fragment_size = reassembly_total_size - reassembly_current_size;
                 lastPacket = TRUE;
             }
 
-            fg_head = fragment_add_seq(&isobus_reassembly_table, tvb, 1, pinfo,
-                identifier->identifier, NULL, sequenceId, fragment_size, !lastPacket, 0);
+            fg_head = fragment_add_seq(&isobus_reassembly_table, tvb, 1, pinfo, identifier->identifier, NULL, sequenceId, fragment_size, !lastPacket, 0);
             reassembly_current_size += fragment_size;
 
-            reassembled_data = process_reassembled_data(tvb, 0, pinfo, "Reassembled data",
-                fg_head, &isobus_frag_items, NULL, isobus_tree);
-            if (reassembled_data)
-            {
+            reassembled_data = process_reassembled_data(tvb, 0, pinfo, "Reassembled data", fg_head, &isobus_frag_items, NULL, isobus_tree);
+
+            if (reassembled_data) {
                 guint32 id_reassembled = tvb_get_guint24(reassembled_data, 0, ENC_BIG_ENDIAN);
                 guint8 pdu_format_reassembled = (guint8)((id_reassembled >> 8) & 0xff);
 
@@ -689,35 +630,27 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
                 proto_tree_add_uint(isobus_tree, hf_isobus_pgn, reassembled_data, 0, 3, pgn_reassembled);
 
-                if (call_isobus_subdissector(tvb_new_subset_remaining(reassembled_data, 3), pinfo, isobus_tree, FALSE,
-                    0, pdu_format_reassembled, pgn_reassembled, src_addr, data) == 0)
-                {
+                if (call_isobus_subdissector(tvb_new_subset_remaining(reassembled_data, 3), pinfo, isobus_tree, FALSE, 0, pdu_format_reassembled,
+                    pgn_reassembled, src_addr, data) == 0) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
                 }
-            }
-            else
-            {
+            } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Fragment number %u", sequenceId);
             }
-        }
-        else
-        {
+        } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, "ERROR: Transport protocol was not initialized");
         }
-    }
-    else if (pdu_format == REQUEST)
-    {
+    } else if (pdu_format == REQUEST) {
         guint32 req_pgn;
         proto_tree_add_item_ret_uint(isobus_tree, hf_isobus_req_requested_pgn, tvb, 0, 3, ENC_LITTLE_ENDIAN, &req_pgn);
         col_append_fstr(pinfo->cinfo, COL_INFO, "Requesting PGN: %u", req_pgn);
         const gchar *tmp = isobus_lookup_pgn(req_pgn);
+
         if (tmp != NULL) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", tmp);
         }
-    }
-    else if (pdu_format == ADDRESS_CLAIM)
-    {
-        proto_tree * name_tree;
+    } else if (pdu_format == ADDRESS_CLAIM) {
+        proto_tree *name_tree;
         ti = proto_tree_add_item(isobus_tree, hf_isobus_ac_name, tvb, 0, 8, ENC_NA);
         name_tree = proto_item_add_subtree(ti, ett_isobus_name);
 
@@ -726,6 +659,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         proto_tree_add_item(name_tree, hf_isobus_ac_name_arbitrary_address_capable, tvb, 0, 8, ENC_LITTLE_ENDIAN);
         ti = proto_tree_add_item_ret_uint64(name_tree, hf_isobus_ac_name_industry_group, tvb, 0, 8, ENC_LITTLE_ENDIAN, &industry_group);
         proto_item_append_conditional(ti, try_val_to_str_ext((guint32)industry_group, &isobus_industry_groups_ext));
+
         proto_tree_add_item(name_tree, hf_isobus_ac_name_vehicle_system_instance, tvb, 0, 8, ENC_LITTLE_ENDIAN);
         ti = proto_tree_add_item_ret_uint64(name_tree, hf_isobus_ac_name_vehicle_system, tvb, 0, 8, ENC_LITTLE_ENDIAN, &vehicle_system);
         proto_item_append_conditional(ti, try_val_to_str_ext((guint16)industry_group * 256 + (guint8)vehicle_system, &isobus_vehicle_systems_ext));
@@ -735,6 +669,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         proto_item_append_conditional(ti, isobus_lookup_function((guint32)industry_group, (guint32)vehicle_system, (guint32)function));
 
         proto_tree_add_item(name_tree, hf_isobus_ac_name_function_instance, tvb, 0, 8, ENC_LITTLE_ENDIAN);
+
         proto_tree_add_item(name_tree, hf_isobus_ac_name_ecu_instance, tvb, 0, 8, ENC_LITTLE_ENDIAN);
         ti = proto_tree_add_item_ret_uint64(name_tree, hf_isobus_ac_name_manufacturer, tvb, 0, 8, ENC_LITTLE_ENDIAN, &manufacturer);
         proto_item_append_conditional(ti, try_val_to_str_ext((guint32)manufacturer, &isobus_manufacturers_ext));
@@ -753,9 +688,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         default:
             col_append_fstr(pinfo->cinfo, COL_INFO, "Address claimed %u", address_claimed);
         }
-    }
-    else if(call_isobus_subdissector(tvb, pinfo, isobus_tree, FALSE, priority, pdu_format, pgn, src_addr, data) == 0)
-    {
+    } else if (call_isobus_subdissector(tvb, pinfo, isobus_tree, FALSE, priority, pdu_format, pgn, src_addr, data) == 0) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
         proto_tree_add_item(isobus_tree, hf_isobus_payload, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     }
@@ -764,276 +697,125 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 static void
-isobus_init(void)
-{
+isobus_init(void) {
     reassembly_table_init(&isobus_reassembly_table, &addresses_reassembly_table_functions);
 }
 
 static void
-isobus_cleanup(void)
-{
+isobus_cleanup(void) {
     reassembly_table_destroy(&isobus_reassembly_table);
 }
 
 /* Register the protocol with Wireshark */
 void
-proto_register_isobus(void)
-{
+proto_register_isobus(void) {
     static hf_register_info hf[] = {
-        { &hf_isobus_can_id,
-          { "CAN-ID", "isobus.can_id",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_priority,
-          { "Priority", "isobus.priority",
-            FT_UINT32, BASE_HEX, NULL, 0x1C000000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ext_data_page,
-          { "Ext data page", "isobus.edp",
-            FT_UINT32, BASE_HEX, NULL, 0x02000000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_data_page,
-          { "Data page", "isobus.datapage",
-            FT_UINT32, BASE_HEX, NULL, 0x01000000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_pdu_format_dp0,
-          { "PDU Format", "isobus.pdu_format",
-            FT_UINT32, BASE_DEC, VALS(pdu_format_dp0), 0xff0000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_pdu_format_dp1,
-          { "PDU Format", "isobus.pdu_format",
-            FT_UINT32, BASE_DEC, VALS(pdu_format_dp1), 0xff0000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_group_extension,
-          { "Group Extension", "isobus.grp_ext",
-            FT_UINT32, BASE_DEC, NULL, 0xff00,
-            NULL, HFILL }
-        },
-        { &hf_isobus_dst_addr,
-          { "Destination Address", "isobus.dst_addr",
-            FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(address_range), 0xff00,
-            NULL, HFILL }
-        },
-        { &hf_isobus_src_addr,
-          { "Source Address", "isobus.src_addr",
-            FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(address_range), 0xff,
-            NULL, HFILL }
-        },
-        { &hf_isobus_pgn,
-          { "PGN", "isobus.pgn",
-            FT_UINT24, BASE_DEC_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_payload,
-          { "Payload", "isobus.payload",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
+        { &hf_isobus_can_id, {
+            "CAN-ID", "isobus.can_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_priority, {
+            "Priority", "isobus.priority", FT_UINT32, BASE_HEX, NULL, 0x1C000000, NULL, HFILL } },
+        { &hf_isobus_ext_data_page, {
+            "Ext data page", "isobus.edp", FT_UINT32, BASE_HEX, NULL, 0x02000000, NULL, HFILL } },
+        { &hf_isobus_data_page, {
+            "Data page", "isobus.datapage", FT_UINT32, BASE_HEX, NULL, 0x01000000, NULL, HFILL } },
+        { &hf_isobus_pdu_format_dp0, {
+            "PDU Format", "isobus.pdu_format", FT_UINT32, BASE_DEC, VALS(pdu_format_dp0), 0xff0000, NULL, HFILL } },
+        { &hf_isobus_pdu_format_dp1, {
+            "PDU Format", "isobus.pdu_format", FT_UINT32, BASE_DEC, VALS(pdu_format_dp1), 0xff0000, NULL, HFILL } },
+        { &hf_isobus_group_extension, {
+            "Group Extension", "isobus.grp_ext", FT_UINT32, BASE_DEC, NULL, 0xff00, NULL, HFILL } },
+        { &hf_isobus_dst_addr, {
+            "Destination Address", "isobus.dst_addr", FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(address_range), 0xff00, NULL, HFILL } },
+        { &hf_isobus_src_addr, {
+            "Source Address", "isobus.src_addr", FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(address_range), 0xff, NULL, HFILL } },
+        { &hf_isobus_pgn, {
+            "PGN", "isobus.pgn", FT_UINT24, BASE_DEC_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+        { &hf_isobus_payload, {
+            "Payload", "isobus.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-        { &hf_isobus_req_requested_pgn,
-          { "Requested PGN", "isobus.req.requested_pgn",
-            FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0,
-            NULL, HFILL }
-        },
+        { &hf_isobus_req_requested_pgn, {
+            "Requested PGN", "isobus.req.requested_pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
 
-        { &hf_isobus_ac_name,
-          { "Name", "isobus.ac.name",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ac_name_id_number,
-          { "Identity Number", "isobus.ac.name.identity_number",
-            FT_UINT64, BASE_DEC, NULL, 0x00000000001fffff,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ac_name_manufacturer,
-          { "Manufacturer", "isobus.ac.name.manufacturer",
-            FT_UINT64, BASE_DEC, NULL, 0x00000000ffe00000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ac_name_function_instance,
-          { "Function Instance", "isobus.ac.name.function_instance",
-            FT_UINT64, BASE_DEC, NULL, 0x000000f000000000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ac_name_ecu_instance,
-          { "ECU Instance", "isobus.ac.name.ecu_instance",
-            FT_UINT64, BASE_DEC, NULL, 0x0000000f00000000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ac_name_function,
-          { "Function", "isobus.ac.name.function",
-            FT_UINT64, BASE_DEC, NULL, 0x0000ff0000000000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ac_name_reserved,
-          { "Reserved", "isobus.ac.name.reserved",
-            FT_UINT64, BASE_HEX, NULL, 0x0001000000000000,
-            NULL, HFILL }
-        },
+        { &hf_isobus_ac_name, {
+            "Name", "isobus.ac.name", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_ac_name_id_number, {
+            "Identity Number", "isobus.ac.name.identity_number", FT_UINT64, BASE_DEC, NULL, 0x00000000001fffff, NULL, HFILL } },
+        { &hf_isobus_ac_name_manufacturer, {
+            "Manufacturer", "isobus.ac.name.manufacturer", FT_UINT64, BASE_DEC, NULL, 0x00000000ffe00000, NULL, HFILL } },
+        { &hf_isobus_ac_name_function_instance, {
+            "Function Instance", "isobus.ac.name.function_instance", FT_UINT64, BASE_DEC, NULL, 0x000000f000000000, NULL, HFILL } },
+        { &hf_isobus_ac_name_ecu_instance, {
+            "ECU Instance", "isobus.ac.name.ecu_instance", FT_UINT64, BASE_DEC, NULL, 0x0000000f00000000, NULL, HFILL } },
+        { &hf_isobus_ac_name_function, {
+            "Function", "isobus.ac.name.function", FT_UINT64, BASE_DEC, NULL, 0x0000ff0000000000, NULL, HFILL } },
+        { &hf_isobus_ac_name_reserved, {
+            "Reserved", "isobus.ac.name.reserved", FT_UINT64, BASE_HEX, NULL, 0x0001000000000000, NULL, HFILL } },
         { &hf_isobus_ac_name_vehicle_system,
-          { "Vehicle System", "isobus.ac.name.vehicle_system",
-            FT_UINT64, BASE_DEC, NULL, 0x00fe000000000000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ac_name_vehicle_system_instance,
-          { "System Instance", "isobus.ac.name.system_instance",
-            FT_UINT64, BASE_DEC, NULL, 0x0f00000000000000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ac_name_industry_group,
-          { "Industry Group", "isobus.ac.name.industry_group",
-            FT_UINT64, BASE_DEC, NULL, 0x7000000000000000,
-            NULL, HFILL }
-        },
-        { &hf_isobus_ac_name_arbitrary_address_capable,
-          { "Arbitrary Address Capable", "isobus.ac.name.arbitrary_address_capable",
-            FT_UINT64, BASE_DEC, NULL, 0x8000000000000000,
-            NULL, HFILL }
-        },
+          { "Vehicle System", "isobus.ac.name.vehicle_system", FT_UINT64, BASE_DEC, NULL, 0x00fe000000000000, NULL, HFILL } },
+        { &hf_isobus_ac_name_vehicle_system_instance, {
+            "System Instance", "isobus.ac.name.system_instance", FT_UINT64, BASE_DEC, NULL, 0x0f00000000000000, NULL, HFILL } },
+        { &hf_isobus_ac_name_industry_group, {
+            "Industry Group", "isobus.ac.name.industry_group", FT_UINT64, BASE_DEC, NULL, 0x7000000000000000, NULL, HFILL } },
+        { &hf_isobus_ac_name_arbitrary_address_capable, {
+            "Arbitrary Address Capable", "isobus.ac.name.arbitrary_address_capable", FT_UINT64, BASE_DEC, NULL, 0x8000000000000000, NULL, HFILL } },
 
-        { &hf_isobus_transportprotocol_controlbyte,
-          { "Control Byte", "isobus.transport_protocol.control_byte",
-            FT_UINT8, BASE_DEC, VALS(transport_protocol_control_byte), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_requesttosend_totalsize,
-          { "Total message size", "isobus.transport_protocol.request_to_send.total_size",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_requesttosend_numberofpackets,
-          { "Number of Packets", "isobus.transport_protocol.request_to_send.number_of_packets",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_requesttosend_maximumpackets,
-          { "Maximum Packets", "isobus.transport_protocol.request_to_send.maximum_packets",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_requesttosend_pgn,
-          { "PGN", "isobus.transport_protocol.request_to_send.pgn",
-            FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_cleartosend_numberofpacketscanbesent,
-          { "Number of packets that can be sent", "isobus.transport_protocol.request_to_send.number_of_packets_that_can_be_sent",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_cleartosend_nextpacketnumber,
-          { "Next packet number", "isobus.transport_protocol.request_to_send.next_packet_number",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_cleartosend_pgn,
-          { "PGN", "isobus.transport_protocol.clear_to_send.pgn",
-            FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_endofmsgack_totalsize,
-          { "Total Size", "isobus.transport_protocol.end_of_message_acknowledgement.total_size",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_endofmsgack_numberofpackets,
-          { "Number of Packets",           "isobus.transport_protocol.end_of_message_acknowledgement.number_of_packets",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_endofmsgack_pgn,
-          { "PGN", "isobus.transport_protocol.end_of_message_acknowledgement.pgn",
-            FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_connabort_abortreason,
-          { "Connection Abort reason", "isobus.transport_protocol.connection_abort.abort_reason",
-            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(connection_abort_reasons), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_connabort_pgn,
-          { "PGN", "isobus.transport_protocol.connection_abort.pgn",
-            FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_broadcastannouncemessage_totalsize,
-          { "Total Message Size", "isobus.transport_protocol.broadcast_announce_message.total_message_size",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_broadcastannouncemessage_numberofpackets,
-          { "Total Number of Packets", "isobus.transport_protocol.broadcast_announce_message.total_number_of_packets",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_isobus_transportprotocol_broadcastannouncemessage_pgn,
-          { "PGN", "isobus.transport_protocol.broadcast_announce_message.pgn",
-            FT_UINT24, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }
-        },
+        { &hf_isobus_transportprotocol_controlbyte, {
+            "Control Byte", "isobus.transport_protocol.control_byte", FT_UINT8, BASE_DEC, VALS(transport_protocol_control_byte), 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_requesttosend_totalsize, {
+            "Total message size", "isobus.transport_protocol.request_to_send.total_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_requesttosend_numberofpackets, {
+            "Number of Packets", "isobus.transport_protocol.request_to_send.number_of_packets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_requesttosend_maximumpackets, {
+            "Maximum Packets", "isobus.transport_protocol.request_to_send.maximum_packets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_requesttosend_pgn, {
+            "PGN", "isobus.transport_protocol.request_to_send.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_cleartosend_numberofpacketscanbesent, {
+            "Number of packets that can be sent", "isobus.transport_protocol.request_to_send.number_of_packets_that_can_be_sent", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_cleartosend_nextpacketnumber, {
+            "Next packet number", "isobus.transport_protocol.request_to_send.next_packet_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_cleartosend_pgn, {
+            "PGN", "isobus.transport_protocol.clear_to_send.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_endofmsgack_totalsize, {
+            "Total Size", "isobus.transport_protocol.end_of_message_acknowledgement.total_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_endofmsgack_numberofpackets, {
+            "Number of Packets", "isobus.transport_protocol.end_of_message_acknowledgement.number_of_packets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_endofmsgack_pgn, {
+            "PGN", "isobus.transport_protocol.end_of_message_acknowledgement.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_connabort_abortreason, {
+            "Connection Abort reason", "isobus.transport_protocol.connection_abort.abort_reason", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(connection_abort_reasons), 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_connabort_pgn, {
+            "PGN", "isobus.transport_protocol.connection_abort.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_broadcastannouncemessage_totalsize, {
+            "Total Message Size", "isobus.transport_protocol.broadcast_announce_message.total_message_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_broadcastannouncemessage_numberofpackets, {
+            "Total Number of Packets", "isobus.transport_protocol.broadcast_announce_message.total_number_of_packets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_broadcastannouncemessage_pgn, {
+            "PGN", "isobus.transport_protocol.broadcast_announce_message.pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
+        { &hf_isobus_transportprotocol_reserved, {
+            "Reserved", "isobus.transport_protocol.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-        { &hf_msg_fragments,
-          { "Message fragments", "isobus.fragments",
-            FT_NONE, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_fragment,
-          { "Message fragment", "isobus.fragment",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_fragment_overlap,
-          { "Message fragment overlap", "isobus.fragment.overlap",
-            FT_BOOLEAN, 0, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_fragment_overlap_conflicts,
-          { "Message fragment overlapping with conflicting data", "isobus.fragment.overlap.conflicts",
-            FT_BOOLEAN, 0, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_fragment_multiple_tails,
-          { "Message has multiple tail fragments", "isobus.fragment.multiple_tails",
-            FT_BOOLEAN, 0, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_fragment_too_long_fragment,
-          { "Message fragment too long", "isobus.fragment.too_long_fragment",
-            FT_BOOLEAN, 0, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_fragment_error,
-          { "Message defragmentation error", "isobus.fragment.error",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_fragment_count,
-          { "Message fragment count", "isobus.fragment.count",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_reassembled_in,
-          { "Reassembled in", "isobus.reassembled.in",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_reassembled_length,
-          { "Reassembled length", "isobus.reassembled.length",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_msg_reassembled_data,
-          { "Reassembled data", "isobus.reassembled.data",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        }
+        { &hf_msg_fragments, {
+            "Message fragments", "isobus.fragments", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_fragment, {
+            "Message fragment", "isobus.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_fragment_overlap, {
+            "Message fragment overlap", "isobus.fragment.overlap", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_fragment_overlap_conflicts, {
+            "Message fragment overlapping with conflicting data", "isobus.fragment.overlap.conflicts", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_fragment_multiple_tails, {
+            "Message has multiple tail fragments", "isobus.fragment.multiple_tails", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_fragment_too_long_fragment, {
+            "Message fragment too long", "isobus.fragment.too_long_fragment", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_fragment_error, {
+            "Message defragmentation error", "isobus.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_fragment_count, {
+            "Message fragment count", "isobus.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_reassembled_in, {
+            "Reassembled in", "isobus.reassembled.in", FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_reassembled_length, {
+            "Reassembled length", "isobus.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_msg_reassembled_data, {
+                "Reassembled data", "isobus.reassembled.data", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } }
     };
 
     static gint *ett[] = {
@@ -1062,15 +844,14 @@ proto_register_isobus(void)
 }
 
 void
-proto_reg_handoff_isobus(void)
-{
+proto_reg_handoff_isobus(void) {
    dissector_add_for_decode_as("can.subdissector", isobus_handle );
 }
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
- * Local variables:+
+ * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
