@@ -287,7 +287,6 @@ e_addr_resolve gbl_resolv_flags = {
     FALSE,  /* transport_name */
     TRUE,   /* dns_pkt_addr_resolution */
     TRUE,   /* use_external_net_name_resolver */
-    FALSE,  /* load_hosts_file_from_profile_only */
     FALSE,  /* vlan_name */
     FALSE,  /* ss7 point code names */
     TRUE,   /* maxmind_geoip */
@@ -2981,11 +2980,7 @@ addr_resolve_pref_init(module_t *nameres)
             10,
             &name_resolve_concurrency);
 
-    prefs_register_bool_preference(nameres, "hosts_file_handling",
-            "Only use the profile \"hosts\" file",
-            "By default \"hosts\" files will be loaded from multiple sources."
-            " Checking this box only loads the \"hosts\" in the current profile.",
-            &gbl_resolv_flags.load_hosts_file_from_profile_only);
+    prefs_register_obsolete_preference(nameres, "hosts_file_handling");
 
     prefs_register_bool_preference(nameres, "vlan_name",
             "Resolve VLAN IDs",
@@ -3240,13 +3235,11 @@ host_name_lookup_init(void)
     /*
      * Load the global hosts file, if we have one.
      */
-    if (!gbl_resolv_flags.load_hosts_file_from_profile_only) {
-        hostspath = get_datafile_path(ENAME_HOSTS);
-        if (!read_hosts_file(hostspath, TRUE) && errno != ENOENT) {
-            report_open_failure(hostspath, errno, FALSE);
-        }
-        g_free(hostspath);
+    hostspath = get_datafile_path(ENAME_HOSTS);
+    if (!read_hosts_file(hostspath, TRUE) && errno != ENOENT) {
+        report_open_failure(hostspath, errno, FALSE);
     }
+    g_free(hostspath);
     /*
      * Load the user's hosts file no matter what, if they have one.
      */
@@ -3266,7 +3259,7 @@ host_name_lookup_init(void)
     }
 #endif
 
-    if (extra_hosts_files && !gbl_resolv_flags.load_hosts_file_from_profile_only) {
+    if (extra_hosts_files) {
         for (i = 0; i < extra_hosts_files->len; i++) {
             read_hosts_file((const char *) g_ptr_array_index(extra_hosts_files, i), TRUE);
         }

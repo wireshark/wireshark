@@ -51,7 +51,6 @@ typedef struct _e_addr_resolve {
   gboolean transport_name;                    /**< Whether to resolve TCP/UDP/DCCP/SCTP ports into service names */
   gboolean dns_pkt_addr_resolution;           /**< Whether to resolve addresses using captured DNS packets */
   gboolean use_external_net_name_resolver;    /**< Whether to system's configured DNS server to resolve names */
-  gboolean load_hosts_file_from_profile_only; /**< Whether to only load the hosts in the current profile, not hosts files */
   gboolean vlan_name;                         /**< Whether to resolve VLAN IDs to names */
   gboolean ss7pc_name;                        /**< Whether to resolve SS7 Point Codes to names */
   gboolean maxmind_geoip;                     /**< Whether to lookup geolocation information with mmdbresolve */
