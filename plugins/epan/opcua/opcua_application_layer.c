@@ -67,17 +67,14 @@ int getServiceNodeId(tvbuff_t *tvb, gint offset)
     {
     case 0x00: /* two byte node id */
         Numeric = tvb_get_guint8(tvb, offset);
-        offset+=1;
         break;
     case 0x01: /* four byte node id */
         offset+=1;
         Numeric = tvb_get_letohs(tvb, offset);
-        offset+=2;
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
         offset+=2;
         Numeric = tvb_get_letohl(tvb, offset);
-        offset+=4;
         break;
     case 0x03: /* string */
     case 0x04: /* guid */
