@@ -9088,7 +9088,7 @@ dissect_ech_echconfig(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinf
 
     switch(version) {
       case 0xfe0d:
-        offset = dissect_ech_echconfig_contents(hf, tvb, pinfo, ech_tree, offset, offset_end, &public_name, &config_id);
+        dissect_ech_echconfig_contents(hf, tvb, pinfo, ech_tree, offset, offset_end, &public_name, &config_id);
         proto_item_append_text(ech_ti, ": id=%d %s", config_id, public_name);
         break;
 
