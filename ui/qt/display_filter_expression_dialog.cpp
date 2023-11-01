@@ -316,7 +316,7 @@ void DisplayFilterExpressionDialog::updateWidgets()
 
 void DisplayFilterExpressionDialog::fillEnumBooleanValues(const true_false_string *tfs)
 {
-    QListWidgetItem *eli = new QListWidgetItem(tfs->true_string, ui->enumListWidget);
+    QListWidgetItem *eli = new QListWidgetItem(tfs_get_string(TRUE, tfs), ui->enumListWidget);
     eli->setData(Qt::UserRole, QString("1"));
     eli = new QListWidgetItem(tfs_get_string(FALSE, tfs), ui->enumListWidget);
     eli->setData(Qt::UserRole, QString("0"));
