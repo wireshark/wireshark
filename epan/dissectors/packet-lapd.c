@@ -567,6 +567,8 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 f
 			}
 		}
 	}
+	set_address(&pinfo->dst, AT_STRINGZ, (int)strlen(dstname) + 1, dstname);
+	set_address(&pinfo->src, AT_STRINGZ, (int)strlen(dstname) + 1, dstname);
 	col_set_str(pinfo->cinfo, COL_RES_DL_SRC, srcname);
 	col_set_str(pinfo->cinfo, COL_RES_DL_DST, dstname);
 
