@@ -383,6 +383,10 @@ WS_DLL_PUBLIC int dissector_try_guid(dissector_table_t sub_dissectors,
 WS_DLL_PUBLIC int dissector_try_guid_new(dissector_table_t sub_dissectors,
     guid_key* guid_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data);
 
+/* Delete a GUID from a dissector table. */
+WS_DLL_PUBLIC void dissector_delete_guid(const char *name, guid_key* guid_val,
+    dissector_handle_t handle);
+
 /** Look for a given value in a given guid dissector table and, if found,
  * return the current dissector handle for that value.
  *

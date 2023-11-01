@@ -106,6 +106,47 @@ guids_add_guid(const e_guid_t *guid, const gchar *name)
 	wmem_tree_insert32_array(guid_to_name_tree, &guidkey[0], (gchar *) name);
 }
 
+/* remove a guid to name mapping */
+void
+guids_delete_guid(const e_guid_t *guid)
+{
+	wmem_tree_key_t guidkey[2];
+	guint32 g[4];
+
+	g[0] = guid->data1;
+
+	g[1] = guid->data2;
+	g[1] <<= 16;
+	g[1] |= guid->data3;
+
+	g[2] = guid->data4[0];
+	g[2] <<= 8;
+	g[2] |= guid->data4[1];
+	g[2] <<= 8;
+	g[2] |= guid->data4[2];
+	g[2] <<= 8;
+	g[2] |= guid->data4[3];
+
+	g[3] = guid->data4[4];
+	g[3] <<= 8;
+	g[3] |= guid->data4[5];
+	g[3] <<= 8;
+	g[3] |= guid->data4[6];
+	g[3] <<= 8;
+	g[3] |= guid->data4[7];
+
+	guidkey[0].key = g;
+	guidkey[0].length = 4;
+	guidkey[1].length = 0;
+
+	void *data = wmem_tree_lookup32_array(guid_to_name_tree, &guidkey[0]);
+
+	if (data != NULL) {
+		// This will "remove" the entry by setting its data to NULL
+		wmem_tree_insert32_array(guid_to_name_tree, &guidkey[0], NULL);
+	}
+
+}
 
 /* retrieve the registered name for this GUID; uses the scope for the fallback case only */
 const gchar *

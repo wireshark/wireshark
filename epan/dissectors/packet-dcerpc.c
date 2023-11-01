@@ -26,6 +26,7 @@
 
 #include "config.h"
 
+#include <guid-utils.h>
 #include <stdio.h>      /* for sscanf() */
 #include <epan/packet.h>
 #include <epan/exceptions.h>
@@ -1658,6 +1659,28 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     return tvb_captured_length(tvb);
 }
 
+static void
+dcerpc_init_finalize(dissector_handle_t guid_handle, guid_key *key, dcerpc_uuid_value *value)
+{
+    module_t          *samr_module;
+    const char        *filter_name = proto_get_protocol_filter_name(value->proto_id);
+
+    g_hash_table_insert(dcerpc_uuids, key, value);
+
+    /* Register the GUID with the dissector table */
+    dissector_add_guid( "dcerpc.uuid", key, guid_handle );
+
+    /* add this GUID to the global name resolving */
+    guids_add_uuid(&key->guid, proto_get_protocol_short_name(value->proto));
+
+    /* Register the samr.nt_password preference as obsolete */
+    /* This should be in packet-dcerpc-samr.c */
+    if (strcmp(filter_name, "samr") == 0) {
+        samr_module = prefs_register_protocol_obsolete(value->proto_id);
+        prefs_register_obsolete_preference(samr_module, "nt_password");
+    }
+}
+
 void
 dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
                  dcerpc_sub_dissector *procs, int opnum_hf)
@@ -1665,8 +1688,6 @@ dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
     guid_key   *key         = (guid_key *)g_malloc(sizeof (*key));
     dcerpc_uuid_value *value       = (dcerpc_uuid_value *)g_malloc(sizeof (*value));
     header_field_info *hf_info;
-    module_t          *samr_module;
-    const char        *filter_name = proto_get_protocol_filter_name(proto);
     dissector_handle_t guid_handle;
 
     key->guid = *uuid;
@@ -1679,24 +1700,37 @@ dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
     value->procs    = procs;
     value->opnum_hf = opnum_hf;
 
-    g_hash_table_insert(dcerpc_uuids, key, value);
-
     hf_info = proto_registrar_get_nth(opnum_hf);
     hf_info->strings = value_string_from_subdissectors(procs);
 
     /* Register the GUID with the dissector table */
     guid_handle = create_dissector_handle( dissect_dcerpc_guid, proto);
-    dissector_add_guid( "dcerpc.uuid", key, guid_handle );
 
-    /* add this GUID to the global name resolving */
-    guids_add_uuid(uuid, proto_get_protocol_short_name(value->proto));
+    dcerpc_init_finalize(guid_handle, key, value);
+}
 
-    /* Register the samr.nt_password preference as obsolete */
-    /* This should be in packet-dcerpc-samr.c */
-    if (strcmp(filter_name, "samr") == 0) {
-        samr_module = prefs_register_protocol_obsolete(proto);
-        prefs_register_obsolete_preference(samr_module, "nt_password");
+void
+dcerpc_init_from_handle(int proto, e_guid_t *uuid, guint16 ver,
+                dissector_handle_t guid_handle)
+{
+    guid_key   *key         = (guid_key *)g_malloc(sizeof (*key));
+    dcerpc_uuid_value *value       = (dcerpc_uuid_value *)g_malloc(sizeof (*value));
+
+    key->guid = *uuid;
+    key->ver = ver;
+
+    value->proto    = find_protocol_by_id(proto);
+    value->proto_id = proto;
+    value->ett      = -1;
+    value->name     = proto_get_protocol_short_name(value->proto);
+    value->opnum_hf = 0;
+
+    if (g_hash_table_contains(dcerpc_uuids, key)) {
+        g_hash_table_remove(dcerpc_uuids, key);
+        guids_delete_guid(uuid);
     }
+
+    dcerpc_init_finalize(guid_handle, key, value);
 }
 
 /* Function to find the name of a registered protocol

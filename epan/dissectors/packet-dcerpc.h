@@ -392,6 +392,8 @@ typedef struct _dcerpc_sub_dissector {
 WS_DLL_PUBLIC
 void dcerpc_init_uuid (int proto, int ett, e_guid_t *uuid, guint16 ver, dcerpc_sub_dissector *procs, int opnum_hf);
 WS_DLL_PUBLIC
+void dcerpc_init_from_handle(int proto, e_guid_t *uuid, guint16 ver, dissector_handle_t guid_handle);
+WS_DLL_PUBLIC
 const char *dcerpc_get_proto_name(e_guid_t *uuid, guint16 ver);
 WS_DLL_PUBLIC
 int dcerpc_get_proto_hf_opnum(e_guid_t *uuid, guint16 ver);

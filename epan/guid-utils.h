@@ -35,6 +35,9 @@ WS_DLL_PUBLIC void guids_init(void);
 /* add a GUID */
 WS_DLL_PUBLIC void guids_add_guid(const e_guid_t *guid, const gchar *name);
 
+/* remove a guid to name mapping */
+WS_DLL_PUBLIC void guids_delete_guid(const e_guid_t *guid);
+
 /* try to get registered name for this GUID */
 WS_DLL_PUBLIC const gchar *guids_get_guid_name(const e_guid_t *guid, wmem_allocator_t *scope);
 

@@ -1381,6 +1381,36 @@ void dissector_delete_uint_range(const char *name, range_t *range,
 	}
 }
 
+/* Remove an entry from a guid dissector table. */
+void dissector_delete_guid(const char *name, guid_key* guid_val, dissector_handle_t handle)
+{
+	dissector_table_t  sub_dissectors;
+	dtbl_entry_t      *dtbl_entry;
+
+	sub_dissectors = find_dissector_table(name);
+
+	/* sanity check */
+	ws_assert(sub_dissectors);
+
+	/* Find the table entry */
+	dtbl_entry = (dtbl_entry_t *)g_hash_table_lookup(sub_dissectors->hash_table, guid_val);
+
+	if (dtbl_entry == NULL) {
+		fprintf(stderr, "OOPS: guid not found in dissector table \"%s\"\n", name);
+		return;
+	}
+
+	/* Make sure the handles match */
+	if (dtbl_entry->current != handle) {
+		fprintf(stderr, "OOPS: handle does not match for guid in dissector table \"%s\"\n", name);
+		return;
+	}
+
+	/* Remove the table entry */
+	g_hash_table_remove(sub_dissectors->hash_table, guid_val);
+}
+
+
 static gboolean
 dissector_delete_all_check (gpointer key _U_, gpointer value, gpointer user_data)
 {
