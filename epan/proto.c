@@ -7005,14 +7005,16 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 			tmp_str = address_to_display(NULL, &addr);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
+			free_address(&addr);
 			break;
 
 		case FT_IPv6:
 			ipv6 = fvalue_get_ipv6(finfo->value);
-			set_address (&addr, AT_IPv6, sizeof(ws_in6_addr), &ipv6->addr);
+			set_address_ipv6(&addr, ipv6);
 			tmp_str = address_to_display(NULL, &addr);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
+			free_address(&addr);
 			break;
 
 		case FT_FCWWN:
@@ -9776,19 +9778,18 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name, addr_str);
 			wmem_free(NULL, addr_str);
+			free_address(&addr);
 			break;
 
 		case FT_IPv6:
 			ipv6 = fvalue_get_ipv6(fi->value);
-
-			addr.type = AT_IPv6;
-			addr.len  = 16;
-			addr.data = &ipv6->addr;
+			set_address_ipv6(&addr, ipv6);
 
 			addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name, addr_str);
 			wmem_free(NULL, addr_str);
+			free_address(&addr);
 			break;
 
 		case FT_FCWWN:
