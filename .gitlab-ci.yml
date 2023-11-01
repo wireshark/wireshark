@@ -48,8 +48,11 @@ variables:
 # Commits that have been approved and merged. Run automatically in the main
 # repo and allow manual runs in the web UI and in forks.
 .if-merged:
+  # Regular commits: CI_PIPELINE_SOURCE=push, CI_COMMIT_BRANCH=release-4.2
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "release-4.2" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-  - if: '$CI_PIPELINE_SOURCE == "web"'
+  # "Run pipeline" button commits, cherry picks
+  - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "release-4.2" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+  # Tagged release builds: CI_PIPELINE_SOURCE=api (should be "web"?)
   - if: '$CI_PIPELINE_SOURCE == "api"'
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
     when: manual
@@ -58,7 +61,7 @@ variables:
 # the main repo and allow manual runs in the web UI.
 .if-w-w-only-merged:
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "release-4.2" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-  - if: '$CI_PIPELINE_SOURCE == "web"'
+  - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "release-4.2" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
   - if: '$CI_PIPELINE_SOURCE == "api"'
 # Incoming merge requests.
 .if-merge-request:
