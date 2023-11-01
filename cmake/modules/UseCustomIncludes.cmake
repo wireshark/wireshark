@@ -3,7 +3,7 @@
 # - If no filename is provided, CMakeListsCustom.txt is used.
 #
 macro( ADD_CUSTOM_CMAKE_INCLUDE  )
-    if( ${ARGN} )
+    if( ${ARGC} GREATER 0 )
         set( _file_list ${ARGN} )
     else()
         set( _file_list CMakeListsCustom.txt )
