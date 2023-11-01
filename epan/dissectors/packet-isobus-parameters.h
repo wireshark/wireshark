@@ -8,6 +8,9 @@
  *
  */
 
+#ifndef __PACKET_ISOBUS_PARAMETERS_H__
+#define __PACKET_ISOBUS_PARAMETERS_H__
+
 static const value_string _isobus_industry_groups[] = {
     { 0, "Global, applies to all" },
     { 1, "On-Highway Equipment" },
@@ -4377,3 +4380,5 @@ static const value_string _isobus_pgn_names[] = {
     { 0, NULL }
 };
 static value_string_ext isobus_pgn_names_ext = VALUE_STRING_EXT_INIT(_isobus_pgn_names);
+
+#endif /* __PACKET_ISOBUS_PARAMETERS_H__ */
