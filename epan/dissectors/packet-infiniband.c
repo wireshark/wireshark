@@ -1928,10 +1928,10 @@ skip_lrh:
 
             if (dctBthHeader) {
                 /* since DCT uses the same opcodes as RD we will use another name mapping */
-                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, DctOpCodeMap, "Unknown OpCode"));
+                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, DctOpCodeMap, "Unknown OpCode "));
             }
             else {
-                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, OpCodeMap, "Unknown OpCode"));
+                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, OpCodeMap, "Unknown OpCode "));
             }
             offset += 1;
 
@@ -6051,7 +6051,7 @@ skip_lrh:
                 info.dctConnect = !(tvb_get_guint8(tvb, offset + 1) & 0x80);
                 bthSize += 8;
             }
-            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(info.opCode, OpCodeMap, "Unknown OpCode"));
+            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, OpCodeMap, "Unknown OpCode "));
             offset += bthSize;
             break;
         case IP_NON_IBA:
