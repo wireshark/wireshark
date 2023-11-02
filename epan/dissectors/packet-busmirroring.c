@@ -1,11 +1,22 @@
 /* packet-busmirroring.c
  * Routines for BusMirroring protocol packet disassembly
+ * Copyright 2023, Haiyun Liu <liu0hy@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+
+ * Bus Mirroring is an AUTOSAR Basic Software module. Its purpose is the replication of
+ * the traffic and the state of internal buses to an external bus, such that a tester
+ * connected to that external bus can monitor internal buses for debugging purposes.
+ * When mirroring to an IP destination bus like Ethernet, the Bus Mirroring module applies
+ * a protocol to pack several smaller frames (e.g. CAN, LIN or FlexRay) into one large
+ * frame of the destination bus.
+ * For more information, see AUTOSAR "Specification of Bus Mirroring", Section 7.4
+ * "Mirroring to FlexRay, IP, and CDD":
+ * https://www.autosar.org/fileadmin/standards/R22-11/CP/AUTOSAR_SWS_BusMirroring.pdf
  */
 
 #include "config.h"
