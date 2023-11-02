@@ -70,21 +70,9 @@ dfvm_opcode_tostr(dfvm_opcode_t code)
 		case DFVM_STACK_PUSH:		return "STACK_PUSH";
 		case DFVM_STACK_POP:		return "STACK_POP";
 		case DFVM_NOT_ALL_ZERO:		return "NOT_ALL_ZERO";
+		case DFVM_NO_OP:		return "NO_OP";
 	}
 	return "(fix-opcode-string)";
-}
-
-dfvm_insn_t*
-dfvm_insn_new(dfvm_opcode_t op)
-{
-	dfvm_insn_t	*insn;
-
-	insn = g_new(dfvm_insn_t, 1);
-	insn->op = op;
-	insn->arg1 = NULL;
-	insn->arg2 = NULL;
-	insn->arg3 = NULL;
-	return insn;
 }
 
 static void
@@ -129,6 +117,37 @@ dfvm_value_unref(dfvm_value_t *v)
 	if (v->ref_count > 0)
 		return;
 	dfvm_value_free(v);
+}
+
+dfvm_insn_t*
+dfvm_insn_new(dfvm_opcode_t op)
+{
+	dfvm_insn_t	*insn;
+
+	insn = g_new(dfvm_insn_t, 1);
+	insn->op = op;
+	insn->arg1 = NULL;
+	insn->arg2 = NULL;
+	insn->arg3 = NULL;
+	return insn;
+}
+
+void
+dfvm_insn_replace_no_op(dfvm_insn_t *insn)
+{
+	if (insn->arg1) {
+		dfvm_value_unref(insn->arg1);
+		insn->arg1 = NULL;
+	}
+	if (insn->arg2) {
+		dfvm_value_unref(insn->arg2);
+		insn->arg2 = NULL;
+	}
+	if (insn->arg3) {
+		dfvm_value_unref(insn->arg3);
+		insn->arg3 = NULL;
+	}
+	insn->op = DFVM_NO_OP;
 }
 
 void
@@ -602,6 +621,7 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
 		case DFVM_RETURN:
 		case DFVM_SET_CLEAR:
 		case DFVM_NULL:
+		case DFVM_NO_OP:
 			ASSERT_DFVM_OP_NOT_REACHED(insn->op);
 	}
 
@@ -689,6 +709,7 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, uint16_t flags)
 			case DFVM_NOT:
 			case DFVM_RETURN:
 			case DFVM_SET_CLEAR:
+			case DFVM_NO_OP:
 				/* Nothing here */
 				break;
 			default:
@@ -1813,6 +1834,9 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 			case DFVM_RETURN:
 				free_register_overhead(df);
 				return accum;
+
+			case DFVM_NO_OP:
+				break;
 
 			case DFVM_IF_TRUE_GOTO:
 				if (accum) {

@@ -835,9 +835,16 @@ optimize(dfwork_t *dfw)
 		insn = (dfvm_insn_t	*)g_ptr_array_index(dfw->insns, id);
 		arg1 = insn->arg1;
 		if (insn->op == DFVM_IF_TRUE_GOTO || insn->op == DFVM_IF_FALSE_GOTO) {
+			id1 = arg1->value.numeric;
+
+			/* If the branch jumps to the next instruction replace it with a no-op. */
+			if (id1 == id + 1) {
+				dfvm_insn_replace_no_op(insn);
+				continue;
+			}
+
 			/* Try to optimize branch jumps */
 			dfvm_opcode_t revert = (insn->op == DFVM_IF_FALSE_GOTO) ? DFVM_IF_TRUE_GOTO : DFVM_IF_FALSE_GOTO;
-			id1 = arg1->value.numeric;
 			for (;;) {
 				insn1 = (dfvm_insn_t*)g_ptr_array_index(dfw->insns, id1);
 				if (insn1->op == revert) {

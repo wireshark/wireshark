@@ -100,6 +100,7 @@ typedef enum {
 	DFVM_STACK_PUSH,
 	DFVM_STACK_POP,
 	DFVM_NOT_ALL_ZERO,
+	DFVM_NO_OP,
 } dfvm_opcode_t;
 
 const char *
@@ -115,6 +116,9 @@ typedef struct {
 
 dfvm_insn_t*
 dfvm_insn_new(dfvm_opcode_t op);
+
+void
+dfvm_insn_replace_no_op(dfvm_insn_t *insn);
 
 void
 dfvm_insn_free(dfvm_insn_t *insn);
