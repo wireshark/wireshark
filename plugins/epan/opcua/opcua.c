@@ -454,12 +454,17 @@ static int decrypt_opcua(
     res = gcry_cipher_decrypt(handle, plaintext, plaintext_len, cipher, cipher_len);
     if (res == 0) {
         /* col_append_fstr(pinfo->cinfo, COL_INFO, " (decrypted)"); */
+        debugprintf("decryption succeeded.\n");
     } else {
         /* col_append_fstr(pinfo->cinfo, COL_INFO, " (encrypted)"); */
         debugprintf("decryption failed.\n");
         ret = -1;
     }
     gcry_cipher_close(handle);
+    /* it makes no sense to continue and verify the padding if decryption failed */
+    if (ret != 0) {
+        return ret;
+    }
 
     ret = verify_padding(&plaintext[plaintext_len - *sig_len - 1]);
     if (ret < 0) {
