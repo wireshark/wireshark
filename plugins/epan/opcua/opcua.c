@@ -235,11 +235,11 @@ static void opcua_keylog_process_line(struct opcua_keylog_parser_ctx *ctx, const
         debugprintf("Adding new keyset for id %lu...\n", id);
         /* create new keyset for new id */
         ctx->keyset = ua_keysets_add();
-        ctx->keyset->id = id;
         ctx->last_id = id;
     }
     keyset = ctx->keyset;
     if (keyset) {
+        keyset->id = id;
         /* store key material */
         if (strcmp(parts[0], "client") == 0) {
             if (strcmp(parts[1], "iv") == 0) {
