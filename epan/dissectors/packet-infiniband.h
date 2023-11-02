@@ -55,6 +55,8 @@ typedef struct {
 #define RC_FETCH_ADD                    20 /*0b00010100 */
 #define RC_SEND_LAST_INVAL              22 /*0b00010110 */
 #define RC_SEND_ONLY_INVAL              23 /*0b00010111 */
+#define RC_FLUSH                        28 /*0b00011100 */
+#define RC_ATOMIC_WRITE                 29 /*0b00011101 */
 
 /* Reliable Datagram (RD)
 * [7-5] = 010 */
@@ -80,6 +82,8 @@ typedef struct {
 #define RD_CMP_SWAP                     83 /*0b01010011 */
 #define RD_FETCH_ADD                    84 /*0b01010100 */
 #define RD_RESYNC                       85 /*0b01010101 */
+#define RD_FLUSH                        92 /*0b01011100 */
+#define RD_ATOMIC_WRITE                 93 /*0b01011101 */
 
 /* Unreliable Datagram (UD)
 * [7-5] = 011 */

@@ -1232,6 +1232,8 @@ static const value_string bth_opcode_tbl[] = {
     { 0x15, "Reliable Connection (RC) - Reserved" },
     { 0x16, "Reliable Connection (RC) - SEND Last with Invalidate" },
     { 0x17, "Reliable Connection (RC) - SEND Only with Invalidate" },
+    { 0x1C, "Reliable Connection (RC) - FLUSH" },
+    { 0x1D, "Reliable Connection (RC) - ATOMIC WRITE" },
     { 0x20, "Unreliable Connection (UC) - SEND First" },
     { 0x21, "Unreliable Connection (UC) - SEND Middle" },
     { 0x22, "Unreliable Connection (UC) - SEND Last" },
@@ -1266,6 +1268,8 @@ static const value_string bth_opcode_tbl[] = {
     { 0x53, "Reliable Datagram (RD) - CmpSwap" },
     { 0x54, "Reliable Datagram (RD) - FetchAdd" },
     { 0x55, "Reliable Datagram (RD) - RESYNC" },
+    { 0x5C, "Reliable Datagram (RD) - FLUSH" },
+    { 0x5D, "Reliable Datagram (RD) - ATOMIC WRITE" },
     { 0x64, "Unreliable Datagram (UD) - SEND only" },
     { 0x65, "Unreliable Datagram (UD) - SEND only with Immediate" },
     { 0x80, "CNP" },
@@ -1292,6 +1296,8 @@ static const value_string bth_opcode_tbl[] = {
     { 0xB4, "Extended Reliable Connection (XRC) - FetchAdd" },
     { 0xB6, "Extended Reliable Connection (XRC) - SEND Last with Invalidate" },
     { 0xB7, "Extended Reliable Connection (XRC) - SEND Only with Invalidate" },
+    { 0xBC, "Extended Reliable Connection (XRC) - FLUSH" },
+    { 0xBD, "Extended Reliable Connection (XRC) - ATOMIC WRITE" },
     { 0, NULL}
 };
 
@@ -1408,6 +1414,8 @@ static const value_string OpCodeMap[] =
     { RC_FETCH_ADD,                 "RC Fetch Add "},
     { RC_SEND_LAST_INVAL,           "RC Send Last Invalidate "},
     { RC_SEND_ONLY_INVAL,           "RC Send Only Invalidate " },
+    { RC_FLUSH,                     "RC Flush " },
+    { RC_ATOMIC_WRITE,              "RC Atomic Write " },
 
     { RD_SEND_FIRST,                "RD Send First "},
     { RD_SEND_MIDDLE,               "RD Send Middle " },
@@ -1431,6 +1439,8 @@ static const value_string OpCodeMap[] =
     { RD_CMP_SWAP,                  "RD Compare Swap "},
     { RD_FETCH_ADD,                 "RD Fetch Add "},
     { RD_RESYNC,                    "RD RESYNC "},
+    { RD_FLUSH,                     "RD Flush "},
+    { RD_ATOMIC_WRITE,              "RD Atomic Write " },
 
     { UD_SEND_ONLY,                 "UD Send Only "},
     { UD_SEND_ONLY_IMM,             "UD Send Only Immediate "},
