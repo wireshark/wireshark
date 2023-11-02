@@ -324,6 +324,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*reg_val, *val1, *val3, *val_arg;
 	unsigned		count;
+	GSList		*params_jumps = NULL;
 
 	if (strcmp(sttype_function_name(node), "len") == 0) {
 		/* Replace len() function call with DFVM_LENGTH instruction. */
@@ -342,9 +343,12 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	ws_assert(params);
 	count = 0;
 	while (params) {
-		/* If a parameter fails to generate do not jump anywhere.
-		   The function is responsible for handling NULL arguments. */
-		val_arg = gen_entity(dfw, params->data, NULL);
+		val_arg = gen_entity(dfw, params->data, &params_jumps);
+		/* If a parameter fails to generate jump here.
+		 * Note: stack_push NULL register is valid. */
+		g_slist_foreach(params_jumps, fixup_jumps, dfw);
+		g_slist_free(params_jumps);
+		params_jumps = NULL;
 		dfw_append_stack_push(dfw, val_arg);
 		count++;
 		params = params->next;
@@ -355,7 +359,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	dfw_append_stack_pop(dfw, count);
 
 	/* We need another instruction to jump to another exit
-	 * place, if the call() of our function failed for some reaosn */
+	 * place, if the call() of our function failed for some reason */
 	insn = dfvm_insn_new(DFVM_IF_FALSE_GOTO);
 	jmp = dfvm_value_new(INSN_NUMBER);
 	insn->arg1 = dfvm_value_ref(jmp);

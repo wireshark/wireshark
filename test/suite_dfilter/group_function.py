@@ -78,3 +78,10 @@ class TestFunctionAbs:
     def test_function_abs_1(self, checkDFilterCount):
         dfilter = 'udp.dstport == abs(-67)'
         checkDFilterCount(dfilter, 2)
+
+class TestFunctionNested:
+    trace_file = 'http.pcap'
+
+    def test_function_nested_1(self, checkDFilterCount):
+        dfilter = 'abs(min(tcp.srcport, tcp.dstport)) == 80'
+        checkDFilterCount(dfilter, 1)
