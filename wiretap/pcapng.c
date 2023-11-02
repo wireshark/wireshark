@@ -2278,8 +2278,11 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
      */
     if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(wblock->block, OPT_PKT_FLAGS, &flags)) {
         if (PACK_FLAGS_FCS_LENGTH(flags) != 0) {
-            /* The FCS length is present */
-            fcslen = PACK_FLAGS_FCS_LENGTH(flags);
+            /*
+             * The FCS length is present, but in units of octets, not
+             * bits; convert it to bits.
+             */
+            fcslen = PACK_FLAGS_FCS_LENGTH(flags)*8;
         }
     }
     /*

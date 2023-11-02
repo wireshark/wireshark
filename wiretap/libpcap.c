@@ -445,7 +445,8 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	libpcap->fcs_len = -1;
 	if (LT_FCS_LENGTH_PRESENT(hdr.network)) {
 		/*
-		 * We have an FCS length.
+		 * We have an FCS length, in units of 16 bits.
+		 * Convert it to bits.
 		 */
 		libpcap->fcs_len = LT_FCS_LENGTH(hdr.network) * 16;
 	}
