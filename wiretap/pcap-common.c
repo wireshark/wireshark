@@ -2578,7 +2578,15 @@ pcap_read_post_process(gboolean is_nokia, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
-		rec->rec_header.packet_header.pseudo_header.eth.fcs_len = fcs_len;
+		/*
+		 * The FCS length is supposed to be in bits.
+		 * If it's < 8, assume it's in bytes; otherwise,
+		 * convert it to bytes.
+		 */
+		if (fcs_len < 8)
+			rec->rec_header.packet_header.pseudo_header.eth.fcs_len = fcs_len;
+		else
+			rec->rec_header.packet_header.pseudo_header.eth.fcs_len = fcs_len/8;
 		break;
 
 	case WTAP_ENCAP_SLL:
