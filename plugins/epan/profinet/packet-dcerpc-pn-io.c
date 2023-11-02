@@ -17835,9 +17835,9 @@ proto_register_pn_io (void)
         "Whether the PNIO dissector is allowed to use detailed PROFIsafe dissection of cyclic data frames",
         &pnio_ps_selection);
     prefs_register_directory_preference(pnio_module, "pnio_ps_networkpath",
-        "Configuration GSD-File Networkpath",                 /* Title */
-        "Select your Networkpath to your GSD-Files.",         /* Descreption */
-        &pnio_ps_networkpath);                                /* Variable to save the GSD-File networkpath */
+        "Folder containing GSD files",     /* Title */
+        "Place GSD files in this folder.", /* Descreption */
+        &pnio_ps_networkpath);             /* Variable in which to save the GSD file folder path */
 
     /* subdissector code */
     register_dissector("pn_io", dissect_PNIO_heur, proto_pn_io);
