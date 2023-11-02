@@ -568,6 +568,9 @@ typedef struct blf_apptext {
 #define BLF_APPTEXT_CONT        0x000000FE
 #define BLF_APPTEXT_FAILED      0x000000FF
 
+#define BLF_APPTEXT_XML_GENERAL     0x01
+#define BLF_APPTEXT_XML_CHANNELS    0x02
+#define BLF_APPTEXT_XML_IDENTITY    0x03
 
 #define BLF_BUSTYPE_CAN 1
 #define BLF_BUSTYPE_LIN 5

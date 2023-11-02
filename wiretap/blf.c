@@ -27,6 +27,7 @@
 #include <epan/value_string.h>
 #include <wsutil/wslog.h>
 #include <wsutil/exported_pdu_tlvs.h>
+#include <wsutil/strtoi.h>
 #include "file_wrappers.h"
 #include "wtap-int.h"
 
@@ -72,14 +73,15 @@ typedef struct blf_log_container {
 } blf_log_container_t;
 
 typedef struct blf_data {
-    gint64  start_of_last_obj;
-    gint64  current_real_seek_pos;
-    guint64 start_offset_ns;
+    gint64      start_of_last_obj;
+    gint64      current_real_seek_pos;
+    guint64     start_offset_ns;
 
-    guint   current_log_container;
-    GArray *log_containers;
+    guint       current_log_container;
+    GArray     *log_containers;
 
     GHashTable *channel_to_iface_ht;
+    GHashTable *channel_to_name_ht;
     guint32     next_interface_id;
 } blf_t;
 
@@ -93,10 +95,10 @@ typedef struct blf_params {
 } blf_params_t;
 
 typedef struct blf_channel_to_iface_entry {
-    int pkt_encap;
-    guint16 channel;
-    guint16 hwchannel;
-    guint32 interface_id;
+    int             pkt_encap;
+    guint16         channel;
+    guint16         hwchannel;
+    guint32         interface_id;
 } blf_channel_to_iface_entry_t;
 
 static void
@@ -109,38 +111,43 @@ blf_free_channel_to_iface_entry(gpointer data) {
      g_free(data);
 }
 
+static void
+blf_free_channel_to_name_entry(gpointer data) {
+    g_free(data);
+}
+
 static gint64
 blf_calc_key_value(int pkt_encap, guint16 channel, guint16 hwchannel) {
     return (gint64)(((guint64)pkt_encap << 32) | ((guint64)hwchannel << 16) | (guint64)channel);
 }
 
-static void add_interface_name(wtap_block_t *int_data, int pkt_encap, guint16 channel, guint16 hwchannel, gchar *name) {
+static void add_interface_name(wtap_block_t int_data, int pkt_encap, guint16 channel, guint16 hwchannel, gchar *name) {
     if (name != NULL) {
-        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "%s", name);
+        wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "%s", name);
     } else {
         switch (pkt_encap) {
         case WTAP_ENCAP_ETHERNET:
             /* we use UINT16_MAX to encode no hwchannel */
             if (hwchannel == UINT16_MAX) {
-                wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ETH-%u", channel);
+                wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "ETH-%u", channel);
             } else {
-                wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ETH-%u-%u", channel, hwchannel);
+                wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "ETH-%u-%u", channel, hwchannel);
             }
             break;
         case WTAP_ENCAP_IEEE_802_11:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "WLAN-%u", channel);
+            wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "WLAN-%u", channel);
             break;
         case WTAP_ENCAP_FLEXRAY:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "FR-%u", channel);
+            wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "FR-%u", channel);
             break;
         case WTAP_ENCAP_LIN:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "LIN-%u", channel);
+            wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "LIN-%u", channel);
             break;
         case WTAP_ENCAP_SOCKETCAN:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "CAN-%u", channel);
+            wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "CAN-%u", channel);
             break;
         default:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ENCAP_%d-%u", pkt_encap, channel);
+            wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "ENCAP_%d-%u", pkt_encap, channel);
         }
     }
 }
@@ -152,7 +159,7 @@ blf_add_interface(blf_params_t *params, int pkt_encap, guint32 channel, guint16 
     blf_channel_to_iface_entry_t *item = NULL;
 
     if_descr_mand->wtap_encap = pkt_encap;
-    add_interface_name(&int_data, pkt_encap, channel, hwchannel, name);
+    add_interface_name(int_data, pkt_encap, channel, hwchannel, name);
     /*
      * The time stamp resolution in these files can be per-record;
      * the maximum resolution is nanoseconds, so we specify that
@@ -191,10 +198,48 @@ blf_add_interface(blf_params_t *params, int pkt_encap, guint32 channel, guint16 
     return item->interface_id;
 }
 
+/** This is used to save the interface name without creating it.
+ *
+ * This approach allows up to update the name of the interface
+ * up until the first captured packet.
+ */
+static gboolean
+blf_prepare_interface_name(blf_params_t* params, int pkt_encap, guint16 channel, guint16 hwchannel, gchar* name, gboolean force_new_name) {
+    gint64 key = blf_calc_key_value(pkt_encap, channel, hwchannel);
+    gchar* old_name;
+    gchar* new_name;
+    gint64* new_key;
+
+    if (params->blf_data->channel_to_name_ht == NULL) {
+        return FALSE;
+    }
+
+    old_name = (gchar *)g_hash_table_lookup(params->blf_data->channel_to_name_ht, &key);
+
+    if (old_name != NULL && force_new_name) {
+        if (!g_hash_table_remove(params->blf_data->channel_to_name_ht, &key)) {
+            return FALSE;
+        }
+
+        old_name = NULL;
+    }
+
+    if (old_name == NULL) {
+        new_key = g_new(gint64, 1);
+        *new_key = key;
+        new_name = ws_strdup(name);
+        return g_hash_table_insert(params->blf_data->channel_to_name_ht, new_key, new_name);
+    }
+
+    return TRUE;
+}
+
 static guint32
 blf_lookup_interface(blf_params_t *params, int pkt_encap, guint16 channel, guint16 hwchannel, gchar *name) {
     gint64 key = blf_calc_key_value(pkt_encap, channel, hwchannel);
-    blf_channel_to_iface_entry_t *item = NULL;
+    blf_channel_to_iface_entry_t* item;
+    gchar* saved_name;
+    guint32 ret;
 
     if (params->blf_data->channel_to_iface_ht == NULL) {
         return 0;
@@ -204,8 +249,19 @@ blf_lookup_interface(blf_params_t *params, int pkt_encap, guint16 channel, guint
 
     if (item != NULL) {
         return item->interface_id;
-    } else {
-        return blf_add_interface(params, pkt_encap, channel, hwchannel, name);
+    }
+    else {
+        saved_name = (gchar*)g_hash_table_lookup(params->blf_data->channel_to_name_ht, &key);
+
+        if (saved_name != NULL) {
+            ret = blf_add_interface(params, pkt_encap, channel, hwchannel, saved_name);
+            g_hash_table_remove(params->blf_data->channel_to_name_ht, &key);
+
+            return ret;
+        }
+        else {
+            return blf_add_interface(params, pkt_encap, channel, hwchannel, name);
+        }
     }
 }
 
@@ -2278,6 +2334,392 @@ blf_read_linsenderror2(blf_params_t* params, int* err, gchar** err_info, gint64 
     return TRUE;
 }
 
+guint16 blf_get_xml_channel_number(const char* start, const char* end) {
+    gchar* text;
+    gsize len;
+    guint16 res;
+
+    if (start == NULL || end == NULL || end <= start) {
+        return UINT16_MAX;
+    }
+
+    len = (gsize)(end - start);
+    text = g_try_malloc(len + 1);  /* Accomodate '\0' */
+    if (text == NULL) {
+        ws_debug("cannot allocate memory");
+        return UINT16_MAX;
+    }
+    memcpy(text, start, len);
+    text[len] = '\0';
+
+    if (!ws_strtou16(text, NULL, &res)) {
+        res = UINT16_MAX;
+    }
+
+    g_free(text);
+    return res;
+}
+
+char* blf_get_xml_channel_name(const char* start, const char* end) {
+    char* text;
+    gsize len;
+
+    if (start == NULL || end == NULL || end <= start) {
+        return NULL;
+    }
+
+    len = (gsize)(end - start);
+    text = g_try_malloc(len + 1);  /* Accomodate '\0' */
+    if (text == NULL) {
+        ws_debug("cannot allocate memory");
+        return NULL;
+    }
+    memcpy(text, start, len);
+    text[len] = '\0';
+
+    return text;
+}
+
+gboolean blf_parse_xml_port(const char* start, const char* end, char** name, guint16* hwchannel, gboolean* simulated) {
+    static const char name_magic[] = "name=";
+    static const char hwchannel_magic[] = "hwchannel=";
+    static const char simulated_magic[] = "simulated=";
+
+    gchar* text;
+    gsize len;
+    gchar** tokens;
+    gchar* token;
+
+    if (start == NULL || end == NULL || name == NULL || end <= start) {
+        return FALSE;
+    }
+
+    len = (gsize)(end - start);
+    text = g_try_malloc(len + 1);  /* Accomodate '\0' */
+    if (text == NULL) {
+        ws_debug("cannot allocate memory");
+        return FALSE;
+    }
+    memcpy(text, start, len);
+    text[len] = '\0';
+
+    tokens = g_strsplit_set(text, ";", -1);
+    g_free(text);
+    if (tokens == NULL) {
+        ws_debug("cannot split XML port data");
+        return FALSE;
+    }
+
+    *name = NULL;
+    *hwchannel = UINT16_MAX;
+    *simulated = FALSE;
+
+    for (int i = 0; tokens[i] != NULL; i++) {
+        token = tokens[i];
+        if (strncmp(token, name_magic, strlen(name_magic)) == 0) {
+            if (*name == NULL) { /* Avoid memory leak in case of malformed string */
+                *name = ws_strdup(token + strlen(name_magic));
+            }
+        }
+        else if (strncmp(token, hwchannel_magic, strlen(hwchannel_magic)) == 0) {
+            if (!ws_strtou16(token + strlen(hwchannel_magic), NULL, hwchannel)) {
+                *hwchannel = UINT16_MAX;
+            }
+        }
+        else if (strncmp(token, simulated_magic, strlen(simulated_magic)) == 0) {
+            if (strlen(token) > strlen(simulated_magic) && token[strlen(simulated_magic)] != '0') {
+                *simulated = TRUE;  /* TODO: Find a way to use this information */
+            }
+        }
+    }
+
+    g_strfreev(tokens);
+
+    return TRUE;
+}
+
+int blf_get_xml_pkt_encap(const char* start, const char* end) {
+    gsize len;
+
+    if (start == NULL || end == NULL || end <= start) {
+        return 0;
+    }
+
+    len = (gsize)(end - start);
+
+    if (strncmp(start, "CAN", len) == 0) {
+        return WTAP_ENCAP_SOCKETCAN;
+    }
+    if (strncmp(start, "FlexRay", len) == 0) {
+        return WTAP_ENCAP_FLEXRAY;
+    }
+    if (strncmp(start, "LIN", len) == 0) {
+        return WTAP_ENCAP_LIN;
+    }
+    if (strncmp(start, "Ethernet", len) == 0) {
+        return WTAP_ENCAP_ETHERNET;
+    }
+    if (strncmp(start, "WLAN", len) == 0) { /* Not confirmed with a real capture */
+        return WTAP_ENCAP_IEEE_802_11;
+    }
+
+    return 0xffffffff;
+}
+
+/** Finds a NULL-terminated string in a block of memory.
+ *
+ * 'start' points to the first byte of the block of memory.
+ * 'end' points to the first byte after the end of the block of memory,
+ * so that the size of the block is end-start.
+ * 'str' is a NULL-terminated string.
+ */
+const char* blf_strmem(const char* start, const char* end, const char* str) {
+    if (start == NULL || end == NULL || str == NULL || end <= start) {
+        return NULL;
+    }
+
+    return ws_memmem(start, end - start, str, strlen(str));
+}
+
+/** Extracts the channel and port names from a channels XML.
+ *
+ * A sample channels XML looks like this:
+ *
+ * <?xml version="1.0" encoding="UTF-8"?>
+ * <channels version="1">
+ *   <channel number="1" type="CAN" network="CAN01">
+ *     <databases>
+ *       <database file="DB.arxml" path="C:\...\" cluster="CAN01" />
+ *       <database file="DB.dbc" path="C:\...\" cluster="General" />
+ *     </databases>
+ *   </channel>
+ *   <channel number="1" type="LIN" network="LIN01">
+ *     <databases>
+ *       <database file="DB.dbc" path="C:\...\" cluster="General" />
+ *       <database file="DB.ldf" path="C:\...\" cluster="LIN01" />
+ *     </databases>
+ *   </channel>
+ *   <channel number="1" type="Ethernet" network="ETH01">
+ *     <databases>
+ *       <database file="DB.dbc" path="C:\...\" cluster="General" />
+ *     </databases>
+ *     <channel_properties>
+ *       <elist name="ports">
+ *         <eli name="port">name=Port1;hwchannel=11;simulated=1</eli>
+ *         <eli name="port">name=Port2;hwchannel=12;simulated=0</eli>
+ *       </elist>
+ *     </channel_properties>
+ *   </channel>
+ * </channels>
+ */
+static gboolean
+blf_set_xml_channels(blf_params_t* params, const char* text, gsize len) {
+    static const char xml_magic[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+    static const char channels_start_magic[] = "<channels ";
+    static const char channels_end_magic[] = "</channels>";
+    static const char channel_start_magic[] = "<channel ";
+    static const char channel_end_magic[] = "</channel>";
+    static const char number_start_magic[] = "number=\"";
+    static const char number_end_magic[] = "\"";
+    static const char type_start_magic[] = "type=\"";
+    static const char type_end_magic[] = "\"";
+    static const char network_start_magic[] = "network=\"";
+    static const char network_end_magic[] = "\"";
+    static const char ports_start_magic[] = "<elist name=\"ports\">";
+    static const char ports_end_magic[] = "</elist>";
+    static const char port_start_magic[] = "<eli name=\"port\">";
+    static const char port_end_magic[] = "</eli>";
+
+    const char* xml_start;
+    const char* channels_start;
+    const char* channels_end;
+    const char* channel_start;
+    const char* channel_end;
+    const char* number_start;
+    const char* number_end;
+    const char* type_start;
+    const char* type_end;
+    const char* network_start;
+    const char* network_end;
+    const char* ports_start;
+    const char* ports_end;
+    const char* port_start;
+    const char* port_end;
+
+    const char* search_start;
+    gboolean res;
+
+    int pkt_encap;
+    guint16 channel;
+    guint16 hwchannel = UINT16_MAX;
+    char* channel_name = NULL;
+    char* port_name = NULL;
+    gboolean simulated = FALSE;
+    gchar* iface_name = NULL;
+
+    if (text == NULL || len < strlen(xml_magic)) {
+        return FALSE;
+    }
+
+    xml_start = blf_strmem(text, text + len, xml_magic);
+    if (xml_start == NULL) {
+        ws_debug("no valid xml magic found");
+        return FALSE;
+    }
+    search_start = xml_start + strlen(xml_magic);
+
+    channels_start = blf_strmem(search_start, text + len, channels_start_magic);
+    channels_end = blf_strmem(search_start, text + len, channels_end_magic);
+    if (channels_start == NULL || channels_end == NULL || channels_end <= channels_start + strlen(channels_start_magic)) {
+        ws_debug("no channels tag found in xml");
+        return FALSE;
+    }
+    search_start = channels_start + strlen(channels_start_magic);
+
+    while (search_start < channels_end) {
+        channel_start = blf_strmem(search_start, channels_end, channel_start_magic);
+        search_start = search_start + strlen(channel_start_magic);
+        channel_end = blf_strmem(search_start, channels_end, channel_end_magic);
+        if (channel_start == NULL || channel_end == NULL || channel_end <= channel_start + strlen(channel_start_magic)) {
+            ws_debug("found end of channel list");
+            return TRUE;
+        }
+
+        number_start = blf_strmem(channel_start, channel_end, number_start_magic);
+        if (number_start == NULL) {
+            ws_debug("channel without number found in xml");
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        number_end = blf_strmem(number_start + strlen(number_start_magic), channel_end, number_end_magic);
+        if (number_end == NULL) {
+            ws_debug("channel with malformed number attribute found in xml");
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        channel = blf_get_xml_channel_number(number_start + strlen(number_start_magic), number_end);
+        if (channel == UINT16_MAX) {
+            ws_debug("invalid channel number found in xml");
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        type_start = blf_strmem(channel_start, channel_end, type_start_magic);
+        if (type_start == NULL) {
+            ws_debug("channel without type found in xml");
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        type_end = blf_strmem(type_start + strlen(type_start_magic), channel_end, type_end_magic);
+        if (type_end == NULL) {
+            ws_debug("channel with malformed type attribute found in xml");
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        pkt_encap = blf_get_xml_pkt_encap(type_start + strlen(type_start_magic), type_end);
+
+        network_start = blf_strmem(channel_start, channel_end, network_start_magic);
+        if (network_start == NULL) {
+            ws_debug("channel without name found in xml");
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        network_end = blf_strmem(network_start + strlen(network_start_magic), channel_end, network_end_magic);
+        if (network_end == NULL) {
+            ws_debug("channel with malformed network attribute found in xml");
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        channel_name = blf_get_xml_channel_name(network_start + strlen(network_start_magic), network_end);
+        if (channel_name == NULL || strlen(channel_name) == 0) {
+            ws_debug("channel with empty name found in xml");
+            if (channel_name) {
+                g_free(channel_name);
+                channel_name = NULL;
+            }
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        ws_debug("Found channel in XML: PKT_ENCAP: %d, ID: %u, name: %s", pkt_encap, channel, channel_name);
+        blf_prepare_interface_name(params, pkt_encap, channel, UINT16_MAX, channel_name, TRUE);
+
+        search_start = MAX(MAX(number_end + strlen(number_end_magic), type_end + strlen(type_end_magic)), network_end + strlen(network_end_magic));
+
+        ports_start = blf_strmem(search_start, channel_end, ports_start_magic);
+        if (ports_start == NULL) {
+            /* Not an error, channel has no ports */
+            if (channel_name) {
+                g_free(channel_name);
+                channel_name = NULL;
+            }
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        search_start = ports_start + strlen(ports_start_magic);
+
+        ports_end = blf_strmem(search_start, channel_end, ports_end_magic);
+        if (ports_end == NULL) {
+            ws_debug("channel with malformed ports tag found in xml");
+            if (channel_name) {
+                g_free(channel_name);
+                channel_name = NULL;
+            }
+            search_start = channel_end + strlen(channel_end_magic);
+            continue;
+        }
+
+        while (search_start < ports_end) {
+            port_start = blf_strmem(search_start, ports_end, port_start_magic);
+            port_end = blf_strmem(search_start + strlen(port_start_magic), ports_end, port_end_magic);
+            if (port_start == NULL || port_end == NULL || port_end <= port_start + strlen(port_start_magic)) {
+                ws_debug("found end of ports list");
+                search_start = ports_end + strlen(ports_end_magic);
+                continue;
+            }
+
+            res = blf_parse_xml_port(port_start + strlen(port_start_magic), port_end, &port_name, &hwchannel, &simulated);
+            if (!res || port_name == NULL || hwchannel == UINT16_MAX) {
+                if (port_name) {
+                    g_free(port_name);
+                    port_name = NULL;
+                }
+                ws_debug("port with missing or malformed info found in xml");
+                search_start = port_end + strlen(port_end_magic);
+                continue;
+            }
+
+            iface_name = ws_strdup_printf("%s::%s", channel_name, port_name);
+            ws_debug("Found channel in XML: PKT_ENCAP: %d, ID: %u, HW ID: %u, name: %s", pkt_encap, channel, hwchannel, iface_name);
+            blf_prepare_interface_name(params, pkt_encap, channel, hwchannel, iface_name, TRUE);
+            g_free(iface_name);
+
+            if (port_name) {
+                g_free(port_name);
+                port_name = NULL;
+            }
+
+            search_start = port_end + strlen(port_end_magic);
+        }
+
+        if (channel_name) {
+            g_free(channel_name);
+            channel_name = NULL;
+        }
+
+        search_start = channel_end + strlen(channel_end_magic);
+    }
+
+    return TRUE;
+}
+
 static int
 blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint32 flags, guint64 object_timestamp, gsize metadata_cont) {
     blf_apptext_t            apptextheader;
@@ -2357,7 +2799,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         }
 
         /* we use lookup to create interface, if not existing yet */
-        blf_lookup_interface(params, pkt_encap, channel, UINT16_MAX, tokens[1]);
+        blf_prepare_interface_name(params, pkt_encap, channel, UINT16_MAX, tokens[1], FALSE);
 
         g_strfreev(tokens);
         g_free(text);
@@ -2384,6 +2826,10 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         if ((apptextheader.reservedAppText1 & 0x00ffffff) > apptextheader.textLength) {
             /* Continues in the next object */
             return BLF_APPTEXT_CONT;
+        }
+
+        if (((apptextheader.reservedAppText1 >> 24) & 0xff) == BLF_APPTEXT_XML_CHANNELS) {
+            blf_set_xml_channels(params, params->buf->data, ws_buffer_length(params->buf));
         }
 
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (guint32)ws_buffer_length(params->buf), (guint32)ws_buffer_length(params->buf));
@@ -2865,9 +3311,15 @@ static void blf_close(wtap *wth) {
         blf->log_containers = NULL;
     }
 
-    if (blf != NULL && blf->channel_to_iface_ht != NULL) {
-        g_hash_table_destroy(blf->channel_to_iface_ht);
-        blf->channel_to_iface_ht = NULL;
+    if (blf != NULL) {
+        if (blf->channel_to_iface_ht != NULL) {
+            g_hash_table_destroy(blf->channel_to_iface_ht);
+            blf->channel_to_iface_ht = NULL;
+        }
+        if (blf->channel_to_name_ht != NULL) {
+            g_hash_table_destroy(blf->channel_to_name_ht);
+            blf->channel_to_name_ht = NULL;
+        }
     }
 
     /* TODO: do we need to reverse the wtap_add_idb? how? */
@@ -2929,6 +3381,7 @@ blf_open(wtap *wth, int *err, gchar **err_info) {
     blf->start_offset_ns += 1000 * 1000 * header.start_date.ms;
 
     blf->channel_to_iface_ht = g_hash_table_new_full(g_int64_hash, g_int64_equal, &blf_free_key, &blf_free_channel_to_iface_entry);
+    blf->channel_to_name_ht = g_hash_table_new_full(g_int64_hash, g_int64_equal, &blf_free_key, &blf_free_channel_to_name_entry);
     blf->next_interface_id = 0;
 
     /* embed in params */
