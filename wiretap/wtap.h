@@ -2042,6 +2042,29 @@ WS_DLL_PUBLIC
 wtap_block_t wtap_file_get_nrb(wtap *wth);
 
 /**
+ * @brief Gets number of decryption secrets blocks.
+ * @details Returns the number of existing DSBs.
+ *
+ * @param wth The wiretap session.
+ * @return The number of existing decryption secrets blocks.
+ */
+WS_DLL_PUBLIC
+guint wtap_file_get_num_dsbs(wtap *wth);
+
+/**
+ * @brief Gets existing decryption secrets block, not for new file.
+ * @details Returns the pointer to an existing DSB, without creating a
+ *          new one. This should only be used for accessing info.
+ *
+ * @param wth The wiretap session.
+ * @param dsb_num The ordinal number (0-based) of the decryption secrets block
+ * in the file
+ * @return The specified existing decryption secrets block, which must NOT be g_free'd.
+ */
+WS_DLL_PUBLIC
+wtap_block_t wtap_file_get_dsb(wtap *wth, guint dsb_num);
+
+/**
  * @brief Adds a Decryption Secrets Block to the open wiretap session.
  * @details The passed-in DSB is added to the DSBs for the current
  *          session.

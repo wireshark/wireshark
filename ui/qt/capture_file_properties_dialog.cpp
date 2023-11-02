@@ -15,6 +15,8 @@
 #include "ui/simple_dialog.h"
 #include "ui/summary.h"
 
+#include "wiretap/secrets-types.h"
+
 #include "wsutil/str_util.h"
 #include "wsutil/utf8_entities.h"
 #include "wsutil/version_info.h"
@@ -377,6 +379,27 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         g_free(iface.cfilter);
     }
     g_array_free(summary.ifaces, TRUE);
+
+    if (wtap_file_get_num_dsbs(cap_file_.capFile()->provider.wth) > 0) {
+        out << section_tmpl_.arg(tr("Decryption Secrets"));
+        out << table_begin;
+        out << table_ul_row_begin
+            << table_hheader20_tmpl.arg(tr("Type"))
+            << table_hheader20_tmpl.arg(tr("Size"))
+            << table_row_end;
+        // XXX: A DSB can have (multiple) comments, we could add that too.
+        for (guint section_number = 0;
+            section_number < wtap_file_get_num_dsbs(cap_file_.capFile()->provider.wth);
+            section_number++) {
+                wtap_block_t dsb = wtap_file_get_dsb(cap_file_.capFile()->provider.wth, section_number);
+                wtapng_dsb_mandatory_t *dsb_mand = (wtapng_dsb_mandatory_t*)wtap_block_get_mandatory_data(dsb);
+                out << table_row_begin
+                    << table_data_tmpl.arg(secrets_type_description(dsb_mand->secrets_type))
+                    << table_data_tmpl.arg(tr("%1 bytes").arg(dsb_mand->secrets_len))
+                    << table_row_end;
+            }
+        out << table_end;
+    }
 
     // Statistics Section
     out << section_tmpl_.arg(tr("Statistics"));

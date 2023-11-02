@@ -201,6 +201,24 @@ wtap_get_next_interface_description(wtap *wth)
 	return NULL;
 }
 
+guint
+wtap_file_get_num_dsbs(wtap *wth)
+{
+	if (!wth->dsbs) {
+		return 0;
+	}
+	return wth->dsbs->len;
+}
+
+wtap_block_t
+wtap_file_get_dsb(wtap *wth, guint dsb_num)
+{
+	if ((wth == NULL) || (wth->dsbs == NULL) || (dsb_num >= wth->dsbs->len))
+		return NULL;
+
+	return g_array_index(wth->dsbs, wtap_block_t, dsb_num);
+}
+
 void
 wtap_file_add_decryption_secrets(wtap *wth, const wtap_block_t dsb)
 {
