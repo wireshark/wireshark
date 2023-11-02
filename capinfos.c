@@ -1144,16 +1144,16 @@ process_cap_file(const char *filename, gboolean need_separator)
     g_free(idb_info);
     idb_info = NULL;
 
+    /* Zero out the counters for the callbacks. */
+    num_ipv4_addresses = 0;
+    num_ipv6_addresses = 0;
+    num_decryption_secrets = 0;
+
     /* Register callbacks for new name<->address maps from the file and
        decryption secrets from the file. */
     wtap_set_cb_new_ipv4(cf_info.wth, count_ipv4_address);
     wtap_set_cb_new_ipv6(cf_info.wth, count_ipv6_address);
     wtap_set_cb_new_secrets(cf_info.wth, count_decryption_secret);
-
-    /* Zero out the counters for the callbacks. */
-    num_ipv4_addresses = 0;
-    num_ipv6_addresses = 0;
-    num_decryption_secrets = 0;
 
     /* Tally up data that we need to parse through the file to find */
     wtap_rec_init(&rec);
