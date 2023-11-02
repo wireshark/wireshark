@@ -1366,14 +1366,14 @@ static int dissect_zb_direct_permit_join(tvbuff_t    *tvb,
 
     if (offset < tvb_reported_length(tvb))
     {
-        guint32 time;
+        guint32 parent_time;
 
-        proto_tree_add_item_ret_uint(tree, hf_zb_direct_comm_permit_time, tvb, offset, 1, ENC_LITTLE_ENDIAN, &time);
+        proto_tree_add_item_ret_uint(tree, hf_zb_direct_comm_permit_time, tvb, offset, 1, ENC_LITTLE_ENDIAN, &parent_time);
         offset += 1;
 
-        if (time > 0)
+        if (parent_time > 0)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ": open for %us", time);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": open for %us", parent_time);
         }
         else
         {
@@ -1481,14 +1481,14 @@ static int dissect_zb_direct_identify(tvbuff_t    *tvb,
 
     if (offset < tvb_reported_length(tvb))
     {
-        guint32 time;
+        guint32 parent_time;
 
-        proto_tree_add_item_ret_uint(tree, hf_zb_direct_comm_identify_time, tvb, offset, 2, ENC_LITTLE_ENDIAN, &time);
+        proto_tree_add_item_ret_uint(tree, hf_zb_direct_comm_identify_time, tvb, offset, 2, ENC_LITTLE_ENDIAN, &parent_time);
         offset += 2;
 
-        if (time > 0)
+        if (parent_time > 0)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ": start for %us", time);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": start for %us", parent_time);
         }
         else
         {
