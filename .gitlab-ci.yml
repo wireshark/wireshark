@@ -658,6 +658,8 @@ Documentation:
 Commit Check:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
+  variables:
+    GITLAB_REPO: "$CI_MERGE_REQUEST_PROJECT_URL"
   script:
     - (cd /tmp ; curl -JLO https://gitlab.com/gitlab-org/cli/-/releases/v1.34.0/downloads/glab_1.34.0_Linux_x86_64.deb)
     - dpkg --install /tmp/glab_1.34.0_Linux_x86_64.deb
@@ -674,7 +676,7 @@ Commit Check:
     - cd ..
     - git status
     - PC_EXIT_CODE=0
-    - ANALYSIS_MESSAGE=$( ./tools/pre-commit "${CI_COMMIT_SHA}~$NUM_COMMITS" || PC_EXIT_CODE=1 )
+    - ANALYSIS_MESSAGE=$( ./tools/pre-commit "${CI_COMMIT_SHA}~$NUM_COMMITS" ) || PC_EXIT_CODE=1
     - >
       if [ -n "$ANALYSIS_MESSAGE" ] ; then
         glab mr note $CI_MERGE_REQUEST_IID --unique --message "Pre-commit check results:
@@ -684,7 +686,7 @@ Commit Check:
         "
       fi
     - VC_EXIT_CODE=0
-    - ANALYSIS_MESSAGE=$( tools/validate-commit.py || VC_EXIT_CODE=1 )
+    - ANALYSIS_MESSAGE=$( tools/validate-commit.py ) || VC_EXIT_CODE=1
     - >
       if [[ $VC_EXIT_CODE != 0 ]] ; then
         glab mr note $CI_MERGE_REQUEST_IID --unique --message "Commit validation failure:
@@ -694,7 +696,7 @@ Commit Check:
         "
       fi
     - LC_EXIT_CODE=0
-    - ANALYSIS_MESSAGE=$( python3 tools/checklicenses.py || LC_EXIT_CODE=1 )
+    - ANALYSIS_MESSAGE=$( python3 tools/checklicenses.py ) || LC_EXIT_CODE=1
     - >
       if [[ $LC_EXIT_CODE != 0 ]] ; then
         glab mr note $CI_MERGE_REQUEST_IID --unique --message "License check failure:
