@@ -100,3 +100,10 @@ class TestFunctionLen:
     def test_function_len_5(self, checkDFilterCount):
         dfilter = '!len(http.host)'
         checkDFilterCount(dfilter, 0)
+
+class TestFunctionNested:
+    trace_file = 'http.pcap'
+
+    def test_function_nested_1(self, checkDFilterCount):
+        dfilter = 'abs(min(tcp.srcport, tcp.dstport)) == 80'
+        checkDFilterCount(dfilter, 1)
