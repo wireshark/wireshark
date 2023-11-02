@@ -638,7 +638,7 @@ proto_register_exported_pdu(void)
 
     /* Register configuration preferences */
     exported_pdu_module = prefs_register_protocol(proto_exported_pdu, NULL);
-    prefs_register_string_preference(exported_pdu_module, "user_data_pdu",
+    prefs_register_dissector_preference(exported_pdu_module, "user_data_pdu",
         "User Data PDU dissector", "The dissector to use for User Data PDU", &user_data_pdu);
 
     /* Register for tapping

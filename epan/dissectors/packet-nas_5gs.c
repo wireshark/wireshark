@@ -13918,9 +13918,9 @@ proto_register_nas_5gs(void)
                                    &g_nas_5gs_decode_user_data_container_as,
                                    nas_5gs_user_data_container_as_vals, FALSE);
 
-    prefs_register_string_preference(nas_5GS_module, "non_ip_data_dissector",
-                                     "Dissector name for non IP data", NULL,
-                                     &g_nas_5gs_non_ip_data_dissector);
+    prefs_register_dissector_preference(nas_5GS_module, "non_ip_data_dissector",
+                                        "Dissector name for non IP data", NULL,
+                                        &g_nas_5gs_non_ip_data_dissector);
 }
 
 void
