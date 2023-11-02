@@ -653,6 +653,12 @@ static const value_string exchange_v2_type[] = {
   { 36, "CREATE_CHILD_SA" },
   { 37, "INFORMATIONAL" },
   { 38, "IKE_SESSION_RESUME" }, /* RFC5723 */
+  { 39, "GSA_AUTH" },           /* draft-yeung-g-ikev2 */
+  { 40, "GSA_REGISTRATION" },   /* draft-yeung-g-ikev2 */
+  { 41, "GSA_REKEY	" },    /* draft-yeung-g-ikev2 */
+  { 42, "Unassigned" },
+  { 43, "IKE_INTERMEDIATE" },  /* [RFC9242] */
+  { 44, "IKE_FOLLOWUP_KE" },   /* [RFC9370] */
   { 0,  NULL },
 };
 
@@ -1134,6 +1140,14 @@ static const value_string ike_attr_grp_type[] = {
 #define TF_IKE2_INTEG   3
 #define TF_IKE2_DH      4
 #define TF_IKE2_ESN     5
+#define TF_IKE2_ADDKE1  6
+#define TF_IKE2_ADDKE2  7
+#define TF_IKE2_ADDKE3  8
+#define TF_IKE2_ADDKE4  9
+#define TF_IKE2_ADDKE5  10
+#define TF_IKE2_ADDKE6  11
+#define TF_IKE2_ADDKE7  12
+
 static const range_string transform_ike2_type[] = {
   { 0,0,        "RESERVED" },
   { TF_IKE2_ENCR,TF_IKE2_ENCR,  "Encryption Algorithm (ENCR)" },
@@ -1141,7 +1155,14 @@ static const range_string transform_ike2_type[] = {
   { TF_IKE2_INTEG,TF_IKE2_INTEG,"Integrity Algorithm (INTEG)"},
   { TF_IKE2_DH,TF_IKE2_DH,      "Diffie-Hellman Group (D-H)"},
   { TF_IKE2_ESN,TF_IKE2_ESN,    "Extended Sequence Numbers (ESN)"},
-  { 6,240,      "Reserved to IANA"},
+  { TF_IKE2_ADDKE1,TF_IKE2_ADDKE1, "ADDKE1"},
+  { TF_IKE2_ADDKE2,TF_IKE2_ADDKE2, "ADDKE2"},
+  { TF_IKE2_ADDKE3,TF_IKE2_ADDKE3, "ADDKE3"},
+  { TF_IKE2_ADDKE4,TF_IKE2_ADDKE4, "ADDKE4"},
+  { TF_IKE2_ADDKE5,TF_IKE2_ADDKE5, "ADDKE5"},
+  { TF_IKE2_ADDKE6,TF_IKE2_ADDKE6, "ADDKE6"},
+  { TF_IKE2_ADDKE7,TF_IKE2_ADDKE7, "ADDKE7"},
+  { 13,240,      "Reserved to IANA"},
   { 241,255,    "Private Use"},
   { 0,0,                NULL },
 };
@@ -1431,7 +1452,18 @@ static const range_string notifmsg_v2_type[] = {
   { 16429,16429,        "SENDER_REQUEST_ID" },                  /* [draft-yeung-g-ikev2] */
   { 16430,16430,        "IKEV2_FRAGMENTATION_SUPPORTED" },      /* RFC7383 */
   { 16431,16431,        "SIGNATURE_HASH_ALGORITHMS" },          /* RFC7427 */
-  { 16432,40959,        "RESERVED TO IANA - STATUS TYPES" },
+  { 16432,16432,        "CLONE_IKE_SA_SUPPORTED" },             /* [RFC7791] */
+  { 16433,16433,        "CLONE_IKE_SA" },                       /* [RFC7791] */
+  { 16434,16434,        "PUZZLE" },                             /* [RFC8019] */
+  { 16435,16435,        "USE_PPK" },                            /* [RFC8784] */
+  { 16436,16436,        "PPK_IDENTITY" },                       /* [RFC8784] */
+  { 16437,16437,        "NO_PPK_AUTH" },
+  { 16438,16438,        "INTERMEDIATE_EXCHANGE_SUPPORTED" },    /* RFC9242 */
+  { 16439,16439,        "IP4_ALLOWED" },                        /* RFC8983 */
+  { 16440,16440,        "IP4_ALLOWED" },                        /* RFC8983 */
+  { 16441,16441,        "ADDITIONAL_KEY_EXCHANGE" },            /* RFC9370 */
+  { 16442,16442,        "USE_AGGFRAG" },                        /* RFC9347 */
+  { 16443,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
   { 0,0,        NULL },
 };
