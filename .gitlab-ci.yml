@@ -664,7 +664,7 @@ Commit Check:
     - glab auth status
     - >
       if [[ $NUM_COMMITS > 1 ]] ; then
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "ℹ️ This merge request has more than one commit:
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "ℹ️ This merge request has more than one commit. Please squash any trivial ones:
         ~~~
         $(git log --oneline --no-decorate "${CI_COMMIT_SHA}~$NUM_COMMITS..${CI_COMMIT_SHA}")
         ~~~
@@ -677,7 +677,7 @@ Commit Check:
     - ANALYSIS_MESSAGE=$( ./tools/pre-commit "${CI_COMMIT_SHA}~$NUM_COMMITS" || PC_EXIT_CODE=1 )
     - >
       if [ -n "$ANALYSIS_MESSAGE" ] ; then
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "Pre-commit check:
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "Pre-commit check results:
         ~~~
         $ANALYSIS_MESSAGE
         ~~~
@@ -687,7 +687,7 @@ Commit Check:
     - ANALYSIS_MESSAGE=$( tools/validate-commit.py || VC_EXIT_CODE=1 )
     - >
       if [[ $VC_EXIT_CODE != 0 ]] ; then
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "Commit validation:
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "Commit validation failure:
         ~~~
         $ANALYSIS_MESSAGE
         ~~~
@@ -697,7 +697,7 @@ Commit Check:
     - ANALYSIS_MESSAGE=$( python3 tools/checklicenses.py || LC_EXIT_CODE=1 )
     - >
       if [[ $LC_EXIT_CODE != 0 ]] ; then
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "License check:
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "License check failure:
         ~~~
         $ANALYSIS_MESSAGE
         ~~~
