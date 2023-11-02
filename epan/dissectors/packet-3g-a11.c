@@ -727,7 +727,7 @@ dissect_a11_radius( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     radius_tree = proto_tree_add_subtree(tree, tvb, offset - 2, app_len, ett_a11_radiuses, NULL, "Airlink Record");
 
-    dissect_attribute_value_pairs(radius_tree, pinfo, tvb, offset, app_len-2);
+    dissect_attribute_value_pairs(radius_tree, pinfo, tvb, offset, app_len-2, NULL);
 
 
 }
@@ -1199,7 +1199,7 @@ dissect_subscriber_qos_profile(tvbuff_t *tvb, packet_info *pinfo, int offset, in
             (exts_tree,  hf_a11_subsciber_profile, tvb, offset,
              qos_profile_len, ENC_NA);
 
-        dissect_attribute_value_pairs(exts_tree, pinfo, tvb, offset, qos_profile_len);
+        dissect_attribute_value_pairs(exts_tree, pinfo, tvb, offset, qos_profile_len, NULL);
     }
 }
 

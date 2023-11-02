@@ -66,6 +66,7 @@
  */
 #define RADIUS_ATTR_TYPE_VENDOR_SPECIFIC			26
 #define RADIUS_ATTR_TYPE_EAP_MESSAGE				79
+#define RADIUS_ATTR_TYPE_MESSAGE_AUTHENTICATOR			80
 #define RADIUS_ATTR_TYPE_EXTENDED_1				241
 #define RADIUS_ATTR_TYPE_EXTENDED_2				242
 #define RADIUS_ATTR_TYPE_EXTENDED_3				243
@@ -95,6 +96,19 @@ typedef struct _radius_vendor_info_t {
 	guint length_octets;
 	gboolean has_flags;
 } radius_vendor_info_t;
+
+typedef struct _radius_call_t
+{
+	guint code;
+	guint ident;
+	guint8 req_authenticator[16];
+
+	guint32 req_num; /* frame number request seen */
+	guint32 rsp_num; /* frame number response seen */
+	guint32 rspcode;
+	nstime_t req_time;
+	gboolean responded;
+} radius_call_t;
 
 typedef struct _radius_attr_info_t radius_attr_info_t;
 typedef void (radius_attr_dissector_t)(radius_attr_info_t*, proto_tree*, packet_info*, tvbuff_t*, int, int, proto_item* );
@@ -156,7 +170,7 @@ radius_attr_dissector_t radius_combo_ip;
 radius_attr_dissector_t radius_tlv;
 
 extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_id, radius_avp_dissector_t dissector);
-void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length);
+void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length, radius_call_t *radius_call);
 extern void free_radius_attr_info(gpointer data);
 
 /* from radius_dict.l */
