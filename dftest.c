@@ -291,6 +291,8 @@ main(int argc, char **argv)
                 break;
             case 'D':
                 opt_debug_level = 9;
+                opt_lemon = 1;
+                opt_flex = 1;
                 opt_show_types = 1;
                 break;
             case 'f':
