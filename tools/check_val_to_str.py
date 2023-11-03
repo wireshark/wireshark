@@ -134,10 +134,12 @@ def checkFile(filename):
                     errors_found += 1
             else:
                 # These ones need to have a specifier, and it should be suitable for an int
-                specifier_id = format_string.find('%')
-                if specifier_id == -1:
+                count = format_string.count('%')
+                if count == 0:
                     print('Warning:', filename, "  ", m.group(0), '   - should have suitable format specifier in unknown string (or use _const()?)')
                     warnings_found += 1
+                elif count > 1:
+                    print('Warning:', filename, "  ", m.group(0), '   - has more than one specifier?')
                 # TODO: check allowed specifiers (d, u, x, ?) and modifiers (0-9*) in re ?
                 if format_string.find('%s') != -1:
                     # This is an error as this likely causes a crash
