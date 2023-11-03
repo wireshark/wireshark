@@ -2198,17 +2198,18 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                   ett_icmpv6_flag_pvd_id, pvd_id_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
 
                 /* Delay */
-                proto_tree_add_item(tree, hf_icmpv6_opt_pvd_id_delay, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_pvd_id_delay, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                 opt_offset += 2;
 
                 /* Sequence Number */
-                proto_tree_add_item(tree, hf_icmpv6_opt_pvd_id_sequence_number, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_pvd_id_sequence_number, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                 opt_offset += 2;
 
                 /* PvD ID FQDN */
                 used_bytes = get_dns_name(tvb, opt_offset, 0, opt_offset, &dns_name, &dns_len);
                 name_out = format_text(pinfo->pool, dns_name, dns_len);
                 proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_pvd_id_fqdn, tvb, opt_offset, used_bytes, name_out);
+                proto_item_append_text(ti, " : %s", name_out);
                 opt_offset += used_bytes;
 
                 /* Padding */
@@ -5210,7 +5211,7 @@ proto_register_icmpv6(void)
           { "Reserved", "icmpv6.opt.pvd_id.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0x1FF0,
             "Must be 0", HFILL }},
         { &hf_icmpv6_opt_pvd_id_delay,
-          { "Delay", "icmpv6.opt.pvd_id.delay", FT_UINT8, BASE_DEC, NULL, 0x000F,
+          { "Delay", "icmpv6.opt.pvd_id.delay", FT_UINT16, BASE_DEC, NULL, 0x000F,
             "Unsigned integer used to delay HTTP GET queries from hosts by a randomized backoff", HFILL }},
         { &hf_icmpv6_opt_pvd_id_sequence_number,
           { "Sequence Number", "icmpv6.opt.pvd_id.sequence_number", FT_UINT16, BASE_DEC, NULL, 0x0,
