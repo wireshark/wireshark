@@ -630,7 +630,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     if (initialization && image_.loadFromData(field_bytes_)) {
         recent.gui_show_bytes_show = SHOW_IMAGE;
         ui->cbShowAs->blockSignals(true);
-        ui->cbDecodeAs->setCurrentIndex(ui->cbDecodeAs->findData(SHOW_IMAGE));
+        ui->cbShowAs->setCurrentIndex(ui->cbShowAs->findData(SHOW_IMAGE));
         ui->cbShowAs->blockSignals(false);
     }
 
