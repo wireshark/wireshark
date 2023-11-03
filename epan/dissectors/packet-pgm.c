@@ -1246,7 +1246,7 @@ proto_register_pgm(void)
 		  { "Minimum Sequence Number", "pgm.opts.join.min_join",
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_pgm_opt_parity_grp_res,
-		  { "Reserved", "pgm.opts.parity_prm.op", FT_UINT8, BASE_HEX,
+		  { "Reserved", "pgm.opts.parity_prm.reserved", FT_UINT8, BASE_HEX,
 		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_pgm_opt_parity_grp_prmgrp,
 		  { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp",

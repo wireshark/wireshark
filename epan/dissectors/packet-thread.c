@@ -2764,7 +2764,7 @@ proto_register_thread_mc(void)
 
         { &hf_thread_mc_tlv_vendor_data,
             { "Vendor Data",
-            "thread_meshcop.tlv.vendor_model",
+            "thread_meshcop.tlv.vendor_data",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL,
             HFILL }

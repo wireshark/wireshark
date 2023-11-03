@@ -15717,17 +15717,17 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_multicast_transport_information_source_address_length,
-        { "Source Address Length", "pfcp.multicast_transport_information.distribution_address.length",
+        { "Source Address Length", "pfcp.multicast_transport_information.source_address.length",
             FT_UINT8, BASE_DEC, NULL, 0x3F,
             NULL, HFILL }
         },
         { &hf_pfcp_multicast_transport_information_source_address_ipv4,
-        { "Source IPv4 address", "pfcp.multicast_transport_information.distribution_address.ipv4",
+        { "Source IPv4 address", "pfcp.multicast_transport_information.source_address.ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_multicast_transport_information_source_address_ipv6,
-        { "Source IPv6 address", "pfcp.multicast_transport_information.distribution_address.ipv6",
+        { "Source IPv6 address", "pfcp.multicast_transport_information.source_address.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

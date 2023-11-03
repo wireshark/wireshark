@@ -1406,7 +1406,7 @@ void proto_register_sasp(void)
         /*weight entry data comp*/
 
         { &hf_sasp_weight_entry_data_comp_type,
-          { "Wt Entry Data Comp", "sasp.msg.type",
+          { "Wt Entry Data Comp", "sasp.wtentry.datacomp",
             FT_UINT16, BASE_HEX|BASE_EXT_STRING, &msg_table_ext, 0x0,
             "SASP Wt Entry Data Comp", HFILL } },
 

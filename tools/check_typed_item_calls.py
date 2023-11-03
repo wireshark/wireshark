@@ -655,7 +655,8 @@ def findValueStrings(filename, macros, do_extra_checks=False):
 # The relevant parts of an hf item.  Used as value in dict where hf variable name is key.
 class Item:
 
-    previousItem = None
+    # Keep the previous few items
+    previousItems = []
 
     def __init__(self, filename, hf, filter, label, item_type, display, strings, macros, value_strings,
                  mask=None, check_mask=False, mask_exact_width=False, check_label=False,
@@ -673,14 +674,20 @@ class Item:
         self.set_mask_value(macros)
 
         if check_consecutive:
-            if Item.previousItem and Item.previousItem.filter == filter:
-                if label != Item.previousItem.label:
-                    if not is_ignored_consecutive_filter(self.filter):
-                        print('Warning:', filename, hf, ': - filter "' + filter +
-                            '" appears consecutively - labels are "' + Item.previousItem.label + '" and "' + label + '"')
-                        warnings_found += 1
+            for previous_index,previous_item in enumerate(Item.previousItems):
+                if previous_item.filter == filter:
+                    if label != previous_item.label:
+                        if not is_ignored_consecutive_filter(self.filter):
+                            print('Warning:', filename, hf, ': - filter "' + filter +
+                                '" appears ' + str(previous_index+1) + ' items before - labels are "' + previous_item.label + '" and "' + label + '"')
+                            warnings_found += 1
 
-            Item.previousItem = self
+            # Add this one to front of (short) previous list
+            Item.previousItems = [self] + Item.previousItems
+            if len(Item.previousItems) > 5:
+                # Get rid of oldest one now
+                #Item.previousItems = Item.previousItems[:-1]
+                Item.previousItems.pop()
 
         self.item_type = item_type
         self.display = display

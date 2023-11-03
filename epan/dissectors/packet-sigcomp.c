@@ -6562,7 +6562,7 @@ proto_register_sigcomp(void)
             "Address", HFILL }
         },
         { &hf_udvm_address,
-            { "%Address", "sigcomp.udvm.length",
+            { "%Address", "sigcomp.udvm.address",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Address", HFILL }
         },
