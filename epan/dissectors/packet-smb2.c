@@ -10434,7 +10434,9 @@ decrypt_smb_payload(packet_info *pinfo,
 static void
 append_uncompress_data(wmem_array_t *out, tvbuff_t *tvb, int offset, guint length)
 {
-	wmem_array_append(out, tvb_get_ptr(tvb, offset, length), length);
+	const guint8 *ptr = tvb_get_ptr(tvb, offset, length);
+	if (ptr)
+		wmem_array_append(out, tvb_get_ptr(tvb, offset, length), length);
 }
 
 static int
