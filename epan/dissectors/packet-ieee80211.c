@@ -42356,12 +42356,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_block_ack_multi_tid_reserved,
      {"Reserved", "wlan.bar.mtid.tidinfo.reserved",
-      FT_UINT16, BASE_HEX, 0, 0x0fff,
+      FT_UINT16, BASE_HEX, NULL, 0x0fff,
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_multi_tid_value,
      {"Multi-TID Value", "wlan.bar.mtid.tidinfo.value",
-      FT_UINT16, BASE_HEX, 0, 0xf000,
+      FT_UINT16, BASE_HEX, NULL, 0xf000,
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_bitmap,
@@ -42372,7 +42372,7 @@ proto_register_ieee80211(void)
     /* Used for Extended compressed BlockAck */
     {&hf_ieee80211_block_ack_RBUFCAP,
      {"Block Ack RBUFCAP", "wlan.ba.RBUFCAP",
-      FT_BOOLEAN, BASE_DEC, NULL, 0,
+      FT_BOOLEAN, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_bitmap_missing_frame,
@@ -44716,67 +44716,67 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_block_ack_ssc,
      {"Block Ack Starting Sequence Control (SSC)", "wlan.fixed.ssc",
-      FT_UINT16, BASE_HEX, 0, 0,
+      FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_block_ack_ssc_fragment,
      {"Fragment", "wlan.fixed.ssc.fragment",
-      FT_UINT16, BASE_DEC, 0, 0x000f,
+      FT_UINT16, BASE_DEC, NULL, 0x000f,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_block_ack_ssc_sequence,
      {"Starting Sequence Number", "wlan.fixed.ssc.sequence",
-      FT_UINT16, BASE_DEC, 0, 0xfff0,
+      FT_UINT16, BASE_DEC, NULL, 0xfff0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_delba_param,
      {"Delete Block Ack (DELBA) Parameter Set", "wlan.fixed.delba.param",
-      FT_UINT16, BASE_HEX, 0, 0,
+      FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_delba_param_reserved,
      {"Reserved", "wlan.fixed.delba.param.reserved",
-      FT_UINT16, BASE_HEX, 0, 0x07ff,
+      FT_UINT16, BASE_HEX, NULL, 0x07ff,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_delba_param_init,
      {"Initiator", "wlan.fixed.delba.param.initiator",
-      FT_BOOLEAN, 16, 0, 0x0800,
+      FT_BOOLEAN, 16, NULL, 0x0800,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_delba_param_tid,
      {"TID", "wlan.fixed.delba.param.tid",
-      FT_UINT16, BASE_HEX, 0, 0xf000,
+      FT_UINT16, BASE_HEX, NULL, 0xf000,
       "Traffic Identifier (TID)", HFILL }},
 
     {&hf_ieee80211_ff_max_reg_pwr,
      {"Maximum Regulation Power", "wlan.fixed.maxregpwr",
-      FT_UINT16, BASE_HEX, 0, 0,
+      FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_measurement_pilot_int,
      {"Measurement Pilot Interval", "wlan.fixed.msmtpilotint",
-      FT_UINT8, BASE_DEC, 0, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       "Measurement Pilot Interval Fixed Field (in TUs)", HFILL }},
 
     {&hf_ieee80211_ff_country_str,
      {"Country String", "wlan.fixed.country",
-      FT_STRING, BASE_NONE, 0, 0,
+      FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_max_tx_pwr,
      {"Maximum Transmit Power", "wlan.fixed.maxtxpwr",
-      FT_UINT8, BASE_HEX, 0, 0,
+      FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_tx_pwr_used,
      {"Transmit Power Used", "wlan.fixed.txpwr",
-      FT_UINT8, BASE_HEX, 0, 0,
+      FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_transceiver_noise_floor,
      {"Transceiver Noise Floor", "wlan.fixed.tnoisefloor",
-      FT_UINT8, BASE_HEX, 0, 0,
+      FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_channel_width,
@@ -44881,12 +44881,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_psmp_param_set,
      {"Power Save Multi-Poll (PSMP) Parameter Set", "wlan.fixed.psmp.paramset",
-      FT_UINT16, BASE_HEX, 0, 0,
+      FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_param_set_n_sta,
      {"Number of STA Info Fields Present", "wlan.fixed.psmp.paramset.nsta",
-      FT_UINT16, BASE_HEX, 0, 0x000F,
+      FT_UINT16, BASE_HEX, NULL, 0x000F,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_param_set_more_psmp,
@@ -44896,12 +44896,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration,
      {"PSMP Sequence Duration [us]", "wlan.fixed.psmp.paramset.seqduration",
-      FT_UINT16, BASE_DEC, 0, 0xFFE0,
+      FT_UINT16, BASE_DEC, NULL, 0xFFE0,
       "Power Save Multi-Poll (PSMP) Sequence Duration", HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl,
      {"MIMO Control", "wlan.fixed.mimo.control",
-      FT_BYTES, BASE_NONE, 0, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_nc_index,
@@ -44936,57 +44936,57 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_mimo_cntrl_remaining_matrix_segment,
      {"Remaining Matrix Segment", "wlan.fixed.mimo.control.matrixseg",
-      FT_UINT16, BASE_HEX, 0, 0x3800,
+      FT_UINT16, BASE_HEX, NULL, 0x3800,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_reserved,
      {"Reserved", "wlan.fixed.mimo.control.reserved",
-      FT_UINT16, BASE_HEX, 0, 0xC000,
+      FT_UINT16, BASE_HEX, NULL, 0xC000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_sounding_timestamp,
      {"Sounding Timestamp", "wlan.fixed.mimo.control.soundingtime",
-      FT_UINT32, BASE_HEX, 0, 0,
+      FT_UINT32, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_delim1,
      {"FTM Params (Subset 1 of 3)", "wlan.fixed.ftm.param.delim1",
-      FT_UINT16, BASE_HEX, 0, 0x0,
+      FT_UINT16, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_status_indication,
      {"Status Indication", "wlan.fixed.ftm.param.status_indication",
-      FT_UINT16, BASE_HEX, 0, 0x0003,
+      FT_UINT16, BASE_HEX, NULL, 0x0003,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_value,
      {"Value", "wlan.fixed.ftm.param.value",
-      FT_UINT16, BASE_HEX, 0, 0x007C,
+      FT_UINT16, BASE_HEX, NULL, 0x007C,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_reserved1,
      {"Reserved1", "wlan.fixed.ftm.param.reserved1",
-      FT_UINT16, BASE_HEX, 0, 0x0080,
+      FT_UINT16, BASE_HEX, NULL, 0x0080,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_burst_exponent,
      {"Number of Burst Exponent", "wlan.fixed.ftm.param.burst_exponent",
-      FT_UINT16, BASE_HEX, 0, 0x0F00,
+      FT_UINT16, BASE_HEX, NULL, 0x0F00,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_burst_duration,
      {"Burst Duration", "wlan.fixed.ftm.param.burst_duration",
-      FT_UINT16, BASE_HEX, 0, 0xF000,
+      FT_UINT16, BASE_HEX, NULL, 0xF000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_delim2,
      {"FTM Params (Subset 2 of 3)", "wlan.fixed.ftm.param.delim2",
-      FT_UINT32, BASE_HEX, 0, 0x0,
+      FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_min_delta_ftm,
      {"Min Delta FTM", "wlan.fixed.ftm.param.min_delta_ftm",
-      FT_UINT32, BASE_HEX, 0, 0x000000FF,
+      FT_UINT32, BASE_HEX, NULL, 0x000000FF,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_partial_tsf_timer,
@@ -44996,42 +44996,42 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_ftm_param_partial_tsf_no_pref,
      {"Partial TSF no pref", "wlan.fixed.ftm.param.partial_tsf_no_pref",
-      FT_UINT32, BASE_HEX, 0, 0x01000000,
+      FT_UINT32, BASE_HEX, NULL, 0x01000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_asap_capable,
      {"ASAP Capable", "wlan.fixed.ftm.param.asap_capable",
-      FT_UINT32, BASE_HEX, 0, 0x02000000,
+      FT_UINT32, BASE_HEX, NULL, 0x02000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_asap,
      {"ASAP", "wlan.fixed.ftm.param.asap",
-      FT_UINT32, BASE_HEX, 0, 0x04000000,
+      FT_UINT32, BASE_HEX, NULL, 0x04000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_ftm_per_burst,
      {"FTM per burst", "wlan.fixed.ftm.param.ftm_per_burst",
-      FT_UINT32, BASE_HEX, 0, 0xF8000000,
+      FT_UINT32, BASE_HEX, NULL, 0xF8000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_delim3,
      {"FTM Params (Subset 3 of 3)", "wlan.fixed.ftm.param.delim3",
-      FT_UINT24, BASE_HEX, 0, 0x0,
+      FT_UINT24, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_reserved2,
      {"Reserved2", "wlan.fixed.ftm.param.reserved2",
-      FT_UINT24, BASE_HEX, 0, 0x000003,
+      FT_UINT24, BASE_HEX, NULL, 0x000003,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_format_and_bw,
      {"Format and Bandwidth", "wlan.fixed.ftm.param.format_and_bw",
-      FT_UINT24, BASE_HEX, 0, 0x0000FC,
+      FT_UINT24, BASE_HEX, NULL, 0x0000FC,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_burst_period,
      {"Burst Period", "wlan.fixed.ftm.param.burst_period",
-      FT_UINT24, BASE_HEX, 0, 0xFFFF00,
+      FT_UINT24, BASE_HEX, NULL, 0xFFFF00,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_tod_err1,
@@ -45178,7 +45178,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ranging_ntb,
      {"Non-TB specific subelement", "wlan.ranging.ntb",
-      FT_UINT48, BASE_HEX, 0, 0,
+      FT_UINT48, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_ntb_reserved1,
@@ -45313,17 +45313,17 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_ftm_cfo,
      {"CFO", "wlan.fixed.ftm.param.cfo",
-      FT_UINT16, BASE_HEX, 0, 0,
+      FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_r2i_ndp_tx_power,
      {"R2I NDP Tx Power", "wlan.fixed.ftm.param.r2i_ndp_tx_power",
-      FT_UINT8, BASE_DEC, 0, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_i2r_ndp_target_rssi,
      {"I2R NDP Target RSSI", "wlan.fixed.ftm.param.i2r_ndp_target_rssi",
-      FT_UINT8, BASE_DEC, 0, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_secure_ltf_params_counter,
@@ -45424,7 +45424,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_psmp_sta_info,
      {"Power Save Multi-Poll (PSMP) Station Information", "wlan.fixed.psmp.stainfo",
-      FT_UINT64, BASE_HEX, 0, 0,
+      FT_UINT64, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_type,
@@ -45434,92 +45434,92 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_psmp_sta_info_dtt_start_offset,
      {"DTT Start Offset", "wlan.fixed.psmp.stainfo.dttstart",
-      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_DTT_START,
+      FT_UINT32, BASE_HEX, NULL, PSMP_STA_INFO_FLAG_DTT_START,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_dtt_duration,
      {"DTT Duration", "wlan.fixed.psmp.stainfo.dttduration",
-      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_DTT_DURATION,
+      FT_UINT32, BASE_HEX, NULL, PSMP_STA_INFO_FLAG_DTT_DURATION,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_sta_id,
      {"Target Station ID", "wlan.fixed.psmp.stainfo.staid",
-      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_STA_ID,
+      FT_UINT32, BASE_HEX, NULL, PSMP_STA_INFO_FLAG_STA_ID,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_utt_start_offset,
      {"UTT Start Offset", "wlan.fixed.psmp.stainfo.uttstart",
-      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_UTT_START,
+      FT_UINT32, BASE_HEX, NULL, PSMP_STA_INFO_FLAG_UTT_START,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_utt_duration,
      {"UTT Duration", "wlan.fixed.psmp.stainfo.uttduration",
-      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_UTT_DURATION,
+      FT_UINT32, BASE_HEX, NULL, PSMP_STA_INFO_FLAG_UTT_DURATION,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_reserved_small,
      {"Reserved", "wlan.fixed.psmp.stainfo.reserved",
-      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_IA_RESERVED,
+      FT_UINT32, BASE_HEX, NULL, PSMP_STA_INFO_FLAG_IA_RESERVED,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_reserved_large,
      {"Reserved", "wlan.fixed.psmp.stainfo.reserved64",
-      FT_UINT64, BASE_HEX, 0, 0,
+      FT_UINT64, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id,
      {"Power Save Multi-Poll (PSMP) Multicast ID", "wlan.fixed.psmp.stainfo.multicastid",
-      FT_UINT64, BASE_HEX, 0, 0,
+      FT_UINT64, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ant_selection,
      {"Antenna Selection", "wlan.fixed.antsel",
-      FT_UINT8, BASE_HEX, 0, 0,
+      FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ant_selection_0,
      {"Antenna 0", "wlan.fixed.antsel.ant0",
-      FT_UINT8, BASE_HEX, 0, 0x01,
+      FT_UINT8, BASE_HEX, NULL, 0x01,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ant_selection_1,
      {"Antenna 1", "wlan.fixed.antsel.ant1",
-      FT_UINT8, BASE_HEX, 0, 0x02,
+      FT_UINT8, BASE_HEX, NULL, 0x02,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ant_selection_2,
      {"Antenna 2", "wlan.fixed.antsel.ant2",
-      FT_UINT8, BASE_HEX, 0, 0x04,
+      FT_UINT8, BASE_HEX, NULL, 0x04,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ant_selection_3,
      {"Antenna 3", "wlan.fixed.antsel.ant3",
-      FT_UINT8, BASE_HEX, 0, 0x08,
+      FT_UINT8, BASE_HEX, NULL, 0x08,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ant_selection_4,
      {"Antenna 4", "wlan.fixed.antsel.ant4",
-      FT_UINT8, BASE_HEX, 0, 0x10,
+      FT_UINT8, BASE_HEX, NULL, 0x10,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ant_selection_5,
      {"Antenna 5", "wlan.fixed.antsel.ant5",
-      FT_UINT8, BASE_HEX, 0, 0x20,
+      FT_UINT8, BASE_HEX, NULL, 0x20,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ant_selection_6,
      {"Antenna 6", "wlan.fixed.antsel.ant6",
-      FT_UINT8, BASE_HEX, 0, 0x40,
+      FT_UINT8, BASE_HEX, NULL, 0x40,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ant_selection_7,
      {"Antenna 7", "wlan.fixed.antsel.ant7",
-      FT_UINT8, BASE_HEX, 0, 0x80,
+      FT_UINT8, BASE_HEX, NULL, 0x80,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ext_channel_switch_announcement,
      {"Extended Channel Switch Announcement", "wlan.fixed.extchansw",
-      FT_UINT32, BASE_HEX, 0, 0,
+      FT_UINT32, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode,
@@ -45544,7 +45544,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_ht_info,
      {"HT Information", "wlan.fixed.mimo",
-      FT_UINT8, BASE_HEX, 0, 0,
+      FT_UINT8, BASE_HEX, NULL, 0,
       "HT Information Fixed Field", HFILL }},
 
     {&hf_ieee80211_ff_ht_info_information_request,
@@ -46436,7 +46436,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_anqp_capability,
      {"ANQP Capability", "wlan.fixed.anqp.capability",
       FT_UINT16, BASE_DEC|BASE_EXT_STRING, &anqp_info_id_vals_ext, 0,
-      "Access Network Query Protocol Query ID", HFILL }},
+      "Access Network Query Protocol Capability", HFILL }},
 
     {&hf_ieee80211_ff_anqp_capability_vlen,
      {"Vendor-specific Capability Length", "wlan.fixed.anqp.capability_vlen",
@@ -47067,7 +47067,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag,
      {"Tag", "wlan.tag",
-      FT_NONE, BASE_NONE, 0x0, 0,
+      FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_number,
@@ -49647,7 +49647,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ampduparam_mpdu,
      {"Maximum Rx A-MPDU Length", "wlan.ht.ampduparam.maxlength",
-      FT_UINT8, BASE_HEX, 0, 0x03,
+      FT_UINT8, BASE_HEX, NULL, 0x03,
       NULL, HFILL }},
 
     {&hf_ieee80211_ampduparam_mpdu_start_spacing,
@@ -49677,47 +49677,47 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_mcsset_rx_bitmask_0to7,
      {"Rx Bitmask Bits 0-7", "wlan.ht.mcsset.rxbitmask.0to7",
-      FT_UINT32, BASE_HEX, 0, 0x000000ff,
+      FT_UINT32, BASE_HEX, NULL, 0x000000ff,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_rx_bitmask_8to15,
      {"Rx Bitmask Bits 8-15", "wlan.ht.mcsset.rxbitmask.8to15",
-      FT_UINT32, BASE_HEX, 0, 0x0000ff00,
+      FT_UINT32, BASE_HEX, NULL, 0x0000ff00,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_rx_bitmask_16to23,
      {"Rx Bitmask Bits 16-23", "wlan.ht.mcsset.rxbitmask.16to23",
-      FT_UINT32, BASE_HEX, 0, 0x00ff0000,
+      FT_UINT32, BASE_HEX, NULL, 0x00ff0000,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_rx_bitmask_24to31,
      {"Rx Bitmask Bits 24-31", "wlan.ht.mcsset.rxbitmask.24to31",
-      FT_UINT32, BASE_HEX, 0, 0xff000000,
+      FT_UINT32, BASE_HEX, NULL, 0xff000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_rx_bitmask_32,
      {"Rx Bitmask Bit 32", "wlan.ht.mcsset.rxbitmask.32",
-      FT_UINT32, BASE_HEX, 0, 0x000001,
+      FT_UINT32, BASE_HEX, NULL, 0x000001,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_rx_bitmask_33to38,
      {"Rx Bitmask Bits 33-38", "wlan.ht.mcsset.rxbitmask.33to38",
-      FT_UINT32, BASE_HEX, 0, 0x00007e,
+      FT_UINT32, BASE_HEX, NULL, 0x00007e,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_rx_bitmask_39to52,
      {"Rx Bitmask Bits 39-52", "wlan.ht.mcsset.rxbitmask.39to52",
-      FT_UINT32, BASE_HEX, 0, 0x1fff80,
+      FT_UINT32, BASE_HEX, NULL, 0x1fff80,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_rx_bitmask_53to76,
      {"Rx Bitmask Bits 53-76", "wlan.ht.mcsset.rxbitmask.53to76",
-      FT_UINT32, BASE_HEX, 0, 0x1fffffe0,
+      FT_UINT32, BASE_HEX, NULL, 0x1fffffe0,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_highest_data_rate,
      {"Highest Supported Data Rate", "wlan.ht.mcsset.highestdatarate",
-      FT_UINT16, BASE_HEX, 0, 0x03ff,
+      FT_UINT16, BASE_HEX, NULL, 0x03ff,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_tx_mcs_set_defined,
@@ -49732,7 +49732,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_mcsset_tx_max_spatial_streams,
      {"Maximum Number of Tx Spatial Streams Supported", "wlan.ht.mcsset.txmaxss",
-      FT_UINT16, BASE_HEX, 0 , 0x000c,
+      FT_UINT16, BASE_HEX, NULL, 0x000c,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_tx_unequal_modulation,
@@ -51064,7 +51064,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_measure_request_beacon_sub_ssid,
      {"SSID", "wlan.measure.req.beacon.sub.ssid",
-      FT_STRING, BASE_NONE, 0, 0,
+      FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_beacon_sub_bri_reporting_condition,
@@ -51456,7 +51456,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_measure_report_beacon_sub_last_report_indication,
      {"Last Report", "wlan.measure.req.beacon.sub.last_report",
-      FT_BOOLEAN, BASE_DEC, TFS(&tfs_yes_no), 0,
+      FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_lci_sub_id,
@@ -52378,7 +52378,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_supported_ope_classes_alternate,
      {"Alternate Operating Classes", "wlan.supopeclass.alt",
-      FT_NONE, BASE_NONE, 0x0, 0,
+      FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_type,
@@ -56257,7 +56257,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_fils_indication_realm_list,
      {"Realm Identifiers", "wlan.fils_indication.realms",
-      FT_NONE, BASE_NONE, 0x0, 0, NULL, HFILL }},
+      FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_fils_indication_realm_identifier,
      {"Realm Identifier", "wlan.fils_indication.realms.identifier",
@@ -56265,7 +56265,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_fils_indication_public_key_list,
      {"Public Keys", "wlan.fils_indication.public_keys",
-      FT_NONE, BASE_NONE, 0x0, 0, NULL, HFILL }},
+      FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_fils_indication_public_key_type,
      {"Key Type", "wlan.fils_indication.public_keys.key_type",
@@ -56318,7 +56318,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ext_tag,
      {"Ext Tag", "wlan.ext_tag",
-      FT_NONE, BASE_NONE, 0x0, 0,
+      FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ext_tag_number,
@@ -56333,7 +56333,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ext_tag_data,
      {"Ext Tag Data", "wlan.ext_tag.data",
-      FT_BYTES, BASE_NONE, 0x0, 0,
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_fils_req_params_parameter_control_bitmap,
