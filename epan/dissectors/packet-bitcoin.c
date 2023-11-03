@@ -235,7 +235,19 @@ static int hf_msg_tx_out_script32 = -1;
 static int hf_msg_tx_out_script64 = -1;
 static int hf_msg_tx_out_script8 = -1;
 static int hf_msg_tx_out_value = -1;
+static int hf_msg_tx_witness = -1;
+static int hf_msg_tx_witness_components16 = -1;
+static int hf_msg_tx_witness_components32 = -1;
+static int hf_msg_tx_witness_components64 = -1;
+static int hf_msg_tx_witness_components8 = -1;
+static int hf_msg_tx_witness_component = -1;
+static int hf_msg_tx_witness_component_length16 = -1;
+static int hf_msg_tx_witness_component_length32 = -1;
+static int hf_msg_tx_witness_component_length64 = -1;
+static int hf_msg_tx_witness_component_length8 = -1;
+static int hf_msg_tx_witness_component_data = -1;
 static int hf_msg_tx_version = -1;
+static int hf_msg_tx_flag = -1;
 static int hf_msg_version_addr_me = -1;
 static int hf_msg_version_addr_you = -1;
 static int hf_msg_version_nonce = -1;
@@ -285,6 +297,8 @@ static gint ett_getheaders_list = -1;
 static gint ett_tx_in_list = -1;
 static gint ett_tx_in_outp = -1;
 static gint ett_tx_out_list = -1;
+static gint ett_tx_witness_list = -1;
+static gint ett_tx_witness_component_list = -1;
 
 static expert_field ei_bitcoin_command_unknown = EI_INIT;
 static expert_field ei_bitcoin_script_len = EI_INIT;
@@ -769,6 +783,14 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo,
   proto_tree_add_item(tree, hf_msg_tx_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
+  /* If present, "flag" always starts with 0x00. */
+  /* Otherwise we proceed straight to "in_count". */
+  guint8 flag = tvb_get_guint8(tvb, offset);
+  if (flag == 0) {
+    proto_tree_add_item(tree, hf_msg_tx_flag, tvb, offset, 2, ENC_NA);
+    offset += 2;
+  }
+
   /* TxIn[] */
   get_varint(tvb, offset, &count_length, &in_count);
   add_varint_item(tree, tvb, offset, count_length, hf_msg_tx_in_count8, hf_msg_tx_in_count16,
@@ -787,7 +809,7 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo,
    *   [ 4]  index              uint32_t
    *
    */
-  for (; in_count > 0; in_count--)
+  for (guint64 index = 0; index < in_count; index++)
   {
     proto_tree *subtree;
     proto_tree *prevtree;
@@ -876,6 +898,55 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo,
 
     proto_tree_add_item(subtree, hf_msg_tx_out_script, tvb, offset, (guint)script_length, ENC_NA);
     offset += (guint)script_length;
+  }
+
+  if (flag == 0) {
+    /*  TxWitness
+    */
+    for (; in_count > 0; in_count--)
+    {
+      guint32 witness_start_offset = offset;
+      proto_item *ti;
+      proto_tree *subtree;
+
+      ti = proto_tree_add_item(tree, hf_msg_tx_witness, tvb, offset, -1, ENC_NA);
+      subtree = proto_item_add_subtree(ti, ett_tx_witness_list);
+
+      // count of witness data components
+      gint        component_count_length;
+      guint64     component_count;
+
+      get_varint(tvb, offset, &component_count_length, &component_count);
+      add_varint_item(subtree, tvb, offset, component_count_length, hf_msg_tx_witness_components8,
+                      hf_msg_tx_witness_components16, hf_msg_tx_witness_components32,
+                      hf_msg_tx_witness_components64);
+      offset += component_count_length;
+
+      for (; component_count > 0; component_count--)
+      {
+        proto_item *subti;
+        proto_tree *subsubtree;
+
+        gint        component_size_length;
+        guint64     component_size;
+
+        get_varint(tvb, offset, &component_size_length, &component_size);
+
+        subti = proto_tree_add_item(subtree, hf_msg_tx_witness_component, tvb, offset,
+                                    component_size_length + (gint) component_size, ENC_NA);
+        subsubtree = proto_item_add_subtree(subti, ett_tx_witness_component_list);
+
+        add_varint_item(subsubtree, tvb, offset, component_size_length, hf_msg_tx_witness_component_length8,
+                        hf_msg_tx_witness_component_length16, hf_msg_tx_witness_component_length32,
+                        hf_msg_tx_witness_component_length64);
+        offset += component_size_length;
+
+        proto_tree_add_item(subsubtree, hf_msg_tx_witness_component_data, tvb, offset, (gint) component_size, ENC_NA);
+        offset += component_size;
+      }
+
+      proto_item_set_len(ti, offset - witness_start_offset);
+    }
   }
 
   proto_tree_add_item(tree, hf_msg_tx_lock_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1629,6 +1700,11 @@ proto_register_bitcoin(void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_msg_tx_flag,
+      { "Flag", "bitcoin.tx.flag",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_msg_tx_in_script8,
       { "Script Length", "bitcoin.tx.in.script_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1731,6 +1807,61 @@ proto_register_bitcoin(void)
     },
     { &hf_msg_tx_out_script,
       { "Script", "bitcoin.tx.out.script",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness,
+      { "Transaction witness", "bitcoin.tx.witness",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_components8,
+      { "Number of components", "bitcoin.tx.witness.component_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_components16,
+      { "Number of components", "bitcoin.tx.witness.component_count",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_components32,
+      { "Number of components", "bitcoin.tx.witness.component_count",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_components64,
+      { "Number of components", "bitcoin.tx.witness.component_count64",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_component,
+      { "Witness component", "bitcoin.tx.witness.component",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_component_length8,
+      { "Length", "bitcoin.tx.witness.component.length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_component_length16,
+      { "Length", "bitcoin.tx.witness.component.length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_component_length32,
+      { "Length", "bitcoin.tx.witness.component.length",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_component_length64,
+      { "Length", "bitcoin.tx.witness.component.length64",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_tx_witness_component_data,
+      { "Data", "bitcoin.tx.witness.component.data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
@@ -2166,6 +2297,8 @@ proto_register_bitcoin(void)
     &ett_tx_in_list,
     &ett_tx_in_outp,
     &ett_tx_out_list,
+    &ett_tx_witness_list,
+    &ett_tx_witness_component_list,
   };
 
   static ei_register_info ei[] = {
