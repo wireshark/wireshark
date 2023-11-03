@@ -271,20 +271,20 @@ gboolean rf4ce_addr_table_get_ieee_addr(guint8 *ieee_addr, packet_info *pinfo, g
     {
         if (addr_table[idx].is_used)
         {
-            gboolean ieee_addr_eq = FALSE;
-            gboolean short_addr_eq = FALSE;
-
             if (addr_type == AT_EUI64)
             {
-                ieee_addr_eq = memcmp(addr_table[idx].ieee_addr, p_addr, RF4CE_IEEE_ADDR_LEN) == 0;
+                if (memcmp(addr_table[idx].ieee_addr, p_addr, RF4CE_IEEE_ADDR_LEN) == 0) {
+                    addr_found = TRUE;
+                }
             }
             else
             {
-                short_addr_eq = addr_table[idx].short_addr == short_addr;
+                if (addr_table[idx].short_addr == short_addr) {
+                    addr_found = TRUE;
+                }
             }
-            if (ieee_addr_eq || short_addr_eq)
+            if (addr_found)
             {
-                addr_found = TRUE;
                 memcpy(ieee_addr, addr_table[idx].ieee_addr, RF4CE_IEEE_ADDR_LEN);
                 break;
             }
