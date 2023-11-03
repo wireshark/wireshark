@@ -2245,7 +2245,7 @@ rsvp_class_to_filter_num(int classnum)
         return RSVPF_EXCLUDE_ROUTE;
 
     case RSVP_CLASS_S2L_SUB_LSP:
-	return RSVPF_S2L_SUB_LSP;
+        return RSVPF_S2L_SUB_LSP;
 
     case RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE:
         return RSVPF_SECONDARY_EXPLICIT_ROUTE;
@@ -8925,7 +8925,13 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
-	/* S2L_SUB_LSP object */
+        {&hf_rsvp_filter[RSVPF_EXCLUDE_ROUTE],
+         { "Exclude Route", "rsvp.exclude_route",
+           FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }
+        },
+
+        /* S2L_SUB_LSP object */
         {&hf_rsvp_filter[RSVPF_S2L_SUB_LSP],
          { "S2L_SUB_LSP", "rsvp.s2l_sub_lsp",
            FT_NONE, BASE_NONE, NULL, 0x0,
