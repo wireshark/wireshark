@@ -229,6 +229,7 @@ enum http3_stream_type {
     HTTP3_STREAM_TYPE_PUSH,
     HTTP3_STREAM_TYPE_QPACK_ENCODER,
     HTTP3_STREAM_TYPE_QPACK_DECODER,
+    HTTP3_STREAM_TYPE_WEBTRANSPORT      = 0x54, // draft-ietf-webtrans-http3-03
 };
 
 /**
@@ -242,6 +243,7 @@ static const val64_string http3_stream_types[] = {
     { 0x01, "Push Stream" },
     { 0x02, "QPACK Encoder Stream" },
     { 0x03, "QPACK Decoder Stream" },
+    { 0x54, "WebTransport Stream" },
     /* 0x40 - 0x3FFFFFFFFFFFFFFF Assigned via Specification Required policy */
     { 0, NULL }
 };
@@ -259,7 +261,6 @@ static const val64_string http3_stream_types[] = {
 #define HTTP3_GOAWAY                            0x7
 #define HTTP3_MAX_PUSH_ID                       0xD
 #define HTTP3_WEBTRANSPORT_BISTREAM             0x41
-#define HTTP3_WEBTRANSPORT_UNISTREAM            0x54
 #define HTTP3_PRIORITY_UPDATE_REQUEST_STREAM    0xF0700
 #define HTTP3_PRIORITY_UPDATE_PUSH_STREAM       0xF0701
 
@@ -278,7 +279,6 @@ static const val64_string http3_frame_types[] = {
     { HTTP3_MAX_PUSH_ID, "MAX_PUSH_ID" },
     { 0x0e, "Reserved" }, // "DUPLICATE_PUSH" in draft-26 and before
     { HTTP3_WEBTRANSPORT_BISTREAM, "WEBTRANSPORT_BISTREAM" }, // draft-ietf-webtrans-http3-03
-    { HTTP3_WEBTRANSPORT_UNISTREAM, "WEBTRANSPORT_UNISTREAM" }, // draft-ietf-webtrans-http3-03
     { HTTP3_PRIORITY_UPDATE_REQUEST_STREAM, "PRIORITY_UPDATE" }, // RFC 9218
     { HTTP3_PRIORITY_UPDATE_PUSH_STREAM, "PRIORITY_UPDATE" }, // RFC 9218
     /* 0x40 - 0x3FFFFFFFFFFFFFFF Assigned via Specification Required policy */
@@ -1829,6 +1829,10 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         offset = dissect_http3_qpack_enc(tvb, pinfo, stream_tree, offset, stream_info, http3_stream);
         break;
     case HTTP3_STREAM_TYPE_QPACK_DECODER:
+        // TODO
+        offset = tvb_captured_length(tvb);
+        break;
+    case HTTP3_STREAM_TYPE_WEBTRANSPORT:
         // TODO
         offset = tvb_captured_length(tvb);
         break;
