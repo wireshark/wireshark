@@ -208,7 +208,9 @@ blf_prepare_interface_name(blf_params_t* params, int pkt_encap, guint16 channel,
     gint64 key = blf_calc_key_value(pkt_encap, channel, hwchannel);
     gchar* old_name;
     gchar* new_name;
+    gchar* iface_name;
     gint64* new_key;
+    gboolean ret;
 
     if (params->blf_data->channel_to_name_ht == NULL) {
         return FALSE;
@@ -224,11 +226,29 @@ blf_prepare_interface_name(blf_params_t* params, int pkt_encap, guint16 channel,
         old_name = NULL;
     }
 
-    if (old_name == NULL) {
+    if (old_name == NULL && name != NULL) {
         new_key = g_new(gint64, 1);
         *new_key = key;
         new_name = ws_strdup(name);
-        return g_hash_table_insert(params->blf_data->channel_to_name_ht, new_key, new_name);
+        if (!g_hash_table_insert(params->blf_data->channel_to_name_ht, new_key, new_name)) {
+            return FALSE;
+        }
+    }
+    else {
+        new_name = old_name;
+    }
+
+    if (pkt_encap == WTAP_ENCAP_ETHERNET) {
+        /* Just for Ethernet, prepare the equivalent STATUS interface */
+        iface_name = new_name != NULL ? ws_strdup_printf("STATUS-%s", new_name) : NULL;
+
+        ret = blf_prepare_interface_name(params, WTAP_ENCAP_WIRESHARK_UPPER_PDU, channel, hwchannel, iface_name, force_new_name);
+        if (iface_name) {
+            g_free(iface_name);
+        }
+        if (!ret) {
+            return FALSE;
+        }
     }
 
     return TRUE;
