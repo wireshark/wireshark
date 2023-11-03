@@ -1889,7 +1889,7 @@ index_get_extension_name(const per_sequence_t *sequence, int idx)
 	for(i=0;sequence[i].p_id;i++){
 		if(sequence[i].extension==ASN1_NOT_EXTENSION_ROOT){
 			if (idx == 0) {
-				if (*sequence[i].p_id == -1) return "extension addition group";
+				if (*sequence[i].p_id == -1 || *sequence[i].p_id == 0) return "extension addition group";
 				hfi = proto_registrar_get_nth(*sequence[i].p_id);
 				return (hfi) ? hfi->name : "<unknown filed>";
 			}
