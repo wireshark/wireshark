@@ -2897,6 +2897,7 @@ static gboolean parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     proto_item *RMPP_type_item;
     proto_item *RMPP_segment_number_item;
     proto_tree *RMPP_header_tree;
+    guint32 val;
 
     RMPP_header_item = proto_tree_add_item(parentTree, hf_opa_rmpp, tvb, local_offset, 12, ENC_NA);
     RMPP_header_tree = proto_item_add_subtree(RMPP_header_item, ett_rmpp);
@@ -2905,8 +2906,9 @@ static gboolean parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     RMPP->Version = tvb_get_guint8(tvb, local_offset);
     local_offset += 1;
 
-    RMPP_type_item = proto_tree_add_item_ret_uint(RMPP_header_tree, hf_opa_rmpp_type, tvb, local_offset, 1, ENC_BIG_ENDIAN,
-                                                  (guint32*)&RMPP->Type);
+    RMPP_type_item = proto_tree_add_item_ret_uint(RMPP_header_tree, hf_opa_rmpp_type, tvb,
+                                                  local_offset, 1, ENC_BIG_ENDIAN, &val);
+    RMPP->Type = val;
     local_offset += 1;
     proto_tree_add_item(RMPP_header_tree, hf_opa_rmpp_r_resp_time, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(RMPP_header_tree, hf_opa_rmpp_flags_last, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -2915,8 +2917,9 @@ static gboolean parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     RMPP->resptime_flags = tvb_get_guint8(tvb, local_offset);
     local_offset += 1;
 
-    proto_tree_add_item_ret_uint(RMPP_header_tree, hf_opa_rmpp_status, tvb, local_offset, 1, ENC_BIG_ENDIAN,
-                                 (guint32*)&RMPP->Status);
+    proto_tree_add_item_ret_uint(RMPP_header_tree, hf_opa_rmpp_status, tvb,
+                                 local_offset, 1, ENC_BIG_ENDIAN, &val);
+    RMPP->Status = val;
     local_offset += 1;
 
     if (!(RMPP->resptime_flags & RMPP_FLAG_ACTIVE_MASK) && RMPP->Type == RMPP_ILLEGAL) {
