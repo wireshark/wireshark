@@ -191,6 +191,21 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 	return false;
 }
 
+void
+resolve_unparsed(dfwork_t *dfw, stnode_t *st, bool strict)
+{
+	if (stnode_type_id(st) != STTYPE_UNPARSED)
+		return;
+
+	header_field_info *hfinfo = dfilter_resolve_unparsed(stnode_data(st), dfw->deprecated);
+	if (hfinfo != NULL)
+		stnode_replace(st, STTYPE_FIELD, hfinfo);
+	else if (strict)
+		FAIL(dfw, st, "\"%s\" is not a valid protocol or protocol field.", stnode_todisplay(st));
+	else
+		stnode_mutate(st, STTYPE_LITERAL);
+}
+
 /* Don't set the error message if it's already set. */
 #define SET_ERROR(dfw, str) \
 	do {						\
@@ -655,16 +670,17 @@ is_bytes_type(enum ftenum type)
 }
 
 static ftenum_t
-get_slice_ftype(stnode_t *st_node)
+get_slice_ftype(dfwork_t *dfw, stnode_t *st_node)
 {
 	stnode_t *entity1 = sttype_slice_entity(st_node);
 	ws_assert(entity1);
-	ftenum_t ftype = get_logical_ftype(entity1);
+	resolve_unparsed(dfw, entity1, true);
+	ftenum_t ftype = get_logical_ftype(dfw, entity1);
 	return FT_IS_STRING(ftype) ? FT_STRING : FT_BYTES;
 }
 
 static ftenum_t
-get_function_ftype(stnode_t *st_node)
+get_function_ftype(dfwork_t *dfw, stnode_t *st_node)
 {
 	df_func_def_t *funcdef;
 	GSList        *params;
@@ -680,7 +696,8 @@ get_function_ftype(stnode_t *st_node)
 		return FT_NONE;
 
 	for (GSList *l = params; l != NULL; l = l->next) {
-		ftenum_t ftype = get_logical_ftype(l->data);
+		resolve_unparsed(dfw, l->data, false);
+		ftenum_t ftype = get_logical_ftype(dfw, l->data);
 		if (ftype != FT_NONE) {
 			return ftype;
 		}
@@ -689,7 +706,7 @@ get_function_ftype(stnode_t *st_node)
 }
 
 ftenum_t
-get_logical_ftype(stnode_t *st_node)
+get_logical_ftype(dfwork_t *dfw, stnode_t *st_node)
 {
 	stnode_t *st_arg1, *st_arg2;
 	ftenum_t ft;
@@ -699,6 +716,10 @@ get_logical_ftype(stnode_t *st_node)
 		case STTYPE_REFERENCE:
 			return sttype_field_ftenum(st_node);
 
+		case STTYPE_UNPARSED:
+			resolve_unparsed(dfw, st_node, true);
+			return sttype_field_ftenum(st_node);
+
 		case STTYPE_STRING:
 		case STTYPE_LITERAL:
 		case STTYPE_CHARCONST:
@@ -706,19 +727,19 @@ get_logical_ftype(stnode_t *st_node)
 			return FT_NONE;
 
 		case STTYPE_FUNCTION:
-			return get_function_ftype(st_node);
+			return get_function_ftype(dfw, st_node);
 
 		case STTYPE_ARITHMETIC:
 		case STTYPE_TEST:
 			sttype_oper_get(st_node, NULL, &st_arg1, &st_arg2);
-			if (st_arg1 && (ft = get_logical_ftype(st_arg1)) != FT_NONE)
+			if (st_arg1 && (ft = get_logical_ftype(dfw, st_arg1)) != FT_NONE)
 				return ft;
-			if (st_arg2 && (ft = get_logical_ftype(st_arg2)) != FT_NONE)
+			if (st_arg2 && (ft = get_logical_ftype(dfw, st_arg2)) != FT_NONE)
 				return ft;
 			return FT_NONE;
 
 		case STTYPE_SLICE:
-			return get_slice_ftype(st_node);
+			return get_slice_ftype(dfw, st_node);
 
 		case STTYPE_SET:
 		case STTYPE_UNINITIALIZED:
@@ -734,7 +755,7 @@ get_logical_ftype(stnode_t *st_node)
 static ftenum_t
 find_logical_ftype(dfwork_t *dfw, stnode_t *st_node)
 {
-	ftenum_t ftype = get_logical_ftype(st_node);
+	ftenum_t ftype = get_logical_ftype(dfw, st_node);
 	if (ftype == FT_NONE) {
 		FAIL(dfw, st_node, "Constant expression is invalid");
 	}
@@ -745,6 +766,9 @@ find_logical_ftype(dfwork_t *dfw, stnode_t *st_node)
 static void
 check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 {
+
+	resolve_unparsed(dfw, st_arg1, true);
+
 	LOG_NODE(st_arg1);
 
 	switch (stnode_type_id(st_arg1)) {
@@ -762,6 +786,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 					stnode_todisplay(st_arg1));
 			break;
 
+		case STTYPE_UNPARSED:
 		case STTYPE_FUNCTION:
 		case STTYPE_SET:
 		case STTYPE_UNINITIALIZED:
@@ -787,6 +812,7 @@ check_slice(dfwork_t *dfw, stnode_t *st, ftenum_t logical_ftype)
 
 	entity1 = sttype_slice_entity(st);
 	ws_assert(entity1);
+	resolve_unparsed(dfw, entity1, true);
 	sttype1 = stnode_type_id(entity1);
 
 	switch (sttype1) {
@@ -823,6 +849,7 @@ check_slice(dfwork_t *dfw, stnode_t *st, ftenum_t logical_ftype)
 			FAIL(dfw, entity1, "Range is not supported for entity %s",
 						stnode_todisplay(entity1));
 
+		case STTYPE_UNPARSED:
 		case STTYPE_UNINITIALIZED:
 		case STTYPE_NUM_TYPES:
 		case STTYPE_PCRE:
@@ -929,6 +956,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 		}
 	}
 	else if (type2 == STTYPE_STRING || type2 == STTYPE_LITERAL) {
+
 		/* Skip incompatible fields */
 		while (hfinfo1->same_name_prev_id != -1 &&
 				((type2 == STTYPE_STRING && ftype1 != FT_STRING && ftype1!= FT_STRINGZ) ||
@@ -1426,11 +1454,15 @@ check_relation(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
+	resolve_unparsed(dfw, st_arg1, true);
+	resolve_unparsed(dfw, st_arg2, false);
+
 	LOG_NODE(st_node);
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 		case STTYPE_REFERENCE:
+		case STTYPE_UNPARSED:
 			check_relation_LHS_FIELD(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
@@ -1484,6 +1516,9 @@ static void
 check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
+	resolve_unparsed(dfw, st_arg1, true);
+	resolve_unparsed(dfw, st_arg2, false);
+
 	LOG_NODE(st_node);
 
 	if (stnode_type_id(st_arg2) == STTYPE_FIELD && stnode_get_flags(st_arg2, STFLAG_UNPARSED)) {
@@ -1493,6 +1528,7 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 		case STTYPE_REFERENCE:
+		case STTYPE_UNPARSED:
 			check_relation_LHS_FIELD(dfw, STNODE_OP_CONTAINS, ftype_can_contains,
 							true, st_node, st_arg1, st_arg2);
 			break;
@@ -1518,6 +1554,8 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 	ws_regex_t *pcre;
 	char *errmsg = NULL;
 	GString *patt;
+
+	resolve_unparsed(dfw, st_arg1, true);
 
 	LOG_NODE(st_node);
 
@@ -1564,6 +1602,9 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 {
 	GSList *nodelist;
 	stnode_t *node_left, *node_right;
+
+	resolve_unparsed(dfw, st_arg1, true);
+	resolve_unparsed(dfw, st_arg2, false);
 
 	LOG_NODE(st_node);
 
@@ -1949,9 +1990,11 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t logical_ftype)
 	sttype_id_t		type;
 	stnode_op_t		st_op;
 	stnode_t		*st_arg1, *st_arg2;
-	ftenum_t		ftype;
+	ftenum_t		ftype = FT_NONE;
 
 	LOG_NODE(st_node);
+
+	resolve_unparsed(dfw, st_node, true);
 
 	type = stnode_type_id(st_node);
 
@@ -1993,9 +2036,15 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t logical_ftype)
 				ftype = check_arithmetic_LHS_NUMBER(dfw, st_op, st_node, st_arg1, st_arg2, logical_ftype);
 			break;
 
-		default:
-			FAIL(dfw, st_node, "%s is not a valid arithmetic operation.",
-				stnode_todisplay(st_node));
+		case STTYPE_STRING:
+		case STTYPE_CHARCONST:
+		case STTYPE_SET:
+		case STTYPE_PCRE:
+		case STTYPE_UNPARSED:
+		case STTYPE_UNINITIALIZED:
+		case STTYPE_NUM_TYPES:
+		case STTYPE_TEST:
+			ASSERT_STTYPE_NOT_REACHED(type);
 	}
 
 	return ftype;

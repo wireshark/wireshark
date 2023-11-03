@@ -30,6 +30,7 @@
 typedef enum {
 	STTYPE_UNINITIALIZED,
 	STTYPE_TEST,
+	STTYPE_UNPARSED, /* Must be resolved into a literal or a field. */
 	STTYPE_LITERAL,
 	STTYPE_REFERENCE,
 	STTYPE_STRING,
@@ -163,6 +164,10 @@ stnode_init(stnode_t *node, sttype_id_t type_id, void *data, char *token, df_loc
 WS_DLL_PUBLIC
 void
 stnode_replace(stnode_t *node, sttype_id_t type_id, void *data);
+
+WS_DLL_PUBLIC
+void
+stnode_mutate(stnode_t *node, sttype_id_t type_id);
 
 WS_DLL_PUBLIC
 void

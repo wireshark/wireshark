@@ -43,7 +43,8 @@ class TestDfilterRange:
 
     def test_slice_unparsed_1(self, checkDFilterFail):
         dfilter = "frame == b[1]"
-        checkDFilterFail(dfilter, "Range is not supported for entity")
+        error = '"b" is not a valid protocol or protocol field'
+        checkDFilterFail(dfilter, error)
 
     def test_slice_func_1(self, checkDFilterSucceed):
         dfilter = "string(ipx.src.node)[3:2] == \"cc:dd\""

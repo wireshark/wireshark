@@ -123,7 +123,7 @@ void
 dfw_set_error_location(dfwork_t *dfw, df_loc_t err_loc);
 
 void
-add_deprecated_token(dfsyntax_t *dfs, const char *token);
+add_deprecated_token(GPtrArray *deprecated, const char *token);
 
 void
 add_compile_warning(dfwork_t *dfw, const char *format, ...);
@@ -135,7 +135,7 @@ void
 DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
 
 header_field_info *
-dfilter_resolve_unparsed(dfsyntax_t *dfs, const char *name);
+dfilter_resolve_unparsed(const char *name, GPtrArray *deprecated);
 
 /* Returns true if the create syntax node has a (value) string type. */
 bool

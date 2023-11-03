@@ -373,6 +373,12 @@ class TestDfilterFieldReference:
         # select frame 1, expect 1 frames out of 2.
         checkDFilterCountWithSelectedFrame(dfilter, 1, 1)
 
+    def test_ref_7(self, checkDFilterFail):
+        # anything after $ must be a field
+        dfilter = 'frame == $aaaa'
+        error = '"aaaa" is not a valid protocol or protocol field'
+        checkDFilterFail(dfilter, error)
+
 class TestDfilterLayer:
     trace_file = "ipoipoip.pcap"
 

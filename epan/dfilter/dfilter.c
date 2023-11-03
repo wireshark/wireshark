@@ -78,7 +78,7 @@ dfw_set_error_location(dfwork_t *dfw, df_loc_t loc)
 }
 
 header_field_info *
-dfilter_resolve_unparsed(dfsyntax_t *dfs, const char *name)
+dfilter_resolve_unparsed(const char *name, GPtrArray *deprecated)
 {
 	header_field_info *hfinfo;
 
@@ -91,8 +91,8 @@ dfilter_resolve_unparsed(dfsyntax_t *dfs, const char *name)
 	hfinfo = proto_registrar_get_byalias(name);
 	if (hfinfo != NULL) {
 		/* It's an aliased field name */
-		if (dfs)
-			add_deprecated_token(dfs, name);
+		if (deprecated)
+			add_deprecated_token(deprecated, name);
 		return hfinfo;
 	}
 
@@ -214,6 +214,7 @@ static dfsyntax_t*
 dfsyntax_new(unsigned flags)
 {
 	dfsyntax_t *dfs = g_new0(dfsyntax_t, 1);
+	dfs->deprecated  = g_ptr_array_new_full(0, g_free);
 	dfs->flags = flags;
 	return dfs;
 }
@@ -338,7 +339,7 @@ const char *tokenstr(int token)
 		case TOKEN_STRING:	return "STRING";
 		case TOKEN_CHARCONST:	return "CHARCONST";
 		case TOKEN_IDENTIFIER:	return "IDENTIFIER";
-		case TOKEN_CONSTANT:	return "CONSTANT";
+		case TOKEN_UNPARSED:	return "UNPARSED";
 		case TOKEN_LITERAL:	return "LITERAL";
 		case TOKEN_NUMBER:	return "NUMBER";
 		case TOKEN_FIELD:	return "FIELD";
@@ -361,13 +362,8 @@ const char *tokenstr(int token)
 }
 
 void
-add_deprecated_token(dfsyntax_t *dfs, const char *token)
+add_deprecated_token(GPtrArray *deprecated, const char *token)
 {
-	if (dfs->deprecated == NULL)
-		dfs->deprecated  = g_ptr_array_new_full(0, g_free);
-
-	GPtrArray *deprecated = dfs->deprecated;
-
 	for (unsigned i = 0; i < deprecated->len; i++) {
 		const char *str = g_ptr_array_index(deprecated, i);
 		if (g_ascii_strcasecmp(token, str) == 0) {
@@ -554,8 +550,7 @@ compile_filter(const char *expanded_text, unsigned flags, df_error_t **err_ptr)
 	dfw = dfwork_new(expanded_text, dfs->flags);
 	dfw->st_root = dfs->st_root;
 	dfs->st_root = NULL;
-	if (dfs->deprecated)
-		dfw->deprecated = g_ptr_array_ref(dfs->deprecated);
+	dfw->deprecated = g_ptr_array_ref(dfs->deprecated);
 	dfsyntax_free(dfs);
 	dfs = NULL;
 

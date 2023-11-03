@@ -79,7 +79,6 @@ WS_WARN_UNUSED static int set_lval_simple(dfsyntax_t *dfs, int token, const char
 
 WS_WARN_UNUSED static int set_lval_literal(dfsyntax_t *dfs,  const char *value, const char *token_value);
 WS_WARN_UNUSED static int set_lval_identifier(dfsyntax_t *dfs,  const char *value, const char *token_value);
-WS_WARN_UNUSED static int set_lval_constant(dfsyntax_t *dfs,  const char *value, const char *token_value);
 WS_WARN_UNUSED static int set_lval_unparsed(dfsyntax_t *dfs, const char *value, const char *token_value);
 
 WS_WARN_UNUSED static int set_lval_field(dfsyntax_t *dfs, const header_field_info *hfinfo, const char *token_value);
@@ -109,6 +108,7 @@ FunctionIdentifier	[[:alpha:]_][[:alnum:]_]*
 
 /*
  * Cannot start with '-'. * Some protocol name can contain '-', for example "mac-lte".
+ * Fields that contain '-' anywhere cannot start with a decimal digit.
  * Note that some protocol names start with a number, for example "9p". This is
  * handled as a special case for numeric patterns.
  * Some protocol names contain dots, e.g: _ws.expert
@@ -436,12 +436,6 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	return set_lval_literal(yyextra, yytext, yytext);
 }
 
-{DotMacAddress}|{DotQuadMacAddress}	{
-	/* MAC Address, can also be a field. */
-	update_location(yyextra, yytext);
-	return set_lval_unparsed(yyextra, yytext, yytext);
-}
-
 	/* IP address. */
 
 {IPv4Address}{V4CidrPrefix}?		{
@@ -465,7 +459,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	/* It is only reasonable to assume a literal here, instead of a
 	 * (possibly non-existant) protocol field, because protocol field filter names
 	 * should not start with a digit (the lexical syntax for numbers). */
-	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra, yytext);
+	header_field_info *hfinfo = dfilter_resolve_unparsed(yytext, yyextra->deprecated);
 	if (hfinfo != NULL) {
 		return set_lval_field(yyextra, hfinfo, yytext);
 	}
@@ -494,7 +488,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	/* It is only reasonable to assume a literal here, instead of a
 	 * (possibly non-existant) protocol field, because protocol field filter names
 	 * should not start with a digit (the lexical syntax for numbers). */
-	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra, yytext);
+	header_field_info *hfinfo = dfilter_resolve_unparsed(yytext, yyextra->deprecated);
 	if (hfinfo != NULL) {
 		return set_lval_field(yyextra, hfinfo, yytext);
 	}
@@ -515,12 +509,6 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	return set_lval_literal(yyextra, yytext + 1, yytext);
 }
 
-[[:xdigit:]]+	{
-	/* Numeric or field. */
-	update_location(yyextra, yytext);
-	return set_lval_unparsed(yyextra, yytext, yytext);
-}
-
 	/* Bytes. */
 
 :?{ColonBytes}	{
@@ -539,38 +527,26 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	return set_lval_literal(yyextra, yytext, yytext);
 }
 
-:?{DotBytes}	{
+:{DotBytes}	{
 	/* DotBytes, can be a field without ':' prefix. */
 	update_location(yyextra, yytext);
-	if (yytext[0] == ':')
-		return set_lval_literal(yyextra, yytext + 1, yytext);
-	return set_lval_unparsed(yyextra, yytext, yytext);
+	return set_lval_literal(yyextra, yytext + 1, yytext);
 }
 
 	/* Identifier (protocol/field/function name). */
 
 	/* This must come before FieldIdentifier to match function names. */
 {FunctionIdentifier}	{
-	/* Identifier (field or function) or constant (bytes without separator). */
-	/* We use CONSTANT instead of LITERAL because the difference is significant
-	 * in the syntactical grammar. */
+	/* Identifier (field or function) or literal (bytes without separator). */
 	update_location(yyextra, yytext);
-	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra, yytext);
-	if (hfinfo != NULL) {
-		return set_lval_identifier(yyextra, yytext, yytext);
-	}
-        df_func_def_t *def = df_func_lookup(yytext);
-	if (def != NULL) {
-		return set_lval_identifier(yyextra, yytext, yytext);
-	}
-	return set_lval_constant(yyextra, yytext, yytext);
+	return set_lval_identifier(yyextra, yytext, yytext);
 }
 
 \.{ProtoFieldIdentifier}	{
-	/* Identifier, prefixed with a '.'. */
+	/* Identifier, prefixed with a '.', must be a field, no ifs or buts. */
 	update_location(yyextra, yytext);
 	const char *name = yytext + 1;
-	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra, name);
+	header_field_info *hfinfo = dfilter_resolve_unparsed(name, yyextra->deprecated);
 	if (hfinfo == NULL) {
 		FAIL("\"%s\" is not a valid protocol or protocol field.", name);
 		return SCAN_FAILED;
@@ -581,7 +557,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 {ProtoFieldIdentifier}	{
 	/* Catch-all for protocol values. Can also be a literal. */
 	update_location(yyextra, yytext);
-	return set_lval_identifier(yyextra, yytext, yytext);
+	return set_lval_unparsed(yyextra, yytext, yytext);
 }
 
 {LiteralValue}	{
@@ -647,30 +623,17 @@ set_lval_literal(dfsyntax_t *dfs, const char *value, const char *token_value)
 static int
 set_lval_identifier(dfsyntax_t *dfs, const char *value, const char *token_value)
 {
-	dfs->lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), dfs->location);
+	dfs->lval = stnode_new(STTYPE_UNPARSED, g_strdup(value), g_strdup(token_value), dfs->location);
+	stnode_set_flags(dfs->lval, STFLAG_UNPARSED);
 	return TOKEN_IDENTIFIER;
-}
-
-static int
-set_lval_constant(dfsyntax_t *dfs, const char *value, const char *token_value)
-{
-	dfs->lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), dfs->location);
-	return TOKEN_CONSTANT;
 }
 
 static int
 set_lval_unparsed(dfsyntax_t *dfs, const char *value, const char *token_value)
 {
-	int token;
-	const header_field_info *hfinfo = dfilter_resolve_unparsed(dfs, value);
-	if (hfinfo != NULL) {
-		token = set_lval_field(dfs, hfinfo, token_value);
-    	}
-	else {
-		token = set_lval_literal(dfs, value, token_value);
-	}
+	dfs->lval = stnode_new(STTYPE_UNPARSED, g_strdup(value), g_strdup(token_value), dfs->location);
 	stnode_set_flags(dfs->lval, STFLAG_UNPARSED);
-	return token;
+	return TOKEN_UNPARSED;
 }
 
 static int

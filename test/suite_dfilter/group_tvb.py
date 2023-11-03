@@ -47,7 +47,7 @@ class TestDfilterProtocol:
 
     def test_protocol_2(self, checkDFilterFail):
         dfilter = 'frame contains aa.bb.hh'
-        checkDFilterFail(dfilter, 'not a valid protocol or protocol field')
+        checkDFilterFail(dfilter, '"aa.bb.hh" is not a valid byte string')
 
     def test_protocol_3(self, checkDFilterFail):
         dfilter = 'ip.port == 5'

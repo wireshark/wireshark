@@ -13,6 +13,7 @@
 #include "sttype-function.h"
 #include "sttype-set.h"
 #include "drange.h"
+#include <epan/strutil.h>
 
 #include "grammar.h"
 
@@ -25,6 +26,9 @@ new_reference(dfsyntax_t *dfs, stnode_t *node);
 
 static stnode_t *
 new_function(dfsyntax_t *dfs, stnode_t *node);
+
+static stnode_t *
+resolve_unparsed(dfsyntax_t *dfs, stnode_t *node);
 
 #define FAIL(dfs, node, ...) \
     do { \
@@ -148,42 +152,47 @@ expr(X) ::= LPAREN(L) expr(Y) RPAREN(R).
 atom(A) ::= STRING(S).      { A = S; }
 atom(A) ::= CHARCONST(N).   { A = N; }
 atom(A) ::= LITERAL(S).     { A = S; }
-atom(A) ::= CONSTANT(C).    { A = C; }
 atom(A) ::= NUMBER(N).      { A = N; }
 
-named_field(X) ::= FIELD(F).
-{
-    X = F;
-}
-
-named_field(X) ::= IDENTIFIER(U).
-{
-    X = U;
-    const char *name = stnode_token(U);
-    header_field_info *hfinfo = dfilter_resolve_unparsed(dfs, name);
-    if (hfinfo == NULL) {
-        FAIL(dfs, U, "\"%s\" is not a valid protocol or protocol field.", name);
+%code {
+    static stnode_t *
+    resolve_unparsed(dfsyntax_t *dfs, stnode_t *node)
+    {
+        if (stnode_type_id(node) != STTYPE_UNPARSED) {
+            ws_assert(stnode_type_id(node) == STTYPE_FIELD);
+            return node;
+        }
+        const char *name = stnode_token(node);
+        header_field_info *hfinfo = dfilter_resolve_unparsed(name, dfs->deprecated);
+        if (hfinfo == NULL) {
+            FAIL(dfs, node, "\"%s\" is not a valid protocol or protocol field.", name);
+        }
+        stnode_replace(node, STTYPE_FIELD, hfinfo); // NULL is OK here, we will fail later
+        return node;
     }
-    stnode_replace(X, STTYPE_FIELD, hfinfo);
 }
 
-layered_field(X) ::= named_field(F).
+field(X) ::= FIELD(F).      { X = F; }
+field(X) ::= IDENTIFIER(U). { X = U; }
+field(X) ::= UNPARSED(U).   { X = U; }
+
+layered_field(X) ::= field(F).
 {
     X = F;
 }
 
-layered_field(X) ::= named_field(F) HASH LBRACKET range_node_list(L) RBRACKET(R).
+layered_field(X) ::= field(F) HASH LBRACKET range_node_list(L) RBRACKET(R).
 {
-    X = F;
+    X = resolve_unparsed(dfs, F);
     sttype_field_set_range(X, L);
     g_slist_free(L);
     stnode_merge_location(X, F, R);
     stnode_free(R);
 }
 
-layered_field(X) ::= named_field(F) HASH INDEX(N).
+layered_field(X) ::= field(F) HASH INDEX(N).
 {
-    X = F;
+    X = resolve_unparsed(dfs, F);
     char *err_msg = NULL;
     drange_node *range = drange_node_from_str(stnode_token(N), &err_msg);
     if (err_msg != NULL) {
@@ -202,7 +211,7 @@ rawable_field(X) ::= layered_field(F).
 
 rawable_field(X) ::= ATSIGN(A) layered_field(F).
 {
-    X = F;
+    X = resolve_unparsed(dfs, F);
     sttype_field_set_raw(X, true);
     stnode_merge_location(X, A, F);
     stnode_free(A);
@@ -213,7 +222,8 @@ rawable_field(X) ::= ATSIGN(A) layered_field(F).
     new_reference(dfsyntax_t *dfs _U_, stnode_t *node)
     {
         /* convert field to reference */
-        stnode_t *ref = stnode_new(STTYPE_REFERENCE, sttype_field_hfinfo(node), NULL, stnode_location(node));
+
+        stnode_t *ref = stnode_new(STTYPE_REFERENCE, sttype_field_hfinfo(node), g_strdup(stnode_token(node)), stnode_location(node));
         sttype_field_set_drange(ref, sttype_field_drange_steal(node));
         sttype_field_set_raw(ref, sttype_field_raw(node));
         return ref;
@@ -222,6 +232,7 @@ rawable_field(X) ::= ATSIGN(A) layered_field(F).
 
 reference(X) ::= DOLLAR(D) LBRACE rawable_field(F) RBRACE(R).
 {
+    F = resolve_unparsed(dfs, F);
     X = new_reference(dfs, F);
     stnode_merge_location(X, D, R);
     stnode_free(F);
@@ -231,6 +242,7 @@ reference(X) ::= DOLLAR(D) LBRACE rawable_field(F) RBRACE(R).
 
 reference(X) ::= DOLLAR(D) rawable_field(F).
 {
+    F = resolve_unparsed(dfs, F);
     X = new_reference(dfs, F);
     stnode_merge_location(X, D, F);
     stnode_free(F);
@@ -528,22 +540,12 @@ function(F) ::= IDENTIFIER(U) LPAREN func_params_list(P) RPAREN(R).
     stnode_free(R);
 }
 
-function ::= CONSTANT(U) LPAREN func_params_list RPAREN.
-{
-    FAIL(dfs, U, "Function '%s' does not exist", stnode_token(U));
-}
-
 /* A function can have zero parameters. */
 function(F) ::= IDENTIFIER(U) LPAREN RPAREN(R).
 {
     F = new_function(dfs, U);
     stnode_merge_location(F, U, R);
     stnode_free(R);
-}
-
-function ::= CONSTANT(U) LPAREN RPAREN.
-{
-    FAIL(dfs, U, "Function '%s' does not exist", stnode_token(U));
 }
 
 func_params_list(P) ::= arithmetic_expr(E).

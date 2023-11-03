@@ -244,6 +244,8 @@ df_semcheck_param(dfwork_t *dfw, const char *func_name _U_, ftenum_t logical_fty
 {
     ftenum_t ftype = FT_NONE;
 
+    resolve_unparsed(dfw, param, false);
+
     switch (stnode_type_id(param)) {
         case STTYPE_ARITHMETIC:
             ftype = check_arithmetic(dfw, param, logical_ftype);
@@ -284,6 +286,7 @@ df_semcheck_param(dfwork_t *dfw, const char *func_name _U_, ftenum_t logical_fty
             ftype = check_slice(dfw, param, logical_ftype);
             break;
 
+        case STTYPE_UNPARSED:
         case STTYPE_TEST:
         case STTYPE_FVALUE:
         case STTYPE_PCRE:
@@ -306,6 +309,8 @@ ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t logic
     stnode_t *param = param_list->data;
     ftenum_t ftype;
 
+    resolve_unparsed(dfw, param, true);
+
     if (stnode_type_id(param) != STTYPE_FIELD) {
         dfunc_fail(dfw, param, "Only fields can be used as parameter for %s()", func_name);
     }
@@ -322,6 +327,8 @@ ul_semcheck_is_field(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftyp
 {
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *param = param_list->data;
+
+    resolve_unparsed(dfw, param, true);
 
     if (stnode_type_id(param) != STTYPE_FIELD) {
         dfunc_fail(dfw, param, "Only fields can be used as parameter for %s()", func_name);
@@ -353,6 +360,8 @@ ul_semcheck_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype 
 
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *param = param_list->data;
+
+    resolve_unparsed(dfw, param, true);
 
     if (stnode_type_id(param) == STTYPE_FIELD) {
         dfw->field_count++;

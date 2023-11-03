@@ -107,7 +107,7 @@ static bool start_is_field_reference(const char *start)
 	if (start[0] == '@')
 		start++;
 
-	hfinfo = dfilter_resolve_unparsed(NULL, start);
+	hfinfo = dfilter_resolve_unparsed(start, NULL);
 	/* Restore mangled string. */
 	*(char *)end = saved_c;
 

@@ -81,6 +81,7 @@ sttype_name(sttype_id_t type)
 		case STTYPE_UNINITIALIZED: return "UNINITIALIZED";
 		case STTYPE_TEST:	return "TEST";
 		case STTYPE_LITERAL:	return "LITERAL";
+		case STTYPE_UNPARSED:	return "UNPARSED";
 		case STTYPE_REFERENCE:	return "REFERENCE";
 		case STTYPE_STRING:	return "STRING";
 		case STTYPE_CHARCONST:	return "CHARCONST";
@@ -243,6 +244,14 @@ stnode_replace(stnode_t *node, sttype_id_t type_id, void *data)
 	stnode_clear(node);
 	stnode_init(node, type_id, data, token, loc);
 	node->flags = flags;
+}
+
+void
+stnode_mutate(stnode_t *node, sttype_id_t type_id)
+{
+	//FIXME: Assert there all the same sttype
+	node->type = sttype_lookup(type_id);
+	ws_assert(node->type);
 }
 
 stnode_t*
