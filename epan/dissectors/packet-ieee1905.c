@@ -87,7 +87,6 @@ static int hf_ieee1905_link_availability = -1;
 static int hf_ieee1905_phy_rate = -1;
 static int hf_ieee1905_packets_received = -1;
 static int hf_ieee1905_rssi = -1;
-static int hf_ieee1905_data = -1;
 static int hf_ieee1905_extra_tlv_data = -1;
 static int hf_ieee1905_local_interface_count = -1;
 static int hf_ieee1905_media_type = -1;
@@ -506,7 +505,6 @@ static int hf_ieee1905_cac_termination_radio_count = -1;
 static int hf_ieee1905_cac_terminate_radio_id = -1;
 static int hf_ieee1905_cac_terminate_op_class = -1;
 static int hf_ieee1905_cac_terminate_channel = -1;
-static int hf_ieee1905_cac_terminate_action = -1;
 static int hf_ieee1905_cac_completion_rep_radio_count = -1;
 static int hf_ieee1905_cac_completion_radio_id = -1;
 static int hf_ieee1905_cac_completion_op_class = -1;
@@ -569,7 +567,7 @@ static int hf_ieee1905_bss_config_report_transmitted_bssid = -1;
 static int hf_ieee1905_bss_config_report_reserved = -1;
 static int hf_ieee1905_bss_config_report_res = -1;
 static int hf_ieee1905_bss_config_report_bss_cnt = -1;
-static int hs_ieee1902_bss_config_report_mac = -1;
+static int hf_ieee1902_bss_config_report_mac = -1;
 static int hf_ieee1902_bss_config_report_ssid_len = -1;
 static int hf_ieee1905_bss_config_report_ssid = -1;
 static int hf_ieee1905_bssid_tlv_bssid = -1;
@@ -923,7 +921,6 @@ static gint ett_ieee1905_fragment = -1;
 static gint ett_ieee1905_fragments = -1;
 
 static expert_field ei_ieee1905_malformed_tlv = EI_INIT;
-static expert_field ei_ieee1905_extraneous_data_after_eom = EI_INIT;
 static expert_field ei_ieee1905_extraneous_tlv_data = EI_INIT;
 
 #define TOPOLOGY_DISCOVERY_MESSAGE                     0x0000
@@ -1690,7 +1687,7 @@ dissect_media_type(tvbuff_t *tvb, packet_info *pinfo _U_,
  * with the number of the interface.
  */
 static int
-dissect_local_interface_list(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_local_interface_list(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset, guint8 count)
 {
     guint lil_index = 0;
@@ -1796,7 +1793,7 @@ dissect_device_bridging_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect the non 1905 neighbor device list TLV
  */
 static int
-dissect_non_1905_neighbor_device_list(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_non_1905_neighbor_device_list(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset, guint16 len)
 {
     proto_tree *neighbor_list = NULL;
@@ -1848,6 +1845,7 @@ dissect_1905_neighbor_device(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item *pi = NULL;
     proto_item *neighbor_list = NULL;
     guint start;
+    gint remaining = len;
     static int * const flags[] = {
       &hf_ieee1905_bridges_flag,
       NULL,
@@ -1856,7 +1854,7 @@ dissect_1905_neighbor_device(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ieee1905_local_interface_mac, tvb,
                         offset, 6, ENC_NA);
 
-    len -= 6;
+    remaining -= 6;
     offset += 6;
 
     neighbor_list = proto_tree_add_subtree(tree, tvb, offset, -1,
@@ -1864,18 +1862,19 @@ dissect_1905_neighbor_device(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 "IEEE1905 neighbor devices");
 
     start = offset;
-    while (len > 0) {
+
+    while (remaining > 0) {
         proto_tree_add_item(neighbor_list, hf_ieee1905_neighbor_al_mac_addr,
                             tvb, offset, 6, ENC_NA);
 
-        len -= 6;
+        remaining -= 6;
         offset += 6;
 
         proto_tree_add_bitmask(neighbor_list, tvb, offset,
                                hf_ieee1905_neighbor_flags,
                                ett_ieee1905_neighbor_flags, flags, ENC_NA);
 
-        len--;
+        remaining--;
         offset++;
 
     }
@@ -2021,7 +2020,7 @@ dissect_supported_freq_band(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a WSC TLV
  */
 static int
-dissect_wsc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_wsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint offset, guint16 len)
 {
     dissect_wps_tlvs(tree, tvb, offset, len, pinfo);
@@ -2513,7 +2512,7 @@ dissect_profile_version(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect the power off interface TLV
  */
 static int
-dissect_power_off_interface(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_power_off_interface(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset)
 {
     guint8 local_intf_count = tvb_get_guint8(tvb, offset);
@@ -3600,8 +3599,8 @@ dissect_metric_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Channel Preference TLV
  */
 static int
-dissect_channel_preference(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+dissect_channel_preference(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, guint offset, guint16 len)
 {
     guint8 operating_classes = 0, operating_index = 0;
     proto_tree *class_list = NULL;
@@ -3978,7 +3977,7 @@ static int * const steering_flags[] = {
 };
 
 static int
-dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset, guint16 len)
 {
     guint8 mode = 0;
@@ -4282,7 +4281,7 @@ dissect_measurement_report(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Beacon Metrics Response TLV
  */
 static int
-dissect_beacon_metrics_response(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_beacon_metrics_response(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset, guint16 len _U_)
 {
     guint8 report_index = 0;
@@ -4481,6 +4480,7 @@ dissect_ap_metric_query(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *bssid_list = NULL;
     proto_item *pi = NULL;
     guint saved_offset;
+    gint remaining = len;
 
     proto_tree_add_item(tree, hf_ieee1905_ap_metric_query_bssid_cnt, tvb,
                         offset, 1, ENC_NA);
@@ -4491,11 +4491,11 @@ dissect_ap_metric_query(tvbuff_t *tvb, packet_info *pinfo _U_,
                             "AP BSSID list");
     saved_offset = offset;
 
-    while (len >= 6) {
+    while (remaining >= 6) {
         proto_tree_add_item(bssid_list, hf_ieee1905_ap_metric_query_bssid,
                             tvb, offset, 6, ENC_NA);
         offset += 6;
-        len -= 6;
+        remaining -= 6;
     }
 
     proto_item_set_len(pi, offset - saved_offset);
@@ -4595,11 +4595,12 @@ dissect_sta_mac_address_type(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 static int
 dissect_associated_sta_link_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+        proto_tree *tree, guint offset, guint16 len)
 {
     proto_tree *bss_list = NULL;
     proto_tree *bss_tree = NULL;
     proto_item *pi = NULL;
+    gint remaining;
     guint8 bss_list_index = 0;
     guint start_offset = 0;
 
@@ -4617,7 +4618,8 @@ dissect_associated_sta_link_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
                             ett_sta_list_metrics_bss_list, NULL,
                             "BSS list");
 
-    while (len >= 19) {
+    remaining = len;
+    while (remaining >= 19) {
         bss_tree = proto_tree_add_subtree_format(bss_list, tvb,
                                 offset, 18, ett_sta_list_metrics_bss_tree,
                                 NULL, "BSS %u", bss_list_index);
@@ -4643,13 +4645,13 @@ dissect_associated_sta_link_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
         offset++;
 
         bss_list_index++;
-        len -= 19;
+        remaining -= 19;
     }
 
     proto_item_set_len(pi, offset - start_offset);
 
-    if (len > 0) {
-        offset += len;
+    if (remaining > 0) {
+        offset += remaining;
     }
 
     return offset;
@@ -4665,13 +4667,14 @@ dissect_associated_wf6_sta_status_report(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *tid_list = NULL;
     proto_tree *tid_tree = NULL;
     proto_item *pi = NULL;
+    gint remaining;
     guint8 tid_list_index = 0;
     guint start_offset = 0;
 
     proto_tree_add_item(tree, hf_ieee1905_assoc_wf6_sta_mac_addr, tvb, offset,
                         6, ENC_NA);
     offset += 6;
-    len -= 6;
+    len -= 6;       //BUG: Introduce remaining variable
 
     proto_tree_add_item(tree, hf_ieee1905_assoc_wf6_sta_tid_count, tvb, offset,
                         1, ENC_NA);
@@ -4682,7 +4685,8 @@ dissect_associated_wf6_sta_status_report(tvbuff_t *tvb, packet_info *pinfo _U_,
                             ett_sta_wf6_status_report_tid_list, NULL,
                             "TID list");
 
-    while (len >= 2) {
+    remaining = len;
+    while (remaining >= 2) {
         guint8 tid = tvb_get_guint8(tvb, offset);
 
         tid_tree = proto_tree_add_subtree_format(tid_list, tvb,
@@ -4698,13 +4702,13 @@ dissect_associated_wf6_sta_status_report(tvbuff_t *tvb, packet_info *pinfo _U_,
         offset += 1;
 
         tid_list_index++;
-        len -= 2;
+        remaining -= 2;
     }
 
     proto_item_set_len(pi, offset - start_offset);
 
-    if (len > 0) {
-        offset += len;
+    if (remaining > 0) {
+        offset += remaining;
     }
 
     return offset;
@@ -4844,7 +4848,7 @@ dissect_unassociated_sta_link_metrics_query(tvbuff_t *tvb,
  * Dissect a Device Information Type TLV
  */
 static int
-dissect_device_information_type(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_device_information_type(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset, guint16 len _U_)
 {
     proto_item *pi = NULL;
@@ -4878,10 +4882,10 @@ dissect_device_information_type(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Transmitter Link Metric TLV
  */
 static int
-dissect_transmitter_link_metric(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_transmitter_link_metric(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset, guint16 len)
 {
-    guint remaining;
+    gint remaining;
 
     proto_tree_add_item(tree, hf_ieee1905_responder_al_mac_addr, tvb,
                         offset, 6, ENC_NA);
@@ -4892,7 +4896,7 @@ dissect_transmitter_link_metric(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 6;
 
     remaining = len - 12;
-    while (remaining) {
+    while (remaining > 0) {
         proto_tree_add_item(tree, hf_ieee1905_receiving_al_mac_addr,
                             tvb, offset, 6, ENC_NA);
         offset += 6;
@@ -4937,10 +4941,10 @@ dissect_transmitter_link_metric(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Receiver Link Metric TLV
  */
 static int
-dissect_receiver_link_metric(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_receiver_link_metric(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset, guint16 len)
 {
-    guint remaining;
+    gint remaining;
 
     proto_tree_add_item(tree, hf_ieee1905_responder_al_mac_addr, tvb,
                         offset, 6, ENC_NA);
@@ -4950,7 +4954,7 @@ dissect_receiver_link_metric(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 6;
 
     remaining = len - 12;
-    while (remaining) {
+    while (remaining > 0) {
         proto_tree_add_item(tree, hf_ieee1905_receiving_al_mac_addr,
                             tvb, offset, 6, ENC_NA);
         offset += 6;
@@ -5736,7 +5740,7 @@ dissect_ap_wf6_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static int
 dissect_agent_list(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+        proto_tree *tree, guint offset, guint16 len)
 {
     proto_tree_add_item(tree, hf_ieee1905_agent_list_bytes, tvb, offset,
                         len, ENC_NA);
@@ -6602,7 +6606,7 @@ dissect_bss_configuration_report(tvbuff_t *tvb, packet_info *pinfo _U_,
                                           -1, ett_bss_config_report_bss_tree,
                                           &bti, "BSS %d", bss_id);
 
-                proto_tree_add_item(bss_tree, hs_ieee1902_bss_config_report_mac,
+                proto_tree_add_item(bss_tree, hf_ieee1902_bss_config_report_mac,
                                     tvb, offset, 6, ENC_NA);
                 offset += 6;
 
@@ -6917,7 +6921,7 @@ dissect_tunneled_message_type(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 static int
 dissect_tunneled(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+        proto_tree *tree, guint offset, guint16 len)
 {
     proto_tree_add_item(tree, hf_ieee1905_tunneled_data, tvb, offset, len,
                         ENC_NA);
@@ -7065,7 +7069,7 @@ dissect_unsuccessful_association_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 static int
 dissect_metric_collection_interval(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+        proto_tree *tree, guint offset, guint16 len)
 {
     proto_tree_add_item(tree, hf_ieee1905_metric_collection_interval,
                         tvb, offset, 4, ENC_NA);
@@ -7298,7 +7302,7 @@ static int * const ieee1905_encap_dpp_flags[] = {
 };
 
 static int
-dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset, guint16 len _U_)
 {
     guint8 flags = tvb_get_guint8(tvb, offset);
@@ -7375,8 +7379,8 @@ dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a 1905 Encap EAPOL TLV:
  */
 static int
-dissect_1905_encap_eapol(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+dissect_1905_encap_eapol(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, guint offset, guint16 len)
 {
     offset += call_dissector(eapol_handle,
                              tvb_new_subset_length(tvb, offset, len),
@@ -7390,7 +7394,7 @@ dissect_1905_encap_eapol(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 static int
 dissect_dpp_bootstrapping_uri_notification(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+        proto_tree *tree, guint offset, guint16 len)
 {
     guint16 uri_len;
 
@@ -7560,7 +7564,7 @@ dissect_device_inventory(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static int
 dissect_bss_configuration_request(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+        proto_tree *tree, guint offset, guint16 len)
 {
     proto_tree_add_item(tree, hf_ieee1905_bss_configuration_request, tvb,
                         offset, len, ENC_NA);
@@ -7571,7 +7575,7 @@ dissect_bss_configuration_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static int
 dissect_bss_configuration_response(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+        proto_tree *tree, guint offset, guint16 len)
 {
     proto_tree_add_item(tree, hf_ieee1905_bss_configuration_response, tvb,
                         offset, len, ENC_NA);
@@ -7581,8 +7585,8 @@ dissect_bss_configuration_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static int
-dissect_dpp_message(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+dissect_dpp_message(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, guint offset, guint16 len)
 {
     guint8 code;
     tvbuff_t *new_tvb;
@@ -7881,8 +7885,8 @@ dissect_qos_management_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static int
-dissect_qos_management_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+dissect_qos_management_descriptor(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, guint offset, guint16 len)
 {
     guint16 desc_size = 0;
 
@@ -7920,7 +7924,7 @@ static int * const controller_capa_header[] = {
 
 static int
 dissect_controller_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len _U_)
+        proto_tree *tree, guint offset, guint16 len)
 {
     proto_tree_add_bitmask(tree, tvb, offset,
                            hf_ieee1905_controller_capa_flags,
@@ -7935,7 +7939,7 @@ dissect_controller_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect each of the TLV types we know about
  */
 static int
-dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset, guint8 tlv_type, guint16 tlv_len)
 {
     guint link_metric_query;
@@ -8505,16 +8509,16 @@ static int * const tlv_len_headers[] = {
 static int
 dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gboolean eom_seen = 0;
+    gboolean eom_seen;
     guint offset = 0;
 
-    while (!eom_seen) {
+    do {
         guint8 tlv_type;
         guint16 tlv_len;
         proto_item *tlv_tree;
 
         tlv_type = tvb_get_guint8(tvb, offset);
-        eom_seen = (tlv_type == EOM_TLV);
+        eom_seen = (tlv_type == EOM_TLV) ? TRUE : FALSE;
         /*
         * We can only deal with the reported length remaining ATM so take the
         * min of the TLV len and the reported len.
@@ -8536,7 +8540,8 @@ dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (tlv_len)
             offset = dissect_ieee1905_tlv_data(tvb, pinfo, tlv_tree, offset, tlv_type, tlv_len);
-    }
+    } while (eom_seen == FALSE);
+
     return offset;
 }
 
@@ -8679,8 +8684,7 @@ static reassembly_table_functions ieee1905_reassembly_table_functions = {
 #define LAST_IEEE1905_FRAGMENT 0x80
 
 static int
-dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data _U_)
+dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *ieee1905_tree;
@@ -8741,45 +8745,46 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gboolean save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
         fragment_head *frag_head = NULL;
-        guint remaining_length = tvb_reported_length_remaining(tvb, offset);
+        tvbuff_t *new_tvb = NULL;
+        guint remaining_length = tvb_captured_length_remaining(tvb, offset);
 
-        pinfo->fragmented = save_fragmented;
         frag_head = fragment_add_seq_check(&g_ieee1905_reassembly_table, tvb,
                                            offset, pinfo,
                                            msg_id, NULL, frag_id,
                                            remaining_length,
                                            (flags & LAST_IEEE1905_FRAGMENT) == 0);
 
-        next_tvb = process_reassembled_data(tvb, offset, pinfo,
+        new_tvb = process_reassembled_data(tvb, offset, pinfo,
                                             "Reassembled Message",
                                             frag_head,
                                             &ieee1905_fragment_items,
                                             NULL, ieee1905_tree);
 
-        if (next_tvb) { /* Reassembled */
-            next_offset = dissect_ieee1905_tlvs(next_tvb, pinfo, ieee1905_tree);
+        pinfo->fragmented = save_fragmented;
+
+        if (new_tvb) { /* Reassembled */
+            guint reassembled_length = tvb_captured_length(new_tvb);
+            guint reassembled_next_offset = dissect_ieee1905_tlvs(new_tvb, pinfo, ieee1905_tree);
+
+            tvb_set_reported_length(new_tvb, reassembled_next_offset);
+            /* Calculate how many bytes of the last packet contributed to the reassembled payload */
+            next_offset = remaining_length - (reassembled_length - reassembled_next_offset);
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO,
                             " (Message ID: %u, Fragment ID: %u, VLAN ID: %u)",
                             msg_id, frag_id, pinfo->vlan_id);
-            next_tvb = NULL;
             proto_tree_add_item(ieee1905_tree, hf_ieee1905_fragment_data, tvb,
                                 offset,
-                                tvb_reported_length_remaining(tvb, offset) - 1,
+                                tvb_reported_length_remaining(tvb, offset),
                                 ENC_NA);
+            next_offset = remaining_length;
         }
     }
 
-    if (next_tvb && tvb_reported_length_remaining(next_tvb, next_offset)) {
-        proto_item *pi = NULL;
+    proto_item_set_len(ti, offset + next_offset);
+    tvb_set_reported_length(tvb, offset + next_offset);
 
-        /* THis shouldn't happen ... */
-        pi = proto_tree_add_item(ieee1905_tree, hf_ieee1905_data, next_tvb,
-                                 next_offset, -1, ENC_NA);
-        expert_add_info(pinfo, pi, &ei_ieee1905_extraneous_data_after_eom);
-    }
-
-    return tvb_captured_length(tvb);
+    return offset + next_offset;
 }
 
 void
@@ -10689,11 +10694,6 @@ proto_register_ieee1905(void)
           { "Channel", "ieee1905.cac_termination.channel",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-        { &hf_ieee1905_cac_terminate_action,
-          { "CAC Termination Action", "ieee1905.cac_termination.action",
-            FT_UINT8, BASE_HEX | BASE_RANGE_STRING,
-            RVALS(cac_completion_action_vals), 0x0, NULL, HFILL }},
-
         { &hf_ieee1905_cac_completion_rep_radio_count,
           { "Number of radios",
             "ieee1905.cac_completion_report.number_of_radios",
@@ -10973,7 +10973,7 @@ proto_register_ieee1905(void)
           { "BSS Count", "ieee1905.bss_config_report.bss_count",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-        { &hs_ieee1902_bss_config_report_mac,
+        { &hf_ieee1902_bss_config_report_mac,
           { "Local Interface MAC addr",
             "ieee1905.bss_config_report.mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -11716,9 +11716,6 @@ proto_register_ieee1905(void)
           { "Extraneous TLV data", "ieee1905.extra_tlv_data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_data,
-          { "Extraneous message data", "ieee1905.data",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_ieee1905_fragments,
           { "IEEE1905 Message Fragments", "ieee1905.fragments",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -11961,10 +11958,6 @@ proto_register_ieee1905(void)
         { &ei_ieee1905_malformed_tlv,
           { "ieee1905.tlv.too_short", PI_PROTOCOL, PI_WARN,
             "TLV is too short", EXPFILL }},
-
-        { &ei_ieee1905_extraneous_data_after_eom,
-          { "ieee1905.tlv.extraneous_data", PI_PROTOCOL, PI_WARN,
-            "Extraneous data after EOM TLV", EXPFILL }},
 
         { &ei_ieee1905_extraneous_tlv_data,
           { "ieee1905.tlv.extra_data", PI_PROTOCOL, PI_WARN,
