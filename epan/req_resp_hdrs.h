@@ -13,6 +13,7 @@
 #define __REQ_RESP_HDRS_H__
 
 #include "ws_symbol_export.h"
+#include "wsutil/strtoi.h"
 
 /**
  * Optionally do reassembly of the request/response line, headers, and body.
@@ -57,12 +58,14 @@ starts_with_chunk_size(tvbuff_t* tvb, const int offset, packet_info* pinfo)
 	gchar* chunk_string = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
 	gchar* c = chunk_string;
 
-	/* ignore extensions */
-	if ((c = strchr(c, ';'))) {
+	/* ignore extensions, including optional BWS ("bad whitespace")
+         * in the grammar for historical reasons, see RFC 9112 7.1.1.
+         */
+	if ((c = strpbrk(c, "; \t"))) {
 		*c = '\0';
 	}
 
-	if (sscanf(chunk_string, "%x", &chunk_size) < 1) {
+        if (!ws_hexstrtou32(chunk_string, NULL, &chunk_size)) {
 		return FALSE; /* can not get chunk size*/
 	} else if (chunk_size > (1U << 31)) {
 		return FALSE; /* chunk size is unreasonable */

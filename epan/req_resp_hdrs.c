@@ -317,13 +317,14 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				c = chunk_string;
 
 				/*
-				 * We don't care about the extensions.
+				 * We don't care about the extensions (including optional
+				 * BWS, see RFC 9112 7.1.1)
 				 */
-				if ((c = strchr(c, ';'))) {
+				if ((c = strpbrk(c, "; \t"))) {
 					*c = '\0';
 				}
 
-				if (sscanf(chunk_string, "%x", &chunk_size) < 1) {
+				if (!ws_hexstrtou32(chunk_string, NULL, &chunk_size)) {
 					/* We couldn't get the chunk size,
 					 * so stop trying.
 					 */
