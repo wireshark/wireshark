@@ -158,7 +158,7 @@ CMakeLists.txt.user*
 .vagrant
 .vscode
 .idea
-*.swp
+*.sw?
 *~
 cscope.*
 tags
