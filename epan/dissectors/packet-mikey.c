@@ -1310,6 +1310,9 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 			if (hf == -1)
 				hf = 0;
 
+			if (hf_mikey_pl[hf] == 0)
+				return -1;
+
 			sub_ti = proto_tree_add_item(mikey_tree, hf_mikey_pl[hf], subtvb, 0, -1, ENC_NA);
 
 			mikey_payload_tree = proto_item_add_subtree(sub_ti, ett_mikey_payload);
