@@ -368,7 +368,41 @@ add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree, int t
 	} else
 		trailer_tvb = NULL;	/* no trailer */
 
-	add_ethernet_trailer(pinfo, tree, fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
+	/* XXX: If the length of next_tvb is less than it was before, but this
+	 * is not the first time the ethertype dissector has been called, we
+	 * would rather not add the trailer here, but instead also reduce the
+	 * length of tvb and have the previous ethertype dissector add the
+	 * trailer instead. That's the only way we can properly detect and
+	 * check the FCS in "maybefcs" mode (we need the full frame.)
+	 * It also would be less confusing because we would always just
+	 * use eth.trailer instead of sometimes e.g. vlan.trailer (#18252).
+	 *
+	 * It does require that the second time the ethertype dissector was
+	 * called that ethertype_data.payload_offset was set and the original
+	 * tvb used instead of creating a new subset tvb - in the latter case
+	 * tvb here is not the same as the next_tvb from the previous ethertype
+	 * dissector. That's not the case for ethertypes like 802.1AE MACSec
+	 * that add a trailer as well, where we likely took a subset to shave
+	 * off the trailer.
+	 *
+	 * We can't just "set the reported length of the backing tvbuff",
+	 * because the ultimately backing tvbuff might be something that
+	 * encapsulates the Ethernet frame, e.g. ISL or GSE Bridged Frames)
+	 *
+	 * To see if the ethertype dissector was called earlier from the entire
+	 * Ethernet frame, we can't just check if offset_after_etype != 14, as
+	 * it could be something that calls ethertype directly without having the
+	 * entire Ethernet frame somewhere (e.g. a Linux "cooked mode" capture
+	 * (packet-sll), or something set in the USER ENCAP UAT, etc.)
+	 * We also can't check pinfo->curr_proto_layer_num or proto_layers if
+	 * there are multiple entire Ethernet frames encapsulated in this
+	 * frame, e.g. a DVB BaseBand Frame with multiple GSE frames with
+	 * Bridge Frame encapsulation.
+	 *
+	 * We might need to add a new field to ethertype_data, or set
+	 * something in pinfo->pool scoped packet data.
+	 */
+	add_ethernet_trailer(pinfo, tree, fh_tree, trailer_id, tvb, trailer_tvb, fcs_len, offset_after_etype);
 }
 
 void

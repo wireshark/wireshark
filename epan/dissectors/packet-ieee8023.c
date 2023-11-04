@@ -110,7 +110,7 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
      is what we want, as it'll report that the packet was cut short. */
   trailer_tvb = tvb_new_subset_remaining(tvb, offset_after_length + length);
 
-  add_ethernet_trailer(pinfo, tree, fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
+  add_ethernet_trailer(pinfo, tree, fh_tree, trailer_id, tvb, trailer_tvb, fcs_len, offset_after_length);
 }
 
 void

@@ -18,6 +18,6 @@ typedef struct _eth_hdr {
 
 void add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 			  int trailer_id, tvbuff_t *tvb, tvbuff_t *trailer_tvb,
-			  int fcs_len);
+			  int fcs_len, int payload_offset);
 
 #endif

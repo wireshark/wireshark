@@ -622,7 +622,8 @@ static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len)
  */
 void
 add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
-    int trailer_id, tvbuff_t *tvb, tvbuff_t *trailer_tvb, int fcs_len)
+    int trailer_id, tvbuff_t *tvb, tvbuff_t *trailer_tvb, int fcs_len,
+    int payload_offset)
 {
   /* If there're some bytes left over, it could be a combination of:
      - padding to meet the minimum 64 byte frame length
@@ -648,17 +649,62 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     trailer_length = tvb_captured_length(trailer_tvb);
     trailer_reported_length = tvb_reported_length(trailer_tvb);
 
-    /* There couldn't be a padding if the length of the frame (including the trailer) is still
-       less than 60 bytes. */
-    maybe_padded = (pinfo->fd->pkt_len >= 60 && (pinfo->fd->pkt_len - trailer_reported_length) < 60);
+    /* Theoretically padding is added if the frame length without the FCS is
+     * less than 60 bytes, starting from the addresses. In practice, frames
+     * are often padded so that the length is 60 bytes not counting any tags
+     * before the final Ethertype. (I.e., padding so that the payload portion
+     * is 46.)
+     *
+     * Padding might be added to a frame at one point in a network, and then a
+     * tag or trailer added later without removing the padding. Conversely, a
+     * frame might have padding and a tag and trailer, and then the tag removed,
+     * dropping the frame below 60 octets, leading to more padding at the end,
+     * after the trailer. https://gitlab.com/wireshark/wireshark/-/wikis/PRP
+     * has useful illustrations of both situations. The heuristic trailer
+     * dissectors can try to deal with both situations (though looping through
+     * the trailer bytes increases false positives.)
+     *
+     * By increasing the minimum frame size (padding payload to 46) the former
+     * situation always occurs, and trailers appear at the end. IEEE Std
+     * 802.1Q-2014 G.2.1 "Treatment of PAD fields in IEEE 802.3 frames"
+     * and G.2.3 "Minimum PDU size" specifically state it is permissible for a
+     * Bridge to to adopt a minimum tagged frame length of 68 bytes (64 without
+     * FCS) when 802.1Q is used. Other specs don't directly address this, but
+     * we often see padding on frames that are more than 60 octets without FCS.
+     */
+    int frame_len;
+    if (eth_padding == PADDING_ANY) {
+      /* This is a size at which there definitely should be padding,
+       * which we use with PADDING_ANY to be conservative so we don't
+       * mark any possible trailer as padding. Fo certain cases (tags,
+       * trailers, especially encapsulation like ISL, GSE Bridged Frames)
+       * some padding will be classified as trailer.
+       */
+      frame_len = pinfo->fd->pkt_len;
+    } else {
+      /* This is the size up to which there might be padding, if padding
+       * was added before adding tags after the first ethertype.
+       * Use this if we're testing PADDING_ZERO, which is strict.
+       * Consecutive zeroes up to this point will be padding,
+       * anything starting with the first non-zero will be trailer.
+       */
+      frame_len = tvb_reported_length(tvb) + (14 - payload_offset);
+    }
+    maybe_padded = (frame_len >= 60 && (frame_len - trailer_reported_length) < 60);
 
     if (eth_padding != PADDING_NONE && maybe_padded) {
-      padding_length = 60 - (pinfo->fd->pkt_len - trailer_reported_length);
+      /* XXX: There could be another 4 bytes of padding if a Bridge extends
+       * the minimum frame size of 68 on untagged fraomes, see discussion
+       * above of IEEE 802.1Q Annex G. If we require padding to be zeros,
+       * we could possibly use 64 instead of 60. (Too many false positives
+       * with PADDING_ANY.)
+       */
+      padding_length = 60 - (frame_len - trailer_reported_length);
       /* Require padding to be zeros */
       if (eth_padding == PADDING_ZEROS) {
         for (guint i = 0; i < padding_length; i++) {
           if (tvb_get_gint8(trailer_tvb, i) != 0) {
-            padding_length = 0;
+            padding_length = i;
             break;
           }
         }
@@ -673,12 +719,29 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
       }
     }
 
+    int payload_length = tvb_reported_length(tvb) - payload_offset;
+    bool dissected = FALSE;
+
+    if (fcs_len != 4) {
+      /* Try trailer dissection without an FCS */
+      real_trailer_tvb = tvb_new_subset_remaining(trailer_tvb, padding_length);
+      /* Call all ethernet trailer dissectors to dissect the trailer if
+         we actually have a trailer. The PRP trailer dissector wants
+         to know about the payload (LSDU) length. */
+      if (tvb_reported_length(real_trailer_tvb) != 0) {
+        dissected = dissector_try_heuristic(eth_trailer_subdissector_list,
+                                            real_trailer_tvb, pinfo, tree,
+                                            &hdtbl_entry, &payload_length);
+      }
+    }
+
     if (fcs_len != 0) {
       /* If fcs_len is 4, we assume we definitely have an FCS.
-         Otherwise, then, if the frame is big enough that, if we
+         If fcs_len is -1, if the frame is big enough that, if we
          have a trailer, it probably includes an FCS, and we have
-         enough space in the trailer for the FCS, we assume we
-         have an FCS.
+         enough space in the trailer for the FCS, and we didn't
+         have a heuristic trailer dissector successfully dissect
+         without an FCS, we assume we have an FCS.
 
          "Big enough" means 64 bytes or more; any frame that big
          needs no trailer, as there's no need to pad an Ethernet
@@ -686,22 +749,13 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 
          XXX: This is not quite true. See IEEE Std 802.1Q-2014
          G.2.1 "Treatment of PAD fields in IEEE 802.3 frames" and
-         G.2.3 "Minimum PDU size." It is permissible for a Bridge
-         to adopt a minimum tagged frame length of 68 bytes (64
-         without counting FCS) to avoid having to remove up to 4
-         octets of padding when receiving an untagged padded IEEE
-         802.3 frame and adding tagging to it, it being easier to
-         add extra padding than to remove it. (Illustrated at
-         https://gitlab.com/wireshark/wireshark/-/wikis/PRP )
-         The same calculation with 4 more octets can apply to 802.1ad
-         QinQ. These cases are hard to deal with, though, especially
-         if PADDING_ANY is set.
+         G.2.3 "Minimum PDU size" and the discussion above.
 
          The trailer must be at least 4 bytes long to have enough
          space for an FCS. */
 
-      if (fcs_len == 4 || (tvb_reported_length(tvb) >= 64 &&
-        trailer_reported_length >= 4)) {
+      if (fcs_len == 4 || (fcs_len == -1 && !dissected &&
+        frame_len >= 64 && trailer_reported_length >= 4)) {
         /* Either we know we have an FCS, or we believe we have an FCS. */
         if (trailer_length < trailer_reported_length) {
           /* The packet is claimed to have enough data for a 4-byte FCS,
@@ -711,52 +765,48 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
              length; that will slice off what of the FCS, if any, is
              in the captured packet. */
           trailer_reported_length -= 4;
-          if (trailer_length > trailer_reported_length)
+          if (trailer_length > trailer_reported_length) {
+            payload_length -= (trailer_length - trailer_reported_length);
             trailer_length = trailer_reported_length;
+          }
           has_fcs = TRUE;
         } else {
           /* We captured all of the packet, including what appears to
              be a 4-byte FCS.  Slice it off. */
           trailer_length -= 4;
           trailer_reported_length -= 4;
+          payload_length -= 4;
           has_fcs = TRUE;
+        }
+
+        real_trailer_tvb = tvb_new_subset_length_caplen(trailer_tvb, padding_length,
+                                  trailer_length, trailer_reported_length);
+
+        /* Call all ethernet trailer dissectors to dissect the trailer if
+           we actually have a trailer.  */
+        if (tvb_reported_length(real_trailer_tvb) != 0) {
+          dissected = dissector_try_heuristic(eth_trailer_subdissector_list,
+                                              real_trailer_tvb, pinfo, tree,
+                                              &hdtbl_entry, &payload_length);
         }
       }
     }
 
-    /* Create a new tvb without the padding and/or the (assumed) fcs */
-    if (fcs_len==4)
-      real_trailer_tvb = tvb_new_subset_length_caplen(trailer_tvb, padding_length,
-                                trailer_length, trailer_reported_length);
-    else
-      real_trailer_tvb = tvb_new_subset_remaining(trailer_tvb, padding_length);
-
-    /* Call all ethernet trailer dissectors to dissect the trailer if
-       we actually have a trailer.  */
-    if (tvb_reported_length(real_trailer_tvb) != 0) {
-      if (dissector_try_heuristic(eth_trailer_subdissector_list,
-                                   real_trailer_tvb, pinfo, tree, &hdtbl_entry, NULL) ) {
-        /* If we're not sure that there is a FCS, all trailer data
-           has been given to the ethernet-trailer dissector, so
-           stop dissecting here */
-        if (fcs_len!=4)
-            return;
-      } else {
-        /* No luck with the trailer dissectors, so just display the
-           extra bytes as general trailer */
-        if (trailer_length != 0) {
-          tvb_ensure_bytes_exist(tvb, 0, trailer_length);
-          proto_item *pi = proto_tree_add_item(fh_tree, trailer_id, real_trailer_tvb, 0,
-            trailer_length, ENC_NA);
-          if (maybe_padded) {
-            if (eth_padding == PADDING_ANY && padding_length > 0) {
-              expert_add_info_format(pinfo, pi, &ei_eth_padding_bad,
-                  "Padding was assumed, and an undecoded trailer exists. Some of the trailer may have been consumed by padding.");
-            }
-            else if (eth_padding == PADDING_ZEROS && padding_length == 0) {
-              expert_add_info_format(pinfo, pi, &ei_eth_padding_bad,
-                  "Didn't find padding of zeros, and an undecoded trailer exists. There may be padding of non-zeros.");
-            }
+    if (!dissected) {
+      /* No luck with the trailer dissectors, so just display the
+         extra bytes as general trailer */
+      if (trailer_length != 0) {
+        tvb_ensure_bytes_exist(real_trailer_tvb, 0, trailer_length);
+        proto_item *pi = proto_tree_add_item(fh_tree, trailer_id, real_trailer_tvb, 0,
+          trailer_length, ENC_NA);
+        if (maybe_padded) {
+          if (eth_padding == PADDING_ANY && padding_length > 0) {
+            expert_add_info_format(pinfo, pi, &ei_eth_padding_bad,
+                "Padding was assumed, and an undecoded trailer exists. Some of the trailer may have been consumed by padding.");
+          }
+          else if (eth_padding == PADDING_ZEROS && padding_length == 0) {
+            expert_add_info_format(pinfo, pi, &ei_eth_padding_bad,
+                "Didn't find padding of zeros, and an undecoded trailer exists. There may be padding of non-zeros.");
           }
         }
       }
@@ -764,7 +814,11 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 
     if (has_fcs) {
       guint32 sent_fcs = tvb_get_ntohl(trailer_tvb, padding_length+trailer_length);
-      if(eth_check_fcs){
+      /* If we don't have the entire header, we can't actually check the FCS.
+       * Dissectors that don't have the entire header (say, a tag) probably
+       * should have set fcs_len to zero in the ethertype_data struct.
+       * XXX: Maybe add an expert info saying why we aren't checking the FCS? */
+      if (eth_check_fcs && payload_offset == ETH_HEADER_SIZE) {
         guint32 fcs = crc32_802_tvb(tvb, tvb_captured_length(tvb) - 4);
         proto_tree_add_checksum(fh_tree, trailer_tvb, padding_length+trailer_length, hf_eth_fcs, hf_eth_fcs_status, &ei_eth_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
@@ -831,7 +885,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     /* Now handle the ethernet trailer and optional FCS */
     next_tvb = tvb_new_subset_remaining(real_tvb, tvb_captured_length(real_tvb) - total_trailer_length);
     add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, real_tvb, next_tvb,
-                         fcs_len);
+                         fcs_len, ETH_HEADER_SIZE);
   } else {
     dissect_eth_common(real_tvb, pinfo, tree, fcs_len);
   }
