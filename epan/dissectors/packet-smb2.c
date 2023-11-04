@@ -287,6 +287,7 @@ static int hf_smb2_rdma_transform_reserved1 = -1;
 static int hf_smb2_rdma_transform_reserved2 = -1;
 static int hf_smb2_rdma_transform_id = -1;
 static int hf_smb2_posix_reserved = -1;
+static int hf_smb2_dev = -1;
 static int hf_smb2_inode = -1;
 static int hf_smb2_ea_size = -1;
 static int hf_smb2_ea_flags = -1;
@@ -5006,7 +5007,7 @@ static int dissect_smb2_posix_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	offset += 8;
 
 	/* dev id */
-	proto_tree_add_item(tree, hf_smb2_file_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb2_dev, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* zero */
@@ -12254,6 +12255,11 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_posix_reserved,
 			{ "POSIX Reserved", "smb2.negotiate_context.posix_reserved", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_dev,
+			{ "Device", "smb2.dev", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }
 		},
 
