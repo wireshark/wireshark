@@ -837,7 +837,7 @@ proto_register_iperf2(void)
             NULL, HEADER_L2LENCHECK, NULL, HFILL }
         },
         { &hf_iperf2_upper_header_noudpfin,
-            { "No UDP Fin", "iperf2.client.up_flags", FT_BOOLEAN, 16,
+            { "No UDP Fin", "iperf2.client.upper_header_noudpfin", FT_BOOLEAN, 16,
             NULL, HEADER_NOUDPFIN, NULL, HFILL }
         },
         { &hf_iperf2_upper_header_triptime,
