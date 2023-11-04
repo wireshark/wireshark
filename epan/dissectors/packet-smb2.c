@@ -4990,12 +4990,12 @@ static int dissect_smb2_posix_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	/* last change */
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
 
-	/* allocation size */
-	proto_tree_add_item(tree, hf_smb2_allocation_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-	offset += 8;
-
 	/* end of file */
 	proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	/* allocation size */
+	proto_tree_add_item(tree, hf_smb2_allocation_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	/* File Attributes */
