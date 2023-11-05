@@ -1459,8 +1459,30 @@ install_gmp() {
         $no_build && echo "Skipping installation" && return
         lzip -c -d gmp-$GMP_VERSION.tar.lz | tar xf - || exit 1
         cd gmp-$GMP_VERSION
+        #
         # Create a fat binary: https://gmplib.org/manual/Notes-for-Package-Builds.html
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-fat || exit 1
+        #
+        # According to
+        #
+        #   https://www.mail-archive.com/gmp-bugs@gmplib.org/msg01492.html
+        # 
+        # and other pages, the Shiny New Linker in Xcode 15 causes this
+        # build to fail with "ld: branch8 out of range 384833 in
+        # ___gmpn_add_nc_x86_64"; linking with -ld64 is a workaround.
+        #
+        # For now, link with -ld64 on Xcode 15 and later.
+        #
+        XCODE_VERSION=`xcodebuild -version | sed -n 's;Xcode \(.*\);\1;p'`
+        XCODE_MAJOR_VERSION="`expr $XCODE_VERSION : '\([0-9][0-9]*\).*'`"
+        XCODE_MINOR_VERSION="`expr $XCODE_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        XCODE_DOTDOT_VERSION="`expr $XCODE_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        if [ "$XCODE_MAJOR_VERSION" -ge 15 ]
+        then
+            LD64_FLAG="-ld64"
+        else
+            LD64_FLAG=""
+        fi
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS $LD64_FLAG" ./configure --enable-fat || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
