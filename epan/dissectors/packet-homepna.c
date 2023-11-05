@@ -123,6 +123,7 @@ dissect_homepna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         /* No next layer protocol. Set our length here so the previous
          * dissector can find any padding, trailer, and FCS.
          */
+        proto_item_set_len(ti, offset);
         set_actual_length(tvb, offset);
     } else {
         ethertype_data.etype = protocol;
