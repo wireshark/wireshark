@@ -108,8 +108,10 @@ FunctionIdentifier	[[:alpha:]_][[:alnum:]_]*
  * Some protocol names contain dots, e.g: _ws.expert
  * Protocol or protocol field cannot contain DOTDOT anywhere.
  */
-VarIdentifier		[[:alpha:]_][[:alnum:]_-]*
-ProtoFieldIdentifier	{VarIdentifier}(\.{VarIdentifier})*
+VarIdentifier1		[[:alpha:]_][[:alnum:]_-]*
+VarIdentifier2		[[:alnum:]_]+
+ProtocolName		{VarIdentifier1}|{VarIdentifier2}
+ProtoFieldIdentifier	{ProtocolName}(\.{ProtocolName})*
 
 hex2			[[:xdigit:]]{2}
 ColonMacAddress		{hex2}:{hex2}:{hex2}:{hex2}:{hex2}:{hex2}
