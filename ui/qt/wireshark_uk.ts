@@ -9860,254 +9860,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Analyze</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Reset Graph</source>
-        <translation type="vanished">Скинути Зміни До Графіку</translation>
-    </message>
-    <message>
-        <source>Reset the graph to its initial state.</source>
-        <translation type="vanished">Відновити початковий стан графіку.</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
-        <source>Zoom In</source>
-        <translation type="vanished">Наблизити</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation type="vanished">+</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation type="vanished">Віддалити</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
-        <source>Move Up 10 Pixels</source>
-        <translation type="vanished">Переміститися Вгору На 10 Пікселів</translation>
-    </message>
-    <message>
-        <source>Up</source>
-        <translation type="vanished">Вгору</translation>
-    </message>
-    <message>
-        <source>Move Left 10 Pixels</source>
-        <translation type="vanished">Переміститися Вліво На 10 Пікселів</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Вліво</translation>
-    </message>
-    <message>
-        <source>Move Right 10 Pixels</source>
-        <translation type="vanished">Переміститися Вправо На 10 Пікселів</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">Вправо</translation>
-    </message>
-    <message>
-        <source>Move Down 10 Pixels</source>
-        <translation type="vanished">Переміститися Вниз На 10 Пікселів</translation>
-    </message>
-    <message>
-        <source>Down</source>
-        <translation type="vanished">Вниз</translation>
-    </message>
-    <message>
-        <source>Move Up 1 Pixel</source>
-        <translation type="vanished">Переміститися Вгору На 1 Піксель</translation>
-    </message>
-    <message>
-        <source>Shift+Up</source>
-        <translation type="vanished">Shift+Вгору</translation>
-    </message>
-    <message>
-        <source>Move Left 1 Pixel</source>
-        <translation type="vanished">Переміститися Вліво На 1 Піксель</translation>
-    </message>
-    <message>
-        <source>Shift+Left</source>
-        <translation type="vanished">Shift+Вліво</translation>
-    </message>
-    <message>
-        <source>Move Right 1 Pixel</source>
-        <translation type="vanished">Переміститися Вправо На 1 Піксель</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Shift+Вправо</translation>
-    </message>
-    <message>
-        <source>Move Down 1 Pixel</source>
-        <translation type="vanished">Переміститися Вниз На 1 Піксель</translation>
-    </message>
-    <message>
-        <source>Shift+Down</source>
-        <translation type="vanished">Shift+Вниз</translation>
-    </message>
-    <message>
-        <source>Next Stream</source>
-        <translation type="vanished">Наступний Потік</translation>
-    </message>
-    <message>
-        <source>Go to the next stream in the capture</source>
-        <translation type="vanished">Перейти до наступного захопленого потоку</translation>
-    </message>
-    <message>
-        <source>PgUp</source>
-        <translation type="vanished">PgUp</translation>
-    </message>
-    <message>
-        <source>Previous Stream</source>
-        <translation type="vanished">Попередній Потік</translation>
-    </message>
-    <message>
-        <source>Go to the previous stream in the capture</source>
-        <translation type="vanished">Перейти до попереднього захопленого потоку</translation>
-    </message>
-    <message>
-        <source>PgDown</source>
-        <translation type="vanished">PgDown</translation>
-    </message>
-    <message>
-        <source>Switch Direction</source>
-        <translation type="vanished">Змінити Напрямок</translation>
-    </message>
-    <message>
-        <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="vanished">Змінити напрямок (поміняти місцями кінцеві точки TCP)</translation>
-    </message>
-    <message>
-        <source>D</source>
-        <translation type="vanished">D</translation>
-    </message>
-    <message>
-        <source>Go To Packet Under Cursor</source>
-        <translation type="vanished">Перейти До Пакету Під Курсором</translation>
-    </message>
-    <message>
-        <source>Go to packet currently under the cursor</source>
-        <translation type="vanished">Перейти до пакету, що в даний момент знаходиться під курсором</translation>
-    </message>
-    <message>
-        <source>G</source>
-        <translation type="vanished">G</translation>
-    </message>
-    <message>
-        <source>Drag / Zoom</source>
-        <translation type="vanished">Перетягування / Масштабування</translation>
-    </message>
-    <message>
-        <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="vanished">Встановити для миші поведінку перетягування / масштабування</translation>
-    </message>
-    <message>
-        <source>Z</source>
-        <translation type="vanished">Z</translation>
-    </message>
-    <message>
-        <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="vanished">Відносні / Абсолютні Порядкові Номери</translation>
-    </message>
-    <message>
-        <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="vanished">Встановити відносні / абсолютні порядкові номери</translation>
-    </message>
-    <message>
-        <source>S</source>
-        <translation type="vanished">S</translation>
-    </message>
-    <message>
-        <source>Capture / Session Time Origin</source>
-        <translation type="vanished">Час Початку Захоплення / Сесії</translation>
-    </message>
-    <message>
-        <source>Toggle capture / session time origin</source>
-        <translation type="vanished">Встановити початок часу захоплення / сесії</translation>
-    </message>
-    <message>
-        <source>T</source>
-        <translation type="vanished">T</translation>
-    </message>
-    <message>
-        <source>Crosshairs</source>
-        <translation type="vanished">Перехрестя</translation>
-    </message>
-    <message>
-        <source>Toggle crosshairs</source>
-        <translation type="vanished">Показати / приховати перехрестя</translation>
-    </message>
-    <message>
-        <source>Space</source>
-        <translation type="vanished">Прогалина</translation>
-    </message>
-    <message>
-        <source>Round Trip Time</source>
-        <translation type="vanished">Час Обороту</translation>
-    </message>
-    <message>
-        <source>Switch to the Round Trip Time graph</source>
-        <translation type="vanished">Переключитися на графік Часу Обороту</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="vanished">1</translation>
-    </message>
-    <message>
-        <source>Throughput</source>
-        <translation type="vanished">Пропускна Здатність</translation>
-    </message>
-    <message>
-        <source>Switch to the Throughput graph</source>
-        <translation type="vanished">Переключитися на графік Пропускної Здатності</translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="vanished">2</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (Stevens)</source>
-        <translation type="vanished">Час / Послідовність (Стівенс)</translation>
-    </message>
-    <message>
-        <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="vanished">Переключитися на графік Часу / Послідовності (версія Стівенса)</translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="vanished">3</translation>
-    </message>
-    <message>
-        <source>Window Scaling</source>
-        <translation type="vanished">Масштабування Вікна</translation>
-    </message>
-    <message>
-        <source>Switch to the Window Scaling graph</source>
-        <translation type="vanished">Переключитися на графік Масштабування Вікна</translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="vanished">5</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (tcptrace)</source>
-        <translation type="vanished">Час / Послідовність (tcptrace)</translation>
-    </message>
-    <message>
-        <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="vanished">Переключитися на графік Часу / Послідовності (tcptrace)</translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="vanished">4</translation>
-    </message>
 </context>
 <context>
     <name>SCTPAssocAnalyseDialog</name>
@@ -10310,10 +10062,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Відновити до повного розміру</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Save Graph</source>
         <translation>Зберегти графік</translation>
     </message>
@@ -10359,10 +10107,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Reset to full size</source>
         <translation type="unfinished">Відновити до повного розміру</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10511,11 +10255,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser file path</source>
+        <source>Application path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run your web browser with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13854,7 +13598,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser (SSL Keylog)</source>
+        <source>SSL Keylog Launcher</source>
+        <oldsource>Browser (SSL Keylog)</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14277,10 +14026,6 @@ a:hover {
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

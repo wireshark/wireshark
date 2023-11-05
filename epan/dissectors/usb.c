@@ -7953,6 +7953,7 @@ static const value_string usb_products_vals[] = {
     { 0x04a932f7, "Canon EOS R7" },
     { 0x04a932f8, "Canon EOS R10" },
     { 0x04a932f9, "Canon EOS M50m2" },
+    { 0x04a932fc, "Canon EOS R3" },
     { 0x04a93302, "SELPHY CP1500" },
     { 0x04a93303, "Canon EOS R5 C" },
     { 0x04a9330b, "Canon EOS R6m2" },

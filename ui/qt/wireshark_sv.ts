@@ -9905,254 +9905,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Analyze</source>
         <translation>Analysera</translation>
     </message>
-    <message>
-        <source>Reset Graph</source>
-        <translation type="vanished">Återställ grafen</translation>
-    </message>
-    <message>
-        <source>Reset the graph to its initial state.</source>
-        <translation type="vanished">Återställ grafen till sitt ursprungstillstånd.</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
-        <source>Zoom In</source>
-        <translation type="vanished">Zooma in</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation type="vanished">+</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation type="vanished">Zooma ut</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
-        <source>Move Up 10 Pixels</source>
-        <translation type="vanished">Flytta uppåt 10 bildpunkter</translation>
-    </message>
-    <message>
-        <source>Up</source>
-        <translation type="vanished">Upp</translation>
-    </message>
-    <message>
-        <source>Move Left 10 Pixels</source>
-        <translation type="vanished">Flytta åt vänster 10 bildpunkter</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Vänster</translation>
-    </message>
-    <message>
-        <source>Move Right 10 Pixels</source>
-        <translation type="vanished">Flytta åt höger 10 bildpunkter</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">Höger</translation>
-    </message>
-    <message>
-        <source>Move Down 10 Pixels</source>
-        <translation type="vanished">Flytta nedåt 10 bildpunkter</translation>
-    </message>
-    <message>
-        <source>Down</source>
-        <translation type="vanished">Ned</translation>
-    </message>
-    <message>
-        <source>Move Up 1 Pixel</source>
-        <translation type="vanished">Flytta upp 1 bildpunkt</translation>
-    </message>
-    <message>
-        <source>Shift+Up</source>
-        <translation type="vanished">Skift+upp</translation>
-    </message>
-    <message>
-        <source>Move Left 1 Pixel</source>
-        <translation type="vanished">Flytta åt vänster 1 bildpunkt</translation>
-    </message>
-    <message>
-        <source>Shift+Left</source>
-        <translation type="vanished">Skift+vänster</translation>
-    </message>
-    <message>
-        <source>Move Right 1 Pixel</source>
-        <translation type="vanished">Flytta åt höger 1 bildpunkt</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Skift+höger</translation>
-    </message>
-    <message>
-        <source>Move Down 1 Pixel</source>
-        <translation type="vanished">Flytta nedåt 1 bildpunkt</translation>
-    </message>
-    <message>
-        <source>Shift+Down</source>
-        <translation type="vanished">Skift+ned</translation>
-    </message>
-    <message>
-        <source>Next Stream</source>
-        <translation type="vanished">Nästa ström</translation>
-    </message>
-    <message>
-        <source>Go to the next stream in the capture</source>
-        <translation type="vanished">Gå till nästa ström i fångsten</translation>
-    </message>
-    <message>
-        <source>PgUp</source>
-        <translation type="vanished">Sida upp</translation>
-    </message>
-    <message>
-        <source>Previous Stream</source>
-        <translation type="vanished">Föregående ström</translation>
-    </message>
-    <message>
-        <source>Go to the previous stream in the capture</source>
-        <translation type="vanished">Gå till föregående ström i fångsten</translation>
-    </message>
-    <message>
-        <source>PgDown</source>
-        <translation type="vanished">Sida ned</translation>
-    </message>
-    <message>
-        <source>Switch Direction</source>
-        <translation type="vanished">Byt riktning</translation>
-    </message>
-    <message>
-        <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="vanished">Byt riktning (växla TCP-ändpunkter)</translation>
-    </message>
-    <message>
-        <source>D</source>
-        <translation type="vanished">D</translation>
-    </message>
-    <message>
-        <source>Go To Packet Under Cursor</source>
-        <translation type="vanished">Gå till paketet under markören</translation>
-    </message>
-    <message>
-        <source>Go to packet currently under the cursor</source>
-        <translation type="vanished">Gå till paketet som just nu är under markören</translation>
-    </message>
-    <message>
-        <source>G</source>
-        <translation type="vanished">G</translation>
-    </message>
-    <message>
-        <source>Drag / Zoom</source>
-        <translation type="vanished">Dra/zooma</translation>
-    </message>
-    <message>
-        <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="vanished">Växla musbeteende mellan dra/zooma</translation>
-    </message>
-    <message>
-        <source>Z</source>
-        <translation type="vanished">Z</translation>
-    </message>
-    <message>
-        <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="vanished">Relativa/absoluta sekvensnummer</translation>
-    </message>
-    <message>
-        <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="vanished">Byt mellan relativa/absoluta sekvensnummer</translation>
-    </message>
-    <message>
-        <source>S</source>
-        <translation type="vanished">S</translation>
-    </message>
-    <message>
-        <source>Capture / Session Time Origin</source>
-        <translation type="vanished">Ursprungstid för fångst/session</translation>
-    </message>
-    <message>
-        <source>Toggle capture / session time origin</source>
-        <translation type="vanished">Växla mellan fångst/session som ursprungstid</translation>
-    </message>
-    <message>
-        <source>T</source>
-        <translation type="vanished">T</translation>
-    </message>
-    <message>
-        <source>Crosshairs</source>
-        <translation type="vanished">Hårkors</translation>
-    </message>
-    <message>
-        <source>Toggle crosshairs</source>
-        <translation type="vanished">Byt hårkors</translation>
-    </message>
-    <message>
-        <source>Space</source>
-        <translation type="vanished">Mellanslag</translation>
-    </message>
-    <message>
-        <source>Round Trip Time</source>
-        <translation type="vanished">Rundturstid</translation>
-    </message>
-    <message>
-        <source>Switch to the Round Trip Time graph</source>
-        <translation type="vanished">Byt till grafen för rundturstid</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="vanished">1</translation>
-    </message>
-    <message>
-        <source>Throughput</source>
-        <translation type="vanished">Genomströmning</translation>
-    </message>
-    <message>
-        <source>Switch to the Throughput graph</source>
-        <translation type="vanished">Byt till grafen för genomströmning</translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="vanished">2</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (Stevens)</source>
-        <translation type="vanished">Tid/sekvens (Stevens)</translation>
-    </message>
-    <message>
-        <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="vanished">Byt till grafen för tid/sekvens i Stevens stil</translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="vanished">3</translation>
-    </message>
-    <message>
-        <source>Window Scaling</source>
-        <translation type="vanished">Fönsterskalning</translation>
-    </message>
-    <message>
-        <source>Switch to the Window Scaling graph</source>
-        <translation type="vanished">Byt till grafen för fönsterskalning</translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="vanished">5</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (tcptrace)</source>
-        <translation type="vanished">Tid/sekvens (tcptrace)</translation>
-    </message>
-    <message>
-        <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="vanished">Byt till grafen för tid/sekvens i tcptraces stil</translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="vanished">4</translation>
-    </message>
 </context>
 <context>
     <name>SCTPAssocAnalyseDialog</name>
@@ -10177,10 +9929,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Filterassociation</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="vanished">Stäng</translation>
-    </message>
-    <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
         <translation>Antal datastycken från EP2 till EP1:</translation>
     </message>
@@ -10199,10 +9947,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Number of Data Bytes from EP2 to EP1: </source>
         <translation>Antal databyte från EP2 till EP1:</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">TextEtikett</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -10363,10 +10107,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Återställ till full storlek</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Save Graph</source>
         <translation>Spara grafen</translation>
     </message>
@@ -10412,10 +10152,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Reset to full size</source>
         <translation>Återställ till full storlek</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10564,11 +10300,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser file path</source>
+        <source>Application path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run your web browser with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13964,7 +13700,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser (SSL Keylog)</source>
+        <source>SSL Keylog Launcher</source>
+        <oldsource>Browser (SSL Keylog)</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14388,10 +14129,6 @@ a:hover {
     <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Gå till paketet refererat av det valda fältet.</translation>
-    </message>
-    <message>
-        <source>Release Notes</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>

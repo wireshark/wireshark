@@ -9914,254 +9914,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Analyze</source>
         <translation>Analizuj</translation>
     </message>
-    <message>
-        <source>Reset Graph</source>
-        <translation type="vanished">Resetuj wykres</translation>
-    </message>
-    <message>
-        <source>Reset the graph to its initial state.</source>
-        <translation type="vanished">Resetuj wykres do stanu początkowego.</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
-        <source>Zoom In</source>
-        <translation type="vanished">Powiększ</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation type="vanished">+</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation type="vanished">Pomniejsz</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
-        <source>Move Up 10 Pixels</source>
-        <translation type="vanished">Przesuń w górę o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Up</source>
-        <translation type="vanished">W górę</translation>
-    </message>
-    <message>
-        <source>Move Left 10 Pixels</source>
-        <translation type="vanished">Przesuń w lewo o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">W lewo</translation>
-    </message>
-    <message>
-        <source>Move Right 10 Pixels</source>
-        <translation type="vanished">Przesuń w prawo o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">W prawo</translation>
-    </message>
-    <message>
-        <source>Move Down 10 Pixels</source>
-        <translation type="vanished">Przesuń w dół o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Down</source>
-        <translation type="vanished">W dół</translation>
-    </message>
-    <message>
-        <source>Move Up 1 Pixel</source>
-        <translation type="vanished">Przesuń w górę o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Shift+Up</source>
-        <translation type="vanished">Shift+w górę</translation>
-    </message>
-    <message>
-        <source>Move Left 1 Pixel</source>
-        <translation type="vanished">Przesuń w lewo o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Shift+Left</source>
-        <translation type="vanished">Shift+w lewo</translation>
-    </message>
-    <message>
-        <source>Move Right 1 Pixel</source>
-        <translation type="vanished">Przesuń w prawo o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Shift+w prawo</translation>
-    </message>
-    <message>
-        <source>Move Down 1 Pixel</source>
-        <translation type="vanished">Przesuń w dół o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Shift+Down</source>
-        <translation type="vanished">Shift+w dół</translation>
-    </message>
-    <message>
-        <source>Next Stream</source>
-        <translation type="vanished">Następny strumień</translation>
-    </message>
-    <message>
-        <source>Go to the next stream in the capture</source>
-        <translation type="vanished">Idź do następnego strumienia</translation>
-    </message>
-    <message>
-        <source>PgUp</source>
-        <translation type="vanished">PgUp</translation>
-    </message>
-    <message>
-        <source>Previous Stream</source>
-        <translation type="vanished">Poprzedni strumień</translation>
-    </message>
-    <message>
-        <source>Go to the previous stream in the capture</source>
-        <translation type="vanished">Idź do poprzedniego strumienia</translation>
-    </message>
-    <message>
-        <source>PgDown</source>
-        <translation type="vanished">PgDown</translation>
-    </message>
-    <message>
-        <source>Switch Direction</source>
-        <translation type="vanished">Odwróć kierunek</translation>
-    </message>
-    <message>
-        <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="vanished">Odwróć kierunk (zamień punkty krańcowe TCP)</translation>
-    </message>
-    <message>
-        <source>D</source>
-        <translation type="vanished">D</translation>
-    </message>
-    <message>
-        <source>Go To Packet Under Cursor</source>
-        <translation type="vanished">Idź do pakietu pod kursorem</translation>
-    </message>
-    <message>
-        <source>Go to packet currently under the cursor</source>
-        <translation type="vanished">Idź do pakietu pod kursorem</translation>
-    </message>
-    <message>
-        <source>G</source>
-        <translation type="vanished">G</translation>
-    </message>
-    <message>
-        <source>Drag / Zoom</source>
-        <translation type="vanished">Przeciągnij / Powiększ/pomniejsz</translation>
-    </message>
-    <message>
-        <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="vanished">Przełącz mysz pomiędzy funkcją przeciągnięcia a powiększenia/pomniejszenia</translation>
-    </message>
-    <message>
-        <source>Z</source>
-        <translation type="vanished">Z</translation>
-    </message>
-    <message>
-        <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="vanished">Relatywne/Absolutne numery sekwencyjne</translation>
-    </message>
-    <message>
-        <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="vanished">Przałącz pomiędzy relatywnymi a absolutnymi numerami sekwencyjnymi</translation>
-    </message>
-    <message>
-        <source>S</source>
-        <translation type="vanished">S</translation>
-    </message>
-    <message>
-        <source>Capture / Session Time Origin</source>
-        <translation type="vanished">Czas sesji / przechwytywania</translation>
-    </message>
-    <message>
-        <source>Toggle capture / session time origin</source>
-        <translation type="vanished">Przełącz między czasem przechwytywania a sesji</translation>
-    </message>
-    <message>
-        <source>T</source>
-        <translation type="vanished">T</translation>
-    </message>
-    <message>
-        <source>Crosshairs</source>
-        <translation type="vanished">Wskaźniki</translation>
-    </message>
-    <message>
-        <source>Toggle crosshairs</source>
-        <translation type="vanished">Przełącz wskaźnik wykresu</translation>
-    </message>
-    <message>
-        <source>Space</source>
-        <translation type="vanished">Spacja</translation>
-    </message>
-    <message>
-        <source>Round Trip Time</source>
-        <translation type="vanished">Czas podróży</translation>
-    </message>
-    <message>
-        <source>Switch to the Round Trip Time graph</source>
-        <translation type="vanished">Przełącz do wykresu czasu podróży</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="vanished">1</translation>
-    </message>
-    <message>
-        <source>Throughput</source>
-        <translation type="vanished">Przepustowość</translation>
-    </message>
-    <message>
-        <source>Switch to the Throughput graph</source>
-        <translation type="vanished">Przełącz do wykres przepustowości</translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="vanished">2</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (Stevens)</source>
-        <translation type="vanished">Czas / Sekwencja (Stevens)</translation>
-    </message>
-    <message>
-        <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="vanished">Przełącz do wykres czasu/sekwencji Stevensa</translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="vanished">3</translation>
-    </message>
-    <message>
-        <source>Window Scaling</source>
-        <translation type="vanished">Okno skalowania</translation>
-    </message>
-    <message>
-        <source>Switch to the Window Scaling graph</source>
-        <translation type="vanished">Przełącz do wykresu okna skalowania</translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="vanished">5</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (tcptrace)</source>
-        <translation type="vanished">Czas / Sekwencja (tcptrace)</translation>
-    </message>
-    <message>
-        <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="vanished">Przełącz do wykresu w stylu czasu/sekwencji programu tcptrace</translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="vanished">4</translation>
-    </message>
 </context>
 <context>
     <name>SCTPAssocAnalyseDialog</name>
@@ -10186,10 +9938,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Filtr asocjacji</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="vanished">Zamknij</translation>
-    </message>
-    <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
         <translation>Liczba kawałków danych od PK2 do PK1: </translation>
     </message>
@@ -10208,10 +9956,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Number of Data Bytes from EP2 to EP1: </source>
         <translation>Liczba bajtów danych od PK2 do PK1: </translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">TekstEtykiety</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -10372,10 +10116,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Resetuj do pełnego rozmiaru</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Save Graph</source>
         <translation>Zapisz wykres</translation>
     </message>
@@ -10421,10 +10161,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Reset to full size</source>
         <translation>Resetuj do pełnego rozmiaru</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10573,11 +10309,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser file path</source>
+        <source>Application path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run your web browser with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13973,7 +13709,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser (SSL Keylog)</source>
+        <source>SSL Keylog Launcher</source>
+        <oldsource>Browser (SSL Keylog)</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14397,10 +14138,6 @@ a:hover {
     <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Idź do pakietu do którego odwołuje się zaznaczone pole.</translation>
-    </message>
-    <message>
-        <source>Release Notes</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>

@@ -9885,254 +9885,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Analyze</source>
         <translation>Analiz</translation>
     </message>
-    <message>
-        <source>Reset Graph</source>
-        <translation type="vanished">Grafiği Sıfırla</translation>
-    </message>
-    <message>
-        <source>Reset the graph to its initial state.</source>
-        <translation type="vanished">Grafiği ilk durumuna sıfırlayın.</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
-        <source>Zoom In</source>
-        <translation type="vanished">Yakınlaş</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation type="vanished">+</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation type="vanished">Uzaklaş</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
-        <source>Move Up 10 Pixels</source>
-        <translation type="vanished">10 Piksel Yukarı Taşı</translation>
-    </message>
-    <message>
-        <source>Up</source>
-        <translation type="vanished">Üst</translation>
-    </message>
-    <message>
-        <source>Move Left 10 Pixels</source>
-        <translation type="vanished">10 Piksel Sola Taşı</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Sol</translation>
-    </message>
-    <message>
-        <source>Move Right 10 Pixels</source>
-        <translation type="vanished">10 Piksel Sağa Taşı</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">Sağa</translation>
-    </message>
-    <message>
-        <source>Move Down 10 Pixels</source>
-        <translation type="vanished">10 Piksel Aşağı Taşı</translation>
-    </message>
-    <message>
-        <source>Down</source>
-        <translation type="vanished">Aşağı</translation>
-    </message>
-    <message>
-        <source>Move Up 1 Pixel</source>
-        <translation type="vanished">1 Piksel Yukarı Taşı</translation>
-    </message>
-    <message>
-        <source>Shift+Up</source>
-        <translation type="vanished">Shift+Yukarı</translation>
-    </message>
-    <message>
-        <source>Move Left 1 Pixel</source>
-        <translation type="vanished">Sola 1 Piksel Taşı</translation>
-    </message>
-    <message>
-        <source>Shift+Left</source>
-        <translation type="vanished">Shift+Sol</translation>
-    </message>
-    <message>
-        <source>Move Right 1 Pixel</source>
-        <translation type="vanished">1 Piksel Sağa Taşı</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Shift+Sağ</translation>
-    </message>
-    <message>
-        <source>Move Down 1 Pixel</source>
-        <translation type="vanished">1 Piksel Aşağı Taşı</translation>
-    </message>
-    <message>
-        <source>Shift+Down</source>
-        <translation type="vanished">Shift+Aşağı</translation>
-    </message>
-    <message>
-        <source>Next Stream</source>
-        <translation type="vanished">Sonraki Akış</translation>
-    </message>
-    <message>
-        <source>Go to the next stream in the capture</source>
-        <translation type="vanished">Yakalamadaki sonraki akışa git</translation>
-    </message>
-    <message>
-        <source>PgUp</source>
-        <translation type="vanished">Sayfa yukarı</translation>
-    </message>
-    <message>
-        <source>Previous Stream</source>
-        <translation type="vanished">Önceki Akış</translation>
-    </message>
-    <message>
-        <source>Go to the previous stream in the capture</source>
-        <translation type="vanished">Yakalamada önceki akışa git</translation>
-    </message>
-    <message>
-        <source>PgDown</source>
-        <translation type="vanished">Sayfa aşağı</translation>
-    </message>
-    <message>
-        <source>Switch Direction</source>
-        <translation type="vanished">Yön Değiştir</translation>
-    </message>
-    <message>
-        <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="vanished">Yön değiştir (TCP uç noktalarını değiştir)</translation>
-    </message>
-    <message>
-        <source>D</source>
-        <translation type="vanished">D</translation>
-    </message>
-    <message>
-        <source>Go To Packet Under Cursor</source>
-        <translation type="vanished">İmleç Altındaki Pakete Git</translation>
-    </message>
-    <message>
-        <source>Go to packet currently under the cursor</source>
-        <translation type="vanished">İmlecin altındaki pakete git</translation>
-    </message>
-    <message>
-        <source>G</source>
-        <translation type="vanished">G</translation>
-    </message>
-    <message>
-        <source>Drag / Zoom</source>
-        <translation type="vanished">Sürükle / Yakınlaştır</translation>
-    </message>
-    <message>
-        <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="vanished">Fare sürükle / yakınlaştırma davranışını değiştir</translation>
-    </message>
-    <message>
-        <source>Z</source>
-        <translation type="vanished">Z</translation>
-    </message>
-    <message>
-        <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="vanished">Bağıl / Mutlak Sıra Numaraları</translation>
-    </message>
-    <message>
-        <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="vanished">Göreceli / mutlak sıra numaralarını değiştir</translation>
-    </message>
-    <message>
-        <source>S</source>
-        <translation type="vanished">S</translation>
-    </message>
-    <message>
-        <source>Capture / Session Time Origin</source>
-        <translation type="vanished">Yakalama / Oturum Süresi Menşei</translation>
-    </message>
-    <message>
-        <source>Toggle capture / session time origin</source>
-        <translation type="vanished">Yakalama / oturum zamanı kaynağını aç/kapat</translation>
-    </message>
-    <message>
-        <source>T</source>
-        <translation type="vanished">T</translation>
-    </message>
-    <message>
-        <source>Crosshairs</source>
-        <translation type="vanished">Artılar</translation>
-    </message>
-    <message>
-        <source>Toggle crosshairs</source>
-        <translation type="vanished">Artı işaretlerini aç/kapat</translation>
-    </message>
-    <message>
-        <source>Space</source>
-        <translation type="vanished">Boşluk</translation>
-    </message>
-    <message>
-        <source>Round Trip Time</source>
-        <translation type="vanished">Gidiş-dönüş süresi</translation>
-    </message>
-    <message>
-        <source>Switch to the Round Trip Time graph</source>
-        <translation type="vanished">Gidiş-Dönüş Süresi grafiğine geçin</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="vanished">1</translation>
-    </message>
-    <message>
-        <source>Throughput</source>
-        <translation type="vanished">Verim</translation>
-    </message>
-    <message>
-        <source>Switch to the Throughput graph</source>
-        <translation type="vanished">Verim grafiğine geç</translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="vanished">2</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (Stevens)</source>
-        <translation type="vanished">Zaman / Sıra (Stevens)</translation>
-    </message>
-    <message>
-        <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="vanished">Stevens tarzı Zaman / Sıra grafiğine geçin</translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="vanished">3</translation>
-    </message>
-    <message>
-        <source>Window Scaling</source>
-        <translation type="vanished">Pencere Ölçekleme</translation>
-    </message>
-    <message>
-        <source>Switch to the Window Scaling graph</source>
-        <translation type="vanished">Pencere Ölçekleme grafiğine geç</translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="vanished">5</translation>
-    </message>
-    <message>
-        <source>Time / Sequence (tcptrace)</source>
-        <translation type="vanished">Zaman / Sıra (tcpizi)</translation>
-    </message>
-    <message>
-        <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="vanished">TCP izleme stili Zaman / Sıra grafiğine geçin</translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="vanished">4</translation>
-    </message>
 </context>
 <context>
     <name>SCTPAssocAnalyseDialog</name>
@@ -10157,10 +9909,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Filtre İlişkilendirme</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="vanished">Kapat</translation>
-    </message>
-    <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
         <translation>EP2&apos;den EP1&apos;e Veri Parçası Sayısı: </translation>
     </message>
@@ -10179,10 +9927,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Number of Data Bytes from EP2 to EP1: </source>
         <translation>EP2&apos;den EP1&apos;e Veri Baytları Sayısı: </translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">Metin Etiketi</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -10343,10 +10087,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Tam boyuta sıfırla</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Save Graph</source>
         <translation>Grafiği Kaydet</translation>
     </message>
@@ -10392,10 +10132,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Reset to full size</source>
         <translation>Tam boyuta sıfırla</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10544,11 +10280,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser file path</source>
+        <source>Application path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run your web browser with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13981,7 +13717,12 @@ a:üzerine gelin{
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser (SSL Keylog)</source>
+        <source>SSL Keylog Launcher</source>
+        <oldsource>Browser (SSL Keylog)</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14405,10 +14146,6 @@ a:üzerine gelin{
     <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Seçili alan tarafından başvurulan pakete gidin.</translation>
-    </message>
-    <message>
-        <source>Release Notes</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
