@@ -14615,7 +14615,7 @@ a:hover {
     </message>
     <message>
         <source> before updating</source>
-        <translation type="unfinished"></translation>
+        <translation>更新前</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
