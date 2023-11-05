@@ -113,7 +113,6 @@ static int hf_avsp_tgen_hdr_seq_num = -1;
 static int hf_avsp_tgen_hdr_payload_len = -1;
 static int hf_avsp_tgen_payload = -1;
 static int hf_avsp_tgen_payload_data = -1;
-static int hf_avsp_tgen_trailer = -1;
 
 static int* const avsp_tgen_ctrl[] = {
     &hf_avsp_tgen_hdr_ctrl_fcs_inverted,
@@ -156,7 +155,6 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     const char* str;
 
     tvbuff_t* volatile tgen_payload_tvb = NULL;
-    tvbuff_t* volatile trailer_tvb = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVSP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -304,26 +302,16 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
 
             TRY {
                 tgen_payload_tvb = tvb_new_subset_length(tvb, offset, tgen_payload_len);
-                trailer_tvb = tvb_new_subset_remaining(tvb, offset + tgen_payload_len);
             }
                 CATCH_BOUNDS_ERRORS {
-                /* Either:
-
+                /* So:
                     the packet doesn't have "tgen_payload_len" bytes worth of
                     captured data left in it so the "tvb_new_subset_length()"
                     creating "payload_tvb" threw an exception
 
-                    or
-
-                    the packet has exactly "tgen_payload_len" bytes worth of
-                    captured data left in it, so the "tvb_new_subset_remaining()"
-                    creating "trailer_tvb" threw an exception.
-
-                    In either case, this means that all the data in the frame
-                    is within the length value, so we give all the data to the
-                    payload and have no trailer. */
+                    This means that all the data in the frame is within the
+                    length value, so we give all the data to the payload. */
                 tgen_payload_tvb = tvb_new_subset_remaining(tvb, offset);
-                trailer_tvb = NULL;
             }
             ENDTRY;
 
@@ -332,8 +320,8 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
 
             /* Add the TGen payload to the tree, with a heading that displays
                the TGgen payload captured length. */
-            ti = proto_tree_add_bytes_format(avsp_tree, hf_avsp_tgen_payload_data,
-                tgen_payload_tvb, 0, -1, NULL, "TGen Payload (%u byte%s)",
+            ti = proto_tree_add_none_format(avsp_tree, hf_avsp_tgen_payload,
+                tgen_payload_tvb, 0, -1, "TGen Payload (%u byte%s)",
                 tgen_payload_captured_len,
                 plurality(tgen_payload_captured_len, "", "s"));
             avsp_tgen_payload = proto_item_add_subtree(ti, ett_avsp_tgen_payload);
@@ -345,8 +333,11 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
                been truncated) we can set the length of the entire AVSP protocol. */
             proto_item_set_len(avsp_ti, offset + tgen_payload_captured_len);
 
-            /* If there is a trailer, then add it to the tree. */
-            add_ethernet_trailer(pinfo, tree, avsp_tree, hf_avsp_tgen_trailer, tvb, trailer_tvb, -1);
+            /* We have a length field, so set it here so that the higher level
+             * (ethertype) dissector can add the trailer. That way the FCS
+             * will be calculated correctly.
+             */
+            set_actual_length(tvb, offset + tgen_payload_captured_len);
             break;
 
         default:
@@ -500,12 +491,6 @@ void proto_register_avsp(void)
                 FT_BYTES, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL}
-        },
-        { &hf_avsp_tgen_trailer,
-            {"Trailer", "avsp.tgen.trailer",
-                FT_BYTES, BASE_NONE,
-                NULL, 0x0,
-                "Ethernet Trailer or Checksum", HFILL }
         },
     };
 
