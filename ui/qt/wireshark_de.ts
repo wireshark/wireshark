@@ -2951,7 +2951,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>IPv4 destination address and port.</source>
-        <translation>IPv5 Zieladresse und Port.</translation>
+        <translation>IPv4 Zieladresse und Port.</translation>
     </message>
     <message>
         <source>MAC source address.</source>

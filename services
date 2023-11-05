@@ -5340,6 +5340,7 @@ canon-bjnp4	8614/tcp/udp	# Canon BJNP Port 4
 imink		8615/tcp	# Imink Service Control
 monetra		8665/tcp	# Monetra
 monetra-admin	8666/tcp	# Monetra Administrative Access
+spartan		8668/tcp	# Spartan management
 msi-cps-rm	8675/tcp	# Motorola Solutions Customer Programming Software for Radio Management
 msi-cps-rm-disc	8675/udp	# Motorola Solutions Customer Programming Software for Radio Management Discovery
 sun-as-jmxrmi	8686/tcp/udp	# Sun App Server - JMX/RMI
