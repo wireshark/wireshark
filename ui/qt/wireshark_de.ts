@@ -3182,7 +3182,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>IPv4 destination address and port.</source>
-        <translation>IPv5 Zieladresse und Port.</translation>
+        <translation>IPv4 Zieladresse und Port.</translation>
     </message>
     <message>
         <source>MAC source address.</source>
@@ -3469,10 +3469,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>Save Stream Content As…</source>
         <translation>Stream Inhalt speichern als…</translation>
     </message>
-    <message>
-        <source>[Stream output truncated]</source>
-        <translation type="vanished">[Streamausgabe gekürzt]</translation>
-    </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
         <translation>
@@ -3525,7 +3521,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>FollowStreamText</name>
     <message>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished">[Streamausgabe gekürzt]</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10389,11 +10385,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Browser file path</source>
-        <translation>Browser Dateipfad</translation>
+        <translation type="vanished">Browser Dateipfad</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run your web browser with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Starte Webbrowser mit der zum eingestellten Dateipfad gesetzter SSLKEYLOG-Umgebungsvariable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Starte Webbrowser mit der zum eingestellten Dateipfad gesetzter SSLKEYLOG-Umgebungsvariable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Application path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13846,8 +13850,9 @@ a:hover {
         <translation>MAC Adressblöcke</translation>
     </message>
     <message>
-        <source>Browser (SSL Keylog)</source>
-        <translation>Browser (SSL Keylog)</translation>
+        <source>SSL Keylog Launcher</source>
+        <oldsource>Browser (SSL Keylog)</oldsource>
+        <translation type="unfinished">Browser (SSL Keylog)</translation>
     </message>
     <message>
         <source>&amp;Options…</source>

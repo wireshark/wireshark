@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation>클립보드로 복사</translation>
+        <translation>클립보드에 복사</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -730,11 +730,11 @@
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>10진수로 표시</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished"></translation>
+        <translation>8진수로 표시</translation>
     </message>
     <message>
         <source>…as bits</source>
@@ -1589,15 +1589,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Interval between updates (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>업데이트 시간 간격(ms)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How often the capture notifies the GUI of new packets. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;새 패킷이 GUI에 표시되는 시간 간격입니다. GUI 업데이트 주기와 타이머 정밀도에 영향을 줍니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The interval between new packet updates. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;새 패킷 업데이트 시간 간격입니다. GUI 업데이트 주기와 타이머 정밀도에 영향을 줍니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -1936,7 +1936,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Graph a TCP conversation.</source>
-        <translation>TCP 대화를 그래프화 합니다.</translation>
+        <translation>TCP 대화를 그래프로 표시합니다.</translation>
     </message>
 </context>
 <context>
@@ -1954,11 +1954,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation>다음으로부터 복사</translation>
+        <translation>다음에서 복사</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation>다른 프로필로부터 항목을 복사합니다.</translation>
+        <translation>다른 프로필에서 항목을 복사합니다.</translation>
     </message>
     <message>
         <source>System default</source>
@@ -1969,30 +1969,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CredentialsDialog</name>
     <message>
         <source>Wireshark - Credentials</source>
-        <translation>Wireshark - 인증서</translation>
+        <translation>Wireshark - 자격 증명</translation>
     </message>
     <message>
         <source>Credentials</source>
-        <translation>인증서</translation>
+        <translation>자격 증명</translation>
     </message>
 </context>
 <context>
     <name>CredentialsModel</name>
     <message>
         <source>Click to select the packet</source>
-        <translation>클릭하여 패킷을 선택합니다</translation>
+        <translation>클릭하여 패킷 선택</translation>
     </message>
     <message>
         <source>Click to select the packet with username</source>
-        <translation>클릭하여 사용자 이름으로 패킷을 선택합니다</translation>
+        <translation>클릭하여 사용자 이름이 포함된 패킷 선택</translation>
     </message>
     <message>
         <source>Username not available</source>
-        <translation>사용자 이름을 사용할 수 없습니다</translation>
+        <translation>사용자 이름을 사용할 수 없음</translation>
     </message>
     <message>
         <source>Packet No.</source>
-        <translation>패킷 번호.</translation>
+        <translation>패킷 번호</translation>
     </message>
     <message>
         <source>Protocol</source>
@@ -2011,31 +2011,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
-        <translation>16진수 + 아스키 덤프 형식으로 바이트를 복사</translation>
+        <translation>바이트를 16진수 + ASCII 덤프로 복사</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation>16진수 및 아스키 덤프 형식으로 패킷 바이트를 복사합니다.</translation>
+        <translation>16진수 및 ASCII 덤프 형식으로 패킷 바이트를 복사합니다.</translation>
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation>…16진수 덤프 형식</translation>
+        <translation>16진수 덤프로 복사</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation>16진수 덤프로 패킷 바이트를 복사합니다.</translation>
+        <translation>16진수 덤프 형식으로 패킷 바이트를 복사합니다.</translation>
     </message>
     <message>
         <source>…as MIME Data</source>
-        <translation type="unfinished"></translation>
+        <translation>MIME 데이터로 복사</translation>
     </message>
     <message>
         <source>…as C String</source>
-        <translation type="unfinished"></translation>
+        <translation>C 문자열로 복사</translation>
     </message>
     <message>
         <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
-        <translation type="unfinished"></translation>
+        <translation>출력 가능한 ASCII 문자와 탈출 시퀀스로 패킷 바이트를 복사합니다.</translation>
     </message>
     <message>
         <source>…as Go literal</source>
@@ -2047,7 +2047,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as a Hex Stream</source>
-        <translation>…16진수 스트림</translation>
+        <translation>16진수 스트림으로 복사</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
@@ -2055,11 +2055,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as a Base64 String</source>
-        <translation>…Base64 문자열</translation>
+        <translation>Base64 문자열로 복사</translation>
     </message>
     <message>
         <source>Copy packet bytes as a base64 encoded string.</source>
-        <translation>base64 인코딩 문자열로 패킷 바이트를 복사합니다.</translation>
+        <translation>Base64로 인코딩된 문자열로 패킷 바이트를 복사합니다.</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -2086,18 +2086,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Decode As…</source>
-        <translation>다른 이름으로 디코딩…</translation>
+        <translation>다른 형식으로 디코드…</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation>열기 </translation>
+        <translation>열기: </translation>
     </message>
 </context>
 <context>
     <name>DecodeAsModel</name>
     <message>
         <source>Match using this field</source>
-        <translation>이 필드를 사용하여 비교</translation>
+        <translation>이 필드를 사용하여 일치</translation>
     </message>
     <message>
         <source>Change behavior when the field matches this value</source>
@@ -2105,15 +2105,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Field value type (and base, if Integer)</source>
-        <translation>필드 값 유형(및 밑수, 정수인 경우)</translation>
+        <translation>필드 값 유형(정수인 경우에는 밑수 포함)</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
-        <translation>현재&quot;다른 이름으로 디코딩&quot;의 동작</translation>
+        <translation>현재 &quot;다른 형식으로 디코드&quot;의 동작</translation>
     </message>
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation>기본 &quot;다른 이름으로 디코딩&quot;의 동작</translation>
+        <translation>기본 &quot;다른 형식으로 디코드&quot;의 동작</translation>
     </message>
     <message>
         <source>String</source>
@@ -2121,7 +2121,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Integer, base </source>
-        <translation>정수형, 밑수 </translation>
+        <translation>정수형, 밑수: </translation>
     </message>
     <message>
         <source>unknown</source>
@@ -2164,14 +2164,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation>이전에 사용한 사용한 필터로부터 선택합니다.</translation>
+        <translation>이전에 사용한 사용한 필터에서 선택합니다.</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation>필터 항목 표시</translation>
+        <translation>표시 필터 항목</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
@@ -2179,19 +2179,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation>필터 표현식을 표시…</translation>
+        <translation>필터 표현식 표시…</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation>%1 &lt;%2/&gt; 표시 필터 적용</translation>
+        <translation>표시 필터 적용 %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <source>Enter a display filter %1</source>
-        <translation>%1 표시 필터 입력</translation>
+        <translation>표시 필터 입력 %1</translation>
     </message>
     <message>
         <source>Clear display filter</source>
-        <translation>표시 필터 지움</translation>
+        <translation>표시 필터 지우기</translation>
     </message>
     <message>
         <source>Apply display filter</source>
@@ -2199,11 +2199,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Left align buttons</source>
-        <translation>왼쪽 정렬 버튼</translation>
+        <translation>왼쪽으로 버튼 정렬</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
-        <translation>%1 읽기 필터 적용</translation>
+        <translation>읽기 필터 적용 %1</translation>
     </message>
     <message>
         <source>Current filter: %1</source>
@@ -2211,7 +2211,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation>유효하지 않은 필터: </translation>
+        <translation>잘못된 필터: </translation>
     </message>
     <message>
         <source>Save this filter</source>
@@ -2238,7 +2238,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select a field to start building a display filter.</source>
-        <translation>표시 필터를 구축하도록 시작하기 위한 필드를 선택하십시오.</translation>
+        <translation>표시 필터를 구축하려면 필드를 선택하여 시작하십시오.</translation>
     </message>
     <message>
         <source>Field Name</source>
@@ -2246,7 +2246,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;필드 이름의 목록을 검색합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;필드 이름의 목록에서 검색합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -2256,7 +2256,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;관계는 필드를 지정된 값으로 제한하는데 사용할 수 있습니다. 각각의 관계는 다음과 같이 움직입니다:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;이 필드에 적합한 어떤 패킷과도 일치&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, 등등.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;지정된 값과 필드를 비교&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;문자열 혹은 정규표현식에 대하여 필드를 확인하십시오.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;필드를 값의 집합과 비교&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;관계는 필드를 지정된 값으로 제한하는 데 사용할 수 있습니다. 각각 관계는 다음 동작을 수행합니다.&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;이 필드를 포함하는 모든 패킷과 일치&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, != 등등&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;지정된 값과 필드를 비교&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;필드의 값과 문자열을 포함하거나 정규 표현식과 일치하는지 확인&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;필드의 값이 지정한 값의 집합에 포함되는지 확인&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </translation>
     </message>
@@ -2266,7 +2266,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
-        <translation>기본 순서에 따라 비교와 contains/matches/in 관계 순으로 어떤 값과 일치하면 참입니다. 수량자 &quot;all&quot; 은 프레임 내의 모든 값을 시험하도록 적용할 수 있습니다.</translation>
+        <translation>기본값으로 임의의 값과 일치하면 순서 비교 및 contains/matches/in 관계가 참으로 간주됩니다. &quot;all&quot; 수량자를 사용하면 프레임 내의 모든 값에 시험을 적용합니다.</translation>
     </message>
     <message>
         <source>Quantifier</source>
@@ -2278,7 +2278,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All</source>
-        <translation>전체</translation>
+        <translation>All</translation>
     </message>
     <message>
         <source>Match against this value.</source>
@@ -2290,19 +2290,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>If the field you have selected has a known set of valid values they will be listed here.</source>
-        <translation>선택한 필드에 알려진 유효한 값 집합이 있는 경우 여기에 나열됩니다.</translation>
+        <translation>선택한 필드에 알려진 유효한 값의 모음이 있는 경우 여기에 나열됩니다.</translation>
     </message>
     <message>
         <source>Predefined Values</source>
-        <translation>사전정의된 값</translation>
+        <translation>사전 정의된 값</translation>
     </message>
     <message>
         <source>If the field you have selected covers a range of bytes (e.g. you have selected a protocol) you can restrict the match to a range of bytes here.</source>
-        <translation>선택한 필드가 바이트 범위를 다루는 경우(예: 프로토콜을 선택한 경우), 바이트 범위에 일치하는 것만 제한할 수 있습니다.</translation>
+        <translation>선택한 필드가 바이트 범위를 다루는 경우(예: 프로토콜을 선택한 경우) 바이트 범위 내부로 일치를 제한할 수 있습니다.</translation>
     </message>
     <message>
         <source>Range (offset:length)</source>
-        <translation>범위 (오프셋:길이)</translation>
+        <translation>범위(오프셋:길이)</translation>
     </message>
     <message>
         <source>No display filter</source>
@@ -2310,7 +2310,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;필터힌트.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;필터 힌트입니다.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Display Filter Expression</source>
@@ -2318,22 +2318,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select a field name to get started</source>
-        <translation>시작한 필드 이름 선택</translation>
+        <translation>필드 이름을 선택하여 시작하십시오</translation>
     </message>
     <message>
         <source>Click OK to insert this filter</source>
-        <translation>이 필터를 추가하기 위해 확인을 클릭합니다</translation>
+        <translation>이 필터를 추가하려면 확인을 클릭하십시오</translation>
     </message>
 </context>
 <context>
     <name>DissectorSyntaxLineEdit</name>
     <message>
         <source>Dissector entry</source>
-        <translation type="unfinished"></translation>
+        <translation>분해기 항목</translation>
     </message>
     <message>
         <source>Enter a dissector %1</source>
-        <translation type="unfinished"></translation>
+        <translation>분해기 입력 %1</translation>
     </message>
 </context>
 <context>
@@ -2348,14 +2348,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation>해부자 표</translation>
+        <translation>분해기 표</translation>
     </message>
 </context>
 <context>
     <name>DissectorTablesProxyModel</name>
     <message>
         <source>Table Type</source>
-        <translation>표 유형</translation>
+        <translation>표 형식</translation>
     </message>
     <message>
         <source>String</source>
@@ -2363,7 +2363,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Dissector Description</source>
-        <translation>해부자 기술</translation>
+        <translation>분해기 설명</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -2394,7 +2394,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;프로토콜 사용하지 않기는 표시중인 내용에서 상위 계층 프로토콜을 방지합니다.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;프로토콜을 비활성화하면 상위 계층 프로토콜이 표시되지 않습니다&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -2406,11 +2406,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enable All</source>
-        <translation>전체 사용</translation>
+        <translation>모두 활성화</translation>
     </message>
     <message>
         <source>Disable All</source>
-        <translation>전체 해제</translation>
+        <translation>모두 비활성화</translation>
     </message>
     <message>
         <source>Invert</source>
@@ -2418,7 +2418,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enabled Protocols</source>
-        <translation>허용된 프로토콜</translation>
+        <translation>활성화된 프로토콜</translation>
     </message>
     <message>
         <source>Everywhere</source>
@@ -2434,11 +2434,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Only enabled protocols</source>
-        <translation>사용된 프로토콜만</translation>
+        <translation>활성화된 프로토콜만</translation>
     </message>
     <message>
         <source>Only disabled protocols</source>
-        <translation>사용되지 않는 프로토콜만</translation>
+        <translation>비활성화된 프로토콜만</translation>
     </message>
     <message>
         <source>any protocol</source>
@@ -2446,7 +2446,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>non-heuristic protocols</source>
-        <translation>비-휴리스틱 프로토콜</translation>
+        <translation>비 휴리스틱 프로토콜</translation>
     </message>
     <message>
         <source>heuristic protocols</source>
@@ -2516,7 +2516,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>AS Number</source>
-        <translation>AS? 번호</translation>
+        <translation>AS 번호</translation>
     </message>
     <message>
         <source>AS Organization</source>
@@ -2539,7 +2539,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>IPv4 또는 IPv6의 종단점을 지도에서 그립니다.</translation>
+        <translation>IPv4 또는 IPv6의 종단점을 지도에 나타냅니다.</translation>
     </message>
     <message>
         <source>Open in browser</source>
@@ -2590,11 +2590,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Ethernet Manufacturers</source>
-        <translation>이더넷 제조업체</translation>
+        <translation>이더넷 제조사</translation>
     </message>
     <message>
         <source>Ethernet Well-Known Addresses</source>
-        <translation>잘 알려진 이더넷 멀티캐스트 주소</translation>
+        <translation>잘 알려진 이더넷 주소</translation>
     </message>
 </context>
 <context>
@@ -2605,7 +2605,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;필터힌트.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;필터 힌트입니다.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Limit to Display Filter</source>
@@ -2674,11 +2674,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Collapse All</source>
-        <translation>모두 접음</translation>
+        <translation>모두 접기</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation>모두 펼침</translation>
+        <translation>모두 펴기</translation>
     </message>
     <message>
         <source>Capture file closed.</source>
@@ -2694,7 +2694,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Limit information to &quot;%1&quot;.</source>
-        <translation>&quot;%1&quot;로 정보를 제한합니다.</translation>
+        <translation>&quot;%1&quot;(으)로 정보를 제한합니다.</translation>
     </message>
     <message>
         <source>Display filter: &quot;%1&quot;</source>
@@ -2709,7 +2709,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Severity</source>
-        <translation>심각성</translation>
+        <translation>심각도</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -2717,7 +2717,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Group</source>
-        <translation>묶음</translation>
+        <translation>그룹</translation>
     </message>
     <message>
         <source>Protocol</source>
@@ -2725,7 +2725,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Count</source>
-        <translation>카운트</translation>
+        <translation>개수</translation>
     </message>
 </context>
 <context>
@@ -2733,7 +2733,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Export Packet Dissections</source>
         <oldsource>Wireshark: Export Packet Dissections</oldsource>
-        <translation>패킷 분해자 내보내기</translation>
+        <translation>패킷 분해 결과 내보내기</translation>
     </message>
     <message>
         <source>Export As:</source>
@@ -2750,11 +2750,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>PSML - summary (*.psml, *.xml)</source>
-        <translation>PSML - 요약 (*. psml, *.xml)</translation>
+        <translation>PSML - 요약 (*.psml, *.xml)</translation>
     </message>
     <message>
         <source>PDML - details (*.pdml, *.xml)</source>
-        <translation>PSML - 상세 정보 (*. psml, *.xml)</translation>
+        <translation>PSML - 자세한 정보 (*.psml, *.xml)</translation>
     </message>
     <message>
         <source>JSON (*.json)</source>
@@ -2789,11 +2789,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Preview</source>
-        <translation>미리보기</translation>
+        <translation>미리 보기</translation>
     </message>
     <message>
         <source>All Content-Types</source>
-        <translation>모든 내용 유형</translation>
+        <translation>모든 Content-Type</translation>
     </message>
     <message>
         <source>Export</source>
@@ -2805,11 +2805,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Object As…</source>
-        <translation>다른 이름으로 객체를 저장...</translation>
+        <translation>다른 이름으로 객체 저장...</translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
-        <translation>모든 객체를 저장...</translation>
+        <translation>모든 객체 저장...</translation>
     </message>
 </context>
 <context>
@@ -2877,7 +2877,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Interface Options</source>
         <oldsource>Extcap Interface Options</oldsource>
-        <translation>인터페이스 선택사항</translation>
+        <translation>인터페이스 옵션</translation>
     </message>
     <message>
         <source>Start</source>
@@ -2893,7 +2893,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Restore default value of the item</source>
-        <translation>항목의 기본값을 복구</translation>
+        <translation>항목의 기본값 복원</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -2905,7 +2905,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save parameter(s) on capture start</source>
-        <translation>캡처 시작시 파라미터 저장</translation>
+        <translation>캡처를 시작할 때 인자 저장</translation>
     </message>
 </context>
 <context>
@@ -2916,11 +2916,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enter a field %1</source>
-        <translation>%1 필드를 입력</translation>
+        <translation>필드 입력 %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation>유효하지 않은 필터: </translation>
+        <translation>잘못된 필터: </translation>
     </message>
 </context>
 <context>
@@ -2935,17 +2935,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No files in Set</source>
-        <translation>집합에 파일이 없습니다</translation>
+        <translation>집합에 파일 없음</translation>
     </message>
     <message>
         <source>No capture loaded</source>
-        <translation>불러온 내용이 없습니다.</translation>
+        <translation>캡처를 불러오지 않았음</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
         <translation>
-            <numerusform>집합내에 %Ln 개 파일</numerusform>
+            <numerusform>집합에 파일 %Ln개 있음</numerusform>
         </translation>
     </message>
 </context>
@@ -2953,7 +2953,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FilesetEntryModel</name>
     <message>
         <source>Open this capture file</source>
-        <translation>이 캡처 파일을 열기</translation>
+        <translation>이 캡처 파일 열기</translation>
     </message>
     <message>
         <source>Filename</source>
@@ -2980,7 +2980,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>선택 안됨</translation>
+        <translation>선택 안 됨</translation>
     </message>
     <message>
         <source>…and Selected</source>
@@ -2992,11 +2992,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>…그리고 선택되지 않음</translation>
+        <translation>…그리고 선택 안 됨</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>…또는 선택되지 않음</translation>
+        <translation>…또는 선택 안 됨</translation>
     </message>
 </context>
 <context>
@@ -3007,17 +3007,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Create a new filter.</source>
-        <translation>새로운 필터를 만듭니다.</translation>
+        <translation>새 필터를 만듭니다.</translation>
     </message>
     <message>
         <source>Remove this filter.</source>
         <oldsource>Remove this profile.</oldsource>
-        <translation>이 프로필을 삭제합니다.</translation>
+        <translation>이 필터를 삭제합니다.</translation>
     </message>
     <message>
         <source>Copy this filter.</source>
         <oldsource>Copy this profile.</oldsource>
-        <translation>이 프로필을 복사합니다.</translation>
+        <translation>이 필터를 복사합니다.</translation>
     </message>
     <message>
         <source>Capture Filters</source>
@@ -3029,7 +3029,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation>열기 </translation>
+        <translation>열기: </translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -3058,7 +3058,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enter a description for the filter button</source>
-        <translation>필터 버튼에 대한 설명을 입력합니다</translation>
+        <translation>필터 버튼에 대한 설명을 입력하십시오</translation>
     </message>
     <message>
         <source>Filter:</source>
@@ -3066,15 +3066,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enter a filter expression to be applied</source>
-        <translation>적용할 필터 표현식 입력</translation>
+        <translation>적용할 필터 표현식을 입력하십시오</translation>
     </message>
     <message>
         <source>Comment:</source>
-        <translation>의견:</translation>
+        <translation>주석</translation>
     </message>
     <message>
         <source>Enter a comment for the filter button</source>
-        <translation>필터 버튼에 대한 주석을 입력합니다</translation>
+        <translation>필터 버튼에 대한 주석을 입력하십시오</translation>
     </message>
     <message>
         <source>Missing label.</source>
@@ -3086,7 +3086,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid filter expression.</source>
-        <translation>유효하지 않은 필터 표현식입니다.</translation>
+        <translation>잘못된 필터 표현식입니다.</translation>
     </message>
 </context>
 <context>
@@ -3101,11 +3101,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Disable</source>
-        <translation>해제</translation>
+        <translation>비활성화</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>제거</translation>
+        <translation>삭제</translation>
     </message>
 </context>
 <context>
@@ -3127,14 +3127,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Regular Expression Find</source>
-        <translation>정규표현식으로 찾기</translation>
+        <translation>정규 표현식으로 찾기</translation>
     </message>
 </context>
 <context>
     <name>FirewallRulesDialog</name>
     <message>
         <source>Create rules for</source>
-        <translation>대상에 대한 규칙 생성</translation>
+        <translation>다음에서 사용 가능한 규칙 생성</translation>
     </message>
     <message>
         <source>Inbound</source>
@@ -3162,7 +3162,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Source port.</source>
-        <translation>발신 포트.</translation>
+        <translation>발신지 포트.</translation>
     </message>
     <message>
         <source>Destination port.</source>
@@ -3194,7 +3194,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation>%1 을(를) 저장할 수 없습니다</translation>
+        <translation>%1을(를) 저장할 수 없음</translation>
     </message>
 </context>
 <context>
@@ -3225,11 +3225,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>dfilters, preferences, ethers, …</source>
-        <translation type="unfinished"></translation>
+        <translation>dfilters, 설정, ethers, …</translation>
     </message>
     <message>
         <source>dfilters, preferences, manuf, …</source>
-        <translation type="unfinished"></translation>
+        <translation>dfilters, 설정, manuf, …</translation>
     </message>
     <message>
         <source>System</source>
@@ -3265,7 +3265,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Global Lua Plugins</source>
-        <translation>전역 Lua 스크립트</translation>
+        <translation>전역 Lua 플러그인</translation>
     </message>
     <message>
         <source>Lua scripts</source>
@@ -3277,7 +3277,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>external capture (extcap) plugins</source>
-        <translation>외부 캡처 (extcap) 플러그인</translation>
+        <translation>외부 캡처(Extcap) 플러그인</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3324,7 +3324,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FollowStreamAction</name>
     <message>
         <source>%1 Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 스트림</translation>
     </message>
 </context>
 <context>
@@ -3332,22 +3332,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation>이 스트림을 거르기</translation>
+        <translation>필터로 이 스트림 제외</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation>출력</translation>
+        <translation>인쇄</translation>
     </message>
     <message numerus="yes">
         <source>%Ln client pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln 클라이언트 패킷</numerusform>
+            <numerusform>클라이언트 패킷 %Ln개,</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln server pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln 서버 패킷, </numerusform>
+            <numerusform>서버 패킷 %Ln개, </numerusform>
         </translation>
     </message>
     <message>
@@ -3393,24 +3393,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;클라이언트&lt;/span&gt; 패킷(초), </numerusform>
+            <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;클라이언트&lt;/span&gt; 패킷 %Ln개, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;서버&lt;/span&gt; 패킷(초), </numerusform>
+            <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;서버&lt;/span&gt; 패킷 %Ln개, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
         <translation>
-            <numerusform>%Ln 턴.</numerusform>
+            <numerusform>턴 %Ln회.</numerusform>
         </translation>
     </message>
     <message>
         <source> Click to select.</source>
-        <translation> 클릭하여 선택합니다.</translation>
+        <translation> 클릭하면 선택합니다.</translation>
     </message>
     <message>
         <source>Regex Find:</source>
@@ -3422,15 +3422,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Please make sure you have a capture file opened.</source>
-        <translation>캡처 파일이 열려 있지 않은지 확인하십시오.</translation>
+        <translation>캡처 파일이 열려 있는지 확인하십시오.</translation>
     </message>
     <message>
         <source>Error following stream.</source>
-        <translation>스트림 따라가기 오류가 발생했습니다.</translation>
+        <translation>스트림을 따라가는 중 오류가 발생했습니다.</translation>
     </message>
     <message>
         <source>Capture file invalid.</source>
-        <translation>캡처 파일이 유효하지 않습니다.</translation>
+        <translation>캡처 파일이 잘못되었습니다.</translation>
     </message>
     <message>
         <source>Please make sure you have a %1 packet selected.</source>
@@ -3438,32 +3438,28 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 stream not found on the selected packet.</source>
-        <translation>선택한 패킷으로부터 %1 스트림을 찾을 수 없었습니다.</translation>
+        <translation>선택한 패킷에서 %1 스트림을 찾을 수 없습니다.</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
-        <translation>전체 대화 (%1)</translation>
+        <translation>전체 대화(%1)</translation>
     </message>
     <message>
         <source>Follow %1 Stream (%2)</source>
-        <translation>%1 스트림 (%2) 따라가기</translation>
+        <translation>%1 스트림 따라가기(%2)</translation>
     </message>
     <message>
         <source>Error creating filter for this stream.</source>
-        <translation>이 스트림 필터를 만들다 오류가 발생했습니다.</translation>
+        <translation>이 스트림에 대한 필터를 생성하는 중 오류가 발생했습니다.</translation>
     </message>
     <message>
         <source>Save Stream Content As…</source>
-        <translation>다른 이름으로 스트림 컨텐츠 저장…</translation>
-    </message>
-    <message>
-        <source>[Stream output truncated]</source>
-        <translation type="vanished">[스트림 출력이 잘림]</translation>
+        <translation>다른 이름으로 스트림 내용 저장…</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
         <translation>
-            <numerusform>%Ln 전체 스트림.</numerusform>
+            <numerusform>전체 스트림 %Ln개.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3482,12 +3478,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hint.</source>
-        <translation>필터힌트.</translation>
+        <translation>필터 힌트.</translation>
     </message>
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation>다음 형식으로 데이터 표시, 저장</translation>
+        <translation>다음 형식으로 표시:</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -3510,7 +3506,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FollowStreamText</name>
     <message>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished">[스트림 출력이 잘림]</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3537,19 +3533,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Solid</source>
-        <translation>Solid</translation>
+        <translation>단색</translation>
     </message>
     <message>
         <source>Sample ignored packet text</source>
-        <translation>무시된 패킷 텍스트 샘플</translation>
+        <translation>무시된 패킷 텍스트 예제</translation>
     </message>
     <message>
         <source>Sample marked packet text</source>
-        <translation>표시된 패킷 텍스트 샘플</translation>
+        <translation>표시된 패킷 텍스트 예제</translation>
     </message>
     <message>
         <source>Sample active selected item</source>
-        <translation>활성 선택된 항목 샘플</translation>
+        <translation>활성 선택된 항목 예제</translation>
     </message>
     <message>
         <source>Style:</source>
@@ -3561,28 +3557,28 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sample inactive selected item</source>
-        <translation>비활성 선택된 항목 샘플</translation>
+        <translation>비활성 선택된 항목 예제</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>
-        <translation>&quot;스트림 따라라기&quot; 클라이언트 텍스트 샘플</translation>
+        <translation>&quot;스트림 따라라기&quot; 클라이언트 텍스트 예제</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; server text</source>
-        <translation>&quot;스트림 따라가기&quot; 서버 텍스트 샘플</translation>
+        <translation>&quot;스트림 따라가기&quot; 서버 텍스트 예제</translation>
     </message>
     <message>
         <source>Sample valid filter</source>
-        <translation>유효한 필터 샘플</translation>
+        <translation>올바른 필터 예제</translation>
     </message>
     <message>
         <source>Sample invalid filter</source>
-        <translation>유효하지 않은 필터 샘플</translation>
+        <translation>잘못된 필터 예제</translation>
     </message>
     <message>
         <source>Sample warning filter</source>
         <oldsource>Sample deprecated filter</oldsource>
-        <translation>경고 필터 샘플</translation>
+        <translation>경고 필터 예제</translation>
     </message>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
@@ -3613,7 +3609,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter some text or a regular expression. It will be highlighted above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;검색 대상 텍스트와 정규 표현식을 입력합니다. 일치하는 부분에 강조 표시가 됩니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;검색 대상 문자열이나 정규 표현식을 입력하십시오. 일치하는 부분이 강조 표시됩니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Highlight:</source>
@@ -3628,7 +3624,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>GSM MAP Summary</source>
-        <translation>GSM 지도 요약</translation>
+        <translation>GSM MAP 요약</translation>
     </message>
     <message>
         <source>File</source>
@@ -3676,15 +3672,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Total number of Invokes</source>
-        <translation>총 invoke 수</translation>
+        <translation>총 Invoke 수</translation>
     </message>
     <message>
         <source>Average number of Invokes per second</source>
-        <translation>초당 평균 invoke 수</translation>
+        <translation>초당 평균 Invoke 수</translation>
     </message>
     <message>
         <source>Total number of bytes for Invokes</source>
-        <translation>Invoke에 대한 총 바이트</translation>
+        <translation>총 Invoke 바이트</translation>
     </message>
     <message>
         <source>Average number of bytes per Invoke</source>
@@ -3716,42 +3712,42 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Total number of GSM MAP messages</source>
-        <translation>전체 GSM 지도 메시지 수</translation>
+        <translation>전체 GSM MAP 메시지 수</translation>
     </message>
     <message>
         <source>Average number of GSM MAP messages per second</source>
-        <translation>초당 평균 GSM 지도 메시지 수</translation>
+        <translation>초당 평균 GSM MAP 메시지 수</translation>
     </message>
     <message>
         <source>Total number of bytes for GSM MAP messages</source>
-        <translation>총 GSM 지도 메시지 바이트</translation>
+        <translation>총 GSM MAP 메시지 바이트</translation>
     </message>
     <message>
         <source>Average number of bytes per GSM MAP message</source>
-        <translation>GSM 지도 메시지당 평균 바이트</translation>
+        <translation>GSM MAP 메시지당 평균 바이트</translation>
     </message>
 </context>
 <context>
     <name>IOConsoleDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>대화 상자</translation>
     </message>
     <message>
         <source>Enter code</source>
-        <translation type="unfinished"></translation>
+        <translation>코드 입력</translation>
     </message>
     <message>
         <source>Evaluate</source>
-        <translation type="unfinished"></translation>
+        <translation>평가</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">지우기</translation>
+        <translation>지우기</translation>
     </message>
     <message>
         <source>Use %1 to evaluate.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 키를 누르면 평가합니다.</translation>
     </message>
 </context>
 <context>
@@ -3824,25 +3820,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;확대&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;축소&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X 축 확대&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X 축 축소&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y 축 확대&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y 축 축소&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X축 확대&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X축 축소&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y축 확대&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y축 축소&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;초기 상태로 그래프 다시 설정&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;오른쪽으로 10 픽셀 이동&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;왼쪽으로 10 픽셀 이동&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;위쪽으로 10 픽셀 이동&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;아래쪽으로 10 픽셀 이동&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;오른쪽으로 1 픽셀 이동&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;왼쪽으로 1 픽셀 이동&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;위쪽으로 1 픽셀 이동&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;아래쪽으로 1 픽셀 이동&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;오른쪽으로 10픽셀 이동&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;왼쪽으로 10픽셀 이동&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;위쪽으로 10픽셀 이동&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;아래쪽으로 10픽셀 이동&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;오른쪽으로 1픽셀 이동&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;왼쪽으로 1픽셀 이동&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;위쪽으로 1픽셀 이동&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;아래쪽으로 1픽셀 이동&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;커서 아래쪽 패킷으로 이동&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;커서 위치의 패킷으로 이동&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;마우스 드래그 / 줌 전환&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;캡처 / 세션 시간 기점 바꾸기&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;마우스 드래그 / 크기 조절 전환&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;캡처 / 세션 시간 기점 전환&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;십자선 전환&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
@@ -3851,7 +3847,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Remove this graph.</source>
         <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>이 분해동작을 제거합니다.</translation>
+        <translation>이 그래프를 삭제합니다.</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
@@ -3859,19 +3855,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Duplicate this graph.</source>
-        <translation>이 그래프를 복사합니다.</translation>
+        <translation>이 그래프를 복제합니다.</translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
-        <translation>모든 그래프를 복사합니다.</translation>
+        <translation>모든 그래프를 지웁니다.</translation>
     </message>
     <message>
         <source>Move this graph upwards.</source>
-        <translation>이 그래프를 위로 옮깁니다.</translation>
+        <translation>이 그래프를 위로 이동합니다.</translation>
     </message>
     <message>
         <source>Move this graph downwards.</source>
-        <translation>이 그래프를 아래로 옮깁니다.</translation>
+        <translation>이 그래프를 아래로 이동합니다.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -3879,7 +3875,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Drag using the mouse button.</source>
-        <translation>마우스 버튼을 사용하여 드래그합니다.</translation>
+        <translation>마우스 단추를 사용하여 드래그합니다.</translation>
     </message>
     <message>
         <source>drags</source>
@@ -3887,11 +3883,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select using the mouse button.</source>
-        <translation>마우스 버튼을 사용하여 선택합니다.</translation>
+        <translation>마우스 단추를 사용하여 선택합니다.</translation>
     </message>
     <message>
         <source>zooms</source>
-        <translation>확대</translation>
+        <translation>크기 조정</translation>
     </message>
     <message>
         <source>Interval</source>
@@ -3907,11 +3903,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Automatic update</source>
-        <translation type="unfinished"></translation>
+        <translation>자동 업데이트</translation>
     </message>
     <message>
         <source>Enable legend</source>
-        <translation type="unfinished"></translation>
+        <translation>범례 활성화</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -3947,7 +3943,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation>위쪽으로 10 픽셀 이동</translation>
+        <translation>위쪽으로 10픽셀 이동</translation>
     </message>
     <message>
         <source>Up</source>
@@ -3955,7 +3951,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation>왼쪽으로 10 픽셀 이동</translation>
+        <translation>왼쪽으로 10픽셀 이동</translation>
     </message>
     <message>
         <source>Left</source>
@@ -3963,7 +3959,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation>오른쪽으로 10 픽셀 이동</translation>
+        <translation>오른쪽으로 10픽셀 이동</translation>
     </message>
     <message>
         <source>Right</source>
@@ -3971,7 +3967,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation>아래쪽으로 10 픽셀 이동</translation>
+        <translation>아래쪽으로 10픽셀 이동</translation>
     </message>
     <message>
         <source>Down</source>
@@ -3979,7 +3975,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation>위쪽으로 1 픽셀 이동</translation>
+        <translation>위쪽으로 1픽셀 이동</translation>
     </message>
     <message>
         <source>Shift+Up</source>
@@ -3987,7 +3983,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation>왼쪽으로 1 픽셀 이동</translation>
+        <translation>왼쪽으로 1픽셀 이동</translation>
     </message>
     <message>
         <source>Shift+Left</source>
@@ -3995,7 +3991,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation>오른쪽으로 1 픽셀 이동</translation>
+        <translation>오른쪽으로 1픽셀 이동</translation>
     </message>
     <message>
         <source>Shift+Right</source>
@@ -4003,12 +3999,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation>아래쪽으로 1 픽셀 이동</translation>
+        <translation>아래쪽으로 1픽셀 이동</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
         <oldsource>Move down 1 pixel</oldsource>
-        <translation>아래쪽으로 1 픽셀 이동</translation>
+        <translation>아래쪽으로 1픽셀 이동</translation>
     </message>
     <message>
         <source>Shift+Down</source>
@@ -4028,11 +4024,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>드래그 / 확대</translation>
+        <translation>드래그 / 크기 조정</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>마우스 드래그 / 확대 동작 전환</translation>
+        <translation>마우스 드래그 / 크기 조정 동작 전환</translation>
     </message>
     <message>
         <source>Z</source>
@@ -4056,15 +4052,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>십자선 표시를 전환</translation>
+        <translation>십자선 표시 전환</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>스페이스</translation>
+        <translation>Space</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation>X 축 확대</translation>
+        <translation>X축 확대</translation>
     </message>
     <message>
         <source>X</source>
@@ -4072,7 +4068,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation>X 축 축소</translation>
+        <translation>X축 축소</translation>
     </message>
     <message>
         <source>Shift+X</source>
@@ -4080,7 +4076,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation>Y 축 확대</translation>
+        <translation>Y축 확대</translation>
     </message>
     <message>
         <source>Y</source>
@@ -4088,7 +4084,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation>Y 축 축소</translation>
+        <translation>Y축 축소</translation>
     </message>
     <message>
         <source>Shift+Y</source>
@@ -4096,31 +4092,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>1 sec</source>
-        <translation>1 초</translation>
+        <translation>1초</translation>
     </message>
     <message>
         <source>10 sec</source>
-        <translation>10 초</translation>
+        <translation>10초</translation>
     </message>
     <message>
         <source>1 min</source>
-        <translation>1 분</translation>
+        <translation>1분</translation>
     </message>
     <message>
         <source>10 min</source>
-        <translation>10 분</translation>
+        <translation>10분</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation>시간 (초)</translation>
+        <translation>시간(초)</translation>
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation>입/출력 그래프</translation>
+        <translation>I/O 그래프</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation>다른이름으로 저장…</translation>
+        <translation>다른 이름으로 저장…</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -4128,63 +4124,63 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
-        <translation>다른 프로필로부터 그래프 복사</translation>
+        <translation>다른 프로필에서 그래프를 복사합니다.</translation>
     </message>
     <message>
         <source>1 ms</source>
-        <translation>1 밀리초</translation>
+        <translation>1 ms</translation>
     </message>
     <message>
         <source>2 ms</source>
-        <translation>2 밀리초</translation>
+        <translation>2 ms</translation>
     </message>
     <message>
         <source>5 ms</source>
-        <translation>5 밀리초</translation>
+        <translation>5 ms</translation>
     </message>
     <message>
         <source>10 ms</source>
-        <translation>10 밀리초</translation>
+        <translation>10 ms</translation>
     </message>
     <message>
         <source>20 ms</source>
-        <translation>20 밀리초</translation>
+        <translation>20 ms</translation>
     </message>
     <message>
         <source>50 ms</source>
-        <translation>50 밀리초</translation>
+        <translation>50 ms</translation>
     </message>
     <message>
         <source>100 ms</source>
-        <translation>100 밀리초</translation>
+        <translation>100 ms</translation>
     </message>
     <message>
         <source>200 ms</source>
-        <translation>200 밀리초</translation>
+        <translation>200 ms</translation>
     </message>
     <message>
         <source>500 ms</source>
-        <translation>500 밀리초</translation>
+        <translation>500 ms</translation>
     </message>
     <message>
         <source>2 sec</source>
-        <translation>2 초</translation>
+        <translation>2초</translation>
     </message>
     <message>
         <source>5 sec</source>
-        <translation>5 초</translation>
+        <translation>5초</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Wireshark 입/출력 그래프: %1</translation>
+        <translation>Wireshark I/O 그래프: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
-        <translation>걸러진 패킷</translation>
+        <translation>필터된 패킷</translation>
     </message>
     <message>
         <source>Filtered events</source>
-        <translation type="unfinished"></translation>
+        <translation>필터된 이벤트</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4196,27 +4192,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All Events</source>
-        <translation type="unfinished"></translation>
+        <translation>모든 이벤트</translation>
     </message>
     <message>
         <source>Access Denied</source>
-        <translation type="unfinished"></translation>
+        <translation>접근 거부됨</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
-        <translation>상세 정보를 보려면 그래프 위에 마우스를 올립니다.</translation>
+        <translation>자세한 정보를 보려면 그래프 위에 마우스를 올리십시오.</translation>
     </message>
     <message>
         <source>No packets in interval</source>
-        <translation>이 주기 안에 패킷이 없습니다</translation>
+        <translation>이 주기 안에 패킷 없음</translation>
     </message>
     <message>
         <source>No events in interval</source>
-        <translation type="unfinished"></translation>
+        <translation>이 주기 안에 이벤트 없음</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation>클릭하여 패킷을 선택합니다</translation>
+        <translation>클릭하여 패킷 선택</translation>
     </message>
     <message>
         <source>Packet</source>
@@ -4224,11 +4220,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Click to select event</source>
-        <translation type="unfinished"></translation>
+        <translation>클릭하여 이벤트 선택</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished">이벤트</translation>
+        <translation>이벤트</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -4236,7 +4232,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation>줌을 위해 릴리즈, x = %1 ~ %2, y = %3 ~ %4</translation>
+        <translation>커서를 놓으면 크기 조정, x = %1 - %2, y = %3 - %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
@@ -4244,7 +4240,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation>클릭하여 그래프 비율을 선택합니다.</translation>
+        <translation>클릭하여 그래프의 부분을 선택하십시오.</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -4256,7 +4252,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation>윈도우즈 비트맵 형식 (*.bmp)</translation>
+        <translation>Windows 비트맵 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
@@ -4268,7 +4264,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>다른 이름으로 그래프를 저장…</translation>
+        <translation>다른 이름으로 그래프 저장…</translation>
     </message>
 </context>
 <context>
@@ -4279,11 +4275,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;정방향&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;역방향&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation>Forward</translation>
+        <translation>정방향</translation>
     </message>
     <message>
         <source>Packet</source>
@@ -4311,7 +4307,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reverse</source>
-        <translation>Reverse</translation>
+        <translation>역방향</translation>
     </message>
     <message>
         <source>Graph</source>
@@ -4319,7 +4315,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;정방향 지터 값을 표시 또는 숨깁니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;정방향 지터 값을 표시하거나 숨깁니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Jitter</source>
@@ -4327,7 +4323,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;정방향 차이 값을 표시 또는 숨깁니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;정방향 차이 값을 표시하거나 숨깁니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Difference</source>
@@ -4335,7 +4331,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;역방향 지터 값을 표시 또는 숨깁니다&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;역방향 지터 값을 표시하거나 숨깁니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Jitter</source>
@@ -4343,7 +4339,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;역방향 차이 값을 표시 또는 숨깁니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;역방향 차이 값을 표시하거나 숨깁니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Difference</source>
@@ -4351,7 +4347,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;필터힌트.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;힌트입니다.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Audio</source>
@@ -4427,7 +4423,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Go to the next problem packet</source>
-        <translation>다음 문제의 패킷으로 이동합니다</translation>
+        <translation>다음 문제가 발생한 패킷으로 이동</translation>
     </message>
     <message>
         <source>N</source>
@@ -4459,7 +4455,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation>윈도우즈 비트맵 형식 (*.bmp)</translation>
+        <translation>Windows 비트맵 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
@@ -4467,7 +4463,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>다른 이름으로 그래프를 저장...</translation>
+        <translation>다른 이름으로 그래프 저장…</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
@@ -4475,7 +4471,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation>파일에 저장할 수 없습니다: 파일 입/출력 문제입니다.</translation>
+        <translation>파일에 저장할 수 없습니다: 파일 입출력 문제입니다.</translation>
     </message>
     <message>
         <source>Save forward stream audio</source>
@@ -4491,7 +4487,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sun Audio (*.au)</source>
-        <translation>Sun 음성 형식 (*.au)</translation>
+        <translation>Sun 오디오 형식 (*.au)</translation>
     </message>
     <message>
         <source>;;Raw (*.raw)</source>
@@ -4503,19 +4499,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unable to save in that format</source>
-        <translation>그 형식으로 저장 할 수 없습니다</translation>
+        <translation>해당 형식으로 저장할 수 없음</translation>
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation>%1 을(를) 저장할 수 없습니다</translation>
+        <translation>%1을(를) 저장할 수 없음</translation>
     </message>
     <message>
         <source>Saving %1…</source>
-        <translation>%1 저장중…</translation>
+        <translation>%1 저장 중…</translation>
     </message>
     <message>
         <source>Analyzing IAX2</source>
-        <translation>IAX2 분석중</translation>
+        <translation>IAX2 분석 중</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -4599,23 +4595,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation>정규표현식</translation>
+        <translation>정규 표현식</translation>
     </message>
     <message>
         <source>Import a file formatted according to a custom regular expression</source>
-        <translation>사용자가 지정한 정규표현식에 따라 파일 형식을 가져오기</translation>
+        <translation>사용자가 지정한 정규 표현식에 따라 파일 형식을 가져오기</translation>
     </message>
     <message>
         <source>Packet format regular expression</source>
-        <translation>패킷 형식 정규표현식</translation>
+        <translation>패킷 형식 정규 표현식</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;불러오기 위해, 구분하기 위해 이름붙여진 파일에서 단일 패킷을 구분하기 위한 Perl 호환 정규표현식. 엥커 ^ 와 $ 는 새 행의 이전과 이후에도 매칭됩니다. &lt;/p&gt;&lt;p&gt;요구되는 내용은 데이터 그룹 뿐이며, 지원된다면, 시간, dir, seqno. 도 요구합니다.&lt;/p&gt;&lt;p&gt;정규표현식 플래그: DUPNAMES, MULTILINE, NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;불러오기 위해, 구분하기 위해 이름붙여진 파일에서 단일 패킷을 구분하기 위한 Perl 호환 정규 표현식. 엥커 ^ 와 $ 는 새 행의 이전과 이후에도 매칭됩니다. &lt;/p&gt;&lt;p&gt;요구되는 내용은 데이터 그룹 뿐이며, 지원된다면, 시간, dir, seqno. 도 요구합니다.&lt;/p&gt;&lt;p&gt;정규 표현식 플래그: DUPNAMES, MULTILINE, NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
-        <translation>이것은 정규표현식 힌트레이블이며, default_regex_hint 로 지정될 것입니다.</translation>
+        <translation>이것은 정규 표현식 힌트레이블이며, default_regex_hint 로 지정될 것입니다.</translation>
     </message>
     <message>
         <source>Data encoding:</source>
@@ -4627,7 +4623,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>encodingRegexExample</source>
-        <translation>인코딩 정규표현식 예제</translation>
+        <translation>인코딩 정규 표현식 예제</translation>
     </message>
     <message>
         <source>List of characters indicating incoming packets</source>
@@ -4695,7 +4691,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt; 추천 정규표현식:&lt;/small&gt;&lt;/i&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt; 추천 정규 표현식:&lt;/small&gt;&lt;/i&gt;</translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
@@ -10361,11 +10357,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser file path</source>
+        <source>Application path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run your web browser with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10489,7 +10485,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation>정규표현식</translation>
+        <translation>정규 표현식</translation>
     </message>
     <message>
         <source>Find</source>
@@ -13772,7 +13768,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browser (SSL Keylog)</source>
+        <source>SSL Keylog Launcher</source>
+        <oldsource>Browser (SSL Keylog)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

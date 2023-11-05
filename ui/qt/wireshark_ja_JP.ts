@@ -2038,11 +2038,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Go literal</source>
-        <translation type="unfinished"></translation>
+        <translation>…Go 言語のリテラルとして</translation>
     </message>
     <message>
         <source>Copy packet bytes as Go literal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Go言語のリテラルとしてパケットバイト列をコピーします。</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -3455,10 +3455,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Save Stream Content As…</source>
         <translation>…としてストリーム内容を保存</translation>
     </message>
-    <message>
-        <source>[Stream output truncated]</source>
-        <translation type="vanished">[ストリーム出力が切り詰められました]</translation>
-    </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
         <translation>
@@ -3509,7 +3505,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FollowStreamText</name>
     <message>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished">[ストリーム出力が切り詰められました]</translation>
+        <translation>[ストリーム出力が切り詰められました]</translation>
     </message>
 </context>
 <context>
@@ -10365,11 +10361,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Browser file path</source>
-        <translation>ブラウザのファイルパス</translation>
+        <translation type="vanished">ブラウザのファイルパス</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run your web browser with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キーログファイル名の設定で指定したファイルにSSLKEYLOG環境変数を設定しブラウザを実行してください。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キーログファイル名の設定で指定したファイルにSSLKEYLOG環境変数を設定しブラウザを実行してください。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Application path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13817,8 +13821,9 @@ a:hover {
         <translation>MACアドレスブロック</translation>
     </message>
     <message>
-        <source>Browser (SSL Keylog)</source>
-        <translation>ブラウザ (SSL Keylog)</translation>
+        <source>SSL Keylog Launcher</source>
+        <oldsource>Browser (SSL Keylog)</oldsource>
+        <translation type="unfinished">ブラウザ (SSL Keylog)</translation>
     </message>
     <message>
         <source>&amp;Options…</source>

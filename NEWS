@@ -47,6 +47,14 @@ Wireshark 4.3.0 Release Notes
        "bool_test(some.field)" instead of having to write
        "bool_test(some.field) == True" (both forms are now valid).
 
+        • Display filter references can be written without curly braces.
+       It is now possible to write `$frame.number` instead of
+       `${frame.number}` for example.
+
+        • Added new display filter functions to test various IP address
+       properties. Check the wireshark-filter(5) manpage for more
+       information.
+
      • Display filter autocompletions now also include display filter
        functions.
 
