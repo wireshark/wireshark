@@ -1,5 +1,8 @@
 /* packet-homepna.c
  *
+ * ITU-T Rec. G.9954 (renumbered from G.989.2)
+ * https://www.itu.int/rec/T-REC-G.9954/en
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -54,6 +57,23 @@ typedef enum
 static int
 dissect_homepna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+    /*
+     * XXX: Ethertype 0x886C is assigned by IEEE to HomePNA, which was
+     * originally developed by Epigram and bought by Broadcom.
+     * Broadcom *also* uses 0x886C in their Wi-Fi firmware for certain
+     * event frames with an entirely different unregistered protocol,
+     * and at least up to certain firmware versions, there was an
+     * exploit based on these so people might want to dissect them.
+     * https://googleprojectzero.blogspot.com/2017/04/over-air-exploiting-broadcoms-wi-fi_11.html
+     * https://github.com/kanstrup/bcmdhd-dissector/
+     * https://android.googlesource.com/kernel/common.git/+/bcmdhd-3.10/drivers/net/wireless/bcmdhd/include/proto/ethernet.h
+     * There's an example at
+     * https://gitlab.com/wireshark/wireshark/-/issues/12759
+     * We could eventually have a dissector for that; right now this
+     * dissectors will incorrectly dissect such packets and probably call
+     * them malformed.
+     */
+
     proto_tree *ti;
     proto_tree *homepna_tree;
     int offset = 0;
@@ -97,15 +117,22 @@ dissect_homepna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     protocol = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(homepna_tree, hf_homepna_etype, tvb, offset, 2, protocol);
+
     offset += 2;
+    if (protocol == 0) {
+        /* No next layer protocol. Set our length here so the previous
+         * dissector can find any padding, trailer, and FCS.
+         */
+        set_actual_length(tvb, offset);
+    } else {
+        ethertype_data.etype = protocol;
+        ethertype_data.payload_offset = offset;
+        ethertype_data.fh_tree = homepna_tree;
+        ethertype_data.trailer_id = hf_homepna_trailer;
+        ethertype_data.fcs_len = 0;
 
-    ethertype_data.etype = protocol;
-    ethertype_data.payload_offset = offset;
-    ethertype_data.fh_tree = homepna_tree;
-    ethertype_data.trailer_id = hf_homepna_trailer;
-    ethertype_data.fcs_len = 4;
-
-    call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
+        call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
+    }
 
     return tvb_captured_length(tvb);
 }
