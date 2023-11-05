@@ -14,9 +14,19 @@ class TestDfilterSyntax:
         checkDFilterCount(dfilter, 1)
 
     def test_exists_2(self, checkDFilterCount):
-        # Identifier using minus
+        # Protocol using minus
         dfilter = "mac-lte"
         checkDFilterCount(dfilter, 0)
+
+    def test_exists_3(self, checkDFilterCount):
+        # Protocol starting with digit
+        dfilter = "9p or http"
+        checkDFilterCount(dfilter, 1)
+
+    def test_exists_4(self, checkDFilterCount):
+        # Protocol with dot
+        dfilter = "_ws.expert"
+        checkDFilterCount(dfilter, 1)
 
     def test_commute_1(self, checkDFilterCount):
         dfilter = "ip.proto == 6"
