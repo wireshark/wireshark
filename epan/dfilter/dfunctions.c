@@ -455,6 +455,21 @@ df_functions[] = {
     { NULL, NULL, 0, 0, FT_NONE, NULL }
 };
 
+/* Returns NULL for success. */
+static const char *
+check_valid_func_name(const char *name)
+{
+    if (!g_ascii_isalpha(name[0]) && name[0] != '_') {
+        return "first character must be a letter or underscore";
+    }
+    for (int i = 1; name[i] != '\0'; i++) {
+        if (!g_ascii_isalnum(name[0]) && name[0] != '_') {
+            return "function names must be alphanumeric plus underscore";
+        }
+    }
+    return NULL;
+}
+
 void
 df_func_init(void)
 {
@@ -465,6 +480,7 @@ df_func_init(void)
 
     /* Register built-in functions. */
     for (func = df_functions; func->name != NULL; func++) {
+        ws_assert(check_valid_func_name(func->name) == NULL);
         df_func_register(func);
     }
 }
@@ -474,6 +490,12 @@ df_func_register(df_func_def_t *func)
 {
     ws_assert(registered_functions);
     ws_assert(registered_names);
+    const char *err;
+    if ((err = check_valid_func_name(func->name)) != NULL) {
+        ws_critical("Function name \"%s\" is invalid: %s",
+                    func->name, err);
+        return false;
+    }
     if (g_hash_table_contains(registered_functions, func->name)) {
         ws_critical("Trying to register display filter function \"%s\" but "
                     "it already exists", func->name);
