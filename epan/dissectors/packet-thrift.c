@@ -323,7 +323,6 @@ static int dissect_thrift_binary_type(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static int dissect_thrift_compact_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, proto_tree *header_tree, int type, proto_item *type_pi);
 static int dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *seq, expert_field* ei);
 
-
 /*=====BEGIN GENERIC HELPERS=====*/
 /* Check that the 4-byte value match a Thrift Strict TBinaryProtocol version
  * - 0x8001 The version itself
@@ -965,6 +964,9 @@ dissect_thrift_t_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_BOOL_LEN, ENC_BIG_ENDIAN);
     offset += TBP_THRIFT_BOOL_LEN;
 
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
     return offset;
 }
 
@@ -987,6 +989,9 @@ dissect_thrift_t_i8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I8_LEN, ENC_BIG_ENDIAN);
     offset += TBP_THRIFT_I8_LEN;
 
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
     return offset;
 }
 
@@ -1014,9 +1019,12 @@ dissect_thrift_t_i16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         return THRIFT_REQUEST_REASSEMBLY;
     } else {
         proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I16_LEN, ENC_BIG_ENDIAN);
-        offset += TBP_THRIFT_FID_LEN;
+        offset += TBP_THRIFT_I16_LEN;
     }
 
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
     return offset;
 }
 
@@ -1047,6 +1055,9 @@ dissect_thrift_t_i32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         offset += TBP_THRIFT_I32_LEN;
     }
 
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
     return offset;
 }
 
@@ -1077,6 +1088,9 @@ dissect_thrift_t_i64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         offset += TBP_THRIFT_I64_LEN;
     }
 
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
     return offset;
 }
 
@@ -1102,6 +1116,9 @@ dissect_thrift_t_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     }
     offset += TBP_THRIFT_DOUBLE_LEN;
 
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
     return offset;
 }
 
@@ -1125,6 +1142,9 @@ dissect_thrift_t_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_UUID_LEN, ENC_BIG_ENDIAN);
     offset += TBP_THRIFT_UUID_LEN;
 
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
     return offset;
 }
 
@@ -1209,6 +1229,9 @@ dissect_thrift_t_string_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_id, tvb, offset, str_len, encoding);
     offset = offset + str_len;
 
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
     return offset;
 }
 
@@ -1473,32 +1496,45 @@ dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 int
 dissect_thrift_t_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *elt)
 {
+    int result;
     if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
-        return dissect_thrift_c_list_set(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, elt, TRUE);
+        result = dissect_thrift_c_list_set(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, elt, TRUE);
     } else {
-        return dissect_thrift_b_linear(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, NULL, elt, DE_THRIFT_T_LIST);
+        result = dissect_thrift_b_linear(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, NULL, elt, DE_THRIFT_T_LIST);
     }
+
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
+    return result;
 }
 
 int
 dissect_thrift_t_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *elt)
 {
+    int result;
     if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
-        return dissect_thrift_c_list_set(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, elt, FALSE);
+        result = dissect_thrift_c_list_set(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, elt, FALSE);
     } else {
-        return dissect_thrift_b_linear(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, NULL, elt, DE_THRIFT_T_SET);
+        result = dissect_thrift_b_linear(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, NULL, elt, DE_THRIFT_T_SET);
     }
+
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
+    return result;
 }
 
 int
 dissect_thrift_t_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *key, const thrift_member_t *value)
 {
+    int result;
     /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
     DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
 
     if ((thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) == 0) {
-        return dissect_thrift_b_linear(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, key, value, DE_THRIFT_T_MAP);
+        result = dissect_thrift_b_linear(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ett_id, key, value, DE_THRIFT_T_MAP);
     } else {
         proto_tree *sub_tree = NULL;
         proto_item *container_pi;
@@ -1591,8 +1627,13 @@ dissect_thrift_t_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         if (container_pi && offset > 0) {
             proto_item_set_end(container_pi, tvb, offset);
         }
-        return offset;
+        result = offset;
     }
+
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
+    return result;
 }
 
 int
@@ -1719,6 +1760,9 @@ dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         proto_item_set_end(type_pi, tvb, offset);
     }
 
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
     return offset;
 }
 /*=====END SUB-DISSECTION=====*/
@@ -3510,7 +3554,7 @@ proto_register_thrift(void)
         { &ei_thrift_varint_too_large, { "thrift.varint_too_large", PI_PROTOCOL, PI_ERROR, "Thrift varint value too large for target integer type.", EXPFILL } },
         { &ei_thrift_undefined_field_id, { "thrift.undefined_field_id", PI_PROTOCOL, PI_NOTE, "Field id not defined by sub-dissector, using generic Thrift dissector.", EXPFILL } },
         { &ei_thrift_negative_field_id, { "thrift.negative_field_id", PI_PROTOCOL, PI_NOTE, "Encountered unexpected negative field id, possibly an old application.", EXPFILL } },
-        { &ei_thrift_unordered_field_id, { "thrift.unordered_field_id", PI_PROTOCOL, PI_WARN, "Field id not defined by sub-dissector, using generic Thrift dissector.", EXPFILL } },
+        { &ei_thrift_unordered_field_id, { "thrift.unordered_field_id", PI_PROTOCOL, PI_WARN, "Field id not in strictly increasing order.", EXPFILL } },
         { &ei_thrift_application_exception, { "thrift.application_exception", PI_PROTOCOL, PI_NOTE, "The application recognized the method but rejected the content.", EXPFILL } },
         { &ei_thrift_protocol_exception, { "thrift.protocol_exception", PI_PROTOCOL, PI_WARN, "The application was not able to handle the request.", EXPFILL } },
         { &ei_thrift_too_many_subtypes, { "thrift.too_many_subtypes", PI_PROTOCOL, PI_ERROR, "Too many level of sub-types nesting.", EXPFILL } },
