@@ -665,17 +665,17 @@ Commit Check:
   variables:
     GITLAB_REPO: "$CI_MERGE_REQUEST_PROJECT_URL"
   script:
-    # GITLAB_TOKEN is set in wireshark/wireshark. Use CI_JOB_TOKEN in forks.
-    - if [ -z "$GITLAB_TOKEN" ]; then GITLAB_TOKEN=$CI_JOB_TOKEN ; fi
+    # glab depends on a valid GITALB_TOKEN variable. It will fail when run under outside projects.
     - if ! command -V glab 2> /dev/null ; then (cd /tmp ; curl -JLO https://gitlab.com/gitlab-org/cli/-/releases/v1.34.0/downloads/glab_1.34.0_Linux_x86_64.deb ; dpkg --install /tmp/glab_1.34.0_Linux_x86_64.deb ) ; fi
     - glab auth status
     - >
       if [[ $NUM_COMMITS > 1 ]] ; then
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "ℹ️ This merge request has more than one commit. Please squash any trivial ones:
+        MESSAGE="ℹ️ This merge request has more than one commit. Please squash any trivial ones:
         ~~~
         $(git log --oneline --no-decorate "${CI_COMMIT_SHA}~$NUM_COMMITS..${CI_COMMIT_SHA}")
         ~~~
         "
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
       fi
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -684,31 +684,34 @@ Commit Check:
     - ANALYSIS_MESSAGE=$( ./tools/pre-commit "${CI_COMMIT_SHA}~$NUM_COMMITS" ) || PC_EXIT_CODE=1
     - >
       if [ -n "$ANALYSIS_MESSAGE" ] ; then
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "Pre-commit check results:
+        MESSAGE="Pre-commit check results:
         ~~~
         $ANALYSIS_MESSAGE
         ~~~
         "
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
       fi
     - VC_EXIT_CODE=0
     - ANALYSIS_MESSAGE=$( tools/validate-commit.py ) || VC_EXIT_CODE=1
     - >
       if [[ $VC_EXIT_CODE != 0 ]] ; then
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "Commit validation failure:
+        MESSAGE="Commit validation failure:
         ~~~
         $ANALYSIS_MESSAGE
         ~~~
         "
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
       fi
     - LC_EXIT_CODE=0
     - ANALYSIS_MESSAGE=$( python3 tools/checklicenses.py ) || LC_EXIT_CODE=1
     - >
       if [[ $LC_EXIT_CODE != 0 ]] ; then
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "License check failure:
+        MESSAGE="License check failure:
         ~~~
         $ANALYSIS_MESSAGE
         ~~~
         "
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
       fi
     - exit $(( PC_EXIT_CODE || VC_EXIT_CODE || LC_EXIT_CODE ))
 
