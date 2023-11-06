@@ -157,6 +157,7 @@ static int hf_iso15765_flow_status = -1;
 
 static int hf_iso15765_fc_bs = -1;
 static int hf_iso15765_fc_stmin = -1;
+static int hf_iso15765_fc_stmin_in_us = -1;
 
 static int hf_iso15765_autosar_ack = -1;
 
@@ -687,14 +688,24 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             guint32 status = 0;
             guint32 bs = 0;
             guint32 stmin = 0;
+            gboolean stmin_in_us = FALSE;
             data_length = 0;
 
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_flow_status, tvb, ae,
                                          ISO15765_PCI_LEN, ENC_BIG_ENDIAN, &status);
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_fc_bs, tvb, ae + ISO15765_FC_BS_OFFSET,
                                          ISO15765_FC_BS_LEN, ENC_BIG_ENDIAN, &bs);
-            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_fc_stmin, tvb, ae + ISO15765_FC_STMIN_OFFSET,
-                                         ISO15765_FC_STMIN_LEN, ENC_BIG_ENDIAN, &stmin);
+
+            stmin = tvb_get_guint8(tvb, ae + ISO15765_FC_STMIN_OFFSET);
+            if (stmin >= 0xF1 && stmin <= 0xF9) {
+                stmin_in_us = TRUE;
+                stmin = (stmin - 0xF0) * 100U;
+                proto_tree_add_uint(iso15765_tree, hf_iso15765_fc_stmin_in_us, tvb, ae + ISO15765_FC_STMIN_OFFSET,
+                    ISO15765_FC_STMIN_LEN, stmin);
+            } else {
+                proto_tree_add_uint(iso15765_tree, hf_iso15765_fc_stmin, tvb, ae + ISO15765_FC_STMIN_OFFSET,
+                                             ISO15765_FC_STMIN_LEN, stmin);
+            }
 
             if (message_type == ISO15765_MESSAGE_TYPES_FR_ACK_FRAME) {
                 guint32 ack = 0;
@@ -704,11 +715,11 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_autosar_ack, tvb, offset, 1, ENC_BIG_ENDIAN, &ack);
                 proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_sequence_number, tvb, offset, 1, ENC_BIG_ENDIAN, &sn);
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d ms, Ack: %d, Seq: %d)",
-                                status, bs, stmin, ack, sn);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d %s, Ack: %d, Seq: %d)",
+                                status, bs, stmin, stmin_in_us ? "µs" : "ms", ack, sn);
             } else {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d ms)",
-                                status, bs, stmin);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d %s)",
+                                status, bs, stmin, stmin_in_us ? "µs" : "ms");
             }
             break;
         }
@@ -1027,6 +1038,15 @@ proto_register_iso15765(void)
                     &hf_iso15765_fc_stmin,
                     {
                             "Separation time minimum (ms)",    "iso15765.flow_control.stmin",
+                            FT_UINT8,  BASE_DEC,
+                            NULL, 0x00,
+                            NULL, HFILL
+                    }
+            },
+            {
+                    &hf_iso15765_fc_stmin_in_us,
+                    {
+                            "Separation time minimum (µs)",    "iso15765.flow_control.stmin",
                             FT_UINT8,  BASE_DEC,
                             NULL, 0x00,
                             NULL, HFILL
