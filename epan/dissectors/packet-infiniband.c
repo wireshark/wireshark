@@ -1552,6 +1552,8 @@ static const value_string DctOpCodeMap[] =
 /* ___________________________________ */
 #define RDETH_FETH_RETH             25
 /* ___________________________________ */
+#define RDETH_RETH_PAYLD            26
+/* ___________________________________ */
 
 
 /* Infiniband transport services
@@ -2222,6 +2224,15 @@ skip_lrh:
                 /*packetLength -= 4;*/ /* FETH */
                 /*packetLength -= 16;*/ /* RETH */
                 break;
+            case RDETH_RETH_PAYLD:
+                parse_RDETH(all_headers_tree, tvb, &offset);
+                parse_RETH(all_headers_tree, tvb, &offset, &info);
+
+                packetLength -= 4;
+                packetLength -= 16;
+
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
+                break;
             default:
                 parse_VENDOR(all_headers_tree, tvb, &offset);
                 break;
@@ -2390,6 +2401,12 @@ find_next_header_sequence(struct infinibandinfo* ibInfo)
 
     if ((ibInfo->opCode ^ RD_FLUSH) == 0)
         return RDETH_FETH_RETH;
+
+    if ((ibInfo->opCode ^ RC_ATOMIC_WRITE) == 0)
+        return RETH_PAYLD;
+
+    if ((ibInfo->opCode ^ RD_ATOMIC_WRITE) == 0)
+        return RDETH_RETH_PAYLD;
 
     return -1;
 }
@@ -6240,6 +6257,9 @@ skip_lrh:
                 offset += 4; /* FETH */
                 offset += 16; /* RETH */
                 break;
+            case  RDETH_RETH_PAYLD:
+                offset += 4; /* RDETH */
+                offset += 16; /* RETH */
             default:
                 break;
         }
