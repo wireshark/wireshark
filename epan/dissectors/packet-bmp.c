@@ -874,7 +874,7 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, gint offset, pac
       case BMPv4_TLV_TYPE_BGP_CAP_ADDPATH:
       case BMPv4_TLV_TYPE_BGP_CAP_MULTIPLE_LBL: {
 
-        guint16 cap_value = tvb_get_ntohs(tvb, offset);
+        guint16 cap_value = tvb_get_guint8(tvb, offset);
         if (cap_value != 0 && cap_value != 1) {
           expert_add_info(pinfo, tlv_tree, &ei_bmpv4_tlv_wrong_cap_value);
         }
