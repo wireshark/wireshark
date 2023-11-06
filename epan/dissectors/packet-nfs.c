@@ -6440,7 +6440,7 @@ dissect_nfs4_bitmap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 						else if (bitmap_info->hf_item_label)
 							hf_item = *bitmap_info->hf_item_label;
 
-						if (hf_item != -1) {
+						if (hf_item > 0) {
 							/* Display label */
 							attr_item = proto_tree_add_uint(bitmap_tree, hf_item, tvb, offset, 0, bit_num);
 						}

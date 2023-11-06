@@ -1395,7 +1395,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
             /* parse this message as timestamp */
             tvb_get_protobuf_time(tvb, offset, length, &timestamp);
             value_label = abs_time_to_rfc3339(scope ? scope : pinfo->pool, &timestamp, use_utc_fmt);
-            if (hf_msg != -1) {
+            if (hf_msg > 0) {
                 ti = proto_tree_add_time_format_value(protobuf_tree, hf_msg, tvb, offset, length, &timestamp, "%s", value_label);
                 protobuf_tree = proto_item_add_subtree(ti, ett_protobuf_message);
             }
@@ -1403,7 +1403,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
                 json_dumper_value_string(dumper, value_label);
                 dumper = NULL; /* this message will not dump as JSON object */
             }
-        } else if (hf_msg != -1) {
+        } else if (hf_msg > 0) {
             ti = proto_tree_add_bytes_format_value(protobuf_tree, hf_msg, tvb, offset, length, NULL, "(%u bytes)", length);
             protobuf_tree = proto_item_add_subtree(ti, ett_protobuf_message);
         }

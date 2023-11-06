@@ -200,7 +200,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 		offset += 2;
 
 		rta_type = tvb_get_guint16(tvb, offset, encoding);
-		if (ett_attrib == -1) {
+		if (ett_attrib <= 0) {
 			/* List of attributes */
 			type = rta_type & NLA_TYPE_MASK;
 			type_item = proto_tree_add_item(attr_tree, hf_netlink_attr_type, tvb, offset, 2, encoding);
@@ -290,7 +290,7 @@ dissect_netlink_attributes_to_end(tvbuff_t *tvb, int hf_type, int ett, void *dat
 int
 dissect_netlink_attributes_array(tvbuff_t *tvb, int hf_type, int ett_array, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
 {
-	DISSECTOR_ASSERT(ett_attrib != -1);
+	DISSECTOR_ASSERT(ett_attrib > 0);
 	return dissect_netlink_attributes_common(tvb, hf_type, ett_array, ett_attrib, data, nl_data, tree, offset, length, cb);
 }
 
@@ -314,7 +314,7 @@ dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding
 		hf_type = hf_netlink_hdr_type;
 		pi = proto_tree_add_item(fh_hdr, hf_type, tvb, offset, 2, encoding);
 	} else {
-		if (hf_type != -1) {
+		if (hf_type > 0) {
 			pi = proto_tree_add_item(fh_hdr, hf_type, tvb, offset, 2, encoding);
 		} else {
 			hf_type = hf_netlink_hdr_type;

@@ -1902,12 +1902,12 @@ void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16
 
     if (desc) {
         if (client_attr) {
-            if (desc->hf_attr_client_id >= 0) {
+            if (desc->hf_attr_client_id > 0) {
                 hf_attr_id = desc->hf_attr_client_id;
             }
         }
         else {
-            if (desc->hf_attr_server_id >= 0) {
+            if (desc->hf_attr_server_id > 0) {
                 hf_attr_id = desc->hf_attr_server_id;
             }
         }

@@ -11055,7 +11055,7 @@ static void dof_register_dnp_0(void)
         },
     };
 
-    if (proto_2008_1_dnp_0 == -1)
+    if (proto_2008_1_dnp_0 <= 0)
     {
         proto_2008_1_dnp_0 = proto_register_protocol(DOF_NETWORK_PROTOCOL " V0", "DPS.DNP.V0", "dof.dnp.v0");
 
@@ -11117,7 +11117,7 @@ static void dof_register_dnp_1(void)
 #endif
     };
 
-    if (proto_2009_9_dnp_1 == -1)
+    if (proto_2009_9_dnp_1 <= 0)
     {
         proto_2009_9_dnp_1 = proto_register_protocol(DOF_NETWORK_PROTOCOL " V1", "DOF.DNP.V1", "dof.dnp.v1");
 
@@ -11205,7 +11205,7 @@ static void dof_register_dpp_0(void)
         },
     };
 
-    if (proto_2008_1_dpp_0 == -1)
+    if (proto_2008_1_dpp_0 <= 0)
     {
         proto_2008_1_dpp_0 = proto_register_protocol(DOF_PRESENTATION_PROTOCOL " V0", "DPS.DPP.V0", "dof.dpp.v0");
 
@@ -11307,14 +11307,14 @@ static void dof_register_dpp_2(void)
         &ett_2009_12_dpp_common,
     };
 
-    if (proto_2009_12_dpp == -1)
+    if (proto_2009_12_dpp <= 0)
     {
         proto_2009_12_dpp = proto_register_protocol(DOF_PRESENTATION_PROTOCOL " V2", "DPS.DPP.V2", "dof.dpp.v2");
         proto_register_field_array(proto_2009_12_dpp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
     }
 
-    if (proto_2009_12_dpp_common == -1)
+    if (proto_2009_12_dpp_common <= 0)
     {
         proto_2009_12_dpp_common = proto_register_protocol(DOF_PRESENTATION_PROTOCOL " V2 Support", "DPS.DPP.V2S", "dof.dpp.v2s");
 
@@ -11384,7 +11384,7 @@ static void dof_dpp_register(void)
         { &ei_dof_6_timeout, { "dof.dpp.timeout", PI_PROTOCOL, PI_ERROR, "DOF Violation: DPS.6: Negotiation not complete within 10 seconds.", EXPFILL } },
     };
 
-    if (proto_2008_1_dpp == -1)
+    if (proto_2008_1_dpp <= 0)
     {
         expert_module_t *expert_dpp;
 
@@ -11423,7 +11423,7 @@ static void app_cleanup(void)
  */
 static void app_register(void)
 {
-    if (proto_2008_1_app == -1)
+    if (proto_2008_1_app <= 0)
     {
         proto_2008_1_app = proto_register_protocol(DOF_APPLICATION_PROTOCOL, "DPS.APP", "dof.app");
         app_dissectors = register_dissector_table("dof.app", "DOF APP Version", proto_2008_1_app, FT_UINT16, BASE_DEC);

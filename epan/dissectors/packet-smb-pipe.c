@@ -270,7 +270,7 @@ add_bytes_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 {
 	header_field_info *hfinfo;
 
-	if (hf_index != -1) {
+	if (hf_index > 0) {
 		hfinfo = proto_registrar_get_nth(hf_index);
 		if ((hfinfo == NULL) ||
 				((hfinfo->type == FT_INT8 || hfinfo->type == FT_UINT8)
@@ -313,7 +313,7 @@ add_string_param_update_parent(tvbuff_t *tvb, int offset, int count, packet_info
 	proto_item *ti, *parent_ti;
 	const guint8 *str;
 
-	DISSECTOR_ASSERT(hf_index != -1);
+	DISSECTOR_ASSERT(hf_index > 0);
 	ti = proto_tree_add_item_ret_string(tree, hf_index, tvb, offset,
 	    count, ENC_ASCII|ENC_NA, pinfo->pool, &str);
 	    /* XXX - code page? */
@@ -340,7 +340,7 @@ static void
 add_null_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
     packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
-	if (hf_index != -1) {
+	if (hf_index > 0) {
 		proto_tree_add_string_format_value(tree, hf_index, tvb, offset, 0, "", "(Null pointer)");
 	} else {
 		proto_tree_add_string_format_value(tree, hf_smb_pipe_string_param, tvb, offset, 0, "", "(Null pointer)");
@@ -354,7 +354,7 @@ add_string_param(tvbuff_t *tvb, int offset, int count _U_,
 	guint string_len;
 
 	string_len = tvb_strsize(tvb, offset);
-	if (hf_index != -1) {
+	if (hf_index > 0) {
 		proto_tree_add_item(tree, hf_index, tvb, offset, string_len,
 		    ENC_ASCII|ENC_NA);	/* XXX - code page? */
 	} else {
@@ -399,14 +399,14 @@ add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
 
 	/* string */
 	if (string != NULL) {
-		if (hf_index != -1) {
+		if (hf_index > 0) {
 			proto_tree_add_item(tree, hf_index, tvb, cptr,
 			    string_len, ENC_ASCII|ENC_NA);	/* XXX - code page? */
 		} else {
 			proto_tree_add_item(tree, hf_smb_pipe_stringz_param, tvb, cptr, string_len, ENC_NA|ENC_ASCII);
 		}
 	} else {
-		if (hf_index != -1) {
+		if (hf_index > 0) {
 			proto_tree_add_string(tree, hf_index, tvb, 0, 0,
 			    "<String goes past end of frame>");
 		} else {
@@ -430,14 +430,14 @@ add_bytes_pointer_param(tvbuff_t *tvb, int offset, int count,
 
 	/* bytes */
 	if (tvb_bytes_exist(tvb, cptr, count)) {
-		if (hf_index != -1) {
+		if (hf_index > 0) {
 			proto_tree_add_item(tree, hf_index, tvb, cptr,
 			    count, ENC_NA);
 		} else {
 			proto_tree_add_item(tree, hf_smb_pipe_bytes_param, tvb, cptr, count, ENC_NA);
 		}
 	} else {
-		if (hf_index != -1) {
+		if (hf_index > 0) {
 			proto_tree_add_bytes_format_value(tree, hf_index, tvb, 0, 0,
 			    NULL, "<Bytes go past end of frame>");
 		} else {
@@ -1647,7 +1647,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				WParam = tvb_get_letohs(tvb, offset);
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%04X), type is wrong (W)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_word_param : *items->hf_index),
 				    WParam, WParam);
 				offset += 2;
@@ -1678,7 +1678,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				LParam = tvb_get_letohl(tvb, offset);
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%08X), type is wrong (D)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_doubleword_param : *items->hf_index),
 				    LParam, LParam);
 				offset += 4;
@@ -1709,7 +1709,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (b)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
 				    tvb_bytes_to_str(pinfo->pool, tvb, offset, count));
 				offset += count;
@@ -1739,7 +1739,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * clutter the protocol tree by putting
 				 * it in.
 				 */
-				if (*items->hf_index != -1) {
+				if (*items->hf_index > 0) {
 					add_null_pointer_param(tvb,
 					    offset, 0, pinfo, tree, 0,
 					    *items->hf_index, smb_info);
@@ -1767,7 +1767,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				string_len = tvb_strsize(tvb, offset);
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, string_len,
 				    "%s: Value is %s, type is wrong (z)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_string_param : *items->hf_index),
 				    tvb_format_text(pinfo->pool, tvb, offset, string_len));
 				offset += string_len;
@@ -1862,7 +1862,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (g)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
 				    tvb_bytes_to_str(pinfo->pool, tvb, offset, count));
 				offset += count;
@@ -1893,7 +1893,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				WParam = tvb_get_letohs(tvb, offset);
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%04X), type is wrong (W)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_word_param : *items->hf_index),
 				    WParam, WParam);
 				offset += 2;
@@ -1924,7 +1924,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				LParam = tvb_get_letohl(tvb, offset);
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%08X), type is wrong (i)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_doubleword_param : *items->hf_index),
 				    LParam, LParam);
 				offset += 4;
@@ -1995,7 +1995,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				WParam = tvb_get_letohs(tvb, offset);
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%04X), type is wrong (W)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_word_param : *items->hf_index),
 				    WParam, WParam);
 				offset += 2;
@@ -2028,7 +2028,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				LParam = tvb_get_letohl(tvb, offset);
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%08X), type is wrong (D)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_doubleword_param : *items->hf_index),
 				    LParam, LParam);
 				offset += 4;
@@ -2059,7 +2059,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 */
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (B)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
 				    tvb_bytes_to_str(pinfo->pool, tvb, offset, count));
 				offset += count;
@@ -2089,7 +2089,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * clutter the protocol tree by putting
 				 * it in.
 				 */
-				if (*items->hf_index != -1) {
+				if (*items->hf_index > 0) {
 					add_null_pointer_param(tvb,
 					    offset, 0, pinfo, tree, convert,
 					    *items->hf_index, smb_info);
@@ -2119,7 +2119,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				offset += 4;
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, cptr, string_len,
 				    "%s: Value is %s, type is wrong (z)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_string_param : *items->hf_index),
 				    string ? string : "(null)");
 				items++;
@@ -2151,7 +2151,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				offset += 4;
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (b)",
-				    proto_registrar_get_name((*items->hf_index == -1) ?
+				    proto_registrar_get_name((*items->hf_index <= 0) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
 				    tvb_bytes_to_str(pinfo->pool, tvb, cptr, count));
 				items++;

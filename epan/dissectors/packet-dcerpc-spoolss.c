@@ -5832,7 +5832,7 @@ cb_notify_str_postprocess(packet_info *pinfo _U_,
 
 	/* Add hidden field so filter brings up any notify data */
 
-	if (hf_index != -1) {
+	if (hf_index > 0) {
 		hidden_item = proto_tree_add_string(
 			tree, hf_index, tvb, start_offset, len, s);
 		proto_item_set_hidden(hidden_item);

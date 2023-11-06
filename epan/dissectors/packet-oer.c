@@ -137,7 +137,7 @@ dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
     if ((oct & 0x80) == 0) {
         /* Short form */
         *length = oct;
-        if (hf_index != -1) {
+        if (hf_index > 0) {
             item = proto_tree_add_item(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN);
             if (!display_internal_oer_fields) proto_item_set_hidden(item);
         }
@@ -356,7 +356,7 @@ dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
             enum ftenum type = FT_INT32;
             /* This should be signed, because the field should only be
              * unsigned if there's a constraint, and then we don't get here. */
-            if (hf_index >= 0) {
+            if (hf_index > 0) {
                 type = proto_registrar_get_ftype(hf_index);
             }
             uint8_t first = tvb_get_guint8(tvb, offset);
@@ -374,7 +374,7 @@ dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
         dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer unexpected length");
     }
 
-    if (hf_index >= 0) {
+    if (hf_index > 0) {
         header_field_info* hfi;
         hfi = proto_registrar_get_nth(hf_index);
         if (FT_IS_UINT32(hfi->type)) {

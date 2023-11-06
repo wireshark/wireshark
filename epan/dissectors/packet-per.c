@@ -172,7 +172,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 	gboolean is_fragmented;
 	int captured_pdu_length;
 
-	hfi = (hf_index == -1) ? NULL : proto_registrar_get_nth(hf_index);
+	hfi = (hf_index <= 0) ? NULL : proto_registrar_get_nth(hf_index);
 
 	start_offset = offset;
 	do {
@@ -379,7 +379,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 				return offset;
 			}
 			*length *= 0x4000;
-			if(hf_index!=-1){
+			if(hf_index > 0){
 				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
 				if (display_internal_per_fields)
 					proto_item_append_text(pi," %s", str);
@@ -391,7 +391,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		}
 		else if((val&0x80)==0 && num_bits==8){
 			*length = val;
-			if(hf_index!=-1){
+			if(hf_index > 0){
 				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
 				if (display_internal_per_fields)
 					proto_item_append_text(pi," %s", str);
@@ -403,7 +403,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		}
 		else if (num_bits==16) {
 			*length = val&0x3fff;
-			if(hf_index!=-1){
+			if(hf_index > 0){
 				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-2, 2, *length);
 				if (display_internal_per_fields)
 					proto_item_append_text(pi," %s", str);
@@ -422,7 +422,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 	/* 10.9.3.6 */
 	if((byte&0x80)==0){
 		*length=byte;
-		if(hf_index!=-1){
+		if(hf_index > 0){
 			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
 			if (!display_internal_per_fields) proto_item_set_hidden(pi);
 		}
@@ -434,7 +434,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		*length=(byte&0x3f);
 		*length=((*length)<<8)+tvb_get_guint8(tvb, offset>>3);
 		offset+=8;
-		if(hf_index!=-1){
+		if(hf_index > 0){
 			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-2, 2, *length);
 			if (!display_internal_per_fields) proto_item_set_hidden(pi);
 		}
@@ -450,7 +450,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		}
 		*length *= 0x4000;
 		*is_fragmented = TRUE;
-		if(hf_index!=-1){
+		if(hf_index > 0){
 			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
 			if (!display_internal_per_fields) proto_item_set_hidden(pi);
 		}
@@ -487,7 +487,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 				*length|=1;
 			}
 		}
-		if(hf_index!=-1){
+		if(hf_index > 0){
 			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset-6)>>3, (offset%8<6)?2:1, *length);
 			if (!display_internal_per_fields) proto_item_set_hidden(pi);
 		}
@@ -522,7 +522,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 			*length = 0;
 			return offset;
 	}
-	if(hf_index!=-1){
+	if(hf_index > 0){
 		pi = proto_tree_add_uint(tree, hf_index, tvb, (offset-(8*length_determinant))>>3, length_determinant, *length);
 		if (!display_internal_per_fields) proto_item_set_hidden(pi);
 	}
@@ -1163,7 +1163,7 @@ DEBUG_ENTRY("dissect_per_boolean");
 	} else {
 		value=0;
 	}
-	if(hf_index!=-1){
+	if(hf_index > 0){
 		char bits[10];
 		bits[0] = mask&0x80?'0'+value:'.';
 		bits[1] = mask&0x40?'0'+value:'.';
@@ -2262,7 +2262,7 @@ dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	gboolean is_fragmented = FALSE;
 	tvbuff_t *fragmented_tvb = NULL, *out_tvb = NULL, *fragment_tvb = NULL;
 
-	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
+	hfi = (hf_index <= 0) ? NULL : proto_registrar_get_nth(hf_index);
 
 DEBUG_ENTRY("dissect_per_bit_string");
 	/* 15.8 if the length is 0 bytes there will be no encoding */
@@ -2447,7 +2447,7 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
 	gboolean is_fragmented = FALSE;
 	tvbuff_t *out_tvb = NULL, *fragment_tvb = NULL;
 
-	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
+	hfi = (hf_index <= 0) ? NULL : proto_registrar_get_nth(hf_index);
 
 DEBUG_ENTRY("dissect_per_octet_string");
 

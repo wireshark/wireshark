@@ -929,7 +929,7 @@ proto_reg_handoff_tpncp(void)
 {
     static gboolean initialized = FALSE;
 
-    if (proto_tpncp == -1) return;
+    if (proto_tpncp <= 0) return;
 
     if (!initialized) {
         dissector_add_uint_with_preference("udp.port", UDP_PORT_TPNCP_TRUNKPACK, tpncp_handle);

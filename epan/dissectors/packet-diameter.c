@@ -1397,7 +1397,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	diam_sub_dis_inf->user_equipment_info_type = USER_EQUIPMENT_INFO_TYPE_UNKNOWN;
 
 	/* Load header fields if not already done */
-	if (hf_diameter_code == -1)
+	if (hf_diameter_code <= 0)
 		proto_registrar_get_byname("diameter.code");
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
 
@@ -1700,7 +1700,7 @@ dissect_diameter_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(pinfo->pool, diam_sub_dis_t);
 
 	/* Load header fields if not already done */
-	if (hf_diameter_code == -1)
+	if (hf_diameter_code <= 0)
 		proto_registrar_get_byname("diameter.code");
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");

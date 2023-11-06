@@ -443,7 +443,7 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 	}
 
 	hf_id = *json_data_decoder_rec->hf_id;
-	DISSECTOR_ASSERT(hf_id >= 0);
+	DISSECTOR_ASSERT(hf_id > 0);
 
 	if (use_compact) {
 		int str_len = (int)strlen(key_str);

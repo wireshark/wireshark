@@ -619,7 +619,7 @@ dissect_ber_tagged_type(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -1545,7 +1545,7 @@ dissect_ber_constrained_octet_string_impl(bool implicit_tag, asn1_ctx_t *actx, p
 {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -1636,7 +1636,7 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
         if (len <= (guint32)length_remaining) {
             length_remaining = len;
         }
-        if (hf_id >= 0) {
+        if (hf_id > 0) {
             /*
              * Strings are special.  See X.680 section 41 "Definition of
              * restricted character string types" and X.690 section 8.20
@@ -1784,7 +1784,7 @@ dissect_ber_octet_string_wcb(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tr
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_id, (func) ? &out_tvb : NULL);
     if (func && out_tvb && (tvb_reported_length(out_tvb) > 0)) {
-        if (hf_id >= 0)
+        if (hf_id > 0)
             tree = proto_item_add_subtree(actx->created_item, ett_ber_octet_string);
         /* TODO Should hf_id2 be pased as last parameter???*/
         func(FALSE, out_tvb, 0, actx, tree, -1);
@@ -1833,7 +1833,7 @@ dissect_ber_null(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t
             offset += len;
         }
     }
-    if (hf_id >= 0)
+    if (hf_id > 0)
         proto_tree_add_item(tree, hf_id, tvb, offset, 0, ENC_BIG_ENDIAN);
     return offset;
 }
@@ -1853,7 +1853,7 @@ dissect_ber_integer64(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvb
 {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -1887,7 +1887,7 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
         /* we can't handle integers > 64 bits */
         /* take into account the use case of a 64bits unsigned integer: you will have a 9th byte set to 0 */
         if ((len > 9) || ((len == 9) && (first != 0))) {
-            if (hf_id >= 0) {
+            if (hf_id > 0) {
                 header_field_info *hfinfo = proto_registrar_get_nth(hf_id);
 
                 /* use the original field only if it is suitable for bytes */
@@ -1903,7 +1903,7 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
         }
         /* extend sign bit for signed fields */
         enum ftenum type  = FT_INT32; /* Default to signed, is this correct? */
-        if (hf_id >= 0) {
+        if (hf_id > 0) {
             type = proto_registrar_get_ftype(hf_id);
         }
         if (first & 0x80 && FT_IS_INT(type)) {
@@ -1924,7 +1924,7 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
 
     actx->created_item = NULL;
 
-    if (hf_id >= 0) {
+    if (hf_id > 0) {
         /*  */
         header_field_info* hfi;
 
@@ -2052,7 +2052,7 @@ dissect_ber_boolean(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
 
         actx->created_item = NULL;
 
-        if (hf_id >= 0) {
+        if (hf_id > 0) {
             hfi = proto_registrar_get_nth(hf_id);
             if (hfi->type == FT_BOOLEAN)
                 actx->created_item = proto_tree_add_boolean(tree, hf_id, tvb, offset-1, 1, val);
@@ -2063,7 +2063,7 @@ dissect_ber_boolean(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
         val = 0;
         actx->created_item = NULL;
 
-        if (hf_id >= 0) {
+        if (hf_id > 0) {
             hfi = proto_registrar_get_nth(hf_id);
             proto_tree_add_expert_format(
                     tree, actx->pinfo, &ei_ber_error_length, tvb, offset, len,
@@ -2150,7 +2150,7 @@ dissect_ber_sequence(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tre
 {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -2173,7 +2173,7 @@ proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) entered\n", n
         end_offset = offset+lenx;
     }
     /* create subtree */
-    if (hf_id >= 0) {
+    if (hf_id > 0) {
         if (parent_tree) {
             item = proto_tree_add_item(parent_tree, hf_id, tvb, hoffset, lenx + offset - hoffset, ENC_BIG_ENDIAN);
             tree = proto_item_add_subtree(item, ett_id);
@@ -2416,7 +2416,7 @@ ber_sequence_try_again:
 {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -2444,7 +2444,7 @@ proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) calling subdi
 {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -2526,7 +2526,7 @@ dissect_ber_set(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tv
     {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -2584,7 +2584,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
     }
 
     /* create subtree */
-    if (hf_id >= 0) {
+    if (hf_id > 0) {
         if (parent_tree) {
             item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, ENC_BIG_ENDIAN);
             tree = proto_item_add_subtree(item, ett_id);
@@ -2683,7 +2683,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
 {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -2812,7 +2812,7 @@ dissect_ber_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int
 #ifdef DEBUG_BER_CHOICE
 {
 const char *name;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -2848,7 +2848,7 @@ proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) entered len:%d\n"
     /* Some sanity checks.
      * The hf field passed to us MUST be an integer type
      */
-    if (hf_id >= 0) {
+    if (hf_id > 0) {
         hfinfo = proto_registrar_get_nth(hf_id);
         switch (hfinfo->type) {
         case FT_UINT8:
@@ -2906,7 +2906,7 @@ proto_tree_add_debug_text(tree, "CHOICE testing potential subdissector class[%p]
                 length = end_offset- hoffset;
             }
             /* create subtree */
-            if (hf_id >= 0) {
+            if (hf_id > 0) {
                 if (parent_tree) {
                     item = proto_tree_add_uint(parent_tree, hf_id, tvb, hoffset, end_offset - hoffset, ch->value);
                     tree = proto_item_add_subtree(item, ett_id);
@@ -2933,7 +2933,7 @@ proto_tree_add_debug_text(tree, "CHOICE testing potential subdissector class[%p]
 #ifdef DEBUG_BER_CHOICE
 {
 const char *name;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -2957,7 +2957,7 @@ proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) calling subdissec
 #ifdef DEBUG_BER_CHOICE
 {
 const char *name;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -2972,7 +2972,7 @@ proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) subdissector ate 
 #ifdef DEBUG_BER_CHOICE
 {
 const char *name;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -3076,7 +3076,7 @@ dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int
     tvb_memcpy(tvb, str, offset, len);
     str[len]=0;
 
-    if (hf_id >= 0) {
+    if (hf_id > 0) {
         proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
     }
 
@@ -3100,7 +3100,7 @@ dissect_ber_constrained_restricted_string(bool implicit_tag, gint32 type,  asn1_
 {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -3200,7 +3200,7 @@ dissect_ber_any_oid(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
 #ifdef DEBUG_BER
 {
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -3341,7 +3341,7 @@ dissect_ber_sq_of(bool implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *
 {
 const char *name;
 header_field_info *hfinfo;
-if (hf_id >= 0) {
+if (hf_id > 0) {
 hfinfo = proto_registrar_get_nth(hf_id);
 name = hfinfo->name;
 } else {
@@ -3436,7 +3436,7 @@ proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered\n", name);
     offset = hoffsetx;
 
     /* create subtree */
-    if (hf_id >= 0) {
+    if (hf_id > 0) {
         hfi = proto_registrar_get_nth(hf_id);
         if (parent_tree) {
             if (hfi->type == FT_NONE) {
@@ -3695,7 +3695,7 @@ dissect_ber_GeneralizedTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tre
         return end_offset;
     }
 
-    if (hf_id >= 0) {
+    if (hf_id > 0) {
         proto_tree_add_time(tree, hf_id, tvb, offset, len, &ts);
     }
 
@@ -3841,7 +3841,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
     if (datestrptr) {
        *datestrptr = outstr; /* mark as valid */
     } else {
-        if (hf_id >= 0) {
+        if (hf_id > 0) {
             proto_tree_add_string(tree, hf_id, tvb, offset, len, outstr);
         }
     }
@@ -3849,7 +3849,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
 
     return offset+len;
 malformed:
-    if (hf_id >= 0) {
+    if (hf_id > 0) {
         cause = proto_tree_add_string(tree, hf_id, tvb, offset, len, instr);
         error_tree = proto_item_add_subtree(cause, ett_ber_unknown);
     } else {
@@ -3967,7 +3967,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
         }
         offset++;
         len--;
-        if (hf_id >= 0) {
+        if (hf_id > 0) {
             item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_NA);
             actx->created_item = item;
             if (named_bits) {
@@ -3979,7 +3979,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
                         proto_item_append_text(item, " [%u zero bits not encoded, but displayed]", zero_bits_omitted);
                     }
                 }
-                if (ett_id != -1) {
+                if (ett_id > 0) {
                     tree = proto_item_add_subtree(item, ett_id);
                 }
                 for (int i = 0; i < named_bits_bytelen; i++) {

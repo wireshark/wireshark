@@ -336,7 +336,7 @@ int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_net
 {
 	int offset = 0;
 
-	if (hf_cmd < 0) {
+	if (hf_cmd <= 0) {
 		hf_cmd = hf_genl_cmd;
 	}
 	proto_tree_add_item(genl_info->genl_tree, hf_cmd, tvb, offset, 1, ENC_NA);

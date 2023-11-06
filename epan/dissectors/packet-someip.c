@@ -2835,7 +2835,7 @@ dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return 0;
     }
 
-    if (hf_id != -1) {
+    if (hf_id > 0) {
         if (strncmp(base_type->data_type, "uint", 4) == 0) {
             if (base_type->bitlength_base_type > 32) {
                 ti = proto_tree_add_item_ret_uint64(tree, hf_id, tvb, offset, param_length, big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN, &value);

@@ -210,7 +210,7 @@ ltp_ref_use(wmem_map_t *map, guint64 ref_num, const packet_info *pinfo, proto_tr
 			proto_tree_add_uint(tree, hf_ref, NULL, 0, 0, frame_refd->frame_num)
 		);
 
-		if (hf_time >= 0)
+		if (hf_time > 0)
 		{
 			nstime_t td;
 			nstime_delta(&td, &(pinfo->abs_ts), &(frame_refd->abs_ts));

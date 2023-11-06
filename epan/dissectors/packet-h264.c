@@ -561,7 +561,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 
     start_offset = *start_bit_offset>>3;
 
-    if (hf_index > -1)
+    if (hf_index > 0)
         hf_field = proto_registrar_get_nth(hf_index);
 
     switch (descriptor) {

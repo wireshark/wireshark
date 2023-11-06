@@ -3436,7 +3436,7 @@ ssh_tree_add_mac(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guin
     if (flags & PROTO_CHECKSUM_NOT_PRESENT) {
         ti = proto_tree_add_uint_format_value(tree, hf_checksum, tvb, offset, len, 0, "[missing]");
         proto_item_set_generated(ti);
-        if (hf_checksum_status != -1) {
+        if (hf_checksum_status > 0) {
             ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, len, PROTO_CHECKSUM_E_NOT_PRESENT);
             proto_item_set_generated(ti2);
         }

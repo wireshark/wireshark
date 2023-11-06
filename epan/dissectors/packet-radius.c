@@ -1464,7 +1464,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 	GHashTable *vsa_buffer_table = NULL;
 
-	if (hf_radius_code == -1)
+	if (hf_radius_code <= 0)
 		proto_registrar_get_byname("radius.code");
 
 	/*
@@ -2029,7 +2029,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			rh.rh_ident);
 
 	/* Load header fields if not already done */
-	if (hf_radius_code == -1)
+	if (hf_radius_code <= 0)
 		proto_registrar_get_byname("radius.code");
 
 	ti = proto_tree_add_item(tree, proto_radius, tvb, 0, rh.rh_pktlength, ENC_NA);

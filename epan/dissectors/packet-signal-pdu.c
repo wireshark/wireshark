@@ -2096,7 +2096,7 @@ static wmem_map_t *spdu_aggregation_data = NULL;
 static spdu_aggregation_t *
 get_or_create_aggregation_data(packet_info *pinfo, gint hf_id_effective) {
     DISSECTOR_ASSERT(spdu_aggregation_data != NULL);
-    DISSECTOR_ASSERT(hf_id_effective != -1);
+    DISSECTOR_ASSERT(hf_id_effective > 0);
 
     spdu_aggregation_t *data = (spdu_aggregation_t *)wmem_map_lookup(spdu_aggregation_data, GINT_TO_POINTER(hf_id_effective));
 

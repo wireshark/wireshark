@@ -788,7 +788,7 @@ static int dissect_master_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int h
 	proto_tree_add_item(tree, hf_dlm_pad16, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	if (hf_flag == -1)
+	if (hf_flag <= 0)
 		proto_tree_add_item(tree, hf_dlm_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
 	else
 		proto_tree_add_item(tree, hf_flag, tvb, offset, 4, ENC_BIG_ENDIAN);

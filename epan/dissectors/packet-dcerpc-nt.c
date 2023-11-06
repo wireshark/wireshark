@@ -1328,7 +1328,7 @@ dissect_ndr_nt_SID28(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const char *name;
 	int newoffset;
 
-	if(hf_index!=-1){
+	if(hf_index > 0){
 		name=proto_registrar_get_name(hf_index);
 	} else {
 		name="Domain";
@@ -1379,7 +1379,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	char *sid_str=NULL;
 	const char *name;
 
-	if(di->hf_index!=-1){
+	if(di->hf_index > 0){
 		name=proto_registrar_get_name(di->hf_index);
 	} else {
 		name="Domain";

@@ -1666,11 +1666,11 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 				hf_string = -1;
 			}
 
-			if (hf_uint != -1)
+			if (hf_uint > 0)
 			{
 				proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, (guint32)strtoul(typval[1], NULL, 10));
 			}
-			else if (hf_string != -1)
+			else if (hf_string > 0)
 			{
 				proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
 			}
@@ -1829,11 +1829,11 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 			}
 
 			/* Add item */
-			if (hf_uint != -1)
+			if (hf_uint > 0)
 			{
 				proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, (guint32)strtoul(typval[1], NULL, 10));
 			}
-			else if (hf_string != -1)
+			else if (hf_string > 0)
 			{
 				proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
 			}
@@ -1978,7 +1978,7 @@ dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, gint offs
 			/* Add item */
 			if (tree)
 			{
-				if (hf_string != -1)
+				if (hf_string > 0)
 				{
 					proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
 				}
@@ -2128,7 +2128,7 @@ dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, gint off
 			/* Add item */
 			if (tree)
 			{
-				if (hf_string != -1)
+				if (hf_string > 0)
 				{
 					proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
 				}

@@ -12450,7 +12450,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     if (short_pd == 0)
        proto_tree_add_bits_item(sacch_tree, hf_gsm_a_rr_short_pd, tvb, offset * 8 + bit_offset++, 1, ENC_BIG_ENDIAN);
 
-    if (hf_idx == -1)
+    if (hf_idx <= 0)
         return 1;
 
     /*

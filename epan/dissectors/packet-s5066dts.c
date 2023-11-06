@@ -1321,7 +1321,7 @@ void proto_register_s5066dts (void)
 
     expert_module_t* expert_s5066dts;
 
-    if (proto_s5066dts == -1) /* do protocol initialization only once */
+    if (proto_s5066dts <= 0) /* do protocol initialization only once */
     {
         proto_s5066dts = proto_register_protocol ("STANAG 5066(DTS layer)", "STANAG 5066 DTS", "s5066dts");
         proto_register_field_array(proto_s5066dts, hf, array_length(hf));
