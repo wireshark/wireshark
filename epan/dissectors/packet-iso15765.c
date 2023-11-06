@@ -498,8 +498,6 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                                          ISO15765_FC_BS_LEN, ENC_BIG_ENDIAN, &bs);
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_fc_stmin, tvb, ae + ISO15765_FC_STMIN_OFFSET,
                                          ISO15765_FC_STMIN_LEN, ENC_BIG_ENDIAN, &stmin);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d ms)",
-                            status, bs, stmin);
 
             if (message_type == ISO15765_MESSAGE_TYPES_FR_ACK_FRAME) {
                 guint32 ack = 0;
