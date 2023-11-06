@@ -2479,7 +2479,7 @@ parse_DETH(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offs
     *offset = local_offset;
 }
 
-/* Parse DETH - DC Connected Extended Transport Header
+/* Parse DCCETH - DC Connected Extended Transport Header
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: dctConnect - True if this is a DCT-Connect packet.
 * IN: tvb - the data buffer from wireshark
