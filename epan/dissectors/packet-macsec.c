@@ -89,14 +89,23 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* Get the payload section */
     if (short_length != 0) {
         data_length = short_length;
-        fcs_length = tvb_captured_length(tvb) - sectag_length - icv_length - short_length;
+        fcs_length = tvb_reported_length(tvb) - sectag_length - icv_length - short_length;
+
+        /*
+         * We know the length, so set it here for the previous ethertype
+         * dissector. This will allow us to calculate the FCS correctly.
+         */
+        set_actual_length(tvb, short_length + sectag_length + icv_length);
     } else {
         /*
          * This assumes that no FCS is present after the ICV, which might not be true!
          * Workaround: turn Ethernet "Assume packets have FCS" = Always, when FCS present.
-         * TODO: Find better heuristic to detect presence of FCS.
+         * If there's another (non FCS) trailer afterwards, set Ethernet
+         * "Fixed ethernet trailer length".
+         *
+         * TODO: Find better heuristic to detect presence of FCS / trailers.
          */
-        data_length = tvb_captured_length(tvb) - sectag_length - icv_length;
+        data_length = tvb_reported_length(tvb) - sectag_length - icv_length;
     }
     data_offset = sectag_length;
     icv_offset  = data_length + data_offset;
@@ -156,14 +165,15 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         ethertype_data.etype = tvb_get_ntohs(tvb, data_offset);
         ethertype_data.payload_offset = 0;
         ethertype_data.fh_tree = macsec_tree;
-        /* fallback, if ethernet dissector does not identify padding correctly */
+        /* XXX: This could be another trailer, a FCS, or the Ethernet dissector
+         * incorrectly detecting padding if we don't have short_length. */
         ethertype_data.trailer_id = hf_macsec_eth_padding;
         ethertype_data.fcs_len = 0;
 
         /* lets hand over a buffer without ICV to limit effect of wrong padding calculation */
         next_tvb = tvb_new_subset_length(tvb, data_offset + 2, data_length - 2);
 
-        /* help eth padding calculation by substracting length of the sectag, ethertype, icv, and fcs */
+        /* help eth padding calculation by subtracting length of the sectag, ethertype, icv, and fcs */
         gint pkt_len_saved = pinfo->fd->pkt_len;
         pinfo->fd->pkt_len -= (sectag_length + 2 + icv_length + fcs_length);
 
@@ -173,8 +183,10 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         pinfo->fd->pkt_len = pkt_len_saved;
 
         proto_tree_add_item(macsec_tree, hf_macsec_ICV, tvb, icv_offset, icv_length, ENC_NA);
+        proto_tree_set_appendix(macsec_tree, tvb, icv_offset, icv_length);
     }
-    return tvb_captured_length(tvb) - fcs_length;
+    /* We called set_actual length if fcs_length !=0, so length is adjusted. */
+    return tvb_captured_length(tvb);
 }
 
 void
