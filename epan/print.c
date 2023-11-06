@@ -127,8 +127,8 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data);
 
 /* Cache the protocols and field handles that the print functionality needs
    This helps break explicit dependency on the dissectors. */
-static int proto_data = -1;
-static int proto_frame = -1;
+static int proto_data;
+static int proto_frame;
 
 void print_cache_field_handles(void)
 {

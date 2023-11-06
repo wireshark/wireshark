@@ -26,7 +26,7 @@
 #include <epan/packet.h>
 #include <wsutil/ws_assert.h>
 
-static int proto_cols = -1;
+static int proto_cols;
 static hf_register_info *hf_cols = NULL;
 static unsigned int hf_cols_cleanup = 0;
 
@@ -1126,10 +1126,10 @@ column_register_fields(void)
   hf_register_info new_hf;
   fmt_data *cfmt;
   gboolean *used_fmts;
-  if (proto_cols == -1) {
+  if (proto_cols <= 0) {
     proto_cols = proto_get_id_by_filter_name("_ws.col");
   }
-  if (proto_cols == -1) {
+  if (proto_cols <= 0) {
     proto_cols = proto_register_protocol("Wireshark Columns", "Columns", "_ws.col");
   }
   column_deregister_fields();

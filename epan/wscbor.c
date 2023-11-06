@@ -21,13 +21,13 @@
 #include "wscbor.h"
 
 /// Pseudo-protocol to register expert info
-static int proto_wscbor = -1;
+static int proto_wscbor;
 
-static expert_field ei_cbor_invalid = EI_INIT;
-static expert_field ei_cbor_overflow = EI_INIT;
-static expert_field ei_cbor_wrong_type = EI_INIT;
-static expert_field ei_cbor_array_wrong_size = EI_INIT;
-static expert_field ei_cbor_indef_string = EI_INIT;
+static expert_field ei_cbor_invalid;
+static expert_field ei_cbor_overflow;
+static expert_field ei_cbor_wrong_type;
+static expert_field ei_cbor_array_wrong_size;
+static expert_field ei_cbor_indef_string;
 static ei_register_info expertitems[] = {
     {&ei_cbor_invalid, {"_ws.wscbor.cbor_invalid", PI_MALFORMED, PI_ERROR, "CBOR cannot be decoded", EXPFILL}},
     {&ei_cbor_overflow, {"_ws.wscbor.cbor_overflow", PI_UNDECODED, PI_ERROR, "CBOR overflow of Wireshark value", EXPFILL}},

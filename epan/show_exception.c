@@ -23,14 +23,14 @@
 
 #include <wsutil/wslog.h>
 
-static int proto_short = -1;
-static int proto_malformed = -1;
-static int proto_unreassembled = -1;
+static int proto_short;
+static int proto_malformed;
+static int proto_unreassembled;
 
-static expert_field ei_malformed_dissector_bug = EI_INIT;
-static expert_field ei_malformed_reassembly = EI_INIT;
-static expert_field ei_malformed = EI_INIT;
-static expert_field ei_unreassembled = EI_INIT;
+static expert_field ei_malformed_dissector_bug;
+static expert_field ei_malformed_reassembly;
+static expert_field ei_malformed;
+static expert_field ei_unreassembled;
 
 void
 register_show_exception(void)

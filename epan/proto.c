@@ -343,24 +343,24 @@ static void
 proto_tree_set_eui64_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint encoding);
 
 /* Handle type length mismatch (now filterable) expert info */
-static int proto_type_length_mismatch = -1;
-static expert_field ei_type_length_mismatch_error = EI_INIT;
-static expert_field ei_type_length_mismatch_warn = EI_INIT;
+static int proto_type_length_mismatch;
+static expert_field ei_type_length_mismatch_error;
+static expert_field ei_type_length_mismatch_warn;
 static void register_type_length_mismatch(void);
 
 /* Handle byte array string decoding errors with expert info */
-static int proto_byte_array_string_decoding_error = -1;
-static expert_field ei_byte_array_string_decoding_failed_error = EI_INIT;
+static int proto_byte_array_string_decoding_error;
+static expert_field ei_byte_array_string_decoding_failed_error;
 static void register_byte_array_string_decodinws_error(void);
 
 /* Handle date and time string decoding errors with expert info */
-static int proto_date_time_string_decoding_error = -1;
-static expert_field ei_date_time_string_decoding_failed_error = EI_INIT;
+static int proto_date_time_string_decoding_error;
+static expert_field ei_date_time_string_decoding_failed_error;
 static void register_date_time_string_decodinws_error(void);
 
 /* Handle string errors expert info */
-static int proto_string_errors = -1;
-static expert_field ei_string_trailing_characters = EI_INIT;
+static int proto_string_errors;
+static expert_field ei_string_trailing_characters;
 static void register_string_errors(void);
 
 static int proto_register_field_init(header_field_info *hfinfo, const int parent);

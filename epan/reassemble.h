@@ -571,13 +571,13 @@ reassembly_table_cleanup(void);
  *
  * will create global variables:
  *
- *     static gint ett_foo_body_fragment = -1;
- *     static gint ett_foo_body_fragments = -1;
- *     static int hf_foo_body_fragment = -1;
- *     static int hf_foo_body_fragments = -1;
- *     static int hf_foo_body_fragment_overlap = -1;
+ *     static gint ett_foo_body_fragment;
+ *     static gint ett_foo_body_fragments;
+ *     static int hf_foo_body_fragment;
+ *     static int hf_foo_body_fragments;
+ *     static int hf_foo_body_fragment_overlap;
  *     ...
- *     static int hf_foo_body_segment = -1;
+ *     static int hf_foo_body_segment;
  *
  *     static const fragment_items foo_body_fragment_items = {
  *         &ett_foo_body_fragment,
@@ -916,20 +916,20 @@ streaming_reassembly_info_new(void);
  *     static reassembly_table proto_a_streaming_reassembly_table;
  *     ...
  *     // heads for displaying reassembley information
- *     static int hf_msg_fragments = -1;
- *     static int hf_msg_fragment = -1;
- *     static int hf_msg_fragment_overlap = -1;
- *     static int hf_msg_fragment_overlap_conflicts = -1;
- *     static int hf_msg_fragment_multiple_tails = -1;
- *     static int hf_msg_fragment_too_long_fragment = -1;
- *     static int hf_msg_fragment_error = -1;
- *     static int hf_msg_fragment_count = -1;
- *     static int hf_msg_reassembled_in = -1;
- *     static int hf_msg_reassembled_length = -1;
- *     static int hf_msg_body_segment = -1;
+ *     static int hf_msg_fragments;
+ *     static int hf_msg_fragment;
+ *     static int hf_msg_fragment_overlap;
+ *     static int hf_msg_fragment_overlap_conflicts;
+ *     static int hf_msg_fragment_multiple_tails;
+ *     static int hf_msg_fragment_too_long_fragment;
+ *     static int hf_msg_fragment_error;
+ *     static int hf_msg_fragment_count;
+ *     static int hf_msg_reassembled_in;
+ *     static int hf_msg_reassembled_length;
+ *     static int hf_msg_body_segment;
  *     ...
- *     static gint ett_msg_fragment = -1;
- *     static gint ett_msg_fragments = -1;
+ *     static gint ett_msg_fragment;
+ *     static gint ett_msg_fragments;
  *     ...
  *     static const fragment_items msg_frag_items = {
  *         &ett_msg_fragment,

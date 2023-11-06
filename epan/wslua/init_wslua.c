@@ -54,98 +54,98 @@ tvbuff_t* lua_tvb;
 int lua_dissectors_table_ref = LUA_NOREF;
 int lua_heur_dissectors_table_ref = LUA_NOREF;
 
-static int proto_lua = -1;
+static int proto_lua;
 
-static int hf_wslua_fake = -1;
-static int hf_wslua_text = -1;
+static int hf_wslua_fake;
+static int hf_wslua_text;
 
-static expert_field ei_lua_error = EI_INIT;
+static expert_field ei_lua_error;
 
-static expert_field ei_lua_proto_checksum_comment = EI_INIT;
-static expert_field ei_lua_proto_checksum_chat    = EI_INIT;
-static expert_field ei_lua_proto_checksum_note    = EI_INIT;
-static expert_field ei_lua_proto_checksum_warn    = EI_INIT;
-static expert_field ei_lua_proto_checksum_error   = EI_INIT;
+static expert_field ei_lua_proto_checksum_comment;
+static expert_field ei_lua_proto_checksum_chat;
+static expert_field ei_lua_proto_checksum_note;
+static expert_field ei_lua_proto_checksum_warn;
+static expert_field ei_lua_proto_checksum_error;
 
-static expert_field ei_lua_proto_sequence_comment = EI_INIT;
-static expert_field ei_lua_proto_sequence_chat    = EI_INIT;
-static expert_field ei_lua_proto_sequence_note    = EI_INIT;
-static expert_field ei_lua_proto_sequence_warn    = EI_INIT;
-static expert_field ei_lua_proto_sequence_error   = EI_INIT;
+static expert_field ei_lua_proto_sequence_comment;
+static expert_field ei_lua_proto_sequence_chat;
+static expert_field ei_lua_proto_sequence_note;
+static expert_field ei_lua_proto_sequence_warn;
+static expert_field ei_lua_proto_sequence_error;
 
-static expert_field ei_lua_proto_response_comment = EI_INIT;
-static expert_field ei_lua_proto_response_chat    = EI_INIT;
-static expert_field ei_lua_proto_response_note    = EI_INIT;
-static expert_field ei_lua_proto_response_warn    = EI_INIT;
-static expert_field ei_lua_proto_response_error   = EI_INIT;
+static expert_field ei_lua_proto_response_comment;
+static expert_field ei_lua_proto_response_chat;
+static expert_field ei_lua_proto_response_note;
+static expert_field ei_lua_proto_response_warn;
+static expert_field ei_lua_proto_response_error;
 
-static expert_field ei_lua_proto_request_comment = EI_INIT;
-static expert_field ei_lua_proto_request_chat    = EI_INIT;
-static expert_field ei_lua_proto_request_note    = EI_INIT;
-static expert_field ei_lua_proto_request_warn    = EI_INIT;
-static expert_field ei_lua_proto_request_error   = EI_INIT;
+static expert_field ei_lua_proto_request_comment;
+static expert_field ei_lua_proto_request_chat;
+static expert_field ei_lua_proto_request_note;
+static expert_field ei_lua_proto_request_warn;
+static expert_field ei_lua_proto_request_error;
 
-static expert_field ei_lua_proto_undecoded_comment = EI_INIT;
-static expert_field ei_lua_proto_undecoded_chat    = EI_INIT;
-static expert_field ei_lua_proto_undecoded_note    = EI_INIT;
-static expert_field ei_lua_proto_undecoded_warn    = EI_INIT;
-static expert_field ei_lua_proto_undecoded_error   = EI_INIT;
+static expert_field ei_lua_proto_undecoded_comment;
+static expert_field ei_lua_proto_undecoded_chat;
+static expert_field ei_lua_proto_undecoded_note;
+static expert_field ei_lua_proto_undecoded_warn;
+static expert_field ei_lua_proto_undecoded_error;
 
-static expert_field ei_lua_proto_reassemble_comment = EI_INIT;
-static expert_field ei_lua_proto_reassemble_chat    = EI_INIT;
-static expert_field ei_lua_proto_reassemble_note    = EI_INIT;
-static expert_field ei_lua_proto_reassemble_warn    = EI_INIT;
-static expert_field ei_lua_proto_reassemble_error   = EI_INIT;
+static expert_field ei_lua_proto_reassemble_comment;
+static expert_field ei_lua_proto_reassemble_chat;
+static expert_field ei_lua_proto_reassemble_note;
+static expert_field ei_lua_proto_reassemble_warn;
+static expert_field ei_lua_proto_reassemble_error;
 
-static expert_field ei_lua_proto_malformed_comment = EI_INIT;
-static expert_field ei_lua_proto_malformed_chat    = EI_INIT;
-static expert_field ei_lua_proto_malformed_note    = EI_INIT;
-static expert_field ei_lua_proto_malformed_warn    = EI_INIT;
-static expert_field ei_lua_proto_malformed_error   = EI_INIT;
+static expert_field ei_lua_proto_malformed_comment;
+static expert_field ei_lua_proto_malformed_chat;
+static expert_field ei_lua_proto_malformed_note;
+static expert_field ei_lua_proto_malformed_warn;
+static expert_field ei_lua_proto_malformed_error;
 
-static expert_field ei_lua_proto_debug_comment = EI_INIT;
-static expert_field ei_lua_proto_debug_chat    = EI_INIT;
-static expert_field ei_lua_proto_debug_note    = EI_INIT;
-static expert_field ei_lua_proto_debug_warn    = EI_INIT;
-static expert_field ei_lua_proto_debug_error   = EI_INIT;
+static expert_field ei_lua_proto_debug_comment;
+static expert_field ei_lua_proto_debug_chat;
+static expert_field ei_lua_proto_debug_note;
+static expert_field ei_lua_proto_debug_warn;
+static expert_field ei_lua_proto_debug_error;
 
-static expert_field ei_lua_proto_protocol_comment = EI_INIT;
-static expert_field ei_lua_proto_protocol_chat    = EI_INIT;
-static expert_field ei_lua_proto_protocol_note    = EI_INIT;
-static expert_field ei_lua_proto_protocol_warn    = EI_INIT;
-static expert_field ei_lua_proto_protocol_error   = EI_INIT;
+static expert_field ei_lua_proto_protocol_comment;
+static expert_field ei_lua_proto_protocol_chat;
+static expert_field ei_lua_proto_protocol_note;
+static expert_field ei_lua_proto_protocol_warn;
+static expert_field ei_lua_proto_protocol_error;
 
-static expert_field ei_lua_proto_security_comment = EI_INIT;
-static expert_field ei_lua_proto_security_chat    = EI_INIT;
-static expert_field ei_lua_proto_security_note    = EI_INIT;
-static expert_field ei_lua_proto_security_warn    = EI_INIT;
-static expert_field ei_lua_proto_security_error   = EI_INIT;
+static expert_field ei_lua_proto_security_comment;
+static expert_field ei_lua_proto_security_chat;
+static expert_field ei_lua_proto_security_note;
+static expert_field ei_lua_proto_security_warn;
+static expert_field ei_lua_proto_security_error;
 
-static expert_field ei_lua_proto_comments_comment = EI_INIT;
-static expert_field ei_lua_proto_comments_chat    = EI_INIT;
-static expert_field ei_lua_proto_comments_note    = EI_INIT;
-static expert_field ei_lua_proto_comments_warn    = EI_INIT;
-static expert_field ei_lua_proto_comments_error   = EI_INIT;
+static expert_field ei_lua_proto_comments_comment;
+static expert_field ei_lua_proto_comments_chat;
+static expert_field ei_lua_proto_comments_note;
+static expert_field ei_lua_proto_comments_warn;
+static expert_field ei_lua_proto_comments_error;
 
-static expert_field ei_lua_proto_decryption_comment = EI_INIT;
-static expert_field ei_lua_proto_decryption_chat    = EI_INIT;
-static expert_field ei_lua_proto_decryption_note    = EI_INIT;
-static expert_field ei_lua_proto_decryption_warn    = EI_INIT;
-static expert_field ei_lua_proto_decryption_error   = EI_INIT;
+static expert_field ei_lua_proto_decryption_comment;
+static expert_field ei_lua_proto_decryption_chat;
+static expert_field ei_lua_proto_decryption_note;
+static expert_field ei_lua_proto_decryption_warn;
+static expert_field ei_lua_proto_decryption_error;
 
-static expert_field ei_lua_proto_assumption_comment = EI_INIT;
-static expert_field ei_lua_proto_assumption_chat    = EI_INIT;
-static expert_field ei_lua_proto_assumption_note    = EI_INIT;
-static expert_field ei_lua_proto_assumption_warn    = EI_INIT;
-static expert_field ei_lua_proto_assumption_error   = EI_INIT;
+static expert_field ei_lua_proto_assumption_comment;
+static expert_field ei_lua_proto_assumption_chat;
+static expert_field ei_lua_proto_assumption_note;
+static expert_field ei_lua_proto_assumption_warn;
+static expert_field ei_lua_proto_assumption_error;
 
-static expert_field ei_lua_proto_deprecated_comment = EI_INIT;
-static expert_field ei_lua_proto_deprecated_chat    = EI_INIT;
-static expert_field ei_lua_proto_deprecated_note    = EI_INIT;
-static expert_field ei_lua_proto_deprecated_warn    = EI_INIT;
-static expert_field ei_lua_proto_deprecated_error   = EI_INIT;
+static expert_field ei_lua_proto_deprecated_comment;
+static expert_field ei_lua_proto_deprecated_chat;
+static expert_field ei_lua_proto_deprecated_note;
+static expert_field ei_lua_proto_deprecated_warn;
+static expert_field ei_lua_proto_deprecated_error;
 
-static gint ett_wslua_traceback = -1;
+static gint ett_wslua_traceback;
 
 static bool
 lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,

@@ -726,11 +726,11 @@ dfilter_requires_columns(const dfilter_t *df)
 	}
 
 	/* XXX: Could cache this like packet_cache_proto_handles */
-	static int proto_cols = -1;
-	if (proto_cols == -1) {
+	static int proto_cols;
+	if (proto_cols <= 0) {
 		proto_cols = proto_get_id_by_filter_name("_ws.col");
 	}
-	ws_assert(proto_cols != -1);
+	ws_assert(proto_cols > 0);
 
 	return dfilter_interested_in_proto(df, proto_cols);
 }

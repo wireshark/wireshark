@@ -44,7 +44,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 
-static gint proto_malformed = -1;
+static gint proto_malformed;
 static dissector_handle_t frame_handle = NULL;
 static dissector_handle_t file_handle = NULL;
 static dissector_handle_t data_handle = NULL;
