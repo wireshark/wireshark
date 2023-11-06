@@ -46,6 +46,10 @@ guint8 DEFAULT_SECRET[SEC_STR_LEN] =
 
 void keypair_context_init(const guint8 *controller_ieee, const guint8 *target_ieee, guint8 expected_transfer_count)
 {
+    if ((controller_ieee == NULL) || (target_ieee == NULL))
+    {
+        return;
+    }
     memset(&keypair_context, 0, sizeof(keypair_context_t));
 
     memcpy(keypair_context.controller_addr, controller_ieee, RF4CE_IEEE_ADDR_LEN);
@@ -195,6 +199,11 @@ void nwk_key_storage_release_entry(guint8 *nwk_key, gboolean key_from_gui)
 void rf4ce_addr_table_add_addrs(const void *ieee_addr, guint16 short_addr)
 {
     guint idx = 0;
+
+    if (ieee_addr == NULL)
+    {
+        return;
+    }
 
     /* search for addresses so as not to add duplicates */
     while (idx < RF4CE_ADDR_TABLE_SIZE)
