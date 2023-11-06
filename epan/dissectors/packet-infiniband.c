@@ -153,6 +153,7 @@ static void parse_RDETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_IPvSix(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
 static void parse_RWH(proto_tree *, tvbuff_t *, gint *offset, packet_info *, proto_tree *);
 static void parse_DCCETH(proto_tree *parentTree, tvbuff_t *tvb, gint *offset);
+static void parse_FETH(proto_tree *, tvbuff_t *, gint *offset);
 
 static void parse_SUBN_LID_ROUTED(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
 static void parse_SUBN_DIRECTED_ROUTE(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
@@ -551,6 +552,12 @@ static int hf_infiniband_original_remote_data = -1;
 static int hf_infiniband_IMMDT = -1;
 /* Invalidate Extended Transport Header (IETH) */
 static int hf_infiniband_IETH = -1;
+/* FLUSH Extended Transport Header (FETH) */
+static int hf_infiniband_FETH = -1;
+static int hf_infiniband_reserved27 = -1;
+static int hf_infiniband_selectivity_level = -1;
+static int hf_infiniband_placement_type = -1;
+
 /* Payload */
 static int hf_infiniband_payload = -1;
 static int hf_infiniband_invariant_crc = -1;
@@ -1541,6 +1548,10 @@ static const value_string DctOpCodeMap[] =
 /* ___________________________________ */
 #define DCCETH                      23
 /* ___________________________________ */
+#define FETH_RETH                   24
+/* ___________________________________ */
+#define RDETH_FETH_RETH             25
+/* ___________________________________ */
 
 
 /* Infiniband transport services
@@ -2195,7 +2206,22 @@ skip_lrh:
 
                 parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
+            case FETH_RETH:
+                parse_FETH(all_headers_tree, tvb, &offset);
+                parse_RETH(all_headers_tree, tvb, &offset, &info);
 
+                /*packetLength -= 4;*/ /* FETH */
+                /*packetLength -= 16;*/ /* RETH */
+                break;
+            case RDETH_FETH_RETH:
+                parse_RDETH(all_headers_tree, tvb, &offset);
+                parse_FETH(all_headers_tree, tvb, &offset);
+                parse_RETH(all_headers_tree, tvb, &offset, &info);
+
+                /*packetLength -= 4;*/ /* RDETH */
+                /*packetLength -= 4;*/ /* FETH */
+                /*packetLength -= 16;*/ /* RETH */
+                break;
             default:
                 parse_VENDOR(all_headers_tree, tvb, &offset);
                 break;
@@ -2358,6 +2384,12 @@ find_next_header_sequence(struct infinibandinfo* ibInfo)
 
     if ((ibInfo->opCode ^ UD_SEND_ONLY_IMM) == 0)
         return DETH_IMMDT_PAYLD;
+
+    if ((ibInfo->opCode ^ RC_FLUSH) == 0)
+        return FETH_RETH;
+
+    if ((ibInfo->opCode ^ RD_FLUSH) == 0)
+        return RDETH_FETH_RETH;
 
     return -1;
 }
@@ -2607,6 +2639,31 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
     proto_tree_add_item(IETH_header_tree, hf_infiniband_IETH, tvb, local_offset, 4, ENC_NA);
     local_offset += 4;
 
+    *offset = local_offset;
+}
+
+/* Parse FETH - FLUSH extended transport header
+* IN: parentTree to add the dissection to - in this code the all_headers_tree
+* IN: tvb - the data buffer from wireshark
+* IN/OUT: The current and updated offset */
+static void
+parse_FETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+{
+    gint        local_offset = *offset;
+    /* FETH - FLUSH Extended Transport Header */
+    proto_item *FETH_header_item;
+    proto_tree *FETH_header_tree;
+
+    FETH_header_item = proto_tree_add_item(parentTree, hf_infiniband_FETH, tvb, local_offset, 4, ENC_NA);
+    proto_item_set_text(FETH_header_item, "%s", "FETH - FLUSH Extended Transport Header");
+    FETH_header_tree = proto_item_add_subtree(FETH_header_item, ett_ieth);
+
+    proto_tree_add_item(FETH_header_tree, hf_infiniband_reserved27, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 3;
+    proto_tree_add_item(FETH_header_tree, hf_infiniband_selectivity_level, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(FETH_header_tree, hf_infiniband_placement_type, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+
+    local_offset += 1;
     *offset = local_offset;
 }
 
@@ -6174,6 +6231,15 @@ skip_lrh:
             case DCCETH:
                 offset += 16; /* DCCETH */
                 break;
+            case FETH_RETH:
+                offset += 4; /* FETH */
+                offset += 16; /* RETH */
+                break;
+            case RDETH_FETH_RETH:
+                offset += 4; /* RDETH */
+                offset += 4; /* FETH */
+                offset += 16; /* RETH */
+                break;
             default:
                 break;
         }
@@ -6510,6 +6576,24 @@ void proto_register_infiniband(void)
         { &hf_infiniband_IETH, {
                 "RKey", "infiniband.ieth",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+
+        /* FLUSH Extended Transport Header (FETH) */
+        { &hf_infiniband_FETH, {
+                "FLUSH Extended Transport Header", "infiniband.feth",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_reserved27, {
+                "Reserved (27bits)", "infiniband.feth.reserved27",
+                FT_UINT32, BASE_DEC, NULL, 0xFFFFFFE0, NULL, HFILL}
+        },
+        { &hf_infiniband_selectivity_level, {
+                "Selectivity Level", "infiniband.feth.sel",
+                FT_UINT8, BASE_DEC, NULL, 0x18, NULL, HFILL}
+        },
+        { &hf_infiniband_placement_type, {
+                "Placement Type", "infiniband.feth.plt",
+                FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL}
         },
 
         /* Payload */
