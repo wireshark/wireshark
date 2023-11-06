@@ -14,32 +14,32 @@
 #define UNISTIM_KEY_H
 
 
-static int hf_key_icon_id=-1;
-static int hf_key_led_cadence=-1;
-static int hf_key_led_id=-1;
-static int hf_key_programmable_keys=-1;
-static int hf_keys_soft_keys=-1;
-static int hf_keys_hd_key=-1;
-static int hf_keys_mute_key=-1;
-static int hf_keys_quit_key=-1;
-static int hf_keys_copy_key=-1;
-static int hf_keys_mwi_key=-1;
-static int hf_keys_num_nav_keys=-1;
-static int hf_keys_num_conspic_keys=-1;
-static int hf_keys_send_key_rel=-1;
-static int hf_keys_enable_vol=-1;
-static int hf_keys_conspic_prog_key=-1;
-static int hf_keys_acd_super_control=-1;
-static int hf_keys_local_dial_feedback=-1;
-static int hf_keys_admin_command=-1;
-static int hf_keys_logical_icon_id=-1;
-static int hf_keys_repeat_timer_one=-1;
-static int hf_keys_repeat_timer_two=-1;
-static int hf_keys_led_id=-1;
-static int hf_keys_phone_icon_id=-1;
-static int hf_keys_cadence_on_time=-1;
-static int hf_keys_cadence_off_time=-1;
-static int hf_keys_user_activity_timeout=-1;
+static int hf_key_icon_id;
+static int hf_key_led_cadence;
+static int hf_key_led_id;
+static int hf_key_programmable_keys;
+static int hf_keys_soft_keys;
+static int hf_keys_hd_key;
+static int hf_keys_mute_key;
+static int hf_keys_quit_key;
+static int hf_keys_copy_key;
+static int hf_keys_mwi_key;
+static int hf_keys_num_nav_keys;
+static int hf_keys_num_conspic_keys;
+static int hf_keys_send_key_rel;
+static int hf_keys_enable_vol;
+static int hf_keys_conspic_prog_key;
+static int hf_keys_acd_super_control;
+static int hf_keys_local_dial_feedback;
+static int hf_keys_admin_command;
+static int hf_keys_logical_icon_id;
+static int hf_keys_repeat_timer_one;
+static int hf_keys_repeat_timer_two;
+static int hf_keys_led_id;
+static int hf_keys_phone_icon_id;
+static int hf_keys_cadence_on_time;
+static int hf_keys_cadence_off_time;
+static int hf_keys_user_activity_timeout;
 
 static const value_string keys_led_ids[]={
  {0x00,"Message Waiting LED"},

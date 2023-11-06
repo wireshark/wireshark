@@ -25,8 +25,8 @@
 
 extern gint proto_wimax;
 
-static gint proto_wimax_harq_map_decoder = -1;
-static gint ett_wimax_harq_map_decoder = -1;
+static gint proto_wimax_harq_map_decoder;
+static gint ett_wimax_harq_map_decoder;
 
 /* MASKs */
 #define LSB_NIBBLE_MASK      0x0F
@@ -41,15 +41,15 @@ static gint ett_wimax_harq_map_decoder = -1;
 #define WIMAX_HARQ_MAP_DL_IE_COUNT_SHIFT 4
 
 /* HARQ MAP display indexies */
-static gint hf_harq_map_indicator = -1;
-static gint hf_harq_ul_map_appended = -1;
-static gint hf_harq_map_reserved = -1;
-static gint hf_harq_map_msg_length = -1;
-static gint hf_harq_dl_ie_count = -1;
-static gint hf_harq_map_msg_crc = -1;
-static gint hf_harq_map_msg_crc_status = -1;
+static gint hf_harq_map_indicator;
+static gint hf_harq_ul_map_appended;
+static gint hf_harq_map_reserved;
+static gint hf_harq_map_msg_length;
+static gint hf_harq_dl_ie_count;
+static gint hf_harq_map_msg_crc;
+static gint hf_harq_map_msg_crc_status;
 
-static expert_field ei_harq_map_msg_crc = EI_INIT;
+static expert_field ei_harq_map_msg_crc;
 
 
 /* Copied and renamed from proto.c because global value_strings don't work for plugins */

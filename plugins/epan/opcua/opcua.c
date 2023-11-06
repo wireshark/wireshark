@@ -75,20 +75,20 @@ gint ett_opcua_extensionobject = -1;
 gint ett_opcua_nodeid = -1;
 
 /** subtree types used locally */
-static gint ett_opcua_transport = -1;
-static gint ett_opcua_fragment = -1;
-static gint ett_opcua_fragments = -1;
+static gint ett_opcua_transport;
+static gint ett_opcua_fragment;
+static gint ett_opcua_fragments;
 
-static int hf_opcua_fragments = -1;
-static int hf_opcua_fragment = -1;
-static int hf_opcua_fragment_overlap = -1;
-static int hf_opcua_fragment_overlap_conflicts = -1;
-static int hf_opcua_fragment_multiple_tails = -1;
-static int hf_opcua_fragment_too_long_fragment = -1;
-static int hf_opcua_fragment_error = -1;
-static int hf_opcua_fragment_count = -1;
-static int hf_opcua_reassembled_in = -1;
-static int hf_opcua_reassembled_length = -1;
+static int hf_opcua_fragments;
+static int hf_opcua_fragment;
+static int hf_opcua_fragment_overlap;
+static int hf_opcua_fragment_overlap_conflicts;
+static int hf_opcua_fragment_multiple_tails;
+static int hf_opcua_fragment_too_long_fragment;
+static int hf_opcua_fragment_error;
+static int hf_opcua_fragment_count;
+static int hf_opcua_reassembled_in;
+static int hf_opcua_reassembled_length;
 
 static const fragment_items opcua_frag_items = {
     /* Fragment subtrees */

@@ -33,9 +33,9 @@ static const value_string g_nodeidmasks[] = {
 /** Service type table */
 extern const value_string g_requesttypes[];
 
-static int hf_opcua_nodeid_encodingmask = -1;
-static int hf_opcua_app_nsid = -1;
-static int hf_opcua_app_numeric = -1;
+static int hf_opcua_nodeid_encodingmask;
+static int hf_opcua_app_nsid;
+static int hf_opcua_app_numeric;
 
 /** Register application layer types. */
 void registerApplicationLayerTypes(int proto)

@@ -20,144 +20,144 @@
 void proto_register_dcom_cba(void);
 void proto_reg_handoff_dcom_cba(void);
 
-static int hf_cba_opnum = -1;
+static int hf_cba_opnum;
 
-static int hf_cba_revision_major = -1;
-static int hf_cba_revision_minor = -1;
-static int hf_cba_revision_service_pack = -1;
-static int hf_cba_revision_build = -1;
+static int hf_cba_revision_major;
+static int hf_cba_revision_minor;
+static int hf_cba_revision_service_pack;
+static int hf_cba_revision_build;
 
-static int hf_cba_time = -1;
+static int hf_cba_time;
 
-static int hf_cba_name = -1;
-static int hf_cba_producer = -1;
-static int hf_cba_product = -1;
-static int hf_cba_production_date = -1;
-static int hf_cba_serial_no = -1;
-static int hf_cba_multi_app = -1;
-static int hf_cba_profinet_dcom_stack = -1;
-static int hf_cba_pdev_stamp = -1;
+static int hf_cba_name;
+static int hf_cba_producer;
+static int hf_cba_product;
+static int hf_cba_production_date;
+static int hf_cba_serial_no;
+static int hf_cba_multi_app;
+static int hf_cba_profinet_dcom_stack;
+static int hf_cba_pdev_stamp;
 
-static int hf_cba_browse_count = -1;
-static int hf_cba_browse_offset = -1;
-static int hf_cba_browse_max_return = -1;
-static int hf_cba_browse_item = -1;
-static int hf_cba_browse_data_type = -1;
-static int hf_cba_browse_access_right = -1;
-static int hf_cba_browse_selector = -1;
-static int hf_cba_browse_info1 = -1;
-static int hf_cba_browse_info2 = -1;
+static int hf_cba_browse_count;
+static int hf_cba_browse_offset;
+static int hf_cba_browse_max_return;
+static int hf_cba_browse_item;
+static int hf_cba_browse_data_type;
+static int hf_cba_browse_access_right;
+static int hf_cba_browse_selector;
+static int hf_cba_browse_info1;
+static int hf_cba_browse_info2;
 
-static int hf_cba_cookie = -1;
-static int hf_cba_state = -1;
-static int hf_cba_new_state = -1;
-static int hf_cba_old_state = -1;
-static int hf_cba_grouperror = -1;
-static int hf_cba_new_grouperror = -1;
-static int hf_cba_old_grouperror = -1;
+static int hf_cba_cookie;
+static int hf_cba_state;
+static int hf_cba_new_state;
+static int hf_cba_old_state;
+static int hf_cba_grouperror;
+static int hf_cba_new_grouperror;
+static int hf_cba_old_grouperror;
 
-static int hf_cba_component_id = -1;
-static int hf_cba_component_version = -1;
-static int hf_cba_pbaddress = -1;
-static int hf_cba_pbaddress_system_id = -1;
-static int hf_cba_pbaddress_address = -1;
+static int hf_cba_component_id;
+static int hf_cba_component_version;
+static int hf_cba_pbaddress;
+static int hf_cba_pbaddress_system_id;
+static int hf_cba_pbaddress_address;
 
-static int hf_cba_save_ldev_name = -1;
-static int hf_cba_save_result = -1;
+static int hf_cba_save_ldev_name;
+static int hf_cba_save_result;
 
-static expert_field ei_cba_acco_interface_pointer_unresolved = EI_INIT;
+static expert_field ei_cba_acco_interface_pointer_unresolved;
 
 static e_guid_t uuid_coclass_CBAPhysicalDevice = { 0xcba00000, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 
 
 /* CBA interfaces */
-static int proto_ICBAPhysicalDevice = -1;
-static gint ett_ICBAPhysicalDevice = -1;
+static int proto_ICBAPhysicalDevice;
+static gint ett_ICBAPhysicalDevice;
 static e_guid_t uuid_ICBAPhysicalDevice = { 0xcba00001, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAPhysicalDevice = 0;
 
-static int proto_ICBAPhysicalDevice2 = -1;
+static int proto_ICBAPhysicalDevice2;
 static e_guid_t uuid_ICBAPhysicalDevice2 = { 0xcba00006, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAPhysicalDevice2 = 0;
 
-static int proto_ICBABrowse = -1;
-static gint ett_ICBABrowse = -1;
+static int proto_ICBABrowse;
+static gint ett_ICBABrowse;
 static e_guid_t uuid_ICBABrowse = { 0xcba00002, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBABrowse = 0;
 
-static int proto_ICBABrowse2 = -1;
+static int proto_ICBABrowse2;
 static e_guid_t uuid_ICBABrowse2 = { 0xcba00007, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBABrowse2 = 0;
 
-static int proto_ICBAPhysicalDevicePC = -1;
-static gint ett_ICBAPhysicalDevicePC = -1;
+static int proto_ICBAPhysicalDevicePC;
+static gint ett_ICBAPhysicalDevicePC;
 static e_guid_t uuid_ICBAPhysicalDevicePC = { 0xcba00003, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAPhysicalDevicePC = 0;
 
-static int proto_ICBAPhysicalDevicePCEvent = -1;
-static gint ett_ICBAPhysicalDevicePCEvent = -1;
+static int proto_ICBAPhysicalDevicePCEvent;
+static gint ett_ICBAPhysicalDevicePCEvent;
 static e_guid_t uuid_ICBAPhysicalDevicePCEvent = { 0xcba00004, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAPhysicalDevicePCEvent = 0;
 
-static int proto_ICBAPersist = -1;
-static gint ett_ICBAPersist = -1;
+static int proto_ICBAPersist;
+static gint ett_ICBAPersist;
 static e_guid_t uuid_ICBAPersist = { 0xcba00005, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAPersist = 0;
 
-static int proto_ICBAPersist2 = -1;
+static int proto_ICBAPersist2;
 static e_guid_t uuid_ICBAPersist2 = { 0xcba00008, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAPersist2 = 0;
 
-static int proto_ICBALogicalDevice = -1;
-static gint ett_ICBALogicalDevice = -1;
+static int proto_ICBALogicalDevice;
+static gint ett_ICBALogicalDevice;
 static e_guid_t uuid_ICBALogicalDevice = { 0xcba00011, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBALogicalDevice = 0;
 
-static int proto_ICBALogicalDevice2 = -1;
+static int proto_ICBALogicalDevice2;
 static e_guid_t uuid_ICBALogicalDevice2 = { 0xcba00017, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBALogicalDevice2 = 0;
 
-static int proto_ICBAState = -1;
-static gint ett_ICBAState = -1;
+static int proto_ICBAState;
+static gint ett_ICBAState;
 static e_guid_t uuid_ICBAState = { 0xcba00012, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAState = 0;
 
-static int proto_ICBAStateEvent = -1;
-static gint ett_ICBAStateEvent = -1;
+static int proto_ICBAStateEvent;
+static gint ett_ICBAStateEvent;
 static e_guid_t uuid_ICBAStateEvent = { 0xcba00013, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAStateEvent = 0;
 
-static int proto_ICBATime = -1;
-static gint ett_ICBATime = -1;
+static int proto_ICBATime;
+static gint ett_ICBATime;
 static e_guid_t uuid_ICBATime = { 0xcba00014, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBATime = 0;
 
-static int proto_ICBAGroupError = -1;
-static gint ett_ICBAGroupError = -1;
+static int proto_ICBAGroupError;
+static gint ett_ICBAGroupError;
 static e_guid_t uuid_ICBAGroupError = { 0xcba00015, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAGroupError = 0;
 
-static int proto_ICBAGroupErrorEvent = -1;
-static gint ett_ICBAGroupErrorEvent = -1;
+static int proto_ICBAGroupErrorEvent;
+static gint ett_ICBAGroupErrorEvent;
 static e_guid_t uuid_ICBAGroupErrorEvent = { 0xcba00016, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAGroupErrorEvent = 0;
 
-static int proto_ICBARTAuto = -1;
-static gint ett_ICBARTAuto = -1;
+static int proto_ICBARTAuto;
+static gint ett_ICBARTAuto;
 static e_guid_t uuid_ICBARTAuto = { 0xcba00051, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBARTAuto = 0;
 
-static int proto_ICBARTAuto2 = -1;
+static int proto_ICBARTAuto2;
 static e_guid_t uuid_ICBARTAuto2 = { 0xcba00052, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBARTAuto2 = 0;
 
-static int proto_ICBASystemProperties = -1;
-static gint ett_ICBASystemProperties = -1;
+static int proto_ICBASystemProperties;
+static gint ett_ICBASystemProperties;
 static e_guid_t uuid_ICBASystemProperties = { 0xcba00062, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBASystemProperties = 0;
 
 
-static gint ett_PBAddress = -1;
+static gint ett_PBAddress;
 
 
 static const value_string cba_state_vals[] = {

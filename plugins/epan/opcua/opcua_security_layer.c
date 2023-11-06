@@ -20,11 +20,11 @@
 #include "opcua_security_layer.h"
 #include "opcua_transport_layer.h"
 
-static int hf_opcua_security_tokenid = -1;
-static int hf_opcua_security_padding = -1;
-static int hf_opcua_security_signature = -1;
-static int hf_opcua_sequence_seqno = -1;
-static int hf_opcua_sequence_rqid = -1;
+static int hf_opcua_security_tokenid;
+static int hf_opcua_security_padding;
+static int hf_opcua_security_signature;
+static int hf_opcua_sequence_seqno;
+static int hf_opcua_sequence_rqid;
 
 /** Register symmetric security layer types. */
 void registerSecurityLayerTypes(int proto)

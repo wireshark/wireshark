@@ -30,59 +30,59 @@ void proto_reg_handoff_pn_rt(void);
 #define PROFINET_UDP_PORT 0x8892
 
 /* Define the pn-rt proto */
-static int proto_pn_rt     = -1;
+static int proto_pn_rt;
 static gboolean pnio_desegment = TRUE;
 
 static dissector_handle_t pn_rt_handle;
 
 /* Define many header fields for pn-rt */
-static int hf_pn_rt_frame_id = -1;
-static int hf_pn_rt_cycle_counter = -1;
-static int hf_pn_rt_transfer_status = -1;
-static int hf_pn_rt_data_status = -1;
-static int hf_pn_rt_data_status_ignore = -1;
-static int hf_pn_rt_frame_info_type = -1;
-static int hf_pn_rt_frame_info_function_meaning_input_conv = -1;
-static int hf_pn_rt_frame_info_function_meaning_output_conv = -1;
-static int hf_pn_rt_data_status_Reserved_2 = -1;
-static int hf_pn_rt_data_status_ok = -1;
-static int hf_pn_rt_data_status_operate = -1;
-static int hf_pn_rt_data_status_res3 = -1;
-static int hf_pn_rt_data_status_valid = -1;
-static int hf_pn_rt_data_status_redundancy = -1;
-static int hf_pn_rt_data_status_redundancy_output_cr = -1;
-static int hf_pn_rt_data_status_redundancy_input_cr_state_is_backup = -1;
-static int hf_pn_rt_data_status_redundancy_input_cr_state_is_primary = -1;
-static int hf_pn_rt_data_status_primary = -1;
+static int hf_pn_rt_frame_id;
+static int hf_pn_rt_cycle_counter;
+static int hf_pn_rt_transfer_status;
+static int hf_pn_rt_data_status;
+static int hf_pn_rt_data_status_ignore;
+static int hf_pn_rt_frame_info_type;
+static int hf_pn_rt_frame_info_function_meaning_input_conv;
+static int hf_pn_rt_frame_info_function_meaning_output_conv;
+static int hf_pn_rt_data_status_Reserved_2;
+static int hf_pn_rt_data_status_ok;
+static int hf_pn_rt_data_status_operate;
+static int hf_pn_rt_data_status_res3;
+static int hf_pn_rt_data_status_valid;
+static int hf_pn_rt_data_status_redundancy;
+static int hf_pn_rt_data_status_redundancy_output_cr;
+static int hf_pn_rt_data_status_redundancy_input_cr_state_is_backup;
+static int hf_pn_rt_data_status_redundancy_input_cr_state_is_primary;
+static int hf_pn_rt_data_status_primary;
 
-static int hf_pn_rt_sf_crc16 = -1;
-static int hf_pn_rt_sf_crc16_status = -1;
-static int hf_pn_rt_sf = -1;
-static int hf_pn_rt_sf_position = -1;
-/* static int hf_pn_rt_sf_position_control = -1; */
-static int hf_pn_rt_sf_data_length = -1;
-static int hf_pn_rt_sf_cycle_counter = -1;
+static int hf_pn_rt_sf_crc16;
+static int hf_pn_rt_sf_crc16_status;
+static int hf_pn_rt_sf;
+static int hf_pn_rt_sf_position;
+/* static int hf_pn_rt_sf_position_control; */
+static int hf_pn_rt_sf_data_length;
+static int hf_pn_rt_sf_cycle_counter;
 
-static int hf_pn_rt_frag = -1;
-static int hf_pn_rt_frag_data_length = -1;
-static int hf_pn_rt_frag_status = -1;
-static int hf_pn_rt_frag_status_more_follows = -1;
-static int hf_pn_rt_frag_status_error = -1;
-static int hf_pn_rt_frag_status_fragment_number = -1;
-static int hf_pn_rt_frag_data = -1;
+static int hf_pn_rt_frag;
+static int hf_pn_rt_frag_data_length;
+static int hf_pn_rt_frag_status;
+static int hf_pn_rt_frag_status_more_follows;
+static int hf_pn_rt_frag_status_error;
+static int hf_pn_rt_frag_status_fragment_number;
+static int hf_pn_rt_frag_data;
 
 
 /*
  * Define the trees for pn-rt
  * We need one tree for pn-rt itself and one for the pn-rt data status subtree
  */
-static int ett_pn_rt = -1;
-static int ett_pn_rt_data_status = -1;
-static int ett_pn_rt_sf = -1;
-static int ett_pn_rt_frag = -1;
-static int ett_pn_rt_frag_status = -1;
+static int ett_pn_rt;
+static int ett_pn_rt_data_status;
+static int ett_pn_rt_sf;
+static int ett_pn_rt_frag;
+static int ett_pn_rt_frag_status;
 
-static expert_field ei_pn_rt_sf_crc16 = EI_INIT;
+static expert_field ei_pn_rt_sf_crc16;
 
 /*
  * Here are the global variables associated with

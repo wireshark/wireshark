@@ -25,24 +25,24 @@
 #include "opcua_transport_layer.h"
 #include "opcua_servicetable.h"
 
-static int hf_opcua_transport_type = -1;
-static int hf_opcua_transport_chunk = -1;
-static int hf_opcua_transport_size = -1;
-static int hf_opcua_transport_ver = -1;
-static int hf_opcua_transport_scid = -1;
-static int hf_opcua_transport_rbs = -1;
-static int hf_opcua_transport_sbs = -1;
-static int hf_opcua_transport_mms = -1;
-static int hf_opcua_transport_mcc = -1;
-static int hf_opcua_transport_endpoint = -1;
-static int hf_opcua_transport_suri = -1;
-static int hf_opcua_transport_error = -1;
-static int hf_opcua_transport_reason = -1;
-static int hf_opcua_transport_spu = -1;
-static int hf_opcua_transport_scert = -1;
-static int hf_opcua_transport_rcthumb = -1;
-static int hf_opcua_transport_seq = -1;
-static int hf_opcua_transport_rqid = -1;
+static int hf_opcua_transport_type;
+static int hf_opcua_transport_chunk;
+static int hf_opcua_transport_size;
+static int hf_opcua_transport_ver;
+static int hf_opcua_transport_scid;
+static int hf_opcua_transport_rbs;
+static int hf_opcua_transport_sbs;
+static int hf_opcua_transport_mms;
+static int hf_opcua_transport_mcc;
+static int hf_opcua_transport_endpoint;
+static int hf_opcua_transport_suri;
+static int hf_opcua_transport_error;
+static int hf_opcua_transport_reason;
+static int hf_opcua_transport_spu;
+static int hf_opcua_transport_scert;
+static int hf_opcua_transport_rcthumb;
+static int hf_opcua_transport_seq;
+static int hf_opcua_transport_rqid;
 
 /** subtree types */
 extern gint ett_opcua_nodeid;

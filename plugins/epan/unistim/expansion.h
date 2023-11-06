@@ -12,7 +12,7 @@
 #ifndef UNISTIM_EXPANSION_H
 #define UNISTIM_EXPANSION_H
 
-static int hf_expansion_softlabel_number=-1;
+static int hf_expansion_softlabel_number;
 
 static const value_string expansion_switch_msgs[]={
   {0x17,"Next Display/Write command regards expansion module"},

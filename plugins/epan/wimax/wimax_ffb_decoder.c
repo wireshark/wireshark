@@ -21,15 +21,15 @@
 
 extern gint proto_wimax;
 
-static gint proto_wimax_ffb_decoder = -1;
-static gint ett_wimax_ffb_decoder = -1;
+static gint proto_wimax_ffb_decoder;
+static gint ett_wimax_ffb_decoder;
 
-/* static gint hf_ffb_burst = -1; */
-static gint hf_ffb_num_of_ffbs = -1;
-static gint hf_ffb_type = -1;
-static gint hf_ffb_subchannel = -1;
-static gint hf_ffb_symboloffset = -1;
-static gint hf_ffb_value = -1;
+/* static gint hf_ffb_burst; */
+static gint hf_ffb_num_of_ffbs;
+static gint hf_ffb_type;
+static gint hf_ffb_subchannel;
+static gint hf_ffb_symboloffset;
+static gint hf_ffb_value;
 
 
 static int dissect_wimax_ffb_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

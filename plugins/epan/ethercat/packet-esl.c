@@ -86,12 +86,12 @@ void proto_reg_handoff_esl(void);
 /* Define the esl proto */
 int proto_esl  = -1;
 
-static int ett_esl           = -1;
+static int ett_esl;
 
-static int hf_esl_timestamp  = -1;
-static int hf_esl_port       = -1;
-static int hf_esl_crcerror   = -1;
-static int hf_esl_alignerror = -1;
+static int hf_esl_timestamp;
+static int hf_esl_port;
+static int hf_esl_crcerror;
+static int hf_esl_alignerror;
 
 /* Note: using external tfs strings apparently doesn't work in a plugin */
 static const true_false_string flags_yes_no = {

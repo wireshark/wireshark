@@ -19,17 +19,17 @@
 void proto_register_pn_mrrt(void);
 void proto_reg_handoff_pn_mrrt(void);
 
-static int proto_pn_mrrt = -1;
+static int proto_pn_mrrt;
 
-static int hf_pn_mrrt_sequence_id = -1;
-static int hf_pn_mrrt_domain_uuid = -1;
-static int hf_pn_mrrt_type = -1;
-static int hf_pn_mrrt_length = -1;
-static int hf_pn_mrrt_version = -1;
-static int hf_pn_mrrt_sa = -1;
+static int hf_pn_mrrt_sequence_id;
+static int hf_pn_mrrt_domain_uuid;
+static int hf_pn_mrrt_type;
+static int hf_pn_mrrt_length;
+static int hf_pn_mrrt_version;
+static int hf_pn_mrrt_sa;
 
 
-static gint ett_pn_mrrt = -1;
+static gint ett_pn_mrrt;
 
 
 

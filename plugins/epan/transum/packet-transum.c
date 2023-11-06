@@ -130,27 +130,27 @@ static int highest_udp_stream_no;
 wmem_map_t *tcp_stream_exceptions;
 
 
-static gint ett_transum = -1;
-static gint ett_transum_header = -1;
-static gint ett_transum_data = -1;
+static gint ett_transum;
+static gint ett_transum_header;
+static gint ett_transum_data;
 
-static int proto_transum = -1;
+static int proto_transum;
 
-static int hf_tsum_status = -1;
-//static int hf_tsum_time_units = -1;
-static int hf_tsum_req_first_seg = -1;
-static int hf_tsum_req_last_seg = -1;
-static int hf_tsum_rsp_first_seg = -1;
-static int hf_tsum_rsp_last_seg = -1;
-static int hf_tsum_apdu_rsp_time = -1;
-static int hf_tsum_service_time = -1;
-static int hf_tsum_req_spread = -1;
-static int hf_tsum_rsp_spread = -1;
-static int hf_tsum_clip_filter = -1;
-static int hf_tsum_calculation = -1;
-static int hf_tsum_summary = -1;
-static int hf_tsum_req_search = -1;
-static int hf_tsum_rsp_search = -1;
+static int hf_tsum_status;
+//static int hf_tsum_time_units;
+static int hf_tsum_req_first_seg;
+static int hf_tsum_req_last_seg;
+static int hf_tsum_rsp_first_seg;
+static int hf_tsum_rsp_last_seg;
+static int hf_tsum_apdu_rsp_time;
+static int hf_tsum_service_time;
+static int hf_tsum_req_spread;
+static int hf_tsum_rsp_spread;
+static int hf_tsum_clip_filter;
+static int hf_tsum_calculation;
+static int hf_tsum_summary;
+static int hf_tsum_req_search;
+static int hf_tsum_rsp_search;
 
 static const enum_val_t capture_position_vals[] = {
     { "TRACE_CAP_CLIENT", "Client", TRACE_CAP_CLIENT },

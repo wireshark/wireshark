@@ -24,13 +24,13 @@ void proto_reg_handoff_ioraw(void);
 /* Define the ioraw proto */
 int proto_ioraw  = -1;
 
-static int ett_ioraw = -1;
+static int ett_ioraw;
 
 static dissector_handle_t ioraw_handle;
 
-/* static int hf_ioraw_summary = -1; */
-static int hf_ioraw_header = -1;
-static int hf_ioraw_data = -1;
+/* static int hf_ioraw_summary; */
+static int hf_ioraw_header;
+static int hf_ioraw_data;
 
 /*ioraw*/
 static void IoRawSummaryFormater( char *szText, int nMax)

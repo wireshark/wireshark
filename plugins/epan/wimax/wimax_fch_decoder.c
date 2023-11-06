@@ -25,8 +25,8 @@ extern gint proto_wimax;
 
 extern address bs_address;	/* declared in packet-wmx.c */
 
-static int proto_wimax_fch_decoder = -1;
-static gint ett_wimax_fch_decoder = -1;
+static int proto_wimax_fch_decoder;
+static gint ett_wimax_fch_decoder;
 
 #define FCH_BURST_LENGTH 3
 /* FCH Burst bits */
@@ -42,17 +42,17 @@ static gint ett_wimax_fch_decoder = -1;
 #define DL_MAP_LENGTH                0x000FF0
 #define FCH_RESERVED_2		     0x00000F
 
-static int hf_fch_used_subchannel_group0 = -1;
-static int hf_fch_used_subchannel_group1 = -1;
-static int hf_fch_used_subchannel_group2 = -1;
-static int hf_fch_used_subchannel_group3 = -1;
-static int hf_fch_used_subchannel_group4 = -1;
-static int hf_fch_used_subchannel_group5 = -1;
-static int hf_fch_reserved_1 = -1;
-static int hf_fch_repetition_coding_indication = -1;
-static int hf_fch_coding_indication = -1;
-static int hf_fch_dlmap_length = -1;
-static int hf_fch_reserved_2 = -1;
+static int hf_fch_used_subchannel_group0;
+static int hf_fch_used_subchannel_group1;
+static int hf_fch_used_subchannel_group2;
+static int hf_fch_used_subchannel_group3;
+static int hf_fch_used_subchannel_group4;
+static int hf_fch_used_subchannel_group5;
+static int hf_fch_reserved_1;
+static int hf_fch_repetition_coding_indication;
+static int hf_fch_coding_indication;
+static int hf_fch_dlmap_length;
+static int hf_fch_reserved_2;
 
 static const value_string used_or_not_used[] =
 {

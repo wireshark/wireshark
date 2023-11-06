@@ -30,12 +30,12 @@ void proto_reg_handoff_mac_mgmt_msg_res_cmd(void);
 
 static dissector_handle_t res_cmd_handle;
 
-static gint proto_mac_mgmt_msg_res_cmd_decoder = -1;
-static gint ett_mac_mgmt_msg_res_cmd_decoder = -1;
+static gint proto_mac_mgmt_msg_res_cmd_decoder;
+static gint ett_mac_mgmt_msg_res_cmd_decoder;
 
 /* fix fields */
-static gint hf_res_cmd_unknown_type = -1;
-static gint hf_res_cmd_invalid_tlv = -1;
+static gint hf_res_cmd_unknown_type;
+static gint hf_res_cmd_invalid_tlv;
 
 
 /* Wimax Mac RES-CMD Message Dissector */

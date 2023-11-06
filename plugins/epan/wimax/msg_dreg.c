@@ -36,10 +36,10 @@ static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb
 static int dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
-static gint proto_mac_mgmt_msg_dreg_req_decoder = -1;
-static gint proto_mac_mgmt_msg_dreg_cmd_decoder = -1;
+static gint proto_mac_mgmt_msg_dreg_req_decoder;
+static gint proto_mac_mgmt_msg_dreg_cmd_decoder;
 
-static gint ett_mac_mgmt_msg_dreg_decoder = -1;
+static gint ett_mac_mgmt_msg_dreg_decoder;
 
 /* Setup protocol subtree array */
 static gint *ett[] =
@@ -48,29 +48,29 @@ static gint *ett[] =
 };
 
 /* DREG fields */
-/* static gint hf_ack_type_reserved = -1; */
-static gint hf_dreg_cmd_action = -1;
-static gint hf_dreg_cmd_action_cor2 = -1;
-static gint hf_dreg_cmd_reserved = -1;
-static gint hf_dreg_paging_cycle = -1;
-static gint hf_dreg_paging_offset = -1;
-static gint hf_dreg_paging_group_id = -1;
-static gint hf_dreg_req_duration = -1;
-static gint hf_paging_controller_id = -1;
-static gint hf_mac_hash_skip_threshold = -1;
-static gint hf_dreg_paging_cycle_request = -1;
-static gint hf_dreg_retain_ms_service_sbc = -1;
-static gint hf_dreg_retain_ms_service_pkm = -1;
-static gint hf_dreg_retain_ms_service_reg = -1;
-static gint hf_dreg_retain_ms_service_network_address = -1;
-static gint hf_dreg_retain_ms_service_tod = -1;
-static gint hf_dreg_retain_ms_service_tftp = -1;
-static gint hf_dreg_retain_ms_service_full_service = -1;
-static gint hf_dreg_consider_paging_pref = -1;
-static gint hf_tlv_value = -1;
-static gint hf_dreg_req_action = -1;
-static gint hf_dreg_req_reserved = -1;
-static gint hf_dreg_invalid_tlv = -1;
+/* static gint hf_ack_type_reserved; */
+static gint hf_dreg_cmd_action;
+static gint hf_dreg_cmd_action_cor2;
+static gint hf_dreg_cmd_reserved;
+static gint hf_dreg_paging_cycle;
+static gint hf_dreg_paging_offset;
+static gint hf_dreg_paging_group_id;
+static gint hf_dreg_req_duration;
+static gint hf_paging_controller_id;
+static gint hf_mac_hash_skip_threshold;
+static gint hf_dreg_paging_cycle_request;
+static gint hf_dreg_retain_ms_service_sbc;
+static gint hf_dreg_retain_ms_service_pkm;
+static gint hf_dreg_retain_ms_service_reg;
+static gint hf_dreg_retain_ms_service_network_address;
+static gint hf_dreg_retain_ms_service_tod;
+static gint hf_dreg_retain_ms_service_tftp;
+static gint hf_dreg_retain_ms_service_full_service;
+static gint hf_dreg_consider_paging_pref;
+static gint hf_tlv_value;
+static gint hf_dreg_req_action;
+static gint hf_dreg_req_reserved;
+static gint hf_dreg_invalid_tlv;
 
 /* STRING RESOURCES */
 static const value_string vals_dreg_req_code[] = {

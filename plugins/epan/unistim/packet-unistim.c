@@ -74,37 +74,37 @@ static gint dissect_uftp_message(proto_tree *unistim_tree, packet_info *pinfo,
                                    tvbuff_t *tvb,gint offset);
 
 
-static int proto_unistim = -1;
-static int hf_unistim_seq_nu = -1;
-static int hf_unistim_packet_type = -1;
-static int hf_unistim_payload = -1;
-static int hf_unistim_cmd_add = -1;
-static int hf_unistim_len =-1;
-static int hf_terminal_id=-1;
-static int hf_basic_bit_field=-1;
+static int proto_unistim;
+static int hf_unistim_seq_nu;
+static int hf_unistim_packet_type;
+static int hf_unistim_payload;
+static int hf_unistim_cmd_add;
+static int hf_unistim_len;
+static int hf_terminal_id;
+static int hf_basic_bit_field;
 
-static int hf_basic_switch_cmd=-1;
-static int hf_basic_phone_cmd=-1;
-static int hf_broadcast_switch_cmd=-1;
-/* static int hf_broadcast_phone_cmd=-1; */
-static int hf_audio_switch_cmd=-1;
-static int hf_audio_phone_cmd=-1;
-static int hf_display_switch_cmd=-1;
-static int hf_display_phone_cmd=-1;
-static int hf_key_switch_cmd=-1;
-static int hf_key_phone_cmd=-1;
-static int hf_network_switch_cmd=-1;
-static int hf_network_phone_cmd=-1;
-static int hf_expansion_switch_cmd=-1;
-static int hf_expansion_phone_cmd=-1;
-static int hf_module_key_number=-1;
+static int hf_basic_switch_cmd;
+static int hf_basic_phone_cmd;
+static int hf_broadcast_switch_cmd;
+/* static int hf_broadcast_phone_cmd; */
+static int hf_audio_switch_cmd;
+static int hf_audio_phone_cmd;
+static int hf_display_switch_cmd;
+static int hf_display_phone_cmd;
+static int hf_key_switch_cmd;
+static int hf_key_phone_cmd;
+static int hf_network_switch_cmd;
+static int hf_network_phone_cmd;
+static int hf_expansion_switch_cmd;
+static int hf_expansion_phone_cmd;
+static int hf_module_key_number;
 
-static int hf_generic_data=-1;
-static int hf_generic_string=-1;
+static int hf_generic_data;
+static int hf_generic_string;
 
-static gint ett_unistim = -1;
+static gint ett_unistim;
 
-static expert_field ei_unistim_len = EI_INIT;
+static expert_field ei_unistim_len;
 
 static const value_string packet_names[]={
    {0,"NAK"},

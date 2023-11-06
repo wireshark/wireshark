@@ -109,8 +109,8 @@
 void proto_reg_handoff_ircomm(void);
 
 /* Initialize the subtree pointers */
-static gint ett_ircomm = -1;
-static gint ett_ircomm_ctrl = -1;
+static gint ett_ircomm;
+static gint ett_ircomm_ctrl;
 
 #define MAX_PARAMETERS          32
 static gint ett_param[MAX_IAP_ENTRIES * MAX_PARAMETERS];
@@ -118,13 +118,13 @@ static gint ett_param[MAX_IAP_ENTRIES * MAX_PARAMETERS];
 static dissector_handle_t ircomm_raw_handle;
 static dissector_handle_t ircomm_cooked_handle;
 
-static int proto_ircomm = -1;
-static int hf_ircomm_param = -1;
-/* static int hf_param_pi = -1; */
-/* static int hf_param_pl = -1; */
-/* static int hf_param_pv = -1; */
-static int hf_control = -1;
-static int hf_control_len = -1;
+static int proto_ircomm;
+static int hf_ircomm_param;
+/* static int hf_param_pi; */
+/* static int hf_param_pl; */
+/* static int hf_param_pv; */
+static int hf_control;
+static int hf_control_len;
 
 static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_info* pinfo,
                                           proto_tree* tree, guint list_index, guint8 attr_type, guint8 circuit_id);

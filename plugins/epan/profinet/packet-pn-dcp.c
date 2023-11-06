@@ -48,92 +48,92 @@ void proto_reg_handoff_pn_dcp(void);
 
 int proto_pn_dcp = -1;
 
-static int hf_pn_dcp_service_id = -1;
-static int hf_pn_dcp_service_type = -1;
-static int hf_pn_dcp_xid = -1;
-static int hf_pn_dcp_reserved8 = -1;
-static int hf_pn_dcp_reserved16 = -1;
-static int hf_pn_dcp_response_delay = -1;
-static int hf_pn_dcp_data_length = -1;
-static int hf_pn_dcp_block_length = -1;
+static int hf_pn_dcp_service_id;
+static int hf_pn_dcp_service_type;
+static int hf_pn_dcp_xid;
+static int hf_pn_dcp_reserved8;
+static int hf_pn_dcp_reserved16;
+static int hf_pn_dcp_response_delay;
+static int hf_pn_dcp_data_length;
+static int hf_pn_dcp_block_length;
 
-static int hf_pn_dcp_block = -1;
+static int hf_pn_dcp_block;
 
-static int hf_pn_dcp_block_error = -1;
+static int hf_pn_dcp_block_error;
 
-static int hf_pn_dcp_option = -1;
-static int hf_pn_dcp_block_info = -1;
-static int hf_pn_dcp_block_qualifier = -1;
-static int hf_pn_dcp_blockqualifier = -1;
-static int hf_pn_dcp_blockqualifier_r2f = -1;
+static int hf_pn_dcp_option;
+static int hf_pn_dcp_block_info;
+static int hf_pn_dcp_block_qualifier;
+static int hf_pn_dcp_blockqualifier;
+static int hf_pn_dcp_blockqualifier_r2f;
 
-static int hf_pn_dcp_suboption_ip = -1;
-static int hf_pn_dcp_suboption_ip_block_info = -1;
-static int hf_pn_dcp_suboption_ip_ip = -1;
-static int hf_pn_dcp_suboption_ip_subnetmask = -1;
-static int hf_pn_dcp_suboption_ip_standard_gateway = -1;
-static int hf_pn_dcp_suboption_ip_mac_address = -1;
+static int hf_pn_dcp_suboption_ip;
+static int hf_pn_dcp_suboption_ip_block_info;
+static int hf_pn_dcp_suboption_ip_ip;
+static int hf_pn_dcp_suboption_ip_subnetmask;
+static int hf_pn_dcp_suboption_ip_standard_gateway;
+static int hf_pn_dcp_suboption_ip_mac_address;
 
-static int hf_pn_dcp_suboption_device = -1;
-static int hf_pn_dcp_suboption_device_typeofstation = -1;
-static int hf_pn_dcp_suboption_device_nameofstation = -1;
-static int hf_pn_dcp_suboption_vendor_id = -1;
-static int hf_pn_dcp_suboption_device_id = -1;
-static int hf_pn_dcp_suboption_device_role = -1;
-static int hf_pn_dcp_suboption_device_aliasname = -1;
-static int hf_pn_dcp_suboption_device_instance_high = -1;
-static int hf_pn_dcp_suboption_device_instance_low = -1;
-static int hf_pn_dcp_suboption_device_oem_ven_id = -1;
-static int hf_pn_dcp_suboption_device_oem_dev_id = -1;
+static int hf_pn_dcp_suboption_device;
+static int hf_pn_dcp_suboption_device_typeofstation;
+static int hf_pn_dcp_suboption_device_nameofstation;
+static int hf_pn_dcp_suboption_vendor_id;
+static int hf_pn_dcp_suboption_device_id;
+static int hf_pn_dcp_suboption_device_role;
+static int hf_pn_dcp_suboption_device_aliasname;
+static int hf_pn_dcp_suboption_device_instance_high;
+static int hf_pn_dcp_suboption_device_instance_low;
+static int hf_pn_dcp_suboption_device_oem_ven_id;
+static int hf_pn_dcp_suboption_device_oem_dev_id;
 
-static int hf_pn_dcp_rsi_properties_value = -1;
-static int hf_pn_dcp_rsi_properties_value_bit0 = -1;
-static int hf_pn_dcp_rsi_properties_value_bit1 = -1;
-static int hf_pn_dcp_rsi_properties_value_bit2 = -1;
-static int hf_pn_dcp_rsi_properties_value_bit3 = -1;
-static int hf_pn_dcp_rsi_properties_value_bit4 = -1;
-static int hf_pn_dcp_rsi_properties_value_bit5 = -1;
-static int hf_pn_dcp_rsi_properties_value_otherbits = -1;
+static int hf_pn_dcp_rsi_properties_value;
+static int hf_pn_dcp_rsi_properties_value_bit0;
+static int hf_pn_dcp_rsi_properties_value_bit1;
+static int hf_pn_dcp_rsi_properties_value_bit2;
+static int hf_pn_dcp_rsi_properties_value_bit3;
+static int hf_pn_dcp_rsi_properties_value_bit4;
+static int hf_pn_dcp_rsi_properties_value_bit5;
+static int hf_pn_dcp_rsi_properties_value_otherbits;
 
-static int hf_pn_dcp_suboption_tsn = -1;
-static int hf_pn_dcp_suboption_tsn_domain_name = -1;
-static int hf_pn_dcp_suboption_tsn_domain_uuid = -1;
-static int hf_pn_dcp_suboption_tsn_nme_prio = -1;
-static int hf_pn_dcp_suboption_tsn_nme_parameter_uuid = -1;
-static int hf_pn_dcp_suboption_tsn_nme_agent = -1;
+static int hf_pn_dcp_suboption_tsn;
+static int hf_pn_dcp_suboption_tsn_domain_name;
+static int hf_pn_dcp_suboption_tsn_domain_uuid;
+static int hf_pn_dcp_suboption_tsn_nme_prio;
+static int hf_pn_dcp_suboption_tsn_nme_parameter_uuid;
+static int hf_pn_dcp_suboption_tsn_nme_agent;
 
-static int hf_pn_dcp_suboption_dhcp = -1;
-static int hf_pn_dcp_suboption_dhcp_option_code = -1;
-static int hf_pn_dcp_suboption_dhcp_parameter_length = -1;
-static int hf_pn_dcp_suboption_dhcp_parameter_data = -1;
-static int hf_pn_dcp_suboption_dhcp_arbitrary_client_id = -1;
-static int hf_pn_dcp_suboption_dhcp_control_parameter_data = -1;
+static int hf_pn_dcp_suboption_dhcp;
+static int hf_pn_dcp_suboption_dhcp_option_code;
+static int hf_pn_dcp_suboption_dhcp_parameter_length;
+static int hf_pn_dcp_suboption_dhcp_parameter_data;
+static int hf_pn_dcp_suboption_dhcp_arbitrary_client_id;
+static int hf_pn_dcp_suboption_dhcp_control_parameter_data;
 
-static int hf_pn_dcp_suboption_control = -1;
-static int hf_pn_dcp_suboption_control_option = -1;
-static int hf_pn_dcp_suboption_control_signal_value = -1;
+static int hf_pn_dcp_suboption_control;
+static int hf_pn_dcp_suboption_control_option;
+static int hf_pn_dcp_suboption_control_signal_value;
 
-static int hf_pn_dcp_suboption_deviceinitiative = -1;
-static int hf_pn_dcp_deviceinitiative_value = -1;
+static int hf_pn_dcp_suboption_deviceinitiative;
+static int hf_pn_dcp_deviceinitiative_value;
 
-static int hf_pn_dcp_suboption_all = -1;
+static int hf_pn_dcp_suboption_all;
 
-static int hf_pn_dcp_suboption_manuf = -1;
+static int hf_pn_dcp_suboption_manuf;
 
-static int hf_pn_dcp_vendor_id_high = -1;
-static int hf_pn_dcp_vendor_id_low = -1;
-static int hf_pn_dcp_device_id_high = -1;
-static int hf_pn_dcp_device_id_low = -1;
-static int hf_pn_dcp_instance_id_high = -1;
-static int hf_pn_dcp_instance_id_low = -1;
-static gint ett_pn_dcp = -1;
-static gint ett_pn_dcp_block = -1;
+static int hf_pn_dcp_vendor_id_high;
+static int hf_pn_dcp_vendor_id_low;
+static int hf_pn_dcp_device_id_high;
+static int hf_pn_dcp_device_id_low;
+static int hf_pn_dcp_instance_id_high;
+static int hf_pn_dcp_instance_id_low;
+static gint ett_pn_dcp;
+static gint ett_pn_dcp_block;
 
-static gint ett_pn_dcp_rsi_properties_value = -1;
+static gint ett_pn_dcp_rsi_properties_value;
 
-static expert_field ei_pn_dcp_block_parse_error = EI_INIT;
-static expert_field ei_pn_dcp_block_error_unknown = EI_INIT;
-static expert_field ei_pn_dcp_ip_conflict = EI_INIT;
+static expert_field ei_pn_dcp_block_parse_error;
+static expert_field ei_pn_dcp_block_error_unknown;
+static expert_field ei_pn_dcp_ip_conflict;
 
 #define PNDCP_SERVICE_ID_GET        0x03
 #define PNDCP_SERVICE_ID_SET        0x04

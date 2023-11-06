@@ -26,23 +26,23 @@ int proto_nv  = -1;
 
 static dissector_handle_t nv_handle;
 
-static int ett_nv = -1;
-static int ett_nv_header = -1;
-static int ett_nv_var = -1;
-static int ett_nv_varheader = -1;
+static int ett_nv;
+static int ett_nv_header;
+static int ett_nv_var;
+static int ett_nv_varheader;
 
-/* static int hf_nv_summary = -1; */
-static int hf_nv_header = -1;
-static int hf_nv_publisher = -1;
-static int hf_nv_count = -1;
-static int hf_nv_cycleindex = -1;
-static int hf_nv_variable = -1;
-static int hf_nv_varheader = -1;
-static int hf_nv_id = -1;
-static int hf_nv_hash = -1;
-static int hf_nv_length = -1;
-static int hf_nv_quality = -1;
-static int hf_nv_data = -1;
+/* static int hf_nv_summary; */
+static int hf_nv_header;
+static int hf_nv_publisher;
+static int hf_nv_count;
+static int hf_nv_cycleindex;
+static int hf_nv_variable;
+static int hf_nv_varheader;
+static int hf_nv_id;
+static int hf_nv_hash;
+static int hf_nv_length;
+static int hf_nv_quality;
+static int hf_nv_data;
 
 /*nv*/
 static void NvSummaryFormater(tvbuff_t *tvb, gint offset, char *szText, int nMax)

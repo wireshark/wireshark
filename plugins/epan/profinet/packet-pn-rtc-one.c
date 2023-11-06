@@ -71,76 +71,76 @@
 
 #define PA_PROFILE_API 0x9700u
 
-static int proto_pn_io_rtc1 = -1;
+static int proto_pn_io_rtc1;
 
 /* General module information */
-static int hf_pn_io_frame_info_type = -1;
-static int hf_pn_io_frame_info_vendor = -1;
-static int hf_pn_io_frame_info_nameofstation = -1;
-static int hf_pn_io_frame_info_gsd_found = -1;
-static int hf_pn_io_frame_info_gsd_error = -1;
-static int hf_pn_io_frame_info_gsd_path = -1;
-static int hf_pn_io_io_data_object = -1;
-static int hf_pn_io_io_data_object_info_module_diff = -1;
-static int hf_pn_io_io_data_object_info_moduleidentnumber = -1;
-static int hf_pn_io_io_data_object_info_submoduleidentnumber = -1;
+static int hf_pn_io_frame_info_type;
+static int hf_pn_io_frame_info_vendor;
+static int hf_pn_io_frame_info_nameofstation;
+static int hf_pn_io_frame_info_gsd_found;
+static int hf_pn_io_frame_info_gsd_error;
+static int hf_pn_io_frame_info_gsd_path;
+static int hf_pn_io_io_data_object;
+static int hf_pn_io_io_data_object_info_module_diff;
+static int hf_pn_io_io_data_object_info_moduleidentnumber;
+static int hf_pn_io_io_data_object_info_submoduleidentnumber;
 
-static int hf_pn_io_iocs = -1;
-static int hf_pn_io_iops = -1;
-static int hf_pn_io_ioxs_extension = -1;
-static int hf_pn_io_ioxs_res14 = -1;
-static int hf_pn_io_ioxs_instance = -1;
-static int hf_pn_io_ioxs_datastate = -1;
+static int hf_pn_io_iocs;
+static int hf_pn_io_iops;
+static int hf_pn_io_ioxs_extension;
+static int hf_pn_io_ioxs_res14;
+static int hf_pn_io_ioxs_instance;
+static int hf_pn_io_ioxs_datastate;
 
 /* PROFIsafe statusbyte and controlbyte */
-static int hf_pn_io_ps_sb = -1;
-static int hf_pn_io_ps_sb_iparOK = -1;
-static int hf_pn_io_ps_sb_DeviceFault = -1;
-static int hf_pn_io_ps_sb_CECRC = -1;
-static int hf_pn_io_ps_sb_WDtimeout = -1;
-static int hf_pn_io_ps_sb_FVactivated = -1;
-static int hf_pn_io_ps_sb_Toggle_d = -1;
-static int hf_pn_io_ps_sb_ConsNr_reset = -1;
-static int hf_pn_io_ps_sb_res = -1;
-static int hf_pn_io_ps_sb_toggelBitChanged = -1;
-static int hf_pn_io_ps_sb_toggelBitChange_slot_nr = -1;
-static int hf_pn_io_ps_sb_toggelBitChange_subslot_nr = -1;
+static int hf_pn_io_ps_sb;
+static int hf_pn_io_ps_sb_iparOK;
+static int hf_pn_io_ps_sb_DeviceFault;
+static int hf_pn_io_ps_sb_CECRC;
+static int hf_pn_io_ps_sb_WDtimeout;
+static int hf_pn_io_ps_sb_FVactivated;
+static int hf_pn_io_ps_sb_Toggle_d;
+static int hf_pn_io_ps_sb_ConsNr_reset;
+static int hf_pn_io_ps_sb_res;
+static int hf_pn_io_ps_sb_toggelBitChanged;
+static int hf_pn_io_ps_sb_toggelBitChange_slot_nr;
+static int hf_pn_io_ps_sb_toggelBitChange_subslot_nr;
 
-static int hf_pn_io_ps_cb = -1;
-static int hf_pn_io_ps_cb_iparEN = -1;
-static int hf_pn_io_ps_cb_OAReq = -1;
-static int hf_pn_io_ps_cb_resetConsNr = -1;
-static int hf_pn_io_ps_cb_useTO2 = -1;
-static int hf_pn_io_ps_cb_activateFV = -1;
-static int hf_pn_io_ps_cb_Toggle_h = -1;
-static int hf_pn_io_ps_cb_Chf_ACK = -1;
-static int hf_pn_io_ps_cb_loopcheck = -1;
-static int hf_pn_io_ps_cb_toggelBitChanged = -1;
-static int hf_pn_io_ps_cb_toggelBitChange_slot_nr = -1;
-static int hf_pn_io_ps_cb_toggelBitChange_subslot_nr = -1;
+static int hf_pn_io_ps_cb;
+static int hf_pn_io_ps_cb_iparEN;
+static int hf_pn_io_ps_cb_OAReq;
+static int hf_pn_io_ps_cb_resetConsNr;
+static int hf_pn_io_ps_cb_useTO2;
+static int hf_pn_io_ps_cb_activateFV;
+static int hf_pn_io_ps_cb_Toggle_h;
+static int hf_pn_io_ps_cb_Chf_ACK;
+static int hf_pn_io_ps_cb_loopcheck;
+static int hf_pn_io_ps_cb_toggelBitChanged;
+static int hf_pn_io_ps_cb_toggelBitChange_slot_nr;
+static int hf_pn_io_ps_cb_toggelBitChange_subslot_nr;
 
 /* PROFIsafe */
-static int hf_pn_io_ps_f_dest_adr = -1;
-static int hf_pn_io_ps_f_data = -1;
+static int hf_pn_io_ps_f_dest_adr;
+static int hf_pn_io_ps_f_data;
 
 /* PA Profile 4.02 */
-static int hf_pn_pa_profile_status = -1;
-static int hf_pn_pa_profile_status_quality = -1;
-static int hf_pn_pa_profile_status_substatus_bad = -1;
-static int hf_pn_pa_profile_status_substatus_uncertain = -1;
-static int hf_pn_pa_profile_status_substatus_good = -1;
-static int hf_pn_pa_profile_status_update_event = -1;
-static int hf_pn_pa_profile_status_simulate = -1;
-static int hf_pn_pa_profile_value_8bit = -1;
-static int hf_pn_pa_profile_value_16bit = -1;
-static int hf_pn_pa_profile_value_float = -1;
+static int hf_pn_pa_profile_status;
+static int hf_pn_pa_profile_status_quality;
+static int hf_pn_pa_profile_status_substatus_bad;
+static int hf_pn_pa_profile_status_substatus_uncertain;
+static int hf_pn_pa_profile_status_substatus_good;
+static int hf_pn_pa_profile_status_update_event;
+static int hf_pn_pa_profile_status_simulate;
+static int hf_pn_pa_profile_value_8bit;
+static int hf_pn_pa_profile_value_16bit;
+static int hf_pn_pa_profile_value_float;
 
-static gint ett_pn_io_rtc = -1;
-static gint ett_pn_io_ioxs = -1;
-static gint ett_pn_io_io_data_object = -1;
-static gint ett_pn_pa_profile_status = -1;
+static gint ett_pn_io_rtc;
+static gint ett_pn_io_ioxs;
+static gint ett_pn_io_io_data_object;
+static gint ett_pn_pa_profile_status;
 
-static expert_field ei_pn_io_too_many_data_objects = EI_INIT;
+static expert_field ei_pn_io_too_many_data_objects;
 
 static const value_string pn_io_ioxs_extension[] = {
     { 0x00 /*  0*/, "No IOxS octet follows" },

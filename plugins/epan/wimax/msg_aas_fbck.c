@@ -36,9 +36,9 @@ void proto_reg_handoff_mac_mgmt_msg_aas(void);
 static dissector_handle_t aas_req_handle;
 static dissector_handle_t aas_rsp_handle;
 
-static gint proto_mac_mgmt_msg_aas_fbck_decoder = -1;
-static gint ett_mac_mgmt_msg_aas_fbck_req_decoder = -1;
-static gint ett_mac_mgmt_msg_aas_fbck_rsp_decoder = -1;
+static gint proto_mac_mgmt_msg_aas_fbck_decoder;
+static gint ett_mac_mgmt_msg_aas_fbck_req_decoder;
+static gint ett_mac_mgmt_msg_aas_fbck_rsp_decoder;
 
 static const value_string vals_data_types[] =
 {
@@ -66,23 +66,23 @@ static const value_string vals_resolutions_1[] =
 };
 
 /* fix fields */
-/* static int hf_aas_fbck_unknown_type = -1; */
-static int hf_aas_fbck_frame_number = -1;
-static int hf_aas_fbck_number_of_frames = -1;
-static int hf_aas_fbck_req_data_type = -1;
-static int hf_aas_fbck_rsp_data_type = -1;
-static int hf_aas_fbck_req_counter = -1;
-static int hf_aas_fbck_rsp_counter = -1;
-static int hf_aas_fbck_req_resolution_0 = -1;
-static int hf_aas_fbck_rsp_resolution_0 = -1;
-static int hf_aas_fbck_req_resolution_1 = -1;
-static int hf_aas_fbck_rsp_resolution_1 = -1;
-static int hf_aas_fbck_req_reserved = -1;
-static int hf_aas_fbck_rsp_reserved = -1;
-static int hf_aas_fbck_freq_value_re = -1;
-static int hf_aas_fbck_freq_value_im = -1;
-static int hf_aas_fbck_rssi_value = -1;
-static int hf_aas_fbck_cinr_value = -1;
+/* static int hf_aas_fbck_unknown_type; */
+static int hf_aas_fbck_frame_number;
+static int hf_aas_fbck_number_of_frames;
+static int hf_aas_fbck_req_data_type;
+static int hf_aas_fbck_rsp_data_type;
+static int hf_aas_fbck_req_counter;
+static int hf_aas_fbck_rsp_counter;
+static int hf_aas_fbck_req_resolution_0;
+static int hf_aas_fbck_rsp_resolution_0;
+static int hf_aas_fbck_req_resolution_1;
+static int hf_aas_fbck_rsp_resolution_1;
+static int hf_aas_fbck_req_reserved;
+static int hf_aas_fbck_rsp_reserved;
+static int hf_aas_fbck_freq_value_re;
+static int hf_aas_fbck_freq_value_im;
+static int hf_aas_fbck_rssi_value;
+static int hf_aas_fbck_cinr_value;
 
 
 static int dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)

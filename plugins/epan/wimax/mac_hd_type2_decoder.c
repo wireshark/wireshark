@@ -30,9 +30,9 @@
 
 extern gint proto_mac_header_generic_decoder;
 
-static gint proto_mac_header_type_2_decoder = -1;
-static gint ett_mac_header_type_2_decoder = -1;
-static gint hf_mac_header_type_2_value_bytes = -1;
+static gint proto_mac_header_type_2_decoder;
+static gint ett_mac_header_type_2_decoder;
+static gint hf_mac_header_type_2_value_bytes;
 
 #define WIMAX_MAC_HEADER_SIZE  6
 
@@ -81,23 +81,23 @@ static const char *type2_fb_type_abbrv[TYPE_II_FB_TYPE_MAX] =
 #define WIMAX_MAC_HEADER_TYPE_2_TYPE         0x20
 #define WIMAX_MAC_HEADER_TYPE_2_CII          0x10
 #define WIMAX_MAC_HEADER_TYPE_2_FB_TYPE      0x0F
-static int hf_mac_header_type_2_ht = -1;
-static int hf_mac_header_type_2_ec = -1;
-static int hf_mac_header_type_2_type = -1;
-static int hf_mac_header_type_2_cii = -1;
-static int hf_mac_header_type_2_fb_type = -1;
+static int hf_mac_header_type_2_ht;
+static int hf_mac_header_type_2_ec;
+static int hf_mac_header_type_2_type;
+static int hf_mac_header_type_2_cii;
+static int hf_mac_header_type_2_fb_type;
 
 /* 2nd to 5th bytes (varies by different fb types) */
-static int hf_mac_header_type_2_cid = -1;
-static int hf_mac_header_type_2_no_cid = -1;
+static int hf_mac_header_type_2_cid;
+static int hf_mac_header_type_2_no_cid;
 /* CQI and MIMO Feedback */
 /* 2nd & 3rd bytes */
 #define WIMAX_MAC_HEADER_TYPE_2_CQI_FB_TYPE  0xE000
 #define WIMAX_MAC_HEADER_TYPE_2_CQI_PAYLOAD  0x1F80
 #define WIMAX_MAC_HEADER_TYPE_2_CQI_RSV      0x007F
-static int hf_mac_header_type_2_cqi_fb_type = -1;
-static int hf_mac_header_type_2_cqi_payload = -1;
-static int hf_mac_header_type_2_cqi_rsv = -1;
+static int hf_mac_header_type_2_cqi_fb_type;
+static int hf_mac_header_type_2_cqi_payload;
+static int hf_mac_header_type_2_cqi_rsv;
 /* 4th & 5th without CID */
 /*#define WIMAX_MAC_HEADER_TYPE_2_NO_CID       0xFFFF*/
 
@@ -105,8 +105,8 @@ static int hf_mac_header_type_2_cqi_rsv = -1;
 /* 2nd byte */
 #define WIMAX_MAC_HEADER_TYPE_2_DL_AVE_CINR  0xF800
 #define WIMAX_MAC_HEADER_TYPE_2_DL_AVE_RSV   0x07FF
-static int hf_mac_header_type_2_dl_ave_cinr = -1;
-static int hf_mac_header_type_2_dl_ave_rsv = -1;
+static int hf_mac_header_type_2_dl_ave_cinr;
+static int hf_mac_header_type_2_dl_ave_rsv;
 
 /* MIMO Coefficients Feedback */
 /* 2nd & 3rd bytes */
@@ -114,26 +114,26 @@ static int hf_mac_header_type_2_dl_ave_rsv = -1;
 #define WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_AI   0x3000
 #define WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF      0x0F80
 #define WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_RSV  0x007F
-static int hf_mac_header_type_2_mimo_coef_ni = -1;
-static int hf_mac_header_type_2_mimo_coef_ai = -1;
-static int hf_mac_header_type_2_mimo_coef = -1;
-static int hf_mac_header_type_2_mimo_coef_rsv = -1;
+static int hf_mac_header_type_2_mimo_coef_ni;
+static int hf_mac_header_type_2_mimo_coef_ai;
+static int hf_mac_header_type_2_mimo_coef;
+static int hf_mac_header_type_2_mimo_coef_rsv;
 
 /* Preferred DL Channel DIUC Feedback */
 /* 2nd byte */
 #define WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_DIUC  0xF000
 #define WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_DCD   0x0F00
 #define WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_RSV   0x00FF
-static int hf_mac_header_type_2_dl_chan_diuc = -1;
-static int hf_mac_header_type_2_dl_chan_dcd = -1;
-static int hf_mac_header_type_2_dl_chan_rsv = -1;
+static int hf_mac_header_type_2_dl_chan_diuc;
+static int hf_mac_header_type_2_dl_chan_dcd;
+static int hf_mac_header_type_2_dl_chan_rsv;
 
 /* UL Transmission Power */
 /* 2nd byte */
 #define WIMAX_MAC_HEADER_TYPE_2_UL_TX_PWR     0xFF00
 #define WIMAX_MAC_HEADER_TYPE_2_UL_TX_PWR_RSV 0x00FF
-static int hf_mac_header_type_2_ul_tx_pwr = -1;
-static int hf_mac_header_type_2_ul_tx_pwr_rsv = -1;
+static int hf_mac_header_type_2_ul_tx_pwr;
+static int hf_mac_header_type_2_ul_tx_pwr_rsv;
 
 /* PHY Channel Feedback */
 /* 2nd to 4th bytes */
@@ -141,10 +141,10 @@ static int hf_mac_header_type_2_ul_tx_pwr_rsv = -1;
 #define WIMAX_MAC_HEADER_TYPE_2_PHY_UL_TX_PWR 0x0FF000
 #define WIMAX_MAC_HEADER_TYPE_2_PHY_UL_HDRM   0x000FC0
 #define WIMAX_MAC_HEADER_TYPE_2_PHY_RSV       0x00003F
-static int hf_mac_header_type_2_phy_diuc = -1;
-static int hf_mac_header_type_2_phy_ul_tx_pwr = -1;
-static int hf_mac_header_type_2_phy_ul_hdrm = -1;
-static int hf_mac_header_type_2_phy_rsv = -1;
+static int hf_mac_header_type_2_phy_diuc;
+static int hf_mac_header_type_2_phy_ul_tx_pwr;
+static int hf_mac_header_type_2_phy_ul_hdrm;
+static int hf_mac_header_type_2_phy_rsv;
 
 /* AMC Band Indication Bitmap */
 /* 2nd to 5th bytes */
@@ -153,27 +153,27 @@ static int hf_mac_header_type_2_phy_rsv = -1;
 #define WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_2    0x00007C00
 #define WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_3    0x000003E0
 #define WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_4    0x0000001F
-static int hf_mac_header_type_2_amc_bitmap = -1;
-static int hf_mac_header_type_2_amc_cqi_1 = -1;
-static int hf_mac_header_type_2_amc_cqi_2 = -1;
-static int hf_mac_header_type_2_amc_cqi_3 = -1;
-static int hf_mac_header_type_2_amc_cqi_4 = -1;
+static int hf_mac_header_type_2_amc_bitmap;
+static int hf_mac_header_type_2_amc_cqi_1;
+static int hf_mac_header_type_2_amc_cqi_2;
+static int hf_mac_header_type_2_amc_cqi_3;
+static int hf_mac_header_type_2_amc_cqi_4;
 
 /* Life Span of Short-term Precoding Feedback */
 /* 2nd byte */
 #define WIMAX_MAC_HEADER_TYPE_2_LIFE_SPAN  0xF000
 #define WIMAX_MAC_HEADER_TYPE_2_LIFE_SPAN_RSV 0x0FFF
-static int hf_mac_header_type_2_life_span = -1;
-static int hf_mac_header_type_2_life_span_rsv = -1;
+static int hf_mac_header_type_2_life_span;
+static int hf_mac_header_type_2_life_span_rsv;
 
 /* Multiple Types of Feedback */
 /* 2nd to 5th bytes ??? */
 #define WIMAX_MAC_HEADER_TYPE_2_MT_NUM_FB_TYPES 0xC0000000
 #define WIMAX_MAC_HEADER_TYPE_2_MT_OCCU_FB_TYPE 0x3C000000
 #define WIMAX_MAC_HEADER_TYPE_2_MT_FB_CONTENTS  0x03FFFFFF
-static int hf_mac_header_type_2_mt_num_fb_types = -1;
-static int hf_mac_header_type_2_mt_occu_fb_type = -1;
-static int hf_mac_header_type_2_mt_fb_contents = -1;
+static int hf_mac_header_type_2_mt_num_fb_types;
+static int hf_mac_header_type_2_mt_occu_fb_type;
+static int hf_mac_header_type_2_mt_fb_contents;
 
 /* Long-term Precoding Feedback */
 /* 2nd & 3rd bytes */
@@ -181,17 +181,17 @@ static int hf_mac_header_type_2_mt_fb_contents = -1;
 #define WIMAX_MAC_HEADER_TYPE_2_LT_RANK      0x0300
 #define WIMAX_MAC_HEADER_TYPE_2_LT_FEC_QAM   0x00FC
 #define WIMAX_MAC_HEADER_TYPE_2_LT_RSV       0x0003
-static int hf_mac_header_type_2_lt_id_fb = -1;
-static int hf_mac_header_type_2_lt_rank = -1;
-static int hf_mac_header_type_2_lt_fec_qam = -1;
-static int hf_mac_header_type_2_lt_rsv = -1;
+static int hf_mac_header_type_2_lt_id_fb;
+static int hf_mac_header_type_2_lt_rank;
+static int hf_mac_header_type_2_lt_fec_qam;
+static int hf_mac_header_type_2_lt_rsv;
 
 /* Combined DL Average CINR of Active BSs */
 /* 2nd & 3rd bytes */
 #define WIMAX_MAC_HEADER_TYPE_2_COMB_DL_AVE  0xF800
 #define WIMAX_MAC_HEADER_TYPE_2_COMB_DL_RSV  0x0EFF
-static int hf_mac_header_type_2_comb_dl_ave = -1;
-static int hf_mac_header_type_2_comb_dl_rsv = -1;
+static int hf_mac_header_type_2_comb_dl_ave;
+static int hf_mac_header_type_2_comb_dl_rsv;
 
 /* MIMO Channel Feedback */
 /* 2nd byte */
@@ -211,28 +211,28 @@ static int hf_mac_header_type_2_comb_dl_rsv = -1;
 #define WIMAX_MAC_HEADER_TYPE_2_MI           0x0000C0
 #define WIMAX_MAC_HEADER_TYPE_2_CT           0x000020
 #define WIMAX_MAC_HEADER_TYPE_2_CQI          0x00001F
-static int hf_mac_header_type_2_mimo_diuc = -1;
-static int hf_mac_header_type_2_mimo_pbwi = -1;
-static int hf_mac_header_type_2_mimo_slpb = -1;
-static int hf_mac_header_type_2_mimo_bpri = -1;
-static int hf_mac_header_type_2_mimo_bpri_cid = -1;
-static int hf_mac_header_type_2_mimo_cid = -1;
-static int hf_mac_header_type_2_mimo_cti = -1;
-static int hf_mac_header_type_2_mimo_ai_0 = -1;
-static int hf_mac_header_type_2_mimo_ai_1 = -1;
-static int hf_mac_header_type_2_mimo_ai_2 = -1;
-static int hf_mac_header_type_2_mimo_ai_3 = -1;
-static int hf_mac_header_type_2_mimo_mi = -1;
-static int hf_mac_header_type_2_mimo_ct = -1;
-static int hf_mac_header_type_2_mimo_cqi = -1;
+static int hf_mac_header_type_2_mimo_diuc;
+static int hf_mac_header_type_2_mimo_pbwi;
+static int hf_mac_header_type_2_mimo_slpb;
+static int hf_mac_header_type_2_mimo_bpri;
+static int hf_mac_header_type_2_mimo_bpri_cid;
+static int hf_mac_header_type_2_mimo_cid;
+static int hf_mac_header_type_2_mimo_cti;
+static int hf_mac_header_type_2_mimo_ai_0;
+static int hf_mac_header_type_2_mimo_ai_1;
+static int hf_mac_header_type_2_mimo_ai_2;
+static int hf_mac_header_type_2_mimo_ai_3;
+static int hf_mac_header_type_2_mimo_mi;
+static int hf_mac_header_type_2_mimo_ct;
+static int hf_mac_header_type_2_mimo_cqi;
 
 /* CINR Feedback */
 /* 2nd byte */
 /*#define WIMAX_MAC_HEADER_TYPE_2_CINR_MEAN    0xFF*/
 /* 3rd byte */
 /*#define WIMAX_MAC_HEADER_TYPE_2_CINR_DEVI    0xFF*/
-static int hf_mac_header_type_2_cinr_mean = -1;
-static int hf_mac_header_type_2_cinr_devi = -1;
+static int hf_mac_header_type_2_cinr_mean;
+static int hf_mac_header_type_2_cinr_devi;
 
 /* Close-loop MIMO Feedback */
 /* 2nd & 3rd bytes */
@@ -247,21 +247,21 @@ static int hf_mac_header_type_2_cinr_devi = -1;
 #define WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CODEBOOK_ID 0x3F00
 #define WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI_2       0x00F8
 #define WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV_2       0x000E
-static int hf_mac_header_type_2_cl_mimo_type = -1;
-static int hf_mac_header_type_2_cl_mimo_ant_id = -1;
-static int hf_mac_header_type_2_cl_mimo_cqi = -1;
-static int hf_mac_header_type_2_cl_mimo_cqi_1 = -1;
-static int hf_mac_header_type_2_cl_mimo_cqi_2 = -1;
-static int hf_mac_header_type_2_cl_mimo_rsv = -1;
-static int hf_mac_header_type_2_cl_mimo_rsv_1 = -1;
-static int hf_mac_header_type_2_cl_mimo_rsv_2 = -1;
-static int hf_mac_header_type_2_cl_mimo_streams = -1;
-static int hf_mac_header_type_2_cl_mimo_ant_sel = -1;
-static int hf_mac_header_type_2_cl_mimo_codebook_id = -1;
+static int hf_mac_header_type_2_cl_mimo_type;
+static int hf_mac_header_type_2_cl_mimo_ant_id;
+static int hf_mac_header_type_2_cl_mimo_cqi;
+static int hf_mac_header_type_2_cl_mimo_cqi_1;
+static int hf_mac_header_type_2_cl_mimo_cqi_2;
+static int hf_mac_header_type_2_cl_mimo_rsv;
+static int hf_mac_header_type_2_cl_mimo_rsv_1;
+static int hf_mac_header_type_2_cl_mimo_rsv_2;
+static int hf_mac_header_type_2_cl_mimo_streams;
+static int hf_mac_header_type_2_cl_mimo_ant_sel;
+static int hf_mac_header_type_2_cl_mimo_codebook_id;
 
 /* last byte */
 /*#define WIMAX_MAC_HEADER_TYPE_2_HCS          0xFF*/
-static int hf_mac_header_type_2_hcs = -1;
+static int hf_mac_header_type_2_hcs;
 
 /* CID Inclusion Indication messages */
 static const value_string cii_msgs[] =

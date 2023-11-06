@@ -19,12 +19,12 @@
 #include <epan/packet.h>
 #include "wimax-int.h"
 
-static int proto_wimax_cdma_code_decoder = -1;
-static gint ett_wimax_cdma_code_decoder = -1;
+static int proto_wimax_cdma_code_decoder;
+static gint ett_wimax_cdma_code_decoder;
 
-static int hf_wimax_ranging_code = -1;
-static int hf_wimax_ranging_symbol_offset = -1;
-static int hf_wimax_ranging_subchannel_offset = -1;
+static int hf_wimax_ranging_code;
+static int hf_wimax_ranging_symbol_offset;
+static int hf_wimax_ranging_subchannel_offset;
 
 static int dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {

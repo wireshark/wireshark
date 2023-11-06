@@ -24,12 +24,12 @@ void proto_reg_handoff_mac_mgmt_msg_dsx_rvd(void);
 
 static dissector_handle_t dsx_rvd_handle;
 
-static gint proto_mac_mgmt_msg_dsx_rvd_decoder = -1;
-static gint ett_mac_mgmt_msg_dsx_rvd_decoder = -1;
+static gint proto_mac_mgmt_msg_dsx_rvd_decoder;
+static gint ett_mac_mgmt_msg_dsx_rvd_decoder;
 
 /* fix fields */
-static gint hf_dsx_rvd_transaction_id = -1;
-static gint hf_dsx_rvd_confirmation_code = -1;
+static gint hf_dsx_rvd_transaction_id;
+static gint hf_dsx_rvd_confirmation_code;
 
 
 /* Decode DSX-RVD messages. */

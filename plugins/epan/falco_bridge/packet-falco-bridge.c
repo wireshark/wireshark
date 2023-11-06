@@ -79,12 +79,12 @@ typedef struct bridge_info {
     conv_filter_info *conversation_filters;
 } bridge_info;
 
-static int proto_falco_bridge = -1;
+static int proto_falco_bridge;
 
-static int ett_falco_bridge = -1;
-static int ett_sinsp_enriched = -1;
-static int ett_sinsp_span = -1;
-static int ett_address = -1;
+static int ett_falco_bridge;
+static int ett_sinsp_enriched;
+static int ett_sinsp_span;
+static int ett_address;
 
 static hf_register_info *hf_syscall_category = NULL;
 static int *hf_syscall_category_ids = NULL;
@@ -111,9 +111,9 @@ sinsp_span_t *sinsp_span = NULL;
 /*
  * Fields
  */
-static int hf_sdp_source_id_size = -1;
-static int hf_sdp_lengths = -1;
-static int hf_sdp_source_id = -1;
+static int hf_sdp_source_id_size;
+static int hf_sdp_lengths;
+static int hf_sdp_source_id;
 
 static hf_register_info hf[] = {
     { &hf_sdp_source_id_size,

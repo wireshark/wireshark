@@ -30,9 +30,9 @@ static dissector_handle_t arq_feedback_handle;
 static dissector_handle_t arq_discard_handle;
 static dissector_handle_t arq_reset_handle;
 
-static gint proto_mac_mgmt_msg_arq_decoder = -1;
+static gint proto_mac_mgmt_msg_arq_decoder;
 
-static gint ett_mac_mgmt_msg_arq_decoder = -1;
+static gint ett_mac_mgmt_msg_arq_decoder;
 
 /* Setup protocol subtree array */
 static gint *ett[] =
@@ -42,31 +42,31 @@ static gint *ett[] =
 
 
 /* ARQ fields */
-static gint hf_arq_cid			= -1;
-static gint hf_arq_last			= -1;
-static gint hf_arq_ack_type		= -1;
-static gint hf_ack_type_reserved	= -1;
-static gint hf_arq_bsn			= -1;
-static gint hf_arq_num_ack_maps		= -1;
-static gint hf_arq_selective_map	= -1;
-static gint hf_arq_seq_format		= -1;
-static gint hf_arq_0seq_ack_map		= -1;
-static gint hf_arq_0seq1_len		= -1;
-static gint hf_arq_0seq2_len		= -1;
-static gint hf_arq_1seq_ack_map		= -1;
-static gint hf_arq_1seq1_len		= -1;
-static gint hf_arq_1seq2_len		= -1;
-static gint hf_arq_1seq3_len		= -1;
-static gint hf_arq_reserved		= -1;
+static gint hf_arq_cid;
+static gint hf_arq_last;
+static gint hf_arq_ack_type;
+static gint hf_ack_type_reserved;
+static gint hf_arq_bsn;
+static gint hf_arq_num_ack_maps;
+static gint hf_arq_selective_map;
+static gint hf_arq_seq_format;
+static gint hf_arq_0seq_ack_map;
+static gint hf_arq_0seq1_len;
+static gint hf_arq_0seq2_len;
+static gint hf_arq_1seq_ack_map;
+static gint hf_arq_1seq1_len;
+static gint hf_arq_1seq2_len;
+static gint hf_arq_1seq3_len;
+static gint hf_arq_reserved;
 
-static gint hf_arq_discard_cid		= -1;
-static gint hf_arq_discard_reserved	= -1;
-static gint hf_arq_discard_bsn		= -1;
+static gint hf_arq_discard_cid;
+static gint hf_arq_discard_reserved;
+static gint hf_arq_discard_bsn;
 
-static gint hf_arq_reset_cid		= -1;
-static gint hf_arq_reset_type		= -1;
-static gint hf_arq_reset_direction	= -1;
-static gint hf_arq_reset_reserved	= -1;
+static gint hf_arq_reset_cid;
+static gint hf_arq_reset_type;
+static gint hf_arq_reset_direction;
+static gint hf_arq_reset_reserved;
 
 /* STRING RESOURCES */
 

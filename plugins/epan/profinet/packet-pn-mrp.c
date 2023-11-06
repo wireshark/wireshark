@@ -23,34 +23,34 @@ void proto_reg_handoff_pn_mrp(void);
 
 static dissector_handle_t mrp_handle;
 
-static int proto_pn_mrp = -1;
+static int proto_pn_mrp;
 
-static int hf_pn_mrp_type = -1;
-static int hf_pn_mrp_length = -1;
-static int hf_pn_mrp_version = -1;
-static int hf_pn_mrp_sequence_id = -1;
-static int hf_pn_mrp_sa = -1;
-static int hf_pn_mrp_prio = -1;
-static int hf_pn_mrp_port_role = -1;
-static int hf_pn_mrp_ring_state = -1;
-static int hf_pn_mrp_interval = -1;
-static int hf_pn_mrp_transition = -1;
-static int hf_pn_mrp_time_stamp = -1;
-static int hf_pn_mrp_blocked = -1;
-static int hf_pn_mrp_domain_uuid = -1;
-static int hf_pn_mrp_oui = -1;
-static int hf_pn_mrp_ed1type = -1;
-static int hf_pn_mrp_ed1_manufacturer_data = -1;
-static int hf_pn_mrp_sub_tlv_header_type = -1;
-static int hf_pn_mrp_sub_tlv_header_length = -1;
-static int hf_pn_mrp_sub_option2 = -1;
-static int hf_pn_mrp_other_mrm_prio = -1;
-static int hf_pn_mrp_other_mrm_sa = -1;
-static int hf_pn_mrp_manufacturer_data = -1;
+static int hf_pn_mrp_type;
+static int hf_pn_mrp_length;
+static int hf_pn_mrp_version;
+static int hf_pn_mrp_sequence_id;
+static int hf_pn_mrp_sa;
+static int hf_pn_mrp_prio;
+static int hf_pn_mrp_port_role;
+static int hf_pn_mrp_ring_state;
+static int hf_pn_mrp_interval;
+static int hf_pn_mrp_transition;
+static int hf_pn_mrp_time_stamp;
+static int hf_pn_mrp_blocked;
+static int hf_pn_mrp_domain_uuid;
+static int hf_pn_mrp_oui;
+static int hf_pn_mrp_ed1type;
+static int hf_pn_mrp_ed1_manufacturer_data;
+static int hf_pn_mrp_sub_tlv_header_type;
+static int hf_pn_mrp_sub_tlv_header_length;
+static int hf_pn_mrp_sub_option2;
+static int hf_pn_mrp_other_mrm_prio;
+static int hf_pn_mrp_other_mrm_sa;
+static int hf_pn_mrp_manufacturer_data;
 
-static gint ett_pn_mrp = -1;
-static gint ett_pn_mrp_type = -1;
-static gint ett_pn_sub_tlv = -1;
+static gint ett_pn_mrp;
+static gint ett_pn_mrp_type;
+static gint ett_pn_sub_tlv;
 
 static const value_string pn_mrp_block_type_vals[] = {
     { 0x00, "MRP_End" },

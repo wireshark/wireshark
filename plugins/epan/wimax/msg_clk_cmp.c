@@ -24,16 +24,16 @@ void proto_reg_handoff_mac_mgmt_msg_clk_cmp(void);
 
 static dissector_handle_t clk_cmp_handle;
 
-static gint proto_mac_mgmt_msg_clk_cmp_decoder = -1;
+static gint proto_mac_mgmt_msg_clk_cmp_decoder;
 
-static gint ett_mac_mgmt_msg_clk_cmp_decoder = -1;
+static gint ett_mac_mgmt_msg_clk_cmp_decoder;
 
 /* CLK_CMP fields */
-static gint hf_clk_cmp_clock_count = -1;
-static gint hf_clk_cmp_clock_id = -1;
-static gint hf_clk_cmp_seq_number = -1;
-static gint hf_clk_cmp_comparison_value = -1;
-/* static gint hf_clk_cmp_invalid_tlv = -1; */
+static gint hf_clk_cmp_clock_count;
+static gint hf_clk_cmp_clock_id;
+static gint hf_clk_cmp_seq_number;
+static gint hf_clk_cmp_comparison_value;
+/* static gint hf_clk_cmp_invalid_tlv; */
 
 
 /* Decode CLK_CMP messages. */

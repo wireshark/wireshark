@@ -76,19 +76,19 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 static reassembly_table payload_reassembly_table;
 
 gint proto_mac_header_generic_decoder = -1;
-static gint ett_mac_header_generic_decoder = -1;
-/* static gint ett_mac_subheader_decoder = -1; */
-static gint ett_mac_mesh_subheader_decoder = -1;
-static gint ett_mac_frag_subheader_decoder = -1;
-static gint ett_mac_grant_mgmt_subheader_decoder = -1;
-static gint ett_mac_pkt_subheader_decoder = -1;
-static gint ett_mac_fast_fb_subheader_decoder = -1;
-static gint ett_mac_ext_subheader_decoder = -1;
-static gint ett_mac_ext_subheader_dl_decoder = -1;
-static gint ett_mac_ext_subheader_ul_decoder = -1;
-static gint ett_mac_arq_fb_payload_decoder = -1;
-static gint ett_mac_data_pdu_decoder = -1;
-static gint hf_mac_header_generic_value_bytes = -1;
+static gint ett_mac_header_generic_decoder;
+/* static gint ett_mac_subheader_decoder; */
+static gint ett_mac_mesh_subheader_decoder;
+static gint ett_mac_frag_subheader_decoder;
+static gint ett_mac_grant_mgmt_subheader_decoder;
+static gint ett_mac_pkt_subheader_decoder;
+static gint ett_mac_fast_fb_subheader_decoder;
+static gint ett_mac_ext_subheader_decoder;
+static gint ett_mac_ext_subheader_dl_decoder;
+static gint ett_mac_ext_subheader_ul_decoder;
+static gint ett_mac_arq_fb_payload_decoder;
+static gint ett_mac_data_pdu_decoder;
+static gint hf_mac_header_generic_value_bytes;
 
 static guint frag_type, frag_len;
 static guint extended_type, arq_fb_payload, seq_number;
@@ -142,23 +142,23 @@ static address save_dst;
 #define WIMAX_MAC_HEADER_GENERIC_EKS_MASK    0x30
 #define WIMAX_MAC_HEADER_GENERIC_LEN_MASK    0x07
 
-static int hf_mac_header_generic_ht = -1;
-static int hf_mac_header_generic_ec = -1;
-static int hf_mac_header_generic_type_0 = -1;
-static int hf_mac_header_generic_type_1 = -1;
-static int hf_mac_header_generic_type_2 = -1;
-static int hf_mac_header_generic_type_3 = -1;
-static int hf_mac_header_generic_type_4 = -1;
-static int hf_mac_header_generic_type_5 = -1;
-static int hf_mac_header_generic_esf = -1;
-static int hf_mac_header_generic_ci = -1;
-static int hf_mac_header_generic_eks = -1;
-static int hf_mac_header_generic_rsv = -1;
-static int hf_mac_header_generic_len = -1;
-static int hf_mac_header_generic_cid = -1;
-static int hf_mac_header_generic_hcs = -1;
-static int hf_mac_header_generic_crc = -1;
-static int hf_mac_header_generic_crc_status = -1;
+static int hf_mac_header_generic_ht;
+static int hf_mac_header_generic_ec;
+static int hf_mac_header_generic_type_0;
+static int hf_mac_header_generic_type_1;
+static int hf_mac_header_generic_type_2;
+static int hf_mac_header_generic_type_3;
+static int hf_mac_header_generic_type_4;
+static int hf_mac_header_generic_type_5;
+static int hf_mac_header_generic_esf;
+static int hf_mac_header_generic_ci;
+static int hf_mac_header_generic_eks;
+static int hf_mac_header_generic_rsv;
+static int hf_mac_header_generic_len;
+static int hf_mac_header_generic_cid;
+static int hf_mac_header_generic_hcs;
+static int hf_mac_header_generic_crc;
+static int hf_mac_header_generic_crc_status;
 
 /* MAC Header types */
 static const value_string ht_msgs[] =
@@ -369,21 +369,21 @@ static const value_string fb_types[] =
 };
 
 /* common fields */
-static gint hf_mac_header_generic_ext_subheader_rsv = -1;
+static gint hf_mac_header_generic_ext_subheader_rsv;
 /* DL sub-header */
-static gint hf_mac_header_generic_ext_subheader_type_dl = -1;
-static gint hf_mac_header_generic_ext_subheader_sdu_sn = -1;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_pscid = -1;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_op = -1;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_fswe = -1;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_fswb = -1;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_rsv = -1;
-static gint hf_mac_header_generic_ext_subheader_fb_req_uiuc = -1;
-static gint hf_mac_header_generic_ext_subheader_fb_req_fb_type = -1;
-static gint hf_mac_header_generic_ext_subheader_fb_req_ofdma_symbol_offset = -1;
-static gint hf_mac_header_generic_ext_subheader_fb_req_subchannel_offset = -1;
-static gint hf_mac_header_generic_ext_subheader_fb_req_slots = -1;
-static gint hf_mac_header_generic_ext_subheader_fb_req_frame_offset = -1;
+static gint hf_mac_header_generic_ext_subheader_type_dl;
+static gint hf_mac_header_generic_ext_subheader_sdu_sn;
+static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_pscid;
+static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_op;
+static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_fswe;
+static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_fswb;
+static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_rsv;
+static gint hf_mac_header_generic_ext_subheader_fb_req_uiuc;
+static gint hf_mac_header_generic_ext_subheader_fb_req_fb_type;
+static gint hf_mac_header_generic_ext_subheader_fb_req_ofdma_symbol_offset;
+static gint hf_mac_header_generic_ext_subheader_fb_req_subchannel_offset;
+static gint hf_mac_header_generic_ext_subheader_fb_req_slots;
+static gint hf_mac_header_generic_ext_subheader_fb_req_frame_offset;
 
 /* DL Sleep Control Operations */
 static const value_string dl_sleep_control_ops[] =
@@ -394,24 +394,24 @@ static const value_string dl_sleep_control_ops[] =
 };
 
 /* UL sub-header */
-static gint hf_mac_header_generic_ext_subheader_type_ul = -1;
-static gint hf_mac_header_generic_ext_subheader_mimo_mode_fb_type = -1;
-static gint hf_mac_header_generic_ext_subheader_mimo_fb_content = -1;
-static gint hf_mac_header_generic_ext_subheader_ul_tx_pwr_rep = -1;
-static gint hf_mac_header_generic_ext_subheader_mini_fb_type = -1;
-static gint hf_mac_header_generic_ext_subheader_mini_fb_content = -1;
+static gint hf_mac_header_generic_ext_subheader_type_ul;
+static gint hf_mac_header_generic_ext_subheader_mimo_mode_fb_type;
+static gint hf_mac_header_generic_ext_subheader_mimo_fb_content;
+static gint hf_mac_header_generic_ext_subheader_ul_tx_pwr_rep;
+static gint hf_mac_header_generic_ext_subheader_mini_fb_type;
+static gint hf_mac_header_generic_ext_subheader_mini_fb_content;
 /* common fields */
-static gint hf_mac_header_generic_ext_subheader_pdu_sn_short = -1;
-static gint hf_mac_header_generic_ext_subheader_pdu_sn_long = -1;
+static gint hf_mac_header_generic_ext_subheader_pdu_sn_short;
+static gint hf_mac_header_generic_ext_subheader_pdu_sn_long;
 
 /* SN Request subheader */
 #define SN_REQUEST_SUBHEADER_SN_REPORT_INDICATION_1_MASK 0x01
 #define SN_REQUEST_SUBHEADER_SN_REPORT_INDICATION_2_MASK 0x02
 #define SN_REQUEST_SUBHEADER_RESERVED_MASK               0xFC
 
-static gint hf_mac_header_generic_ext_subheader_sn_req_rep_ind_1 = -1;
-static gint hf_mac_header_generic_ext_subheader_sn_req_rep_ind_2 = -1;
-static gint hf_mac_header_generic_ext_subheader_sn_req_rsv = -1;
+static gint hf_mac_header_generic_ext_subheader_sn_req_rep_ind_1;
+static gint hf_mac_header_generic_ext_subheader_sn_req_rep_ind_2;
+static gint hf_mac_header_generic_ext_subheader_sn_req_rsv;
 /* SN Report Indication message */
 static const value_string sn_rep_msg[] =
 {
@@ -421,7 +421,7 @@ static const value_string sn_rep_msg[] =
 };
 
 /* Mesh Subheader */
-static gint hf_mac_header_generic_mesh_subheader = -1;
+static gint hf_mac_header_generic_mesh_subheader;
 
 /* Fragmentation Subheader (table 8) */
 #define FRAGMENTATION_SUBHEADER_FC_MASK         0xC000	/*0x0003*/
@@ -438,13 +438,13 @@ static gint hf_mac_header_generic_mesh_subheader = -1;
 #define FIRST_FRAG  2
 #define MIDDLE_FRAG 3
 
-static gint hf_mac_header_generic_frag_subhd_fc = -1;
-static gint hf_mac_header_generic_frag_subhd_fc_ext = -1;
-static gint hf_mac_header_generic_frag_subhd_bsn = -1;
-static gint hf_mac_header_generic_frag_subhd_fsn = -1;
-static gint hf_mac_header_generic_frag_subhd_fsn_ext = -1;
-static gint hf_mac_header_generic_frag_subhd_rsv = -1;
-static gint hf_mac_header_generic_frag_subhd_rsv_ext = -1;
+static gint hf_mac_header_generic_frag_subhd_fc;
+static gint hf_mac_header_generic_frag_subhd_fc_ext;
+static gint hf_mac_header_generic_frag_subhd_bsn;
+static gint hf_mac_header_generic_frag_subhd_fsn;
+static gint hf_mac_header_generic_frag_subhd_fsn_ext;
+static gint hf_mac_header_generic_frag_subhd_rsv;
+static gint hf_mac_header_generic_frag_subhd_rsv_ext;
 
 /* Fragment Types */
 static const value_string frag_types[] =
@@ -465,20 +465,20 @@ static const value_string frag_types[] =
 
 #define FRAG_LENGTH_MASK    0x0007FF00
 
-static gint hf_mac_header_generic_packing_subhd_fc = -1;
-static gint hf_mac_header_generic_packing_subhd_fc_ext = -1;
-static gint hf_mac_header_generic_packing_subhd_bsn = -1;
-static gint hf_mac_header_generic_packing_subhd_fsn = -1;
-static gint hf_mac_header_generic_packing_subhd_fsn_ext = -1;
-static gint hf_mac_header_generic_packing_subhd_len = -1;
-static gint hf_mac_header_generic_packing_subhd_len_ext = -1;
+static gint hf_mac_header_generic_packing_subhd_fc;
+static gint hf_mac_header_generic_packing_subhd_fc_ext;
+static gint hf_mac_header_generic_packing_subhd_bsn;
+static gint hf_mac_header_generic_packing_subhd_fsn;
+static gint hf_mac_header_generic_packing_subhd_fsn_ext;
+static gint hf_mac_header_generic_packing_subhd_len;
+static gint hf_mac_header_generic_packing_subhd_len_ext;
 
 /* Fast-feedback Allocation Subheader (table 13) */
 #define FAST_FEEDBACK_ALLOCATION_OFFSET_MASK 0xFC	/*0x3F*/
 #define FAST_FEEDBACK_FEEDBACK_TYPE_MASK     0x03	/*0xC0*/
 
-static gint hf_mac_header_generic_fast_fb_subhd_alloc_offset = -1;
-static gint hf_mac_header_generic_fast_fb_subhd_fb_type = -1;
+static gint hf_mac_header_generic_fast_fb_subhd_alloc_offset;
+static gint hf_mac_header_generic_fast_fb_subhd_fb_type;
 
 /* Grant Management Subheader (table 9 & 10) */
 #define GRANT_MGMT_SUBHEADER_UGS_SI_MASK          0x8000	/*0x0001*/
@@ -501,18 +501,18 @@ typedef enum
 	SCHEDULE_SERVICE_TYPE_UGS
 } SCHEDULE_SERVICE_TYPE_e;
 
-static gint hf_mac_header_generic_grant_mgmt_ugs_tree 		= -1;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_si 	= -1;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_pm	= -1;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_fli	= -1;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_fl	= -1;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_rsv	= -1;
-static gint hf_mac_header_generic_grant_mgmt_ext_rtps_tree	= -1;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ext_pbr	= -1;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ext_fli	= -1;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ext_fl	= -1;
-static gint hf_mac_header_generic_grant_mgmt_ext_pbr_tree	= -1;
-static gint hf_mac_header_generic_grant_mgmt_subhd_pbr		= -1;
+static gint hf_mac_header_generic_grant_mgmt_ugs_tree;
+static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_si;
+static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_pm;
+static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_fli;
+static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_fl;
+static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_rsv;
+static gint hf_mac_header_generic_grant_mgmt_ext_rtps_tree;
+static gint hf_mac_header_generic_grant_mgmt_subhd_ext_pbr;
+static gint hf_mac_header_generic_grant_mgmt_subhd_ext_fli;
+static gint hf_mac_header_generic_grant_mgmt_subhd_ext_fl;
+static gint hf_mac_header_generic_grant_mgmt_ext_pbr_tree;
+static gint hf_mac_header_generic_grant_mgmt_subhd_pbr;
 
 /* Slip Indicators */
 static const value_string si_msgs[] =
@@ -555,27 +555,27 @@ static const value_string fli_msgs[] =
 #define ARQ_FB_IE_SEQ2_LENGTH_6_MASK 0x007E	/*0x7E00*/
 #define ARQ_FB_IE_RSV_MASK           0x0001	/*0x8000*/
 
-static gint hf_mac_header_generic_arq_fb_ie_cid = -1;
-static gint hf_mac_header_generic_arq_fb_ie_last = -1;
-static gint hf_mac_header_generic_arq_fb_ie_ack_type = -1;
-static gint hf_mac_header_generic_arq_fb_ie_bsn = -1;
-static gint hf_mac_header_generic_arq_fb_ie_num_maps = -1;
-static gint hf_ack_type_reserved = -1;
-static gint hf_mac_header_generic_arq_fb_ie_sel_ack_map = -1;
-static gint hf_mac_header_generic_arq_fb_ie_seq_format = -1;
-static gint hf_mac_header_generic_arq_fb_ie_seq_ack_map = -1;
-static gint hf_mac_header_generic_arq_fb_ie_seq1_length = -1;
-static gint hf_mac_header_generic_arq_fb_ie_seq2_length = -1;
-static gint hf_mac_header_generic_arq_fb_ie_seq3_length = -1;
-static gint hf_mac_header_generic_arq_fb_ie_seq_ack_map_2 = -1;
-static gint hf_mac_header_generic_arq_fb_ie_seq1_length_6 = -1;
-static gint hf_mac_header_generic_arq_fb_ie_seq2_length_6 = -1;
-static gint hf_mac_header_generic_arq_fb_ie_rsv = -1;
-static gint hf_mac_header_payload_fragment = -1;
+static gint hf_mac_header_generic_arq_fb_ie_cid;
+static gint hf_mac_header_generic_arq_fb_ie_last;
+static gint hf_mac_header_generic_arq_fb_ie_ack_type;
+static gint hf_mac_header_generic_arq_fb_ie_bsn;
+static gint hf_mac_header_generic_arq_fb_ie_num_maps;
+static gint hf_ack_type_reserved;
+static gint hf_mac_header_generic_arq_fb_ie_sel_ack_map;
+static gint hf_mac_header_generic_arq_fb_ie_seq_format;
+static gint hf_mac_header_generic_arq_fb_ie_seq_ack_map;
+static gint hf_mac_header_generic_arq_fb_ie_seq1_length;
+static gint hf_mac_header_generic_arq_fb_ie_seq2_length;
+static gint hf_mac_header_generic_arq_fb_ie_seq3_length;
+static gint hf_mac_header_generic_arq_fb_ie_seq_ack_map_2;
+static gint hf_mac_header_generic_arq_fb_ie_seq1_length_6;
+static gint hf_mac_header_generic_arq_fb_ie_seq2_length_6;
+static gint hf_mac_header_generic_arq_fb_ie_rsv;
+static gint hf_mac_header_payload_fragment;
 
-static expert_field ei_mac_crc_malformed = EI_INIT;
-static expert_field ei_mac_crc_missing = EI_INIT;
-static expert_field ei_mac_header_generic_crc = EI_INIT;
+static expert_field ei_mac_crc_malformed;
+static expert_field ei_mac_crc_missing;
+static expert_field ei_mac_header_generic_crc;
 
 /* Last IE Indicators */
 static const value_string last_ie_msgs[] =

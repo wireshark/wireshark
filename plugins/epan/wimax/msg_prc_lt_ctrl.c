@@ -25,14 +25,14 @@ void proto_reg_handoff_mac_mgmt_msg_prc_lt_ctrl(void);
 
 static dissector_handle_t prc_handle;
 
-static gint proto_mac_mgmt_msg_prc_lt_ctrl_decoder = -1;
+static gint proto_mac_mgmt_msg_prc_lt_ctrl_decoder;
 
-static gint ett_mac_mgmt_msg_prc_lt_ctrl_decoder = -1;
+static gint ett_mac_mgmt_msg_prc_lt_ctrl_decoder;
 
 /* PRC-LT-CTRL fields */
-static gint hf_prc_lt_ctrl_precoding = -1;
-static gint hf_prc_lt_ctrl_precoding_delay = -1;
-/* static gint hf_prc_lt_ctrl_invalid_tlv = -1; */
+static gint hf_prc_lt_ctrl_precoding;
+static gint hf_prc_lt_ctrl_precoding_delay;
+/* static gint hf_prc_lt_ctrl_invalid_tlv; */
 
 static const value_string vals_turn_on[] = {
 	{0, "Turn off"},

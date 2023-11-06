@@ -34,22 +34,22 @@ extern gboolean include_cor2_changes;
 
 static dissector_handle_t dsc_rsp_handle = NULL;
 
-static gint proto_mac_mgmt_msg_reg_rsp_decoder = -1;
-static gint ett_mac_mgmt_msg_reg_rsp_decoder   = -1;
-static gint ett_reg_rsp_message_tree           = -1;
+static gint proto_mac_mgmt_msg_reg_rsp_decoder;
+static gint ett_mac_mgmt_msg_reg_rsp_decoder;
+static gint ett_reg_rsp_message_tree;
 
 /* NCT messages */
 
 /* REG-RSP fields */
-static gint hf_reg_rsp_status                            = -1;
-static gint hf_tlv_type                                  = -1;
-/* static gint hf_tlv_value                                 = -1; */
-static gint hf_reg_rsp_secondary_mgmt_cid		 = -1;
-static gint hf_reg_invalid_tlv                           = -1;
-static gint hf_reg_rsp_new_cid_after_ho                  = -1;
-static gint hf_reg_rsp_service_flow_id                   = -1;
-static gint hf_reg_rsp_system_resource_retain_time	 = -1;
-static gint hf_reg_total_provisioned_sf			 = -1;
+static gint hf_reg_rsp_status;
+static gint hf_tlv_type;
+/* static gint hf_tlv_value; */
+static gint hf_reg_rsp_secondary_mgmt_cid;
+static gint hf_reg_invalid_tlv;
+static gint hf_reg_rsp_new_cid_after_ho;
+static gint hf_reg_rsp_service_flow_id;
+static gint hf_reg_rsp_system_resource_retain_time;
+static gint hf_reg_total_provisioned_sf;
 
 /* STRING RESOURCES */
 

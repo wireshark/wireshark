@@ -31,20 +31,20 @@ void proto_reg_handoff_mac_mgmt_msg_dsd(void);
 static dissector_handle_t dsd_req_handle;
 static dissector_handle_t dsd_rsp_handle;
 
-static gint proto_mac_mgmt_msg_dsd_decoder = -1;
-static gint ett_mac_mgmt_msg_dsd_req_decoder = -1;
-static gint ett_mac_mgmt_msg_dsd_rsp_decoder = -1;
-/* static gint ett_dsd_ul_sfe_decoder = -1; */
-/* static gint ett_dsd_dl_sfe_decoder = -1; */
-/* static gint ett_dsd_hmac_tuple = -1;     */
-/* static gint ett_dsd_cmac_tuple = -1;     */
+static gint proto_mac_mgmt_msg_dsd_decoder;
+static gint ett_mac_mgmt_msg_dsd_req_decoder;
+static gint ett_mac_mgmt_msg_dsd_rsp_decoder;
+/* static gint ett_dsd_ul_sfe_decoder; */
+/* static gint ett_dsd_dl_sfe_decoder; */
+/* static gint ett_dsd_hmac_tuple;     */
+/* static gint ett_dsd_cmac_tuple;     */
 
 /* fix fields */
-static gint hf_dsd_transaction_id = -1;
-static gint hf_dsd_service_flow_id = -1;
-static gint hf_dsd_confirmation_code = -1;
-static gint hf_dsd_invalid_tlv = -1;
-static gint hf_dsd_unknown_type = -1;
+static gint hf_dsd_transaction_id;
+static gint hf_dsd_service_flow_id;
+static gint hf_dsd_confirmation_code;
+static gint hf_dsd_invalid_tlv;
+static gint hf_dsd_unknown_type;
 
 
 static int dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

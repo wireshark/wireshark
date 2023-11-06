@@ -25,99 +25,99 @@
 void proto_register_dcom_cba_acco(void);
 void proto_reg_handoff_dcom_cba_acco(void);
 
-static int hf_cba_acco_opnum = -1;
+static int hf_cba_acco_opnum;
 
-static int hf_cba_acco_ping_factor = -1;
+static int hf_cba_acco_ping_factor;
 
-static int hf_cba_acco_count = -1;
+static int hf_cba_acco_count;
 
-static int hf_cba_acco_item = -1;
-static int hf_cba_acco_data = -1;
-static int hf_cba_acco_qc = -1;
-static int hf_cba_acco_time_stamp = -1;
+static int hf_cba_acco_item;
+static int hf_cba_acco_data;
+static int hf_cba_acco_qc;
+static int hf_cba_acco_time_stamp;
 
-static int hf_cba_acco_conn_qos_type = -1;
-static int hf_cba_acco_conn_qos_value = -1;
-static int hf_cba_acco_conn_state = -1;
-static int hf_cba_acco_conn_cons_id = -1;
-static int hf_cba_acco_conn_version = -1;
-static int hf_cba_acco_conn_prov_id = -1;
-static int hf_cba_acco_conn_provider = -1;
-static int hf_cba_acco_conn_consumer = -1;
-static int hf_cba_acco_conn_provider_item = -1;
-static int hf_cba_acco_conn_consumer_item = -1;
-static int hf_cba_acco_conn_substitute = -1;
-static int hf_cba_acco_conn_epsilon = -1;
-static int hf_cba_acco_conn_persist = -1;
+static int hf_cba_acco_conn_qos_type;
+static int hf_cba_acco_conn_qos_value;
+static int hf_cba_acco_conn_state;
+static int hf_cba_acco_conn_cons_id;
+static int hf_cba_acco_conn_version;
+static int hf_cba_acco_conn_prov_id;
+static int hf_cba_acco_conn_provider;
+static int hf_cba_acco_conn_consumer;
+static int hf_cba_acco_conn_provider_item;
+static int hf_cba_acco_conn_consumer_item;
+static int hf_cba_acco_conn_substitute;
+static int hf_cba_acco_conn_epsilon;
+static int hf_cba_acco_conn_persist;
 
-static int hf_cba_acco_cb_length = -1;
-static int hf_cba_acco_cb_conn_data = -1;
-static int hf_cba_acco_cb_version = -1;
-static int hf_cba_acco_cb_flags = -1;
-static int hf_cba_acco_cb_count = -1;
-static int hf_cba_acco_cb_item = -1;
-static int hf_cba_acco_cb_item_hole = -1;
-static int hf_cba_acco_cb_item_length = -1;
-static int hf_cba_acco_cb_item_data = -1;
+static int hf_cba_acco_cb_length;
+static int hf_cba_acco_cb_conn_data;
+static int hf_cba_acco_cb_version;
+static int hf_cba_acco_cb_flags;
+static int hf_cba_acco_cb_count;
+static int hf_cba_acco_cb_item;
+static int hf_cba_acco_cb_item_hole;
+static int hf_cba_acco_cb_item_length;
+static int hf_cba_acco_cb_item_data;
 
-static int hf_cba_connect_in = -1;
-static int hf_cba_disconnect_in = -1;
-static int hf_cba_connectcr_in = -1;
-static int hf_cba_disconnectcr_in = -1;
-static int hf_cba_disconnectme_in = -1;
-static int hf_cba_data_first_in = -1;
-static int hf_cba_data_last_in = -1;
+static int hf_cba_connect_in;
+static int hf_cba_disconnect_in;
+static int hf_cba_connectcr_in;
+static int hf_cba_disconnectcr_in;
+static int hf_cba_disconnectme_in;
+static int hf_cba_data_first_in;
+static int hf_cba_data_last_in;
 
-/* static int hf_cba_acco_server_pICBAAccoCallback = -1; */
+/* static int hf_cba_acco_server_pICBAAccoCallback; */
 
-static int hf_cba_acco_server_first_connect = -1;
+static int hf_cba_acco_server_first_connect;
 
-static int hf_cba_acco_serversrt_prov_mac = -1;
-static int hf_cba_acco_serversrt_cons_mac = -1;
+static int hf_cba_acco_serversrt_prov_mac;
+static int hf_cba_acco_serversrt_cons_mac;
 
-static int hf_cba_acco_serversrt_cr_id = -1;
-static int hf_cba_acco_serversrt_cr_length = -1;
-static int hf_cba_acco_serversrt_cr_flags = -1;
-static int hf_cba_acco_serversrt_cr_flags_timestamped = -1;
-static int hf_cba_acco_serversrt_cr_flags_reconfigure = -1;
-static int hf_cba_acco_serversrt_record_length = -1;
-/* static int hf_cba_acco_serversrt_action = -1; */
-static int hf_cba_acco_serversrt_last_connect = -1;
+static int hf_cba_acco_serversrt_cr_id;
+static int hf_cba_acco_serversrt_cr_length;
+static int hf_cba_acco_serversrt_cr_flags;
+static int hf_cba_acco_serversrt_cr_flags_timestamped;
+static int hf_cba_acco_serversrt_cr_flags_reconfigure;
+static int hf_cba_acco_serversrt_record_length;
+/* static int hf_cba_acco_serversrt_action; */
+static int hf_cba_acco_serversrt_last_connect;
 
-static int hf_cba_getprovconnout = -1;
+static int hf_cba_getprovconnout;
 
-static int hf_cba_type_desc_len = -1;
+static int hf_cba_type_desc_len;
 
-static int hf_cba_connectincr = -1;
-static int hf_cba_connectoutcr = -1;
-static int hf_cba_connectin = -1;
-static int hf_cba_connectout = -1;
-static int hf_cba_getconnectionout = -1;
-static int hf_cba_readitemout = -1;
-static int hf_cba_writeitemin = -1;
-static int hf_cba_addconnectionin = -1;
-static int hf_cba_addconnectionout = -1;
-static int hf_cba_getidout = -1;
+static int hf_cba_connectincr;
+static int hf_cba_connectoutcr;
+static int hf_cba_connectin;
+static int hf_cba_connectout;
+static int hf_cba_getconnectionout;
+static int hf_cba_readitemout;
+static int hf_cba_writeitemin;
+static int hf_cba_addconnectionin;
+static int hf_cba_addconnectionout;
+static int hf_cba_getidout;
 
-static int hf_cba_getconsconnout = -1;
-static int hf_cba_diagconsconnout = -1;
-static int hf_cba_acco_conn_error_state = -1;
+static int hf_cba_getconsconnout;
+static int hf_cba_diagconsconnout;
+static int hf_cba_acco_conn_error_state;
 
-static int hf_cba_acco_info_max = -1;
-static int hf_cba_acco_info_curr = -1;
+static int hf_cba_acco_info_max;
+static int hf_cba_acco_info_curr;
 
-static int hf_cba_acco_cdb_cookie = -1;
+static int hf_cba_acco_cdb_cookie;
 
-static int hf_cba_acco_rtauto = -1;
+static int hf_cba_acco_rtauto;
 
-static int hf_cba_acco_prov_crid = -1;
+static int hf_cba_acco_prov_crid;
 
-static int hf_cba_acco_diag_req = -1;
-static int hf_cba_acco_diag_in_length = -1;
-static int hf_cba_acco_diag_out_length = -1;
-static int hf_cba_acco_diag_data = -1;
-static int hf_cba_acco_dcom_call = -1;
-static int hf_cba_acco_srt_call = -1;
+static int hf_cba_acco_diag_req;
+static int hf_cba_acco_diag_in_length;
+static int hf_cba_acco_diag_out_length;
+static int hf_cba_acco_diag_data;
+static int hf_cba_acco_dcom_call;
+static int hf_cba_acco_srt_call;
 
 gint ett_cba_connectincr = -1;
 gint ett_cba_connectoutcr = -1;
@@ -134,53 +134,53 @@ gint ett_cba_acco_serversrt_cr_flags = -1;
 gint ett_cba_frame_info = -1;
 gint ett_cba_conn_info = -1;
 
-static expert_field ei_cba_acco_pdev_find = EI_INIT;
-static expert_field ei_cba_acco_prov_crid = EI_INIT;
-static expert_field ei_cba_acco_conn_consumer = EI_INIT;
-static expert_field ei_cba_acco_ldev_unknown = EI_INIT;
-static expert_field ei_cba_acco_no_request_info = EI_INIT;
-static expert_field ei_cba_acco_ipid_unknown = EI_INIT;
-static expert_field ei_cba_acco_qc = EI_INIT;
-static expert_field ei_cba_acco_pdev_find_unknown_interface = EI_INIT;
-static expert_field ei_cba_acco_disconnect = EI_INIT;
-static expert_field ei_cba_acco_connect = EI_INIT;
+static expert_field ei_cba_acco_pdev_find;
+static expert_field ei_cba_acco_prov_crid;
+static expert_field ei_cba_acco_conn_consumer;
+static expert_field ei_cba_acco_ldev_unknown;
+static expert_field ei_cba_acco_no_request_info;
+static expert_field ei_cba_acco_ipid_unknown;
+static expert_field ei_cba_acco_qc;
+static expert_field ei_cba_acco_pdev_find_unknown_interface;
+static expert_field ei_cba_acco_disconnect;
+static expert_field ei_cba_acco_connect;
 
-static int proto_ICBAAccoMgt = -1;
-static gint ett_ICBAAccoMgt = -1;
+static int proto_ICBAAccoMgt;
+static gint ett_ICBAAccoMgt;
 static e_guid_t uuid_ICBAAccoMgt = { 0xcba00041, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoMgt = 0;
 
-static int proto_ICBAAccoMgt2 = -1;
+static int proto_ICBAAccoMgt2;
 static e_guid_t uuid_ICBAAccoMgt2 = { 0xcba00046, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoMgt2 = 0;
 
-static int proto_ICBAAccoCallback = -1;
-static gint ett_ICBAAccoCallback = -1;
-static gint ett_ICBAAccoCallback_Buffer = -1;
-static gint ett_ICBAAccoCallback_Item = -1;
+static int proto_ICBAAccoCallback;
+static gint ett_ICBAAccoCallback;
+static gint ett_ICBAAccoCallback_Buffer;
+static gint ett_ICBAAccoCallback_Item;
 static e_guid_t uuid_ICBAAccoCallback = { 0xcba00042, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoCallback = 0;
 
-static int proto_ICBAAccoCallback2 = -1;
+static int proto_ICBAAccoCallback2;
 static e_guid_t uuid_ICBAAccoCallback2 = { 0xcba00047, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoCallback2 = 0;
 
-static int proto_ICBAAccoServer = -1;
-static gint ett_ICBAAccoServer = -1;
+static int proto_ICBAAccoServer;
+static gint ett_ICBAAccoServer;
 static e_guid_t uuid_ICBAAccoServer = { 0xcba00043, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoServer = 0;
 
-static int proto_ICBAAccoServer2 = -1;
+static int proto_ICBAAccoServer2;
 static e_guid_t uuid_ICBAAccoServer2 = { 0xcba00048, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoServer2 = 0;
 
-static int      proto_ICBAAccoServerSRT = -1;
-static gint     ett_ICBAAccoServerSRT   = -1;
+static int      proto_ICBAAccoServerSRT;
+static gint     ett_ICBAAccoServerSRT;
 static e_guid_t uuid_ICBAAccoServerSRT  = { 0xcba00045, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoServerSRT   = 0;
 
-static int      proto_ICBAAccoSync = -1;
-static gint     ett_ICBAAccoSync   = -1;
+static int      proto_ICBAAccoSync;
+static gint     ett_ICBAAccoSync;
 static e_guid_t uuid_ICBAAccoSync  = { 0xcba00044, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoSync   = 0;
 

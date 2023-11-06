@@ -20,59 +20,59 @@
 
 #include "packet-pn.h"
 
-static int hf_pn_padding = -1;
-static int hf_pn_undecoded_data = -1;
-static int hf_pn_user_data = -1;
-static int hf_pn_user_bytes = -1;
-static int hf_pn_frag_bytes = -1;
-static int hf_pn_malformed = -1;
+static int hf_pn_padding;
+static int hf_pn_undecoded_data;
+static int hf_pn_user_data;
+static int hf_pn_user_bytes;
+static int hf_pn_frag_bytes;
+static int hf_pn_malformed;
 
-static int hf_pn_io_status = -1;
+static int hf_pn_io_status;
 
-static int hf_pn_io_error_code = -1;
-static int hf_pn_io_error_decode = -1;
-static int hf_pn_io_error_code1 = -1;
-static int hf_pn_io_error_code1_pniorw = -1;
-static int hf_pn_io_error_code1_pnio = -1;
-static int hf_pn_io_error_code2 = -1;
-static int hf_pn_io_error_code2_pniorw = -1;
-static int hf_pn_io_error_code2_pnio_1 = -1;
-static int hf_pn_io_error_code2_pnio_2 = -1;
-static int hf_pn_io_error_code2_pnio_3 = -1;
-static int hf_pn_io_error_code2_pnio_4 = -1;
-static int hf_pn_io_error_code2_pnio_5 = -1;
-static int hf_pn_io_error_code2_pnio_6 = -1;
-static int hf_pn_io_error_code2_pnio_7 = -1;
-static int hf_pn_io_error_code2_pnio_8 = -1;
-static int hf_pn_io_error_code2_pnio_13 = -1;
-static int hf_pn_io_error_code2_pnio_20 = -1;
-static int hf_pn_io_error_code2_pnio_21 = -1;
-static int hf_pn_io_error_code2_pnio_22 = -1;
-static int hf_pn_io_error_code2_pnio_23 = -1;
-static int hf_pn_io_error_code2_pnio_40 = -1;
-static int hf_pn_io_error_code2_pnio_60 = -1;
-static int hf_pn_io_error_code2_pnio_61 = -1;
-static int hf_pn_io_error_code2_pnio_62 = -1;
-static int hf_pn_io_error_code2_pnio_63 = -1;
-static int hf_pn_io_error_code2_pnio_64 = -1;
-static int hf_pn_io_error_code2_pnio_65 = -1;
-static int hf_pn_io_error_code2_pnio_66 = -1;
-static int hf_pn_io_error_code2_pnio_70 = -1;
-static int hf_pn_io_error_code2_pnio_71 = -1;
-static int hf_pn_io_error_code2_pnio_72 = -1;
-static int hf_pn_io_error_code2_pnio_73 = -1;
-static int hf_pn_io_error_code2_pnio_74 = -1;
-static int hf_pn_io_error_code2_pnio_75 = -1;
-static int hf_pn_io_error_code2_pnio_76 = -1;
-static int hf_pn_io_error_code2_pnio_77 = -1;
-static int hf_pn_io_error_code2_pnio_253 = -1;
-static int hf_pn_io_error_code2_pnio_255 = -1;
+static int hf_pn_io_error_code;
+static int hf_pn_io_error_decode;
+static int hf_pn_io_error_code1;
+static int hf_pn_io_error_code1_pniorw;
+static int hf_pn_io_error_code1_pnio;
+static int hf_pn_io_error_code2;
+static int hf_pn_io_error_code2_pniorw;
+static int hf_pn_io_error_code2_pnio_1;
+static int hf_pn_io_error_code2_pnio_2;
+static int hf_pn_io_error_code2_pnio_3;
+static int hf_pn_io_error_code2_pnio_4;
+static int hf_pn_io_error_code2_pnio_5;
+static int hf_pn_io_error_code2_pnio_6;
+static int hf_pn_io_error_code2_pnio_7;
+static int hf_pn_io_error_code2_pnio_8;
+static int hf_pn_io_error_code2_pnio_13;
+static int hf_pn_io_error_code2_pnio_20;
+static int hf_pn_io_error_code2_pnio_21;
+static int hf_pn_io_error_code2_pnio_22;
+static int hf_pn_io_error_code2_pnio_23;
+static int hf_pn_io_error_code2_pnio_40;
+static int hf_pn_io_error_code2_pnio_60;
+static int hf_pn_io_error_code2_pnio_61;
+static int hf_pn_io_error_code2_pnio_62;
+static int hf_pn_io_error_code2_pnio_63;
+static int hf_pn_io_error_code2_pnio_64;
+static int hf_pn_io_error_code2_pnio_65;
+static int hf_pn_io_error_code2_pnio_66;
+static int hf_pn_io_error_code2_pnio_70;
+static int hf_pn_io_error_code2_pnio_71;
+static int hf_pn_io_error_code2_pnio_72;
+static int hf_pn_io_error_code2_pnio_73;
+static int hf_pn_io_error_code2_pnio_74;
+static int hf_pn_io_error_code2_pnio_75;
+static int hf_pn_io_error_code2_pnio_76;
+static int hf_pn_io_error_code2_pnio_77;
+static int hf_pn_io_error_code2_pnio_253;
+static int hf_pn_io_error_code2_pnio_255;
 
-static gint ett_pn_io_status = -1;
+static gint ett_pn_io_status;
 
-static expert_field ei_pn_undecoded_data = EI_INIT;
-static expert_field ei_pn_io_error_code1 = EI_INIT;
-static expert_field ei_pn_io_error_code2 = EI_INIT;
+static expert_field ei_pn_undecoded_data;
+static expert_field ei_pn_io_error_code1;
+static expert_field ei_pn_io_error_code2;
 
 static const value_string pn_io_error_code[] = {
     { 0x00, "OK" },

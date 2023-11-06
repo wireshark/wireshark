@@ -25,16 +25,16 @@ void proto_reg_handoff_mac_mgmt_msg_fpc(void);
 
 static dissector_handle_t fpc_handle;
 
-static gint proto_mac_mgmt_msg_fpc_decoder = -1;
+static gint proto_mac_mgmt_msg_fpc_decoder;
 
-static gint ett_mac_mgmt_msg_fpc_decoder = -1;
+static gint ett_mac_mgmt_msg_fpc_decoder;
 
 /* FPC fields */
-static gint hf_fpc_number_of_stations = -1;
-static gint hf_fpc_basic_cid = -1;
-static gint hf_fpc_power_adjust = -1;
-static gint hf_fpc_power_measurement_frame = -1;
-/* static gint hf_fpc_invalid_tlv = -1; */
+static gint hf_fpc_number_of_stations;
+static gint hf_fpc_basic_cid;
+static gint hf_fpc_power_adjust;
+static gint hf_fpc_power_measurement_frame;
+/* static gint hf_fpc_invalid_tlv; */
 
 
 /* Decode FPC messages. */

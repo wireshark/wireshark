@@ -31,14 +31,14 @@ static dissector_handle_t dsc_req_handle;
 static dissector_handle_t dsc_rsp_handle;
 static dissector_handle_t dsc_ack_handle;
 
-static gint proto_mac_mgmt_msg_dsc_decoder = -1;
-static gint ett_mac_mgmt_msg_dsc_req_decoder = -1;
-static gint ett_mac_mgmt_msg_dsc_rsp_decoder = -1;
-static gint ett_mac_mgmt_msg_dsc_ack_decoder = -1;
+static gint proto_mac_mgmt_msg_dsc_decoder;
+static gint ett_mac_mgmt_msg_dsc_req_decoder;
+static gint ett_mac_mgmt_msg_dsc_rsp_decoder;
+static gint ett_mac_mgmt_msg_dsc_ack_decoder;
 
 /* fix fields */
-static gint hf_dsc_transaction_id = -1;
-static gint hf_dsc_confirmation_code = -1;
+static gint hf_dsc_transaction_id;
+static gint hf_dsc_confirmation_code;
 
 
 static int dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

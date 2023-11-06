@@ -31,10 +31,10 @@ static int dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 static dissector_handle_t pmc_req_handle;
 static dissector_handle_t pmc_rsp_handle;
 
-static gint proto_mac_mgmt_msg_pmc_req_decoder = -1;
-static gint proto_mac_mgmt_msg_pmc_rsp_decoder = -1;
+static gint proto_mac_mgmt_msg_pmc_req_decoder;
+static gint proto_mac_mgmt_msg_pmc_rsp_decoder;
 
-static gint ett_mac_mgmt_msg_pmc_decoder = -1;
+static gint ett_mac_mgmt_msg_pmc_decoder;
 
 /* Setup protocol subtree array */
 static gint *ett[] =
@@ -43,14 +43,14 @@ static gint *ett[] =
 };
 
 /* PMC fields */
-static gint hf_pmc_req_pwr_control_mode_change = -1;
-static gint hf_pmc_req_pwr_control_mode_change_cor2 = -1;
-static gint hf_pmc_req_tx_power_level = -1;
-static gint hf_pmc_req_confirmation = -1;
-static gint hf_pmc_req_reserved = -1;
-static gint hf_pmc_rsp_start_frame = -1;
-static gint hf_pmc_rsp_power_adjust = -1;
-static gint hf_pmc_rsp_offset_BS_per_MS = -1;
+static gint hf_pmc_req_pwr_control_mode_change;
+static gint hf_pmc_req_pwr_control_mode_change_cor2;
+static gint hf_pmc_req_tx_power_level;
+static gint hf_pmc_req_confirmation;
+static gint hf_pmc_req_reserved;
+static gint hf_pmc_rsp_start_frame;
+static gint hf_pmc_rsp_power_adjust;
+static gint hf_pmc_rsp_offset_BS_per_MS;
 
 /* STRING RESOURCES */
 static const value_string vals_pmc_req_pwr[] = {

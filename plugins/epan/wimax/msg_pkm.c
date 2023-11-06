@@ -32,9 +32,9 @@ static dissector_handle_t mac_mgmt_msg_pkm_req_handle;
 static dissector_handle_t mac_mgmt_msg_pkm_rsp_handle;
 
 
-static gint proto_mac_mgmt_msg_pkm_decoder = -1;
-static gint ett_mac_mgmt_msg_pkm_req_decoder = -1;
-static gint ett_mac_mgmt_msg_pkm_rsp_decoder = -1;
+static gint proto_mac_mgmt_msg_pkm_decoder;
+static gint ett_mac_mgmt_msg_pkm_req_decoder;
+static gint ett_mac_mgmt_msg_pkm_rsp_decoder;
 
 static const value_string vals_pkm_msg_code[] =
 {
@@ -70,8 +70,8 @@ static const value_string vals_pkm_msg_code[] =
 };
 
 /* fix fields */
-static gint hf_pkm_msg_code = -1;
-static gint hf_pkm_msg_pkm_id = -1;
+static gint hf_pkm_msg_code;
+static gint hf_pkm_msg_pkm_id;
 
 
 /* Wimax Mac PKM-REQ Message Dissector */

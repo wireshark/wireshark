@@ -24,7 +24,7 @@
 void proto_register_pluginifdemo(void);
 void proto_reg_handoff_pluginifdemo(void);
 
-static int proto_pluginifdemo = -1;
+static int proto_pluginifdemo;
 
 void toolbar_cb(gpointer object, gpointer item_data, gpointer user_data);
 

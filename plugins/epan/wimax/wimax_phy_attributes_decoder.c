@@ -21,8 +21,8 @@
 
 extern gint proto_wimax;
 
-static gint proto_wimax_phy_attributes_decoder = -1;
-static gint ett_wimax_phy_attributes_decoder = -1;
+static gint proto_wimax_phy_attributes_decoder;
+static gint ett_wimax_phy_attributes_decoder;
 
 static const value_string vals_subchannel_types[] =
 {
@@ -53,14 +53,14 @@ static const value_string vals_encoding_types[] =
 	{0, NULL}
 };
 
-static gint hf_phy_attributes_subchannelization_type = -1;
-static gint hf_phy_attributes_permbase = -1;
-static gint hf_phy_attributes_modulation_rate = -1;
-static gint hf_phy_attributes_encoding_type = -1;
-static gint hf_phy_attributes_num_repeat = -1;
-static gint hf_phy_attributes_symbol_offset = -1;
-static gint hf_phy_attributes_num_of_slots = -1;
-static gint hf_phy_attributes_subchannel = -1;
+static gint hf_phy_attributes_subchannelization_type;
+static gint hf_phy_attributes_permbase;
+static gint hf_phy_attributes_modulation_rate;
+static gint hf_phy_attributes_encoding_type;
+static gint hf_phy_attributes_num_repeat;
+static gint hf_phy_attributes_symbol_offset;
+static gint hf_phy_attributes_num_of_slots;
+static gint hf_phy_attributes_subchannel;
 
 
 

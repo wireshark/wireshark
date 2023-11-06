@@ -38,9 +38,9 @@ extern	gboolean include_cor2_changes;
 address bs_address = ADDRESS_INIT_NONE;
 
 
-static int hf_tlv_type = -1;
-static int hf_tlv_length = -1;
-static int hf_tlv_length_size = -1;
+static int hf_tlv_type;
+static int hf_tlv_length;
+static int hf_tlv_length_size;
 
 #define MAX_NUM_TLVS	256
 /* Global TLV array to retrieve unique subtree identifiers */

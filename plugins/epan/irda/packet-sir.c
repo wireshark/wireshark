@@ -40,17 +40,17 @@ static dissector_handle_t irda_handle;
 static dissector_handle_t sir_handle;
 
 /** Protocol fields. */
-static int proto_sir = -1;
-static int ett_sir = -1;
-static int hf_sir_bof = -1;
-/* static int hf_sir_ce = -1; */
-static int hf_sir_eof = -1;
-static int hf_sir_fcs = -1;
-static int hf_sir_fcs_status = -1;
-static int hf_sir_length = -1;
-static int hf_sir_preamble = -1;
+static int proto_sir;
+static int ett_sir;
+static int hf_sir_bof;
+/* static int hf_sir_ce; */
+static int hf_sir_eof;
+static int hf_sir_fcs;
+static int hf_sir_fcs_status;
+static int hf_sir_length;
+static int hf_sir_preamble;
 
-static expert_field ei_sir_fcs = EI_INIT;
+static expert_field ei_sir_fcs;
 
 /* Copied and renamed from proto.c because global value_strings don't work for plugins */
 static const value_string plugin_proto_checksum_vals[] = {

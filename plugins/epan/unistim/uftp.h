@@ -13,11 +13,11 @@
 #ifndef UNISTIM_UFTP_H
 #define UNISTIM_UFTP_H
 
-static int hf_uftp_datablock_size=-1;
-static int hf_uftp_datablock_limit=-1;
-static int hf_uftp_filename=-1;
-static int hf_uftp_datablock=-1;
-static int hf_uftp_command=-1;
+static int hf_uftp_datablock_size;
+static int hf_uftp_datablock_limit;
+static int hf_uftp_filename;
+static int hf_uftp_datablock;
+static int hf_uftp_command;
 
 static const value_string uftp_commands[]={
 	{0x00,"Connection Granted"},

@@ -37,10 +37,10 @@ void proto_reg_handoff_mac_mgmt_msg_aas_beam(void);
 
 static dissector_handle_t aas_handle;
 
-static gint proto_mac_mgmt_msg_aas_beam_decoder = -1;
-static gint ett_mac_mgmt_msg_aas_beam_select_decoder = -1;
-static gint ett_mac_mgmt_msg_aas_beam_req_decoder = -1;
-static gint ett_mac_mgmt_msg_aas_beam_rsp_decoder = -1;
+static gint proto_mac_mgmt_msg_aas_beam_decoder;
+static gint ett_mac_mgmt_msg_aas_beam_select_decoder;
+static gint ett_mac_mgmt_msg_aas_beam_req_decoder;
+static gint ett_mac_mgmt_msg_aas_beam_rsp_decoder;
 
 #ifdef OFDM
 static const value_string vals_report_types[] =
@@ -61,19 +61,19 @@ static const value_string vals_resolution_parameter[] =
 #endif
 
 /* fix fields */
-/* static gint hf_aas_beam_unknown_type = -1; */
-static gint hf_aas_beam_select_index = -1;
-static gint hf_aas_beam_select_reserved = -1;
+/* static gint hf_aas_beam_unknown_type; */
+static gint hf_aas_beam_select_index;
+static gint hf_aas_beam_select_reserved;
 #ifdef OFDM
-static gint hf_aas_beam_frame_number = -1;
-static gint hf_aas_beam_feedback_request_number = -1;
-static gint hf_aas_beam_measurement_report_type = -1;
-static gint hf_aas_beam_resolution_parameter = -1;
-static gint hf_aas_beam_beam_bit_mask = -1;
-static int hf_aas_beam_freq_value_re = -1;
-static int hf_aas_beam_freq_value_im = -1;
-static int hf_aas_beam_rssi_value = -1;
-static int hf_aas_beam_cinr_value = -1;
+static gint hf_aas_beam_frame_number;
+static gint hf_aas_beam_feedback_request_number;
+static gint hf_aas_beam_measurement_report_type;
+static gint hf_aas_beam_resolution_parameter;
+static gint hf_aas_beam_beam_bit_mask;
+static int hf_aas_beam_freq_value_re;
+static int hf_aas_beam_freq_value_im;
+static int hf_aas_beam_rssi_value;
+static int hf_aas_beam_cinr_value;
 #endif
 
 

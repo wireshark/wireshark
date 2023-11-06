@@ -31,69 +31,69 @@ static dissector_handle_t rng_rsp_handle = NULL;
 static dissector_handle_t sbc_rsp_handle = NULL;
 static dissector_handle_t reg_rsp_handle = NULL;
 
-static gint proto_mac_mgmt_msg_rng_rsp_decoder = -1;
-static gint ett_mac_mgmt_msg_rng_rsp_decoder   = -1;
-static gint ett_rng_rsp_message_tree           = -1;
+static gint proto_mac_mgmt_msg_rng_rsp_decoder;
+static gint ett_mac_mgmt_msg_rng_rsp_decoder;
+static gint ett_rng_rsp_message_tree;
 
 /* RNG-RSP fields */
-static gint hf_rng_req_reserved					= -1;
-/* static gint hf_rng_rsp_ul_channel_id				= -1; */
-static gint hf_rng_rsp_timing_adjust				= -1;
-static gint hf_rng_rsp_power_level_adjust			= -1;
-static gint hf_rng_rsp_offset_freq_adjust			= -1;
-static gint hf_rng_rsp_ranging_status				= -1;
-static gint hf_rng_rsp_dl_freq_override				= -1;
-static gint hf_rng_rsp_ul_chan_id_override			= -1;
-static gint hf_rng_rsp_dl_operational_burst_profile		= -1;
-static gint hf_rng_rsp_dl_operational_burst_profile_diuc	= -1;
-static gint hf_rng_rsp_dl_operational_burst_profile_ccc		= -1;
-static gint hf_rng_rsp_ss_mac_address				= -1;
-static gint hf_rng_rsp_basic_cid				= -1;
-static gint hf_rng_rsp_primary_mgmt_cid				= -1;
-static gint hf_rng_rsp_broadcast				= -1;
-static gint hf_rng_rsp_frame_number				= -1;
-static gint hf_rng_rsp_opportunity_number			= -1;
-static gint hf_rng_rsp_service_level_prediction			= -1;
-static gint hf_rng_rsp_resource_retain_flag			= -1;
-static gint hf_rng_rsp_ho_process_optimization			= -1;
-static gint hf_rng_rsp_ho_process_optimization_0		= -1;
-static gint hf_rng_rsp_ho_process_optimization_1_2		= -1;
-static gint hf_rng_rsp_ho_process_optimization_3		= -1;
-static gint hf_rng_rsp_ho_process_optimization_4		= -1;
-static gint hf_rng_rsp_ho_process_optimization_5		= -1;
-static gint hf_rng_rsp_ho_process_optimization_6		= -1;
-static gint hf_rng_rsp_ho_process_optimization_7		= -1;
-static gint hf_rng_rsp_ho_process_optimization_8		= -1;
-static gint hf_rng_rsp_ho_process_optimization_9		= -1;
-static gint hf_rng_rsp_ho_process_optimization_10		= -1;
-static gint hf_rng_rsp_ho_process_optimization_11		= -1;
-static gint hf_rng_rsp_ho_process_optimization_12		= -1;
-static gint hf_rng_rsp_ho_process_optimization_13		= -1;
-static gint hf_rng_rsp_ho_process_optimization_14		= -1;
-static gint hf_rng_rsp_ho_process_optimization_15		= -1;
+static gint hf_rng_req_reserved;
+/* static gint hf_rng_rsp_ul_channel_id; */
+static gint hf_rng_rsp_timing_adjust;
+static gint hf_rng_rsp_power_level_adjust;
+static gint hf_rng_rsp_offset_freq_adjust;
+static gint hf_rng_rsp_ranging_status;
+static gint hf_rng_rsp_dl_freq_override;
+static gint hf_rng_rsp_ul_chan_id_override;
+static gint hf_rng_rsp_dl_operational_burst_profile;
+static gint hf_rng_rsp_dl_operational_burst_profile_diuc;
+static gint hf_rng_rsp_dl_operational_burst_profile_ccc;
+static gint hf_rng_rsp_ss_mac_address;
+static gint hf_rng_rsp_basic_cid;
+static gint hf_rng_rsp_primary_mgmt_cid;
+static gint hf_rng_rsp_broadcast;
+static gint hf_rng_rsp_frame_number;
+static gint hf_rng_rsp_opportunity_number;
+static gint hf_rng_rsp_service_level_prediction;
+static gint hf_rng_rsp_resource_retain_flag;
+static gint hf_rng_rsp_ho_process_optimization;
+static gint hf_rng_rsp_ho_process_optimization_0;
+static gint hf_rng_rsp_ho_process_optimization_1_2;
+static gint hf_rng_rsp_ho_process_optimization_3;
+static gint hf_rng_rsp_ho_process_optimization_4;
+static gint hf_rng_rsp_ho_process_optimization_5;
+static gint hf_rng_rsp_ho_process_optimization_6;
+static gint hf_rng_rsp_ho_process_optimization_7;
+static gint hf_rng_rsp_ho_process_optimization_8;
+static gint hf_rng_rsp_ho_process_optimization_9;
+static gint hf_rng_rsp_ho_process_optimization_10;
+static gint hf_rng_rsp_ho_process_optimization_11;
+static gint hf_rng_rsp_ho_process_optimization_12;
+static gint hf_rng_rsp_ho_process_optimization_13;
+static gint hf_rng_rsp_ho_process_optimization_14;
+static gint hf_rng_rsp_ho_process_optimization_15;
 /* Added the following to help implement RNG-RSP message encoding 33 (Table 367 in IEEE 802.16e-2007) */
-static gint hf_rng_rsp_dl_op_burst_profile_ofdma		= -1;
-static gint hf_rng_rsp_least_robust_diuc			= -1;
-static gint hf_rng_rsp_repetition_coding_indication		= -1;
-static gint hf_rng_rsp_config_change_count_of_dcd		= -1;
+static gint hf_rng_rsp_dl_op_burst_profile_ofdma;
+static gint hf_rng_rsp_least_robust_diuc;
+static gint hf_rng_rsp_repetition_coding_indication;
+static gint hf_rng_rsp_config_change_count_of_dcd;
 /* Added the following to help implement RNG-RSP message encoding 22 (Table 367 in IEEE 802.16e-2007) */
-static gint hf_rng_rsp_ho_id					= -1;
-static gint hf_rng_rsp_location_update_response			= -1;
+static gint hf_rng_rsp_ho_id;
+static gint hf_rng_rsp_location_update_response;
 /* Added the following to help implement RNG-RSP message encoding 24 (Table 367 in IEEE 802.16e-2007) */
-static gint hf_rng_rsp_paging_information			= -1;
-static gint hf_rng_rsp_paging_cycle				= -1;
-static gint hf_rng_rsp_paging_offset				= -1;
-static gint hf_rng_rsp_paging_group_id				= -1;
-static gint hf_rng_rsp_bs_random				= -1;
-static gint hf_rng_rsp_akid					= -1;
-static gint hf_rng_rsp_ranging_subchan				= -1;
-static gint hf_rng_rsp_time_symbol_reference			= -1;
-static gint hf_rng_rsp_subchannel_reference			= -1;
-static gint hf_rng_rsp_ranging_code_index			= -1;
-static gint hf_rng_rsp_frame_number2				= -1;
-static gint hf_tlv_type						= -1;
-/* static gint hf_tlv_value					= -1; */
-static gint hf_rng_invalid_tlv					= -1;
+static gint hf_rng_rsp_paging_information;
+static gint hf_rng_rsp_paging_cycle;
+static gint hf_rng_rsp_paging_offset;
+static gint hf_rng_rsp_paging_group_id;
+static gint hf_rng_rsp_bs_random;
+static gint hf_rng_rsp_akid;
+static gint hf_rng_rsp_ranging_subchan;
+static gint hf_rng_rsp_time_symbol_reference;
+static gint hf_rng_rsp_subchannel_reference;
+static gint hf_rng_rsp_ranging_code_index;
+static gint hf_rng_rsp_frame_number2;
+static gint hf_tlv_type;
+/* static gint hf_tlv_value; */
+static gint hf_rng_invalid_tlv;
 
 /* STRING RESOURCES */
 

@@ -46,14 +46,14 @@ static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 static guint wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset);
 static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset);
 
-static gint proto_wimax_compact_ulmap_ie_decoder = -1;
+static gint proto_wimax_compact_ulmap_ie_decoder;
 
 #if 0 /* not used ?? */
-static gint ett_wimax_compact_ulmap_ie_decoder = -1;
-static gint ett_wimax_rcid_ie_decoder = -1;
-static gint ett_wimax_harq_control_ie_decoder = -1;
-static gint ett_wimax_extended_uiuc_dependent_ie_decoder = -1;
-static gint ett_wimax_extension_type_ie_decoder = -1;
+static gint ett_wimax_compact_ulmap_ie_decoder;
+static gint ett_wimax_rcid_ie_decoder;
+static gint ett_wimax_harq_control_ie_decoder;
+static gint ett_wimax_extended_uiuc_dependent_ie_decoder;
+static gint ett_wimax_extension_type_ie_decoder;
 #endif
 
 /* Prefixes */
@@ -122,83 +122,83 @@ static const value_string vals_ctypes[] =
 #define ALLOCATION_MODE_MASK_1 0x0C
 
 /* display indexies */
-static gint hf_culmap_ul_map_type = -1;
-static gint hf_culmap_reserved = -1;
-static gint hf_culmap_nep_code = -1;
-static gint hf_culmap_nsch_code = -1;
-static gint hf_culmap_num_bands = -1;
-static gint hf_culmap_band_index = -1;
-static gint hf_culmap_nb_bitmap = -1;
-static gint hf_culmap_ul_map_type_1 = -1;
-static gint hf_culmap_reserved_1 = -1;
-static gint hf_culmap_nep_code_1 = -1;
-static gint hf_culmap_nsch_code_1 = -1;
-static gint hf_culmap_num_bands_1 = -1;
-/*static gint hf_culmap_band_index_1 = -1;*/
-static gint hf_culmap_nb_bitmap_1 = -1;
+static gint hf_culmap_ul_map_type;
+static gint hf_culmap_reserved;
+static gint hf_culmap_nep_code;
+static gint hf_culmap_nsch_code;
+static gint hf_culmap_num_bands;
+static gint hf_culmap_band_index;
+static gint hf_culmap_nb_bitmap;
+static gint hf_culmap_ul_map_type_1;
+static gint hf_culmap_reserved_1;
+static gint hf_culmap_nep_code_1;
+static gint hf_culmap_nsch_code_1;
+static gint hf_culmap_num_bands_1;
+/*static gint hf_culmap_band_index_1;*/
+static gint hf_culmap_nb_bitmap_1;
 
-static gint hf_culmap_shortened_uiuc = -1;
-static gint hf_culmap_companded_sc = -1;
-static gint hf_culmap_shortened_uiuc_1 = -1;
-static gint hf_culmap_companded_sc_1 = -1;
+static gint hf_culmap_shortened_uiuc;
+static gint hf_culmap_companded_sc;
+static gint hf_culmap_shortened_uiuc_1;
+static gint hf_culmap_companded_sc_1;
 
-static gint hf_culmap_bin_offset = -1;
-static gint hf_culmap_bin_offset_1 = -1;
+static gint hf_culmap_bin_offset;
+static gint hf_culmap_bin_offset_1;
 
-static gint hf_culmap_uiuc_ofdma_symbol_offset = -1;
-static gint hf_culmap_uiuc_ofdma_symbol_offset_1 = -1;
-static gint hf_culmap_uiuc_subchannel_offset_7 = -1;
-static gint hf_culmap_uiuc_num_of_ofdma_symbols_7 = -1;
-static gint hf_culmap_uiuc_num_of_subchannels_7 = -1;
-static gint hf_culmap_uiuc_ranging_method = -1;
-static gint hf_culmap_uiuc_reserved = -1;
-static gint hf_culmap_uiuc_subchannel_offset_7_1 = -1;
-static gint hf_culmap_uiuc_num_of_ofdma_symbols_7_1 = -1;
-static gint hf_culmap_uiuc_num_of_subchannels_7_1 = -1;
-static gint hf_culmap_uiuc_ranging_method_1 = -1;
-static gint hf_culmap_uiuc_reserved_1 = -1;
-static gint hf_culmap_uiuc_repetition_coding_indication = -1;
-static gint hf_culmap_uiuc_repetition_coding_indication_1 = -1;
-/* static gint hf_culmap_uiuc_reserved1 = -1; */
-/* static gint hf_culmap_uiuc_reserved11_1 = -1; */
-static gint hf_culmap_uiuc_subchannel_offset = -1;
-static gint hf_culmap_uiuc_subchannel_offset_1 = -1;
-static gint hf_culmap_uiuc_num_of_ofdma_symbols = -1;
-static gint hf_culmap_uiuc_num_of_ofdma_symbols_1 = -1;
-static gint hf_culmap_uiuc_num_of_subchannels = -1;
-static gint hf_culmap_uiuc_num_of_subchannels_1 = -1;
+static gint hf_culmap_uiuc_ofdma_symbol_offset;
+static gint hf_culmap_uiuc_ofdma_symbol_offset_1;
+static gint hf_culmap_uiuc_subchannel_offset_7;
+static gint hf_culmap_uiuc_num_of_ofdma_symbols_7;
+static gint hf_culmap_uiuc_num_of_subchannels_7;
+static gint hf_culmap_uiuc_ranging_method;
+static gint hf_culmap_uiuc_reserved;
+static gint hf_culmap_uiuc_subchannel_offset_7_1;
+static gint hf_culmap_uiuc_num_of_ofdma_symbols_7_1;
+static gint hf_culmap_uiuc_num_of_subchannels_7_1;
+static gint hf_culmap_uiuc_ranging_method_1;
+static gint hf_culmap_uiuc_reserved_1;
+static gint hf_culmap_uiuc_repetition_coding_indication;
+static gint hf_culmap_uiuc_repetition_coding_indication_1;
+/* static gint hf_culmap_uiuc_reserved1; */
+/* static gint hf_culmap_uiuc_reserved11_1; */
+static gint hf_culmap_uiuc_subchannel_offset;
+static gint hf_culmap_uiuc_subchannel_offset_1;
+static gint hf_culmap_uiuc_num_of_ofdma_symbols;
+static gint hf_culmap_uiuc_num_of_ofdma_symbols_1;
+static gint hf_culmap_uiuc_num_of_subchannels;
+static gint hf_culmap_uiuc_num_of_subchannels_1;
 
-static gint hf_culmap_harq_region_change_indication = -1;
-static gint hf_culmap_harq_region_change_indication_1 = -1;
-static gint hf_culmap_cqi_region_change_indication = -1;
-static gint hf_culmap_cqi_region_change_indication_1 = -1;
+static gint hf_culmap_harq_region_change_indication;
+static gint hf_culmap_harq_region_change_indication_1;
+static gint hf_culmap_cqi_region_change_indication;
+static gint hf_culmap_cqi_region_change_indication_1;
 
-static gint hf_culmap_uiuc = -1;
-static gint hf_culmap_uiuc_1 = -1;
+static gint hf_culmap_uiuc;
+static gint hf_culmap_uiuc_1;
 
-static gint hf_culmap_allocation_mode = -1;
-static gint hf_culmap_allocation_mode_rsvd = -1;
-static gint hf_culmap_num_subchannels = -1;
-static gint hf_culmap_allocation_mode_1 = -1;
-static gint hf_culmap_allocation_mode_rsvd_1 = -1;
-static gint hf_culmap_num_subchannels_1 = -1;
+static gint hf_culmap_allocation_mode;
+static gint hf_culmap_allocation_mode_rsvd;
+static gint hf_culmap_num_subchannels;
+static gint hf_culmap_allocation_mode_1;
+static gint hf_culmap_allocation_mode_rsvd_1;
+static gint hf_culmap_num_subchannels_1;
 
-/* static gint hf_culmap_reserved_type = -1; */
-static gint hf_culmap_reserved_type_1 = -1;
+/* static gint hf_culmap_reserved_type; */
+static gint hf_culmap_reserved_type_1;
 
 /* display indexies */
-static gint hf_rcid_ie_prefix = -1;
-static gint hf_rcid_ie_prefix_1 = -1;
-static gint hf_rcid_ie_normal_cid = -1;
-static gint hf_rcid_ie_normal_cid_1 = -1;
-static gint hf_rcid_ie_cid3 = -1;
-static gint hf_rcid_ie_cid3_1 = -1;
-static gint hf_rcid_ie_cid7 = -1;
-static gint hf_rcid_ie_cid7_1 = -1;
-static gint hf_rcid_ie_cid11 = -1;
-static gint hf_rcid_ie_cid11_1 = -1;
-static gint hf_rcid_ie_cid11_2 = -1;
-static gint hf_rcid_ie_cid11_3 = -1;
+static gint hf_rcid_ie_prefix;
+static gint hf_rcid_ie_prefix_1;
+static gint hf_rcid_ie_normal_cid;
+static gint hf_rcid_ie_normal_cid_1;
+static gint hf_rcid_ie_cid3;
+static gint hf_rcid_ie_cid3_1;
+static gint hf_rcid_ie_cid7;
+static gint hf_rcid_ie_cid7_1;
+static gint hf_rcid_ie_cid11;
+static gint hf_rcid_ie_cid11_1;
+static gint hf_rcid_ie_cid11_2;
+static gint hf_rcid_ie_cid11_3;
 
 /* Masks */
 #define WIMAX_RCID_IE_NORMAL_CID_MASK_1      0x0FFFF0
@@ -212,16 +212,16 @@ static gint hf_rcid_ie_cid11_3 = -1;
 #define WIMAX_RCID_IE_CID11_MASK_1           0x07FF
 
 /* HARQ MAP HARQ Control IE display indexies */
-static gint hf_harq_control_ie_prefix = -1;
-static gint hf_harq_control_ie_ai_sn = -1;
-static gint hf_harq_control_ie_spid = -1;
-static gint hf_harq_control_ie_acid = -1;
-static gint hf_harq_control_ie_reserved = -1;
-static gint hf_harq_control_ie_prefix_1 = -1;
-static gint hf_harq_control_ie_ai_sn_1 = -1;
-static gint hf_harq_control_ie_spid_1 = -1;
-static gint hf_harq_control_ie_acid_1 = -1;
-static gint hf_harq_control_ie_reserved_1 = -1;
+static gint hf_harq_control_ie_prefix;
+static gint hf_harq_control_ie_ai_sn;
+static gint hf_harq_control_ie_spid;
+static gint hf_harq_control_ie_acid;
+static gint hf_harq_control_ie_reserved;
+static gint hf_harq_control_ie_prefix_1;
+static gint hf_harq_control_ie_ai_sn_1;
+static gint hf_harq_control_ie_spid_1;
+static gint hf_harq_control_ie_acid_1;
+static gint hf_harq_control_ie_reserved_1;
 
 /* Masks */
 #define WIMAX_HARQ_CONTROL_IE_PREFIX_MASK      0x80
@@ -243,19 +243,19 @@ static gint hf_harq_control_ie_reserved_1 = -1;
 #define EXTENSION_LENGTH_MASK       0x00F0
 #define EXTENSION_LENGTH_MASK_1     0x000F
 
-static gint hf_culmap_extension_type = -1;
-static gint hf_culmap_extension_subtype = -1;
-static gint hf_culmap_extension_length = -1;
-static gint hf_culmap_extension_type_1 = -1;
-static gint hf_culmap_extension_subtype_1 = -1;
-static gint hf_culmap_extension_length_1 = -1;
+static gint hf_culmap_extension_type;
+static gint hf_culmap_extension_subtype;
+static gint hf_culmap_extension_length;
+static gint hf_culmap_extension_type_1;
+static gint hf_culmap_extension_subtype_1;
+static gint hf_culmap_extension_length_1;
 
-/* static gint hf_culmap_extension_time_diversity_mbs = -1; */
-static gint hf_culmap_extension_harq_mode = -1;
-static gint hf_culmap_extension_unknown_sub_type = -1;
-/* static gint hf_culmap_extension_time_diversity_mbs_1 = -1; */
-static gint hf_culmap_extension_harq_mode_1 = -1;
-static gint hf_culmap_extension_unknown_sub_type_1 = -1;
+/* static gint hf_culmap_extension_time_diversity_mbs; */
+static gint hf_culmap_extension_harq_mode;
+static gint hf_culmap_extension_unknown_sub_type;
+/* static gint hf_culmap_extension_time_diversity_mbs_1; */
+static gint hf_culmap_extension_harq_mode_1;
+static gint hf_culmap_extension_unknown_sub_type_1;
 
 /* UL-MAP CDMA Allocation IE */
 #define CDMA_ALLOCATION_DURATION_MASK               0xFC00
@@ -275,22 +275,22 @@ static gint hf_culmap_extension_unknown_sub_type_1 = -1;
 #define CDMA_ALLOCATION_RANGING_SUBCHANNEL_MASK_1   0x00000FE0
 #define CDMA_ALLOCATION_BW_REQUEST_MANDATORY_MASK_1 0x00000010
 
-static gint hf_cdma_allocation_duration = -1;
-static gint hf_cdma_allocation_uiuc = -1;
-static gint hf_cdma_allocation_repetition = -1;
-static gint hf_cdma_allocation_frame_number_index = -1;
-static gint hf_cdma_allocation_ranging_code = -1;
-static gint hf_cdma_allocation_ranging_symbol = -1;
-static gint hf_cdma_allocation_ranging_subchannel = -1;
-static gint hf_cdma_allocation_bw_req = -1;
-static gint hf_cdma_allocation_duration_1 = -1;
-static gint hf_cdma_allocation_uiuc_1 = -1;
-static gint hf_cdma_allocation_repetition_1 = -1;
-static gint hf_cdma_allocation_frame_number_index_1 = -1;
-static gint hf_cdma_allocation_ranging_code_1 = -1;
-static gint hf_cdma_allocation_ranging_symbol_1 = -1;
-static gint hf_cdma_allocation_ranging_subchannel_1 = -1;
-static gint hf_cdma_allocation_bw_req_1 = -1;
+static gint hf_cdma_allocation_duration;
+static gint hf_cdma_allocation_uiuc;
+static gint hf_cdma_allocation_repetition;
+static gint hf_cdma_allocation_frame_number_index;
+static gint hf_cdma_allocation_ranging_code;
+static gint hf_cdma_allocation_ranging_symbol;
+static gint hf_cdma_allocation_ranging_subchannel;
+static gint hf_cdma_allocation_bw_req;
+static gint hf_cdma_allocation_duration_1;
+static gint hf_cdma_allocation_uiuc_1;
+static gint hf_cdma_allocation_repetition_1;
+static gint hf_cdma_allocation_frame_number_index_1;
+static gint hf_cdma_allocation_ranging_code_1;
+static gint hf_cdma_allocation_ranging_symbol_1;
+static gint hf_cdma_allocation_ranging_subchannel_1;
+static gint hf_cdma_allocation_bw_req_1;
 
 /* UL-MAP Extended UIUCs (table 290a) */
 #define MINI_SUBCHANNEL_CTYPE_MASK           0xC0
@@ -312,42 +312,42 @@ static gint hf_cdma_allocation_bw_req_1 = -1;
 #define MINI_SUBCHANNEL_PADDING_MASK         0xF0
 #define MINI_SUBCHANNEL_PADDING_MASK_1       0x0000000F
 
-static gint hf_extended_uiuc_ie_uiuc = -1;
-static gint hf_extended_uiuc_ie_length = -1;
-static gint hf_extended_uiuc_ie_uiuc_1 = -1;
-static gint hf_extended_uiuc_ie_length_1 = -1;
-static gint hf_extended_uiuc_ie_power_control = -1;
-static gint hf_extended_uiuc_ie_power_measurement_frame = -1;
-static gint hf_extended_uiuc_ie_power_control_24 = -1;
-static gint hf_extended_uiuc_ie_power_measurement_frame_24 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_ctype = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_duration = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_ctype_16 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_duration_16 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_cid = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_repetition = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_padding = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_cid_1 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_1 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_1 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_cid_2 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_2 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_2 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_cid_3 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_3 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_3 = -1;
-static gint hf_extended_uiuc_ie_mini_subchannel_alloc_padding_1 = -1;
-static gint hf_extended_uiuc_ie_aas_ul = -1;
-static gint hf_extended_uiuc_ie_cqich_alloc = -1;
-static gint hf_extended_uiuc_ie_ul_zone = -1;
-static gint hf_extended_uiuc_ie_phymod_ul = -1;
-static gint hf_extended_uiuc_ie_mimo_ul_basic = -1;
-static gint hf_extended_uiuc_ie_fast_tracking = -1;
-static gint hf_extended_uiuc_ie_ul_pusc_burst_allocation = -1;
-static gint hf_extended_uiuc_ie_fast_ranging = -1;
-static gint hf_extended_uiuc_ie_ul_allocation_start = -1;
-static gint hf_extended_uiuc_ie_unknown_uiuc = -1;
+static gint hf_extended_uiuc_ie_uiuc;
+static gint hf_extended_uiuc_ie_length;
+static gint hf_extended_uiuc_ie_uiuc_1;
+static gint hf_extended_uiuc_ie_length_1;
+static gint hf_extended_uiuc_ie_power_control;
+static gint hf_extended_uiuc_ie_power_measurement_frame;
+static gint hf_extended_uiuc_ie_power_control_24;
+static gint hf_extended_uiuc_ie_power_measurement_frame_24;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_ctype;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_duration;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_ctype_16;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_duration_16;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_cid;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_repetition;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_padding;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_cid_1;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_1;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_1;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_cid_2;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_2;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_2;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_cid_3;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_3;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_3;
+static gint hf_extended_uiuc_ie_mini_subchannel_alloc_padding_1;
+static gint hf_extended_uiuc_ie_aas_ul;
+static gint hf_extended_uiuc_ie_cqich_alloc;
+static gint hf_extended_uiuc_ie_ul_zone;
+static gint hf_extended_uiuc_ie_phymod_ul;
+static gint hf_extended_uiuc_ie_mimo_ul_basic;
+static gint hf_extended_uiuc_ie_fast_tracking;
+static gint hf_extended_uiuc_ie_ul_pusc_burst_allocation;
+static gint hf_extended_uiuc_ie_fast_ranging;
+static gint hf_extended_uiuc_ie_ul_allocation_start;
+static gint hf_extended_uiuc_ie_unknown_uiuc;
 
 
 /* Compact UL-MAP IE Types (table 90) */

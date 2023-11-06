@@ -20,58 +20,58 @@
 void proto_register_pn_ptcp(void);
 void proto_reg_handoff_pn_ptcp(void);
 
-static int proto_pn_ptcp = -1;
+static int proto_pn_ptcp;
 
-static int hf_pn_ptcp_header = -1;
-static int hf_pn_ptcp_block = -1;
-static int hf_pn_ptcp_block_tlvheader = -1;
+static int hf_pn_ptcp_header;
+static int hf_pn_ptcp_block;
+static int hf_pn_ptcp_block_tlvheader;
 
-static int hf_pn_ptcp_res1 = -1;
-static int hf_pn_ptcp_res2 = -1;
-static int hf_pn_ptcp_delay10ns = -1;
-static int hf_pn_ptcp_seq_id = -1;
-static int hf_pn_ptcp_delay1ns_byte = -1;
-static int hf_pn_ptcp_delay1ns_fup = -1;
-static int hf_pn_ptcp_delay1ns = -1;
+static int hf_pn_ptcp_res1;
+static int hf_pn_ptcp_res2;
+static int hf_pn_ptcp_delay10ns;
+static int hf_pn_ptcp_seq_id;
+static int hf_pn_ptcp_delay1ns_byte;
+static int hf_pn_ptcp_delay1ns_fup;
+static int hf_pn_ptcp_delay1ns;
 
-static int hf_pn_ptcp_tl_length = -1;
-static int hf_pn_ptcp_tl_type = -1;
+static int hf_pn_ptcp_tl_length;
+static int hf_pn_ptcp_tl_type;
 
-static int hf_pn_ptcp_master_source_address = -1;
-static int hf_pn_ptcp_subdomain_uuid = -1;
+static int hf_pn_ptcp_master_source_address;
+static int hf_pn_ptcp_subdomain_uuid;
 
-static int hf_pn_ptcp_port_mac_address = -1;
+static int hf_pn_ptcp_port_mac_address;
 
-static int hf_pn_ptcp_t2portrxdelay = -1;
-static int hf_pn_ptcp_t3porttxdelay = -1;
+static int hf_pn_ptcp_t2portrxdelay;
+static int hf_pn_ptcp_t3porttxdelay;
 
-static int hf_pn_ptcp_t2timestamp = -1;
+static int hf_pn_ptcp_t2timestamp;
 
-static int hf_pn_ptcp_epoch_number = -1;
-static int hf_pn_ptcp_seconds = -1;
-static int hf_pn_ptcp_nanoseconds = -1;
+static int hf_pn_ptcp_epoch_number;
+static int hf_pn_ptcp_seconds;
+static int hf_pn_ptcp_nanoseconds;
 
-static int hf_pn_ptcp_flags = -1;
-static int hf_pn_ptcp_currentutcoffset = -1;
+static int hf_pn_ptcp_flags;
+static int hf_pn_ptcp_currentutcoffset;
 
-static int hf_pn_ptcp_master_priority1 = -1;
-static int hf_pn_ptcp_master_priority_level = -1;
-static int hf_pn_ptcp_master_priority1_res = -1;
-static int hf_pn_ptcp_master_priority1_act =-1;
+static int hf_pn_ptcp_master_priority1;
+static int hf_pn_ptcp_master_priority_level;
+static int hf_pn_ptcp_master_priority1_res;
+static int hf_pn_ptcp_master_priority1_act;
 
-static int hf_pn_ptcp_master_priority2 = -1;
-static int hf_pn_ptcp_clock_class = -1;
-static int hf_pn_ptcp_clock_accuracy = -1;
-static int hf_pn_ptcp_clockvariance = -1;
+static int hf_pn_ptcp_master_priority2;
+static int hf_pn_ptcp_clock_class;
+static int hf_pn_ptcp_clock_accuracy;
+static int hf_pn_ptcp_clockvariance;
 
-static int hf_pn_ptcp_oui = -1;
-static int hf_pn_ptcp_profinet_subtype = -1;
-static int hf_pn_ptcp_irdata_uuid = -1;
+static int hf_pn_ptcp_oui;
+static int hf_pn_ptcp_profinet_subtype;
+static int hf_pn_ptcp_irdata_uuid;
 
-static gint ett_pn_ptcp = -1;
-static gint ett_pn_ptcp_header = -1;
-static gint ett_pn_ptcp_block = -1;
-static gint ett_pn_ptcp_block_header = -1;
+static gint ett_pn_ptcp;
+static gint ett_pn_ptcp_header;
+static gint ett_pn_ptcp_block;
+static gint ett_pn_ptcp_block_header;
 
 #define OUI_PROFINET_MULTICAST   0x010ECF   /* PROFIBUS Nutzerorganisation e.V. */
 

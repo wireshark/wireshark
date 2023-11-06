@@ -47,10 +47,10 @@ static dissector_handle_t wimax_harq_map_handle = NULL;
 /* Global Variables. */
 gboolean first_gmh;
 
-static gint proto_wimax_pdu_decoder = -1;
-static gint ett_wimax_pdu_decoder = -1;
+static gint proto_wimax_pdu_decoder;
+static gint ett_wimax_pdu_decoder;
 
-static int hf_wimax_value_bytes = -1;
+static int hf_wimax_value_bytes;
 
 static int dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {

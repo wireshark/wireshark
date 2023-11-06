@@ -32,22 +32,22 @@ extern gint proto_mac_mgmt_msg_reg_req_decoder;
 extern gint mac_sdu_length;                   /* declared in packet-wmx.c */
 extern gboolean include_cor2_changes;
 
-static gint proto_wimax_utility_decoders = -1;
-static gint ett_wimax_service_flow_encodings = -1;
-static gint ett_wimax_cst_encoding_rules = -1;
-static gint ett_wimax_error_parameter_set = -1;
-static gint ett_wimax_hmac_tuple = -1;
-static gint ett_wimax_cmac_tuple = -1;
-static gint ett_wimax_short_hmac_tuple = -1;
-static gint ett_security_negotiation_parameters = -1;
-static gint ett_pkm_tlv_encoded_attributes_decoder = -1;
-static gint ett_sa_descriptor_decoder = -1;
-static gint ett_cryptographic_suite_list_decoder = -1;
-static gint ett_security_capabilities_decoder = -1;
-static gint ett_vendor_specific_info_decoder = -1;
-static gint ett_vendor_id_encoding_decoder = -1;
-static gint ett_ul_service_flow_decoder = -1;
-static gint ett_dl_service_flow_decoder = -1;
+static gint proto_wimax_utility_decoders;
+static gint ett_wimax_service_flow_encodings;
+static gint ett_wimax_cst_encoding_rules;
+static gint ett_wimax_error_parameter_set;
+static gint ett_wimax_hmac_tuple;
+static gint ett_wimax_cmac_tuple;
+static gint ett_wimax_short_hmac_tuple;
+static gint ett_security_negotiation_parameters;
+static gint ett_pkm_tlv_encoded_attributes_decoder;
+static gint ett_sa_descriptor_decoder;
+static gint ett_cryptographic_suite_list_decoder;
+static gint ett_security_capabilities_decoder;
+static gint ett_vendor_specific_info_decoder;
+static gint ett_vendor_id_encoding_decoder;
+static gint ett_ul_service_flow_decoder;
+static gint ett_dl_service_flow_decoder;
 
 static dissector_handle_t eap_handle = NULL;
 
@@ -400,155 +400,155 @@ static const value_string vals_dcd_mac_version[] =
 };
 
 /* fix fields */
-static gint hf_sfe_unknown_type = -1;
-static gint hf_sfe_sf_id = -1;
-static gint hf_sfe_cid = -1;
-static gint hf_sfe_service_class_name = -1;
-static gint hf_sfe_mbs_service = -1;
-static gint hf_sfe_qos_params_set = -1;
-static gint hf_sfe_set_provisioned = -1;
-static gint hf_sfe_set_admitted = -1;
-static gint hf_sfe_set_active = -1;
-static gint hf_sfe_set_rsvd = -1;
-static gint hf_sfe_traffic_priority = -1;
-static gint hf_sfe_max_str = -1;
-static gint hf_sfe_max_traffic_burst = -1;
-static gint hf_sfe_min_rtr = -1;
-static gint hf_sfe_reserved_10 = -1;
-static gint hf_sfe_ul_grant_scheduling = -1;
-static gint hf_sfe_req_tx_policy = -1;
-static gint hf_sfe_policy_broadcast_bwr = -1;
-static gint hf_sfe_policy_multicast_bwr = -1;
-static gint hf_sfe_policy_piggyback = -1;
-static gint hf_sfe_policy_fragment = -1;
-static gint hf_sfe_policy_headers = -1;
-static gint hf_sfe_policy_packing = -1;
-static gint hf_sfe_policy_crc = -1;
-static gint hf_sfe_policy_rsvd1 = -1;
-static gint hf_sfe_jitter = -1;
-static gint hf_sfe_max_latency = -1;
-static gint hf_sfe_fixed_len_sdu = -1;
-static gint hf_sfe_sdu_size = -1;
-static gint hf_sfe_target_said = -1;
-static gint hf_sfe_cs_specification = -1;
-static gint hf_sfe_type_of_data_delivery_services = -1;
-static gint hf_sfe_sdu_inter_arrival_interval = -1;
-static gint hf_sfe_time_base = -1;
-static gint hf_sfe_paging_preference = -1;
-static gint hf_sfe_mbs_zone_identifier_assignment = -1;
-static gint hf_sfe_sn_feedback_enabled = -1;
-static gint hf_sfe_harq_service_flows = -1;
-static gint hf_sfe_harq_channel_mapping_index = -1;
-static gint hf_sfe_fsn_size = -1;
-static gint hf_sfe_unsolicited_grant_interval = -1;
-static gint hf_sfe_unsolicited_polling_interval = -1;
-/* static gint hf_sfe_harq_channel_mapping = -1; */
-static gint hf_sfe_global_service_class_name = -1;
-static gint hf_sfe_reserved_36 = -1;
-static gint hf_sfe_reserved_34 = -1;
+static gint hf_sfe_unknown_type;
+static gint hf_sfe_sf_id;
+static gint hf_sfe_cid;
+static gint hf_sfe_service_class_name;
+static gint hf_sfe_mbs_service;
+static gint hf_sfe_qos_params_set;
+static gint hf_sfe_set_provisioned;
+static gint hf_sfe_set_admitted;
+static gint hf_sfe_set_active;
+static gint hf_sfe_set_rsvd;
+static gint hf_sfe_traffic_priority;
+static gint hf_sfe_max_str;
+static gint hf_sfe_max_traffic_burst;
+static gint hf_sfe_min_rtr;
+static gint hf_sfe_reserved_10;
+static gint hf_sfe_ul_grant_scheduling;
+static gint hf_sfe_req_tx_policy;
+static gint hf_sfe_policy_broadcast_bwr;
+static gint hf_sfe_policy_multicast_bwr;
+static gint hf_sfe_policy_piggyback;
+static gint hf_sfe_policy_fragment;
+static gint hf_sfe_policy_headers;
+static gint hf_sfe_policy_packing;
+static gint hf_sfe_policy_crc;
+static gint hf_sfe_policy_rsvd1;
+static gint hf_sfe_jitter;
+static gint hf_sfe_max_latency;
+static gint hf_sfe_fixed_len_sdu;
+static gint hf_sfe_sdu_size;
+static gint hf_sfe_target_said;
+static gint hf_sfe_cs_specification;
+static gint hf_sfe_type_of_data_delivery_services;
+static gint hf_sfe_sdu_inter_arrival_interval;
+static gint hf_sfe_time_base;
+static gint hf_sfe_paging_preference;
+static gint hf_sfe_mbs_zone_identifier_assignment;
+static gint hf_sfe_sn_feedback_enabled;
+static gint hf_sfe_harq_service_flows;
+static gint hf_sfe_harq_channel_mapping_index;
+static gint hf_sfe_fsn_size;
+static gint hf_sfe_unsolicited_grant_interval;
+static gint hf_sfe_unsolicited_polling_interval;
+/* static gint hf_sfe_harq_channel_mapping; */
+static gint hf_sfe_global_service_class_name;
+static gint hf_sfe_reserved_36;
+static gint hf_sfe_reserved_34;
 
-static gint hf_sfe_arq_enable = -1;
-static gint hf_sfe_arq_transmitter_delay = -1;
-static gint hf_sfe_arq_receiver_delay = -1;
-static gint hf_sfe_arq_block_lifetime = -1;
-static gint hf_sfe_arq_sync_loss_timeout = -1;
-static gint hf_sfe_arq_transmitter_delay_cor2 = -1;
-static gint hf_sfe_arq_receiver_delay_cor2 = -1;
-static gint hf_sfe_arq_block_lifetime_cor2 = -1;
-static gint hf_sfe_arq_sync_loss_timeout_cor2 = -1;
-static gint hf_sfe_arq_deliver_in_order = -1;
-static gint hf_sfe_arq_rx_purge_timeout = -1;
-static gint hf_sfe_arq_window_size = -1;
-static gint hf_sfe_arq_block_size = -1;
-static gint hf_sfe_arq_block_size_cor2 = -1;
-static gint hf_sfe_arq_min_block_size = -1;
-static gint hf_sfe_arq_max_block_size = -1;
+static gint hf_sfe_arq_enable;
+static gint hf_sfe_arq_transmitter_delay;
+static gint hf_sfe_arq_receiver_delay;
+static gint hf_sfe_arq_block_lifetime;
+static gint hf_sfe_arq_sync_loss_timeout;
+static gint hf_sfe_arq_transmitter_delay_cor2;
+static gint hf_sfe_arq_receiver_delay_cor2;
+static gint hf_sfe_arq_block_lifetime_cor2;
+static gint hf_sfe_arq_sync_loss_timeout_cor2;
+static gint hf_sfe_arq_deliver_in_order;
+static gint hf_sfe_arq_rx_purge_timeout;
+static gint hf_sfe_arq_window_size;
+static gint hf_sfe_arq_block_size;
+static gint hf_sfe_arq_block_size_cor2;
+static gint hf_sfe_arq_min_block_size;
+static gint hf_sfe_arq_max_block_size;
 
-/* static gint hf_sfe_cid_alloc_for_active_bs = -1; */
-static gint hf_sfe_cid_alloc_for_active_bs_cid = -1;
-static gint hf_sfe_pdu_sn_ext_subheader_reorder = -1;
-static gint hf_sfe_mbs_contents_ids = -1;
-static gint hf_sfe_mbs_contents_ids_id = -1;
-static gint hf_sfe_authorization_token = -1;
+/* static gint hf_sfe_cid_alloc_for_active_bs; */
+static gint hf_sfe_cid_alloc_for_active_bs_cid;
+static gint hf_sfe_pdu_sn_ext_subheader_reorder;
+static gint hf_sfe_mbs_contents_ids;
+static gint hf_sfe_mbs_contents_ids_id;
+static gint hf_sfe_authorization_token;
 
-static gint hf_cst_classifier_dsc_action = -1;
-static gint hf_cst_error_set_errored_param = -1;
-static gint hf_cst_error_set_error_code = -1;
-static gint hf_cst_error_set_error_msg = -1;
+static gint hf_cst_classifier_dsc_action;
+static gint hf_cst_error_set_errored_param;
+static gint hf_cst_error_set_error_code;
+static gint hf_cst_error_set_error_msg;
 
-static gint hf_cst_pkt_class_rule = -1;
+static gint hf_cst_pkt_class_rule;
 
-static gint hf_cst_pkt_class_rule_priority = -1;
-static gint hf_cst_pkt_class_rule_range_mask = -1;
-static gint hf_cst_pkt_class_rule_tos_low = -1;
-static gint hf_cst_pkt_class_rule_tos_high = -1;
-static gint hf_cst_pkt_class_rule_tos_mask = -1;
-static gint hf_cst_pkt_class_rule_protocol = -1;
-/*static gint hf_cst_pkt_class_rule_protocol_number = -1;*/
-static gint hf_cst_pkt_class_rule_ip_masked_src_address = -1;
-static gint hf_cst_pkt_class_rule_ip_masked_dest_address = -1;
-static gint hf_cst_pkt_class_rule_src_ipv4 = -1;
-static gint hf_cst_pkt_class_rule_dest_ipv4 = -1;
-static gint hf_cst_pkt_class_rule_mask_ipv4 = -1;
-static gint hf_cst_pkt_class_rule_src_ipv6 = -1;
-static gint hf_cst_pkt_class_rule_dest_ipv6 = -1;
-static gint hf_cst_pkt_class_rule_mask_ipv6 = -1;
-static gint hf_cst_pkt_class_rule_prot_src_port_range = -1;
-static gint hf_cst_pkt_class_rule_src_port_low = -1;
-static gint hf_cst_pkt_class_rule_src_port_high = -1;
-static gint hf_cst_pkt_class_rule_prot_dest_port_range = -1;
-static gint hf_cst_pkt_class_rule_dest_port_low = -1;
-static gint hf_cst_pkt_class_rule_dest_port_high = -1;
-static gint hf_cst_pkt_class_rule_dest_mac_address = -1;
-static gint hf_cst_pkt_class_rule_dest_mac = -1;
-static gint hf_cst_pkt_class_rule_src_mac_address = -1;
-static gint hf_cst_pkt_class_rule_src_mac = -1;
-static gint hf_cst_pkt_class_rule_mask_mac = -1;
-static gint hf_cst_pkt_class_rule_ethertype = -1;
-static gint hf_cst_pkt_class_rule_etype = -1;
-static gint hf_cst_pkt_class_rule_eprot1 = -1;
-static gint hf_cst_pkt_class_rule_eprot2 = -1;
-static gint hf_cst_pkt_class_rule_user_priority          = -1;
-static gint hf_cst_pkt_class_rule_pri_low                = -1;
-static gint hf_cst_pkt_class_rule_pri_high               = -1;
-static gint hf_cst_pkt_class_rule_vlan_id                = -1;
-static gint hf_cst_pkt_class_rule_vlan_id1               = -1;
-static gint hf_cst_pkt_class_rule_vlan_id2               = -1;
-static gint hf_cst_pkt_class_rule_phsi                   = -1;
-static gint hf_cst_pkt_class_rule_index                  = -1;
-static gint hf_cst_pkt_class_rule_ipv6_flow_label        = -1;
-static gint hf_cst_pkt_class_rule_vendor_spec            = -1;
-static gint hf_cst_pkt_class_rule_classifier_action_rule = -1;
-static gint hf_cst_pkt_class_rule_classifier_action_rule_bit0 = -1;
-static gint hf_cst_pkt_class_rule_classifier_action_rule_bit1 = -1;
+static gint hf_cst_pkt_class_rule_priority;
+static gint hf_cst_pkt_class_rule_range_mask;
+static gint hf_cst_pkt_class_rule_tos_low;
+static gint hf_cst_pkt_class_rule_tos_high;
+static gint hf_cst_pkt_class_rule_tos_mask;
+static gint hf_cst_pkt_class_rule_protocol;
+/*static gint hf_cst_pkt_class_rule_protocol_number;*/
+static gint hf_cst_pkt_class_rule_ip_masked_src_address;
+static gint hf_cst_pkt_class_rule_ip_masked_dest_address;
+static gint hf_cst_pkt_class_rule_src_ipv4;
+static gint hf_cst_pkt_class_rule_dest_ipv4;
+static gint hf_cst_pkt_class_rule_mask_ipv4;
+static gint hf_cst_pkt_class_rule_src_ipv6;
+static gint hf_cst_pkt_class_rule_dest_ipv6;
+static gint hf_cst_pkt_class_rule_mask_ipv6;
+static gint hf_cst_pkt_class_rule_prot_src_port_range;
+static gint hf_cst_pkt_class_rule_src_port_low;
+static gint hf_cst_pkt_class_rule_src_port_high;
+static gint hf_cst_pkt_class_rule_prot_dest_port_range;
+static gint hf_cst_pkt_class_rule_dest_port_low;
+static gint hf_cst_pkt_class_rule_dest_port_high;
+static gint hf_cst_pkt_class_rule_dest_mac_address;
+static gint hf_cst_pkt_class_rule_dest_mac;
+static gint hf_cst_pkt_class_rule_src_mac_address;
+static gint hf_cst_pkt_class_rule_src_mac;
+static gint hf_cst_pkt_class_rule_mask_mac;
+static gint hf_cst_pkt_class_rule_ethertype;
+static gint hf_cst_pkt_class_rule_etype;
+static gint hf_cst_pkt_class_rule_eprot1;
+static gint hf_cst_pkt_class_rule_eprot2;
+static gint hf_cst_pkt_class_rule_user_priority;
+static gint hf_cst_pkt_class_rule_pri_low;
+static gint hf_cst_pkt_class_rule_pri_high;
+static gint hf_cst_pkt_class_rule_vlan_id;
+static gint hf_cst_pkt_class_rule_vlan_id1;
+static gint hf_cst_pkt_class_rule_vlan_id2;
+static gint hf_cst_pkt_class_rule_phsi;
+static gint hf_cst_pkt_class_rule_index;
+static gint hf_cst_pkt_class_rule_ipv6_flow_label;
+static gint hf_cst_pkt_class_rule_vendor_spec;
+static gint hf_cst_pkt_class_rule_classifier_action_rule;
+static gint hf_cst_pkt_class_rule_classifier_action_rule_bit0;
+static gint hf_cst_pkt_class_rule_classifier_action_rule_bit1;
 
-static gint hf_cst_large_context_id = -1;
-static gint hf_cst_short_format_context_id = -1;
+static gint hf_cst_large_context_id;
+static gint hf_cst_short_format_context_id;
 
-static gint hf_cst_phs_dsc_action = -1;
-static gint hf_cst_phs_rule = -1;
-static gint hf_cst_phs_phsi = -1;
-static gint hf_cst_phs_phsf = -1;
-static gint hf_cst_phs_phsm = -1;
-static gint hf_cst_phs_phss = -1;
-static gint hf_cst_phs_phsv = -1;
-static gint hf_cst_phs_vendor_spec = -1;
-static gint hf_cst_invalid_tlv = -1;
+static gint hf_cst_phs_dsc_action;
+static gint hf_cst_phs_rule;
+static gint hf_cst_phs_phsi;
+static gint hf_cst_phs_phsf;
+static gint hf_cst_phs_phsm;
+static gint hf_cst_phs_phss;
+static gint hf_cst_phs_phsv;
+static gint hf_cst_phs_vendor_spec;
+static gint hf_cst_invalid_tlv;
 
-static gint hf_csper_atm_switching_encoding = -1;
-static gint hf_csper_atm_classifier = -1;
-static gint hf_csper_atm_classifier_vpi = -1;
-static gint hf_csper_atm_classifier_vci = -1;
-static gint hf_csper_atm_classifier_id = -1;
-/*static gint hf_csper_atm_classifier_dsc_action = -1;*/
-static gint hf_csper_unknown_type = -1;
+static gint hf_csper_atm_switching_encoding;
+static gint hf_csper_atm_classifier;
+static gint hf_csper_atm_classifier_vpi;
+static gint hf_csper_atm_classifier_vci;
+static gint hf_csper_atm_classifier_id;
+/*static gint hf_csper_atm_classifier_dsc_action;*/
+static gint hf_csper_unknown_type;
 
-static gint hf_xmac_tuple_rsvd = -1;
-static gint hf_xmac_tuple_key_seq_num = -1;
-static gint hf_hmac_tuple_hmac_digest = -1;
-static gint hf_packet_number_counter = -1;
-static gint hf_cmac_tuple_cmac_value = -1;
-static gint hf_cmac_tuple_bsid = -1;
+static gint hf_xmac_tuple_rsvd;
+static gint hf_xmac_tuple_key_seq_num;
+static gint hf_hmac_tuple_hmac_digest;
+static gint hf_packet_number_counter;
+static gint hf_cmac_tuple_cmac_value;
+static gint hf_cmac_tuple_bsid;
 
 /* bit masks */
 /* 11.13.4 */
@@ -577,33 +577,33 @@ static gint hf_cmac_tuple_bsid = -1;
 #define XMAC_TUPLE_KEY_SEQ_NUM     0x0F
 
 /* WiMax Security Negotiation Parameters display */
-static gint hf_snp_pkm_version_support = -1;
-static gint hf_snp_pkm_version_support_bit0 = -1;
-static gint hf_snp_pkm_version_support_bit1 = -1;
-static gint hf_snp_pkm_version_support_reserved = -1;
-static gint hf_snp_auth_policy_support = -1;
-static gint hf_snp_auth_policy_support_bit0 = -1;
-static gint hf_snp_auth_policy_support_bit1 = -1;
-static gint hf_snp_auth_policy_support_bit2 = -1;
-static gint hf_snp_auth_policy_support_bit3 = -1;
-static gint hf_snp_auth_policy_support_bit4 = -1;
-static gint hf_snp_auth_policy_support_bit5 = -1;
-static gint hf_snp_auth_policy_support_bit6 = -1;
-static gint hf_snp_auth_policy_support_bit7 = -1;
-static gint hf_snp_mac_mode = -1;
-static gint hf_snp_mac_mode_bit0 = -1;
-static gint hf_snp_mac_mode_bit1 = -1;
-static gint hf_snp_mac_mode_bit1_rsvd = -1;
-static gint hf_snp_mac_mode_bit2 = -1;
-static gint hf_snp_mac_mode_bit3 = -1;
-static gint hf_snp_mac_mode_bit4 = -1;
-static gint hf_snp_mac_mode_bit5 = -1;
-static gint hf_snp_mac_mode_reserved = -1;
-static gint hf_snp_mac_mode_reserved1 = -1;
-static gint hf_snp_pn_window_size = -1;
-static gint hf_snp_max_conc_transactions = -1;
-static gint hf_snp_max_suppt_sec_assns = -1;
-static gint hf_snp_unknown_type = -1;
+static gint hf_snp_pkm_version_support;
+static gint hf_snp_pkm_version_support_bit0;
+static gint hf_snp_pkm_version_support_bit1;
+static gint hf_snp_pkm_version_support_reserved;
+static gint hf_snp_auth_policy_support;
+static gint hf_snp_auth_policy_support_bit0;
+static gint hf_snp_auth_policy_support_bit1;
+static gint hf_snp_auth_policy_support_bit2;
+static gint hf_snp_auth_policy_support_bit3;
+static gint hf_snp_auth_policy_support_bit4;
+static gint hf_snp_auth_policy_support_bit5;
+static gint hf_snp_auth_policy_support_bit6;
+static gint hf_snp_auth_policy_support_bit7;
+static gint hf_snp_mac_mode;
+static gint hf_snp_mac_mode_bit0;
+static gint hf_snp_mac_mode_bit1;
+static gint hf_snp_mac_mode_bit1_rsvd;
+static gint hf_snp_mac_mode_bit2;
+static gint hf_snp_mac_mode_bit3;
+static gint hf_snp_mac_mode_bit4;
+static gint hf_snp_mac_mode_bit5;
+static gint hf_snp_mac_mode_reserved;
+static gint hf_snp_mac_mode_reserved1;
+static gint hf_snp_pn_window_size;
+static gint hf_snp_max_conc_transactions;
+static gint hf_snp_max_suppt_sec_assns;
+static gint hf_snp_unknown_type;
 
 /* bit masks */
 /* 11.8.4.1 */
@@ -630,65 +630,65 @@ static gint hf_snp_unknown_type = -1;
 #define SNP_MAC_MODE_RSV1 0xC0
 
 /* PKM display */
-static gint hf_pkm_msg_unknown_type = -1;
-static gint hf_pkm_msg_attr_display = -1;
-static gint hf_pkm_config_settings_authorize_waitout = -1;
-static gint hf_pkm_config_settings_reauthorize_waitout = -1;
-static gint hf_pkm_config_settings_grace_time = -1;
-static gint hf_pkm_config_settings_operational_waittime = -1;
-static gint hf_pkm_msg_attr_auth_key = -1;
-static gint hf_pkm_msg_attr_tek = -1;
-static gint hf_pkm_msg_attr_key_life_time = -1;
-static gint hf_pkm_msg_attr_key_seq_num = -1;
-static gint hf_pkm_msg_attr_hmac_digest = -1;
-static gint hf_pkm_msg_attr_said = -1;
-static gint hf_pkm_msg_attr_cbc_iv = -1;
-static gint hf_pkm_msg_attr_error_code = -1;
-static gint hf_pkm_msg_attr_ca_certificate = -1;
-static gint hf_pkm_msg_attr_ss_certificate = -1;
-static gint hf_pkm_attr_auth_result_code = -1;
-static gint hf_pkm_attr_sa_service_type = -1;
-static gint hf_pkm_attr_frame_number = -1;
-static gint hf_pkm_attr_ss_random = -1;
-static gint hf_pkm_attr_bs_random = -1;
-static gint hf_pkm_attr_pre_pak = -1;
-static gint hf_pkm_attr_bs_certificate = -1;
-static gint hf_pkm_attr_sig_bs = -1;
-static gint hf_pkm_attr_ms_mac_address = -1;
-static gint hf_pkm_attr_cmac_digest = -1;
-static gint hf_pkm_attr_cmac_digest_pn = -1;
-static gint hf_pkm_attr_cmac_digest_value = -1;
-static gint hf_pkm_attr_eap_payload = -1;
-static gint hf_pkm_attr_nonce = -1;
-static gint hf_pkm_sa_type = -1;
-static gint hf_pkm_msg_crypto_suite = -1;
-static gint hf_pkm_msg_crypto_suite_msb = -1;
-static gint hf_pkm_msg_crypto_suite_middle = -1;
-static gint hf_pkm_msg_crypto_suite_lsb = -1;
-/*static gint hf_pkm_msg_version = -1;*/
-static gint hf_pkm_attr_push_modes = -1;
-static gint hf_pkm_attr_key_push_counter = -1;
-static gint hf_pkm_attr_gkek = -1;
-static gint hf_pkm_attr_sig_ss = -1;
-static gint hf_pkm_attr_akid = -1;
-static gint hf_pkm_config_settings_rekey_wait_timeout = -1;
-static gint hf_pkm_config_settings_tek_grace_time = -1;
-static gint hf_pkm_config_settings_authorize_reject_wait_timeout = -1;
+static gint hf_pkm_msg_unknown_type;
+static gint hf_pkm_msg_attr_display;
+static gint hf_pkm_config_settings_authorize_waitout;
+static gint hf_pkm_config_settings_reauthorize_waitout;
+static gint hf_pkm_config_settings_grace_time;
+static gint hf_pkm_config_settings_operational_waittime;
+static gint hf_pkm_msg_attr_auth_key;
+static gint hf_pkm_msg_attr_tek;
+static gint hf_pkm_msg_attr_key_life_time;
+static gint hf_pkm_msg_attr_key_seq_num;
+static gint hf_pkm_msg_attr_hmac_digest;
+static gint hf_pkm_msg_attr_said;
+static gint hf_pkm_msg_attr_cbc_iv;
+static gint hf_pkm_msg_attr_error_code;
+static gint hf_pkm_msg_attr_ca_certificate;
+static gint hf_pkm_msg_attr_ss_certificate;
+static gint hf_pkm_attr_auth_result_code;
+static gint hf_pkm_attr_sa_service_type;
+static gint hf_pkm_attr_frame_number;
+static gint hf_pkm_attr_ss_random;
+static gint hf_pkm_attr_bs_random;
+static gint hf_pkm_attr_pre_pak;
+static gint hf_pkm_attr_bs_certificate;
+static gint hf_pkm_attr_sig_bs;
+static gint hf_pkm_attr_ms_mac_address;
+static gint hf_pkm_attr_cmac_digest;
+static gint hf_pkm_attr_cmac_digest_pn;
+static gint hf_pkm_attr_cmac_digest_value;
+static gint hf_pkm_attr_eap_payload;
+static gint hf_pkm_attr_nonce;
+static gint hf_pkm_sa_type;
+static gint hf_pkm_msg_crypto_suite;
+static gint hf_pkm_msg_crypto_suite_msb;
+static gint hf_pkm_msg_crypto_suite_middle;
+static gint hf_pkm_msg_crypto_suite_lsb;
+/*static gint hf_pkm_msg_version;*/
+static gint hf_pkm_attr_push_modes;
+static gint hf_pkm_attr_key_push_counter;
+static gint hf_pkm_attr_gkek;
+static gint hf_pkm_attr_sig_ss;
+static gint hf_pkm_attr_akid;
+static gint hf_pkm_config_settings_rekey_wait_timeout;
+static gint hf_pkm_config_settings_tek_grace_time;
+static gint hf_pkm_config_settings_authorize_reject_wait_timeout;
 
-/* static gint hf_pkm_attr_pak_ak_seq_number = -1; */
-static gint hf_pkm_attr_associated_gkek_seq_number = -1;
-/* static gint hf_pkm_attr_gkek_params = -1; */
+/* static gint hf_pkm_attr_pak_ak_seq_number; */
+static gint hf_pkm_attr_associated_gkek_seq_number;
+/* static gint hf_pkm_attr_gkek_params; */
 
-/* static gint hf_common_tlv_unknown_type = -1; */
-static gint hf_common_tlv_mac_version = -1;
-static gint hf_common_tlv_vendor_id = -1;
-static gint hf_common_tlv_vendor_specific_type = -1;
-static gint hf_common_tlv_vendor_specific_length = -1;
-static gint hf_common_tlv_vendor_specific_length_size = -1;
-static gint hf_common_tlv_vendor_specific_value = -1;
-static gint hf_common_current_transmitted_power = -1;
+/* static gint hf_common_tlv_unknown_type; */
+static gint hf_common_tlv_mac_version;
+static gint hf_common_tlv_vendor_id;
+static gint hf_common_tlv_vendor_specific_type;
+static gint hf_common_tlv_vendor_specific_length;
+static gint hf_common_tlv_vendor_specific_length_size;
+static gint hf_common_tlv_vendor_specific_value;
+static gint hf_common_current_transmitted_power;
 
-static expert_field ei_common_tlv_info = EI_INIT;
+static expert_field ei_common_tlv_info;
 
 /* Register WiMax Utility Routines */
 void wimax_proto_register_wimax_utility_decoders(void)
@@ -1679,7 +1679,7 @@ void wimax_proto_register_wimax_utility_decoders(void)
 
 	expert_module_t* expert_wimax_utility;
 
-	if(proto_wimax_utility_decoders == -1)
+	if(proto_wimax_utility_decoders <= 0)
 	{
 		proto_wimax_utility_decoders = proto_register_protocol (
 							"WiMax Sub-TLV Messages",

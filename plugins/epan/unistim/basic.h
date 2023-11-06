@@ -13,27 +13,27 @@
 #ifndef UNISTIM_BASIC_H
 #define UNISTIM_BASIC_H
 
-static int hf_basic_switch_query_flags=-1;
-static int hf_basic_switch_query_attr=-1;
-static int hf_basic_switch_query_opts=-1;
-static int hf_basic_switch_query_fw=-1;
-static int hf_basic_switch_query_hw_id=-1;
-static int hf_basic_switch_query_it_type=-1;
-static int hf_basic_switch_query_prod_eng_code=-1;
-static int hf_basic_switch_query_gray_mkt_info=-1;
-static int hf_basic_switch_options_secure=-1;
-static int hf_basic_switch_element_id=-1;
-static int hf_basic_switch_eeprom_data=-1;
-static int hf_basic_switch_terminal_id=-1;
+static int hf_basic_switch_query_flags;
+static int hf_basic_switch_query_attr;
+static int hf_basic_switch_query_opts;
+static int hf_basic_switch_query_fw;
+static int hf_basic_switch_query_hw_id;
+static int hf_basic_switch_query_it_type;
+static int hf_basic_switch_query_prod_eng_code;
+static int hf_basic_switch_query_gray_mkt_info;
+static int hf_basic_switch_options_secure;
+static int hf_basic_switch_element_id;
+static int hf_basic_switch_eeprom_data;
+static int hf_basic_switch_terminal_id;
 
-static int hf_basic_phone_eeprom_stat_cksum=-1;
-static int hf_basic_phone_eeprom_dynam=-1;
-static int hf_basic_phone_eeprom_net_config_cksum=-1;
-static int hf_basic_phone_hw_id=-1;
-static int hf_basic_phone_fw_ver=-1;
-static int hf_basic_it_type=-1;
-static int hf_basic_prod_eng_code=-1;
-static int hf_basic_ether_address=-1;
+static int hf_basic_phone_eeprom_stat_cksum;
+static int hf_basic_phone_eeprom_dynam;
+static int hf_basic_phone_eeprom_net_config_cksum;
+static int hf_basic_phone_hw_id;
+static int hf_basic_phone_fw_ver;
+static int hf_basic_it_type;
+static int hf_basic_prod_eng_code;
+static int hf_basic_ether_address;
 
 static const value_string it_types[]={
  {0x02,"i2004"},

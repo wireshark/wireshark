@@ -34,90 +34,90 @@ extern gboolean include_cor2_changes;
 
 guint cqich_id_size;		/* Set for CQICH_Alloc_IE */
 
-static gint proto_mac_mgmt_msg_ucd_decoder = -1;
-static gint ett_mac_mgmt_msg_ucd_decoder = -1;
+static gint proto_mac_mgmt_msg_ucd_decoder;
+static gint ett_mac_mgmt_msg_ucd_decoder;
 
 /* fix fields */
-static gint hf_ucd_res_timeout = -1;
-static gint hf_ucd_bw_req_size = -1;
-static gint hf_ucd_ranging_req_size = -1;
-static gint hf_ucd_freq = -1;
-/* static gint hf_ucd_subchan_params_num_chan = -1; */
-static gint hf_ucd_ul_allocated_subchannles_bitmap = -1;
-/* static gint hf_ucd_subchan_params_num_sym = -1; */
-/* static gint hf_ucd_subchan_codes = -1; */
+static gint hf_ucd_res_timeout;
+static gint hf_ucd_bw_req_size;
+static gint hf_ucd_ranging_req_size;
+static gint hf_ucd_freq;
+/* static gint hf_ucd_subchan_params_num_chan; */
+static gint hf_ucd_ul_allocated_subchannles_bitmap;
+/* static gint hf_ucd_subchan_params_num_sym; */
+/* static gint hf_ucd_subchan_codes; */
 
-static gint hf_ucd_ul_burst_reserved = -1;
-static gint hf_ucd_ul_burst_uiuc = -1;
-static gint hf_ucd_burst_fec = -1;
-static gint hf_ucd_burst_ranging_data_ratio = -1;
-/*static gint hf_ucd_burst_power_boost = -1;
-*static gint hf_ucd_burst_tcs_enable = -1;
+static gint hf_ucd_ul_burst_reserved;
+static gint hf_ucd_ul_burst_uiuc;
+static gint hf_ucd_burst_fec;
+static gint hf_ucd_burst_ranging_data_ratio;
+/*static gint hf_ucd_burst_power_boost;
+*static gint hf_ucd_burst_tcs_enable;
 */
 
-static gint hf_ucd_tlv_t_159_band_amc_allocation_threshold = -1;
-static gint hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap = -1;
-static gint hf_ucd_tlv_t_160_band_amc_release_threshold = -1;
-static gint hf_ucd_tlv_t_161_band_amc_allocation_timer = -1;
-static gint hf_ucd_tlv_t_162_band_amc_release_timer = -1;
-static gint hf_ucd_tlv_t_163_band_status_report_max_period = -1;
-static gint hf_ucd_tlv_t_164_band_amc_retry_timer = -1;
-static gint hf_ucd_tlv_t_171_harq_ack_delay_dl_burst = -1;
-static gint hf_ucd_tlv_t_170_safety_channel_retry_timer = -1;
-static gint hf_ucd_tlv_t_172_cqich_band_amc_transition_delay = -1;
-static gint hf_ucd_tlv_t_174_maximum_retransmission = -1;
-static gint hf_ucd_tlv_t_177_normalized_cn_override2 = -1;
-static gint hf_ucd_tlv_t_177_normalized_cn_override2_first_line = -1;
-static gint hf_ucd_tlv_t_177_normalized_cn_override2_list = -1;
-static gint hf_ucd_tlv_t_176_size_of_cqich_id_field  = -1;
-static gint hf_ucd_tlv_t_186_upper_bound_aas_preamble = -1;
-static gint hf_ucd_tlv_t_187_lower_bound_aas_preamble = -1;
-static gint hf_ucd_tlv_t_188_allow_aas_beam_select_message = -1;
-static gint hf_ucd_tlv_t_189_use_cqich_indication_flag = -1;
-static gint hf_ucd_tlv_t_190_ms_specific_up_power_addjustment_step = -1;
-static gint hf_ucd_tlv_t_191_ms_specific_down_power_addjustment_step = -1;
-static gint hf_ucd_tlv_t_192_min_level_power_offset_adjustment = -1;
-static gint hf_ucd_tlv_t_193_max_level_power_offset_adjustment = -1;
-static gint hf_ucd_tlv_t_194_handover_ranging_codes = -1;
-static gint hf_ucd_tlv_t_195_initial_ranging_interval = -1;
-static gint hf_ucd_tlv_t_196_tx_power_report = -1;
-static gint hf_ucd_tlv_t_196_tx_power_report_threshold = -1;
-static gint hf_ucd_tlv_t_196_tx_power_report_interval = -1;
-static gint hf_ucd_tlv_t_196_tx_power_report_a_p_avg = -1;
-static gint hf_ucd_tlv_t_196_tx_power_report_threshold_icqch = -1;
-static gint hf_ucd_tlv_t_196_tx_power_report_interval_icqch = -1;
-static gint hf_ucd_tlv_t_196_tx_power_report_a_p_avg_icqch = -1;
-/* static gint hf_ucd_tlv_t_197_normalized_cn_channel_sounding = -1; */
-static gint hf_ucd_tlv_t_202_uplink_burst_profile_for_multiple_fec_types = -1;
-static gint hf_ucd_tlv_t_203_ul_pusc_subchannel_rotation = -1;
-static gint hf_ucd_tlv_t_205_relative_power_offset_ul_harq_burst = -1;
-static gint hf_ucd_tlv_t_206_relative_power_offset_ul_burst_containing_mac_mgmt_msg = -1;
-static gint hf_ucd_tlv_t_207_ul_initial_transmit_timing = -1;
-static gint hf_ucd_tlv_t_210_fast_feedback_region = -1;
-static gint hf_ucd_tlv_t_211_harq_ack_region = -1;
-static gint hf_ucd_tlv_t_212_ranging_region = -1;
-static gint hf_ucd_tlv_t_213_sounding_region = -1;
-static gint hf_ucd_tlv_t_150_initial_ranging_codes = -1;
-static gint hf_ucd_tlv_t_151_periodic_ranging_codes = -1;
-static gint hf_ucd_tlv_t_152_bandwidth_request_codes = -1;
-static gint hf_ucd_tlv_t_155_start_of_ranging_codes_group = -1;
-static gint hf_ucd_tlv_t_156_permutation_base = -1;
-static gint hf_ucd_ho_ranging_start = -1;
-static gint hf_ucd_ho_ranging_end = -1;
-static gint hf_ucd_initial_range_backoff_start = -1;
-static gint hf_ucd_initial_range_backoff_end = -1;
-static gint hf_ucd_bandwidth_backoff_start = -1;
-static gint hf_ucd_bandwidth_backoff_end = -1;
-static gint hf_ucd_periodic_ranging_backoff_start = -1;
-static gint hf_ucd_periodic_ranging_backoff_end = -1;
-static gint hf_ucd_config_change_count = -1;
-static gint hf_ucd_ranging_backoff_start = -1;
-static gint hf_ucd_ranging_backoff_end = -1;
-static gint hf_ucd_request_backoff_start = -1;
-static gint hf_ucd_request_backoff_end = -1;
+static gint hf_ucd_tlv_t_159_band_amc_allocation_threshold;
+static gint hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap;
+static gint hf_ucd_tlv_t_160_band_amc_release_threshold;
+static gint hf_ucd_tlv_t_161_band_amc_allocation_timer;
+static gint hf_ucd_tlv_t_162_band_amc_release_timer;
+static gint hf_ucd_tlv_t_163_band_status_report_max_period;
+static gint hf_ucd_tlv_t_164_band_amc_retry_timer;
+static gint hf_ucd_tlv_t_171_harq_ack_delay_dl_burst;
+static gint hf_ucd_tlv_t_170_safety_channel_retry_timer;
+static gint hf_ucd_tlv_t_172_cqich_band_amc_transition_delay;
+static gint hf_ucd_tlv_t_174_maximum_retransmission;
+static gint hf_ucd_tlv_t_177_normalized_cn_override2;
+static gint hf_ucd_tlv_t_177_normalized_cn_override2_first_line;
+static gint hf_ucd_tlv_t_177_normalized_cn_override2_list;
+static gint hf_ucd_tlv_t_176_size_of_cqich_id_field;
+static gint hf_ucd_tlv_t_186_upper_bound_aas_preamble;
+static gint hf_ucd_tlv_t_187_lower_bound_aas_preamble;
+static gint hf_ucd_tlv_t_188_allow_aas_beam_select_message;
+static gint hf_ucd_tlv_t_189_use_cqich_indication_flag;
+static gint hf_ucd_tlv_t_190_ms_specific_up_power_addjustment_step;
+static gint hf_ucd_tlv_t_191_ms_specific_down_power_addjustment_step;
+static gint hf_ucd_tlv_t_192_min_level_power_offset_adjustment;
+static gint hf_ucd_tlv_t_193_max_level_power_offset_adjustment;
+static gint hf_ucd_tlv_t_194_handover_ranging_codes;
+static gint hf_ucd_tlv_t_195_initial_ranging_interval;
+static gint hf_ucd_tlv_t_196_tx_power_report;
+static gint hf_ucd_tlv_t_196_tx_power_report_threshold;
+static gint hf_ucd_tlv_t_196_tx_power_report_interval;
+static gint hf_ucd_tlv_t_196_tx_power_report_a_p_avg;
+static gint hf_ucd_tlv_t_196_tx_power_report_threshold_icqch;
+static gint hf_ucd_tlv_t_196_tx_power_report_interval_icqch;
+static gint hf_ucd_tlv_t_196_tx_power_report_a_p_avg_icqch;
+/* static gint hf_ucd_tlv_t_197_normalized_cn_channel_sounding; */
+static gint hf_ucd_tlv_t_202_uplink_burst_profile_for_multiple_fec_types;
+static gint hf_ucd_tlv_t_203_ul_pusc_subchannel_rotation;
+static gint hf_ucd_tlv_t_205_relative_power_offset_ul_harq_burst;
+static gint hf_ucd_tlv_t_206_relative_power_offset_ul_burst_containing_mac_mgmt_msg;
+static gint hf_ucd_tlv_t_207_ul_initial_transmit_timing;
+static gint hf_ucd_tlv_t_210_fast_feedback_region;
+static gint hf_ucd_tlv_t_211_harq_ack_region;
+static gint hf_ucd_tlv_t_212_ranging_region;
+static gint hf_ucd_tlv_t_213_sounding_region;
+static gint hf_ucd_tlv_t_150_initial_ranging_codes;
+static gint hf_ucd_tlv_t_151_periodic_ranging_codes;
+static gint hf_ucd_tlv_t_152_bandwidth_request_codes;
+static gint hf_ucd_tlv_t_155_start_of_ranging_codes_group;
+static gint hf_ucd_tlv_t_156_permutation_base;
+static gint hf_ucd_ho_ranging_start;
+static gint hf_ucd_ho_ranging_end;
+static gint hf_ucd_initial_range_backoff_start;
+static gint hf_ucd_initial_range_backoff_end;
+static gint hf_ucd_bandwidth_backoff_start;
+static gint hf_ucd_bandwidth_backoff_end;
+static gint hf_ucd_periodic_ranging_backoff_start;
+static gint hf_ucd_periodic_ranging_backoff_end;
+static gint hf_ucd_config_change_count;
+static gint hf_ucd_ranging_backoff_start;
+static gint hf_ucd_ranging_backoff_end;
+static gint hf_ucd_request_backoff_start;
+static gint hf_ucd_request_backoff_end;
 
-/* static gint hf_ucd_unknown_type = -1; */
-static gint hf_ucd_invalid_tlv = -1;
+/* static gint hf_ucd_unknown_type; */
+static gint hf_ucd_invalid_tlv;
 
 #if 0
 static const value_string vals_dcd_burst_tcs[] =

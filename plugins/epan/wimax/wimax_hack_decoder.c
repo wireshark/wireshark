@@ -21,8 +21,8 @@
 
 extern gint proto_wimax;
 
-static gint proto_wimax_hack_decoder = -1;
-static gint ett_wimax_hack_decoder = -1;
+static gint proto_wimax_hack_decoder;
+static gint ett_wimax_hack_decoder;
 
 static const value_string vals_flags[] =
 {
@@ -38,12 +38,12 @@ static const value_string vals_values[] =
 	{0, NULL}
 };
 
-/* static gint hf_hack_burst = -1; */
-static gint hf_hack_num_of_hacks = -1;
-static gint hf_hack_half_slot_flag = -1;
-static gint hf_hack_subchannel = -1;
-static gint hf_hack_symboloffset = -1;
-static gint hf_hack_value = -1;
+/* static gint hf_hack_burst; */
+static gint hf_hack_num_of_hacks;
+static gint hf_hack_half_slot_flag;
+static gint hf_hack_subchannel;
+static gint hf_hack_symboloffset;
+static gint hf_hack_value;
 
 
 static int dissect_wimax_hack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

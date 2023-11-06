@@ -46,60 +46,60 @@
 void proto_register_pn_rsi(void);
 void proto_reg_handoff_pn_rsi(void);
 
-static int proto_pn_rsi = -1;
+static int proto_pn_rsi;
 
-static int hf_pn_rsi_dst_srv_access_point = -1;
-static int hf_pn_rsi_src_srv_access_point = -1;
+static int hf_pn_rsi_dst_srv_access_point;
+static int hf_pn_rsi_src_srv_access_point;
 
-static int hf_pn_rsi_pdu_type = -1;
-static int hf_pn_rsi_pdu_type_type = -1;
-static int hf_pn_rsi_pdu_type_version = -1;
+static int hf_pn_rsi_pdu_type;
+static int hf_pn_rsi_pdu_type_type;
+static int hf_pn_rsi_pdu_type_version;
 
-static int hf_pn_rsi_add_flags = -1;
-static int hf_pn_rsi_add_flags_windowsize = -1;
-static int hf_pn_rsi_add_flags_reserved1 = -1;
-static int hf_pn_rsi_add_flags_tack = -1;
-static int hf_pn_rsi_add_flags_morefrag = -1;
-static int hf_pn_rsi_add_flags_notification = -1;
-static int hf_pn_rsi_add_flags_reserved2 = -1;
+static int hf_pn_rsi_add_flags;
+static int hf_pn_rsi_add_flags_windowsize;
+static int hf_pn_rsi_add_flags_reserved1;
+static int hf_pn_rsi_add_flags_tack;
+static int hf_pn_rsi_add_flags_morefrag;
+static int hf_pn_rsi_add_flags_notification;
+static int hf_pn_rsi_add_flags_reserved2;
 
-static int hf_pn_rsi_send_seq_num = -1;
-static int hf_pn_rsi_ack_seq_num = -1;
-static int hf_pn_rsi_var_part_len = -1;
+static int hf_pn_rsi_send_seq_num;
+static int hf_pn_rsi_ack_seq_num;
+static int hf_pn_rsi_var_part_len;
 
-static int hf_pn_rsi_f_opnum_offset = -1;
-static int hf_pn_rsi_f_opnum_offset_offset = -1;
-static int hf_pn_rsi_f_opnum_offset_opnum = -1;
-static int hf_pn_rsi_f_opnum_offset_callsequence = -1;
+static int hf_pn_rsi_f_opnum_offset;
+static int hf_pn_rsi_f_opnum_offset_offset;
+static int hf_pn_rsi_f_opnum_offset_opnum;
+static int hf_pn_rsi_f_opnum_offset_callsequence;
 
-static int hf_pn_rsi_conn_block = -1;
-static int hf_pn_rsi_rsp_max_length = -1;
-static int hf_pn_rsi_vendor_id = -1;
-static int hf_pn_rsi_device_id = -1;
-static int hf_pn_rsi_instance_id = -1;
-static int hf_pn_rsi_interface = -1;
+static int hf_pn_rsi_conn_block;
+static int hf_pn_rsi_rsp_max_length;
+static int hf_pn_rsi_vendor_id;
+static int hf_pn_rsi_device_id;
+static int hf_pn_rsi_instance_id;
+static int hf_pn_rsi_interface;
 
-static int hf_pn_rsi_svcs_block = -1;
+static int hf_pn_rsi_svcs_block;
 
-static int hf_pn_rsi_number_of_entries = -1;
-static int hf_pn_rsi_pd_rsi_instance = -1;
-static int hf_pn_rsi_device_type = -1;
-static int hf_pn_rsi_order_id = -1;
-static int hf_pn_rsi_im_serial_number = -1;
-static int hf_pn_rsi_hw_revision = -1;
-static int hf_pn_rsi_sw_revision_prefix = -1;
-static int hf_pn_rsi_sw_revision = -1;
+static int hf_pn_rsi_number_of_entries;
+static int hf_pn_rsi_pd_rsi_instance;
+static int hf_pn_rsi_device_type;
+static int hf_pn_rsi_order_id;
+static int hf_pn_rsi_im_serial_number;
+static int hf_pn_rsi_hw_revision;
+static int hf_pn_rsi_sw_revision_prefix;
+static int hf_pn_rsi_sw_revision;
 
-static gint ett_pn_rsi = -1;
-static gint ett_pn_rsi_pdu_type = -1;
-static gint ett_pn_rsi_f_opnum_offset = -1;
-static gint ett_pn_rsi_conn_block = -1;
-static gint ett_pn_rsi_svcs_block = -1;
-static gint ett_pn_rsi_add_flags = -1;
-static gint ett_pn_rsi_rta = -1;
-static gint ett_pn_io_pd_rsi_instance = -1;
+static gint ett_pn_rsi;
+static gint ett_pn_rsi_pdu_type;
+static gint ett_pn_rsi_f_opnum_offset;
+static gint ett_pn_rsi_conn_block;
+static gint ett_pn_rsi_svcs_block;
+static gint ett_pn_rsi_add_flags;
+static gint ett_pn_rsi_rta;
+static gint ett_pn_io_pd_rsi_instance;
 
-static expert_field ei_pn_rsi_error = EI_INIT;
+static expert_field ei_pn_rsi_error;
 
 static const range_string pn_rsi_alarm_endpoint[] = {
     { 0x0000, 0x7FFF, "RSI Initiator Instance (ISAP) or RSI Responder Instance (RSAP)" },
@@ -239,19 +239,19 @@ dissect_FOpnumOffset(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static int hf_pn_rsi_data_payload = -1;
+static int hf_pn_rsi_data_payload;
 
-static int hf_pn_rsi_segments = -1;
-static int hf_pn_rsi_segment = -1;
-//static int hf_pn_rsi_data = -1;
-static int hf_pn_rsi_segment_overlap = -1;
-static int hf_pn_rsi_segment_overlap_conflict = -1;
-static int hf_pn_rsi_segment_multiple_tails = -1;
-static int hf_pn_rsi_segment_too_long_segment = -1;
-static int hf_pn_rsi_segment_error = -1;
-static int hf_pn_rsi_segment_count = -1;
-static int hf_pn_rsi_reassembled_in = -1;
-static int hf_pn_rsi_reassembled_length = -1;
+static int hf_pn_rsi_segments;
+static int hf_pn_rsi_segment;
+//static int hf_pn_rsi_data;
+static int hf_pn_rsi_segment_overlap;
+static int hf_pn_rsi_segment_overlap_conflict;
+static int hf_pn_rsi_segment_multiple_tails;
+static int hf_pn_rsi_segment_too_long_segment;
+static int hf_pn_rsi_segment_error;
+static int hf_pn_rsi_segment_count;
+static int hf_pn_rsi_reassembled_in;
+static int hf_pn_rsi_reassembled_length;
 
 static reassembly_table pn_rsi_reassembly_table;
 
@@ -261,10 +261,10 @@ pn_rsi_reassemble_init(void)
     reassembly_table_register(&pn_rsi_reassembly_table, &addresses_reassembly_table_functions);
 }
 
-static gint ett_pn_rsi_segments = -1;
-static gint ett_pn_rsi_segment = -1;
-//static gint ett_pn_rsi_data = -1;
-static gint ett_pn_rsi_data_payload = -1;
+static gint ett_pn_rsi_segments;
+static gint ett_pn_rsi_segment;
+//static gint ett_pn_rsi_data;
+static gint ett_pn_rsi_data_payload;
 
 static const fragment_items pn_rsi_frag_items = {
     &ett_pn_rsi_segment,

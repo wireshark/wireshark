@@ -23,13 +23,13 @@
 void proto_register_mac_mgmt_msg(void);
 void proto_reg_handoff_mac_mgmt_msg(void);
 
-static gint proto_mac_mgmt_msg_decoder = -1;
-static gint ett_mac_mgmt_msg_decoder = -1;
+static gint proto_mac_mgmt_msg_decoder;
+static gint ett_mac_mgmt_msg_decoder;
 
-static gint hf_mac_mgmt_msg_type = -1;
-static gint hf_mac_mgmt_msg_values = -1;
+static gint hf_mac_mgmt_msg_type;
+static gint hf_mac_mgmt_msg_values;
 
-static expert_field ei_empty_payload = EI_INIT;
+static expert_field ei_empty_payload;
 
 static dissector_table_t  subdissector_message_table;
 

@@ -14,48 +14,48 @@
 #define UNISTIM_NETWORK_H
 
 
-static int hf_net_diag_flag=-1;
-static int hf_net_managers_flag=-1;
-static int hf_net_attributes_flag=-1;
-static int hf_net_serv_info_flag=-1;
-static int hf_net_options_flag=-1;
-static int hf_net_sanity_flag=-1;
-static int hf_net_enable_diag=-1;
-static int hf_net_enable_rudp=-1;
-static int hf_net_server_id=-1;
-static int hf_net_server_port=-1;
-static int hf_net_server_action=-1;
-static int hf_net_server_retry_count=-1;
-static int hf_net_server_failover_id=-1;
-static int hf_net_server_ip_address=-1;
-static int hf_net_server_time_out=-1;
-static int hf_net_server_config_element=-1;
-static int hf_net_server_recovery_time_low=-1;
-static int hf_net_server_recovery_time_high=-1;
-static int hf_net_phone_rx_ovr_flag=-1;
-static int hf_net_phone_tx_ovr_flag=-1;
-static int hf_net_phone_rx_empty_flag=-1;
-static int hf_net_phone_invalid_msg_flag=-1;
-static int hf_net_phone_eeprom_insane_flag=-1;
-static int hf_net_phone_eeprom_unsafe_flag=-1;
-static int hf_net_phone_diag=-1;
-static int hf_net_phone_rudp=-1;
+static int hf_net_diag_flag;
+static int hf_net_managers_flag;
+static int hf_net_attributes_flag;
+static int hf_net_serv_info_flag;
+static int hf_net_options_flag;
+static int hf_net_sanity_flag;
+static int hf_net_enable_diag;
+static int hf_net_enable_rudp;
+static int hf_net_server_id;
+static int hf_net_server_port;
+static int hf_net_server_action;
+static int hf_net_server_retry_count;
+static int hf_net_server_failover_id;
+static int hf_net_server_ip_address;
+static int hf_net_server_time_out;
+static int hf_net_server_config_element;
+static int hf_net_server_recovery_time_low;
+static int hf_net_server_recovery_time_high;
+static int hf_net_phone_rx_ovr_flag;
+static int hf_net_phone_tx_ovr_flag;
+static int hf_net_phone_rx_empty_flag;
+static int hf_net_phone_invalid_msg_flag;
+static int hf_net_phone_eeprom_insane_flag;
+static int hf_net_phone_eeprom_unsafe_flag;
+static int hf_net_phone_diag;
+static int hf_net_phone_rudp;
 
-static int hf_net_phone_primary_server_id=-1;
-static int hf_net_phone_server_port=-1;
-static int hf_net_phone_server_action=-1;
-static int hf_net_phone_server_retry_count=-1;
-static int hf_net_phone_server_failover_id=-1;
-static int hf_net_phone_server_ip=-1;
-static int hf_net_file_xfer_mode =-1;
-static int hf_net_force_download =-1;
-static int hf_net_use_file_server_port =-1;
-static int hf_net_use_local_port=-1;
-static int hf_net_file_server_port=-1;
-static int hf_net_local_port=-1;
-static int hf_net_file_server_address=-1;
-static int hf_net_full_pathname=-1;
-static int hf_net_file_identifier=-1;
+static int hf_net_phone_primary_server_id;
+static int hf_net_phone_server_port;
+static int hf_net_phone_server_action;
+static int hf_net_phone_server_retry_count;
+static int hf_net_phone_server_failover_id;
+static int hf_net_phone_server_ip;
+static int hf_net_file_xfer_mode;
+static int hf_net_force_download;
+static int hf_net_use_file_server_port;
+static int hf_net_use_local_port;
+static int hf_net_file_server_port;
+static int hf_net_local_port;
+static int hf_net_file_server_address;
+static int hf_net_full_pathname;
+static int hf_net_file_identifier;
 
 static const value_string file_xfer_modes[]={
  {0x00,"TFTP"},
@@ -73,8 +73,8 @@ static const value_string action_bytes[]={
  {0,NULL}
 };
 
-static int hf_key_code=-1;
-static int hf_key_command=-1;
+static int hf_key_code;
+static int hf_key_command;
 
 static const value_string key_cmds[]={
  {0x00,"Key Released"},

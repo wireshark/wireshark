@@ -37,37 +37,37 @@ void proto_register_wimaxasncp(void);
 void proto_reg_handoff_wimaxasncp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_wimaxasncp                     = -1;
-static int hf_wimaxasncp_version                = -1;
-static int hf_wimaxasncp_flags                  = -1;
-static int hf_wimaxasncp_function_type          = -1;
-static int hf_wimaxasncp_op_id                  = -1;
-static int hf_wimaxasncp_message_type           = -1;
-/* static int hf_wimaxasncp_qos_msg                = -1; */
-/* static int hf_wimaxasncp_ho_control_msg         = -1; */
-/* static int hf_wimaxasncp_data_path_control_msg  = -1; */
-/* static int hf_wimaxasncp_context_delivery_msg   = -1; */
-/* static int hf_wimaxasncp_r3_mobility_msg        = -1; */
-/* static int hf_wimaxasncp_paging_msg             = -1; */
-/* static int hf_wimaxasncp_rrm_msg                = -1; */
-/* static int hf_wimaxasncp_authentication_msg     = -1; */
-/* static int hf_wimaxasncp_ms_state_msg           = -1; */
-/* static int hf_wimaxasncp_reauthentication_msg   = -1; */
-/* static int hf_wimaxasncp_session_msg            = -1; */
-static int hf_wimaxasncp_length                 = -1;
-static int hf_wimaxasncp_msid                   = -1;
-static int hf_wimaxasncp_reserved1              = -1;
-static int hf_wimaxasncp_transaction_id         = -1;
-static int hf_wimaxasncp_reserved2              = -1;
-/* static int hf_wimaxasncp_tlv                    = -1; */
-static int hf_wimaxasncp_tlv_type               = -1;
-static int hf_wimaxasncp_tlv_length             = -1;
-static int hf_wimaxasncp_tlv_value_bytes        = -1;
-static int hf_wimaxasncp_tlv_value_bitflags8    = -1;
-static int hf_wimaxasncp_tlv_value_bitflags16   = -1;
-static int hf_wimaxasncp_tlv_value_bitflags32   = -1;
-/* static int hf_wimaxasncp_tlv_value_protocol     = -1; */
-/* static int hf_wimaxasncp_tlv_value_vendor_id    = -1; */
+static int proto_wimaxasncp;
+static int hf_wimaxasncp_version;
+static int hf_wimaxasncp_flags;
+static int hf_wimaxasncp_function_type;
+static int hf_wimaxasncp_op_id;
+static int hf_wimaxasncp_message_type;
+/* static int hf_wimaxasncp_qos_msg; */
+/* static int hf_wimaxasncp_ho_control_msg; */
+/* static int hf_wimaxasncp_data_path_control_msg; */
+/* static int hf_wimaxasncp_context_delivery_msg; */
+/* static int hf_wimaxasncp_r3_mobility_msg; */
+/* static int hf_wimaxasncp_paging_msg; */
+/* static int hf_wimaxasncp_rrm_msg; */
+/* static int hf_wimaxasncp_authentication_msg; */
+/* static int hf_wimaxasncp_ms_state_msg; */
+/* static int hf_wimaxasncp_reauthentication_msg; */
+/* static int hf_wimaxasncp_session_msg; */
+static int hf_wimaxasncp_length;
+static int hf_wimaxasncp_msid;
+static int hf_wimaxasncp_reserved1;
+static int hf_wimaxasncp_transaction_id;
+static int hf_wimaxasncp_reserved2;
+/* static int hf_wimaxasncp_tlv; */
+static int hf_wimaxasncp_tlv_type;
+static int hf_wimaxasncp_tlv_length;
+static int hf_wimaxasncp_tlv_value_bytes;
+static int hf_wimaxasncp_tlv_value_bitflags8;
+static int hf_wimaxasncp_tlv_value_bitflags16;
+static int hf_wimaxasncp_tlv_value_bitflags32;
+/* static int hf_wimaxasncp_tlv_value_protocol; */
+/* static int hf_wimaxasncp_tlv_value_vendor_id; */
 
 /* Preferences */
 static gboolean show_transaction_id_d_bit      = FALSE;
@@ -78,25 +78,25 @@ static gboolean debug_enabled                  = FALSE;
 
 
 /* Initialize the subtree pointers */
-static gint ett_wimaxasncp                                       = -1;
-static gint ett_wimaxasncp_flags                                 = -1;
-static gint ett_wimaxasncp_tlv                                   = -1;
-static gint ett_wimaxasncp_tlv_value_bitflags8                   = -1;
-static gint ett_wimaxasncp_tlv_value_bitflags16                  = -1;
-static gint ett_wimaxasncp_tlv_value_bitflags32                  = -1;
-static gint ett_wimaxasncp_tlv_protocol_list                     = -1;
-static gint ett_wimaxasncp_tlv_port_range_list                   = -1;
-static gint ett_wimaxasncp_tlv_ip_address_mask_list              = -1;
-static gint ett_wimaxasncp_tlv_ip_address_mask                   = -1;
-static gint ett_wimaxasncp_tlv_eap                               = -1;
-static gint ett_wimaxasncp_tlv_vendor_specific_information_field = -1;
-static gint ett_wimaxasncp_port_range                            = -1;
+static gint ett_wimaxasncp;
+static gint ett_wimaxasncp_flags;
+static gint ett_wimaxasncp_tlv;
+static gint ett_wimaxasncp_tlv_value_bitflags8;
+static gint ett_wimaxasncp_tlv_value_bitflags16;
+static gint ett_wimaxasncp_tlv_value_bitflags32;
+static gint ett_wimaxasncp_tlv_protocol_list;
+static gint ett_wimaxasncp_tlv_port_range_list;
+static gint ett_wimaxasncp_tlv_ip_address_mask_list;
+static gint ett_wimaxasncp_tlv_ip_address_mask;
+static gint ett_wimaxasncp_tlv_eap;
+static gint ett_wimaxasncp_tlv_vendor_specific_information_field;
+static gint ett_wimaxasncp_port_range;
 
-static expert_field ei_wimaxasncp_tlv_type = EI_INIT;
-static expert_field ei_wimaxasncp_function_type = EI_INIT;
-static expert_field ei_wimaxasncp_op_id = EI_INIT;
-static expert_field ei_wimaxasncp_message_type = EI_INIT;
-static expert_field ei_wimaxasncp_length_bad = EI_INIT;
+static expert_field ei_wimaxasncp_tlv_type;
+static expert_field ei_wimaxasncp_function_type;
+static expert_field ei_wimaxasncp_op_id;
+static expert_field ei_wimaxasncp_message_type;
+static expert_field ei_wimaxasncp_length_bad;
 
 /* Header size, up to, but not including, the TLV fields. */
 #define WIMAXASNCP_HEADER_SIZE       20
@@ -575,7 +575,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv4_value(
     guint32      ip;
     const gchar *addr_res;
 
-    if (tlv_info->hf_ipv4 != -1)
+    if (tlv_info->hf_ipv4 > 0)
     {
         hf_value = tlv_info->hf_ipv4;
     }
@@ -610,7 +610,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
     ws_in6_addr  ip;
     const gchar *addr_res;
 
-    if (tlv_info->hf_ipv4 != -1)
+    if (tlv_info->hf_ipv4 > 0)
     {
         hf_value = tlv_info->hf_ipv6;
     }
@@ -646,7 +646,7 @@ static void wimaxasncp_proto_tree_add_ether_value(
     const guint8 *p;
     const gchar  *ether_name;
 
-    if (tlv_info->hf_bsid != -1)
+    if (tlv_info->hf_bsid > 0)
     {
         hf_value = tlv_info->hf_bsid;
     }
@@ -2160,7 +2160,7 @@ dissect_wimaxasncp(
     offset = 0;
 
     /* Register protocol fields, etc if haven't done yet. */
-    if (hf_wimaxasncp_version == -1)
+    if (hf_wimaxasncp_version <= 0)
     {
         proto_registrar_get_byname("wimaxasncp.version");
     }

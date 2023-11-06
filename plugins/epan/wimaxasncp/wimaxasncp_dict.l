@@ -449,18 +449,6 @@ since_attr since=\042
 	D(("tlv_start\n"));
 
 	yyextra->tlv = wmem_new0(wmem_epan_scope(), wimaxasncp_dict_tlv_t);
-	yyextra->tlv->hf_root = -1;
-	yyextra->tlv->hf_value = -1;
-	yyextra->tlv->hf_ipv4 = -1;
-	yyextra->tlv->hf_ipv6 = -1;
-	yyextra->tlv->hf_bsid = -1;
-	yyextra->tlv->hf_protocol = -1;
-	yyextra->tlv->hf_port_low = -1;
-	yyextra->tlv->hf_port_high = -1;
-	yyextra->tlv->hf_ipv4_mask = -1;
-	yyextra->tlv->hf_ipv6_mask = -1;
-	yyextra->tlv->hf_vendor_id = -1;
-	yyextra->tlv->hf_vendor_rest_of_info = -1;
 
 	if (! yyextra->dict->tlvs )
 		yyextra->last_tlv = yyextra->dict->tlvs = yyextra->tlv;

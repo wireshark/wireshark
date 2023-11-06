@@ -30,9 +30,9 @@
 
 extern gint proto_mac_header_generic_decoder;
 
-static gint proto_mac_header_type_1_decoder = -1;
-static gint ett_mac_header_type_1_decoder = -1;
-static gint hf_mac_header_type_1_value_bytes = -1;
+static gint proto_mac_header_type_1_decoder;
+static gint ett_mac_header_type_1_decoder;
+static gint hf_mac_header_type_1_value_bytes;
 
 #define WIMAX_MAC_HEADER_SIZE  6
 
@@ -106,40 +106,40 @@ static const char *type1_subtype_abbrv[TYPE_I_SUBTYPE_MAX] =
  *#define WIMAX_MAC_HEADER_TYPE_1_HCS          0xFF
  */
 /* Common Fields */
-static int hf_mac_header_type_1_ht = -1;
-static int hf_mac_header_type_1_ec = -1;
-static int hf_mac_header_type_1_type = -1;
+static int hf_mac_header_type_1_ht;
+static int hf_mac_header_type_1_ec;
+static int hf_mac_header_type_1_type;
 /* type 0 & type 1 only */
-static int hf_mac_header_type_1_br = -1;
+static int hf_mac_header_type_1_br;
 /* type 3, type 4, & type 5 only */
-static int hf_mac_header_type_1_br_3 = -1;
+static int hf_mac_header_type_1_br_3;
 /* type 2 only */
-static int hf_mac_header_type_1_diuc = -1;
-static int hf_mac_header_type_1_ultxpwr = -1;
-static int hf_mac_header_type_1_ulhdrm = -1;
-static int hf_mac_header_type_1_rsv_2 = -1;
+static int hf_mac_header_type_1_diuc;
+static int hf_mac_header_type_1_ultxpwr;
+static int hf_mac_header_type_1_ulhdrm;
+static int hf_mac_header_type_1_rsv_2;
 /* type 3 only */
-static int hf_mac_header_type_1_ultxpwr_3 = -1;
+static int hf_mac_header_type_1_ultxpwr_3;
 /* type 4 only */
-static int hf_mac_header_type_1_cinr = -1;
-static int hf_mac_header_type_1_dci = -1;
+static int hf_mac_header_type_1_cinr;
+static int hf_mac_header_type_1_dci;
 /* type 5 only */
-static int hf_mac_header_type_1_pscid = -1;
-static int hf_mac_header_type_1_op = -1;
-static int hf_mac_header_type_1_rsv_5 = -1;
+static int hf_mac_header_type_1_pscid;
+static int hf_mac_header_type_1_op;
+static int hf_mac_header_type_1_rsv_5;
 /* type 6 only */
-static int hf_mac_header_type_1_last = -1;
-static int hf_mac_header_type_1_sdu_sn1 = -1;
-static int hf_mac_header_type_1_sdu_sn2 = -1;
-static int hf_mac_header_type_1_sdu_sn3 = -1;
+static int hf_mac_header_type_1_last;
+static int hf_mac_header_type_1_sdu_sn1;
+static int hf_mac_header_type_1_sdu_sn2;
+static int hf_mac_header_type_1_sdu_sn3;
 /* type 7 only */
-static int hf_mac_header_type_1_fb_type = -1;
-static int hf_mac_header_type_1_fbssi = -1;
-static int hf_mac_header_type_1_period = -1;
-static int hf_mac_header_type_1_rsv_7 = -1;
+static int hf_mac_header_type_1_fb_type;
+static int hf_mac_header_type_1_fbssi;
+static int hf_mac_header_type_1_period;
+static int hf_mac_header_type_1_rsv_7;
 /* Common Fields */
-static int hf_mac_header_type_1_cid = -1;
-static int hf_mac_header_type_1_hcs = -1;
+static int hf_mac_header_type_1_cid;
+static int hf_mac_header_type_1_hcs;
 
 /* MAC Header Type I Sub-Types */
 static const value_string sub_types[] =

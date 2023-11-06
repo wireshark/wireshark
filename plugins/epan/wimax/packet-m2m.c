@@ -45,13 +45,13 @@ static dissector_handle_t wimax_phy_attributes_burst_handle;
 
 static reassembly_table pdu_reassembly_table;
 
-static gint proto_m2m    = -1;
+static gint proto_m2m;
 
-static gint ett_m2m      = -1;
-static gint ett_m2m_tlv  = -1;
-static gint ett_m2m_fch  = -1;
-static gint ett_m2m_cdma = -1;
-static gint ett_m2m_ffb  = -1;
+static gint ett_m2m;
+static gint ett_m2m_tlv;
+static gint ett_m2m_fch;
+static gint ett_m2m_cdma;
+static gint ett_m2m_ffb;
 
 /* TLV types (rev:0.2) */
 #define TLV_PROTO_VER		 1
@@ -118,31 +118,31 @@ static const value_string tlv_crc16_status[] =
 	{ 0, NULL }
 };
 
-static gint hf_m2m_sequence_number = -1;
-static gint hf_m2m_frame_number = -1;
-static gint hf_m2m_tlv_count = -1;
+static gint hf_m2m_sequence_number;
+static gint hf_m2m_frame_number;
+static gint hf_m2m_tlv_count;
 
-static gint hf_m2m_type = -1;
-static gint hf_m2m_len = -1;
-static gint hf_m2m_len_size = -1;
-/* static gint hf_m2m_value_bytes = -1; */
-static gint hf_wimax_invalid_tlv = -1;
-static gint hf_m2m_value_protocol_vers_uint8 = -1;
-static gint hf_m2m_value_burst_num_uint8 = -1;
-static gint hf_m2m_value_frag_type_uint8 = -1;
-static gint hf_m2m_value_frag_num_uint8 = -1;
-static gint hf_m2m_value_pdu_burst = -1;
-static gint hf_m2m_value_fast_fb = -1;
-static gint hf_m2m_value_fch_burst_uint24 = -1;
-static gint hf_m2m_value_cdma_code_uint24 = -1;
-static gint hf_m2m_value_crc16_status_uint8 = -1;
-static gint hf_m2m_value_burst_power_uint16 = -1;
-static gint hf_m2m_value_burst_cinr_uint16 = -1;
-static gint hf_m2m_value_preamble_uint16 = -1;
-static gint hf_m2m_value_harq_ack_burst_bytes = -1;
-static gint hf_m2m_phy_attributes = -1;
+static gint hf_m2m_type;
+static gint hf_m2m_len;
+static gint hf_m2m_len_size;
+/* static gint hf_m2m_value_bytes; */
+static gint hf_wimax_invalid_tlv;
+static gint hf_m2m_value_protocol_vers_uint8;
+static gint hf_m2m_value_burst_num_uint8;
+static gint hf_m2m_value_frag_type_uint8;
+static gint hf_m2m_value_frag_num_uint8;
+static gint hf_m2m_value_pdu_burst;
+static gint hf_m2m_value_fast_fb;
+static gint hf_m2m_value_fch_burst_uint24;
+static gint hf_m2m_value_cdma_code_uint24;
+static gint hf_m2m_value_crc16_status_uint8;
+static gint hf_m2m_value_burst_power_uint16;
+static gint hf_m2m_value_burst_cinr_uint16;
+static gint hf_m2m_value_preamble_uint16;
+static gint hf_m2m_value_harq_ack_burst_bytes;
+static gint hf_m2m_phy_attributes;
 
-static expert_field ei_m2m_unexpected_length = EI_INIT;
+static expert_field ei_m2m_unexpected_length;
 
 
 /* WiMax MAC to MAC protocol dissector */

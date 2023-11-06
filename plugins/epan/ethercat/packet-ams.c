@@ -29,93 +29,93 @@ int proto_ams = -1;
 static dissector_handle_t amstcp_handle;
 
 /* Define the tree for ams */
-static int ett_ams = -1;
-static int ett_ams_stateflags = -1;
-static int ett_ams_adsreadrequest = -1;
-static int ett_ams_adsreadresponse = -1;
-static int ett_ams_adswriterequest = -1;
-static int ett_ams_adswriteresponse = -1;
-static int ett_ams_adsreadwriterequest = -1;
-static int ett_ams_adsreadwriteresponse = -1;
-static int ett_ams_adsreadstaterequest = -1;
-static int ett_ams_adsreadstateresponse = -1;
-static int ett_ams_adswritectrlrequest = -1;
-static int ett_ams_adswritectrlresponse = -1;
-static int ett_ams_adsreaddinforequest = -1;
-static int ett_ams_adsreaddinforesponse = -1;
-static int ett_ams_adsadddnrequest = -1;
-static int ett_ams_adsadddnresponse = -1;
-static int ett_ams_adsdeldnrequest = -1;
-static int ett_ams_adsdeldnresponse = -1;
-static int ett_ams_adsdnrequest = -1;
+static int ett_ams;
+static int ett_ams_stateflags;
+static int ett_ams_adsreadrequest;
+static int ett_ams_adsreadresponse;
+static int ett_ams_adswriterequest;
+static int ett_ams_adswriteresponse;
+static int ett_ams_adsreadwriterequest;
+static int ett_ams_adsreadwriteresponse;
+static int ett_ams_adsreadstaterequest;
+static int ett_ams_adsreadstateresponse;
+static int ett_ams_adswritectrlrequest;
+static int ett_ams_adswritectrlresponse;
+static int ett_ams_adsreaddinforequest;
+static int ett_ams_adsreaddinforesponse;
+static int ett_ams_adsadddnrequest;
+static int ett_ams_adsadddnresponse;
+static int ett_ams_adsdeldnrequest;
+static int ett_ams_adsdeldnresponse;
+static int ett_ams_adsdnrequest;
 
-static int hf_ams_sendernetid = -1;
-static int hf_ams_senderport = -1;
-static int hf_ams_targetnetid = -1;
-static int hf_ams_targetport = -1;
-static int hf_ams_cmdid = -1;
-static int hf_ams_stateflags = -1;
-static int hf_ams_stateresponse = -1;
-static int hf_ams_statenoreturn = -1;
-static int hf_ams_stateadscmd = -1;
-static int hf_ams_statesyscmd = -1;
-static int hf_ams_statehighprio = -1;
-static int hf_ams_statetimestampadded = -1;
-static int hf_ams_stateudp = -1;
-static int hf_ams_stateinitcmd = -1;
-static int hf_ams_statebroadcast = -1;
-static int hf_ams_cbdata = -1;
-static int hf_ams_errorcode = -1;
-static int hf_ams_invokeid = -1;
-static int hf_ams_data = -1;
+static int hf_ams_sendernetid;
+static int hf_ams_senderport;
+static int hf_ams_targetnetid;
+static int hf_ams_targetport;
+static int hf_ams_cmdid;
+static int hf_ams_stateflags;
+static int hf_ams_stateresponse;
+static int hf_ams_statenoreturn;
+static int hf_ams_stateadscmd;
+static int hf_ams_statesyscmd;
+static int hf_ams_statehighprio;
+static int hf_ams_statetimestampadded;
+static int hf_ams_stateudp;
+static int hf_ams_stateinitcmd;
+static int hf_ams_statebroadcast;
+static int hf_ams_cbdata;
+static int hf_ams_errorcode;
+static int hf_ams_invokeid;
+static int hf_ams_data;
 
 /*ads Commands */
-static int hf_ams_adsindexgroup = -1;
-static int hf_ams_adsindexoffset = -1;
-static int hf_ams_adscblength = -1;
-static int hf_ams_adsreadrequest = -1;
-static int hf_ams_adsreadresponse = -1;
-static int hf_ams_adsinvokeid = -1;
-static int hf_ams_adsresult = -1;
-static int hf_ams_adsdata = -1;
-static int hf_ams_adswriterequest = -1;
-static int hf_ams_adswriteresponse = -1;
-static int hf_ams_adsreadwriterequest = -1;
-static int hf_ams_adsreadwriteresponse = -1;
-static int hf_ams_adscbreadlength = -1;
-static int hf_ams_adscbwritelength = -1;
-static int hf_ams_adsstate = -1;
-static int hf_ams_adsdevicestate = -1;
-static int hf_ams_adsnotificationhandle = -1;
-static int hf_ams_adsreadstaterequest = -1;
-static int hf_ams_adsreadstateresponse = -1;
-static int hf_ams_adswritectrlrequest = -1;
-static int hf_ams_adswritectrlresponse = -1;
-static int hf_ams_adsreaddinforequest = -1;
-static int hf_ams_adsreaddinforesponse = -1;
-static int hf_ams_adsadddnrequest = -1;
-static int hf_ams_adsadddnresponse = -1;
-static int hf_ams_adsdeldnrequest = -1;
-static int hf_ams_adsdeldnresponse = -1;
-static int hf_ams_adsdnrequest = -1;
-/* static int hf_ams_adsdnresponse = -1; */
-/* static int hf_ams_adsnoteattrib = -1; */
-/* static int hf_ams_adsnoteblocks = -1; */
-/* static int hf_ams_adsversion = -1; */
-static int hf_ams_adsdevicename = -1;
-static int hf_ams_adsversionversion = -1;
-static int hf_ams_adsversionrevision = -1;
-static int hf_ams_adsversionbuild = -1;
-static int hf_ams_adsnoteblocksstamps = -1;
-/* static int hf_ams_adsnoteblocksstamp = -1; */
-/* static int hf_ams_adstimestamp = -1; */
-/* static int hf_ams_adssamplecnt = -1; */
-/* static int hf_ams_adsnoteblockssample = -1; */
-static int hf_ams_adstransmode = -1;
-static int hf_ams_adsmaxdelay = -1;
-static int hf_ams_adscycletime = -1;
-/* static int hf_ams_adscmpmax = -1; */
-/* static int hf_ams_adscmpmin = -1; */
+static int hf_ams_adsindexgroup;
+static int hf_ams_adsindexoffset;
+static int hf_ams_adscblength;
+static int hf_ams_adsreadrequest;
+static int hf_ams_adsreadresponse;
+static int hf_ams_adsinvokeid;
+static int hf_ams_adsresult;
+static int hf_ams_adsdata;
+static int hf_ams_adswriterequest;
+static int hf_ams_adswriteresponse;
+static int hf_ams_adsreadwriterequest;
+static int hf_ams_adsreadwriteresponse;
+static int hf_ams_adscbreadlength;
+static int hf_ams_adscbwritelength;
+static int hf_ams_adsstate;
+static int hf_ams_adsdevicestate;
+static int hf_ams_adsnotificationhandle;
+static int hf_ams_adsreadstaterequest;
+static int hf_ams_adsreadstateresponse;
+static int hf_ams_adswritectrlrequest;
+static int hf_ams_adswritectrlresponse;
+static int hf_ams_adsreaddinforequest;
+static int hf_ams_adsreaddinforesponse;
+static int hf_ams_adsadddnrequest;
+static int hf_ams_adsadddnresponse;
+static int hf_ams_adsdeldnrequest;
+static int hf_ams_adsdeldnresponse;
+static int hf_ams_adsdnrequest;
+/* static int hf_ams_adsdnresponse; */
+/* static int hf_ams_adsnoteattrib; */
+/* static int hf_ams_adsnoteblocks; */
+/* static int hf_ams_adsversion; */
+static int hf_ams_adsdevicename;
+static int hf_ams_adsversionversion;
+static int hf_ams_adsversionrevision;
+static int hf_ams_adsversionbuild;
+static int hf_ams_adsnoteblocksstamps;
+/* static int hf_ams_adsnoteblocksstamp; */
+/* static int hf_ams_adstimestamp; */
+/* static int hf_ams_adssamplecnt; */
+/* static int hf_ams_adsnoteblockssample; */
+static int hf_ams_adstransmode;
+static int hf_ams_adsmaxdelay;
+static int hf_ams_adscycletime;
+/* static int hf_ams_adscmpmax; */
+/* static int hf_ams_adscmpmin; */
 
 static dissector_handle_t ams_handle;
 

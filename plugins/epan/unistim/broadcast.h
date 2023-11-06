@@ -13,14 +13,14 @@
 #ifndef UNISTIM_BROADCAST_H
 #define UNISTIM_BROADCAST_H
 
-static int hf_broadcast_year=-1;
-static int hf_broadcast_month=-1;
-static int hf_broadcast_day=-1;
-static int hf_broadcast_hour=-1;
-static int hf_broadcast_minute=-1;
-static int hf_broadcast_second=-1;
-static int hf_broadcast_icon_state=-1;
-static int hf_broadcast_icon_cadence=-1;
+static int hf_broadcast_year;
+static int hf_broadcast_month;
+static int hf_broadcast_day;
+static int hf_broadcast_hour;
+static int hf_broadcast_minute;
+static int hf_broadcast_second;
+static int hf_broadcast_icon_state;
+static int hf_broadcast_icon_cadence;
 
 
 static const value_string broadcast_switch_msgs[]={
