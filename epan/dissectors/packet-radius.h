@@ -130,7 +130,8 @@ struct _radius_attr_info_t {
 	const value_string *vs;
 	gint ett;
 	int hf;
-	int hf_alt;     /* 64-bit version for integers, encrypted version for strings, IPv6 for radius_combo_ip */
+	int hf_alt;     /* 64-bit version for integers, IPv6 for radius_combo_ip */
+	int hf_enc;		/* version for encrypted attributes */
 	int hf_tag;
 	int hf_len;
 	GHashTable* tlvs_by_id; /**< Owns the data (see also radius_dictionary_t). */

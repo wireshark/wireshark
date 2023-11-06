@@ -535,6 +535,7 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		a->vs = NULL;
 		a->hf = -1;
 		a->hf_alt = -1;
+		a->hf_enc = -1;
 		a->hf_tag = -1;
 		a->hf_len = -1;
 		a->ett = -1;
