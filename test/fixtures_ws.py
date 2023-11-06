@@ -12,7 +12,6 @@ import os
 import re
 import subprocess
 import sys
-import tempfile
 import types
 import pytest
 
@@ -215,11 +214,9 @@ def result_file(tmp_path):
     return result_file_real
 
 @pytest.fixture
-def home_path():
-    '''Per-test home directory, removed when finished.'''
-    with tempfile.TemporaryDirectory(prefix='wireshark-tests-home-') as dirname:
-        yield dirname
-
+def home_path(tmp_path):
+    '''Per-test home directory.'''
+    return str(tmp_path / 'test-home')
 
 @pytest.fixture
 def conf_path(home_path):
