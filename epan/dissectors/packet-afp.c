@@ -7004,7 +7004,7 @@ proto_register_afp(void)
 		    "Spotlight RPC Command", HFILL }},
 
 		{ &hf_afp_spotlight_request_reserved,
-		  { "Padding",               "afp.spotlight.reserved",
+		  { "Reserved",               "afp.spotlight.reserved",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    "Spotlight RPC Padding", HFILL }},
 

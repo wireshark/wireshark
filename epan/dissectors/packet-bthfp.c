@@ -3132,7 +3132,7 @@ proto_register_bthfp(void)
         },
         { &hf_xapl_accessory_info_vendor_id,
            { "Vendor ID",                        "bthfp.xapl.accessory_info.vendor_id",
-           FT_UINT16, BASE_HEX, NULL, 0,
+           FT_UINT32, BASE_HEX, NULL, 0,
            NULL, HFILL}
         },
         { &hf_xapl_accessory_info_product_id,

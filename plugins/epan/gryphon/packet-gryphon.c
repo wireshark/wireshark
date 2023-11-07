@@ -5240,7 +5240,7 @@ proto_register_gryphon(void)
           { "UUDT response IDs", "gryphon.uudt_response", FT_UINT32, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_uudt_response_ext,
-          { "UUDT response extended address", "gryphon.usdt_response_ext", FT_UINT8, BASE_HEX, NULL, 0x0,
+          { "UUDT response extended address", "gryphon.uudt_response_ext", FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_more_filenames,
           { "More filenames to return", "gryphon.more_filenames", FT_BOOLEAN, 8, TFS(&yes_no), 0x0,
