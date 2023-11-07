@@ -210,6 +210,12 @@ read_filter_list(filter_list_type_t list_type)
             break;    /* Nothing more to read */
         if (c == '\n')
             continue; /* Blank line. */
+        if (c == '#') {
+            /* Comment. */
+            while (c != '\n')
+                c = getc(ff);   /* skip to the end of the line */
+            continue;
+        }
 
         /* "c" is the first non-white-space character.
            If it's not a quote, it's an error. */

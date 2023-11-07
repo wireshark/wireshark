@@ -1,3 +1,5 @@
+# This file is the capture filters file shipped with Wireshark. It may be overwritten.
+# For your personal filters you can use the same file in your profile dir.
 "Ethernet address 00:00:5e:00:53:00" ether host 00:00:5e:00:53:00
 "Ethernet type 0x0806 (ARP)" ether proto 0x0806
 "No Broadcast and no Multicast" not broadcast and not multicast

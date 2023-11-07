@@ -1,3 +1,5 @@
+# This file is the display filters file shipped with Wireshark. It may be overwritten.
+# For your personal filters you can use the same file in your profile dir.
 "Ethernet address 00:00:5e:00:53:00" eth.addr == 00:00:5e:00:53:00
 "Ethernet type 0x0806 (ARP)" eth.type == 0x0806
 "Ethernet broadcast" eth.addr == ff:ff:ff:ff:ff:ff
