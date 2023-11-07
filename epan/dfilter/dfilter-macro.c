@@ -11,6 +11,7 @@
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 #include "dfilter-macro.h"
+#include "dfilter-macro-uat.h"
 
 #ifdef DUMP_DFILTER_MACRO
 #include <stdio.h>
@@ -19,14 +20,13 @@
 
 #include "dfilter-int.h"
 #include <ftypes/ftypes.h>
-#include <epan/uat-int.h>
 #include <epan/proto.h>
 #include <wsutil/glib-compat.h>
+#include <wsutil/filter_files.h>
+#include <wsutil/filesystem.h>
 
 
-static uat_t* dfilter_macro_uat = NULL;
-static dfilter_macro_t* macros = NULL;
-static unsigned num_macros;
+static GHashTable *macros_table = NULL;
 
 /* #define DUMP_DFILTER_MACRO */
 #ifdef DUMP_DFILTER_MACRO
@@ -43,17 +43,9 @@ static char* dfilter_macro_resolve(char* name, char** args, df_error_t** error) 
 	int* arg_pos_p;
 	char** parts;
 	char* ret;
-	unsigned i;
 
-	for (i = 0; i < num_macros; i++) {
-		dfilter_macro_t* c = &(macros[i]);
-		if ( c->usable && g_str_equal(c->name,name) ) {
-			m = c;
-			break;
-		}
-	}
-
-	if (!m) {
+	m = g_hash_table_lookup(macros_table, name);
+	if (!m || !m->usable) {
 		if (error != NULL)
 			*error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "macro '%s' does not exist", name);
 		return NULL;
@@ -331,7 +323,7 @@ char* dfilter_macro_apply(const char* text, df_error_t** error) {
 
 /* Parses the text into its parts and arguments. Needs to
  * be called before a macro can be used. */
-static void macro_parse(dfilter_macro_t* m) {
+void macro_parse(dfilter_macro_t* m) {
 	GPtrArray* parts;
 	GArray* args_pos;
 	const char* r;
@@ -411,9 +403,7 @@ done:
 	DUMP_MACRO(m);
 }
 
-static void macro_free(void* r) {
-	dfilter_macro_t* m = (dfilter_macro_t*)r;
-
+static void macro_free(dfilter_macro_t* m) {
 	DUMP_MACRO(r);
 
 	g_free(m->name);
@@ -421,157 +411,46 @@ static void macro_free(void* r) {
 	g_free(m->priv);
 	g_free(m->parts);
 	g_free(m->args_pos);
+	g_free(m);
 }
 
-static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
-	dfilter_macro_t* d = (dfilter_macro_t*)dest;
-	const dfilter_macro_t* m = (const dfilter_macro_t*)orig;
-
-	DUMP_MACRO(m);
-
-	d->name = g_strdup(m->name);
-	d->text = g_strdup(m->text);
-	d->usable = m->usable;
-
-	if (m->parts) {
-		unsigned nparts = 0;
-
-		/*
-		 * Copy the contents of m->priv (a "cooked" version
-		 * of m->text) into d->priv.
-		 *
-		 * First we clone m->text into d->priv, this gets
-		 * us a NUL terminated string of the proper length.
-		 *
-		 * Then we loop copying bytes from m->priv into
-		 * d-priv.  Since m->priv contains internal ACSII NULs
-		 * we use the length of m->text to stop the copy.
-		 */
-
-		d->priv = g_strdup(m->text);
-		{
-			const char* oldText = m->text;
-			const char* oldPriv = (const char*)m->priv;
-			char* newPriv = (char*)d->priv;
-			while(oldText && *oldText) {
-				*(newPriv++) = *(oldPriv++);
-				oldText++;
-			}
-		}
-
-		/*
-		 * The contents of the m->parts array contains pointers
-		 * into various sections of m->priv.  Since it's
-		 * an argv style array of ponters, this array is
-		 * actually one larger than the number of parts
-		 * to hold the final NULL terminator.
-		 *
-		 * The following copy clones the original m->parts
-		 * array into d->parts but then fixes-up the pointers
-		 * so that they point into the appropriate sections
-		 * of the d->priv.
-		 */
-
-		do nparts++; while (m->parts[nparts]);
-		d->parts = (char **)g_memdup2(m->parts,(nparts+1)*(unsigned)sizeof(void*));
-		nparts = 0;
-		while(m->parts[nparts]) {
-			if(nparts) {
-				d->parts[nparts] = d->parts[nparts - 1] + (m->parts[nparts] - m->parts[nparts - 1]);
-			} else {
-				d->parts[nparts] = (char *)d->priv;
-			}
-			nparts++;
-		}
-
-		/*
-		 * Clone the contents of m->args_pos into d->args_pos.
-		 */
-
-		d->args_pos = (int *)g_memdup2(m->args_pos,(--nparts)*(unsigned)sizeof(int));
-	}
-
-	DUMP_MACRO(d);
-
-	return d;
+dfilter_macro_t *macro_new(const char *name, const char *text) {
+	dfilter_macro_t *m = g_new0(dfilter_macro_t, 1);
+	m->name = g_strdup(name);
+	m->text = g_strdup(text);
+	macro_parse(m);
+	return m;
 }
-
-static void macro_post_update(void) {
-
-	for (unsigned i = 0; i < num_macros; i++) {
-		macro_parse(&macros[i]);
-	}
-}
-
-static bool macro_name_chk(void *mp, const char *in_name, unsigned name_len,
-		const void *u1 _U_, const void *u2 _U_, char **error) {
-	dfilter_macro_t* m = (dfilter_macro_t*)mp;
-	unsigned i;
-
-	if (name_len == 0) {
-		*error = g_strdup("invalid name");
-		return false;
-	}
-
-	for (i=0; i < name_len; i++) {
-		if (!(in_name[i] == '_' || g_ascii_isalnum(in_name[i]) ) ) {
-			*error = g_strdup("invalid char in name");
-			return false;
-		}
-	}
-
-	/* When loading (!m->name) or when adding/changing the an item with a
-	 * different name, check for uniqueness. NOTE: if a duplicate already
-	 * exists (because the user manually edited the file), then this will
-	 * not trigger a warning. */
-	if (!m->name || g_strcmp0(m->name, in_name)) {
-		for (i = 0; i < num_macros; i++) {
-			/* This a string field which is always NUL-terminated,
-			 * so no need to check name_len. */
-			if (!g_strcmp0(in_name, macros[i].name)) {
-				*error = ws_strdup_printf("macro '%s' already exists",
-							 in_name);
-				return false;
-			}
-		}
-	}
-
-	return true;
-}
-
-UAT_CSTRING_CB_DEF(macro,name,dfilter_macro_t)
-UAT_CSTRING_CB_DEF(macro,text,dfilter_macro_t)
 
 void dfilter_macro_init(void) {
-	static uat_field_t uat_fields[] =  {
-		UAT_FLD_CSTRING_OTHER(macro,name,"Name",macro_name_chk,"The name of the macro."),
-		/* N.B. it would be nice if there was a field type for display filters (with
-		   auto-completion & colouring), but this wouldn't work here as the filter string
-		   will contain $1, etc... */
-		UAT_FLD_CSTRING_ISPRINT(macro,text,"Text","The text this macro resolves to."),
-		UAT_END_FIELDS
-	};
 
-	dfilter_macro_uat = uat_new("Display Filter Macros",
-				    sizeof(dfilter_macro_t),
-				    DFILTER_MACRO_FILENAME,
-				    true,
-				    &macros,
-				    &num_macros,
-				    UAT_AFFECTS_FIELDS,
-				    "ChDisplayFilterMacrosSection",
-				    macro_copy,
-				    NULL, /* update optional; macro is always
-					   * valid if name and text are valid.
-					   */
-				    macro_free,
-				    macro_post_update,
-				    NULL,
-				    uat_fields);
+	char *old_path = get_persconffile_path("dfilter_macros", true);
+	char *new_path = get_persconffile_path("dmacros", true);
+	if (!file_exists(new_path) && file_exists(old_path)) {
+		convert_old_uat_file(old_path);
+	}
+	g_free(old_path);
+	g_free(new_path);
+
+	macros_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)macro_free);
+	dfilter_macro_reload();
 }
 
-void dfilter_macro_get_uat(uat_t **dfmu_ptr_ptr) {
-    *dfmu_ptr_ptr = dfilter_macro_uat;
+void dfilter_macro_reload(void) {
+
+	g_hash_table_remove_all(macros_table);
+
+	filter_list_t *list = ws_filter_list_read(DMACROS_LIST);
+
+	for (GList *l = list->list; l != NULL; l = l->next) {
+		filter_def *def = l->data;
+		dfilter_macro_t *m = macro_new(def->name, def->strval);
+		if (m != NULL) {
+			g_hash_table_insert(macros_table, g_strdup(def->name), m);
+		}
+	}
+
+	ws_filter_list_free(list);
 }
 
 #ifdef DUMP_DFILTER_MACRO
@@ -671,6 +550,8 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 
 void dfilter_macro_cleanup(void)
 {
+	g_hash_table_destroy(macros_table);
+	macros_table = NULL;
 }
 
 /*

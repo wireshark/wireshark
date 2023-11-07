@@ -69,6 +69,13 @@ The following features are new (or have been significantly updated) since versio
 
 * Display filter autocompletions now also include display filter functions.
 
+* The display filter macro configuration file has changed format. It now uses
+  the same format as the "dfilters" file and has been renamed accordingly to
+  "dmacros". Internally it no longer uses the UAT API and the display filter macro
+  GUI dialog has been updated. There is some basic migration logic implemented
+  but it is advisable to check that the "dfilter_macros" (old) and
+  "dmacros" (new) files in the profile directory are consistent.
+
 //=== Removed Features and Support
 
 // === Removed Dissectors

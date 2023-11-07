@@ -23,6 +23,8 @@
 #include <QDir>
 #include <QMimeData>
 
+#include <epan/dfilter/dfilter-macro.h>
+
 /*
  * Capture filter file name.
  */
@@ -32,6 +34,11 @@
  * Display filter file name.
  */
 #define DFILTER_FILE_NAME     "dfilters"
+
+/*
+ * Display filter macros file name.
+ */
+#define DMACROS_FILE_NAME     "dmacros"
 
 FilterListModel::FilterListModel(QObject * parent) :
     QAbstractListModel(parent),
@@ -51,7 +58,14 @@ void FilterListModel::reload()
 {
     storage.clear();
 
-    const char * cfile = (type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME;
+    const char *cfile;
+
+    switch (type_) {
+        case FilterListModel::Capture: cfile = CFILTER_FILE_NAME; break;
+        case FilterListModel::Display: cfile = DFILTER_FILE_NAME; break;
+        case FilterListModel::DisplayMacro: cfile = DMACROS_FILE_NAME; break;
+        default: ws_assert_not_reached();
+    }
 
     /* Try personal config file first */
     QString fileName = gchar_free_to_qstring(get_persconffile_path(cfile, TRUE));
@@ -223,9 +237,17 @@ void FilterListModel::removeFilter(QModelIndex idx)
 
 void FilterListModel::saveList()
 {
-    QString filename = (type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME;
+    const char *cfile;
+    QString filename;
 
-    filename = QString("%1%2%3").arg(ProfileModel::activeProfilePath()).arg("/").arg(filename);
+    switch (type_) {
+        case Capture: cfile = CFILTER_FILE_NAME; break;
+        case Display: cfile = DFILTER_FILE_NAME; break;
+        case DisplayMacro: cfile = DMACROS_FILE_NAME; break;
+        default: ws_assert_not_reached();
+    }
+
+    filename = QString("%1%2%3").arg(ProfileModel::activeProfilePath()).arg("/").arg(cfile);
     QFile file(filename);
 
     if (! file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -245,6 +267,15 @@ void FilterListModel::saveList()
     }
 
     file.close();
+
+    switch (type_) {
+        case DisplayMacro:
+            dfilter_macro_reload();
+            break;
+        default:
+            // Nothing
+            break;
+    }
 }
 
 Qt::DropActions FilterListModel::supportedDropActions() const

@@ -29,11 +29,17 @@ extern "C" {
 #define DFILTER_FILE_NAME     "dfilters"
 
 /*
+ * Display filter file name.
+ */
+#define DMACROS_FILE_NAME     "dmacros"
+
+/*
  * Filter lists.
  */
 typedef enum {
     CFILTER_LIST,        /* capture filter list - saved */
-    DFILTER_LIST        /* display filter list - saved */
+    DFILTER_LIST,        /* display filter list - saved */
+    DMACROS_LIST,        /* display filter macro list - saved */
 } filter_list_type_t;
 
 /*
@@ -65,6 +71,13 @@ filter_list_t *ws_filter_list_read(filter_list_type_t list_type);
 WS_DLL_PUBLIC
 void ws_filter_list_add(filter_list_t *list, const char *name,
                           const char *expression);
+
+/*
+ * Find a filter in a list by name.
+ * Returns a pointer to the found entry.
+ */
+WS_DLL_PUBLIC
+GList *ws_filter_list_find(filter_list_t *list, const char *name);
 
 /*
  * Remove a filter from a list.

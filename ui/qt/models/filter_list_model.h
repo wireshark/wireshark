@@ -25,7 +25,8 @@ class FilterListModel : public QAbstractListModel
 public:
     enum FilterListType {
         Display,
-        Capture
+        Capture,
+        DisplayMacro,
     };
 
     explicit FilterListModel(FilterListType type = FilterListModel::Display, QObject * parent = Q_NULLPTR);

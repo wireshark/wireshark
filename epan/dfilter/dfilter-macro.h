@@ -13,8 +13,6 @@
 #include <wireshark.h>
 #include "dfilter.h"
 
-#define DFILTER_MACRO_FILENAME "dfilter_macros"
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -29,15 +27,15 @@ typedef struct _dfilter_macro_t {
 	void* priv; /* a copy of text that contains every c-string in parts */
 } dfilter_macro_t;
 
+void macro_parse(dfilter_macro_t *m);
+
 /* applies all macros to the given text and returns the resulting string or NULL on failure */
 char* dfilter_macro_apply(const char* text, df_error_t** error);
 
 void dfilter_macro_init(void);
 
-struct epan_uat;
-
 WS_DLL_PUBLIC
-void dfilter_macro_get_uat(struct epan_uat **dfmu_ptr_ptr);
+void dfilter_macro_reload(void);
 
 void dfilter_macro_cleanup(void);
 

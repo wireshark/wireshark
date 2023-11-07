@@ -20,6 +20,7 @@ set(DFILTER_PUBLIC_HEADERS
 set(DFILTER_HEADER_FILES
 	${DFILTER_PUBLIC_HEADERS}
 	dfilter-macro.h
+	dfilter-macro-uat.h
 	dfvm.h
 	gencode.h
 	semcheck.h
@@ -35,6 +36,7 @@ set(DFILTER_HEADER_FILES
 set(DFILTER_NONGENERATED_FILES
 	dfilter.c
 	dfilter-macro.c
+	dfilter-macro-uat.c
 	dfilter-plugin.c
 	dfunctions.c
 	dfvm.c

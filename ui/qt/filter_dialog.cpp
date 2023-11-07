@@ -61,16 +61,27 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
 
     const gchar * filename = NULL;
     QString newFilterText;
-    if (filter_type == CaptureFilter) {
-        setWindowTitle(mainApp->windowTitleString(tr("Capture Filters")));
-        filename = CFILTER_FILE_NAME;
-        newFilterText = tr("New capture filter");
-        model_ = new FilterListModel(FilterListModel::Capture, this);
-    } else {
-        setWindowTitle(mainApp->windowTitleString(tr("Display Filters")));
-        filename = DFILTER_FILE_NAME;
-        newFilterText = tr("New display filter");
-        model_ = new FilterListModel(FilterListModel::Display, this);
+    switch (filter_type) {
+        case CaptureFilter:
+            setWindowTitle(mainApp->windowTitleString(tr("Capture Filters")));
+            filename = CFILTER_FILE_NAME;
+            newFilterText = tr("New capture filter");
+            model_ = new FilterListModel(FilterListModel::Capture, this);
+            break;
+        case DisplayFilter:
+            setWindowTitle(mainApp->windowTitleString(tr("Display Filters")));
+            filename = DFILTER_FILE_NAME;
+            newFilterText = tr("New display filter");
+            model_ = new FilterListModel(FilterListModel::Display, this);
+            break;
+        case DisplayMacro:
+            setWindowTitle(mainApp->windowTitleString(tr("Display Filter Macros")));
+            filename = DMACROS_FILE_NAME;
+            newFilterText = tr("New macro");
+            model_ = new FilterListModel(FilterListModel::DisplayMacro, this);
+            break;
+        default:
+            ws_assert_not_reached();
     }
 
     if (new_filter_.length() > 0)
@@ -129,14 +140,24 @@ void FilterDialog::on_newToolButton_clicked()
     QString name;
     QString filter;
 
-    if (filter_type_ == CaptureFilter) {
-        //: This text is automatically filled in when a new filter is created
-        name = tr("New capture filter");
-        filter = "ip host host.example.com";
-    } else {
-        //: This text is automatically filled in when a new filter is created
-        name = tr("New display filter");
-        filter = "ip.host == host.example.com";
+    switch (filter_type_) {
+        case CaptureFilter:
+            //: This text is automatically filled in when a new filter is created
+            name = tr("New capture filter");
+            filter = "ip host host.example.com";
+            break;
+        case DisplayFilter:
+            //: This text is automatically filled in when a new filter is created
+            name = tr("New display filter");
+            filter = "ip.host == host.example.com";
+            break;
+        case DisplayMacro:
+            //: This text is automatically filled in when a new filter is created
+            name = tr("eq_example_com");
+            filter = "$1 == host.example.com";
+            break;
+        default:
+            ws_assert_not_reached();
     }
 
     addFilter(name, filter, true);
@@ -172,19 +193,35 @@ void FilterDialog::on_buttonBox_accepted()
 {
     model_->saveList();
 
-    if (filter_type_ == CaptureFilter) {
-        mainApp->emitAppSignal(MainApplication::CaptureFilterListChanged);
-    } else {
-        mainApp->emitAppSignal(MainApplication::DisplayFilterListChanged);
+    switch (filter_type_) {
+        case CaptureFilter:
+            mainApp->emitAppSignal(MainApplication::CaptureFilterListChanged);
+            break;
+        case DisplayFilter:
+            mainApp->emitAppSignal(MainApplication::DisplayFilterListChanged);
+            break;
+        case DisplayMacro:
+            // Nothing
+            break;
+        default:
+            ws_assert_not_reached();
     }
 }
 
 void FilterDialog::on_buttonBox_helpRequested()
 {
-    if (filter_type_ == CaptureFilter) {
-        mainApp->helpTopicAction(HELP_CAPTURE_FILTERS_DIALOG);
-    } else {
-        mainApp->helpTopicAction(HELP_DISPLAY_FILTERS_DIALOG);
+    switch (filter_type_) {
+        case CaptureFilter:
+            mainApp->helpTopicAction(HELP_CAPTURE_FILTERS_DIALOG);
+            break;
+        case DisplayFilter:
+            mainApp->helpTopicAction(HELP_DISPLAY_FILTERS_DIALOG);
+            break;
+        case DisplayMacro:
+            mainApp->helpTopicAction(HELP_DISPLAY_MACRO_DIALOG);
+            break;
+        default:
+            ws_assert_not_reached();
     }
 }
 
@@ -204,13 +241,14 @@ QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionVie
     if (index.column() != FilterListModel::ColumnExpression) {
         w = QStyledItemDelegate::createEditor(parent, option, index);
     }
-    else
-    {
-        if (filter_type_ == FilterDialog::CaptureFilter) {
-            w = new CaptureFilterEdit(parent, true);
-        } else {
-            w = new DisplayFilterEdit(parent, DisplayFilterToEnter);
-        }
+    else if (filter_type_ == FilterDialog::CaptureFilter) {
+        w = new CaptureFilterEdit(parent, true);
+    }
+    else if (filter_type_ == FilterDialog::DisplayFilter) {
+        w = new DisplayFilterEdit(parent, DisplayFilterToEnter);
+    }
+    else {
+        w = QStyledItemDelegate::createEditor(parent, option, index);
     }
 
     if (qobject_cast<QLineEdit *>(w) && index.column() == FilterListModel::ColumnName)

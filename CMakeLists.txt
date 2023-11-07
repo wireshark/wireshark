@@ -2062,7 +2062,7 @@ set(INSTALL_DIRS
 set(INSTALL_FILES
 	resources/share/wireshark/cfilters
 	resources/share/wireshark/colorfilters
-	resources/share/wireshark/dfilter_macros
+	resources/share/wireshark/dmacros
 	resources/share/wireshark/dfilters
 	resources/share/wireshark/ipmap.html
 	resources/share/wireshark/smi_modules

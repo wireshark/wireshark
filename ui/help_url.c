@@ -158,6 +158,9 @@ topic_action_url(topic_action_e action)
     case(HELP_DISPLAY_FILTERS_DIALOG):
         url = user_guide_url("ChWorkDefineFilterSection.html");
         break;
+    case(HELP_DISPLAY_MACRO_DIALOG):
+        url = user_guide_url("ChWorkDefineFilterMacrosSection.html");
+        break;
     case(HELP_FILTER_EXPRESSION_DIALOG):
         url = user_guide_url("ChWorkFilterAddExpressionSection.html");
         break;

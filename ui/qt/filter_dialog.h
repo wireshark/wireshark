@@ -29,7 +29,7 @@ class FilterDialog : public GeometryStateDialog
     Q_OBJECT
 
 public:
-    enum FilterType { CaptureFilter, DisplayFilter };
+    enum FilterType { CaptureFilter, DisplayFilter, DisplayMacro };
     explicit FilterDialog(QWidget *parent = 0, FilterType filter_type = CaptureFilter, const QString new_filter = QString());
     ~FilterDialog();
 

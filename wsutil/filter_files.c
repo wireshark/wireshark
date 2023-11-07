@@ -127,6 +127,11 @@ ws_filter_list_read(filter_list_type_t list_type)
             ff_description = "display";
             break;
 
+        case DMACROS_LIST:
+            ff_name = DMACROS_FILE_NAME;
+            ff_description = "display filter macro";
+            break;
+
         default:
             ws_assert_not_reached();
     }
@@ -340,6 +345,11 @@ compare_def(gconstpointer def, gconstpointer name)
     return g_strcmp0(((filter_def *)def)->name, name);
 }
 
+GList *ws_filter_list_find(filter_list_t *list, const char *name)
+{
+    return g_list_find_custom(list->list, name, compare_def);
+}
+
 /*
  * Remove a filter from a list.
  */
@@ -382,6 +392,11 @@ ws_filter_list_write(filter_list_t *list)
         case DFILTER_LIST:
             ff_name = DFILTER_FILE_NAME;
             ff_description = "display";
+            break;
+
+        case DMACROS_LIST:
+            ff_name = DMACROS_FILE_NAME;
+            ff_description = "display filter macros";
             break;
 
         default:
