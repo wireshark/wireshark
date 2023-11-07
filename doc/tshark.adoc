@@ -370,11 +370,14 @@ option may be used.
 
 *quote=d|s|n* Set the quote character to use to surround fields.  *d*
 uses double-quotes, *s* single-quotes, *n* no quotes (the default).
+If the quote character appears in a field value, it will be escaped
+by being duplicated.
 
 *escape=y|n* If *y*, the whitespace control characters (tab, line feed,
-carriage return, form feed, and vertical tab) and backspace will be
-replaced in field values by C-style escapes, e.g. "\n" for line feed.
-If *n*, field value strings will be printed as-is.  Defaults to *y*.
+carriage return, form feed, and vertical tab) backspace, and the
+backslash will be replaced in field values by C-style escapes, e.g.
+"\n" for line feed.  If *n*, field value strings will be printed as-is.
+Defaults to *y*.
 --
 
 -f  <capture filter>::

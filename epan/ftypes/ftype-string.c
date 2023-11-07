@@ -50,6 +50,9 @@ static char *
 string_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	if (rtype == FTREPR_DISPLAY || rtype == FTREPR_JSON) {
+		/* XXX: This escapes NUL with "\0", but JSON (neither RFC 8259 nor
+		 * ECMA-404) does not allow that, it must be "\u0000".
+		 */
 		return ws_escape_null(scope, fv->value.strbuf->str, fv->value.strbuf->len, false);
 	}
 	if (rtype == FTREPR_DFILTER) {

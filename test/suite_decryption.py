@@ -1319,7 +1319,8 @@ class TestDecryptSmb2:
                 '-Tfields',
                 '-e', 'smb2.tree',
                 '-Y', 'smb2.tree == "{}"'.format(tree.replace('\\', '\\\\')),
-        ), encoding='utf-8', env=env)
+        ), encoding='unicode_escape', env=env)
+        # Remove the escapes (we only have one field so this causes no issue)
         assert tree == stdout.strip()
 
     # SMB3.0 CCM

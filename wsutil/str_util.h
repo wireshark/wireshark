@@ -203,6 +203,28 @@ char *ws_escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t 
 WS_DLL_PUBLIC
 char *ws_escape_null(wmem_allocator_t *alloc, const char *string, size_t len, bool add_quotes);
 
+/* Escape as in a number of CSV dialects.
+ *
+ * @param allocator  The wmem scope to use to allocate the returned string
+ * @param string  The input string to escape
+ * @param add_quotes  Whether to surround the string with quote_char
+ * @param quote_char  The quote character, always escaped in some way.
+ * @param double_quote  Whether to escape the quote character by doubling it
+ * @param escape_whitespace  Whether to escape whitespace with a backslash
+ * @return  The escaped string
+ *
+ * @note If double_quote is false, then quote_or_delim is escaped with a
+ * backslash ('\'). The quote character can be '\0', in which case it is
+ * ignored. If any character is being escaped with a backslash (i.e.,
+ * quote_char is not '\0' and double_quote is false, or escape_whitespace
+ * is true), then backslash is also escaped.  If add_quotes is false, then
+ * quote_char can either be a quote character (if the string will be quoted
+ * later after further manipulation) or the delimiter (to escape it, since
+ * the string is not being quoted.).
+ */
+WS_DLL_PUBLIC
+char *ws_escape_csv(wmem_allocator_t *alloc, const char *string, bool add_quotes, char quote_char, bool double_quote, bool escape_whitespace);
+
 WS_DLL_PUBLIC
 int ws_xton(char ch);
 

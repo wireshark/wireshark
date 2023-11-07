@@ -121,6 +121,15 @@ static void test_escape_string(void)
     buf = ws_escape_null(NULL, s1, sizeof(s1), true);
     g_assert_cmpstr(buf, ==, "\"abc\\0efg\"");
     wmem_free(NULL, buf);
+
+    const char s2[] = { 'a', 'b', 'c', '\0', '"', 'e', 'f', 'g'};
+    buf = ws_escape_null(NULL, s2, sizeof(s2), true);
+    g_assert_cmpstr(buf, ==, "\"abc\\0\\\"efg\"");
+    wmem_free(NULL, buf);
+
+    buf = ws_escape_csv(NULL, "CSV-style \" escape", true, '"', true, false);
+    g_assert_cmpstr(buf, ==, "\"CSV-style \"\" escape\"");
+    wmem_free(NULL, buf);
 }
 
 static void test_strconcat(void)

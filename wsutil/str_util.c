@@ -473,8 +473,9 @@ escape_char(char c, char *p)
     ws_assert(p);
 
     /*
-     * Backslashes and double-quotes must
-     * be escaped. Whitespace is also escaped.
+     * backslashes and double-quotes must be escaped (double-quotes
+     * are escaped by passing '"' as quote_char in escape_string_len)
+     * whitespace is also escaped.
      */
     switch (c) {
         case '\a': r = 'a'; break;
@@ -484,7 +485,6 @@ escape_char(char c, char *p)
         case '\r': r = 'r'; break;
         case '\t': r = 't'; break;
         case '\v': r = 'v'; break;
-        case '"':  r = '"'; break;
         case '\\': r = '\\'; break;
         case '\0': r = '0'; break;
     }
@@ -509,7 +509,8 @@ escape_null(char c, char *p)
 
 static char *
 escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len,
-                    bool (*escape_func)(char c, char *p), bool add_quotes)
+                    bool (*escape_func)(char c, char *p), bool add_quotes,
+                    char quote_char, bool double_quote)
 {
     char c, r;
     wmem_strbuf_t *buf;
@@ -525,8 +526,8 @@ escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len,
 
     buf = wmem_strbuf_new_sized(alloc, alloc_size);
 
-    if (add_quotes)
-        wmem_strbuf_append_c(buf, '"');
+    if (add_quotes && quote_char != '\0')
+        wmem_strbuf_append_c(buf, quote_char);
 
     for (i = 0; i < len; i++) {
         c = string[i];
@@ -534,14 +535,30 @@ escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len,
             wmem_strbuf_append_c(buf, '\\');
             wmem_strbuf_append_c(buf, r);
         }
+        else if (c == quote_char && quote_char != '\0') {
+            /* If quoting, we must escape the quote_char somehow. */
+            if (double_quote) {
+                wmem_strbuf_append_c(buf, c);
+                wmem_strbuf_append_c(buf, c);
+            } else {
+                wmem_strbuf_append_c(buf, '\\');
+                wmem_strbuf_append_c(buf, c);
+            }
+        }
+        else if (c == '\\' && quote_char != '\0' && !double_quote) {
+            /* If quoting, and escaping the quote_char with a backslash,
+             * then backslash must be escaped, even if escape_func doesn't. */
+            wmem_strbuf_append_c(buf, '\\');
+            wmem_strbuf_append_c(buf, '\\');
+        }
         else {
             /* Other UTF-8 bytes are passed through. */
             wmem_strbuf_append_c(buf, c);
         }
     }
 
-    if (add_quotes)
-        wmem_strbuf_append_c(buf, '"');
+    if (add_quotes && quote_char != '\0')
+        wmem_strbuf_append_c(buf, quote_char);
 
     return wmem_strbuf_finalize(buf);
 }
@@ -549,18 +566,29 @@ escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len,
 char *
 ws_escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len, bool add_quotes)
 {
-    return escape_string_len(alloc, string, len, escape_char, add_quotes);
+    return escape_string_len(alloc, string, len, escape_char, add_quotes, '"', false);
 }
 
 char *
 ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes)
 {
-    return escape_string_len(alloc, string, -1, escape_char, add_quotes);
+    return escape_string_len(alloc, string, -1, escape_char, add_quotes, '"', false);
 }
 
 char *ws_escape_null(wmem_allocator_t *alloc, const char *string, size_t len, bool add_quotes)
 {
-    return escape_string_len(alloc, string, len, escape_null, add_quotes);
+    /* XXX: The existing behavior (maintained) here is not to escape
+     * backslashes even though NUL is escaped.
+     */
+    return escape_string_len(alloc, string, len, escape_null, add_quotes, add_quotes ? '"' : '\0', false);
+}
+
+char *ws_escape_csv(wmem_allocator_t *alloc, const char *string, bool add_quotes, char quote_char, bool double_quote, bool escape_whitespace)
+{
+    if (escape_whitespace)
+        return escape_string_len(alloc, string, -1, escape_char, add_quotes, quote_char, double_quote);
+    else
+        return escape_string_len(alloc, string, -1, escape_null, add_quotes, quote_char, double_quote);
 }
 
 const char *

@@ -100,7 +100,7 @@ static void write_specified_fields(fields_format format,
                                    FILE *fh,
                                    json_dumper *dumper);
 static void print_escaped_xml(FILE *fh, const char *unescaped_string);
-static void print_escaped_csv(FILE *fh, const char *unescaped_string);
+static void print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp);
 
 typedef void (*proto_node_value_writer)(proto_node *, write_json_data *);
 static void write_json_index(json_dumper *dumper, epan_dissect_t *edt);
@@ -1850,38 +1850,27 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
 }
 
 static void
-print_escaped_csv(FILE *fh, const char *unescaped_string)
+print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp)
 {
-    const char *p;
-
     if (fh == NULL || unescaped_string == NULL) {
         return;
     }
 
-    for (p = unescaped_string; *p != '\0'; p++) {
-        switch (*p) {
-        case '\b':
-            fputs("\\b", fh);
-            break;
-        case '\f':
-            fputs("\\f", fh);
-            break;
-        case '\n':
-            fputs("\\n", fh);
-            break;
-        case '\r':
-            fputs("\\r", fh);
-            break;
-        case '\t':
-            fputs("\\t", fh);
-            break;
-        case '\v':
-            fputs("\\v", fh);
-            break;
-        default:
-            fputc(*p, fh);
-        }
+    /* XXX: What about the field aggregator? Should that be escaped?
+     * Should there be an "escape all non-printable" option?
+     * (Instead of or in addition to escape wsp?)
+     * Should there be a "escape all non ASCII?" option, similar
+     * to the Wireshark output?
+     */
+    char *escaped_string;
+    if (quote_char == '\0') {
+        /* Not quoting, so we must escape the delimiter */
+        escaped_string = ws_escape_csv(NULL, unescaped_string, false, delimiter, false, escape_wsp);
+    } else {
+        escaped_string = ws_escape_csv(NULL, unescaped_string, true, quote_char, true, escape_wsp);
     }
+    fputs(escaped_string, fh);
+    wmem_free(NULL, escaped_string);
 }
 
 static void
@@ -2449,27 +2438,18 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
             }
             if (NULL != fields->field_values[i]) {
                 GPtrArray *fv_p;
-                gchar * str;
                 gsize j;
                 fv_p = fields->field_values[i];
-                if (fields->quote != '\0') {
-                    fputc(fields->quote, fh);
-                }
 
                 /* Output the array of (partial) field values */
-                for (j = 0; j < g_ptr_array_len(fv_p); j++ ) {
-                    if (j != 0) {
-                        fputc(fields->aggregator, fh);
+                if (g_ptr_array_len(fv_p) != 0) {
+                    wmem_strbuf_t *buf = wmem_strbuf_new(NULL, g_ptr_array_index(fv_p, 0));
+                    for (j = 1; j < g_ptr_array_len(fv_p); j++ ) {
+                        wmem_strbuf_append_c(buf, fields->aggregator);
+                        wmem_strbuf_append(buf, (char *)g_ptr_array_index(fv_p, j));
                     }
-                    str = (gchar *)g_ptr_array_index(fv_p, j);
-                    if (fields->escape) {
-                        print_escaped_csv(fh, str);
-                    } else {
-                        fputs(str, fh);
-                    }
-                }
-                if (fields->quote != '\0') {
-                    fputc(fields->quote, fh);
+                    print_escaped_csv(fh, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape);
+                    wmem_strbuf_destroy(buf);
                 }
                 g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
                 fields->field_values[i] = NULL;

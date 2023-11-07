@@ -440,6 +440,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_clock_get_realtime@Base 3.7.0
  ws_cmac_buffer@Base 3.1.0
  ws_enums_bsearch@Base 4.1.0
+ ws_escape_csv@Base 4.3.0
  ws_escape_null@Base 3.7.1rc0
  ws_escape_string@Base 3.7.0
  ws_escape_string_len@Base 3.7.1rc0
