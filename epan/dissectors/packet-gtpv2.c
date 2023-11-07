@@ -11656,7 +11656,7 @@ void proto_register_gtpv2(void)
           NULL, HFILL }
       },
       { &hf_gtpv2_mon_event_inf_srie,
-      { "SRIE (SCEF Reference Id Extension):", "gtpv2.mon_event_ext_inf.srie",
+      { "SRIE (SCEF Reference Id Extension)", "gtpv2.mon_event_ext_inf.srie",
           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
           NULL, HFILL }
       },
