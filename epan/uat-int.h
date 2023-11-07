@@ -60,7 +60,6 @@ struct epan_uat {
     uat_rep_t* rep;
     uat_rep_free_cb_t free_rep;
     bool loaded;
-    bool from_global;
 };
 
 WS_DLL_PUBLIC
