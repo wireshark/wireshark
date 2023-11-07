@@ -1080,7 +1080,7 @@ static hf_register_info protocol_registration_samples[] = {
     {&hf_samples_hop_count, {"Hop Count", "locamation-im.samples.hop_count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_samples_control, {"Control", "locamation-im.samples.control", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_samples_control_type, {"Type", "locamation-im.samples.control.type", FT_UINT8, BASE_DEC, VALS(samples_control_type_vals), MASK_SAMPLES_CONTROL_TYPE, NULL, HFILL}},
-    {&hf_samples_control_simulated, {"Status", "locamation-im.samples.control.simulated", FT_UINT8, BASE_DEC, VALS(samples_control_simulated_vals), MASK_SAMPLES_CONTROL_SIMULATED, NULL, HFILL}},
+    {&hf_samples_control_simulated, {"Simulated", "locamation-im.samples.control.simulated", FT_UINT8, BASE_DEC, VALS(samples_control_simulated_vals), MASK_SAMPLES_CONTROL_SIMULATED, NULL, HFILL}},
     {&hf_samples_control_version, {"Version", "locamation-im.samples.control.version", FT_UINT8, BASE_DEC, VALS(samples_control_version_vals), MASK_SAMPLES_CONTROL_VERSION, NULL, HFILL}},
     {&hf_samples_control_sequence_number, {"Sequence Number", "locamation-im.samples.control.sequence_number", FT_UINT8, BASE_CUSTOM, CF_FUNC(samples_sequence_number), MASK_SAMPLES_CONTROL_SEQUENCE_NUMBER, NULL, HFILL}},
     {&hf_samples_temperature, {"Temperature", "locamation-im.samples.temperature", FT_INT16, BASE_CUSTOM, CF_FUNC(samples_temperature), 0x0, NULL, HFILL}},

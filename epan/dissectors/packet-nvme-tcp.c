@@ -978,7 +978,7 @@ void proto_register_nvme_tcp(void) {
              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_nvme_tcp_icresp_maxdata,
            { "Maximum data capsules per r2t supported", "nvme-tcp.icresp.maxdata",
-             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        /* NVMe tcp c2h/h2c termreq fields */
        { &hf_nvme_tcp_c2htermreq,
            { "C2HTermReq", "nvme-tcp.c2htermreq",

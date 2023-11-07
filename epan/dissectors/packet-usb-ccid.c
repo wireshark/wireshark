@@ -828,7 +828,7 @@ proto_register_ccid(void)
              TFS(&tfs_supported_not_supported), 0x00000004, NULL, HFILL }},
         {&hf_ccid_dwFeatures_autoIccVoltSelect,
          { "Automatic ICC voltage selection",
-             "usbccid.dwFeatures.autoParamNegotiation", FT_BOOLEAN, 32,
+             "usbccid.dwFeatures.autoIccVoltSelect", FT_BOOLEAN, 32,
              TFS(&tfs_supported_not_supported), 0x00000008, NULL, HFILL }},
         {&hf_ccid_dwFeatures_autoParam,
          { "Automatic parameter configuration based on ATR",

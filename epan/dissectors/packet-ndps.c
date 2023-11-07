@@ -8223,7 +8223,7 @@ proto_register_ndps(void)
 
         { &hf_oid_struct_size,
           { "OID Struct Size",    "ndps.rpc_oid_struct_size",
-            FT_UINT16,    BASE_DEC,   NULL,   0x0,
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_object_name,

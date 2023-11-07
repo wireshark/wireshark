@@ -92,12 +92,12 @@ static const value_string ns_ha_syncstate_vals[] = {
 	{ 0, NULL }
 };
 
-#define NSAHA_SSLCARD_DOWN		0x100
-#define NSAHA_NO_DEVICES		0x200
-#define NSAHA_INC_STATE			0x1000
-#define NSAHA_PROP_DISABLED		0x2000
-#define NSAHA_STAY_PRIMARY		0x4000
-#define NSAHA_VERSION_MISMATCH	0x8000
+#define NSAHA_SSLCARD_DOWN		0x00000100
+#define NSAHA_NO_DEVICES		0x00000200
+#define NSAHA_INC_STATE			0x00001000
+#define NSAHA_PROP_DISABLED		0x00002000
+#define NSAHA_STAY_PRIMARY		0x00004000
+#define NSAHA_VERSION_MISMATCH	0x00008000
 
 static int * const ha_flags[] = {
 	&hf_nsha_flags_vm,

@@ -1859,7 +1859,7 @@ proto_register_modbus(void)
         },
         { &hf_modbus_lbytecnt,
             { "Byte Count (16-bit)", "modbus.byte_cnt_16",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_exceptioncode,
