@@ -4828,17 +4828,17 @@ proto_register_diameter_3gpp(void)
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_der_s6b_flags,
-            { "RAR Flags", "diameter.3gpp.rar_flags",
+            { "RAR Flags", "diameter.3gpp.sb6_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_der_s6b_flags_bit0,
-            { "Initial-Attach-Indicator", "diameter.3gpp.rar_flags_bit0",
+            { "Initial-Attach-Indicator", "diameter.3gpp.sb6_flags_bit0",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_der_s6b_flags_spare_bits,
-            { "Spare", "diameter.3gpp.rar_flags_spare",
+            { "Spare", "diameter.3gpp.sb6_flags_spare",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },

@@ -56788,7 +56788,7 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, VALS(he_phy_dcm_max_constellation_vals), 0x0018, NULL, HFILL }},
 
     {&hf_ieee80211_he_phy_cap_dcm_max_nss_rx,
-     {"DCM Max NSS Rx", "wlan.ext_tag.he_phy_cap.dcm_max_nss_tx",
+     {"DCM Max NSS Rx", "wlan.ext_tag.he_phy_cap.dcm_max_nss_rx",
       FT_UINT16, BASE_HEX, VALS(he_phy_dcm_max_nss_vals), 0x0020, NULL, HFILL }},
 
     {&hf_ieee80211_he_phy_cap_rx_partial_bw_su_20mhz_he_mu_ppdu,

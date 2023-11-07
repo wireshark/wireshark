@@ -5014,12 +5014,12 @@ proto_register_dcom_cba_acco (void)
             "This connection Disconnect was in the packet with this number", HFILL }
         },
         { &hf_cba_connectcr_in,
-          { "ConnectCR in frame", "cba.connect_in",
+          { "ConnectCR in frame", "cba.connectcr_in",
             FT_FRAMENUM, BASE_NONE, NULL, 0,
             "This frame ConnectCR was in the packet with this number", HFILL }
         },
         { &hf_cba_disconnectcr_in,
-          { "DisconnectCR in frame", "cba.disconnect_in",
+          { "DisconnectCR in frame", "cba.disconnectcr_in",
             FT_FRAMENUM, BASE_NONE, NULL, 0,
             "This frame DisconnectCR was in the packet with this number", HFILL }
         },

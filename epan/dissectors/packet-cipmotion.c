@@ -2716,7 +2716,7 @@ proto_register_cipmotion(void)
           "Event Channel: Event Checking Status", HFILL}
       },
       { &hf_cip_event_id,
-        { "Event Id", "cipm.evntack",
+        { "Event Id", "cipm.evntid",
           FT_UINT8, BASE_DEC, NULL, 0,
           "Event Channel: Event Id", HFILL }
       },

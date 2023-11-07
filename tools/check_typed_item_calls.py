@@ -494,7 +494,21 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^isystemactivator.actproperties.ts.hdr'),
         re.compile(r'^rtpdump.txt_addr'),
         re.compile(r'^unistim.vocoder.id'),
-        re.compile(r'^mac.ueid')
+        re.compile(r'^mac.ueid'),
+        re.compile(r'cip.symbol.size'),
+        re.compile(r'dnp3.al.range.start'),
+        re.compile(r'dnp3.al.range.stop'),
+        re.compile(r'gtpv2.mp'),
+        re.compile(r'gvcp.cmd.resend.firstpacketid'),
+        re.compile(r'gvcp.cmd.resend.lastpacketid'),
+        re.compile(r'wlan.bf.reserved'),
+        re.compile(r'opa.sa.reserved'),
+        re.compile(r'rmt-lct.ext_tol_transfer_len'),
+        re.compile(r'pn_io.error_code2'),
+        re.compile(r'gryphon.ldf.schedsize'),
+        re.compile(r'wimaxmacphy.burst_opt_mimo_matrix_indicator'),
+        re.compile(r'alcap.pvbwt.bitrate.fw'),
+        re.compile(r'alcap.pvbwt.bitrate.bw')
     ]
 
     for patt in ignore_patterns:
