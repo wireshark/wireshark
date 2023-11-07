@@ -495,26 +495,38 @@ void uat_unload_all(void) {
     }
 }
 
+static void free_uat(uat_t *uat)
+{
+    unsigned j;
+
+    uat_clear(uat);
+    g_free(uat->help);
+    g_free(uat->name);
+    g_free(uat->filename);
+    g_array_free(uat->user_data, true);
+    g_array_free(uat->raw_data, true);
+    g_array_free(uat->valid_data, true);
+    for (j = 0; uat->fields[j].title; j++)
+        g_free(uat->fields[j].priv);
+    g_free(uat);
+}
+
 void uat_cleanup(void) {
     unsigned i;
-    unsigned j;
     uat_t* uat;
 
     for (i = 0; i < all_uats->len; i++) {
         uat = (uat_t *)g_ptr_array_index(all_uats, i);
-        uat_clear(uat);
-        g_free(uat->help);
-        g_free(uat->name);
-        g_free(uat->filename);
-        g_array_free(uat->user_data, true);
-        g_array_free(uat->raw_data, true);
-        g_array_free(uat->valid_data, true);
-        for (j = 0; uat->fields[j].title; j++)
-            g_free(uat->fields[j].priv);
-        g_free(uat);
+        free_uat(uat);
     }
 
     g_ptr_array_free(all_uats,true);
+}
+
+void uat_destroy(uat_t *uat)
+{
+    free_uat(uat);
+    g_ptr_array_remove(all_uats, uat);
 }
 
 void uat_foreach_table(uat_cb_t cb,void* user_data) {

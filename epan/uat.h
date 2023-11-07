@@ -304,6 +304,12 @@ uat_t* uat_new(const char* name,
 			   uat_reset_cb_t reset_cb,
 			   uat_field_t* flds_array);
 
+/** Free and deregister a single UAT.
+ *
+ */
+WS_DLL_PUBLIC
+void uat_destroy(uat_t *uat);
+
 /** Cleanup all UATs.
  *
  */
