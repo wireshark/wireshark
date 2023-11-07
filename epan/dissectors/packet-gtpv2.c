@@ -656,7 +656,9 @@ static int hf_gtpv2_origination_ts = -1;
 static int hf_gtpv2_mon_event_inf_nsur = -1;
 static int hf_gtpv2_mon_event_inf_nsui = -1;
 static int hf_gtpv2_mon_event_inf_nscf = -1;
+static int hf_gtpv2_mon_event_inf_srie = -1;
 static int hf_gtpv2_mon_event_inf_scef_reference_id = -1;
+static int hf_gtpv2_mon_event_inf_scef_reference_id_ext = -1;
 static int hf_gtpv2_mon_event_inf_scef_id_length = -1;
 static int hf_gtpv2_mon_event_inf_scef_id = -1;
 static int hf_gtpv2_mon_event_inf_remaining_number_of_reports = -1;
@@ -7700,10 +7702,21 @@ dissect_gtpv2_ms_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
  * 8.120        Monitoring Event Information
  */
 static void
-dissect_gtpv2_mon_event_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_mon_event_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    int   offset = 0;
+    int offset = 0;
+    gboolean srie;
     guint32 scef_id_len;
+
+    /* Octet 4 higher four bits flags SIRE, NSCF, NSUI and NSUR */
+    proto_tree_add_item_ret_boolean(tree, hf_gtpv2_mon_event_inf_srie, tvb, offset, 1, ENC_BIG_ENDIAN, &srie);
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_nscf, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_nsui, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_nsur, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /* Octet 4 lower four bits Instance */
+    proto_tree_add_item(tree, hf_gtpv2_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
     /* Octet 5 to 8 SCEF Reference ID */
     proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_scef_reference_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7718,8 +7731,13 @@ dissect_gtpv2_mon_event_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_remaining_number_of_reports, tvb, offset, 2, ENC_BIG_ENDIAN );
     offset += 2;
 
+    if (srie) {
+        proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_scef_reference_id_ext, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
     if(offset < length){
-        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length- offset);
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset);
     }
 }
 
@@ -8918,21 +8936,17 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         proto_tree_add_item(ie_tree, hf_gtpv2_ie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-
         /* ch8.120 breaks the format described in ch8.2.1 */
         if (type == GTPV2_IE_MON_EVENT_INF) {
-            proto_tree_add_bits_item(ie_tree, hf_gtpv2_spare_bits, tvb, offset << 3, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ie_tree, hf_gtpv2_mon_event_inf_nscf, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ie_tree, hf_gtpv2_mon_event_inf_nsui, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ie_tree, hf_gtpv2_mon_event_inf_nsur, tvb, offset, 1, ENC_BIG_ENDIAN);
+            instance = tvb_get_guint8(tvb, offset) & 0x0f;
         } else {
             /* CR Spare Instance Octet 4*/
             proto_tree_add_item(ie_tree, hf_gtpv2_cr, tvb, offset, 1, ENC_BIG_ENDIAN);
-        }
 
-        instance = tvb_get_guint8(tvb, offset) & 0x0f;
-        proto_tree_add_item(ie_tree, hf_gtpv2_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+            instance = tvb_get_guint8(tvb, offset) & 0x0f;
+            proto_tree_add_item(ie_tree, hf_gtpv2_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
 
         /* TODO: call IE dissector here */
         if (type == GTPV2_IE_RESERVED) {
@@ -11641,9 +11655,19 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
           NULL, HFILL }
       },
+      { &hf_gtpv2_mon_event_inf_srie,
+      { "SRIE (SCEF Reference Id Extension):", "gtpv2.mon_event_ext_inf.srie",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+          NULL, HFILL }
+      },
       { &hf_gtpv2_mon_event_inf_scef_reference_id,
           { "SCEF Reference ID", "gtpv2.mon_event_inf.scef_reference_id",
           FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_inf_scef_reference_id_ext,
+          { "SCEF Reference ID Ext", "gtpv2.mon_event_inf.scef_reference_id_ext",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_gtpv2_mon_event_inf_scef_id_length,
