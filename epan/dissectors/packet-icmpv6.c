@@ -5264,7 +5264,7 @@ proto_register_icmpv6(void)
           { "FQDN", "icmpv6.opt.name_type.fqdn", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_cert_type,
-          { "Cert Type", "icmpv6.opt.name_type", FT_UINT8, BASE_DEC, VALS(icmpv6_option_cert_type_vals), 0x0,
+          { "Cert Type", "icmpv6.opt.cert_type", FT_UINT8, BASE_DEC, VALS(icmpv6_option_cert_type_vals), 0x0,
             NULL, HFILL }},
         /* RFC3971:  SEcure Neighbor Discovery (SEND) */
         { &hf_icmpv6_send_identifier,

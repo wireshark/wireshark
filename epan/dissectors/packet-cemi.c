@@ -3439,7 +3439,7 @@ void proto_register_cemi( void )
     { &hf_cemi_scf_t, { "Tool Access", "cemi.scf.t", FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL } },
     { &hf_cemi_scf_sai, { "Security Algorithm Identifier", "cemi.scf.sai", FT_UINT8, BASE_HEX, VALS( scf_sai_vals ), 0x70, NULL, HFILL } },
     { &hf_cemi_scf_sbc, { "System Broadcast", "cemi.scf.sbc", FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL } },
-    { &hf_cemi_scf_svc, { "Service", "cemi.scf.sai", FT_UINT8, BASE_HEX, VALS( scf_svc_vals ), 0x07, NULL, HFILL } },
+    { &hf_cemi_scf_svc, { "Service", "cemi.scf.svc", FT_UINT8, BASE_HEX, VALS( scf_svc_vals ), 0x07, NULL, HFILL } },
     { &hf_cemi_adc_count, { "Count", "cemi.adc.n", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
   };
 

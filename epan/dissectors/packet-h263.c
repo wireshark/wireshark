@@ -754,7 +754,7 @@ proto_register_h263_data(void)
 			&hf_h263_full_picture_freeze_release,
 			{
 				"H.263 Full Picture Freeze Release",
-				"h263.split_screen_indicator",
+				"h263.full_picture_freeze_release",
 				FT_BOOLEAN,
 				BASE_NONE,
 				TFS(&tfs_on_off),

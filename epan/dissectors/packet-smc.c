@@ -2183,7 +2183,7 @@ proto_register_smcr(void)
 
 		{ &hf_smcr_add_link_cont_p2_virt_addr, {
 		"RMB RToken Pair 2 Virtual Address for the new SMC Link",
-		"smc.add.link.cont.rmb.RTok1.virt",
+		"smc.add.link.cont.rmb.RTok2.virt",
 		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_smcr_request_add_link_flags, {
@@ -2335,11 +2335,11 @@ proto_register_smcr(void)
 
 		{ &hf_smcr_rmbe_ctrl_cons_wrap_seqno, {
 		"Consumer window wrap sequence number",
-		"smc.rmbe.ctrl.prod.wrap.seq",
+		"smc.rmbe.ctrl.cons.wrap.seq",
 		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_smcr_rmbe_ctrl_peer_cons_curs, {
-		"Peer Consumer Cursor", "smc.rmbe.ctrl.peer.prod.curs",
+		"Peer Consumer Cursor", "smc.rmbe.ctrl.peer.cons.curs",
 		FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_smcr_rmbe_ctrl_conn_rw_status_flags, {

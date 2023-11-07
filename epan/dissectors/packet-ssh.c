@@ -5555,12 +5555,12 @@ proto_register_ssh(void)
             NULL, HFILL }},
 
         { &hf_ssh_channel_request_name_len,
-          { "Channel request name length", "ssh.global_request_name_length",
+          { "Channel request name length", "ssh.channel_request_name_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_channel_request_name,
-          { "Channel request name", "ssh.global_request_name",
+          { "Channel request name", "ssh.channel_request_name",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 

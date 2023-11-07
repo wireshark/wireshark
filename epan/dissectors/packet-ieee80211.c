@@ -45812,7 +45812,7 @@ proto_register_ieee80211(void)
       "Route Metric", HFILL }},
 
     {&hf_ieee80211_ff_marvell_mesh_mgt_flags,
-     {"RREQ Flags", "wlan.fixed.hopcount",
+     {"RREQ Flags", "wlan.fixed.flags",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 

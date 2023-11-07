@@ -14496,7 +14496,7 @@ proto_register_zbee_zcl_events(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_events_publish_event_log_total_number_of_matching_events,
-            { "Total Number of Matching Events", "zbee_zcl_se.events.publish_event_log.event_id", FT_UINT16, BASE_DEC, NULL,
+            { "Total Number of Matching Events", "zbee_zcl_se.events.publish_event_log.matching_events", FT_UINT16, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_events_publish_event_log_command_index,

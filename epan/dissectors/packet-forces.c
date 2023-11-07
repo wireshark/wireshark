@@ -663,7 +663,7 @@ proto_register_forces(void)
             FT_UINT32, BASE_DEC, NULL, 0x38000000, NULL, HFILL }
         },
         { &hf_forces_flags_rsrvd,
-            { "Rsrvd", "forces.Flags",
+            { "Rsrvd", "forces.flags.rsrvd",
             FT_UINT32, BASE_DEC,NULL, 0x07000000, NULL, HFILL }
         },
         { &hf_forces_flags_em,

@@ -1396,7 +1396,7 @@ proto_register_ncsi(void)
             NULL, HFILL },
         },
         { &hf_ncsi_cap_mf_dhcpv6,
-          { "DHCPv6 relay and server multicast", "ncsi.cap.mf.v6na",
+          { "DHCPv6 relay and server multicast", "ncsi.cap.mf.v6dhcp",
 			FT_BOOLEAN, 32, TFS(&tfs_capable_not_capable), 1 << 2,
             NULL, HFILL },
         },

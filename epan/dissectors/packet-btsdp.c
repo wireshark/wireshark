@@ -4789,7 +4789,7 @@ proto_register_btsdp(void)
             NULL, HFILL }
         },
         { &hf_reassembled_record_handle_list,
-            { "Reassembled Record Handle List",  "btsdp.reassembled_attribute_list",
+            { "Reassembled Record Handle List",  "btsdp.reassembled_record_handle_list",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
@@ -5064,7 +5064,7 @@ proto_register_btsdp(void)
             NULL, HFILL }
         },
         { &hf_avrcp_ct_supported_features_cover_art_get_image_properties,
-            { "Supported Features: Cover Art - Get Image Properties",      "btsdp.service.avrcp.ct.supported_features.cover_art_get_linked_thumbnail",
+            { "Supported Features: Cover Art - Get Image Properties",      "btsdp.service.avrcp.ct.supported_features.cover_art_get_image_properties",
             FT_BOOLEAN, 16, NULL, 0x0080,
             NULL, HFILL }
         },

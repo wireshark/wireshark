@@ -4941,7 +4941,7 @@ proto_register_ospf(void)
          { "(V) Value/Index Flag", "ospf.tlv.adjsid.flags.v", FT_BOOLEAN, 8,
            TFS(&tfs_set_notset), SR_STLV_ADJSID_FLAG_V, NULL, HFILL }},
         {&hf_ospf_ls_adjsid_flag_l,
-         { "(L) Local/Global Flag", "ospf.tlv.adjsid.flags.b", FT_BOOLEAN, 8,
+         { "(L) Local/Global Flag", "ospf.tlv.adjsid.flags.l", FT_BOOLEAN, 8,
            TFS(&tfs_set_notset), SR_STLV_ADJSID_FLAG_L, NULL, HFILL }},
         {&hf_ospf_ls_adjsid_flag_g,
          { "(G) Group Flag", "ospf.tlv.adjsid.flags.g", FT_BOOLEAN, 8,

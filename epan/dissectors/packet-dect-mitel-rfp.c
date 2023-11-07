@@ -1755,7 +1755,7 @@ void proto_register_dect_mitel_rfp(void)
 			}
 		},
 		{ &hf_dect_mitel_rfp_control_nack_reason,
-			{ "Reject reason", "dect_mitel_rfp.control.nack.message", FT_UINT32, BASE_HEX,
+			{ "Reject reason", "dect_mitel_rfp.control.nack.reason", FT_UINT32, BASE_HEX,
 				VALS(dect_mitel_rfp_control_nack_reason_val), 0x0, NULL, HFILL
 			}
 		},

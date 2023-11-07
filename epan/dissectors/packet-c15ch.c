@@ -9132,19 +9132,19 @@ void proto_register_c15ch(void)
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_sccp_dpcmember,
-            { "DPC Member", "c15.sccp.opcmember",
+            { "DPC Member", "c15.sccp.dpcmember",
             FT_UINT8, BASE_DEC,
             NULL,
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_sccp_dpccluster,
-            { "DPC Cluster", "c15.sccp.opccluster",
+            { "DPC Cluster", "c15.sccp.dpccluster",
             FT_UINT8, BASE_DEC,
             NULL,
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_sccp_dpcnetwork,
-            { "DPC Network", "c15.sccp.opcnetwork",
+            { "DPC Network", "c15.sccp.dpcnetwork",
             FT_UINT8, BASE_DEC,
             NULL,
             0x0, NULL, HFILL}

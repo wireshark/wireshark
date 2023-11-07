@@ -15265,7 +15265,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_qos_monitoring_measurement_uplink_packet_rate,
-        { "Downlink packet rate (kilobits per second)", "pfcp.qos_monitoring_measurement.uplink_packet_delay",
+        { "Uplink packet rate (kilobits per second)", "pfcp.qos_monitoring_measurement.uplink_packet_rate",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -15712,7 +15712,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_multicast_transport_information_source_address_type,
-        { "Source Address Type", "pfcp.multicast_transport_information.distribution_address.type",
+        { "Source Address Type", "pfcp.multicast_transport_information.source_address.type",
             FT_UINT8, BASE_DEC, NULL, 0xC0,
             NULL, HFILL }
         },

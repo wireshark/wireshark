@@ -7784,7 +7784,7 @@ proto_register_gsm_a_bssmap(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_bssap_diag_msg_rcv,
-        { "Message received","gsm_a.bssmap.cic_list_status",
+        { "Message received","gsm_a.bssmap.diag_msg_rcv",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },

@@ -1226,7 +1226,7 @@ void proto_register_erldp(void) {
                         FT_UINT8, BASE_DEC, NULL, 0x7,
                         NULL, HFILL}},
 
-    { &hf_etf_dist_header_long_atoms,    { "LongAtoms", "erldp.dist_header.new_cache",
+    { &hf_etf_dist_header_long_atoms,    { "LongAtoms", "erldp.dist_header.long_atoms",
                         FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x12,
                         NULL, HFILL}},
 

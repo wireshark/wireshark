@@ -2256,7 +2256,7 @@ void proto_register_jxta(void)
           "JXTA Message Element Flag -- nameLiteral", HFILL}
          },
         {&hf_jxta_element2_flag_hasType,
-         {"hasEncoding", "jxta.message.element.flags.hasType", FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x04,
+         {"hasType", "jxta.message.element.flags.hasType", FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x04,
           "JXTA Message Element Flag -- hasType", HFILL}
          },
         {&hf_jxta_element2_flag_hasSignature,

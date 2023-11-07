@@ -4726,7 +4726,7 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_extended_advertising_sync_info_reserved,
-            { "Reserved",                        "btle.extended_advertising_header.sync_info.offset_units",
+            { "Reserved",                        "btle.extended_advertising_header.sync_info.reserved",
             FT_BOOLEAN, 16, NULL, 0x8000,
             NULL, HFILL }
         },
@@ -5436,7 +5436,7 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_control_sync_info_reserved,
-            { "Reserved",                        "btle.control.sync_info.offset_units",
+            { "Reserved",                        "btle.control.sync_info.reserved",
             FT_BOOLEAN, 16, NULL, 0x8000,
             NULL, HFILL }
         },

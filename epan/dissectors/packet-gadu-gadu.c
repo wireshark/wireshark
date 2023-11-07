@@ -2121,7 +2121,7 @@ proto_register_gadu_gadu(void)
 			  NULL, HFILL }
 		},
 		{ &hf_gadu_gadu_pubdir_reply_str,
-			{ "Reply string", "gadu-gadu.pubdir.request_str",
+			{ "Reply string", "gadu-gadu.pubdir.reply_str",
 			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
 			  NULL, HFILL }
 		},

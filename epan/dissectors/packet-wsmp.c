@@ -485,7 +485,7 @@ proto_register_wsmp(void)
             NULL, HFILL }},
 
         { &hf_wsmp_tpid,
-          { "TPID", "wsmp.wave_ie", FT_UINT8, BASE_DEC, VALS(wsmp_tpid_vals), 0x0,
+          { "TPID", "wsmp.tpid", FT_UINT8, BASE_DEC, VALS(wsmp_tpid_vals), 0x0,
             NULL, HFILL }},
 
     };

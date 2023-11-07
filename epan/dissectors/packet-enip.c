@@ -4042,7 +4042,7 @@ proto_register_enip(void)
       { &hf_tcpip_port_admin_capability, { "Admin Capability", "cip.tcpip.admin_capability", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
       { &hf_tcpip_admin_capability_configurable, { "Configurable", "cip.tcpip.admin_capability.configurable", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL } },
       { &hf_tcpip_admin_capability_reset_required, { "Reset Required", "cip.tcpip.admin_capability.reset_required", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL } },
-      { &hf_tcpip_admin_capability_reserved, { "Reserved", "cip.tcpip.admin_capability", FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
+      { &hf_tcpip_admin_capability_reserved, { "Reserved", "cip.tcpip.admin_capability_reserved", FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
 
       { &hf_elink_interface_speed,
         { "Interface Speed", "cip.elink.interface_speed",

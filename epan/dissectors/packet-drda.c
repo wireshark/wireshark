@@ -3151,7 +3151,7 @@ proto_register_drda(void)
 
         /* This one is a 0x00 0x01 boolean, not a EBCDIC 0xf0 0xf1 boolean */
         { &hf_drda_rtnsetstt,
-          { "Return SET Statement", "drda.rdbinttkn", FT_BOOLEAN, BASE_NONE,
+          { "Return SET Statement", "drda.rtnsetstt", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }},
 

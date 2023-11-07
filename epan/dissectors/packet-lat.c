@@ -2007,7 +2007,7 @@ proto_register_lat(void)
 		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_srvc_count,
-		{ "Service count", "lat.srvc_status", FT_UINT8,
+		{ "Service count", "lat.srvc_count", FT_UINT8,
 		  BASE_DEC, NULL, 0x0, "Total number of service entries in the message", HFILL}},
 
 	    { &hf_lat_srvc_entry_len,
