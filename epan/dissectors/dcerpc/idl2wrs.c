@@ -368,7 +368,7 @@ register_hf_field(const char *hf_name, const char *title, const char *filter_nam
 	hfi->name=g_strdup(hf_name);
 	hfi->ft_type=g_strdup(ft_type);
 
-	FPRINTF(eth_hf, "static int %s = -1;\n", hf_name);
+	FPRINTF(eth_hf, "static int %s;\n", hf_name);
 	FPRINTF(eth_hfarr, "		{ &%s,\n", hf_name);
 	FPRINTF(eth_hfarr, "		  { \"%s\", \"%s\", %s, %s,\n", title, filter_name, ft_type, base_type);
 	FPRINTF(eth_hfarr, "		  %s, %s,\n", valsstring, mask);
@@ -894,7 +894,7 @@ static void parseheader(void)
 	snprintf(filter_name, BASE_BUFFER_SIZE, "%s.rc", ifname);
 	register_hf_field(hf_status, "Return code", filter_name, "FT_UINT32", "BASE_HEX", "VALS(NT_errors)", "0", "");
 
-	FPRINTF(eth_ett, "static gint ett_%s = -1;\n", ifname);
+	FPRINTF(eth_ett, "static gint ett_%s;\n", ifname);
 	FPRINTF(eth_ettarr, "		 &ett_%s,\n", ifname);
 
 	/* the body must start with { */
@@ -1554,7 +1554,7 @@ static void parsetypedefstruct(int pass)
 	}
 	/* pass 1  generate header for the struct dissector */
 	if(pass==1){
-		FPRINTF(eth_ett, "static gint ett_%s_%s = -1;\n", ifname, struct_name);
+		FPRINTF(eth_ett, "static gint ett_%s_%s;\n", ifname, struct_name);
 		FPRINTF(eth_ettarr, "		 &ett_%s_%s,\n", ifname, struct_name);
 		FPRINTF(eth_hdr, "int %s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param);\n", dissectorname);
 		FPRINTF(eth_code, "\n");
@@ -2265,7 +2265,7 @@ static void parsetypedefunion(int pass)
 
 	/* pass 1  generate header for the struct dissector */
 	if(pass==1){
-		FPRINTF(eth_ett, "static gint ett_%s_%s = -1;\n", ifname, union_name);
+		FPRINTF(eth_ett, "static gint ett_%s_%s;\n", ifname, union_name);
 		FPRINTF(eth_ettarr, "		 &ett_%s_%s,\n", ifname, union_name);
 		FPRINTF(eth_code, "\n");
 		FPRINTF(eth_code, "static int\n");

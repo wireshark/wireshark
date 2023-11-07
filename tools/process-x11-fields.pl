@@ -144,7 +144,7 @@ while(<>) {
     $variable =~ s/-/_/go;
     $variable =~ s/\./_/go;
 
-    print DECL "static int hf_x11_$variable = -1;\n";
+    print DECL "static int hf_x11_$variable;\n";
 
     print REG <<END;
 { &hf_x11_$variable, { "$abbrev", "x11.$field", FT_$type, $fieldDisplay, $fieldStrings, $mask, $longName, HFILL }},

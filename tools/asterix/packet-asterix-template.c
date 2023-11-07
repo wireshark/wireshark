@@ -49,22 +49,22 @@ void proto_reg_handoff_asterix(void);
 #define MAX_DISSECT_STR     1024
 #define MAX_BUFFER           256
 
-static int proto_asterix = -1;
+static int proto_asterix;
 
-static int hf_asterix_category = -1;
-static int hf_asterix_length = -1;
-static int hf_asterix_message = -1;
-static int hf_asterix_fspec = -1;
-static int hf_re_field_len = -1;
-static int hf_spare = -1;
-static int hf_counter = -1;
-static int hf_XXX_FX = -1;
+static int hf_asterix_category;
+static int hf_asterix_length;
+static int hf_asterix_message;
+static int hf_asterix_fspec;
+static int hf_re_field_len;
+static int hf_spare;
+static int hf_counter;
+static int hf_XXX_FX;
 
-static int ett_asterix = -1;
-static int ett_asterix_category = -1;
-static int ett_asterix_length = -1;
-static int ett_asterix_message = -1;
-static int ett_asterix_subtree = -1;
+static int ett_asterix;
+static int ett_asterix_category;
+static int ett_asterix_length;
+static int ett_asterix_message;
+static int ett_asterix_subtree;
 
 static dissector_handle_t asterix_handle;
 /* The following defines tell us how to decode the length of

@@ -397,7 +397,7 @@ def part1(ctx, get_ref, catalogue):
                 return '&I{}_{}'.format(ref, item['name'])
 
             if t == 'Element':
-                tell('static int hf_{} = -1;'.format(ref))
+                tell('static int hf_{};'.format(ref))
                 n = variation['size']
                 content = get_content(variation['rule'])
                 scaling = get_scaling(content)
@@ -425,7 +425,7 @@ def part1(ctx, get_ref, catalogue):
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
 
-                tell('static int hf_{} = -1;'.format(ref))
+                tell('static int hf_{};'.format(ref))
                 for i in variation['items']:
                     handle_item(path, i)
 
@@ -450,7 +450,7 @@ def part1(ctx, get_ref, catalogue):
 
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
-                tell('static int hf_{} = -1;'.format(ref))
+                tell('static int hf_{};'.format(ref))
 
                 items = []
                 for i in variation['items']:
@@ -509,14 +509,14 @@ def part1(ctx, get_ref, catalogue):
 
             elif t == 'Explicit':
                 ctx.reset_offset()
-                tell('static int hf_{} = -1;'.format(ref))
+                tell('static int hf_{};'.format(ref))
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
                 tell('static const AsterixField I{} = {} EXP, 0, 0, 1, &hf_{}, NULL, {} NULL {} {};'.format(ref, '{', ref, '{', '}', '}'))
 
             elif t == 'Compound':
                 ctx.reset_offset()
-                tell('static int hf_{} = -1;'.format(ref))
+                tell('static int hf_{};'.format(ref))
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
                 comp = '{'

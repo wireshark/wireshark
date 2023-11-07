@@ -147,55 +147,55 @@ static wmem_map_t *error_table;     /* hashtable of extension name <-> error lis
 static wmem_map_t *reply_table;     /* hashtable of extension name <-> reply list */
 
 /* Initialize the protocol and registered fields */
-static int proto_x11 = -1;
+static int proto_x11;
 
 #include "x11-declarations.h"
 
 /* Initialize the subtree pointers */
-static gint ett_x11 = -1;
-static gint ett_x11_color_flags = -1;
-static gint ett_x11_list_of_arc = -1;
-static gint ett_x11_arc = -1;
-static gint ett_x11_list_of_atom = -1;
-static gint ett_x11_list_of_card32 = -1;
-static gint ett_x11_list_of_float = -1;
-static gint ett_x11_list_of_double = -1;
-static gint ett_x11_list_of_color_item = -1;
-static gint ett_x11_color_item = -1;
-static gint ett_x11_list_of_keycode = -1;
-static gint ett_x11_list_of_keysyms = -1;
-static gint ett_x11_keysym = -1;
-static gint ett_x11_list_of_point = -1;
-static gint ett_x11_point = -1;
-static gint ett_x11_list_of_rectangle = -1;
-static gint ett_x11_rectangle = -1;
-static gint ett_x11_list_of_segment = -1;
-static gint ett_x11_segment = -1;
-static gint ett_x11_list_of_string8 = -1;
-static gint ett_x11_list_of_text_item = -1;
-static gint ett_x11_text_item = -1;
-static gint ett_x11_gc_value_mask = -1;         /* XXX - unused */
-static gint ett_x11_event_mask = -1;            /* XXX - unused */
-static gint ett_x11_do_not_propagate_mask = -1; /* XXX - unused */
-static gint ett_x11_set_of_key_mask = -1;
-static gint ett_x11_pointer_event_mask = -1;    /* XXX - unused */
-static gint ett_x11_window_value_mask = -1;     /* XXX - unused */
-static gint ett_x11_configure_window_mask = -1; /* XXX - unused */
-static gint ett_x11_keyboard_value_mask = -1;   /* XXX - unused */
-static gint ett_x11_same_screen_focus = -1;
-static gint ett_x11_event = -1;
-static gint ett_x11_list_of_pixmap_format = -1;
-static gint ett_x11_pixmap_format = -1;
-static gint ett_x11_list_of_screen = -1;
-static gint ett_x11_screen = -1;
-static gint ett_x11_list_of_depth_detail = -1;
-static gint ett_x11_depth_detail = -1;
-static gint ett_x11_list_of_visualtype= -1;
-static gint ett_x11_visualtype= -1;
+static gint ett_x11;
+static gint ett_x11_color_flags;
+static gint ett_x11_list_of_arc;
+static gint ett_x11_arc;
+static gint ett_x11_list_of_atom;
+static gint ett_x11_list_of_card32;
+static gint ett_x11_list_of_float;
+static gint ett_x11_list_of_double;
+static gint ett_x11_list_of_color_item;
+static gint ett_x11_color_item;
+static gint ett_x11_list_of_keycode;
+static gint ett_x11_list_of_keysyms;
+static gint ett_x11_keysym;
+static gint ett_x11_list_of_point;
+static gint ett_x11_point;
+static gint ett_x11_list_of_rectangle;
+static gint ett_x11_rectangle;
+static gint ett_x11_list_of_segment;
+static gint ett_x11_segment;
+static gint ett_x11_list_of_string8;
+static gint ett_x11_list_of_text_item;
+static gint ett_x11_text_item;
+static gint ett_x11_gc_value_mask;         /* XXX - unused */
+static gint ett_x11_event_mask;            /* XXX - unused */
+static gint ett_x11_do_not_propagate_mask; /* XXX - unused */
+static gint ett_x11_set_of_key_mask;
+static gint ett_x11_pointer_event_mask;    /* XXX - unused */
+static gint ett_x11_window_value_mask;     /* XXX - unused */
+static gint ett_x11_configure_window_mask; /* XXX - unused */
+static gint ett_x11_keyboard_value_mask;   /* XXX - unused */
+static gint ett_x11_same_screen_focus;
+static gint ett_x11_event;
+static gint ett_x11_list_of_pixmap_format;
+static gint ett_x11_pixmap_format;
+static gint ett_x11_list_of_screen;
+static gint ett_x11_screen;
+static gint ett_x11_list_of_depth_detail;
+static gint ett_x11_depth_detail;
+static gint ett_x11_list_of_visualtype;
+static gint ett_x11_visualtype;
 
-static expert_field ei_x11_invalid_format = EI_INIT;
-static expert_field ei_x11_request_length = EI_INIT;
-static expert_field ei_x11_keycode_value_out_of_range = EI_INIT;
+static expert_field ei_x11_invalid_format;
+static expert_field ei_x11_request_length;
+static expert_field ei_x11_keycode_value_out_of_range;
 
 /* desegmentation of X11 messages */
 static gboolean x11_desegment = TRUE;

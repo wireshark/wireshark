@@ -1919,17 +1919,17 @@ void proto_reg_handoff_giop_@dissector_name@(void);"""
 
 #    template_protocol = """
 #/* Initialise the protocol and subtree pointers */
-#static int proto_@dissector_name@ = -1;
-#static gint ett_@dissector_name@ = -1;
+#static int proto_@dissector_name@;
+#static gint ett_@dissector_name@;
 #"""
     template_protocol = """
 /* Initialise the protocol and subtree pointers */
-static int proto_@dissector_name@ = -1;
-static gint ett_@dissector_name@ = -1;
-static int ett_giop_struct   = -1;
-static int ett_giop_sequence = -1;
-static int ett_giop_array    = -1;
-static int ett_giop_union    = -1;
+static int proto_@dissector_name@;
+static gint ett_@dissector_name@;
+static int ett_giop_struct;
+static int ett_giop_sequence;
+static int ett_giop_array;
+static int ett_giop_union;
 """
 
     template_init_boundary = """
@@ -1944,7 +1944,7 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */"""
 WS_DLL_PUBLIC_DEF void
 plugin_register(void)
 {
-    if (proto_@dissector_name@ == -1) {
+    if (proto_@dissector_name@ <= 0) {
         proto_register_giop_@dissector_name@();
     }
 }
@@ -2736,11 +2736,11 @@ if (disc_s_@discname@ == @labelval@) {
     # for structs and union helper functions.
 
     template_hf_operations = """
-static int hf_operationrequest = -1;/* Request_Operation field */
+static int hf_operationrequest;/* Request_Operation field */
 """
 
     template_hf = """\
-static int hf_@name@ = -1;"""
+static int hf_@name@;"""
 
     template_prototype_start_dissecting = """
 static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);

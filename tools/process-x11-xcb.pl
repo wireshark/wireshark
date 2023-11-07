@@ -299,28 +299,28 @@ eot
         my $variable_param = $e->att('variable_param');
 
         if ($list and $count and $variable_param) {
-            print $decl "static int ${regname} = -1;\n";
+            print $decl "static int ${regname};\n";
             print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
-            print $decl "static int ${regname}_signed = -1;\n";
+            print $decl "static int ${regname}_signed;\n";
             print $reg "{ &${regname}_signed, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
-            print $decl "static int ${regname}_unsigned = -1;\n";
+            print $decl "static int ${regname}_unsigned;\n";
             print $reg "{ &${regname}_unsigned, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
-            print $decl "static int ${regname}_item_card16 = -1;\n";
+            print $decl "static int ${regname}_item_card16;\n";
             print $reg "{ &${regname}_item_card16, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
-            print $decl "static int ${regname}_item_int16 = -1;\n";
+            print $decl "static int ${regname}_item_int16;\n";
             print $reg "{ &${regname}_item_int16, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
-            print $decl "static int ${regname}_item_card32 = -1;\n";
+            print $decl "static int ${regname}_item_card32;\n";
             print $reg "{ &${regname}_item_card32, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
-            print $decl "static int ${regname}_item_int32 = -1;\n";
+            print $decl "static int ${regname}_item_int32;\n";
             print $reg "{ &${regname}_item_int32, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
-            print $decl "static int ${regname}_item_float = -1;\n";
+            print $decl "static int ${regname}_item_float;\n";
             print $reg "{ &${regname}_item_float, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
         } else {
-            print $decl "static int $regname = -1;\n";
+            print $decl "static int $regname;\n";
             if ($list and $info->{'size'} > 1) {
                 print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname.list\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
                 $regname .= '_item';
-                print $decl "static int $regname = -1;\n";
+                print $decl "static int $regname;\n";
             }
             print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", $ft, $base, $val, 0, NULL, HFILL }},\n";
 
@@ -337,7 +337,7 @@ eot
                     my $varname = $wholename;
                     $varname =~ s/\s//g;
                     my $regname = registered_name($name, $varname);
-                    print $decl "static int $regname = -1;\n";
+                    print $decl "static int $regname;\n";
                     print $reg "{ &$regname, { \"$wholename\", \"x11.glx.render.$name.$varname\", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
                 }
                 foreach my $wholename (('row length', 'skip rows', 'skip pixels', 'alignment')) {
@@ -345,7 +345,7 @@ eot
                     my $varname = $wholename;
                     $varname =~ s/\s//g;
                     my $regname = registered_name($name, $varname);
-                    print $decl "static int $regname = -1;\n";
+                    print $decl "static int $regname;\n";
                     print $reg "{ &$regname, { \"$wholename\", \"x11.glx.render.$name.$varname\", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},\n";
                 }
             }
@@ -710,16 +710,16 @@ sub register_element($$$$;$)
             my $itemhuman = $humanname . '.' . $itemname;
             my $bitshift = "1U << $val";
 
-            say $decl "static int $item = -1;";
+            say $decl "static int $item;";
             say $reg "{ &$item, { \"$itemname\", \"$itemhuman\", FT_BOOLEAN, $bitsize, NULL, $bitshift, NULL, HFILL }},";
         }
     }
 
-    print $decl "static int $regname = -1;\n";
+    print $decl "static int $regname;\n";
     if ($e->name() eq 'list' and defined $info->{'size'} and $info->{'size'} > 1) {
         print $reg "{ &$regname, { \"$fieldname\", \"$humanname.list\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
         $regname .= '_item';
-        print $decl "static int $regname = -1;\n";
+        print $decl "static int $regname;\n";
     }
     print $reg "{ &$regname, { \"$fieldname\", \"$humanname\", $ft, $base, $vals, 0, NULL, HFILL }},\n";
 
@@ -1154,7 +1154,7 @@ eot
         $size = 0; # 0 means "dynamic calcuation required"
     }
 
-    print $decl "static int hf_x11_struct_$name = -1;\n";
+    print $decl "static int hf_x11_struct_$name;\n";
     print $reg "{ &hf_x11_struct_$name, { \"$name\", \"x11.struct.$name\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
 
     print $impl <<eot
@@ -1237,7 +1237,7 @@ sub union {
     @sizes = sort {$b <=> $a} @sizes;
     my $size = $sizes[0];
 
-    print $decl "static int hf_x11_union_$name = -1;\n";
+    print $decl "static int hf_x11_union_$name;\n";
     print $reg "{ &hf_x11_union_$name, { \"$name\", \"x11.union.$name\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
 
     print $impl <<eot
@@ -1663,7 +1663,7 @@ sub xcb {
     my $genevent_name = 'NULL';
     my $reply_name = $header . "_replies";
 
-    print $decl "static int hf_x11_$lookup_name = -1;\n\n";
+    print $decl "static int hf_x11_$lookup_name;\n\n";
 
     print $impl "static const value_string $lookup_name"."[] = {\n";
     foreach my $req (sort {$a <=> $b} keys %request) {
@@ -1832,7 +1832,7 @@ if (-e "$mesadir/gl_API.xml") {
     print $enum "};\n";
     $enum->close();
 
-    print $decl "static int hf_x11_glx_render_op_name = -1;\n\n";
+    print $decl "static int hf_x11_glx_render_op_name;\n\n";
 
     print $impl "static const value_string glx_render_op_name"."[] = {\n";
     foreach my $req (sort {$a <=> $b} keys %request) {
