@@ -480,7 +480,6 @@ df_func_init(void)
 
     /* Register built-in functions. */
     for (func = df_functions; func->name != NULL; func++) {
-        ws_assert(check_valid_func_name(func->name) == NULL);
         df_func_register(func);
     }
 }
