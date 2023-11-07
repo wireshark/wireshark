@@ -368,7 +368,7 @@ static gboolean get_filter_arguments(capture_options* capture_opts, const char* 
                 filter_def *filterDef;
 
                 filterDef = (filter_def*)filterItem->data;
-                if (strcmp(val, filterDef->name) == 0) {
+                if (g_ascii_strcasecmp(val, filterDef->name) == 0) {
                     filter_exp = g_strdup(filterDef->strval);
                     break;
                 }
