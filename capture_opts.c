@@ -33,7 +33,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/ws_pipe.h>
 #include <wsutil/ws_assert.h>
-#include <wsutil/filter_files.h>
 
 #include "capture/capture_ifinfo.h"
 #include "capture/capture-pcap-util.h"
@@ -136,6 +135,7 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
     capture_opts->compress_type                   = NULL;
     capture_opts->closed_msg                      = NULL;
     capture_opts->extcap_terminate_id             = 0;
+    capture_opts->capture_filters_list            = NULL;
 }
 
 void
@@ -170,6 +170,11 @@ capture_opts_cleanup(capture_options *capture_opts)
     if (capture_opts->extcap_terminate_id > 0) {
         g_source_remove(capture_opts->extcap_terminate_id);
         capture_opts->extcap_terminate_id = 0;
+    }
+
+    if (capture_opts->capture_filters_list) {
+        ws_filter_list_free(capture_opts->capture_filters_list);
+        capture_opts->capture_filters_list = NULL;
     }
 }
 
@@ -358,7 +363,7 @@ static gboolean get_filter_arguments(capture_options* capture_opts, const char* 
         if (strcmp(arg, "predef") == 0) {
             GList* filterItem;
 
-            filterItem = get_filter_list_first(CFILTER_LIST);
+            filterItem = capture_opts->capture_filters_list->list;
             while (filterItem != NULL) {
                 filter_def *filterDef;
 
@@ -903,6 +908,8 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
         break;
     case 'f':        /* capture filter */
+        if (capture_opts->capture_filters_list == NULL)
+            capture_opts->capture_filters_list = ws_filter_list_read(CFILTER_LIST);
         get_filter_arguments(capture_opts, optarg_str_p);
         break;
     case 'g':        /* enable group read access on the capture file(s) */

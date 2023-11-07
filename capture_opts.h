@@ -23,6 +23,7 @@
 #include <capture/capture_ifinfo.h>
 #include "ringbuffer.h"
 #include <wsutil/wslog.h>
+#include <wsutil/filter_files.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -337,6 +338,7 @@ typedef struct capture_options_tag {
     gchar             *compress_type;         /**< compress type */
     gchar             *closed_msg;            /**< Dumpcap capture closed message */
     guint              extcap_terminate_id;   /**< extcap process termination source ID */
+    filter_list_t     *capture_filters_list;  /**< list of saved capture filters */
 } capture_options;
 
 /*

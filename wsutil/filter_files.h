@@ -44,33 +44,33 @@ typedef struct {
     char *strval;        /* filter expression */
 } filter_def;
 
+typedef struct {
+    filter_list_type_t type;
+    GList *list;
+} filter_list_t;
+
 /*
  * Read in a list of filters.
  *
  * On error, report the error via the UI.
  */
 WS_DLL_PUBLIC
-void read_filter_list(filter_list_type_t list_type);
-
-/*
- * Get a pointer to the first entry in a filter list.
- */
-WS_DLL_PUBLIC
-GList *get_filter_list_first(filter_list_type_t list);
+WS_RETNONNULL
+filter_list_t *ws_filter_list_read(filter_list_type_t list_type);
 
 /*
  * Add a new filter to the end of a list.
  * Returns a pointer to the newly-added entry.
  */
 WS_DLL_PUBLIC
-GList *add_to_filter_list(filter_list_type_t list, const char *name,
+void ws_filter_list_add(filter_list_t *list, const char *name,
                           const char *expression);
 
 /*
  * Remove a filter from a list.
  */
 WS_DLL_PUBLIC
-void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
+bool ws_filter_list_remove(filter_list_t *list, const char *name);
 
 /*
  * Write out a list of filters.
@@ -78,13 +78,13 @@ void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
  * On error, report the error via the UI.
  */
 WS_DLL_PUBLIC
-void save_filter_list(filter_list_type_t list_type);
+void ws_filter_list_write(filter_list_t *list);
 
 /*
  * Free all filter lists
  */
 WS_DLL_PUBLIC
-void free_filter_lists(void);
+void ws_filter_list_free(filter_list_t *list);
 
 #ifdef __cplusplus
 }

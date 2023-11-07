@@ -1333,8 +1333,6 @@ main(int argc, char *argv[])
     prefs_p = epan_load_settings();
     prefs_loaded = TRUE;
 
-    read_filter_list(CFILTER_LIST);
-
     cap_file_init(&cfile);
 
     /* Print format defaults to this. */
@@ -2720,7 +2718,6 @@ clean_exit:
     capture_opts_cleanup(&global_capture_opts);
 #endif
     col_cleanup(&cfile.cinfo);
-    free_filter_lists();
     wtap_cleanup();
     free_progdirs();
     dfilter_free(dfcode);

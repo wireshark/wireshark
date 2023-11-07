@@ -839,7 +839,6 @@ MainApplication::~MainApplication()
 {
     mainApp = NULL;
     clearDynamicMenuGroupItems();
-    free_filter_lists();
 }
 
 void MainApplication::registerUpdate(register_action_e action, const char *message)
@@ -1127,9 +1126,6 @@ _e_prefs *MainApplication::readConfigurationFiles(bool reset)
 
     /* Load libwireshark settings from the current profile. */
     prefs_p = epan_load_settings();
-
-    /* Read the capture filter file. */
-    read_filter_list(CFILTER_LIST);
 
     return prefs_p;
 }

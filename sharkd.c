@@ -183,8 +183,6 @@ main(int argc, char *argv[])
     /* Load libwireshark settings from the current profile. */
     prefs_p = epan_load_settings();
 
-    read_filter_list(CFILTER_LIST);
-
     if (!color_filters_init(&err_msg, NULL)) {
         fprintf(stderr, "%s\n", err_msg);
         g_free(err_msg);
@@ -209,7 +207,6 @@ main(int argc, char *argv[])
     ret = sharkd_loop(argc, argv);
 clean_exit:
     col_cleanup(&cfile.cinfo);
-    free_filter_lists();
     codecs_cleanup();
     wtap_cleanup();
     free_progdirs();
