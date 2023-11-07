@@ -189,6 +189,22 @@ class TestSharkd:
             },
         ))
 
+    def test_sharkd_req_frames_delta_times(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+             "params":{"file": capture_file('logistics_multicast.pcapng')}
+             },
+            {"jsonrpc":"2.0", "id":2, "method":"frames","params":{"filter":"frame.number==1||frame.number==800","column0":"frame.time_relative:1","column1":"frame.time_delta:1","column2":"frame.time_delta_displayed:1"}},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":
+                [
+                    {"c":["0.000000000","0.000000000","0.000000000"],"num":1,"bg":"feffd0","fg":"12272e"},
+                    {"c":["191.872111000","0.193716000","191.872111000"],"num":800,"bg":"feffd0","fg":"12272e"},
+                ],
+            },
+        ))
+
     def test_sharkd_req_tap_invalid(self, check_sharkd_session, capture_file):
         # XXX Unrecognized taps result in an empty line, modify
         #     run_sharkd_session such that checking for it is possible.
