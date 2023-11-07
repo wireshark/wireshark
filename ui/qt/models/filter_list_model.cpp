@@ -24,11 +24,6 @@
 #include <QMimeData>
 
 /*
- * Old filter file name.
- */
-#define FILTER_FILE_NAME      "filters"
-
-/*
  * Capture filter file name.
  */
 #define CFILTER_FILE_NAME     "cfilters"
@@ -61,8 +56,6 @@ void FilterListModel::reload()
     /* Try personal config file first */
     QString fileName = gchar_free_to_qstring(get_persconffile_path(cfile, TRUE));
     if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
-        fileName = gchar_free_to_qstring(get_persconffile_path(FILTER_FILE_NAME, TRUE));
-    if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
         fileName = gchar_free_to_qstring(get_datafile_path(cfile));
     if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
         return;
@@ -80,7 +73,7 @@ void FilterListModel::reload()
         /* Filter out lines that do not contain content:
         *  - Starting with # is a comment
         *  - Does not start with a quoted string
-        */ 
+        */
         if (data.startsWith("#") || ! data.trimmed().startsWith("\""))
             continue;
 

@@ -163,46 +163,21 @@ read_filter_list(filter_list_type_t list_type)
         }
 
         /*
-         * Yes.  See if there's an "old style" personal "filters" file; if so, read it.
-         * This means that a user will start out with their capture and
-         * display filter lists being identical; each list may contain
-         * filters that don't belong in that list.  The user can edit
-         * the filter lists, and delete the ones that don't belong in
-         * a particular list.
+         * Yes. Try to open the global "cfilters/dfilters" file.
          */
         g_free(ff_path);
-        ff_path = get_persconffile_path(FILTER_FILE_NAME, false);
+        ff_path = get_datafile_path(ff_name);
         if ((ff = ws_fopen(ff_path, "r")) == NULL) {
             /*
-             * Did that fail because the file didn't exist?
+             * Well, that didn't work, either.  Just give up.
+             * Report an error if the file existed but we couldn't open it.
              */
             if (errno != ENOENT) {
-                /*
-                 * No.  Just give up.
-                 */
                 report_warning("Could not open your %s filter file\n\"%s\": %s.",
                         ff_description, ff_path, g_strerror(errno));
-                g_free(ff_path);
-                return;
             }
-
-            /*
-             * Try to open the global "cfilters/dfilters" file.
-             */
             g_free(ff_path);
-            ff_path = get_datafile_path(ff_name);
-            if ((ff = ws_fopen(ff_path, "r")) == NULL) {
-                /*
-                 * Well, that didn't work, either.  Just give up.
-                 * Report an error if the file existed but we couldn't open it.
-                 */
-                if (errno != ENOENT) {
-                    report_warning("Could not open your %s filter file\n\"%s\": %s.",
-                            ff_description, ff_path, g_strerror(errno));
-                }
-                g_free(ff_path);
-                return;
-            }
+            return;
         }
     }
 
