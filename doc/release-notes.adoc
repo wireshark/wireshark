@@ -14,6 +14,10 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
+This is the first major Wireshark release under the Wireshark Foundation, a nonprofit which hosts Wireshark and promotes protocol analysis educaton.
+The foundation depends on your contributions in order to do its work.
+If you or your employer would like to contribute or become a sponsor, please visit https://wiresharkfoundation.org[wiresharkfoundation.org].
+
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
