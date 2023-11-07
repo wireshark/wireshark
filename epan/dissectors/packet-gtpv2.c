@@ -58,7 +58,7 @@ static int hf_gtpv2_spare_half_octet = -1;
 //static int hf_gtpv2_spare_b7_b1 = -1;
 static int hf_gtpv2_spare_b7_b2 = -1;
 static int hf_gtpv2_spare_b7_b3 = -1;
-static int hf_gtpv2_spare_b7_b4 = -1;
+//static int hf_gtpv2_spare_b7_b4 = -1;
 static int hf_gtpv2_spare_b7_b5 = -1;
 
 static int hf_gtpv2_spare_bits = -1;
@@ -9202,11 +9202,11 @@ void proto_register_gtpv2(void)
             FT_UINT8, BASE_DEC, NULL, 0xf8,
             NULL, HFILL }
         },
-        { &hf_gtpv2_spare_b7_b4,
-        { "Spare", "gtpv2.spare.b7_b4",
-            FT_UINT8, BASE_HEX, NULL, 0xf0,
-            NULL, HFILL }
-        },
+        //{ &hf_gtpv2_spare_b7_b4,
+        //{ "Spare", "gtpv2.spare.b7_b4",
+        //    FT_UINT8, BASE_HEX, NULL, 0xf0,
+        //    NULL, HFILL }
+        //},
         { &hf_gtpv2_spare_b7_b5,
         { "Spare", "gtpv2.spare.b7_b5",
             FT_UINT8, BASE_HEX, NULL, 0xe0,
