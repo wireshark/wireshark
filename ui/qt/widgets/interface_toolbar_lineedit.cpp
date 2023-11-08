@@ -103,6 +103,12 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             "InterfaceToolbarLineEdit {"
             "  padding-right: %1px;"
             "  background-color: %2;"
+#ifdef Q_OS_MAC
+            "  border: 1px solid gray;"
+            "  border-radius: 3px;"
+#else
+            "  border: 1px solid palette(shadow);"
+#endif
             "}"
             )
             .arg(apsz.width() + frameWidth)
