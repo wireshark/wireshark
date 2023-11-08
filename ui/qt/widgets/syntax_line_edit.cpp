@@ -463,7 +463,7 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
     }
 
     int si_off = (cr.height() - sir.height()) / 2;
-    sir.moveTop(si_off);
+    sir.moveTop(cr.top() + si_off);
     sir.moveRight(cr.right() - si_off);
     painter.save();
     painter.setOpacity(0.25);
