@@ -1456,10 +1456,34 @@ static int exp_pdu_tcp_dissector_data_populate_data(packet_info *pinfo _U_, void
     return exp_pdu_tcp_dissector_data_size(pinfo, data);
 }
 
+static tvbuff_t*
+handle_export_pdu_check_desegmentation(packet_info *pinfo, tvbuff_t *tvb)
+{
+    /* Check to see if the tvb we're planning on exporting PDUs from was
+     * dissected fully, or whether it requested further desegmentation.
+     * This should only matter on the first pass (so in one-pass tshark.)
+     */
+    if (pinfo->can_desegment > 0 && pinfo->desegment_len != 0) {
+        /* Desegmentation was requested. How much did we desegment here?
+         * The rest, presumably, will be handled in another frame.
+         */
+        if (pinfo->desegment_offset == 0) {
+            /* We couldn't, in fact, dissect any of it. */
+            return NULL;
+        }
+        tvb = tvb_new_subset_length(tvb, 0, pinfo->desegment_offset);
+    }
+    return tvb;
+}
+
 static void
 handle_export_pdu_dissection_table(packet_info *pinfo, tvbuff_t *tvb, guint32 port, struct tcpinfo *tcpinfo)
 {
     if (have_tap_listener(exported_pdu_tap)) {
+        tvb = handle_export_pdu_check_desegmentation(pinfo, tvb);
+        if (tvb == NULL) {
+            return;
+        }
         exp_pdu_data_item_t exp_pdu_data_table_value = {exp_pdu_data_dissector_table_num_value_size, exp_pdu_data_dissector_table_num_value_populate_data, NULL};
         exp_pdu_data_item_t exp_pdu_data_dissector_data = {exp_pdu_tcp_dissector_data_size, exp_pdu_tcp_dissector_data_populate_data, NULL};
         const exp_pdu_data_item_t *tcp_exp_pdu_items[] = {
@@ -1494,6 +1518,10 @@ handle_export_pdu_heuristic(packet_info *pinfo, tvbuff_t *tvb, heur_dtbl_entry_t
     exp_pdu_data_t *exp_pdu_data = NULL;
 
     if (have_tap_listener(exported_pdu_tap)) {
+        tvb = handle_export_pdu_check_desegmentation(pinfo, tvb);
+        if (tvb == NULL) {
+            return;
+        }
         if ((!hdtbl_entry->enabled) ||
             (hdtbl_entry->protocol != NULL && !proto_is_protocol_enabled(hdtbl_entry->protocol))) {
             exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_DISSECTOR_NAME);
@@ -1529,6 +1557,10 @@ static void
 handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, int dst_port, struct tcpinfo *tcpinfo)
 {
     if (have_tap_listener(exported_pdu_tap)) {
+        tvb = handle_export_pdu_check_desegmentation(pinfo, tvb);
+        if (tvb == NULL) {
+            return;
+        }
         conversation_t *conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, src_port, dst_port, 0);
         if (conversation != NULL)
         {
