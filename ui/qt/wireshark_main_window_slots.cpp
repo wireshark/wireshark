@@ -153,7 +153,7 @@ DIAG_ON(frame-larger-than=)
 #include "sctp_graph_dialog.h"
 #include "sequence_dialog.h"
 #include "show_packet_bytes_dialog.h"
-#include "sslkeylog_launcher_dialog.h"
+#include "tlskeylog_launcher_dialog.h"
 #include "stats_tree_dialog.h"
 #include "strip_headers_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
@@ -3771,7 +3771,7 @@ void WiresharkMainWindow::connectToolsMenuActions()
         manuf_dialog->show();
     });
 
-    connect(main_ui_->actionToolsSSLKeylog, &QAction::triggered, this, &WiresharkMainWindow::openBrowserKeylogDialog);
+    connect(main_ui_->actionToolsTLSKeylog, &QAction::triggered, this, &WiresharkMainWindow::openTLSKeylogDialog);
 }
 
 // Help Menu

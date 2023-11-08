@@ -713,7 +713,7 @@
     <addaction name="actionToolsFirewallAclRules"/>
     <addaction name="actionToolsCredentials"/>
     <addaction name="actionToolsMacLookup"/>
-    <addaction name="actionToolsSSLKeylog"/>
+    <addaction name="actionToolsTLSKeylog"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -3018,9 +3018,9 @@
     <string>MAC Address Blocks</string>
    </property>
   </action>
-  <action name="actionToolsSSLKeylog">
+  <action name="actionToolsTLSKeylog">
    <property name="text">
-    <string>SSL Keylog Launcher</string>
+    <string>TLS Keylog Launcher</string>
    </property>
   </action>
   <action name="actionHelpReleaseNotes">
