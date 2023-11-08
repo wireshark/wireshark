@@ -145,7 +145,6 @@ typedef struct _e_prefs {
   color_t      gui_active_fg;
   color_t      gui_active_bg;
   gint         gui_active_style;
-  gchar       *gui_browser_sslkeylog_path;
   color_t      gui_inactive_fg;
   color_t      gui_inactive_bg;
   gint         gui_inactive_style;
@@ -163,6 +162,7 @@ typedef struct _e_prefs {
   guint        gui_fileopen_style;
   gchar       *gui_fileopen_dir;
   guint        gui_fileopen_preview;
+  gchar       *gui_tlskeylog_command;
   gboolean     gui_ask_unsaved;
   gboolean     gui_autocomplete_filter;
   gboolean     gui_find_wrap;

@@ -243,7 +243,7 @@ set(WIRESHARK_QT_HEADERS
 	service_response_time_dialog.h
 	show_packet_bytes_dialog.h
 	simple_statistics_dialog.h
-	sslkeylog_launcher_dialog.h
+	tlskeylog_launcher_dialog.h
 	stats_tree_dialog.h
 	strip_headers_dialog.h
 	supported_protocols_dialog.h
@@ -494,7 +494,7 @@ set(WIRESHARK_QT_SRC
 	show_packet_bytes_dialog.cpp
 	simple_dialog.cpp
 	simple_statistics_dialog.cpp
-	sslkeylog_launcher_dialog.cpp
+	tlskeylog_launcher_dialog.cpp
 	strip_headers_dialog.cpp
 	supported_protocols_dialog.cpp
 	tabnav_tree_widget.cpp
@@ -628,7 +628,7 @@ set(WIRESHARK_QT_UI
 	search_frame.ui
 	sequence_dialog.ui
 	show_packet_bytes_dialog.ui
-	sslkeylog_launcher_dialog.ui
+	tlskeylog_launcher_dialog.ui
 	strip_headers_dialog.ui
 	supported_protocols_dialog.ui
 	tap_parameter_dialog.ui

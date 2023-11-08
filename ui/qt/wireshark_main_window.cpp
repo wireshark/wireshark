@@ -3235,20 +3235,20 @@ QString WiresharkMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_id
     return NULL;
 }
 
-void WiresharkMainWindow::openBrowserKeylogDialog()
+void WiresharkMainWindow::openTLSKeylogDialog()
 {
     // Have a single instance of the dialog at any one time.
-    if (!sslkeylog_dialog_) {
-        sslkeylog_dialog_ = new SSLKeylogDialog(*this);
-        sslkeylog_dialog_->setAttribute(Qt::WA_DeleteOnClose);
+    if (!tlskeylog_dialog_) {
+        tlskeylog_dialog_ = new TLSKeylogDialog(*this);
+        tlskeylog_dialog_->setAttribute(Qt::WA_DeleteOnClose);
     }
 
-    if (sslkeylog_dialog_->isMinimized()) {
-        sslkeylog_dialog_->showNormal();
+    if (tlskeylog_dialog_->isMinimized()) {
+        tlskeylog_dialog_->showNormal();
     }
     else {
-        sslkeylog_dialog_->show();
+        tlskeylog_dialog_->show();
     }
-    sslkeylog_dialog_->raise();
-    sslkeylog_dialog_->activateWindow();
+    tlskeylog_dialog_->raise();
+    tlskeylog_dialog_->activateWindow();
 }

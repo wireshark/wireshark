@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SSLKeylogDialog</class>
- <widget class="QDialog" name="SSLKeylogDialog">
+ <class>TLSKeylogDialog</class>
+ <widget class="QDialog" name="TLSKeylogDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>643</width>
-    <height>338</height>
+    <width>640</width>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
        <item>
         <widget class="QPushButton" name="keylogPushButton">
          <property name="text">
-          <string>Browse...</string>
+          <string>Browse…</string>
          </property>
         </widget>
        </item>
@@ -35,7 +35,7 @@
    <item row="13" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Application path</string>
+      <string>Command line</string>
      </property>
     </widget>
    </item>
@@ -47,7 +47,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>
@@ -55,12 +55,12 @@
    <item row="14" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QLineEdit" name="browserLineEdit"/>
+      <widget class="QLineEdit" name="commandLineEdit"/>
      </item>
      <item>
-      <widget class="QPushButton" name="browserPushbutton">
+      <widget class="QPushButton" name="programPushbutton">
        <property name="text">
-        <string>Browse...</string>
+        <string>Browse…</string>
        </property>
       </widget>
      </item>
@@ -99,7 +99,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>Run an application with the SSLKEYLOGFILE environment variable set to the file specified by the TLS key log filename preference. This enables TLS decryption in Wireshark. Set the key log file and start the capture before launching the application to ensure that the initial TLS handshakes are captured.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -127,7 +127,7 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below. Command line options are supported.&lt;/span&gt;</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
@@ -155,7 +155,7 @@
    <item row="4" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;(Pre)-Master-Secret log file path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>TLS (Pre)-Master-Secret log file path (tls.keylog_file)</string>
      </property>
     </widget>
    </item>
@@ -164,7 +164,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;TLS keys will be logged to this file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;span style=&quot; font-size:small;&quot;&gt;TLS session secrets will be logged to this file. If you change this field, hit the Save button to update the TLS protocol preferences.&lt;/span&gt;</string>
        </property>
       </widget>
      </item>
@@ -184,7 +184,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>SSLKeylogDialog</receiver>
+   <receiver>TLSKeylogDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -200,7 +200,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>SSLKeylogDialog</receiver>
+   <receiver>TLSKeylogDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
