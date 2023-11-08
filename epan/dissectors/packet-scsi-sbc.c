@@ -525,12 +525,18 @@ dissect_sbc_write10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         &hf_scsi_sbc_fua_nv,
         NULL
     };
+    guint16 blocks = tvb_get_ntohl(tvb, offset + 9);
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
-                tvb_get_ntohl (tvb, offset+1),
-                tvb_get_ntohs (tvb, offset+6));
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+                ", %u blocks (%u bytes) at LBA: %" G_GINT64_MODIFIER "u",
+                blocks, blocks * 512, tvb_get_ntoh64(tvb, offset + 1));
     }
+    //if (isreq && iscdb) {
+    //    col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+    //            tvb_get_ntohl (tvb, offset+1),
+    //            tvb_get_ntohs (tvb, offset+6));
+    //}
 
     if (tree && isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
@@ -998,8 +1004,9 @@ dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint32     lba, block_len;
-    const char* binaryPrefixes[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
+    //guint64     totalSizeBytes64;
     double      totalSizeBytes, totalSizeAbbrev;
+    const char* binaryPrefixes[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
     gint        index = 0;
 
     if (!tree)
@@ -1012,8 +1019,12 @@ dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     else if (!iscdb) {
         lba = tvb_get_ntohl (tvb, offset) + 1;   /* LBAs are zero-based so we add 1 */
         block_len = tvb_get_ntohl (tvb, offset+4);
+
+        //totalSizeBytes64 = (guint64)lba * (guint64)block_len;  /* prevent overflow */
+        //totalSizeBytes = *(double*)&totalSizeBytes64;
         totalSizeBytes = (double)lba * (double)block_len;
-        proto_tree_add_uint_format(tree, hf_scsi_sbc_returned_lba, tvb, offset, 4, lba, "LBA: %u", lba);
+
+        proto_tree_add_uint_format(tree, hf_scsi_sbc_returned_lba, tvb, offset, 4, lba, "LBAA: %u", lba);
         proto_tree_add_item(tree, hf_scsi_sbc_blocksize, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
         totalSizeAbbrev = totalSizeBytes;
 
