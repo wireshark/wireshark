@@ -35,9 +35,9 @@ def dfilter_cmd(cmd_tshark, capture_file, request):
             ])
         if prefs:
             cmd.extend([
-            "-o",
-            prefs
-        ])
+                "-o",
+                prefs
+            ])
         return cmd
     return wrapped
 
@@ -45,6 +45,16 @@ def dfilter_cmd(cmd_tshark, capture_file, request):
 def cmd_dftest(program):
     return program('dftest')
 
+@pytest.fixture
+def dftest_cmd(cmd_dftest):
+    def wrapped(dfilter):
+        cmd = [
+            cmd_dftest,
+            "--",
+            dfilter
+        ]
+        return cmd
+    return wrapped
 
 @pytest.fixture
 def checkDFilterCount(dfilter_cmd, base_env):
@@ -86,10 +96,10 @@ def checkDFilterCountReadFilter(dfilter_cmd, base_env):
     return checkDFilterCount_real
 
 @pytest.fixture
-def checkDFilterFail(cmd_dftest, base_env):
+def checkDFilterFail(dftest_cmd, base_env):
     def checkDFilterFail_real(dfilter, error_message):
         """Run a display filter and expect dftest to fail."""
-        proc = subprocesstest.run([cmd_dftest, '--', dfilter],
+        proc = subprocesstest.run(dftest_cmd(dfilter),
                                 capture_output=True,
                                 universal_newlines=True,
                                 env=base_env)
@@ -100,10 +110,10 @@ def checkDFilterFail(cmd_dftest, base_env):
     return checkDFilterFail_real
 
 @pytest.fixture
-def checkDFilterSucceed(cmd_dftest, base_env):
+def checkDFilterSucceed(dftest_cmd, base_env):
     def checkDFilterSucceed_real(dfilter, expect_stdout=None):
         """Run a display filter and expect dftest to succeed."""
-        proc = subprocesstest.run([cmd_dftest, '--', dfilter],
+        proc = subprocesstest.run(dftest_cmd(dfilter),
                                 capture_output=True,
                                 universal_newlines=True,
                                 env=base_env)
