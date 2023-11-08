@@ -436,14 +436,42 @@ void dfilter_macro_init(void) {
 	dfilter_macro_reload();
 }
 
+static bool check_macro(const char *name, const char *text, const char **errp)
+{
+	if (*name == '\0') {
+		*errp = "empty name";
+		return false;
+	}
+	if (*text == '\0') {
+		*errp = "empty text";
+		return false;
+	}
+	for (const char *s = name; *s != '\0'; s++) {
+		if (!(g_ascii_isalnum(*s) || *s == '_')) {
+			*errp = "invalid char in name";
+			return false;
+		}
+	}
+	if (g_hash_table_contains(macros_table, name)) {
+		*errp = "name already exists";
+		return false;
+	}
+	return true;
+}
+
 void dfilter_macro_reload(void) {
 
 	g_hash_table_remove_all(macros_table);
 
 	filter_list_t *list = ws_filter_list_read(DMACROS_LIST);
+	const char *err;
 
 	for (GList *l = list->list; l != NULL; l = l->next) {
 		filter_def *def = l->data;
+		if (!check_macro(def->name, def->strval, &err)) {
+			ws_warning("Invalid macro '%s': %s",def->name, err);
+			continue;
+		}
 		dfilter_macro_t *m = macro_new(def->name, def->strval);
 		if (m != NULL) {
 			g_hash_table_insert(macros_table, g_strdup(def->name), m);
