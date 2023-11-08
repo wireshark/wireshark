@@ -153,7 +153,7 @@ void FilterDialog::on_newToolButton_clicked()
             break;
         case DisplayMacro:
             //: This text is automatically filled in when a new filter is created
-            name = tr("eq_example_com");
+            name = "eq_example_com";
             filter = "$1 == host.example.com";
             break;
         default:
