@@ -104,7 +104,7 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             "  padding-right: %1px;"
             "  background-color: %2;"
 #ifdef Q_OS_MAC
-            "  border: 1px solid gray;"
+            "  border: 1px solid palette(%3);"
             "  border-radius: 3px;"
 #else
             "  border: 1px solid palette(shadow);"
@@ -112,7 +112,8 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             "}"
             )
             .arg(apsz.width() + frameWidth)
-            .arg(is_valid || !isEnabled() ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name());
+            .arg(is_valid || !isEnabled() ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name())
+            .arg(ColorUtils::themeIsDark() ? QString("light") : QString("dark"));
 
     setStyleSheet(style_sheet);
 }
