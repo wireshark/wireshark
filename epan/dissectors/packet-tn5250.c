@@ -1495,12 +1495,12 @@ static const struct true_false_string tn5250_field_dtsf_flag2_3 = {
 };
 
 static const range_string vals_tn5250_dtsf_flag2_vals[] = {
-  { 0x00, 0x70, "Reserved"},
-  { 0x80, 0x80, "System Version 2 Release 2.0"},
-  { 0x90, 0x90, "System Version 2 Release 3.0"},
-  { 0xA0, 0xA0, "System Version 3 Release 0.5"},
-  { 0xB0, 0xB0, "System Version 3 Release 1.0"},
-  { 0xC0, 0xF0, "Reserved"},
+  { 0x0, 0x7, "Reserved"},
+  { 0x8, 0x8, "System Version 2 Release 2.0"},
+  { 0x9, 0x9, "System Version 2 Release 3.0"},
+  { 0xA, 0xA, "System Version 3 Release 0.5"},
+  { 0xB, 0xB, "System Version 3 Release 1.0"},
+  { 0xC, 0xF, "Reserved"},
   { 0,  0,      NULL}
 };
 
@@ -1999,7 +1999,7 @@ static const range_string vals_tn5250_attention_identification_bytes[] = {
   { AID_INBOUND_WRITE_STRUCTURED_FIELD   ,  AID_INBOUND_WRITE_STRUCTURED_FIELD   , "AID Inbound Write Structured Field"},
   { AID_IMAGE_FAX_REQUEST                ,  AID_IMAGE_FAX_REQUEST                , "Image/Fax Request Aid"},
   { AID_UNKNOWN_IMAGE_FAX_FORMAT         ,  AID_UNKNOWN_IMAGE_FAX_FORMAT         , "Unknown Image/Fax Format Aid"},
-  { AID_IMAGE_FAX_ERROR                  ,  AID_IMAGE_FAX_ERROR                  , " Image/Fax Error Reporting Aid"},
+  { AID_IMAGE_FAX_ERROR                  ,  AID_IMAGE_FAX_ERROR                  , "Image/Fax Error Reporting Aid"},
   { 0x00,  0x00,      NULL}
 };
 

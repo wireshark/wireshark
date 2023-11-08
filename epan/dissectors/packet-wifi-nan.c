@@ -618,21 +618,21 @@ static const range_string reason_code_values[] = {
 };
 
 static const range_string action_frame_type_values[] = {
-    { 0, 0, "Reserved " },
-    { 1, 1, "Ranging Request " },
-    { 2, 2, "Ranging Response " },
-    { 3, 3, "Ranging Termination " },
-    { 4, 4, "Ranging Report " },
-    { 5, 5, "Data Path Request " },
-    { 6, 6, "Data Path Response " },
-    { 7, 7, "Data Path Confirm " },
-    { 8, 8, "Data Path Key Installment " },
-    { 9, 9, "Data Path Termination " },
-    { 10, 10, "Schedule Request " },
-    { 11, 11, "Schedule Response " },
-    { 12, 12, "Schedule Confirm " },
-    { 13, 13, "Schedule Update Notification " },
-    { 14, 255, "Reserved " },
+    { 0, 0, "Reserved" },
+    { 1, 1, "Ranging Request" },
+    { 2, 2, "Ranging Response" },
+    { 3, 3, "Ranging Termination" },
+    { 4, 4, "Ranging Report" },
+    { 5, 5, "Data Path Request" },
+    { 6, 6, "Data Path Response" },
+    { 7, 7, "Data Path Confirm" },
+    { 8, 8, "Data Path Key Installment" },
+    { 9, 9, "Data Path Termination" },
+    { 10, 10, "Schedule Request" },
+    { 11, 11, "Schedule Response" },
+    { 12, 12, "Schedule Confirm" },
+    { 13, 13, "Schedule Update Notification" },
+    { 14, 255, "Reserved" },
     { 0, 0, NULL }
 };
 

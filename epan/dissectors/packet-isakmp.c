@@ -689,7 +689,7 @@ static const value_string protoid_v2_type[] = {
 };
 
 static const range_string payload_type[] = {
-  { PLOAD_IKE_NONE,PLOAD_IKE_NONE,             "NONE / No Next Payload " },
+  { PLOAD_IKE_NONE,PLOAD_IKE_NONE,             "NONE / No Next Payload" },
   { PLOAD_IKE_SA,PLOAD_IKE_SA,                 "Security Association" },
   { PLOAD_IKE_P,PLOAD_IKE_P,                   "Proposal" },
   { PLOAD_IKE_T,PLOAD_IKE_T,                   "Transform" },
