@@ -33,7 +33,7 @@ public:
 protected:
     virtual void applyValuePrivate(gboolean value)
     {
-        if (! proto_can_toggle_protocol(proto_get_id(proto_)) || proto_is_pino(proto_)) {
+        if (! proto_can_toggle_protocol(proto_get_id(proto_))) {
             return;
         }
         proto_set_decoding(proto_get_id(proto_), value);
@@ -292,10 +292,12 @@ void EnabledProtocolsModel::populate()
         if (proto_can_toggle_protocol(i))
         {
             protocol = find_protocol_by_id(i);
-            ProtocolTreeItem* protocol_row = new ProtocolTreeItem(protocol, root_);
-            root_->prependChild(protocol_row);
+            if (!proto_is_pino(protocol)) {
+                ProtocolTreeItem* protocol_row = new ProtocolTreeItem(protocol, root_);
+                root_->prependChild(protocol_row);
 
-            proto_heuristic_dissector_foreach(protocol, addHeuristicItem, protocol_row);
+                proto_heuristic_dissector_foreach(protocol, addHeuristicItem, protocol_row);
+            }
         }
     }
 
