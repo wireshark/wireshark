@@ -39,6 +39,23 @@ void dfilter_macro_reload(void);
 
 void dfilter_macro_cleanup(void);
 
+struct dfilter_macro_table_iter {
+	GHashTableIter iter;
+};
+
+WS_DLL_PUBLIC
+size_t
+dfilter_macro_table_count(void);
+
+WS_DLL_PUBLIC
+void
+dfilter_macro_table_iter_init(struct dfilter_macro_table_iter *iter);
+
+WS_DLL_PUBLIC
+bool
+dfilter_macro_table_iter_next(struct dfilter_macro_table_iter *iter,
+				const char **name_ptr, const char **text_ptr);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -554,6 +554,34 @@ void dfilter_macro_cleanup(void)
 	macros_table = NULL;
 }
 
+size_t
+dfilter_macro_table_count(void)
+{
+	return g_hash_table_size(macros_table);
+}
+
+void
+dfilter_macro_table_iter_init(struct dfilter_macro_table_iter *iter)
+{
+	g_hash_table_iter_init(&iter->iter, macros_table);
+}
+
+bool
+dfilter_macro_table_iter_next(struct dfilter_macro_table_iter *iter,
+				const char **name_ptr, const char **text_ptr)
+{
+	const char *key;
+	dfilter_macro_t *m;
+
+	if (!g_hash_table_iter_next(&iter->iter, (gpointer *)&key, (gpointer *)&m))
+		return false;
+	if (name_ptr)
+		*name_ptr = key;
+	if (text_ptr)
+		*text_ptr = m->text;
+	return true;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

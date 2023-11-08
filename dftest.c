@@ -25,6 +25,7 @@
 #include <epan/timestamp.h>
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
+#include <epan/dfilter/dfilter-macro.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -34,6 +35,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_getopt.h>
+#include <wsutil/utf8_entities.h>
 
 #include <wiretap/wtap.h>
 
@@ -51,6 +53,7 @@ static int opt_timer = 0;
 static long opt_optimize = 1;
 static int opt_show_types = 0;
 static int opt_dump_refs = 0;
+static int opt_dump_macros = 0;
 
 static gint64 elapsed_expand = 0;
 static gint64 elapsed_compile = 0;
@@ -103,6 +106,7 @@ print_usage(int status)
     fprintf(fp, "  -f, --flex          enable Flex debug trace\n");
     fprintf(fp, "  -l, --lemon         enable Lemon debug trace\n");
     fprintf(fp, "  -s, --syntax        print syntax tree\n");
+    fprintf(fp, "  -m  --macros        print saved macros\n");
     fprintf(fp, "  -t, --timer         print elapsed compilation time\n");
     fprintf(fp, "  -0, --optimize=0    do not optimize (check syntax)\n");
     fprintf(fp, "      --types         show field value types\n");
@@ -122,6 +126,26 @@ static void
 print_syntax_tree(dfilter_t *df)
 {
     printf("Syntax tree:\n%s\n\n", dfilter_syntax_tree(df));
+}
+
+static void
+print_macros(void)
+{
+    if (dfilter_macro_table_count() == 0) {
+        printf("Macros: (empty)\n\n");
+        return;
+    }
+
+    struct dfilter_macro_table_iter iter;
+    const char *name, *text;
+
+    dfilter_macro_table_iter_init(&iter);
+    printf("Macros:\n");
+    while (dfilter_macro_table_iter_next(&iter, &name, &text)) {
+        printf(" "UTF8_BULLET" %s:\n", name);
+        printf("      %s\n", text);
+    }
+    printf("\n");
 }
 
 static void
@@ -254,7 +278,7 @@ main(int argc, char **argv)
 
     ws_init_version_info("DFTest", NULL, NULL);
 
-    const char *optstring = "hvdDflstV0";
+    const char *optstring = "hvdDflsmtV0";
     static struct ws_option long_options[] = {
         { "help",     ws_no_argument,   0,  'h' },
         { "version",  ws_no_argument,   0,  'v' },
@@ -262,6 +286,7 @@ main(int argc, char **argv)
         { "flex",     ws_no_argument,   0,  'f' },
         { "lemon",    ws_no_argument,   0,  'l' },
         { "syntax",   ws_no_argument,   0,  's' },
+        { "macros",   ws_no_argument,   0,  'm' },
         { "timer",    ws_no_argument,   0,  't' },
         { "verbose",  ws_no_argument,   0,  'V' },
         { "optimize", ws_required_argument, 0, 1000 },
@@ -304,6 +329,9 @@ main(int argc, char **argv)
             case 's':
                 opt_syntax_tree = 1;
                 break;
+            case 'm':
+                opt_dump_macros = 1;
+                break;
             case 't':
                 opt_timer = 1;
                 break;
@@ -334,10 +362,13 @@ main(int argc, char **argv)
         }
     }
 
-    /* Check for filter on command line */
+    /* Check for filter on command line. */
     if (argv[ws_optind] == NULL) {
-        printf("Error: Missing argument.\n");
-        print_usage(EXIT_FAILURE);
+        /* If not printing macros we need a filter expression to compile. */
+        if (!opt_dump_macros) {
+            printf("Error: Missing argument.\n");
+            print_usage(EXIT_FAILURE);
+        }
     }
 
     /* Set dfilter domain logging. */
@@ -405,6 +436,20 @@ main(int argc, char **argv)
        changed either from one of the preferences file or from the command
        line that its preferences have changed. */
     prefs_apply_all();
+
+    if (opt_dump_macros) {
+        print_macros();
+        if (argv[ws_optind] == NULL) {
+            /* No filter expression, we're done. */
+            exit(EXIT_SUCCESS);
+        }
+    }
+
+    /* Check again for filter on command line */
+    if (argv[ws_optind] == NULL) {
+        printf("Error: Missing argument.\n");
+        print_usage(EXIT_FAILURE);
+    }
 
     /* This is useful to prevent confusion with option parsing.
      * Skips printing options and argv[0]. */
