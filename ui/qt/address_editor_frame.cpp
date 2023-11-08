@@ -40,6 +40,8 @@ AddressEditorFrame::AddressEditorFrame(QWidget *parent) :
     ui->setupUi(this);
     ui->addressComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
+    ui->nameLineEdit->setStyleSheet(lineEditStyleSheet());
+
 #ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
         w->setAttribute(Qt::WA_MacSmallSize, true);

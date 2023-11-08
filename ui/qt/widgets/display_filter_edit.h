@@ -47,6 +47,7 @@ public slots:
     void updateBookmarkMenu();
     void applyDisplayFilter();
     void displayFilterSuccess(bool success);
+    void setStyleSheet(const QString &style_sheet);
 
 private slots:
     void checkFilter(const QString &filter_text);
@@ -78,6 +79,7 @@ private:
     QString last_applied_;
     QString filter_word_preamble_;
     bool autocomplete_accepts_field_;
+    QString style_sheet_;
 
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString &field_word, const QString &preamble);
