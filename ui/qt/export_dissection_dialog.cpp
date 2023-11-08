@@ -81,10 +81,10 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     }
 
 #if !defined(Q_OS_WIN)
-    QDialogButtonBox *button_box = findChild<QDialogButtonBox *>();
     // Add extra widgets
     // https://wiki.qt.io/Qt_project_org_faq#How_can_I_add_widgets_to_my_QFileDialog_instance.3F
     setOption(QFileDialog::DontUseNativeDialog, true);
+    QDialogButtonBox *button_box = findChild<QDialogButtonBox *>();
     QGridLayout *fd_grid = qobject_cast<QGridLayout*>(layout());
     QHBoxLayout *h_box = new QHBoxLayout();
     QStringList name_filters;
