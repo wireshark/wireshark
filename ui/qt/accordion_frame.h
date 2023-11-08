@@ -21,6 +21,7 @@ public:
     explicit AccordionFrame(QWidget *parent = 0);
     void animatedShow();
     void animatedHide();
+    QString lineEditStyleSheet();
 
 signals:
     void visibilityChanged(bool visible);

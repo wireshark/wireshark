@@ -485,6 +485,8 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     main_ui_->actionViewFullScreen->setShortcut(QKeySequence(Qt::Key_F11));
 #endif
 
+    main_ui_->goToLineEdit->setStyleSheet(main_ui_->goToFrame->lineEditStyleSheet());
+
 #if defined(Q_OS_MAC)
 
     main_ui_->goToPacketLabel->setAttribute(Qt::WA_MacSmallSize, true);

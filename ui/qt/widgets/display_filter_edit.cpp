@@ -212,8 +212,8 @@ void DisplayFilterEdit::alignActionButtons()
         rightMargin = 0;
     }
 
-    setStyleSheet(QString(
-            "DisplayFilterEdit {"
+    SyntaxLineEdit::setStyleSheet(style_sheet_ + QString(
+            "SyntaxLineEdit {"
             "  padding-left: %1px;"
             "  margin-left: %2px;"
             "  margin-right: %3px;"
@@ -592,6 +592,12 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
 
     completion_model_->setStringList(complex_list + field_list);
     completer()->setCompletionPrefix(field_word);
+}
+
+void DisplayFilterEdit::setStyleSheet(const QString &style_sheet)
+{
+    style_sheet_ = style_sheet;
+    SyntaxLineEdit::setStyleSheet(style_sheet_);
 }
 
 void DisplayFilterEdit::clearFilter()

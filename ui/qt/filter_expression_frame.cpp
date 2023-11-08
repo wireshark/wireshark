@@ -29,6 +29,10 @@ FilterExpressionFrame::FilterExpressionFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->labelLineEdit->setStyleSheet(lineEditStyleSheet());
+    ui->displayFilterLineEdit->setStyleSheet(lineEditStyleSheet());
+    ui->commentLineEdit->setStyleSheet(lineEditStyleSheet());
+
 #ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
         w->setAttribute(Qt::WA_MacSmallSize, true);

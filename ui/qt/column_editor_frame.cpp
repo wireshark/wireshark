@@ -33,6 +33,10 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->titleLineEdit->setStyleSheet(lineEditStyleSheet());
+    ui->fieldsNameLineEdit->setStyleSheet(lineEditStyleSheet());
+    ui->occurrenceLineEdit->setStyleSheet(lineEditStyleSheet());
+
 #ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
         w->setAttribute(Qt::WA_MacSmallSize, true);

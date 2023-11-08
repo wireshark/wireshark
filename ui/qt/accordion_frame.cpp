@@ -13,6 +13,7 @@
 #include "accordion_frame.h"
 
 #include "ui/util.h"
+#include <ui/qt/utils/color_utils.h>
 
 #include <QLayout>
 #include <QPropertyAnimation>
@@ -92,4 +93,18 @@ void AccordionFrame::animationFinished()
         hide();
         setMaximumHeight(frame_height_);
     }
+}
+
+QString AccordionFrame::lineEditStyleSheet()
+{
+    return QString(
+        "QLineEdit {"
+#ifdef Q_OS_MAC
+        "  border: 1px solid palette(%1);"
+        "  border-radius: 3px;"
+#else
+        "  border: 1px solid palette(shadow);"
+#endif
+        "}"
+    ).arg(ColorUtils::themeIsDark() ? QString("light") : QString("dark"));
 }

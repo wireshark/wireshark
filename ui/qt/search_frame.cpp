@@ -49,6 +49,7 @@ SearchFrame::SearchFrame(QWidget *parent) :
     regex_(nullptr)
 {
     sf_ui_->setupUi(this);
+    sf_ui_->searchLineEdit->setStyleSheet(lineEditStyleSheet());
 
 #ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
