@@ -251,8 +251,16 @@ QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionVie
         w = QStyledItemDelegate::createEditor(parent, option, index);
     }
 
-    if (qobject_cast<QLineEdit *>(w) && index.column() == FilterListModel::ColumnName)
-        qobject_cast<QLineEdit *>(w)->setValidator(new FilterValidator());
+    if (qobject_cast<QLineEdit *>(w)) {
+        if (index.column() == FilterListModel::ColumnName) {
+            if (filter_type_ == FilterDialog::DisplayMacro) {
+                qobject_cast<QLineEdit *>(w)->setValidator(new MacroNameValidator());
+            }
+            else {
+                qobject_cast<QLineEdit *>(w)->setValidator(new FilterValidator());
+            }
+        }
+    }
 
     return w;
 }
@@ -279,6 +287,20 @@ QValidator::State FilterValidator::validate(QString & input, int & /*pos*/) cons
     foreach (QString key, invalidKeys)
         if (input.indexOf(key) >= 0)
             return QValidator::Invalid;
+
+    return QValidator::Acceptable;
+}
+
+QValidator::State MacroNameValidator::validate(QString &input, int & /*pos*/) const
+{
+    if (input.length() <= 0)
+        return QValidator::Intermediate;
+
+    for (QChar ch: input) {
+        if (!ch.isLetterOrNumber() && ch != '_') {
+            return QValidator::Invalid;
+        }
+    }
 
     return QValidator::Acceptable;
 }

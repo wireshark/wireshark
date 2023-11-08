@@ -81,4 +81,10 @@ public:
     virtual QValidator::State validate(QString & input, int & pos) const override;
 };
 
+class MacroNameValidator : public QValidator
+{
+public:
+    virtual QValidator::State validate(QString & input, int & pos) const override;
+};
+
 #endif // FILTER_DIALOG_H
