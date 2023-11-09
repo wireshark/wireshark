@@ -525,8 +525,8 @@ void uat_cleanup(void) {
 
 void uat_destroy(uat_t *uat)
 {
-    free_uat(uat);
     g_ptr_array_remove(all_uats, uat);
+    free_uat(uat);
 }
 
 void uat_foreach_table(uat_cb_t cb,void* user_data) {
