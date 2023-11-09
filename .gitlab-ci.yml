@@ -325,6 +325,7 @@ Debian Stable APT Package:
       - debian-packages/*.deb
       - debian-symbols/*.symbols
     expire_in: 3 days
+    when: always
 
 Debian Stable APT Test:
   extends: .test-linux
