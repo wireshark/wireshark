@@ -232,6 +232,7 @@ private:
     void setMenusForFileSet(bool enable_list_files);
     void setWindowIcon(const QIcon &icon);
     QString replaceWindowTitleVariables(QString title);
+    void updateStyleSheet();
 
     void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth);
 

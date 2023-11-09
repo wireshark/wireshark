@@ -865,6 +865,19 @@ void WiresharkMainWindow::removeInterfaceToolbar(const gchar *menu_title)
     menu->menuAction()->setVisible(!menu->actions().isEmpty());
 }
 
+void WiresharkMainWindow::updateStyleSheet()
+{
+    main_ui_->goToLineEdit->setStyleSheet(main_ui_->goToFrame->lineEditStyleSheet());
+
+    // TODO: The event type QEvent::ApplicationPaletteChange is not sent to all child widgets.
+    // Workaround this by doing it manually for all AccordionFrame.
+    main_ui_->addressEditorFrame->updateStyleSheet();
+    main_ui_->columnEditorFrame->updateStyleSheet();
+    main_ui_->filterExpressionFrame->updateStyleSheet();
+    main_ui_->preferenceEditorFrame->updateStyleSheet();
+    main_ui_->searchFrame->updateStyleSheet();
+}
+
 bool WiresharkMainWindow::eventFilter(QObject *obj, QEvent *event) {
 
     // The user typed some text. Start filling in a filter.
@@ -888,6 +901,7 @@ bool WiresharkMainWindow::event(QEvent *event)
     switch (event->type()) {
     case QEvent::ApplicationPaletteChange:
         initMainToolbarIcons();
+        updateStyleSheet();
         break;
     default:
         break;

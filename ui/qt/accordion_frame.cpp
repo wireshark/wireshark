@@ -102,6 +102,7 @@ QString AccordionFrame::lineEditStyleSheet()
         "QLineEdit {"
         "  border: 1px solid palette(%1);"
         "  border-radius: 3px;"
+        "  padding: 1px;"
         "}"
     ).arg(ColorUtils::themeIsDark() ? QString("light") : QString("dark"));
 #else

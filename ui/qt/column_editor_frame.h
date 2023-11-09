@@ -24,6 +24,7 @@ public:
     explicit ColumnEditorFrame(QWidget *parent = nullptr);
     ~ColumnEditorFrame();
     void editColumn(int column);
+    void updateStyleSheet();
 
 signals:
     void columnEdited();
