@@ -97,14 +97,14 @@ void AccordionFrame::animationFinished()
 
 QString AccordionFrame::lineEditStyleSheet()
 {
+#ifdef Q_OS_MAC
     return QString(
         "QLineEdit {"
-#ifdef Q_OS_MAC
         "  border: 1px solid palette(%1);"
         "  border-radius: 3px;"
-#else
-        "  border: 1px solid palette(shadow);"
-#endif
         "}"
     ).arg(ColorUtils::themeIsDark() ? QString("light") : QString("dark"));
+#else
+    return QString();
+#endif
 }
