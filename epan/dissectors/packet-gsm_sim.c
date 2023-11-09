@@ -40,6 +40,7 @@ static int hf_apdu_sw = -1;
 static int hf_file_id = -1;
 static int hf_aid = -1;
 static int hf_bin_offset = -1;
+static int hf_sfi = -1;
 static int hf_record_nr = -1;
 static int hf_auth_rand = -1;
 static int hf_auth_sres = -1;
@@ -1243,6 +1244,40 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 #define P3_OFFS		2
 #define DATA_OFFS	3
 
+static const value_string sfi_vals[] = {
+	{ 0x01, "Emergency call codes" },
+	{ 0x02, "Language indication" },
+	{ 0x03, "Administrative data" },
+	{ 0x04, "USIM service table" },
+	{ 0x05, "Enabled services table" },
+	{ 0x06, "Access control class" },
+	{ 0x07, "IMSI" },
+	{ 0x08, "Ciphering and integrity keys" },
+	{ 0x09, "Ciphering and integrity keys for packet switched domain" },
+	{ 0x0A, "User PLMN selector" },
+	{ 0x0B, "Location information" },
+	{ 0x0C, "Packet switched location information" },
+	{ 0x0D, "Forbidden PLMNs" },
+	{ 0x0E, "CBMID" },
+	{ 0x0F, "Hyperframe number" },
+	{ 0x10, "Maximum value of hyperframe number" },
+	{ 0x11, "Operator PLMN selector" },
+	{ 0x12, "Higher Priority PLMN search period" },
+	{ 0x13, "Preferred HPLMN access technology" },
+	{ 0x14, "Incoming call information" },
+	{ 0x15, "Outgoing call information" },
+	{ 0x16, "Capability configuration parameters 2" },
+	{ 0x17, "Access Rule Reference" },
+	{ 0x18, "EPS NAS Security Context" },
+	{ 0x19, "PLMN Network Name" },
+	{ 0x1A, "Operator Network List" },
+	{ 0x1B, "Service Provider Display Information" },
+	{ 0x1C, "Accumulated Call Meter" },
+	{ 0x1D, "Equivalent HPLMN" },
+	{ 0x1E, "EPS location information" },
+	{ 0, NULL }
+};
+
 static int
 dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		 int offset, packet_info *pinfo, proto_tree *tree, gboolean isSIMtrace)
@@ -1294,16 +1329,28 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		/* FIXME: parse response */
 		break;
 	case 0xB0: /* READ BINARY */
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Offset=%u ", p1 << 8 | p2);
-		proto_tree_add_item(tree, hf_bin_offset, tvb, offset+P1_OFFS, 2, ENC_BIG_ENDIAN);
+		if (p1 & 0x80) {
+			proto_tree_add_item(tree, hf_sfi, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Offset=%u ", p2);
+			proto_tree_add_item(tree, hf_bin_offset, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
+		} else {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Offset=%u ", p1 << 8 | p2);
+			proto_tree_add_item(tree, hf_bin_offset, tvb, offset+P1_OFFS, 2, ENC_BIG_ENDIAN);
+		}
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
 		if (isSIMtrace) {
 			proto_tree_add_item(tree, hf_apdu_data, tvb, offset+DATA_OFFS, p3, ENC_NA);
 		}
 		break;
 	case 0xD6: /* UPDATE BINARY */
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Offset=%u ", p1 << 8 | p2);
-		proto_tree_add_item(tree, hf_bin_offset, tvb, offset+P1_OFFS, 2, ENC_BIG_ENDIAN);
+		if (p1 & 0x80) {
+			proto_tree_add_item(tree, hf_sfi, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Offset=%u ", p2);
+			proto_tree_add_item(tree, hf_bin_offset, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
+		} else {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Offset=%u ", p1 << 8 | p2);
+			proto_tree_add_item(tree, hf_bin_offset, tvb, offset+P1_OFFS, 2, ENC_BIG_ENDIAN);
+		}
 		proto_tree_add_item(tree, hf_apdu_data, tvb, offset+DATA_OFFS, p3, ENC_NA);
 		break;
 	case 0xB2: /* READ RECORD */
@@ -1662,6 +1709,11 @@ proto_register_gsm_sim(void)
 			{ "Offset", "gsm_sim.bin_offset",
 			  FT_UINT16, BASE_DEC, NULL, 0,
 			  "Offset into binary file", HFILL }
+		},
+		{ &hf_sfi,
+			{ "SFI", "gsm_sim.sfi",
+			  FT_UINT8, BASE_HEX, VALS(sfi_vals), 0x1f,
+			  NULL, HFILL }
 		},
 		{ &hf_record_nr,
 			{ "Record number", "gsm_sim.record_nr",
