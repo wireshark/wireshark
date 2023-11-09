@@ -33,6 +33,8 @@ WS_DLL_PUBLIC guint16 ip_checksum(const guint8 *ptr, int len);
 
 WS_DLL_PUBLIC guint16 ip_checksum_tvb(tvbuff_t *tvb, int offset, int len);
 
+WS_DLL_PUBLIC int in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *partial);
+
 WS_DLL_PUBLIC int in_cksum(const vec_t *vec, int veclen);
 
 guint16 in_cksum_shouldbe(guint16 sum, guint16 computed_sum);

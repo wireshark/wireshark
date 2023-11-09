@@ -472,6 +472,7 @@ static expert_field ei_tcp_connection_rst = EI_INIT;
 static expert_field ei_tcp_connection_fin_active = EI_INIT;
 static expert_field ei_tcp_connection_fin_passive = EI_INIT;
 static expert_field ei_tcp_checksum_ffff = EI_INIT;
+static expert_field ei_tcp_checksum_partial = EI_INIT;
 static expert_field ei_tcp_checksum_bad = EI_INIT;
 static expert_field ei_tcp_urgent_pointer_non_zero = EI_INIT;
 static expert_field ei_tcp_suboption_malformed = EI_INIT;
@@ -8392,8 +8393,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 DISSECTOR_ASSERT_NOT_REACHED();
                 break;
             }
+            /* See discussion in packet-udp.c of partial checksums used in
+             * checksum offloading in Linux and Windows (and possibly others.)
+             */
+            uint16_t partial_cksum;
             SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, offset, reported_len);
-            computed_cksum = in_cksum(cksum_vec, 4);
+            computed_cksum = in_cksum_ret_partial(cksum_vec, 4, &partial_cksum);
             if (computed_cksum == 0 && th_sum == 0xffff) {
                 item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
                                                   offset + 16, 2, th_sum,
@@ -8415,11 +8420,23 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 desegment_ok = TRUE;
             } else {
                 proto_item* calc_item;
-                item = proto_tree_add_checksum(tcp_tree, tvb, offset+16, hf_tcp_checksum, hf_tcp_checksum_status, &ei_tcp_checksum_bad, pinfo, computed_cksum,
-                                               ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
-
-                calc_item = proto_tree_add_uint(tcp_tree, hf_tcp_checksum_calculated, tvb,
-                                              offset + 16, 2, in_cksum_shouldbe(th_sum, computed_cksum));
+                uint16_t shouldbe_cksum = in_cksum_shouldbe(th_sum, computed_cksum);
+                if (th_sum == g_htons(partial_cksum)) {
+                    /* Don't use PROTO_CHECKSUM_IN_CKSUM because we expect the value
+                     * to match what we pass in. */
+                    item = proto_tree_add_checksum(tcp_tree, tvb, offset+16, hf_tcp_checksum, hf_tcp_checksum_status, &ei_tcp_checksum_bad, pinfo, g_htons(partial_cksum),
+                                                   ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+                    proto_item_append_text(item, " (matches partial checksum, not 0x%4x, likely caused by \"TCP checksum offload\")", shouldbe_cksum);
+                    expert_add_info(pinfo, item, &ei_tcp_checksum_partial);
+                    computed_cksum = 0;
+                    /* XXX Add a new status, e.g. PROTO_CHECKSUM_E_PARTIAL? */
+                } else {
+                    item = proto_tree_add_checksum(tcp_tree, tvb, offset+16, hf_tcp_checksum, hf_tcp_checksum_status, &ei_tcp_checksum_bad, pinfo, computed_cksum,
+                                                   ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+                }
+                checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
+                calc_item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_calculated, tvb,
+                                              offset + 16, 2, shouldbe_cksum);
                 proto_item_set_generated(calc_item);
 
                 /* Checksum is valid, so we're willing to desegment it. */
@@ -9718,6 +9735,7 @@ proto_register_tcp(void)
          */
         { &ei_tcp_connection_rst, { "tcp.connection.rst", PI_SEQUENCE, PI_WARN, "Connection reset (RST)", EXPFILL }},
         { &ei_tcp_checksum_ffff, { "tcp.checksum.ffff", PI_CHECKSUM, PI_WARN, "TCP Checksum 0xffff instead of 0x0000 (see RFC 1624)", EXPFILL }},
+        { &ei_tcp_checksum_partial, { "tcp.checksum.partial", PI_CHECKSUM, PI_NOTE, "Partial (pseudo header) checksum (likely caused by \"TCP checksum offload\")", EXPFILL }},
         { &ei_tcp_checksum_bad, { "tcp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
         { &ei_tcp_urgent_pointer_non_zero, { "tcp.urgent_pointer.non_zero", PI_PROTOCOL, PI_NOTE, "The urgent pointer field is nonzero while the URG flag is not set", EXPFILL }},
         { &ei_tcp_suboption_malformed, { "tcp.suboption_malformed", PI_MALFORMED, PI_ERROR, "suboption would go past end of option", EXPFILL }},

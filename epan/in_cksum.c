@@ -28,8 +28,23 @@
 #define ADDCARRY(x)  {if ((x) > 65535) (x) -= 65535;}
 #define REDUCE {l_util.l = sum; sum = l_util.s[0] + l_util.s[1]; ADDCARRY(sum);}
 
+/*
+ * Linux and Windows, at least, when performing Local Checksum Offload
+ * store the one's complement sum (not inverted to its bitwise complement)
+ * of the pseudo header in the checksum field (instead of intializing
+ * to zero), allowing the device driver to calculate the real checksum
+ * later without needing knowledge of the pseudoheader itself.
+ * (This is presumably why GSO requires equal length buffers - so that the
+ * pseudo header contribution to the checksum, which includes the payload
+ * length, is the same.)
+ *
+ * We can output this partial checksum as an intermediate result,
+ * assuming that the pseudo header is all but the last chunk in the vector.
+ * Note that unlike the final output it is not inverted, and that it
+ * (like the final computed checksum) is is network byte order.
+ */
 int
-in_cksum(const vec_t *vec, int veclen)
+in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *partial)
 {
 	register const guint16 *w;
 	register int sum = 0;
@@ -46,6 +61,10 @@ in_cksum(const vec_t *vec, int veclen)
 	} l_util;
 
 	for (; veclen != 0; vec++, veclen--) {
+		if (veclen == 1 && partial) {
+			REDUCE;
+			*partial = sum;
+		}
 		if (vec->len == 0)
 			continue;
 		w = (const guint16 *)(const void *)vec->ptr;
@@ -122,13 +141,19 @@ in_cksum(const vec_t *vec, int veclen)
 	return (~sum & 0xffff);
 }
 
+int
+in_cksum(const vec_t *vec, int veclen)
+{
+	return in_cksum_ret_partial(vec, veclen, NULL);
+}
+
 guint16
 ip_checksum(const guint8 *ptr, int len)
 {
 	vec_t cksum_vec[1];
 
 	SET_CKSUM_VEC_PTR(cksum_vec[0], ptr, len);
-	return in_cksum(&cksum_vec[0], 1);
+	return in_cksum_ret_partial(&cksum_vec[0], 1, NULL);
 }
 
 guint16
@@ -137,7 +162,7 @@ ip_checksum_tvb(tvbuff_t *tvb, int offset, int len)
 	vec_t cksum_vec[1];
 
 	SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, offset, len);
-	return in_cksum(&cksum_vec[0], 1);
+	return in_cksum_ret_partial(&cksum_vec[0], 1, NULL);
 }
 
 /*
