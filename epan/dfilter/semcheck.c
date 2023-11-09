@@ -749,10 +749,11 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
-			/* This is OK */
 			dfw->field_count++;
-			break;
+			/* fall-through */
 		case STTYPE_REFERENCE:
+			/* This is OK */
+			break;
 		case STTYPE_STRING:
 		case STTYPE_LITERAL:
 		case STTYPE_CHARCONST:
