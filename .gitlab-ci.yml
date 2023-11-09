@@ -317,10 +317,13 @@ Debian Stable APT Package:
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -b --no-sign -jauto -zfast
     - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
     - mkdir debian-packages
-    - mv ../*.deb debian-packages/
+    - mv -v ../*.deb debian-packages/
+    - mkdir debian-symbols
+    - for wslib in wireshark wiretap wsutil ; do cp -v packaging/debian/lib${wslib}0/DEBIAN/symbols debian-symbols/lib${wslib}0.symbols ; done
   artifacts:
     paths:
       - debian-packages/*.deb
+      - debian-symbols/*.symbols
     expire_in: 3 days
 
 Debian Stable APT Test:
