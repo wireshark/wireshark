@@ -27,6 +27,7 @@ class PreferenceEditorFrame : public AccordionFrame
 public:
     explicit PreferenceEditorFrame(QWidget *parent = 0);
     ~PreferenceEditorFrame();
+    void updateStyleSheet();
 
 public slots:
     void editPreference(struct preference *pref = NULL, struct pref_module *module = NULL);
