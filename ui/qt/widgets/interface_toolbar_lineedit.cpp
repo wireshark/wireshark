@@ -103,17 +103,19 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             "InterfaceToolbarLineEdit {"
             "  padding-right: %1px;"
             "  background-color: %2;"
-#ifdef Q_OS_MAC
-            "  border: 1px solid palette(%3);"
-            "  border-radius: 3px;"
-#else
-            "  border: 1px solid palette(shadow);"
-#endif
             "}"
             )
             .arg(apsz.width() + frameWidth)
-            .arg(is_valid || !isEnabled() ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name())
-            .arg(ColorUtils::themeIsDark() ? QString("light") : QString("dark"));
+            .arg(is_valid || !isEnabled() ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name());
+
+#ifdef Q_OS_MAC
+    style_sheet += QString(
+            "InterfaceToolbarLineEdit {"
+            "  border: 1px solid palette(%1);"
+            "  border-radius: 3px;"
+            "}"
+            ).arg(ColorUtils::themeIsDark() ? QString("light") : QString("dark"));
+#endif
 
     setStyleSheet(style_sheet);
 }
