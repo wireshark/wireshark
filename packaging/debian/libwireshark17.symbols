@@ -996,6 +996,7 @@ libwireshark.so.17 libwireshark17 #MINVER#
  ieee80211_supported_rates_vals_ext@Base 1.99.1
  ieee802a_add_oui@Base 1.9.1
  in_cksum@Base 1.9.1
+ in_cksum_ret_partial@Base 4.3.0
  init_srt_table@Base 1.99.8
  init_srt_table_row@Base 1.99.8
  ip_checksum@Base 1.99.0
