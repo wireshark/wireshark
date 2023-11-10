@@ -5,8 +5,8 @@
     https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html
 -->
 
-<application>
-    <id type="desktop">org.wireshark.Logray</id>
+<component type="desktop">
+    <id>org.wireshark.Logray</id>
     <name>Logray</name>
     <summary>Logray is a feature-filled log analyzer</summary>
     <content_rating type="oars-1.1"/>
@@ -28,4 +28,4 @@
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
     </releases>
-</application>
+</component>
