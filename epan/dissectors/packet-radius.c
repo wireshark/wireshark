@@ -2401,6 +2401,7 @@ register_attrs(gpointer k _U_, gpointer v, gpointer p)
 		{ NULL, { NULL, NULL, FT_NONE,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ NULL, { NULL, NULL, FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ NULL, { NULL, NULL, FT_NONE,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ NULL, { NULL, NULL, FT_NONE,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ NULL, { NULL, NULL, FT_NONE,  BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 	guint len_hf = 2;
