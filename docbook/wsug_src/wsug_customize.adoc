@@ -651,6 +651,7 @@ These window title strings can contain variables which will be replaced by their
 
 The following variables are available.
 
+* %C = Capture comment from command line
 * %F = File path of the capture file
 * %P = Currently selected profile name
 * %S = Conditional separator (dash) that only shows when surrounded by variables with values or static text

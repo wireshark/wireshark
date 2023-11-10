@@ -3436,6 +3436,7 @@ prefs_register_modules(void)
 
     register_string_like_preference(gui_module, "window_title", "Custom window title",
         "Custom window title to be appended to the existing title\n"
+        "%C = capture comment from command line\n"
         "%F = file path of the capture file\n"
         "%P = profile name\n"
         "%S = a conditional separator (\" - \") that only shows when surrounded by variables with values or static text\n"
@@ -3444,6 +3445,7 @@ prefs_register_modules(void)
 
     register_string_like_preference(gui_module, "prepend_window_title", "Custom window title prefix",
         "Custom window title to be prepended to the existing title\n"
+        "%C = capture comment from command line\n"
         "%F = file path of the capture file\n"
         "%P = profile name\n"
         "%S = a conditional separator (\" - \") that only shows when surrounded by variables with values or static text\n"

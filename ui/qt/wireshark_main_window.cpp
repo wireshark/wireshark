@@ -33,6 +33,7 @@ DIAG_ON(frame-larger-than=)
 #include <frame_tvbuff.h>
 
 #include "ui/iface_toolbar.h"
+#include "ui/commandline.h"
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
@@ -2483,6 +2484,18 @@ QString WiresharkMainWindow::replaceWindowTitleVariables(QString title)
 {
     title.replace("%P", get_profile_name());
     title.replace("%V", get_ws_vcs_version_info());
+
+#ifdef HAVE_LIBPCAP
+    if (global_commandline_info.capture_comments) {
+        // Use the first capture comment from command line.
+        title.replace("%C", (char *)g_ptr_array_index(global_commandline_info.capture_comments, 0));
+    } else {
+        // No capture comment.
+        title.remove("%C");
+    }
+#else
+    title.remove("%C");
+#endif
 
     if (title.contains("%F")) {
         // %F is file path of the capture file.
