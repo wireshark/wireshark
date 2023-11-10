@@ -20,7 +20,7 @@
 #include <epan/prefs.h>
 
 #include <ui/recent.h>
-#include <ui/last_open_dir.h>
+#include <ui/util.h>
 #include "ui/ws_ui_util.h"
 
 #include <wsutil/str_util.h>
@@ -306,7 +306,7 @@ QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> stream_ids)
     return filter;
 }
 
-QString lastOpenDir()
+QString openDialogInitialDir()
 {
     QString result;
 
@@ -319,7 +319,7 @@ QString lastOpenDir()
            use the "last opened" directory saved in the preferences file if
            there was one. */
         /* This is now the default behaviour in file_selection_new() */
-        result = QString(get_last_open_dir());
+        result = QString(get_open_dialog_initial_dir());
         break;
 
     case FO_STYLE_SPECIFIED:
@@ -340,7 +340,8 @@ QString lastOpenDir()
 
 void storeLastDir(QString dir)
 {
-    if (mainApp && dir.length() > 0)
-        mainApp->setLastOpenDir(qUtf8Printable(dir));
+    /* XXX - printable? */
+    if (dir.length() > 0)
+        set_last_open_dir(qUtf8Printable(dir));
 }
 

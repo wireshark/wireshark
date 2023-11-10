@@ -2068,18 +2068,20 @@ copy_persconffile_profile(const char *toname, const char *fromname, bool from_gl
  * Get the (default) directory in which personal data is stored.
  *
  * On Win32, this is the "My Documents" folder in the personal profile.
- * On UNIX this is simply the current directory.
+ * On UNIX this is simply the current directory, unless that's "/",
+ * which it will be, for example, when Wireshark is run from the
+ * Finder in macOS, in which case we use the user's home directory.
  */
 /* XXX - should this and the get_home_dir() be merged? */
 extern const char *
 get_persdatafile_dir(void)
 {
-#ifdef _WIN32
-    TCHAR tszPath[MAX_PATH];
-
     /* Return the cached value, if available */
     if (persdatafile_dir != NULL)
         return persdatafile_dir;
+
+#ifdef _WIN32
+    TCHAR tszPath[MAX_PATH];
 
     /*
      * Hint: SHGetFolderPath is not available on MSVC 6 - without
@@ -2092,7 +2094,25 @@ get_persdatafile_dir(void)
         return "";
     }
 #else
-    return "";
+    /*
+     * Get the current directory.
+     */
+    persdatafile_dir = g_get_current_dir();
+    if (persdatafile_dir == NULL) {
+      /* XXX - can this fail? */
+      /*
+       * g_get_home_dir() returns a const gchar *; g_strdup() it
+       * so that it's something that can be freed.
+       */
+      persdatafile_dir = g_strdup(g_get_home_dir());
+    } else if (strcmp(persdatafile_dir, "/") == 0) {
+        g_free(persdatafile_dir);
+        /*
+         * See above.
+         */
+        persdatafile_dir = g_strdup(g_get_home_dir());
+    }
+    return persdatafile_dir;
 #endif
 }
 

@@ -415,7 +415,7 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
 
     if (button == import_button_) {
         QString file_name = WiresharkFileDialog::getOpenFileName(this, mainApp->windowTitleString(tr("Import Coloring Rules")),
-                                                         mainApp->lastOpenDir().path());
+                                                         mainApp->openDialogInitialDir().path());
         if (!file_name.isEmpty()) {
             if (!colorRuleModel_.importColors(file_name, err)) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
@@ -433,7 +433,7 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
 
         QString caption = mainApp->windowTitleString(tr("Export %1 Coloring Rules").arg(num_items));
         QString file_name = WiresharkFileDialog::getSaveFileName(this, caption,
-                                                         mainApp->lastOpenDir().path());
+                                                         mainApp->openDialogInitialDir().path());
         if (!file_name.isEmpty()) {
             if (!colorRuleModel_.exportColors(file_name, err)) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());

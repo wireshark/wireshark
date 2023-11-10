@@ -11,7 +11,7 @@
 #include "config.h"
 
 #include "epan/prefs.h"
-#include "ui/last_open_dir.h"
+#include "ui/util.h"
 
 #include <ui/qt/widgets/path_selection_edit.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
@@ -76,7 +76,7 @@ void PathSelectionEdit::browseForPath()
 
     if (openDir.isEmpty()) {
         if (prefs.gui_fileopen_style == FO_STYLE_LAST_OPENED) {
-            openDir = QString(get_last_open_dir());
+            openDir = QString(get_open_dialog_initial_dir());
         } else if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED) {
             openDir = QString(prefs.gui_fileopen_dir);
         }

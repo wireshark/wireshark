@@ -67,7 +67,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
          * use the "last opened" directory saved in the preferences file if
          * there was one.
          */
-        setDirectory(mainApp->lastOpenDir());
+        setDirectory(mainApp->openDialogInitialDir());
         break;
 
     case FO_STYLE_SPECIFIED:

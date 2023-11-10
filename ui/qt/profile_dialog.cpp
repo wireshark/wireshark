@@ -604,7 +604,7 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
         return;
     }
 
-    QString zipFile = QFileDialog::getSaveFileName(this, tr("Select zip file for export"), lastOpenDir(), tr("Zip File (*.zip)"));
+    QString zipFile = QFileDialog::getSaveFileName(this, tr("Select zip file for export"), openDialogInitialDir(), tr("Zip File (*.zip)"));
 
     if (zipFile.length() > 0)
     {
@@ -635,7 +635,7 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
 
 void ProfileDialog::importFromZip()
 {
-    QString zipFile = QFileDialog::getOpenFileName(this, tr("Select zip file for import"), lastOpenDir(), tr("Zip File (*.zip)"));
+    QString zipFile = QFileDialog::getOpenFileName(this, tr("Select zip file for import"), openDialogInitialDir(), tr("Zip File (*.zip)"));
 
     QFileInfo fi(zipFile);
     if (! fi.exists())
@@ -651,7 +651,7 @@ void ProfileDialog::importFromZip()
 
 void ProfileDialog::importFromDirectory()
 {
-    QString importDir = QFileDialog::getExistingDirectory(this, tr("Select directory for import"), lastOpenDir());
+    QString importDir = QFileDialog::getExistingDirectory(this, tr("Select directory for import"), openDialogInitialDir());
 
     QFileInfo fi(importDir);
     if (! fi.isDir())

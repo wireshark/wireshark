@@ -268,7 +268,7 @@ QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> stream_ids);
  *
  * @return a reference to that directory.
  */
-QString lastOpenDir();
+QString openDialogInitialDir();
 
 /**
  * @brief Store the directory as last directory being used

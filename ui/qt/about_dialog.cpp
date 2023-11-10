@@ -30,7 +30,7 @@
 #endif
 
 #include "ui/alert_box.h"
-#include "ui/last_open_dir.h"
+#include "ui/util.h"
 #include "ui/help_url.h"
 #include <wsutil/utf8_entities.h>
 
@@ -205,7 +205,7 @@ FolderListModel::FolderListModel(QObject * parent):
         AStringListListModel(parent)
 {
     /* "file open" */
-    appendRow(QStringList() << tr("\"File\" dialogs") << get_last_open_dir() << tr("capture files"));
+    appendRow(QStringList() << tr("\"File\" dialogs") << get_open_dialog_initial_dir() << tr("capture files"));
 
     /* temp */
     appendRow(QStringList() << tr("Temp") << (global_capture_opts.temp_dir && global_capture_opts.temp_dir[0] ? global_capture_opts.temp_dir : g_get_tmp_dir()) << tr("untitled capture files"));

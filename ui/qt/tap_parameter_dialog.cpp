@@ -34,7 +34,7 @@
 #include "ui/win32/file_dlg_win32.h"
 #endif // Q_OS_WIN
 
-#include "ui/last_open_dir.h"
+#include "ui/util.h"
 #include <wsutil/utf8_entities.h>
 
 #include "wsutil/file_util.h"
@@ -549,7 +549,7 @@ void TapParameterDialog::on_actionSaveAs_triggered()
     HANDLE da_ctx = set_thread_per_monitor_v2_awareness();
 #endif
     QFileDialog SaveAsDialog(this, mainApp->windowTitleString(tr("Save Statistics As…")),
-                                                            get_last_open_dir());
+                                                            get_open_dialog_initial_dir());
     SaveAsDialog.setNameFilter(tr("Plain text file (*.txt);;"
                                     "Comma separated values (*.csv);;"
                                     "XML document (*.xml);;"

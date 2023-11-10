@@ -44,12 +44,23 @@ const char *get_conn_cfilter(void);
  */
 gboolean display_is_remote(void);
 
-/** Set the latest opened directory.
- *  Will already be done when using file_selection_new().
+/** Get the latest directory in which a file has been opened.
+ *
+ * @return the dirname
+ */
+extern const char *get_last_open_dir(void);
+
+/** Set the latest directory in which a file has been opened.
  *
  * @param dirname the dirname
  */
 extern void set_last_open_dir(const char *dirname);
+
+/** Get the initial directory to use in file open dialogs.
+ *
+ * @return the dirname
+ */
+extern const char *get_open_dialog_initial_dir(void);
 
 #ifdef __cplusplus
 }

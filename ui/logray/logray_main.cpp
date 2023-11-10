@@ -716,13 +716,15 @@ int main(int argc, char *qt_argv[])
     main_w->connect(&ls_app, &LograyApplication::openCaptureOptions,
             main_w, &LograyMainWindow::showCaptureOptionsDialog);
 
-    /* Init the "Open file" dialog directory */
-    /* (do this after the path settings are processed) */
+    /*
+     * If we have a saved "last directory in which a file was opened"
+     * in the recent file, set it as the one for the app.
+     *
+     * (do this after the path settings are processed)
+     */
     if (recent.gui_fileopen_remembered_dir &&
         test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
-      lwApp->setLastOpenDir(recent.gui_fileopen_remembered_dir);
-    } else {
-      lwApp->setLastOpenDir(get_persdatafile_dir());
+      set_last_open_dir(recent.gui_fileopen_remembered_dir);
     }
 
 #ifdef DEBUG_STARTUP_TIME

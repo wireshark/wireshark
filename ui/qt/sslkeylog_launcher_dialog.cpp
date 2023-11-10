@@ -131,7 +131,7 @@ void SSLKeylogDialog::on_browseKeylogPath()
 {
     QString caption = mainApp->windowTitleString(tr("TLS Keylog"));
     QString file_name = WiresharkFileDialog::getSaveFileName(this, caption,
-                            mainApp->lastOpenDir().path());
+                            mainApp->openDialogInitialDir().path());
     if (!file_name.isEmpty()) {
         ui->keylogLineEdit->setText(file_name);
     }
