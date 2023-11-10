@@ -18,7 +18,6 @@
 
 #include "ui/profile.h"
 #include "ui/recent.h"
-#include "ui/last_open_dir.h"
 
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/models/profile_model.h>
