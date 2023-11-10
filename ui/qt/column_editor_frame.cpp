@@ -97,6 +97,7 @@ void ColumnEditorFrame::editColumn(int column)
 void ColumnEditorFrame::updateStyleSheet()
 {
     ui->titleLineEdit->setStyleSheet(lineEditStyleSheet());
+    ui->typeComboBox->setStyleSheet(QString());
     ui->fieldsNameLineEdit->setStyleSheet(lineEditStyleSheet());
     ui->occurrenceLineEdit->setStyleSheet(lineEditStyleSheet());
 }

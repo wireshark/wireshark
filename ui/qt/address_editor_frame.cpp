@@ -167,6 +167,7 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
 
 void AddressEditorFrame::updateStyleSheet()
 {
+    ui->addressComboBox->setStyleSheet(QString());
     ui->nameLineEdit->setStyleSheet(lineEditStyleSheet());
 }
 
