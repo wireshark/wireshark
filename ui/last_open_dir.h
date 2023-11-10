@@ -1,6 +1,6 @@
 /** @file
  *
- * Routines to fetch the last directory in which a file was opened;
+ * Routine to fetch the last directory in which a file was opened;
  * its implementation is GUI-dependent, but the API isn't
  *
  * Wireshark - Network traffic analyzer

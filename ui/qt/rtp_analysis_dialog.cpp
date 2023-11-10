@@ -621,7 +621,7 @@ void RtpAnalysisDialog::on_actionSaveGraph_triggered()
     ui->tabWidget->setCurrentWidget(ui->graphTab);
 
     QString file_name, extension;
-    QDir path(mainApp->lastOpenDir());
+    QDir path(mainApp->openDialogInitialDir());
     QString pdf_filter = tr("Portable Document Format (*.pdf)");
     QString png_filter = tr("Portable Network Graphics (*.png)");
     QString bmp_filter = tr("Windows Bitmap (*.bmp)");
@@ -904,7 +904,7 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
     }
 
     QString file_path = WiresharkFileDialog::getSaveFileName(
-                this, caption, mainApp->lastOpenDir().absoluteFilePath("RTP Packet Data.csv"),
+                this, caption, mainApp->openDialogInitialDir().absoluteFilePath("RTP Packet Data.csv"),
                 tr("Comma-separated values (*.csv)"));
 
     if (file_path.isEmpty()) return;

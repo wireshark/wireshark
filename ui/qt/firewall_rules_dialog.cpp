@@ -172,7 +172,7 @@ void FirewallRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
                 .arg(firewall_product_name(prod_));
         QByteArray file_name = WiresharkFileDialog::getSaveFileName(this,
                                                  save_title,
-                                                 mainApp->lastOpenDir().canonicalPath(),
+                                                 mainApp->openDialogInitialDir().canonicalPath(),
                                                  tr("Text file (*.txt);;All Files (" ALL_FILES_WILDCARD ")")
                                                  ).toUtf8();
         if (file_name.length() > 0) {

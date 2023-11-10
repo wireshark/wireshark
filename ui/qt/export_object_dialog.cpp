@@ -244,7 +244,7 @@ void ExportObjectDialog::on_cmbContentType_currentIndexChanged(int index)
 
 void ExportObjectDialog::saveCurrentEntry(QString *tempFile)
 {
-    QDir path(mainApp->lastOpenDir());
+    QDir path(mainApp->openDialogInitialDir());
 
     QModelIndex proxyIndex = eo_ui_->objectTree->currentIndex();
     if (!proxyIndex.isValid())
@@ -279,7 +279,7 @@ void ExportObjectDialog::saveCurrentEntry(QString *tempFile)
 
 void ExportObjectDialog::saveAllEntries()
 {
-    QDir save_in_dir(mainApp->lastOpenDir());
+    QDir save_in_dir(mainApp->openDialogInitialDir());
     QString save_in_path;
 
     //

@@ -55,7 +55,7 @@
 #include "wsutil/filter_files.h"
 #include "ui/capture_globals.h"
 #include "ui/software_update.h"
-#include "ui/last_open_dir.h"
+#include "ui/file_dialog.h"
 #include "ui/recent_utils.h"
 
 #ifdef HAVE_LIBPCAP
@@ -114,8 +114,6 @@ MainApplication *mainApp = NULL;
 
 // XXX - Copied from ui/gtk/file_dlg.c
 
-// MUST be UTF-8
-static char *last_open_dir = NULL;
 static QList<recent_item_status *> recent_captures_;
 static QHash<int, QList<QAction *> > dynamic_menu_groups_;
 static QHash<int, QList<QAction *> > added_menu_groups_;
@@ -152,18 +150,6 @@ void
 topic_action(topic_action_e action)
 {
     if (mainApp) mainApp->helpTopicAction(action);
-}
-
-extern "C" char *
-get_last_open_dir(void)
-{
-    return last_open_dir;
-}
-
-void
-set_last_open_dir(const char *dirname)
-{
-    if (mainApp) mainApp->setLastOpenDir(dirname);
 }
 
 /*
@@ -296,14 +282,15 @@ void MainApplication::updateTaps()
     draw_tap_listeners(FALSE);
 }
 
-QDir MainApplication::lastOpenDir() {
-    return QDir(last_open_dir);
+QDir MainApplication::openDialogInitialDir() {
+    return QDir(get_open_dialog_initial_dir());
 }
 
 void MainApplication::setLastOpenDirFromFilename(const QString file_name)
 {
     QString directory = QFileInfo(file_name).absolutePath();
-    setLastOpenDir(qUtf8Printable(directory));
+    /* XXX - printable? */
+    set_last_open_dir(qUtf8Printable(directory));
 }
 
 void MainApplication::helpTopicAction(topic_action_e action)
@@ -599,28 +586,6 @@ void MainApplication::storeCustomColorsInRecent()
             recent.custom_colors = g_list_append(recent.custom_colors, ws_strdup_printf("%08x", rgb));
         }
     }
-}
-
-void MainApplication::setLastOpenDir(const char *dir_name)
-{
-    qint64 len;
-    gchar *new_last_open_dir;
-
-    if (dir_name && dir_name[0]) {
-        len = strlen(dir_name);
-        if (dir_name[len-1] == G_DIR_SEPARATOR) {
-            new_last_open_dir = g_strconcat(dir_name, (char *)NULL);
-        }
-        else {
-            new_last_open_dir = g_strconcat(dir_name,
-                                            G_DIR_SEPARATOR_S, (char *)NULL);
-        }
-    } else {
-        new_last_open_dir = NULL;
-    }
-
-    g_free(last_open_dir);
-    last_open_dir = new_last_open_dir;
 }
 
 bool MainApplication::event(QEvent *event)

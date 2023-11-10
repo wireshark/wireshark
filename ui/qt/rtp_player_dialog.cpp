@@ -2448,7 +2448,7 @@ save_audio_t RtpPlayerDialog::selectFileAudioFormatAndName(QString *file_path)
 
     QString sel_filter;
     *file_path = WiresharkFileDialog::getSaveFileName(
-                this, tr("Save audio"), mainApp->lastOpenDir().absoluteFilePath(""),
+                this, tr("Save audio"), mainApp->openDialogInitialDir().absoluteFilePath(""),
                 ext_filter, &sel_filter);
 
     if (file_path->isEmpty()) return save_audio_none;
@@ -2471,7 +2471,7 @@ save_payload_t RtpPlayerDialog::selectFilePayloadFormatAndName(QString *file_pat
 
     QString sel_filter;
     *file_path = WiresharkFileDialog::getSaveFileName(
-                this, tr("Save payload"), mainApp->lastOpenDir().absoluteFilePath(""),
+                this, tr("Save payload"), mainApp->openDialogInitialDir().absoluteFilePath(""),
                 ext_filter, &sel_filter);
 
     if (file_path->isEmpty()) return save_payload_none;

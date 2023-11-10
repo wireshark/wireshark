@@ -25,7 +25,7 @@
 #include <epan/column.h>
 #include <epan/value_string.h>
 
-#include "ui/last_open_dir.h"
+#include "ui/util.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/packet_list_utils.h"

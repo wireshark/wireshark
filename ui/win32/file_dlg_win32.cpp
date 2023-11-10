@@ -35,7 +35,7 @@
 
 #include "ui/alert_box.h"
 #include "ui/help_url.h"
-#include "ui/last_open_dir.h"
+#include "ui/file_dialog.h"
 #include "ui/simple_dialog.h"
 #include "ui/util.h"
 #include "ui/ws_ui_util.h"
@@ -203,7 +203,7 @@ win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned 
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
         ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-        ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+        ofn->lpstrInitialDir = utf_8to16(get_open_dialog_initial_dir());
     }
     ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER     |
@@ -276,7 +276,7 @@ win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+    ofn->lpstrInitialDir = utf_8to16(get_open_dialog_initial_dir());
     ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
@@ -357,7 +357,7 @@ win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+    ofn->lpstrInitialDir = utf_8to16(get_open_dialog_initial_dir());
     ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
@@ -435,7 +435,7 @@ win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString 
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
         ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-        ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+        ofn->lpstrInitialDir = utf_8to16(get_open_dialog_initial_dir());
     }
     ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER     |
@@ -498,7 +498,7 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+    ofn->lpstrInitialDir = utf_8to16(get_open_dialog_initial_dir());
     ofn->lpstrTitle = title;
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |

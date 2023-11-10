@@ -1758,7 +1758,7 @@ void LograyMainWindow::exportPacketBytes()
 
     file_name = WiresharkFileDialog::getSaveFileName(this,
                                             mainApp->windowTitleString(tr("Export Selected Packet Bytes")),
-                                            mainApp->lastOpenDir().canonicalPath(),
+                                            mainApp->openDialogInitialDir().canonicalPath(),
                                             tr("Raw data (*.bin *.dat *.raw);;All Files (" ALL_FILES_WILDCARD ")")
                                             );
 

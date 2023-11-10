@@ -66,13 +66,14 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf) :
 {
     switch (prefs.gui_fileopen_style) {
     case FO_STYLE_LAST_OPENED:
-        /* The user has specified that we should start out in the last directory
-         * we looked in.  If we've already opened a file, use its containing
-         * directory, if we could determine it, as the directory, otherwise
-         * use the "last opened" directory saved in the preferences file if
-         * there was one.
+        /* The user has specified that we should start out in the last
+         * directory in which we opened a file.
+         *
+         * The open dialog initial directory will be that directory
+         * unless we've never opened a file, in which case it will
+         * be the user's personal data file directory.
          */
-        setDirectory(mainApp->lastOpenDir());
+        setDirectory(mainApp->openDialogInitialDir());
         break;
 
     case FO_STYLE_SPECIFIED:

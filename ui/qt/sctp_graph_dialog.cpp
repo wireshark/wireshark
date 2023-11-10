@@ -478,7 +478,7 @@ void SCTPGraphDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMouseE
 void SCTPGraphDialog::save_graph(QDialog *dlg, QCustomPlot *plot)
 {
     QString file_name, extension;
-    QDir path(mainApp->lastOpenDir());
+    QDir path(mainApp->openDialogInitialDir());
     QString pdf_filter = tr("Portable Document Format (*.pdf)");
     QString png_filter = tr("Portable Network Graphics (*.png)");
     QString bmp_filter = tr("Windows Bitmap (*.bmp)");

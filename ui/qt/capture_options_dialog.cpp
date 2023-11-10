@@ -31,7 +31,7 @@
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
-#include "ui/last_open_dir.h"
+#include "ui/file_dialog.h"
 
 #include "ui/ws_ui_util.h"
 #include "ui/util.h"
@@ -366,12 +366,12 @@ void CaptureOptionsDialog::on_capturePromModeCheckBox_toggled(bool checked)
 
 void CaptureOptionsDialog::browseButtonClicked()
 {
-    char *open_dir = NULL;
+    const char *open_dir = NULL;
 
     switch (prefs.gui_fileopen_style) {
 
     case FO_STYLE_LAST_OPENED:
-        open_dir = get_last_open_dir();
+        open_dir = get_open_dialog_initial_dir();
         break;
 
     case FO_STYLE_SPECIFIED:

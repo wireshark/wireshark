@@ -110,8 +110,7 @@ public:
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString filename, qint64 size, bool accessible);
     void removeRecentItem(const QString &filename);
-    QDir lastOpenDir();
-    void setLastOpenDir(const char *dir_name);
+    QDir openDialogInitialDir();
     void setLastOpenDirFromFilename(QString file_name);
     void helpTopicAction(topic_action_e action);
     const QFont monospaceFont(bool zoomed = false) const;

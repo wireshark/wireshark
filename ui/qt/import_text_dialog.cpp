@@ -17,7 +17,7 @@
 #include <epan/prefs.h>
 
 #include "ui/text_import_scanner.h"
-#include "ui/last_open_dir.h"
+#include "ui/util.h"
 #include "ui/alert_box.h"
 #include "ui/help_url.h"
 #include "ui/capture_globals.h"
@@ -615,7 +615,7 @@ void ImportTextDialog::on_textFileBrowseButton_clicked()
                use the "last opened" directory saved in the preferences file if
                there was one. */
             /* This is now the default behaviour in file_selection_new() */
-            open_dir = get_last_open_dir();
+            open_dir = get_open_dialog_initial_dir();
             break;
 
         case FO_STYLE_SPECIFIED:
