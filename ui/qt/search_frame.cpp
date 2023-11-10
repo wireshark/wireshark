@@ -518,7 +518,10 @@ void SearchFrame::on_cancelButton_clicked()
 
 void SearchFrame::updateStyleSheet()
 {
+    sf_ui_->searchInComboBox->setStyleSheet(QString());
+    sf_ui_->searchTypeComboBox->setStyleSheet(QString());
     sf_ui_->searchLineEdit->setStyleSheet(lineEditStyleSheet());
+    sf_ui_->charEncodingComboBox->setStyleSheet(QString());
 }
 
 void SearchFrame::changeEvent(QEvent* event)
