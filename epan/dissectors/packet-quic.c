@@ -4260,8 +4260,10 @@ dissect_quic_forcing_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, prot
     return offset;
 }
 
+static unsigned quic_gso_heur_dcid_len = 8;
+
 static tvbuff_t *
-quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
+quic_get_message_tvb(tvbuff_t *tvb, const guint offset, const quic_cid_t *dcid)
 {
     guint64 token_length;
     guint64 payload_length;
@@ -4287,6 +4289,15 @@ quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
                 if (payload_length <= G_MAXINT32 && length < (guint)tvb_reported_length_remaining(tvb, offset)) {
                     return tvb_new_subset_length(tvb, offset, length);
                 }
+            }
+        }
+    } else {
+        if (quic_gso_heur_dcid_len && (dcid->len >= quic_gso_heur_dcid_len)) {
+            unsigned dcid_offset = offset + 1;
+            tvbuff_t *needle_tvb = tvb_new_subset_length(tvb, dcid_offset, dcid->len);
+            int needle_pos = tvb_find_tvb(tvb, needle_tvb, dcid_offset + dcid->len);
+            if (needle_pos != -1) {
+                return(tvb_new_subset_length(tvb, offset, needle_pos - offset - 1));
             }
         }
     }
@@ -4397,9 +4408,9 @@ quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
  */
 static gboolean
 check_dcid_on_coalesced_packet(tvbuff_t *tvb, const quic_datagram *dgram_info,
-                               gboolean is_first_packet, quic_cid_t *first_packet_dcid)
+                               guint offset, quic_cid_t *first_packet_dcid)
 {
-    guint offset = 0;
+    gboolean is_first_packet = (offset == 0);
     guint8 first_byte, dcid_len;
     quic_cid_t dcid = {.len=0};
     quic_info_data_t *conn = dgram_info->conn;
@@ -4528,15 +4539,15 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             quic_tree = proto_item_add_subtree(quic_ti, ett_quic);
         }
 
-        tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset);
-
-        if (!check_dcid_on_coalesced_packet(next_tvb, dgram_info, offset == 0, &first_packet_dcid)) {
+        if (!check_dcid_on_coalesced_packet(tvb, dgram_info, offset, &first_packet_dcid)) {
             /* Coalesced packet with unexpected CID; it probably is some kind
                of unencrypted padding data added after the valid QUIC payload */
             expert_add_info_format(pinfo, quic_tree, &ei_quic_coalesced_padding_data,
                                    "(Random) padding data appended to the datagram");
             break;
         }
+
+        tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset, &first_packet_dcid);
 
         proto_item_set_len(quic_ti, tvb_reported_length(next_tvb));
         ti = proto_tree_add_uint(quic_tree, hf_quic_packet_length, next_tvb, 0, 0, tvb_reported_length(next_tvb));
@@ -5686,6 +5697,13 @@ proto_register_quic(void)
         "Whether out-of-order CRYPTO frames should be buffered and reordered before "
         "passing them to the TLS handshake dissector.",
         &quic_crypto_out_of_order);
+
+    prefs_register_uint_preference(quic_module, "gso_heur_min_dcid_len",
+        "Search for coalesced short header packets at DCID length",
+        "Heuristically search for coalesced QUIC packets with a short header "
+        "(e.g., when Generic Segmentation Offload (GSO) or similar is used), "
+        "if the DCID is at least this many bytes long (0 to disable). ",
+        10, &quic_gso_heur_dcid_len);
 
     quic_handle = register_dissector("quic", dissect_quic, proto_quic);
 
