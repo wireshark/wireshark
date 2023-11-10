@@ -49,7 +49,6 @@ SearchFrame::SearchFrame(QWidget *parent) :
     regex_(nullptr)
 {
     sf_ui_->setupUi(this);
-    updateStyleSheet();
 
 #ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
@@ -514,14 +513,6 @@ void SearchFrame::on_cancelButton_clicked()
 {
     mainApp->popStatus(MainApplication::FilterSyntax);
     animatedHide();
-}
-
-void SearchFrame::updateStyleSheet()
-{
-    sf_ui_->searchInComboBox->setStyleSheet(QString());
-    sf_ui_->searchTypeComboBox->setStyleSheet(QString());
-    sf_ui_->searchLineEdit->setStyleSheet(lineEditStyleSheet());
-    sf_ui_->charEncodingComboBox->setStyleSheet(QString());
 }
 
 void SearchFrame::changeEvent(QEvent* event)

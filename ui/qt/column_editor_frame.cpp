@@ -32,7 +32,6 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
     cur_column_(-1)
 {
     ui->setupUi(this);
-    updateStyleSheet();
 
 #ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
@@ -92,14 +91,6 @@ void ColumnEditorFrame::editColumn(int column)
     ui->typeComboBox->setCurrentIndex(get_column_format(column));
     ui->resolvedCheckBox->setChecked(get_column_resolved(column));
     setFields(ui->typeComboBox->currentIndex());
-}
-
-void ColumnEditorFrame::updateStyleSheet()
-{
-    ui->titleLineEdit->setStyleSheet(lineEditStyleSheet());
-    ui->typeComboBox->setStyleSheet(QString());
-    ui->fieldsNameLineEdit->setStyleSheet(lineEditStyleSheet());
-    ui->occurrenceLineEdit->setStyleSheet(lineEditStyleSheet());
 }
 
 void ColumnEditorFrame::showEvent(QShowEvent *event)

@@ -41,7 +41,6 @@ PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
     new_range_(NULL)
 {
     ui->setupUi(this);
-    updateStyleSheet();
 
 #ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
@@ -187,11 +186,6 @@ void PreferenceEditorFrame::rangeLineEditTextEdited(const QString &new_str)
     } else {
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
     }
-}
-
-void PreferenceEditorFrame::updateStyleSheet()
-{
-    ui->preferenceLineEdit->setStyleSheet(lineEditStyleSheet());
 }
 
 void PreferenceEditorFrame::showEvent(QShowEvent *event)

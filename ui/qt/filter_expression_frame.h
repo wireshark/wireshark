@@ -26,7 +26,6 @@ public:
 
     void addExpression(const QString filter_text);
     void editExpression(int exprIdx);
-    void updateStyleSheet();
 
 signals:
     void showPreferencesDialog(QString pane_name);

@@ -485,8 +485,6 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     main_ui_->actionViewFullScreen->setShortcut(QKeySequence(Qt::Key_F11));
 #endif
 
-    main_ui_->goToLineEdit->setStyleSheet(main_ui_->goToFrame->lineEditStyleSheet());
-
 #if defined(Q_OS_MAC)
 
     main_ui_->goToPacketLabel->setAttribute(Qt::WA_MacSmallSize, true);
@@ -866,13 +864,12 @@ void WiresharkMainWindow::removeInterfaceToolbar(const gchar *menu_title)
 
 void WiresharkMainWindow::updateStyleSheet()
 {
-    main_ui_->goToLineEdit->setStyleSheet(main_ui_->goToFrame->lineEditStyleSheet());
-
     // TODO: The event type QEvent::ApplicationPaletteChange is not sent to all child widgets.
     // Workaround this by doing it manually for all AccordionFrame.
     main_ui_->addressEditorFrame->updateStyleSheet();
     main_ui_->columnEditorFrame->updateStyleSheet();
     main_ui_->filterExpressionFrame->updateStyleSheet();
+    main_ui_->goToFrame->updateStyleSheet();
     main_ui_->preferenceEditorFrame->updateStyleSheet();
     main_ui_->searchFrame->updateStyleSheet();
 }
