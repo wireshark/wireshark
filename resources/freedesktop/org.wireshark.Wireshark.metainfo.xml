@@ -5,8 +5,8 @@
     https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html
 -->
 
-<application>
-    <id type="desktop">org.wireshark.Wireshark</id>
+<component type="desktop">
+    <id>org.wireshark.Wireshark</id>
     <name>Wireshark</name>
     <summary>Wireshark is the world's foremost protocol analyzer</summary>
     <content_rating type="oars-1.1"/>
@@ -64,4 +64,4 @@
     <releases>
         <!-- release tags should be added using tools/update-appdata.py -->
     </releases>
-</application>
+</component>
