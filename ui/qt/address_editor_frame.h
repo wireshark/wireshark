@@ -30,7 +30,6 @@ class AddressEditorFrame : public AccordionFrame
 public:
     explicit AddressEditorFrame(QWidget *parent = 0);
     ~AddressEditorFrame();
-    void updateStyleSheet();
 
 public slots:
     void editAddresses(CaptureFile &cf, int column = -1);

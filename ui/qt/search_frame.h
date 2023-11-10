@@ -31,7 +31,6 @@ public:
     void findNext();
     void findPrevious();
     void setFocus();
-    void updateStyleSheet();
 
 public slots:
     void setCaptureFile(capture_file *cf);
