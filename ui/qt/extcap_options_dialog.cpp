@@ -29,7 +29,6 @@
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
-#include "ui/last_open_dir.h"
 
 #include "ui/ws_ui_util.h"
 #include "ui/util.h"
