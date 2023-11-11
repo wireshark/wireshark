@@ -2938,9 +2938,9 @@ void proto_reg_handoff_isdn_sup(void) {
   }
 
   for (i=0; i<(int)array_length(isdn_sup_global_op_tab); i++) {
-	  if(isdn_sup_global_op_tab->arg_pdu)
+	  if(isdn_sup_global_op_tab[i].arg_pdu)
 		  dissector_add_string("q932.ros.global.arg", isdn_sup_global_op_tab[i].oid, create_dissector_handle(isdn_sup_global_op_tab[i].arg_pdu, proto_isdn_sup));
-	  if(isdn_sup_global_op_tab->res_pdu)
+	  if(isdn_sup_global_op_tab[i].res_pdu)
 		  dissector_add_string("q932.ros.global.res", isdn_sup_global_op_tab[i].oid, create_dissector_handle(isdn_sup_global_op_tab[i].res_pdu, proto_isdn_sup));
   }
 
