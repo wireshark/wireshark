@@ -132,10 +132,16 @@ QVariant FilterListModel::headerData(int section, Qt::Orientation orientation, i
     {
         switch (section) {
             case ColumnName:
-                return tr("Filter Name");
+                if (type_ == DisplayMacro)
+                    return tr("Macro Name");
+                else
+                    return tr("Filter Name");
                 break;
             case ColumnExpression:
-                return tr("Filter Expression");
+                if (type_ == DisplayMacro)
+                    return tr("Macro Expression");
+                else
+                    return tr("Filter Expression");
                 break;
         }
     }
