@@ -865,6 +865,7 @@ void WiresharkMainWindow::removeInterfaceToolbar(const gchar *menu_title)
 
 void WiresharkMainWindow::updateStyleSheet()
 {
+#ifdef Q_OS_MAC
     // TODO: The event type QEvent::ApplicationPaletteChange is not sent to all child widgets.
     // Workaround this by doing it manually for all AccordionFrame.
     main_ui_->addressEditorFrame->updateStyleSheet();
@@ -873,6 +874,10 @@ void WiresharkMainWindow::updateStyleSheet()
     main_ui_->goToFrame->updateStyleSheet();
     main_ui_->preferenceEditorFrame->updateStyleSheet();
     main_ui_->searchFrame->updateStyleSheet();
+
+    df_combo_box_->updateStyleSheet();
+    welcome_page_->updateStyleSheets();
+#endif
 }
 
 bool WiresharkMainWindow::eventFilter(QObject *obj, QEvent *event) {

@@ -32,6 +32,7 @@ public:
     InterfaceFrame *getInterfaceFrame();
     const QString captureFilter();
     void setCaptureFilter(const QString capture_filter);
+    void updateStyleSheets();
 
 public slots:
     void interfaceSelected();
@@ -47,8 +48,6 @@ protected slots:
     void on_helpLabel_clicked();
 
 private:
-    void updateStyleSheets();
-
     Ui::WelcomePage *welcome_ui_;
     QString flavor_;
     QString show_in_str_;
