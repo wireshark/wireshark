@@ -315,11 +315,11 @@ Debian Stable APT Package:
     # Ignore changed symbols (on development branch).
     - export DPKG_GENSYMBOLS_CHECK_LEVEL=0
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -b --no-sign -jauto -zfast
-    - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
     - mkdir debian-packages
     - mv -v ../*.deb debian-packages/
     - mkdir debian-symbols
     - for wslib in wireshark wiretap wsutil ; do cp -v packaging/debian/lib${wslib}0/DEBIAN/symbols debian-symbols/lib${wslib}0.symbols ; done
+    - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
   artifacts:
     paths:
       - debian-packages/*.deb
