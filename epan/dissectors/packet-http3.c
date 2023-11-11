@@ -1433,14 +1433,14 @@ read_qpack_prefixed_integer(guint8 *buf, guint8 *end, gint prefix,
     guint64       shift = 0;
     const guint8 *p     = buf;
 
+    if (out_flag) {
+        *out_flag = *p & (1 << prefix);
+    }
+
     if (((*p) & k) != k) {
         *out_result = (*p) & k;
         *out_fin    = true;
         return 1;
-    }
-
-    if (out_flag) {
-        *out_flag = *p & (1 << prefix);
     }
 
     n = k;
@@ -1541,12 +1541,12 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             decoded += read_qpack_prefixed_integer(qpack_buf + decoded, end, 6, &table_entry, &fin, NULL);
             table_entry_len = offset + decoded - opcode_offset;
 
-            value_offset = offset + decoded - opcode_offset;
+            value_offset = offset + decoded;
             decoded += read_qpack_prefixed_integer(qpack_buf + decoded, end, 7, &val_bytes_len, &fin, &value_huffman);
-            val_bytes_offset = offset + decoded - opcode_offset;
+            val_bytes_offset = offset + decoded;
 
             decoded += (guint32)val_bytes_len;
-            value_len = opcode + decoded - value_offset;
+            value_len = offset + decoded - value_offset;
 
             opcode_len = offset + decoded - opcode_offset;
 
@@ -1600,15 +1600,15 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             decoded += read_qpack_prefixed_integer(qpack_buf + decoded, end, 5, &name_bytes_len, &fin, &name_huffman);
             name_len_len      = offset + decoded - name_len_offset;
             name_len          = name_len_len + (guint32)name_bytes_len;
-            name_bytes_offset = offset + decoded - opcode_offset;
+            name_bytes_offset = offset + decoded;
             decoded += (guint32)name_bytes_len;
 
             /* Read the 7-encoded value length */
-            val_len_offset = offset + decoded - opcode_offset;
+            val_len_offset = offset + decoded;
             decoded += read_qpack_prefixed_integer(qpack_buf + decoded, end, 7, &val_bytes_len, &fin, &value_huffman);
             val_len_len      = offset + decoded - val_len_offset;
             val_len          = val_len_len + (guint32)val_bytes_len;
-            val_bytes_offset = offset + decoded - opcode_offset;
+            val_bytes_offset = offset + decoded;
 
             decoded += (guint32)val_bytes_len;
 
