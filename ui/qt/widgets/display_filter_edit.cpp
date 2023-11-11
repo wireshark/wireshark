@@ -151,20 +151,21 @@ void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event) {
         return;
     }
 
-    QAction * first = menu->actions().at(0);
+    QAction *first = menu->actions().at(0);
 
-    QAction * na = new QAction(tr("Left align buttons"), this);
-    na->setCheckable(true);
-    na->setChecked(leftAlignActions_);
-    connect(na, &QAction::triggered, this, &DisplayFilterEdit::triggerAlignementAction);
-    menu->addSeparator();
-    menu->addAction(na);
-
-    na = new QAction(tr("Display Filter Expression…"), this);
+    QAction *na = new QAction(tr("Display Filter Expression…"), this);
     connect(na, &QAction::triggered, this, &DisplayFilterEdit::displayFilterExpression);
     menu->insertAction(first, na);
-
     menu->insertSeparator(first);
+
+    if (type_ == DisplayFilterToApply) {
+        na = new QAction(tr("Left align buttons"), this);
+        na->setCheckable(true);
+        na->setChecked(leftAlignActions_);
+        connect(na, &QAction::triggered, this, &DisplayFilterEdit::triggerAlignementAction);
+        menu->addSeparator();
+        menu->addAction(na);
+    }
 
     menu->popup(event->globalPos());
 }
