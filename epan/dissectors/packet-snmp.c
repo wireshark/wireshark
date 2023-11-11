@@ -1088,8 +1088,14 @@ indexing_done:
 					format_error = BER_WRONG_LENGTH;
 			}
 
-			if (format_error == BER_NO_ERROR)
-				pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
+			if (format_error == BER_NO_ERROR) {
+				/* Special case DATE AND TIME */
+				if((oid_info->value_type)&&(oid_info->value_type->keytype == OID_KEY_TYPE_DATE_AND_TIME)&&(value_len > 7)){
+					pi_value = dissect_snmp_variable_date_and_time(pt_varbind, actx->pinfo, oid_info->value_hfid, tvb, value_offset, value_len);
+				} else {
+					pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
+				}
+			}
 		}
 	} else {
 		switch(ber_class|(tag<<4)) {
