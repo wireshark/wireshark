@@ -10,6 +10,8 @@
 /*      File includes                                                       */
 
 #include "config.h"
+/* Keep this first after config.h so that WS_LOG_DOMAIN is set correctly. */
+#include "dot11decrypt_debug.h"
 
 #include <stdint.h>
 #include <glib.h>
@@ -26,8 +28,6 @@
 #include "dot11decrypt_util.h"
 #include "dot11decrypt_system.h"
 #include "dot11decrypt_int.h"
-
-#include "dot11decrypt_debug.h"
 
 #include "wep-wpadefs.h"
 

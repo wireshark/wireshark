@@ -15,11 +15,12 @@
 /****************************************************************************/
 /* File includes								*/
 #include "config.h"
+
+#include "dot11decrypt_debug.h"
 #include "dot11decrypt_system.h"
 #include "dot11decrypt_util.h"
 #include "dot11decrypt_int.h"
 
-#include "dot11decrypt_debug.h"
 #include <wsutil/wsgcrypt.h>
 
 /****************************************************************************/
