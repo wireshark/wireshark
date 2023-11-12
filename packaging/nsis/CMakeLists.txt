@@ -158,8 +158,8 @@ if (BUILD_wireshark)
 		set(_all_manifest_contents "${_all_manifest_contents}!endif\n")
 		foreach(_dll ${CARES_DLL} ${PCRE2_RELEASE_DLL} ${GCRYPT_DLLS}
 				${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLLS} ${LUA_DLL}
-				${LZ4_DLL} ${NGHTTP2_DLL} ${NGHTTP3_DLL} ${SBC_DLL} ${SMI_DLL} ${SNAPPY_DLL}
-				${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLLS} ${WINSPARKLE_DLL}
+				${LZ4_DLL} ${MINIZIP_DLL} ${NGHTTP2_DLL} ${NGHTTP3_DLL} ${SBC_DLL} ${SMI_DLL}
+				${SNAPPY_DLL} ${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLLS} ${WINSPARKLE_DLL}
 				${ZLIB_DLL} ${BROTLI_DLLS} ${ZSTD_DLL} ${ILBC_DLL} ${OPUS_DLL}
 				${SPEEXDSP_DLL}
 				# Needed for mmdbresolve
