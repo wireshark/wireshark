@@ -2704,10 +2704,7 @@ Dot11DecryptRsnaPwd2Psk(
     unsigned char m_output[40] = { 0 };
     GByteArray *pp_ba = g_byte_array_new();
 
-    if (!uri_str_to_bytes(passphrase, pp_ba)) {
-        g_byte_array_free(pp_ba, true);
-        return 0;
-    }
+    g_byte_array_append(pp_ba, passphrase, (unsigned)strlen(passphrase));
 
     Dot11DecryptRsnaPwd2PskStep(pp_ba->data, pp_ba->len, ssid, ssidLength, 4096, 1, m_output);
     Dot11DecryptRsnaPwd2PskStep(pp_ba->data, pp_ba->len, ssid, ssidLength, 4096, 2, &m_output[20]);
@@ -2721,14 +2718,15 @@ Dot11DecryptRsnaPwd2Psk(
 /*
  * Returns the decryption_key_t struct given a string describing the key.
  * Returns NULL if the input_string cannot be parsed.
+ * XXX: Should return an error string explaining why parsing failed
  */
 decryption_key_t*
 parse_key_string(char* input_string, uint8_t key_type)
 {
     char *key, *tmp_str;
     char *ssid;
+    size_t key_len;
 
-    GString    *key_string = NULL;
     GByteArray *ssid_ba = NULL, *key_ba;
     bool        res;
 
@@ -2745,6 +2743,12 @@ parse_key_string(char* input_string, uint8_t key_type)
      * returned...).
      * WPA-PWD should be in the form
      * <key data>[:<ssid>]
+     * With WPA-PWD, we percent-decode the key data and ssid.
+     * The percent itself ("%25") and the colon ("%3a") must be
+     * percent-encoded, the latter so we can distinguish between the
+     * separator and a colon in the key or ssid. Percent-encoding
+     * for anything else is optional. (NUL is not allowed, either
+     * percent-encoded or not.)
      */
 
     switch(key_type)
@@ -2781,15 +2785,16 @@ parse_key_string(char* input_string, uint8_t key_type)
 
     case DOT11DECRYPT_KEY_TYPE_WPA_PWD:
 
-        tokens = g_strsplit(input_string,":",0);
+        tokens = g_strsplit(input_string,":", 3);
+        n = g_strv_length(tokens);
 
-        /* Tokens is a null termiated array of strings ... */
-        while(tokens[n] != NULL)
-            n++;
-
-        if(n < 1)
+        if (n < 1 || n > 2)
         {
+            /* Require either one or two tokens; more, and the user
+             * may have meant a colon in the passphrase or SSID name
+             */
             /* Free the array of strings */
+            /* XXX: Return why parsing failed (":" must be escaped) */
             g_strfreev(tokens);
             return NULL;
         }
@@ -2797,7 +2802,17 @@ parse_key_string(char* input_string, uint8_t key_type)
         /*
          * The first token is the key
          */
-        key = g_strdup(tokens[0]);
+        key = g_uri_unescape_string(tokens[0], NULL);
+
+        if (key == NULL) {
+            /* Failed parsing as percent-encoded (including having a
+             * '\0' after decoding).
+             */
+            /* XXX: Return why parsing failed ('%' must be escaped,
+             * escaped '\0' is not allowed) */
+            g_strfreev(tokens);
+            return NULL;
+        }
 
         ssid = NULL;
         /* Maybe there is a second token (an ssid, if everything else is ok) */
@@ -2806,20 +2821,26 @@ parse_key_string(char* input_string, uint8_t key_type)
            ssid = g_strdup(tokens[1]);
         }
 
-        /* Create a new string */
-        key_string = g_string_new(key);
+        key_len = strlen(key);
         ssid_ba = NULL;
 
-        /* Two (or more) tokens mean that the user entered a WPA-PWD key ... */
-        if( ((key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
+        /* key length (after percent-decoding) should be between 8 and 63
+         * octets (63 to distinguish from a PSK as 64 hex characters.)
+         * XXX: 802.11-2016 Annex J assumes that each character in the
+         * pass-phrase is ASCII printable ("has an encoding in the range
+         * 32 to 126"), though this (and the entire algorithm for that
+         * matter) is only considered a suggestion.
+         * It is possible to apply PBKDF2 to any octet string, e.g. UTF-8.
+         * (wpa_passphrase from wpa_supplicant will do so, for example.)
+         */
+        if( ((key_len) > WPA_KEY_MAX_CHAR_SIZE) || ((key_len) < WPA_KEY_MIN_CHAR_SIZE))
         {
-            g_string_free(key_string, true);
-
             g_free(key);
             g_free(ssid);
 
             /* Free the array of strings */
             g_strfreev(tokens);
+            /* XXX: Return why parsing failed (key length) */
             return NULL;
         }
 
@@ -2827,7 +2848,6 @@ parse_key_string(char* input_string, uint8_t key_type)
         {
             ssid_ba = g_byte_array_new();
             if (! uri_str_to_bytes(ssid, ssid_ba)) {
-                g_string_free(key_string, true);
                 g_byte_array_free(ssid_ba, true);
                 g_free(key);
                 g_free(ssid);
@@ -2838,7 +2858,6 @@ parse_key_string(char* input_string, uint8_t key_type)
 
             if(ssid_ba->len > WPA_SSID_MAX_CHAR_SIZE)
             {
-                g_string_free(key_string, true);
                 g_byte_array_free(ssid_ba, true);
 
                 g_free(key);
@@ -2858,7 +2877,6 @@ parse_key_string(char* input_string, uint8_t key_type)
         dk->bits = 256; /* This is the length of the array pf bytes that will be generated using key+ssid ...*/
         dk->ssid = byte_array_dup(ssid_ba); /* NULL if ssid_ba is NULL */
 
-        g_string_free(key_string, true);
         if (ssid_ba != NULL)
             g_byte_array_free(ssid_ba, true);
 
