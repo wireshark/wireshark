@@ -45,7 +45,7 @@ msgstr ""
 msgid ""
 "For more detailed information please see /usr/share/doc/wireshark-"
 "common/README.Debian."
-msgstr "자세한 정보는 usr/share/doc/wireshark-common/README.Debian 파일을 참조하십시오."
+msgstr "자세한 정보는 /usr/share/doc/wireshark-common/README.Debian 파일을 참조하십시오."
 
 #. Type: boolean
 #. Description
