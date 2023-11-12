@@ -1098,6 +1098,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Decryption Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Type</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Taille</translation>
+    </message>
+    <message>
         <source>Statistics</source>
         <translation>Statistiques</translation>
     </message>
@@ -3034,6 +3046,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Filtres d&apos;affichage</translation>
     </message>
     <message>
+        <source>Display Filter Macros</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New macro</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open </source>
         <translation>Ouvrir</translation>
     </message>
@@ -3117,8 +3137,16 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
 <context>
     <name>FilterListModel</name>
     <message>
+        <source>Macro Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter Name</source>
         <translation>Nom du filtre</translation>
+    </message>
+    <message>
+        <source>Macro Expression</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Filter Expression</source>
@@ -10373,53 +10401,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
 </context>
 <context>
-    <name>SSLKeylogDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="unfinished">Dialogue</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Application path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;(Pre)-Master-Secret log file path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;TLS keys will be logged to this file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Launch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="unfinished">Sauvegarder</translation>
-    </message>
-    <message>
-        <source>TLS Keylog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Web Browser</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>ScsiServiceResponseTimeDialog</name>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
@@ -11820,6 +11801,57 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Save Graph As…</source>
         <translation>Enregistrer le graphique sous…</translation>
+    </message>
+</context>
+<context>
+    <name>TLSKeylogDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialogue</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Command line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Run an application with the SSLKEYLOGFILE environment variable set to the file specified by the TLS key log filename preference. This enables TLS decryption in Wireshark. Set the key log file and start the capture before launching the application to ensure that the initial TLS handshakes are captured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below. Command line options are supported.&lt;/span&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TLS (Pre)-Master-Secret log file path (tls.keylog_file)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;span style=&quot; font-size:small;&quot;&gt;TLS session secrets will be logged to this file. If you change this field, hit the Save button to update the TLS protocol preferences.&lt;/span&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch application with SSLKEYLOGFILE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Sauvegarder</translation>
+    </message>
+    <message>
+        <source>TLS Keylog file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program to start with SSLKEYLOGFILE</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13798,11 +13830,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>SSL Keylog Launcher</source>
-        <oldsource>Browser (SSL Keylog)</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Options…</source>
         <translation>&amp;Options...</translation>
     </message>
@@ -14223,6 +14250,11 @@ a:hover {
     <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Aller au paquet référencé par le champ sélectionné.</translation>
+    </message>
+    <message>
+        <source>TLS Keylog Launcher</source>
+        <oldsource>SSL Keylog Launcher</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Release Notes</source>

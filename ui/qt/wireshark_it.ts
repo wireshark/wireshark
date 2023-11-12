@@ -1098,6 +1098,18 @@
         <translation>Commento %1:</translation>
     </message>
     <message>
+        <source>Decryption Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Tipo</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Dimensione</translation>
+    </message>
+    <message>
         <source>Statistics</source>
         <translation>Statistiche</translation>
     </message>
@@ -3036,6 +3048,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Filtri di visualizzazione</translation>
     </message>
     <message>
+        <source>Display Filter Macros</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New macro</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open </source>
         <translation>Apri </translation>
     </message>
@@ -3119,8 +3139,16 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>FilterListModel</name>
     <message>
+        <source>Macro Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter Name</source>
         <translation>Nome filtro</translation>
+    </message>
+    <message>
+        <source>Macro Expression</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Filter Expression</source>
@@ -10377,55 +10405,47 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>SSLKeylogDialog</name>
     <message>
         <source>Dialog</source>
-        <translation>Finestra</translation>
+        <translation type="vanished">Finestra</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation>Sfoglia...</translation>
-    </message>
-    <message>
-        <source>Browser file path</source>
-        <translation type="vanished">Percorso file del browser</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run your web browser with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Esegui il tuo browser web con la variabile di ambiente SSLKEYLOG impostata sul file specificato dalla preferenza del nome file del registro delle chiavi.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">Sfoglia...</translation>
     </message>
     <message>
         <source>Application path</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Percorso dell&apos;applicazione</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Esegui un&apos;applicazione con la variabile di ambiente SSLKEYLOG impostata sul file specificato dalla preferenza del nome file del registro delle chiavi.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;È risaputo che Firefox e Chrome funzionino. Se il browser desiderato è attualmente in esecuzione, chiudilo prima di avviarlo di seguito.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;È risaputo che Firefox e Chrome funzionino. Se il browser desiderato è attualmente in esecuzione, chiudilo prima di avviarlo di seguito.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;(Pre)-Master-Secret log file path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percorso file di log (Pre)-Master-Secret&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percorso file di log (Pre)-Master-Secret&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;TLS keys will be logged to this file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;Le chiavi TLS saranno registrate in questo file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;Le chiavi TLS saranno registrate in questo file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Launch</source>
-        <translation>Avvia</translation>
+        <translation type="vanished">Avvia</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation>Salva</translation>
+        <translation type="vanished">Salva</translation>
     </message>
     <message>
         <source>TLS Keylog</source>
-        <translation>Keylog TLS</translation>
+        <translation type="vanished">Keylog TLS</translation>
     </message>
     <message>
         <source>Web Browser</source>
-        <translation>Browser web</translation>
+        <translation type="vanished">Browser web</translation>
     </message>
 </context>
 <context>
@@ -11825,6 +11845,57 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Save Graph As…</source>
         <translation>Salva il grafico come...</translation>
+    </message>
+</context>
+<context>
+    <name>TLSKeylogDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Finestra</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">Sfoglia...</translation>
+    </message>
+    <message>
+        <source>Command line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Run an application with the SSLKEYLOGFILE environment variable set to the file specified by the TLS key log filename preference. This enables TLS decryption in Wireshark. Set the key log file and start the capture before launching the application to ensure that the initial TLS handshakes are captured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below. Command line options are supported.&lt;/span&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TLS (Pre)-Master-Secret log file path (tls.keylog_file)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;span style=&quot; font-size:small;&quot;&gt;TLS session secrets will be logged to this file. If you change this field, hit the Save button to update the TLS protocol preferences.&lt;/span&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch application with SSLKEYLOGFILE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch</source>
+        <translation type="unfinished">Avvia</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Salva</translation>
+    </message>
+    <message>
+        <source>TLS Keylog file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program to start with SSLKEYLOGFILE</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13845,11 +13916,6 @@ a:hover {
         <translation>Blocchi di indirizzi MAC</translation>
     </message>
     <message>
-        <source>SSL Keylog Launcher</source>
-        <oldsource>Browser (SSL Keylog)</oldsource>
-        <translation type="unfinished">Browser (Keylog SSL)</translation>
-    </message>
-    <message>
         <source>&amp;Options…</source>
         <translation>&amp;Opzioni...</translation>
     </message>
@@ -14270,6 +14336,11 @@ a:hover {
     <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Vai al pacchetto referenziato dal campo selezionato.</translation>
+    </message>
+    <message>
+        <source>TLS Keylog Launcher</source>
+        <oldsource>SSL Keylog Launcher</oldsource>
+        <translation type="unfinished">Esecutore Keylog SSL</translation>
     </message>
     <message>
         <source>Release Notes</source>

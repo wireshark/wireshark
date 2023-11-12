@@ -16,6 +16,9 @@ Wireshark 4.3.0 Release Notes
   Display filter functions can be implemented as runtime-loadable C
   plugins.
 
+  Many other improvements have been made. See the “New and Updated
+  Features” section below for more details.
+
   New and Updated Features
 
    The following features are new (or have been significantly updated)
@@ -55,8 +58,27 @@ Wireshark 4.3.0 Release Notes
        properties. Check the wireshark-filter(5) manpage for more
        information.
 
+        • Display filter macros can be written using a function-like
+       notation. The macro `${mymacro:arg1; …​; argN}` can be written
+       $mymacro(arg1, …​, argN)`.
+
+     • Display filter functions can be implemented as libwireshark
+       plugins. Plugins are loaded during startup from the usual binary
+       plugin configuration directories. See the `ipaddr.c` source file
+       in the distribution for an example of a display filter C plugin
+       and the doc/plugins.example folder for generic instructions how
+       to build a plugin.
+
      • Display filter autocompletions now also include display filter
        functions.
+
+     • The display filter macro configuration file has changed format.
+       It now uses the same format as the "dfilters" file and has been
+       renamed accordingly to "dmacros". Internally it no longer uses
+       the UAT API and the display filter macro GUI dialog has been
+       updated. There is some basic migration logic implemented but it
+       is advisable to check that the "dfilter_macros" (old) and
+       "dmacros" (new) files in the profile directory are consistent.
 
   New Protocol Support
 
