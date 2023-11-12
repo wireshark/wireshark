@@ -780,7 +780,7 @@ static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     rf4ce_addr_table_get_ieee_addr(src_addr, pinfo, TRUE);
     rf4ce_addr_table_get_ieee_addr(dst_addr, pinfo, FALSE);
 
-    size = tvb_reported_length_remaining(tvb, 0);
+    size = tvb_captured_length_remaining(tvb, 0);
 
     if (fcf & RF4CE_NWK_FCF_SECURITY_MASK)
     {
@@ -792,11 +792,15 @@ static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             src_addr,
             dst_addr);
     }
-    else
+    else if (size > offset)
     {
         size -= offset;
-        memcpy(decrypted, tvb_get_ptr(tvb, 0, size) + offset, size);
+        tvb_memcpy(tvb, decrypted, offset, size);
         success = TRUE;
+    }
+    else
+    {
+        success = FALSE;
     }
 
     if (success)
