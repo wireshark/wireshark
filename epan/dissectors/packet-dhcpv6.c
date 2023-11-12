@@ -28,6 +28,7 @@
  * RFC5908 (Network Time Protocol (NTP) Server Option)
  * RFC6334 (Dual-Stack Lite Option)
  * RFC6603 (Prefix Exclude Option)
+ * RFC6939 (Client Link-Layer Address Option in DHCPv6)
  * RFC7598 (Configuration of Softwire Address and Port-Mapped Clients)
  * RFC8415 (Dynamic Host Configuration Protocol for IPv6 (DHCPv6))
  * RFC8520 (Manufacturer Usage Descriptions) replaces "draft-ietf-opsawg-mud-02"
@@ -253,6 +254,9 @@ static int hf_option_s46_v4v6bind_ipv6_prefix = -1;
 static int hf_option_s46_portparam_offset = -1;
 static int hf_option_s46_portparam_psid_len = -1;
 static int hf_option_s46_portparam_psid = -1;
+static int hf_client_link_layer_addr_hwtype = -1;
+static int hf_client_link_layer_addr = -1;
+static int hf_client_link_layer_addr_ether = -1;
 
 static int hf_dhcpv6_non_dns_encoded_name = -1;
 static int hf_dhcpv6_domain_field_len_exceeded = -1;
@@ -1849,7 +1853,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     proto_tree *subtree_2;
     int         i;
     guint16     duidtype;
-    guint32     enterprise_no;
+    guint32     enterprise_no, temp_guint32;
     guint       algorithm;
 
     /* option type and length must be present */
@@ -2928,6 +2932,21 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         proto_tree_add_item(subtree, hf_option_relay_port, tvb, off, 2, ENC_BIG_ENDIAN);
         break;
+    case OPTION_CLIENT_LINKLAYER_ADDR:
+        if (optlen < 2) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Client link-layer address: malformed option");
+            break;
+        }
+        proto_tree_add_item_ret_uint(subtree, hf_client_link_layer_addr_hwtype, tvb, off, 2, ENC_BIG_ENDIAN, &temp_guint32);
+        hwtype = temp_guint32 & 0xffff;
+        if (optlen > 2) {
+            proto_tree_add_string(subtree, hf_client_link_layer_addr, tvb, off+2, optlen-2,
+                tvb_arphrdaddr_to_str(pinfo->pool, tvb, off+2, optlen-2, hwtype));
+            if (DHCPV6_HW_IS_ETHER(hwtype, optlen-2)) {
+                proto_tree_add_item(subtree, hf_client_link_layer_addr_ether, tvb, off+2, optlen-2, ENC_NA);
+            }
+        }
+        break;
     }
 
     return 4 + optlen;
@@ -3503,7 +3522,13 @@ proto_register_dhcpv6(void)
         { &hf_option_s46_portparam_psid,
           { "PSID", "dhcpv6.s46_portparam.psid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_opt_mudurl,
-          { "MUDURL", "dhcpv6.mudurl", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }}
+          { "MUDURL", "dhcpv6.mudurl", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_client_link_layer_addr,
+          { "Link-layer address", "dhcpv6.client_link_layer_addr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_client_link_layer_addr_ether,
+          { "Link-layer address (Ethernet)", "dhcpv6.client_link_layer_addr_ether", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_client_link_layer_addr_hwtype,
+          { "Hardware type", "dhcpv6.client_link_layer_addr_hwtype", FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
