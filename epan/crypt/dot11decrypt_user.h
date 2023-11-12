@@ -72,7 +72,7 @@
  * Struct to store info about a specific decryption key.
  */
 typedef struct {
-    GString    *key;
+    GByteArray *key;
     GByteArray *ssid;
     unsigned    bits;
     unsigned    type;
@@ -157,10 +157,17 @@ typedef struct _DOT11DECRYPT_KEY_ITEM {
 
         struct DOT11DECRYPT_KEY_ITEMDATA_PWD {
                 /**
-                 * The string (null-terminated) value of
-                 * the passphrase.
+                 * The octet string value of the passphrase.
+                 * (The passphrase is technically an opaque octet string, even
+                 * if recommended to be ASCII printable. It could (unlikely)
+                 * even include internal NULs, which a Wireshark user could
+                 * enter into the UAT percent-encoded.)
                  */
-                char Passphrase[DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN+1];
+                char Passphrase[DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN];
+                /**
+                 *The length of the passphrase
+                 */
+                size_t PassphraseLen;
                 /**
                  * The value of the SSID (up to
                  * DOT11DECRYPT_WPA_SSID_MAX_LEN octets).
