@@ -1096,23 +1096,28 @@ or (ip.src == $2 and ip.dst == $1 and tcp.srcport == $4 and tcp.dstport == $3)
 would allow to use a display filter like
 
 ----
+$tcp_conv(10.1.1.2, 10.1.1.3, 1200, 1400)
+----
+
+or alternatively
+
+----
 ${tcp_conv:10.1.1.2;10.1.1.3;1200;1400}
 ----
 
-instead of typing the whole filter. Once defined, a macro can
+instead of typing the whole filter. Both notations are equivalent. Once defined, a macro can
 be used in <<ChWorkDefineFilterSection,saved display (but not
 capture) filters>> and <<ChCustFilterButtons,filter buttons>>.
 
-Display Filter Macros can be managed with a user table, as described in
-<<ChUserTable>>, by selecting menu:Analyze[Display Filter Macros] from
-the menu.  The User Table has the following fields:
+Display Filter Macros can be managed by selecting menu:Analyze[Display Filter Macros] from
+the menu.  The table has the following fields:
 
-Name::
+Macro Name::
 The name of the macro. The name must consist of ASCII alphanumerics or
 the '_' character. (Note that the presence of a '.' character would
 indicate a <<_field_references,field reference>>.)
 
-Text::
+Macro Expression::
 The replacement text for the macro it uses $1, $2, $3, ... as the input arguments.
 
 [#ChEssCategoryAttributes]
