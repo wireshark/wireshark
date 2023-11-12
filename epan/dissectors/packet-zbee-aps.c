@@ -573,6 +573,7 @@ const range_string zbee_aps_cid_names[] = {
 /* Closures */
     { ZBEE_ZCL_CID_SHADE_CONFIG,                    ZBEE_ZCL_CID_SHADE_CONFIG,                    "Shade Configuration"},
     { ZBEE_ZCL_CID_DOOR_LOCK,                       ZBEE_ZCL_CID_DOOR_LOCK,                       "Door Lock"},
+    { ZBEE_ZCL_CID_WINDOW_COVERING,                 ZBEE_ZCL_CID_WINDOW_COVERING,                 "Window Covering"},
 
 /* HVAC */
     { ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL,             ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL,             "Pump Configuration Control"},
