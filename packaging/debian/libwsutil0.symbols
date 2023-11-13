@@ -3,7 +3,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  EBCDIC_to_ASCII1@Base 4.1.0
  EBCDIC_to_ASCII@Base 4.1.0
  Eax_Decrypt@Base 1.12.0~rc1
- add_to_filter_list@Base 4.1.0
  adler32_bytes@Base 1.12.0~rc1
  adler32_str@Base 1.12.0~rc1
  alaw2linear@Base 1.12.0~rc1
@@ -97,7 +96,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  format_text_string@Base 4.1.0
  format_text_wsp@Base 4.1.0
  free_features@Base 3.7.0
- free_filter_lists@Base 4.1.0
  free_progdirs@Base 2.3.0
  gather_pcre2_compile_info@Base 4.1.0
  gather_pcre2_runtime_info@Base 4.1.0
@@ -119,7 +117,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_executable_path@Base 4.1.0
  get_extcap_dir@Base 1.99.0
  get_extcap_pers_dir@Base 4.1.0
- get_filter_list_first@Base 4.1.0
  get_friendly_program_name@Base 3.5.0
  get_global_profiles_dir@Base 1.12.0~rc1
  get_guint32@Base 4.1.0
@@ -239,10 +236,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  profile_store_persconffiles@Base 1.12.0~rc1
  qword_to_hex@Base 3.5.1
  qword_to_hex_punct@Base 3.5.1
- read_filter_list@Base 4.1.0
  register_codec@Base 3.1.0
  relinquish_special_privs_perm@Base 1.10.0
- remove_from_filter_list@Base 4.1.0
  rename_persconffile_profile@Base 1.12.0~rc1
  report_cfile_close_failure@Base 3.5.0
  report_cfile_dump_open_failure@Base 3.5.0
@@ -261,7 +256,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  rsa_privkey_to_sexp@Base 2.5.0
  running_in_build_directory@Base 1.12.0~rc1
  running_with_special_privs@Base 1.10.0
- save_filter_list@Base 4.1.0
  set_persconffile_dir@Base 1.12.0~rc1
  set_persdatafile_dir@Base 1.12.0~rc1
  set_profile_name@Base 1.12.0~rc1
@@ -444,6 +438,12 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_escape_null@Base 3.7.1rc0
  ws_escape_string@Base 3.7.0
  ws_escape_string_len@Base 3.7.1rc0
+ ws_filter_list_add@Base 4.3.0
+ ws_filter_list_find@Base 4.3.0
+ ws_filter_list_free@Base 4.3.0
+ ws_filter_list_read@Base 4.3.0
+ ws_filter_list_remove@Base 4.3.0
+ ws_filter_list_write@Base 4.3.0
  ws_getopt@Base 3.5.1
  ws_getopt_long@Base 3.5.1
  ws_getopt_long_only@Base 3.5.1
@@ -460,6 +460,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_inet_pton6@Base 2.1.2
  ws_init_sockets@Base 3.1.0
  ws_init_version_info@Base 4.1.0
+ ws_ipv4_addr_and_mask_contains@Base 4.3.0
+ ws_ipv4_addr_and_mask_init@Base 4.3.0
+ ws_ipv4_get_subnet_mask@Base 4.3.0
+ ws_ipv6_addr_and_prefix_contains@Base 4.3.0
  ws_localtime_r@Base 4.1.1
  ws_log@Base 3.5.0
  ws_log_add_custom_file@Base 3.5.0

@@ -230,6 +230,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dcerpc_get_proto_name@Base 1.9.1
  dcerpc_get_proto_sub_dissector@Base 1.9.1
  dcerpc_get_transport_salt@Base 1.9.1
+ dcerpc_init_from_handle@Base 4.3.0
  dcerpc_init_uuid@Base 1.9.1
  dcerpc_set_transport_salt@Base 1.12.0~rc1
  dcerpc_uuids@Base 1.9.1
@@ -309,7 +310,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dfilter_load_field_references@Base 3.7.0
  dfilter_load_field_references_edt@Base 4.1.0
  dfilter_log_full@Base 3.7.0
- dfilter_macro_get_uat@Base 1.9.1
+ dfilter_macro_reload@Base 4.3.0
+ dfilter_macro_table_count@Base 4.3.0
+ dfilter_macro_table_iter_init@Base 4.3.0
+ dfilter_macro_table_iter_next@Base 4.3.0
  dfilter_plugins_register@Base 4.3.0
  dfilter_requires_columns@Base 4.1.0
  dfilter_syntax_tree@Base 3.7.0
@@ -531,6 +535,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_change_uint@Base 1.9.1
  dissector_conversation_init@Base 1.99.0
  dissector_delete_all@Base 1.12.0~rc1
+ dissector_delete_guid@Base 4.3.0
  dissector_delete_string@Base 1.9.1
  dissector_delete_uint@Base 1.9.1
  dissector_delete_uint_range@Base 1.12.0~rc1
@@ -1036,6 +1041,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  guid_to_str@Base 1.99.2
  guid_to_str_buf@Base 3.5.1
  guids_add_guid@Base 1.9.1
+ guids_delete_guid@Base 4.3.0
  guids_get_guid_name@Base 1.9.1
  guids_init@Base 1.9.1
  guids_resolve_guid_to_str@Base 1.9.1
@@ -1177,6 +1183,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  pref_unstash@Base 2.3.0
  prefs@Base 1.9.1
  prefs_add_decode_as_value@Base 2.3.0
+ prefs_add_list_value@Base 4.3.0
  prefs_apply@Base 1.9.1
  prefs_apply_all@Base 1.9.1
  prefs_capture_device_monitor_mode@Base 1.9.1
@@ -1191,6 +1198,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_get_enum_radiobuttons@Base 2.3.0
  prefs_get_enum_value@Base 2.3.0
  prefs_get_enumvals@Base 2.3.0
+ prefs_get_list_value@Base 4.3.0
  prefs_get_max_value@Base 2.3.0
  prefs_get_module_effect_flags@Base 2.5.0
  prefs_get_name@Base 2.3.0
@@ -1647,6 +1655,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  sctp_port_to_display@Base 1.99.2
  sctpppid_val_ext@Base 3.5.0
  secrets_get_available_keys@Base 2.9.1
+ secrets_register_type@Base 4.3.0
  secrets_rsa_decrypt@Base 2.9.0
  secrets_verify_key@Base 2.9.1
  secrets_wtap_callback@Base 2.9.0
@@ -1758,6 +1767,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stnode_get_flags@Base 4.3.0
  stnode_init@Base 4.3.0
  stnode_location@Base 4.3.0
+ stnode_mutate@Base 4.3.0
  stnode_new@Base 4.3.0
  stnode_new_empty@Base 4.3.0
  stnode_op_name@Base 4.3.0
@@ -1904,8 +1914,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  try_capture_dissector@Base 2.1.0
  try_conversation_dissector@Base 2.6.3
  try_conversation_dissector_by_id@Base 2.6.3
- try_convert_to_custom_column@Base 4.1.0
  try_convert_to_column_field@Base 4.1.0
+ try_convert_to_custom_column@Base 4.1.0
  try_enterprises_lookup@Base 2.5.0
  try_rval64_to_str@Base 2.3.0
  try_rval64_to_str_idx@Base 2.3.0
@@ -2099,6 +2109,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvbparse_until@Base 1.9.1
  uat_add_record@Base 1.9.1
  uat_clear@Base 1.9.1
+ uat_destroy@Base 4.3.0
  uat_fld_chk_bool@Base 2.5.0
  uat_fld_chk_color@Base 2.5.0
  uat_fld_chk_enum@Base 1.9.1
@@ -2250,11 +2261,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  write_psml_finale@Base 1.12.0~rc1
  write_psml_preamble@Base 1.12.0~rc1
  ws_find_media_type_parameter@Base 2.2.0
- ws_ipv4_addr_and_mask_contains@Base 4.3.0
- ws_ipv4_addr_and_mask_init@Base 4.3.0
- ws_ipv4_special_block_lookup@Base 4.3.0
- ws_ipv6_addr_and_prefix_contains@Base 4.3.0
- ws_ipv6_special_block_lookup@Base 4.3.0
+ ws_iana_ipv4_special_block_lookup@Base 4.3.0
+ ws_iana_ipv6_special_block_lookup@Base 4.3.0
  ws_label_strcat@Base 4.1.0
  ws_label_strcpy@Base 4.1.0
  ws_manuf_block_str@Base 4.1.0
