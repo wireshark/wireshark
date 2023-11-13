@@ -21,7 +21,7 @@ extern "C" {
  * new "dmacros" configuration file. It should be removed eventually.
  */
 
-void convert_old_uat_file(const char *path);
+void convert_old_uat_file(void);
 
 #ifdef __cplusplus
 }

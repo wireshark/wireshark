@@ -23,7 +23,6 @@
 #include <epan/proto.h>
 #include <wsutil/glib-compat.h>
 #include <wsutil/filter_files.h>
-#include <wsutil/filesystem.h>
 
 
 static GHashTable *macros_table = NULL;
@@ -476,15 +475,6 @@ dfilter_macro_t *macro_new(const char *name, const char *text) {
 }
 
 void dfilter_macro_init(void) {
-
-	char *old_path = get_persconffile_path("dfilter_macros", true);
-	char *new_path = get_persconffile_path("dmacros", true);
-	if (!file_exists(new_path) && file_exists(old_path)) {
-		convert_old_uat_file(old_path);
-	}
-	g_free(old_path);
-	g_free(new_path);
-
 	macros_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)macro_free);
 	dfilter_macro_reload();
 }
@@ -513,6 +503,11 @@ static bool check_macro(const char *name, const char *text, const char **errp)
 }
 
 void dfilter_macro_reload(void) {
+
+	/* Check if we need to convert an old dfilter_macro configuration file.
+	 * We do so only if a new one doesn't exist. We need to do this check
+	 * for every reload because the configuration profile might have changed. */
+	convert_old_uat_file();
 
 	g_hash_table_remove_all(macros_table);
 

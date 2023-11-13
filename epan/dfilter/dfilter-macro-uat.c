@@ -13,6 +13,7 @@
 #include "dfilter-macro-uat.h"
 #include <epan/uat-int.h>
 #include <wsutil/filter_files.h>
+#include <wsutil/filesystem.h>
 
 /*
  * This file is only used to migrate the dfilter_macros UAT file to the
@@ -147,10 +148,25 @@ static bool macro_name_chk(void *mp, const char *in_name, unsigned name_len,
 UAT_CSTRING_CB_DEF(macro,name,dfilter_macro_t)
 UAT_CSTRING_CB_DEF(macro,text,dfilter_macro_t)
 
-void convert_old_uat_file(const char *path)
+void convert_old_uat_file(void)
 {
 	uat_t *dfilter_macro_uat = NULL;
 	char *err = NULL;
+
+	/* Check if we need to convert an old dfilter_macro configuration file. */
+	char *new_path = get_persconffile_path(DMACROS_FILE_NAME, true);
+	if (file_exists(new_path)) {
+		/* Already converted. */
+		g_free(new_path);
+		return;
+	}
+	char *old_path = get_persconffile_path(DFILTER_MACRO_FILENAME, true);
+	if (!file_exists(old_path)) {
+		/* Nothing to do.*/
+		g_free(new_path);
+		g_free(old_path);
+		return;
+	}
 
 	static uat_field_t uat_fields[] =  {
 		UAT_FLD_CSTRING_OTHER(macro,name,"Name",macro_name_chk,"The name of the macro."),
@@ -176,7 +192,7 @@ void convert_old_uat_file(const char *path)
 				    NULL,
 				    uat_fields);
 
-	if (uat_load(dfilter_macro_uat, path, &err)) {
+	if (uat_load(dfilter_macro_uat, old_path, &err)) {
 		if (num_macros > 0) {
 			// We expect the new list to be empty.
 			filter_list_t *list = ws_filter_list_read(DMACROS_LIST);
@@ -199,4 +215,6 @@ void convert_old_uat_file(const char *path)
 		g_free(err);
 	}
 	uat_destroy(dfilter_macro_uat);
+	g_free(new_path);
+	g_free(old_path);
 }
