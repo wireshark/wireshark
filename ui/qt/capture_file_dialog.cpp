@@ -45,7 +45,6 @@
 #include <QPushButton>
 #include <QMessageBox>
 
-#include "epan/prefs.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <main_application.h>
 
@@ -64,27 +63,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf) :
     file_type_(-1)
 #endif
 {
-    switch (prefs.gui_fileopen_style) {
-    case FO_STYLE_LAST_OPENED:
-        /* The user has specified that we should start out in the last
-         * directory in which we opened a file.
-         *
-         * The open dialog initial directory will be that directory
-         * unless we've never opened a file, in which case it will
-         * be the user's personal data file directory.
-         */
-        setDirectory(mainApp->openDialogInitialDir());
-        break;
-
-    case FO_STYLE_SPECIFIED:
-        /* The user has specified that we should always start out in a
-         * specified directory; if they've specified that directory,
-         * start out by showing the files in that dir.
-         */
-        if (prefs.gui_fileopen_dir[0] != '\0')
-            setDirectory(prefs.gui_fileopen_dir);
-        break;
-    }
+   setDirectory(mainApp->openDialogInitialDir());
 
 #if !defined(Q_OS_WIN)
     // Add extra widgets

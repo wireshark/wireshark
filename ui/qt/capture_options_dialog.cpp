@@ -366,20 +366,7 @@ void CaptureOptionsDialog::on_capturePromModeCheckBox_toggled(bool checked)
 
 void CaptureOptionsDialog::browseButtonClicked()
 {
-    const char *open_dir = NULL;
-
-    switch (prefs.gui_fileopen_style) {
-
-    case FO_STYLE_LAST_OPENED:
-        open_dir = get_open_dialog_initial_dir();
-        break;
-
-    case FO_STYLE_SPECIFIED:
-        if (prefs.gui_fileopen_dir[0] != '\0')
-            open_dir = prefs.gui_fileopen_dir;
-        break;
-    }
-    QString file_name = WiresharkFileDialog::getSaveFileName(this, tr("Specify a Capture File"), open_dir);
+    QString file_name = WiresharkFileDialog::getSaveFileName(this, tr("Specify a Capture File"), get_open_dialog_initial_dir());
     ui->filenameLineEdit->setText(file_name);
 }
 

@@ -14,8 +14,6 @@
 #include "wiretap/wtap.h"
 #include "wiretap/pcap-encap.h"
 
-#include <epan/prefs.h>
-
 #include "ui/text_import_scanner.h"
 #include "ui/util.h"
 #include "ui/alert_box.h"
@@ -606,26 +604,7 @@ void ImportTextDialog::on_textFileBrowseButton_clicked()
     if (ti_ui_->textFileLineEdit->text().length() > 0) {
         open_dir = ti_ui_->textFileLineEdit->text();
     } else {
-        switch (prefs.gui_fileopen_style) {
-
-        case FO_STYLE_LAST_OPENED:
-            /* The user has specified that we should start out in the last directory
-               we looked in.  If we've already opened a file, use its containing
-               directory, if we could determine it, as the directory, otherwise
-               use the "last opened" directory saved in the preferences file if
-               there was one. */
-            /* This is now the default behaviour in file_selection_new() */
-            open_dir = get_open_dialog_initial_dir();
-            break;
-
-        case FO_STYLE_SPECIFIED:
-            /* The user has specified that we should always start out in a
-               specified directory; if they've specified that directory,
-               start out by showing the files in that dir. */
-            if (prefs.gui_fileopen_dir[0] != '\0')
-                open_dir = prefs.gui_fileopen_dir;
-            break;
-        }
+        open_dir = get_open_dialog_initial_dir();
     }
 
     QString file_name = WiresharkFileDialog::getOpenFileName(this, mainApp->windowTitleString(tr("Import Text File")), open_dir);
