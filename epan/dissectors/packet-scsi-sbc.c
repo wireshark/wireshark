@@ -33,107 +33,107 @@ void proto_register_scsi_sbc(void);
 
 static int proto_scsi_sbc;
 
-int hf_scsi_sbc_opcode= -1;
-static int hf_scsi_sbc_service_action= -1;
-static int hf_scsi_sbc_formatunit_flags= -1;
-static int hf_scsi_sbc_defect_list_format= -1;
-static int hf_scsi_sbc_formatunit_vendor= -1;
-static int hf_scsi_sbc_formatunit_interleave= -1;
-static int hf_scsi_sbc_rdwr6_lba= -1;
-static int hf_scsi_sbc_rdwr6_xferlen= -1;
-static int hf_scsi_sbc_rdwr10_lba= -1;
-static int hf_scsi_sbc_rdwr10_xferlen= -1;
-static int hf_scsi_sbc_rdwr12_xferlen= -1;
-static int hf_scsi_sbc_rdwr16_lba= -1;
-static int hf_scsi_sbc_ssu_immed_flags= -1;
-static int hf_scsi_sbc_ssu_immed= -1;
-static int hf_scsi_sbc_ssu_pwr_flags= -1;
-static int hf_scsi_sbc_ssu_pwr_cond= -1;
-static int hf_scsi_sbc_ssu_loej= -1;
-static int hf_scsi_sbc_ssu_start= -1;
-static int hf_scsi_sbc_bytchk= -1;
-/* static int hf_scsi_sbc_verify_reladdr= -1; */
-static int hf_scsi_sbc_verify_lba= -1;
-static int hf_scsi_sbc_verify_lba64= -1;
-static int hf_scsi_sbc_verify_vlen= -1;
-static int hf_scsi_sbc_verify_vlen32= -1;
-static int hf_scsi_sbc_wrverify_lba= -1;
-static int hf_scsi_sbc_wrverify_xferlen= -1;
-static int hf_scsi_sbc_wrverify_lba64= -1;
-static int hf_scsi_sbc_wrverify_xferlen32= -1;
-/* static int hf_scsi_sbc_readcapacity_flags= -1; */
-static int hf_scsi_sbc_readdefdata_flags= -1;
-static int hf_scsi_sbc_reassignblks_flags= -1;
-static int hf_scsi_sbc_read_flags= -1;
-static int hf_scsi_sbc_alloclen32= -1;
-static int hf_scsi_sbc_alloclen16= -1;
-static int hf_scsi_sbc_lba64_address= -1;
-static int hf_scsi_sbc_fuflags_fmtpinfo= -1;
-static int hf_scsi_sbc_fuflags_rto_req= -1;
-static int hf_scsi_sbc_fuflags_longlist= -1;
-static int hf_scsi_sbc_fuflags_fmtdata= -1;
-static int hf_scsi_sbc_fuflags_cmplist= -1;
-static int hf_scsi_sbc_prefetch_flags= -1;
-static int hf_scsi_sbc_prefetch_immed= -1;
-static int hf_scsi_sbc_group= -1;
-static int hf_scsi_sbc_rdprotect= -1;
-static int hf_scsi_sbc_dpo= -1;
-static int hf_scsi_sbc_fua= -1;
-static int hf_scsi_sbc_fua_nv= -1;
-static int hf_scsi_sbc_blocksize= -1;
-static int hf_scsi_sbc_returned_lba= -1;
-static int hf_scsi_sbc_read_capacity = -1;
-static int hf_scsi_sbc_req_plist= -1;
-static int hf_scsi_sbc_req_glist= -1;
-static int hf_scsi_sbc_corrct_flags= -1;
-static int hf_scsi_sbc_corrct= -1;
-static int hf_scsi_sbc_reassignblocks_longlba= -1;
-static int hf_scsi_sbc_reassignblocks_longlist= -1;
-static int hf_scsi_sbc_synccache_flags= -1;
-static int hf_scsi_sbc_synccache_immed= -1;
-static int hf_scsi_sbc_synccache_sync_nv= -1;
-static int hf_scsi_sbc_vrprotect= -1;
-static int hf_scsi_sbc_verify_flags= -1;
-static int hf_scsi_sbc_wrprotect= -1;
-static int hf_scsi_sbc_wrverify_flags= -1;
-static int hf_scsi_sbc_writesame_flags= -1;
-static int hf_scsi_sbc_anchor= -1;
-static int hf_scsi_sbc_unmap= -1;
-static int hf_scsi_sbc_pbdata= -1;
-static int hf_scsi_sbc_lbdata= -1;
-static int hf_scsi_sbc_xdread_flags= -1;
-static int hf_scsi_sbc_xorpinfo= -1;
-static int hf_scsi_sbc_disable_write= -1;
-static int hf_scsi_sbc_xdwrite_flags= -1;
-static int hf_scsi_sbc_xdwriteread_flags= -1;
-static int hf_scsi_sbc_xpwrite_flags= -1;
-static int hf_scsi_sbc_unmap_flags= -1;
-static int hf_scsi_sbc_unmap_anchor= -1;
-static int hf_scsi_sbc_unmap_data_length= -1;
-static int hf_scsi_sbc_unmap_block_descriptor_data_length= -1;
-static int hf_scsi_sbc_unmap_lba= -1;
-static int hf_scsi_sbc_unmap_num_blocks= -1;
-static int hf_scsi_sbc_ptype= -1;
-static int hf_scsi_sbc_prot_en= -1;
-static int hf_scsi_sbc_p_i_exponent= -1;
-static int hf_scsi_sbc_lbppbe= -1;
-static int hf_scsi_sbc_lbpme= -1;
-static int hf_scsi_sbc_lbprz= -1;
-static int hf_scsi_sbc_lalba= -1;
-static int hf_scsi_sbc_get_lba_status_lba= -1;
-static int hf_scsi_sbc_get_lba_status_data_length= -1;
-static int hf_scsi_sbc_get_lba_status_num_blocks= -1;
-static int hf_scsi_sbc_get_lba_status_provisioning_status= -1;
-static int hf_scsi_sbc_sanitize_flags= -1;
-static int hf_scsi_sbc_sanitize_immed= -1;
-static int hf_scsi_sbc_sanitize_ause= -1;
-static int hf_scsi_sbc_sanitize_sa= -1;
-static int hf_scsi_sbc_sanitize_overwrite_flags= -1;
-static int hf_scsi_sbc_sanitize_invert= -1;
-static int hf_scsi_sbc_sanitize_test= -1;
-static int hf_scsi_sbc_sanitize_owcount= -1;
-static int hf_scsi_sbc_sanitize_pattern_length= -1;
-static int hf_scsi_sbc_sanitize_pattern= -1;
+int hf_scsi_sbc_opcode;
+static int hf_scsi_sbc_service_action;
+static int hf_scsi_sbc_formatunit_flags;
+static int hf_scsi_sbc_defect_list_format;
+static int hf_scsi_sbc_formatunit_vendor;
+static int hf_scsi_sbc_formatunit_interleave;
+static int hf_scsi_sbc_rdwr6_lba;
+static int hf_scsi_sbc_rdwr6_xferlen;
+static int hf_scsi_sbc_rdwr10_lba;
+static int hf_scsi_sbc_rdwr10_xferlen;
+static int hf_scsi_sbc_rdwr12_xferlen;
+static int hf_scsi_sbc_rdwr16_lba;
+static int hf_scsi_sbc_read_capacity;
+static int hf_scsi_sbc_ssu_immed_flags;
+static int hf_scsi_sbc_ssu_immed;
+static int hf_scsi_sbc_ssu_pwr_flags;
+static int hf_scsi_sbc_ssu_pwr_cond;
+static int hf_scsi_sbc_ssu_loej;
+static int hf_scsi_sbc_ssu_start;
+static int hf_scsi_sbc_bytchk;
+/* static int hf_scsi_sbc_verify_reladdr; */
+static int hf_scsi_sbc_verify_lba;
+static int hf_scsi_sbc_verify_lba64;
+static int hf_scsi_sbc_verify_vlen;
+static int hf_scsi_sbc_verify_vlen32;
+static int hf_scsi_sbc_wrverify_lba;
+static int hf_scsi_sbc_wrverify_xferlen;
+static int hf_scsi_sbc_wrverify_lba64;
+static int hf_scsi_sbc_wrverify_xferlen32;
+/* static int hf_scsi_sbc_readcapacity_flags; */
+static int hf_scsi_sbc_readdefdata_flags;
+static int hf_scsi_sbc_reassignblks_flags;
+static int hf_scsi_sbc_read_flags;
+static int hf_scsi_sbc_alloclen32;
+static int hf_scsi_sbc_alloclen16;
+static int hf_scsi_sbc_lba64_address;
+static int hf_scsi_sbc_fuflags_fmtpinfo;
+static int hf_scsi_sbc_fuflags_rto_req;
+static int hf_scsi_sbc_fuflags_longlist;
+static int hf_scsi_sbc_fuflags_fmtdata;
+static int hf_scsi_sbc_fuflags_cmplist;
+static int hf_scsi_sbc_prefetch_flags;
+static int hf_scsi_sbc_prefetch_immed;
+static int hf_scsi_sbc_group;
+static int hf_scsi_sbc_rdprotect;
+static int hf_scsi_sbc_dpo;
+static int hf_scsi_sbc_fua;
+static int hf_scsi_sbc_fua_nv;
+static int hf_scsi_sbc_blocksize;
+static int hf_scsi_sbc_returned_lba;
+static int hf_scsi_sbc_req_plist;
+static int hf_scsi_sbc_req_glist;
+static int hf_scsi_sbc_corrct_flags;
+static int hf_scsi_sbc_corrct;
+static int hf_scsi_sbc_reassignblocks_longlba;
+static int hf_scsi_sbc_reassignblocks_longlist;
+static int hf_scsi_sbc_synccache_flags;
+static int hf_scsi_sbc_synccache_immed;
+static int hf_scsi_sbc_synccache_sync_nv;
+static int hf_scsi_sbc_vrprotect;
+static int hf_scsi_sbc_verify_flags;
+static int hf_scsi_sbc_wrprotect;
+static int hf_scsi_sbc_wrverify_flags;
+static int hf_scsi_sbc_writesame_flags;
+static int hf_scsi_sbc_anchor;
+static int hf_scsi_sbc_unmap;
+static int hf_scsi_sbc_pbdata;
+static int hf_scsi_sbc_lbdata;
+static int hf_scsi_sbc_xdread_flags;
+static int hf_scsi_sbc_xorpinfo;
+static int hf_scsi_sbc_disable_write;
+static int hf_scsi_sbc_xdwrite_flags;
+static int hf_scsi_sbc_xdwriteread_flags;
+static int hf_scsi_sbc_xpwrite_flags;
+static int hf_scsi_sbc_unmap_flags;
+static int hf_scsi_sbc_unmap_anchor;
+static int hf_scsi_sbc_unmap_data_length;
+static int hf_scsi_sbc_unmap_block_descriptor_data_length;
+static int hf_scsi_sbc_unmap_lba;
+static int hf_scsi_sbc_unmap_num_blocks;
+static int hf_scsi_sbc_ptype;
+static int hf_scsi_sbc_prot_en;
+static int hf_scsi_sbc_p_i_exponent;
+static int hf_scsi_sbc_lbppbe;
+static int hf_scsi_sbc_lbpme;
+static int hf_scsi_sbc_lbprz;
+static int hf_scsi_sbc_lalba;
+static int hf_scsi_sbc_get_lba_status_lba;
+static int hf_scsi_sbc_get_lba_status_data_length;
+static int hf_scsi_sbc_get_lba_status_num_blocks;
+static int hf_scsi_sbc_get_lba_status_provisioning_status;
+static int hf_scsi_sbc_sanitize_flags;
+static int hf_scsi_sbc_sanitize_immed;
+static int hf_scsi_sbc_sanitize_ause;
+static int hf_scsi_sbc_sanitize_sa;
+static int hf_scsi_sbc_sanitize_overwrite_flags;
+static int hf_scsi_sbc_sanitize_invert;
+static int hf_scsi_sbc_sanitize_test;
+static int hf_scsi_sbc_sanitize_owcount;
+static int hf_scsi_sbc_sanitize_pattern_length;
+static int hf_scsi_sbc_sanitize_pattern;
 
 static gint ett_scsi_format_unit;
 static gint ett_scsi_prefetch;
@@ -525,18 +525,12 @@ dissect_sbc_write10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         &hf_scsi_sbc_fua_nv,
         NULL
     };
-    guint16 blocks = tvb_get_ntohl(tvb, offset + 9);
 
     if (isreq && iscdb) {
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                ", %u blocks (%u bytes) at LBA: %" G_GINT64_MODIFIER "u",
-                blocks, blocks * 512, tvb_get_ntoh64(tvb, offset + 1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                tvb_get_ntohl (tvb, offset+1),
+                tvb_get_ntohs (tvb, offset+6));
     }
-    //if (isreq && iscdb) {
-    //    col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
-    //            tvb_get_ntohl (tvb, offset+1),
-    //            tvb_get_ntohs (tvb, offset+6));
-    //}
 
     if (tree && isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
@@ -1017,15 +1011,13 @@ dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
                 ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     else if (!iscdb) {
-        lba = tvb_get_ntohl (tvb, offset) + 1;   /* LBAs are zero-based so we add 1 */
-        block_len = tvb_get_ntohl (tvb, offset+4);
+        lba       = tvb_get_ntohl(tvb, offset) + 1;   /* LBAs are zero-based so we add 1 */
+        proto_tree_add_uint_format(tree, hf_scsi_sbc_returned_lba, tvb, offset, 4, lba, "LBA: %u", lba);
+        proto_tree_add_item(tree, hf_scsi_sbc_blocksize, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
+        block_len = tvb_get_ntohl(tvb, offset+4);
         totalSizeBytes64 = (guint64)lba * (guint64)block_len;  /* prevent overflow */
         totalSizeBytes = (double)totalSizeBytes64;
-        //totalSizeBytes = (double)lba * (double)block_len;
-
-        proto_tree_add_uint_format(tree, hf_scsi_sbc_returned_lba, tvb, offset, 4, lba, "LBA: %u", lba);
-        proto_tree_add_item(tree, hf_scsi_sbc_blocksize, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
         totalSizeAbbrev = totalSizeBytes;
 
         while (totalSizeAbbrev >= 1024 && index < 5) {
