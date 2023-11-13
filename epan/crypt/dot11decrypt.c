@@ -2715,17 +2715,20 @@ Dot11DecryptRsnaPwd2Psk(
  * XXX: Should return an error string explaining why parsing failed
  */
 decryption_key_t*
-parse_key_string(char* input_string, uint8_t key_type)
+parse_key_string(char* input_string, uint8_t key_type, char** error)
 {
     GByteArray *ssid_ba = NULL, *key_ba;
-    bool        res;
 
     char **tokens;
     unsigned n = 0;
     decryption_key_t *dk;
 
-    if(input_string == NULL)
+    if(input_string == NULL || (strcmp(input_string, "") == 0)) {
+        if (error) {
+            *error = g_strdup("Key cannot be empty");
+        }
         return NULL;
+    }
 
     /*
      * Parse the input_string. WEP and WPA will be just a string
@@ -2747,25 +2750,35 @@ parse_key_string(char* input_string, uint8_t key_type)
     case DOT11DECRYPT_KEY_TYPE_WEP_40:
     case DOT11DECRYPT_KEY_TYPE_WEP_104:
 
-       key_ba = g_byte_array_new();
-       res = hex_str_to_bytes(input_string, key_ba, false);
+        key_ba = g_byte_array_new();
 
-       if (res && key_ba->len > 0 && key_ba->len <= DOT11DECRYPT_WEP_KEY_MAXLEN) {
-           /* Key is correct! It was probably an 'old style' WEP key */
-           /* Create the decryption_key_t structure, fill it and return it*/
-           dk = g_new(decryption_key_t, 1);
+        if (!hex_str_to_bytes(input_string, key_ba, false)) {
+            if (error) {
+                *error = g_strdup("WEP key must be a hexadecimal string");
+            }
+            g_byte_array_free(key_ba, true);
+            return NULL;
+        }
 
-           dk->type = DOT11DECRYPT_KEY_TYPE_WEP;
-           dk->key  = key_ba;
-           dk->bits = key_ba->len * 8;
-           dk->ssid = NULL;
+        if (key_ba->len > 0 && key_ba->len <= DOT11DECRYPT_WEP_KEY_MAXLEN) {
+            /* Key is correct! It was probably an 'old style' WEP key */
+            /* Create the decryption_key_t structure, fill it and return it*/
+            dk = g_new(decryption_key_t, 1);
 
-           return dk;
-       }
+            dk->type = DOT11DECRYPT_KEY_TYPE_WEP;
+            dk->key  = key_ba;
+            dk->bits = key_ba->len * 8;
+            dk->ssid = NULL;
 
-       /* Key doesn't work */
-       g_byte_array_free(key_ba, true);
-       return NULL;
+            return dk;
+        }
+
+        if (error) {
+            *error = ws_strdup_printf("WEP key entered is %u bytes, and must be no more than %u", key_ba->len, DOT11DECRYPT_WEP_KEY_MAXLEN);
+        }
+        /* Key doesn't work */
+        g_byte_array_free(key_ba, true);
+        return NULL;
 
     case DOT11DECRYPT_KEY_TYPE_WPA_PWD:
 
@@ -2779,6 +2792,9 @@ parse_key_string(char* input_string, uint8_t key_type)
              */
             /* Free the array of strings */
             /* XXX: Return why parsing failed (":" must be escaped) */
+            if (error) {
+                *error = g_strdup("Only one ':' is allowed, as a separator between passphrase and SSID; others must be percent-encoded as \"%%3a\"");
+            }
             g_strfreev(tokens);
             return NULL;
         }
@@ -2789,7 +2805,9 @@ parse_key_string(char* input_string, uint8_t key_type)
         key_ba = g_byte_array_new();
         if (! uri_str_to_bytes(tokens[0], key_ba)) {
             /* Failed parsing as percent-encoded */
-            /* XXX: Return why parsing failed ('%' must be escaped) */
+            if (error) {
+                *error = g_strdup("WPA passphrase is treated as percent-encoded; use \"%%25\" for a literal \"%%\"");
+            }
             g_byte_array_free(key_ba, true);
             g_strfreev(tokens);
             return NULL;
@@ -2806,11 +2824,13 @@ parse_key_string(char* input_string, uint8_t key_type)
          */
         if( ((key_ba->len) > WPA_KEY_MAX_CHAR_SIZE) || ((key_ba->len) < WPA_KEY_MIN_CHAR_SIZE))
         {
+            if (error) {
+                *error = ws_strdup_printf("WPA passphrase entered is %u characters after percent-decoding and must be between %u and %u", key_ba->len, WPA_KEY_MIN_CHAR_SIZE, WPA_KEY_MAX_CHAR_SIZE);
+            }
             g_byte_array_free(key_ba, true);
 
             /* Free the array of strings */
             g_strfreev(tokens);
-            /* XXX: Return why parsing failed (key length) */
             return NULL;
         }
 
@@ -2819,6 +2839,9 @@ parse_key_string(char* input_string, uint8_t key_type)
         {
             ssid_ba = g_byte_array_new();
             if (! uri_str_to_bytes(tokens[1], ssid_ba)) {
+                if (error) {
+                    *error = g_strdup("WPA SSID is treated as percent-encoded; use \"%%25\" for a literal \"%%\".");
+                }
                 g_byte_array_free(key_ba, true);
                 g_byte_array_free(ssid_ba, true);
                 /* Free the array of strings */
@@ -2828,6 +2851,9 @@ parse_key_string(char* input_string, uint8_t key_type)
 
             if(ssid_ba->len > WPA_SSID_MAX_CHAR_SIZE)
             {
+                if (error) {
+                    *error = ws_strdup_printf("WPA SSID entered is %u characters after percent-decoding and must be no more than %u", ssid_ba->len, WPA_SSID_MAX_CHAR_SIZE);
+                }
                 g_byte_array_free(key_ba, true);
                 g_byte_array_free(ssid_ba, true);
 
@@ -2852,15 +2878,22 @@ parse_key_string(char* input_string, uint8_t key_type)
     case DOT11DECRYPT_KEY_TYPE_WPA_PSK:
 
         key_ba = g_byte_array_new();
-        res = hex_str_to_bytes(input_string, key_ba, false);
+        if (!hex_str_to_bytes(input_string, key_ba, false)) {
+            if (error) {
+                *error = g_strdup("WPA PSK/PMK must be a hexadecimal string");
+            }
+            g_byte_array_free(key_ba, true);
+            return NULL;
+        }
 
         /* Two tokens means that the user should have entered a WPA-BIN key ... */
-        if(!res || (key_ba->len != DOT11DECRYPT_WPA_PWD_PSK_LEN &&
+        if((key_ba->len != DOT11DECRYPT_WPA_PWD_PSK_LEN &&
                      key_ba->len != DOT11DECRYPT_WPA_PMK_MAX_LEN))
         {
+            if (error) {
+                *error = ws_strdup_printf("WPA Pre-Master Key/Pairwise Master Key entered is %u bytes and must be %u or %u", key_ba->len, DOT11DECRYPT_WPA_PWD_PSK_LEN, DOT11DECRYPT_WPA_PMK_MAX_LEN);
+            }
             g_byte_array_free(key_ba, true);
-
-            /* No ssid has been created ... */
             return NULL;
         }
 
@@ -2880,13 +2913,19 @@ parse_key_string(char* input_string, uint8_t key_type)
             static const uint8_t allowed_key_lengths[] = {
 // TBD          40 / 8,  /* WEP-40 */
 // TBD          104 / 8, /* WEP-104 */
-                256 / 8, /* TKIP, GCMP-256, CCMP-256 */
                 128 / 8, /* CCMP-128, GCMP-128 */
+                256 / 8, /* TKIP, GCMP-256, CCMP-256 */
             };
             bool key_length_ok = false;
 
             key_ba = g_byte_array_new();
-            res = hex_str_to_bytes(input_string, key_ba, false);
+            if (!hex_str_to_bytes(input_string, key_ba, false)) {
+                if (error) {
+                    *error = g_strdup("Temporal Key must be a hexadecimal string");
+                }
+                g_byte_array_free(key_ba, true);
+                return NULL;
+            }
 
             for (size_t i = 0; i < sizeof(allowed_key_lengths); i++) {
                 if (key_ba->len == allowed_key_lengths[i]) {
@@ -2894,7 +2933,17 @@ parse_key_string(char* input_string, uint8_t key_type)
                     break;
                 }
             }
-            if (!res || !key_length_ok) {
+            if (!key_length_ok) {
+                if (error) {
+                    GString *err_string = g_string_new("Temporal Keys entered is ");
+                    g_string_append_printf(err_string, "%u bytes and must be ", key_ba->len);
+                    size_t i = 0;
+                    for (; i + 1 < sizeof(allowed_key_lengths); i++) {
+                        g_string_append_printf(err_string, "%u, ", allowed_key_lengths[i]);
+                    }
+                    g_string_append_printf(err_string, "or %u bytes.", allowed_key_lengths[i]);
+                    *error = g_string_free(err_string, false);
+                }
                 g_byte_array_free(key_ba, true);
                 return NULL;
             }
@@ -2909,11 +2958,20 @@ parse_key_string(char* input_string, uint8_t key_type)
     case DOT11DECRYPT_KEY_TYPE_MSK:
         {
             key_ba = g_byte_array_new();
-            res = hex_str_to_bytes(input_string, key_ba, false);
+            if (!hex_str_to_bytes(input_string, key_ba, false)) {
+                if (error) {
+                    *error = g_strdup("Master Session Key must be a hexadecimal string");
+                }
+                g_byte_array_free(key_ba, true);
+                return NULL;
+            }
 
-            if (!res || key_ba->len < DOT11DECRYPT_MSK_MIN_LEN ||
+            if (key_ba->len < DOT11DECRYPT_MSK_MIN_LEN ||
                 key_ba->len > DOT11DECRYPT_MSK_MAX_LEN)
             {
+                if (error) {
+                    *error = ws_strdup_printf("Master Session Key entered is %u bytes and must be between %u and %u", key_ba->len, DOT11DECRYPT_MSK_MIN_LEN, DOT11DECRYPT_MSK_MAX_LEN);
+                }
                 g_byte_array_free(key_ba, true);
                 return NULL;
             }
@@ -2927,6 +2985,9 @@ parse_key_string(char* input_string, uint8_t key_type)
     }
 
     /* Type not supported */
+    if (error) {
+        *error = g_strdup("Unknown key type not supported");
+    }
     return NULL;
 }
 

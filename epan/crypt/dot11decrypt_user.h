@@ -217,13 +217,15 @@ typedef struct _DOT11DECRYPT_KEYS_COLLECTION {
  * - DOT11DECRYPT_KEY_TYPE_WPA_PWD (WPA + plaintext password + "wildcard" SSID or
  * WPA + plaintext password + specific SSID)
  * - DOT11DECRYPT_KEY_TYPE_WPA_PSK (WPA + 256-bit raw key)
+ * @param error [OUT] If not NULL, on failure will be set to point to an
+ *   error message explaining why parsing failed. Must be freed.
  * @return A pointer to a freshly-g_malloc()ed decryption_key_t struct on
  *   success, or NULL on failure.
  * @see free_key_string()
  */
 WS_DLL_PUBLIC
 decryption_key_t*
-parse_key_string(char* key_string, uint8_t key_type);
+parse_key_string(char* key_string, uint8_t key_type, char **error);
 
 /**
  * Releases memory associated with a given decryption_key_t struct.

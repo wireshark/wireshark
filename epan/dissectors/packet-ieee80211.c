@@ -219,8 +219,9 @@ uat_wep_key_record_update_cb(void* r, char** err)
     return FALSE;
   }
 
+  *err = NULL;
   g_strstrip(rec->string);
-  dk = parse_key_string(rec->string, rec->key);
+  dk = parse_key_string(rec->string, rec->key, err);
 
   if (dk != NULL) {
     dk_type = dk->type;
@@ -264,7 +265,9 @@ uat_wep_key_record_update_cb(void* r, char** err)
         break;
     }
   } else {
-    *err = g_strdup("Invalid key format");
+    if (*err == NULL) {
+        *err = g_strdup("Invalid key format");
+    }
     return FALSE;
   }
   return TRUE;
@@ -41342,7 +41345,7 @@ set_dot11decrypt_keys(void)
   for (i = 0; (uat_wep_key_records != NULL) && (i < num_wepkeys_uat) && (i < MAX_ENCRYPTION_KEYS); i++)
   {
     decryption_key_t *dk;
-    dk = parse_key_string(uat_wep_key_records[i].string, uat_wep_key_records[i].key);
+    dk = parse_key_string(uat_wep_key_records[i].string, uat_wep_key_records[i].key, NULL);
 
     if (dk != NULL)
     {
