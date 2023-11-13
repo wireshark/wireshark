@@ -201,7 +201,7 @@ void FilterDialog::on_buttonBox_accepted()
             mainApp->emitAppSignal(MainApplication::DisplayFilterListChanged);
             break;
         case DisplayMacro:
-            // Nothing
+            mainApp->reloadDisplayFilterMacros();
             break;
         default:
             ws_assert_not_reached();

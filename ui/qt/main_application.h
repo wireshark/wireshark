@@ -224,6 +224,8 @@ public slots:
     // each dialog that calls queueAppSignal closes.
     void flushAppSignals();
 
+    void reloadDisplayFilterMacros();
+
 private slots:
     void updateTaps();
 

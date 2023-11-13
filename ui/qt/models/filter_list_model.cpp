@@ -23,8 +23,6 @@
 #include <QDir>
 #include <QMimeData>
 
-#include <epan/dfilter/dfilter-macro.h>
-
 /*
  * Capture filter file name.
  */
@@ -273,15 +271,6 @@ void FilterListModel::saveList()
     }
 
     file.close();
-
-    switch (type_) {
-        case DisplayMacro:
-            dfilter_macro_reload();
-            break;
-        default:
-            // Nothing
-            break;
-    }
 }
 
 Qt::DropActions FilterListModel::supportedDropActions() const

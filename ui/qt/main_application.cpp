@@ -31,6 +31,7 @@
 #include "epan/tap.h"
 #include "epan/timestamp.h"
 #include "epan/decode_as.h"
+#include "epan/dfilter/dfilter-macro.h"
 
 #include "ui/decode_as_utils.h"
 #include "ui/preference_utils.h"
@@ -460,6 +461,9 @@ void MainApplication::setConfigurationProfile(const gchar *profile_name, bool wr
 
     /* Apply new preferences */
     readConfigurationFiles(true);
+
+    /* Switching profile requires reloading the macro list. */
+    reloadDisplayFilterMacros();
 
     if (!recent_read_profile_static(&rf_path, &rf_open_errno)) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
@@ -1366,4 +1370,9 @@ void MainApplication::gotoFrame(int frame)
 
     MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
     mw->gotoFrame(frame);
+}
+
+void MainApplication::reloadDisplayFilterMacros()
+{
+    dfilter_macro_reload();
 }
