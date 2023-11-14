@@ -989,6 +989,10 @@ Configuration files stored in each profile include:
 
 * MaxMind Database Paths (maxmind_db_paths) (<<ChMaxMindDbPaths>>)
 
+* IEEE 802.11 WLAN Decryption Keys (80211_keys) (<<Ch80211Keys>>)
+
+* IKEv2 decryption table (ikev2_decryption_table) (<<ChIKEv2DecryptionSection>>)
+
 * K12 Protocols (k12_protos) (<<ChK12ProtocolsSection>>)
 
 * Object Identifier Names and Associated Syntaxes (<<ChObjectIdentifiers>>)
@@ -1003,8 +1007,6 @@ Configuration files stored in each profile include:
 * SNMP Users (snmp_users) (<<ChSNMPUsersSection>>)
 
 * User DLTs Table (user_dlts) (<<ChUserDLTsSection>>)
-
-* IKEv2 decryption table (ikev2_decryption_table) (<<ChIKEv2DecryptionSection>>)
 
 * Protobuf Search Paths (protobuf_search_paths) (<<ChProtobufSearchPaths>>)
 
@@ -1164,6 +1166,191 @@ database format. They were configured similar to MaxMindDB files above,
 except GeoIP files must begin with _Geo_ and end with _.dat_. They are
 no longer supported and MaxMind stopped distributing GeoLite Legacy
 databases in April 2018.
+
+[#Ch80211Keys]
+
+=== IEEE 802.11 WLAN Decryption Keys
+
+Wireshark can decrypt WEP and WPA/WPA2/WPA3 in pre-shared (or personal) mode,
+as well as in enterprise mode. Security improvements in more recent 802.11
+releases require distinct session keys, instead of being able to decipher
+all traffic to a given access point with a single known password and SSID.
+
+You can add decryption keys using Wireshark's IEEE 802.11 preferences.
+Up to 64 keys are supported.
+
+==== Adding Keys
+
+Go to menu:Edit[Preferences >Protocols >IEEE 802.11], or, from the pop-up menu
+in the "Packet List" or "Packet Details" pane from a frame that contains IEEE
+802.11, menu:Protocol Preferences[IEEE 802.11 wireless LAN].
+You should see a window that looks like this:
+
+."IEEE 802.11 wireless LAN" preferences
+image::images/ws-wireless-ieee-80211-pref.png[{screenshot-attrs}]
+
+Click on the "Edit..." button next to "Decryption Keys" to add keys.
+You should see a window that looks like this:
+
+.802.11 Decryption Key Types
+image::images/ws-wireless-key-type.png[{screenshot-attrs}]
+
+When you click the **+** button to add a new key, there are five key types you
+can choose from: **wep**, **wpa-pwd**, **wpa-psk**, **tk**, or **msk**.
+The correct key type(s) depend on the Cipher Suite and Authentication and
+Key Management Suite (AKMS) used to encrypt the wireless traffic.
+
+wep:: The key must be provided as a string of hexadecimal numbers, with or
+without colons, and will be parsed as a WEP key. WEP keys can be 40-bit
+(5 bytes, or 10 hexadecimal characters), 104-bit, or occasionally 128-bit:
+
+ a1:b2:c3:d4:e5
+
+ 0102030405060708090a0b0c0d
+
+wpa-pwd:: The password and SSID are used to create a raw pre-shared WPA key.
+The password can be between 8 and 63 characters, and the SSID can be up to
+32 bytes. (Typically both are printable ASCII, but that is not a hard
+limitation of the specification, only a recommendation.)
+
+ MyPassword:MySSID
+
+You can optionally omit the colon and SSID, and Wireshark will try to decrypt
+packets using the last-seen SSID. This may not work for captures taken in busy
+environments, since the last-seen SSID may not be correct.
+
+ MyPassword
+
+[NOTE]
+====
+The WPA passphrase and SSID let you encode non-printable or otherwise troublesome
+characters using URI-style percent escapes, e.g., `%20` for a space. As a result
+you have to escape the percent characters themselves using `%25`. You also *must*
+escape colons in the passphrase or SSID themselves as `%3a`, in order to
+distinguish them from a colon as a separator between the passphrase and SSID.
+====
+
+[WARNING]
+====
+The WPA pass-phrase and SSID method is for WPA/WPA2-Personal only. It will
+not work for WPA3-Personal, which uses SAE (Simultaneous Authentication of
+Equals), nor for the Enterprise / 802.1X / EAP modes.
+====
+
+wpa-psk:: The key must be provided as a hexadecimal string, and is parsed as a
+PSK (Pre-Shared Key) or PMK (Pairwise Master Key). For WPA/WPA2-Personal,
+the PSK and the PMK are identical, and directly derived from the passphrase
+and SSID above. The keys can be 256 bits (32 bytes, 64 hex characters) or
+384 bits (48 bytes, 96 hex characters).
+
+ 0102030405060708091011...6061626364
+
+tk:: The key must be provided as a hexadecimal string, and is parsed as a
+PTK (Pairwise Transient Key) or GTK (Group Temporal Key). The keys can
+be 16 or 32 bytes (128 or 256 bits), depending on the cipher suite used.
+(5 and 13 byte WEP TKs are not yet supported.)
+
+msk:: The key must be provided as a hexadecimal string, and is parsed as
+a MSK (Master Session Key). This is used for FT-EAP (IEEE 802.11r
+Fast BSS Transition with EAP authentication). The key can be 64 or 128
+bytes.
+
+.802.11 Decryption Key Examples
+image::images/ws-wireless-key-examples.png[{screenshot-attrs}]
+
+////
+AirPcap was discontinued so this sections from the Wiki isn't relevant for many people currently
+==== Adding Keys: Wireless Toolbar
+
+If you are using the Windows version of Wireshark and you have an [AirPcap](/AirPcap) adapter you can add decryption keys using the wireless toolbar. If the toolbar isn't visible, you can show it by selecting *View-\>Wireless Toolbar*. Click on the *Decryption Keys...* button on the toolbar:
+
+![dot11-wireless-toolbar.png](uploads/__moin_import__/attachments/HowToDecrypt802.11/dot11-wireless-toolbar.png "dot11-wireless-toolbar.png")
+
+This will open the decryption key managment window. As shown in the window you can select between three decryption modes: **None**, **Wireshark**, and **Driver**:
+
+![dot11-key-management.png](uploads/__moin_import__/attachments/HowToDecrypt802.11/dot11-key-management.png "dot11-key-management.png")
+
+Selecting **None** disables decryption. Selecting **Wireshark** uses Wireshark's built-in decryption features. **Driver** will pass the keys on to the [AirPcap](/AirPcap) adapter so that 802.11 traffic is decrypted before it's passed on to Wireshark. Driver mode only supports WEP keys.
+////
+
+==== Gotchas
+
+Along with decryption keys there are other preference settings that affect decryption.
+
+  - Make sure *Enable decryption* is selected.
+
+  - You may have to toggle *Assume Packets Have FCS* and *Ignore the Protection bit* depending on how your 802.11 driver delivers frames.
+
+===== Capturing the 4-way Handshake
+
+WPA and WPA2 use keys derived from an EAPOL handshake, which occurs when a machine joins a Wi-Fi network, to encrypt traffic. Unless **all four** handshake packets are present for the session you're trying to decrypt, Wireshark won't be able to decrypt the traffic. You can use the display filter **eapol** to locate EAPOL packets in your capture.
+
+In order to capture the handshake for a machine, you will need to force the machine to (re-)join the network while the capture is in progress. One way to do this is to put the machine to sleep (for smartphones and tablets, "turning off" the machine puts it to sleep) before you start the capture, start the capture, and then wake the machine up. You will need to do this for all machines whose traffic you want to see.
+
+If a TK is provided as a key, then the EAPOL 4-way handshake is not necessary,
+as the TK is what the handshake derives. However, all available TKs will be
+tried agi
+
+===== Too Many Associations
+
+WPA and WPA2 use individual keys for each device. Wireshark is able to handle
+up to 256 active associations, which should be enough in most circumstances.
+Nevertheless, if a capture has too many devices and too many associations, then
+while the packet list may show all packets decoded on the first pass, randomly
+accessing different packets in the packet details will result in some packets
+failing to be properly deciphered.
+
+Filtering out only the relevant packets (e.g. with "wlan.addr") and saving into
+a new file should get decryption working in all cases, though it may require
+editing keys in the preferences or restarting Wireshark in order to free used
+associations. For the same reason, it is possible to be able to decode packets
+in a capture file without any EAPOL packets in it, as long as Wireshark did see
+the handshake for this communication in another capture without being
+restarted or editing keys. This can sometimes lead to exporting selected
+packets to a new file, opening that file and decoding seeming to work, but
+then decoding suddenly fail on the new file after Wireshark is restarted or keys
+are edited. If decoding suddenly stops working on a capture make sure the needed
+EAPOL packets are still in it.
+
+===== WPA/WPA2 Enterprise/Rekeys
+
+As long as you can somehow extract the PMK from either the client or the Radius
+Server and configure the key (as PSK) all supported Wireshark versions will decode
+the traffic just fine up to the first EAPOL rekey.
+
+EAPoL rekey is often enabled for WPA/WPA2 enterprise and will change the used
+encryption key similar to the procedure for the initial connect, but it can also
+be configured and used for pre-shared (personal) mode.
+
+Decrypting IEEE 802.11r Fast BSS Transition roaming requires capturing
+reassociation frames for similar reasons, and is supported by recent
+Wireshark versions.
+
+===== WPA3 Per-Connection Decryption
+
+In WPA3, a different PMK is used for each connection in order to achieve forward
+secrecy. Capturing the 4-way handshake and knowing the network password is not
+enough to decrypt packets; you must obtain the PMK from either the client or
+access point (typically by enabling logging in `wpa_supplicant` or `hostapd`
+with the `-d -K` flags) and use this as the decryption key in Wireshark. Even
+then, the decryption will only work for packets between that client and access
+point, not for all devices on that network.
+
+===== TKs and Performance
+
+The TKs are the actual transient keys used to encrypt packets, which are derived
+during the handshake. If known, they can decrypt packets without having the
+handshake packets in a capture. However, having TKs as encryption keys in the
+table will affect IEEE 802.11 dissector performance as each encrypted
+packet will be tested against every TK until decryption is successful.
+If the table is configured with many TKs, none of which match any
+encrypted frame in the capture, performance can be slow.
+
+Once a match is found, an association is formed similar to in the usual
+method and decryption of other frames with the same key should be on
+par with normal decryption flow. Thus, if most frames in the capture
+match TKs (or other keys), and only a limited number of TKs are configured,
+the performance impact is slight.
 
 [#ChIKEv2DecryptionSection]
 

@@ -9,6 +9,7 @@
 === Introduction
 
 The Wireless menu provides access to statistics related to wireless traffic.
+For configuring keys to decrypt wireless traffic, see <<Ch80211Keys>>
 
 [#ChWirelessBluetoothATTServerAttributes]
 
