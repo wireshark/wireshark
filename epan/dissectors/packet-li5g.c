@@ -1,5 +1,5 @@
 /* packet-li5g.c
- * Routines for ETSI TS 103 221-2 V1.1.1 (2019-03), Internal Network Interface X2/X3 for Lawful Interception
+ * Routines for ETSI TS 103 221-2 V1.6.1 (2022-06), Internal Network Interface X2/X3 for Lawful Interception
  * Roy Zhang <roy.zhang@nokia-sbell.com>
  *
  * Wireshark - Network traffic analyzer
@@ -30,7 +30,7 @@ static int hf_li5g_attrLen = -1;
 static int hf_li5g_pld = -1;
 
 /* the min Attribute Type is 1 */
-#define LI_5G_ATTR_TYPE_MAX 19
+#define LI_5G_ATTR_TYPE_MAX 23
 /* the min header length */
 #define LI_5G_HEADER_LEN_MIN 40
 
@@ -64,6 +64,9 @@ static const value_string payload_format_vals[] = {
     {11, "RADIUS Packet"},
     {12, "GTP-U Message"},
     {13, "MSRP Message"},
+    {14, "3GPP TS 33.108 EpsIRIContent"},
+    {15, "MIME Message"},
+    {16, "3GPP Unstructured PDU"},
     { 0, NULL}
 };
 
@@ -96,6 +99,10 @@ static const value_string attribute_type_vals[] = {
     {16, "IP Protocol"},
     {17, "Matched Target Identifier"},
     {18, "Other Target Identifier"},
+    {19, "MIME Content Type"},
+    {20, "MIME Content Transfer Encoding"},
+    {21, "Additional XID Related Information"},
+    {22, "SDP Session Description"},
     {0, NULL}
 };
 
@@ -134,15 +141,18 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     while(headerLen - offset > 0){
         attrType = tvb_get_ntohs(tvb, offset);
         attrLen = tvb_get_ntohs(tvb, offset+2);
-        /* The first 4 types not supporting now */
-        if (attrType > 4 && attrType < LI_5G_ATTR_TYPE_MAX){
+        if (attrType < LI_5G_ATTR_TYPE_MAX){
             hf_attr = hf_li5g_attrContents[attrType];
 
             attr_ti = proto_tree_add_item(li5g_tree, hf_attr, tvb, offset+4, attrLen, ENC_NA);
             attr_tree = proto_item_add_subtree(attr_ti, ett_attrContents[attrType]);
             proto_tree_add_item(attr_tree, hf_li5g_attrType, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(attr_tree, hf_li5g_attrLen, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(attr_tree, hf_attr, tvb, offset+4, attrLen, ENC_BIG_ENDIAN);
+            if (attrType == 17 || attrType == 18) {
+                proto_tree_add_item(attr_tree, hf_attr, tvb, offset+4, attrLen, ENC_UTF_8 | ENC_NA);
+            } else {
+                proto_tree_add_item(attr_tree, hf_attr, tvb, offset+4, attrLen, ENC_BIG_ENDIAN);
+            }
         }
 
         offset = offset + 4 + attrLen;
@@ -230,6 +240,10 @@ proto_register_li5g(void)
 
         { &hf_li5g_attrType, { "Attribute Type", "li5g.attrType", FT_UINT16, BASE_DEC, VALS(attribute_type_vals), 0x0, NULL, HFILL }},
         { &hf_li5g_attrLen, { "Attribute Length", "li5g.attrLen", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[1], { "ETSI TS 102 232-1 Defined Attribute", "li5g.102_232_1_attr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[2], { "3GPP TS 33.128 Defined Attribute", "li5g.33_128_attr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[3], { "3GPP TS 33.108 Defined Attribute", "li5g.33_108_attr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[4], { "Proprietary Attribute", "li5g.proprietary_attr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[5], { "Domain ID", "li5g.did", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[6], { "Network Function ID", "li5g.nfid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[7], { "Interception Point ID", "li5g.ipid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -242,14 +256,22 @@ proto_register_li5g(void)
         { &hf_li5g_attrContents[14], { "Source Port", "li5g.srcport", FT_UINT16, BASE_PT_TCP, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[15], { "Destination Port", "li5g.dstport", FT_UINT16, BASE_PT_TCP, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[16], { "IP Protocol", "li5g.ipproto", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0, NULL, HFILL }},
-        { &hf_li5g_attrContents[17], { "Matched Target Identifier", "li5g.mti", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_li5g_attrContents[18], { "Other Target Identifier", "li5g.oti", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[17], { "Matched Target Identifier", "li5g.mti", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[18], { "Other Target Identifier", "li5g.oti", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[19], { "MIME Content Type", "li5g.mime_content_type", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[20], { "MIME Content Transfer Encoding", "li5g.mime_transfer_type_encoding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[21], { "Additional XID Related Information", "li5g.additional_xid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[22], { "SDP Session Description", "li5g.sdp", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_li5g_pld, { "Payload", "li5g.pld", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
         &ett_li5g,
+        &ett_attrContents[1],
+        &ett_attrContents[2],
+        &ett_attrContents[3],
+        &ett_attrContents[4],
         &ett_attrContents[5],
         &ett_attrContents[6],
         &ett_attrContents[7],
@@ -264,6 +286,10 @@ proto_register_li5g(void)
         &ett_attrContents[16],
         &ett_attrContents[17],
         &ett_attrContents[18],
+        &ett_attrContents[19],
+        &ett_attrContents[20],
+        &ett_attrContents[21],
+        &ett_attrContents[22],
     };
 
     proto_li5g = proto_register_protocol("5G Lawful Interception", "5GLI", "5gli");
@@ -289,6 +315,7 @@ proto_reg_handoff_li5g(void)
     dissector_add_uint("li5g.payload", 11, find_dissector("radius"));
     dissector_add_uint("li5g.payload", 12, find_dissector("gtp"));
     dissector_add_uint("li5g.payload", 13, find_dissector("msrp"));
+    dissector_add_uint("li5g.payload", 14, find_dissector("HI2Operations"));
 
     dissector_add_uint_range_with_preference("tcp.port", "", li5g_handle);
     dissector_add_uint_range_with_preference("udp.port", "", li5g_handle);
