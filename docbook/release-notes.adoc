@@ -28,15 +28,31 @@ wsbuglink:18734[].
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2023-28[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2023-28[]
+SSH dissector crash.
+wsbuglink:19369[].
 // cveidlink:2023-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
+// Fixed in master: 348c9991f9
+// Fixed in release-4.2: 9bb2f610ed
+// Fixed in release-4.0: 28ad7bdb67
+// Fixed in release-3.6: n/a
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-789
+// CWE-125, CWE-835
+
+// * Fuzz job crash output: fuzz-2023-10-02-7109.pcap. wsbuglink:19369[].
+
+* wssalink:2023-29[]
+NetScreen file parser crash.
+wsbuglink:19404[].
+// cveidlink:2023-xxx[].
+// Fixed in master: 3be1c99180
+// Fixed in release-4.2: 95c12710ef
+// Fixed in release-4.0: 160d1e454a
+// Fixed in release-3.6: 197e96f053
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-120
+
+// * NetScreen File Parsing Heap-based Buffer Overflow. wsbuglink:19404[].
 
 The following bugs have been fixed:
 
@@ -44,6 +60,16 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
+
+* First ZigBee APS packet is not decrypted. wsbuglink:16507[].
+* Problem with decoding OpenFlow actions in OFPT_FLOW_MOD message. wsbuglink:17072[].
+* "frames" method in sharkd does not consider time references and displays incorrect delta time. wsbuglink:17923[].
+* Wireshark and TShark throw packet-wireguard-WARNING when running on systems with FIPS enabled. wsbuglink:18441[].
+* Wireshark interprets If_fcslen option in the Interface Description Block as byte instead of bit. wsbuglink:19174[].
+* Flathub's Wireshark page shows wrong version number. wsbuglink:19382[].
+* OSPFv3 RI decode error. wsbuglink:19444[].
+* GSM SIM READ / UPDATE BINARY command has wrong offset. wsbuglink:19472[].
+// * packet-isdn-sup.c: -Wunreachable-code with Clang 17. wsbuglink:19477[].
 
 === New and Updated Features
 
@@ -58,18 +84,33 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.9.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.11.. | ag packet- | sort -u)
 [commaize]
 --
+DHCP
+GSM SIM
+IEEE 1722
+ISDN SUP
+ISO 15765
+OpenFlow v1
+OSPF
+SSH
+TCP
+TECMP
+WireGuard
+Wi-SUN
+ZigBee
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+NetScreen
+pcapng
+--
 
 // === New and Updated Capture Interfaces support
 
