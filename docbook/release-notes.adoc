@@ -34,15 +34,18 @@ wsbuglink:18734[].
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2023-28[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2023-29[]
+NetScreen file parser crash.
+wsbuglink:19404[].
 // cveidlink:2023-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-789
+// Fixed in master: 3be1c99180
+// Fixed in release-4.2: 95c12710ef
+// Fixed in release-4.0: 160d1e454a
+// Fixed in release-3.6: 197e96f053
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-120
+
+// * NetScreen File Parsing Heap-based Buffer Overflow. wsbuglink:19404[].
 
 The following bugs have been fixed:
 
@@ -51,7 +54,19 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
-* Error loading g729.so plugin with Wireshark 4.0.9 and 3.6.17 on macOS. wsbuglink:19374[].
+* First ZigBee APS packet is not decrypted wsbuglink:16507[].
+
+* Problem with decoding OpenFlow actions in OFPT_FLOW_MOD message wsbuglink:17072[].
+
+* "frames" method in sharkd does not consider time references and displays incorrect delta time wsbuglink:17923[].
+
+* Wireshark interprets If_fcslen option in the Interface Description Block as byte instead of bit. wsbuglink:19174[].
+
+* Flathub's Wireshark page shows wrong version number wsbuglink:19382[].
+
+* OSPFv3 RI decode error wsbuglink:19444[].
+
+* GSM SIM READ / UPDATE BINARY command has wrong offset wsbuglink:19472[].
 
 === New and Updated Features
 
@@ -67,20 +82,27 @@ There are no new protocols in this release.
 
 === Updated Protocol Support
 
-There are no updated protocols in this release.
+// There are no updated protocols in this release.
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.9.. | ag packet- | sort -u)
-// [commaize]
-// --
-// --
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.19.. | ag packet- | sort -u)
+[commaize]
+--
+DHCP
+GSM SIM
+ISO 15765
+OpenFlow v1
+OSPF
+--
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcapng
+NetScreen
+--
 
 === New File Format Decoding Support
 
