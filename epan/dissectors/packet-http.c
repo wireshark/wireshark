@@ -607,10 +607,10 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 		tick_stat_node(st, st_str_resps_by_srv_addr, 0, FALSE);
 		resps_by_this_addr = tick_stat_node(st, ip_str, st_node_resps_by_srv_addr, TRUE);
 
-		if ( (i>100)&&(i<400) ) {
+		if ( (i>=100)&&(i<400) ) {
 			tick_stat_node(st, "OK", resps_by_this_addr, FALSE);
 		} else {
-			tick_stat_node(st, "KO", resps_by_this_addr, FALSE);
+			tick_stat_node(st, "Error", resps_by_this_addr, FALSE);
 		}
 
 		wmem_free(NULL, ip_str);
