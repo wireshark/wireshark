@@ -2902,7 +2902,7 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
 
         dk->type = DOT11DECRYPT_KEY_TYPE_WPA_PSK;
         dk->key  = key_ba;
-        dk->bits = (unsigned) dk->key->len * 4;
+        dk->bits = (unsigned) dk->key->len * 8;
         dk->ssid = NULL;
 
         return dk;
@@ -2950,7 +2950,7 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
             dk = g_new(decryption_key_t, 1);
             dk->type = DOT11DECRYPT_KEY_TYPE_TK;
             dk->key  = key_ba;
-            dk->bits = (unsigned) dk->key->len * 4;
+            dk->bits = (unsigned) dk->key->len * 8;
             dk->ssid = NULL;
 
             return dk;
@@ -2978,7 +2978,7 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
             dk = g_new(decryption_key_t, 1);
             dk->type = DOT11DECRYPT_KEY_TYPE_MSK;
             dk->key  = key_ba;
-            dk->bits = (unsigned)dk->key->len * 4;
+            dk->bits = (unsigned)dk->key->len * 8;
             dk->ssid = NULL;
             return dk;
         }
