@@ -66,6 +66,16 @@
            <widget class="QLineEdit" name="advancedSearchLineEdit"/>
           </item>
           <item>
+           <widget class="QCheckBox" name="showChangedValuesCheckBox">
+            <property name="toolTip">
+             <string>Checking this will show only changed preferences.</string>
+            </property>
+            <property name="text">
+             <string>Show changed values</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>

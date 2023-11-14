@@ -229,6 +229,14 @@ void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &text
     searchLineEditTimer->start(gui_debounce_timer);
 }
 
+void PreferencesDialog::on_showChangedValuesCheckBox_toggled(bool checked)
+{
+    advancedPrefsModel_.setShowChangedValues(checked);
+    /* If items are filtered out, then filtered back in, the tree remains collapsed
+       Force an expansion */
+    pd_ui_->advancedView->expandAll();
+}
+
 void PreferencesDialog::on_buttonBox_accepted()
 {
     gchar* err = NULL;
