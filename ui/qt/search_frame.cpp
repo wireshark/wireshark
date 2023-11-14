@@ -20,6 +20,8 @@
 #include <wsutil/regex.h>
 
 #include "main_application.h"
+#include "utils/qt_ui_utils.h"
+
 #include <QKeyEvent>
 #include <QCheckBox>
 
@@ -475,7 +477,7 @@ void SearchFrame::on_findButton_clicked()
     }
 
     g_free(cap_file_->sfilter);
-    cap_file_->sfilter = g_strdup(sf_ui_->searchLineEdit->text().toUtf8().constData());
+    cap_file_->sfilter = qstring_strdup(sf_ui_->searchLineEdit->text());
     mainApp->popStatus(MainApplication::FileStatus);
     mainApp->pushStatus(MainApplication::FileStatus, tr("Searching for %1…").arg(sf_ui_->searchLineEdit->text()));
 

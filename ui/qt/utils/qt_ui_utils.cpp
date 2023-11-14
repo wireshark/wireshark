@@ -43,7 +43,7 @@
  */
 
 gchar *qstring_strdup(QString q_string) {
-    return g_strdup(q_string.toUtf8().constData());
+    return g_strdup(qUtf8Printable(q_string));
 }
 
 QString gchar_free_to_qstring(gchar *glib_string) {

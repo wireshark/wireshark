@@ -23,6 +23,7 @@
 #include <wsutil/utf8_entities.h>
 #include <wsutil/802_11-utils.h>
 #include "main_application.h"
+#include "utils/qt_ui_utils.h"
 
 #include <QProcess>
 #include <QAbstractItemView>
@@ -312,7 +313,7 @@ void WirelessFrame::setInterfaceInfo()
     if (frequency < 0 || chan_type < 0) return;
 
     if (center_freq != -1) {
-        center_freq_s = g_strdup(QString::number(center_freq).toUtf8().constData());
+        center_freq_s = qstring_strdup(QString::number(center_freq));
     }
 
     ret = sync_interface_set_80211_chan(cur_iface.toUtf8().constData(),
