@@ -110,9 +110,9 @@ def create_version_file(version_f, repo_data):
 
 
 def update_attributes_asciidoc(src_dir, repo_data):
-    # Read docbook/attributes.adoc, then write it back out with an updated
+    # Read doc/attributes.adoc, then write it back out with an updated
     # wireshark-version replacement line.
-    asiidoc_filepath = os.path.join(src_dir, "docbook", "attributes.adoc")
+    asiidoc_filepath = os.path.join(src_dir, "doc", "attributes.adoc")
     with open(asiidoc_filepath, encoding='utf-8') as fh:
         asciidoc_contents = fh.read()
 
@@ -418,7 +418,7 @@ def read_repo_info(src_dir, tagged_version_extra, untagged_version_extra):
 def main():
     parser = argparse.ArgumentParser(description='Wireshark file and package versions')
     action_group = parser.add_mutually_exclusive_group()
-    action_group.add_argument('--set-version', '-v', metavar='<x.y.z>', type=parse_versionstring, help='Set the major, minor, and patch versions in the top-level CMakeLists.txt, docbook/attributes.adoc, packaging/debian/changelog, and the CMakeLists.txt for all libraries to the provided version number')
+    action_group.add_argument('--set-version', '-v', metavar='<x.y.z>', type=parse_versionstring, help='Set the major, minor, and patch versions in the top-level CMakeLists.txt, doc/attributes.adoc, packaging/debian/changelog, and the CMakeLists.txt for all libraries to the provided version number')
     action_group.add_argument('--set-release', '-r', action='store_true', help='Set the extra release information in the top-level CMakeLists.txt based on either default or command-line specified options.')
     setrel_group = parser.add_argument_group()
     setrel_group.add_argument('--tagged-version-extra', '-t', default="", help="Extra version information format to use when a tag is found. No format \

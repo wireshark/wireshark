@@ -78,7 +78,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
                 --out-file ${_output_xml}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
             DEPENDS
-                ${CMAKE_SOURCE_DIR}/docbook/attributes.adoc
+                ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                 ${ARGN}
         )
@@ -110,7 +110,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
                 --out-file ${_output_html}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
             DEPENDS
-                ${CMAKE_SOURCE_DIR}/docbook/attributes.adoc
+                ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                 ${ARGN}
         )
@@ -132,7 +132,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
                 > ${_output_txt}
             DEPENDS
                 ${MAN_INCLUDES}
-                ${CMAKE_SOURCE_DIR}/docbook/attributes.adoc
+                ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                 ${_output_html}
                 ${ARGN}
@@ -160,7 +160,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
                 ${_input_adoc}
             DEPENDS
                 ${MAN_INCLUDES}
-                ${CMAKE_SOURCE_DIR}/docbook/attributes.adoc
+                ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${_input_adoc}
         )
         unset(_src_file)
@@ -187,7 +187,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
                 ${_input_adoc}
             DEPENDS
                 ${MAN_INCLUDES}
-                ${CMAKE_SOURCE_DIR}/docbook/attributes.adoc
+                ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${_input_adoc}
         )
         unset(_src_file)
@@ -232,7 +232,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
                     --out-file "${_output_pdf}"
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
             DEPENDS
-                    ${CMAKE_SOURCE_DIR}/docbook/attributes.adoc
+                    ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                     ${ARGN}
             VERBATIM
@@ -283,7 +283,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
                     --out-file "${_output_epub}"
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
             DEPENDS
-                    ${CMAKE_SOURCE_DIR}/docbook/attributes.adoc
+                    ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                     ${ARGN}
             VERBATIM

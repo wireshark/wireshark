@@ -1,4 +1,4 @@
-include::../docbook/attributes.adoc[]
+include::attributes.adoc[]
 = falcodump(1)
 :doctype: manpage
 :stylesheet: ws.css

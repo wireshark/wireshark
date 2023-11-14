@@ -1,5 +1,5 @@
 :doctype: book
-include::../attributes.adoc[]
+include::../../doc/attributes.adoc[]
 
 // Electronic book attributes
 :author: Richard Sharpe, Ed Warnicke, Ulf Lamping

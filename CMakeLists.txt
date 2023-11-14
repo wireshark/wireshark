@@ -3560,7 +3560,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
 		--backend html
 		--out-file ${_wireshark_read_me_first}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
+		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
 		--attribute min-macos-version=${MIN_MACOS_VERSION}
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Wireshark_read_me_first.adoc
 	DEPENDS
@@ -3574,7 +3574,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
 		--backend html
 		--out-file ${_wireshark_donate}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
+		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
 		--attribute min-macos-version=${MIN_MACOS_VERSION}
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Donate_to_the_Wireshark_Foundation.adoc
 	DEPENDS
@@ -3588,7 +3588,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
 		--backend html
 		--out-file ${_wireshark_dsym_installation}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
+		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Wireshark_dsym_installation.adoc
 	DEPENDS
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Wireshark_dsym_installation.adoc
@@ -3628,7 +3628,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_logray)
 	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
 		--backend html
 		--out-file ${_logray_read_me_first}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
+		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
 		--attribute min-macos-version=${MIN_MACOS_VERSION}
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Logray_read_me_first.adoc
 	DEPENDS
@@ -3642,7 +3642,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_logray)
 	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
 		--backend html
 		--out-file ${_logray_dsym_installation}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
+		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Logray_dsym_installation.adoc
 	DEPENDS
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Logray_dsym_installation.adoc

@@ -1,4 +1,4 @@
-include::../docbook/attributes.adoc[]
+include::attributes.adoc[]
 = extcap(4)
 :doctype: manpage
 :stylesheet: ws.css

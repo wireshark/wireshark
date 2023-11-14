@@ -1,4 +1,4 @@
-include::../docbook/attributes.adoc[]
+include::attributes.adoc[]
 = text2pcap(1)
 :doctype: manpage
 :stylesheet: ws.css

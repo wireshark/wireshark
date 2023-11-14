@@ -334,7 +334,7 @@ ADD_CUSTOM_COMMAND(
 set( WSDG_BUILT_DEPS copy_ws.css wsluarm )
 
 set( ASCIIDOC_CONF_FILES
-	attributes.adoc
+	${CMAKE_SOURCE_DIR}/doc/attributes.adoc
 	# XXX Add macros
 )
 
