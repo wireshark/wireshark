@@ -5,6 +5,16 @@
 
 #.MODULE_IMPORT
 
+#.OMIT_ASSIGNMENT
+HeaderOnlyIndication
+KAFParams
+AreaScopeOfMDT
+MDTActivation
+MDTConfigurationEUTRA
+MDTConfigurationNR
+MDTMode
+RCSServerURI
+
 #.EXPORTS
 
 #.PDU

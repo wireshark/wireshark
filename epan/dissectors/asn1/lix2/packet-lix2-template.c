@@ -1,7 +1,7 @@
 /* packet-lix2-template.c
  * Routines for Lawful Interception X2 xIRI event dissection
  *
- * See 3GPP TS33.128.
+ * See 3GPP TS33.128 V18.5.0
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

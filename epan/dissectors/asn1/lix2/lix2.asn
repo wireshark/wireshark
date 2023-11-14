@@ -1,7 +1,7 @@
--- This ASN.1 module was taken from 3GPP TS 33.128 V17.1.0 (2021-06) and modified to pass through asn2wrs
+-- This ASN.1 module was taken from 3GPP TS 33.128 V18.5.0 (2023-09) and modified to pass through asn2wrs
 
 TS33128Payloads
-{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) ts33128(19) r17(17) version0(0)}
+{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) ts33128(19) r18(18) version5(5)}
 
 DEFINITIONS IMPLICIT TAGS ::=
 
@@ -11,7 +11,7 @@ BEGIN
 -- Relative OIDs
 -- =============
 
---tS33128PayloadsOID          RELATIVE-OID ::= {threeGPP(4) ts33128(19) r17(17) version0(0)}
+--tS33128PayloadsOID          RELATIVE-OID ::= {threeGPP(4) ts33128(19) r18(18) version5(5)}
 
 --xIRIPayloadOID              RELATIVE-OID ::= {tS33128PayloadsOID xIRI(1)}
 --xCCPayloadOID               RELATIVE-OID ::= {tS33128PayloadsOID xCC(2)}
@@ -31,36 +31,36 @@ XIRIPayload ::= SEQUENCE
 
 XIRIEvent ::= CHOICE
 {
-    -- Access and mobility related events, see clause 6.2.2
+    -- AMF events, see clause 6.2.2.2
     registration                                        [1] AMFRegistration,
     deregistration                                      [2] AMFDeregistration,
     locationUpdate                                      [3] AMFLocationUpdate,
     startOfInterceptionWithRegisteredUE                 [4] AMFStartOfInterceptionWithRegisteredUE,
     unsuccessfulAMProcedure                             [5] AMFUnsuccessfulProcedure,
 
-    -- PDU session-related events, see clause 6.2.3
+    -- SMF events, see clause 6.2.3.2
     pDUSessionEstablishment                             [6] SMFPDUSessionEstablishment,
     pDUSessionModification                              [7] SMFPDUSessionModification,
     pDUSessionRelease                                   [8] SMFPDUSessionRelease,
     startOfInterceptionWithEstablishedPDUSession        [9] SMFStartOfInterceptionWithEstablishedPDUSession,
     unsuccessfulSMProcedure                             [10] SMFUnsuccessfulProcedure,
 
-    -- Subscriber-management related events, see clause 7.2.2
+    -- UDM events, see clause 7.2.2.3
     servingSystemMessage                                [11] UDMServingSystemMessage,
 
-    -- SMS-related events, see clause 6.2.5, see also sMSReport ([56] below)
+    -- SMS events, see clause 6.2.5.2
     sMSMessage                                          [12] SMSMessage,
 
-    -- LALS-related events, see clause 7.3.3
+    -- LALS events, see clause 7.3.1.4
     lALSReport                                          [13] LALSReport,
 
-    -- PDHR/PDSR-related events, see clause 6.2.3.4.1
+    -- PDHR/PDSR events, see clauses 6.2.3.5 and 6.2.3.9
     pDHeaderReport                                      [14] PDHeaderReport,
     pDSummaryReport                                     [15] PDSummaryReport,
 
-    -- tag 16 is reserved because there is no equivalent mDFCellSiteReport in XIRIEvent
+    -- Tag 16 is reserved because there is no equivalent mDFCellSiteReport in XIRIEvent.
 
-    -- MMS-related events, see clause 7.4.2
+    -- MMS events, see clause 7.4.3
     mMSSend                                             [17] MMSSend,
     mMSSendByNonLocalTarget                             [18] MMSSendByNonLocalTarget,
     mMSNotification                                     [19] MMSNotification,
@@ -81,7 +81,7 @@ XIRIEvent ::= CHOICE
     mMSMBoxViewRequest                                  [34] MMSMBoxViewRequest,
     mMSMBoxViewResponse                                 [35] MMSMBoxViewResponse,
 
-    -- PTC-related events, see clause 7.5.2
+    -- PTC events, see clause 7.5.2
     pTCRegistration                                     [36] PTCRegistration,
     pTCSessionInitiation                                [37] PTCSessionInitiation,
     pTCSessionAbandon                                   [38] PTCSessionAbandon,
@@ -101,14 +101,14 @@ XIRIEvent ::= CHOICE
     pTCListManagement                                   [52] PTCListManagement,
     pTCAccessPolicy                                     [53] PTCAccessPolicy,
 
-    -- More Subscriber-management related events, see clause 7.2.2
+    -- UDM events, see clause 7.2.2.3, continued from tag 11
     subscriberRecordChangeMessage                       [54] UDMSubscriberRecordChangeMessage,
     cancelLocationMessage                               [55] UDMCancelLocationMessage,
 
-    -- SMS-related events continued from choice 12
+    -- SMS events, see clause 6.2.5.2, continued from tag 12
     sMSReport                                           [56] SMSReport,
 
-    -- MA PDU session-related events, see clause 6.2.3.2.7
+    -- SMF MA PDU session events, see clause 6.2.3.2.7
     sMFMAPDUSessionEstablishment                        [57] SMFMAPDUSessionEstablishment,
     sMFMAPDUSessionModification                         [58] SMFMAPDUSessionModification,
     sMFMAPDUSessionRelease                              [59] SMFMAPDUSessionRelease,
@@ -116,13 +116,13 @@ XIRIEvent ::= CHOICE
     unsuccessfulMASMProcedure                           [61] SMFMAUnsuccessfulProcedure,
 
     -- Identifier Association events, see clauses 6.2.2.2.7 and 6.3.2.2.2
-    aMFIdentifierAssocation                             [62] AMFIdentifierAssocation,
-    mMEIdentifierAssocation                             [63] MMEIdentifierAssocation,
+    aMFIdentifierAssociation                            [62] AMFIdentifierAssociation,
+    mMEIdentifierAssociation                            [63] MMEIdentifierAssociation,
 
-    -- PDU to MA PDU session-related events, see clause 6.2.3.2.8
+    -- SMF PDU to MA PDU session events, see clause 6.2.3.2.8
     sMFPDUtoMAPDUSessionModification                    [64] SMFPDUtoMAPDUSessionModification,
 
-    -- NEF services related events, see clause 7.7.2
+    -- NEF events, see clause 7.7.2.1
     nEFPDUSessionEstablishment                          [65] NEFPDUSessionEstablishment,
     nEFPDUSessionModification                           [66] NEFPDUSessionModification,
     nEFPDUSessionRelease                                [67] NEFPDUSessionRelease,
@@ -135,7 +135,7 @@ XIRIEvent ::= CHOICE
     nEFMSISDNLessMOSMS                                  [74] NEFMSISDNLessMOSMS,
     nEFExpectedUEBehaviourUpdate                        [75] NEFExpectedUEBehaviourUpdate,
 
-    -- SCEF services related events, see clause 7.8.2
+    -- SCEF events, see clause 7.8.2.1
     sCEFPDNConnectionEstablishment                      [76] SCEFPDNConnectionEstablishment,
     sCEFPDNConnectionUpdate                             [77] SCEFPDNConnectionUpdate,
     sCEFPDNConnectionRelease                            [78] SCEFPDNConnectionRelease,
@@ -148,14 +148,106 @@ XIRIEvent ::= CHOICE
     sCEFMSISDNLessMOSMS                                 [85] SCEFMSISDNLessMOSMS,
     sCEFCommunicationPatternUpdate                      [86] SCEFCommunicationPatternUpdate,
 
-    --EPS Events, see clause 6.3
-
-    --MME Events, see clause 6.3.2.2
+    -- MME events, see clause 6.3.2.2
     mMEAttach                                           [87] MMEAttach,
     mMEDetach                                           [88] MMEDetach,
     mMELocationUpdate                                   [89] MMELocationUpdate,
     mMEStartOfInterceptionWithEPSAttachedUE             [90] MMEStartOfInterceptionWithEPSAttachedUE,
-    mMEUnsuccessfulProcedure                            [91] MMEUnsuccessfulProcedure
+    mMEUnsuccessfulProcedure                            [91] MMEUnsuccessfulProcedure,
+
+    -- AKMA key management events, see clauses 7.9.1.3 and 7.9.1.4
+    aAnFAnchorKeyRegister                               [92] AAnFAnchorKeyRegister,
+    aAnFKAKMAApplicationKeyGet                          [93] AAnFKAKMAApplicationKeyGet,
+    aAnFStartOfInterceptWithEstablishedAKMAKeyMaterial  [94] AAnFStartOfInterceptWithEstablishedAKMAKeyMaterial,
+    aAnFAKMAContextRemovalRecord                        [95] AAnFAKMAContextRemovalRecord,
+    aFAKMAApplicationKeyRefresh                         [96] AFAKMAApplicationKeyRefresh,
+    aFStartOfInterceptWithEstablishedAKMAApplicationKey [97] AFStartOfInterceptWithEstablishedAKMAApplicationKey,
+    aFAuxiliarySecurityParameterEstablishment           [98] AFAuxiliarySecurityParameterEstablishment,
+    aFApplicationKeyRemoval                             [99] AFApplicationKeyRemoval,
+
+    -- HR LI events, see clause 7.10.3.3
+    n9HRPDUSessionInfo                                  [100] N9HRPDUSessionInfo,
+    s8HRBearerInfo                                      [101] S8HRBearerInfo,
+
+    -- Separated Location Reporting, see clause 7.3.4.1
+    separatedLocationReporting                          [102] SeparatedLocationReporting,
+
+    -- STIR SHAKEN and RCD/eCNAM events, see clause 7.11.2
+    sTIRSHAKENSignatureGeneration                       [103] STIRSHAKENSignatureGeneration,
+    sTIRSHAKENSignatureValidation                       [104] STIRSHAKENSignatureValidation,
+
+    -- IMS events, see clause 7.12.4.2
+    iMSMessage                                          [105] IMSMessage,
+    startOfInterceptionForActiveIMSSession              [106] StartOfInterceptionForActiveIMSSession,
+    iMSCCUnavailable                                    [107] IMSCCUnavailable,
+
+    -- UDM events, see clause 7.2.2.3, continued from tag 55
+    uDMLocationInformationResult                        [108] UDMLocationInformationResult,
+    uDMUEInformationResponse                            [109] UDMUEInformationResponse,
+    uDMUEAuthenticationResponse                         [110] UDMUEAuthenticationResponse,
+
+    -- AMF events, see 6.2.2.2.8, continued from tag 5
+    positioningInfoTransfer                             [111] AMFPositioningInfoTransfer,
+
+    -- MME events, see clause 6.3.2.2.8, continued from tag 91
+    mMEPositioningInfoTransfer                          [112] MMEPositioningInfoTransfer,
+
+    -- AMF events, see 6.2.2.2.9, continued from tag 111
+    aMFRANHandoverCommand                               [113] AMFRANHandoverCommand,
+    aMFRANHandoverRequest                               [114] AMFRANHandoverRequest,
+
+    -- EES events, see clause 7.14.2
+    eESEECRegistration                                  [115] EESEECRegistration,
+    eESEASDiscovery                                     [116] EESEASDiscovery,
+    eESEASDiscoverySubscription                         [117] EESEASDiscoverySubscription,
+    eESEASDiscoveryNotification                         [118] EESEASDiscoveryNotification,
+    eESAppContextRelocation                             [119] EESAppContextRelocation,
+    eESACRSubscription                                  [120] EESACRSubscription,
+    eESACRNotification                                  [121] EESACRNotification,
+    eESEECContextRelocation                             [122] EESEECContextRelocation,
+    eESStartOfInterceptionWithRegisteredEEC             [123] EESStartOfInterceptionWithRegisteredEEC,
+
+    -- UDM events, see clause 7.2.2.3, continued from tag 110
+    uDMStartOfInterceptionWithRegisteredTarget          [124] UDMStartOfInterceptionWithRegisteredTarget,
+
+    -- 5GMS AF events, see clause 7.15.2
+    fiveGMSAFServiceAccessInformation                   [125] FiveGMSAFServiceAccessInformation,
+    fiveGMSAFConsumptionReporting                       [126] FiveGMSAFConsumptionReporting,
+    fiveGMSAFDynamicPolicyInvocation                    [127] FiveGMSAFDynamicPolicyInvocation,
+    fiveGMSAFMetricsReporting                           [128] FiveGMSAFMetricsReporting,
+    fiveGMSAFNetworkAssistance                          [129] FiveGMSAFNetworkAssistance,
+    fiveGMSAFUnsuccessfulProcedure                      [130] FiveGMSAFUnsuccessfulProcedure,
+    fiveGMSAFStartOfInterceptionWithAlreadyConfiguredUE [131] FiveGMSAFStartOfInterceptionWithAlreadyConfiguredUE,
+
+    --AMF events, see 6.2.2.2.10, continued from tag 114
+    aMFUEConfigurationUpdate                            [132] AMFUEConfigurationUpdate,
+
+    -- HSS events, see clause 7.2.3.3
+    hSSServingSystemMessage                             [133] HSSServingSystemMessage,
+    hSSStartOfInterceptionWithRegisteredTarget          [134] HSSStartOfInterceptionWithRegisteredTarget,
+
+    --  NEF events, see clause 7.7.6.1
+    nEFAFSessionWithQoSProvision                        [135] NEFAFSessionWithQoSProvision,
+    nEFAFSessionWithQoSNotification                     [136] NEFAFSessionWithQoSNotification,
+
+    -- SCEF events, see clause 7.8.6.1
+    sCEFASSessionWithQoSProvision                       [137] SCEFASSessionWithQoSProvision,
+    sCEFASSessionWithQoSNotification                    [138] SCEFASSessionWithQoSNotification,
+
+    -- AMF events, see 6.2.2.3, continued from tag 132
+    aMFRANTraceReport                                   [139] AMFRANTraceReport,
+
+    -- RCS events, see clause 7.13.3
+    rCSRegistration                                     [140] RCSRegistration,
+    rCSMessage                                          [141] RCSMessage,
+    rCSCapabilityDiscovery                              [142] RCSCapabilityDiscovery,
+    rCSSessionEstablishment                             [143] RCSSessionEstablishment,
+    rCSSessionModification                              [144] RCSSessionModification,
+    rCSSessionRelease                                   [145] RCSSessionRelease,
+
+    -- AMF events, see clause 6.2.2.2.12, continued from tag 139
+    aMFUEPolicyTransfer                                 [146] AMFUEPolicyTransfer,
+    aMFUEServiceAccept                                  [147] AMFUEServiceAccept
 }
 
 -- ==============
@@ -177,37 +269,37 @@ IRIPayload ::= SEQUENCE
 
 IRIEvent ::= CHOICE
 {
-    -- Registration-related events, see clause 6.2.2
+    -- AMF events, see clause 6.2.2.3
     registration                                        [1] AMFRegistration,
     deregistration                                      [2] AMFDeregistration,
     locationUpdate                                      [3] AMFLocationUpdate,
     startOfInterceptionWithRegisteredUE                 [4] AMFStartOfInterceptionWithRegisteredUE,
-    unsuccessfulRegistrationProcedure                   [5] AMFUnsuccessfulProcedure,
+    unsuccessfulAMProcedure                             [5] AMFUnsuccessfulProcedure,
 
-    -- PDU session-related events, see clause 6.2.3
+    -- SMF events, see clause 6.2.3.7
     pDUSessionEstablishment                             [6] SMFPDUSessionEstablishment,
     pDUSessionModification                              [7] SMFPDUSessionModification,
     pDUSessionRelease                                   [8] SMFPDUSessionRelease,
     startOfInterceptionWithEstablishedPDUSession        [9] SMFStartOfInterceptionWithEstablishedPDUSession,
-    unsuccessfulSessionProcedure                        [10] SMFUnsuccessfulProcedure,
+    unsuccessfulSMProcedure                             [10] SMFUnsuccessfulProcedure,
 
-    -- Subscriber-management related events, see clause 7.2.2
+    -- UDM events, see clause 7.2.2.4
     servingSystemMessage                                [11] UDMServingSystemMessage,
 
-    -- SMS-related events, see clause 6.2.5, see also sMSReport ([56] below)
+    -- SMS events, see clause 6.2.5.4
     sMSMessage                                          [12] SMSMessage,
 
-    -- LALS-related events, see clause 7.3.3
+    -- LALS events, see clause 7.3.1.5
     lALSReport                                          [13] LALSReport,
 
-    -- PDHR/PDSR-related events, see clause 6.2.3.4.1
+    -- PDHR/PDSR events, see clause 6.2.3.9
     pDHeaderReport                                      [14] PDHeaderReport,
     pDSummaryReport                                     [15] PDSummaryReport,
 
-    -- MDF-related events, see clause 7.3.4
+    -- MDF events, see clause 7.3.2.2
     mDFCellSiteReport                                   [16] MDFCellSiteReport,
 
-    -- MMS-related events, see clause 7.4.2
+    -- MMS events, see clause 7.4.4.1
     mMSSend                                             [17] MMSSend,
     mMSSendByNonLocalTarget                             [18] MMSSendByNonLocalTarget,
     mMSNotification                                     [19] MMSNotification,
@@ -228,7 +320,7 @@ IRIEvent ::= CHOICE
     mMSMBoxViewRequest                                  [34] MMSMBoxViewRequest,
     mMSMBoxViewResponse                                 [35] MMSMBoxViewResponse,
 
-    -- PTC-related events, see clause 7.5.2
+    -- PTC events, see clauses 7.5.2 and 7.5.3.1
     pTCRegistration                                     [36] PTCRegistration,
     pTCSessionInitiation                                [37] PTCSessionInitiation,
     pTCSessionAbandon                                   [38] PTCSessionAbandon,
@@ -248,28 +340,28 @@ IRIEvent ::= CHOICE
     pTCListManagement                                   [52] PTCListManagement,
     pTCAccessPolicy                                     [53] PTCAccessPolicy,
 
-    -- More Subscriber-management related events, see clause 7.2.2
-     subscriberRecordChangeMessage                      [54] UDMSubscriberRecordChangeMessage,
-     cancelLocationMessage                              [55] UDMCancelLocationMessage,
+    -- UDM events, see clause 7.2.2.4, continued from tag 11
+    subscriberRecordChangeMessage                       [54] UDMSubscriberRecordChangeMessage,
+    cancelLocationMessage                               [55] UDMCancelLocationMessage,
 
-    -- SMS-related events, continued from choice 12
+    -- SMS events, see clause 6.2.5.4, continued from tag 12
     sMSReport                                           [56] SMSReport,
 
-    -- MA PDU session-related events, see clause 6.2.3.2.7
+    -- SMF MA PDU session events, see clause 6.2.3.7
     sMFMAPDUSessionEstablishment                        [57] SMFMAPDUSessionEstablishment,
     sMFMAPDUSessionModification                         [58] SMFMAPDUSessionModification,
     sMFMAPDUSessionRelease                              [59] SMFMAPDUSessionRelease,
     startOfInterceptionWithEstablishedMAPDUSession      [60] SMFStartOfInterceptionWithEstablishedMAPDUSession,
     unsuccessfulMASMProcedure                           [61] SMFMAUnsuccessfulProcedure,
 
-    -- Identifier Association events, see clauses 6.2.2.2.7 and 6.3.2.2.2
-     aMFIdentifierAssocation                            [62] AMFIdentifierAssocation,
-     mMEIdentifierAssocation                            [63] MMEIdentifierAssocation,
+    -- Identifier Association events, see clauses 6.2.2.3 and 6.3.2.3
+    aMFIdentifierAssociation                            [62] AMFIdentifierAssociation,
+    mMEIdentifierAssociation                            [63] MMEIdentifierAssociation,
 
-    -- PDU to MA PDU session-related events, see clause 6.2.3.2.8
+    -- SMF PDU to MA PDU session events, see clause 6.2.3.7
     sMFPDUtoMAPDUSessionModification                    [64] SMFPDUtoMAPDUSessionModification,
 
-    -- NEF services related events, see clause 7.7.2,
+    -- NEF events, see clause 7.7.2.3
     nEFPDUSessionEstablishment                          [65] NEFPDUSessionEstablishment,
     nEFPDUSessionModification                           [66] NEFPDUSessionModification,
     nEFPDUSessionRelease                                [67] NEFPDUSessionRelease,
@@ -281,8 +373,8 @@ IRIEvent ::= CHOICE
     nEFdeviceTriggerReportNotify                        [73] NEFDeviceTriggerReportNotify,
     nEFMSISDNLessMOSMS                                  [74] NEFMSISDNLessMOSMS,
     nEFExpectedUEBehaviourUpdate                        [75] NEFExpectedUEBehaviourUpdate,
-    
-    -- SCEF services related events, see clause 7.8.2
+
+    -- SCEF events, see clause 7.8.2.3
     sCEFPDNConnectionEstablishment                      [76] SCEFPDNConnectionEstablishment,
     sCEFPDNConnectionUpdate                             [77] SCEFPDNConnectionUpdate,
     sCEFPDNConnectionRelease                            [78] SCEFPDNConnectionRelease,
@@ -294,15 +386,106 @@ IRIEvent ::= CHOICE
     sCEFdeviceTriggerReportNotify                       [84] SCEFDeviceTriggerReportNotify,
     sCEFMSISDNLessMOSMS                                 [85] SCEFMSISDNLessMOSMS,
     sCEFCommunicationPatternUpdate                      [86] SCEFCommunicationPatternUpdate,
-    
-    --EPS Events, see clause 6.3
 
-    --MME Events, see clause 6.3.2.2
+    -- MME events, see clause 6.3.2.3
     mMEAttach                                           [87] MMEAttach,
     mMEDetach                                           [88] MMEDetach,
     mMELocationUpdate                                   [89] MMELocationUpdate,
     mMEStartOfInterceptionWithEPSAttachedUE             [90] MMEStartOfInterceptionWithEPSAttachedUE,
-    mMEUnsuccessfulProcedure                            [91] MMEUnsuccessfulProcedure
+    mMEUnsuccessfulProcedure                            [91] MMEUnsuccessfulProcedure,
+
+    -- AKMA key management events, see clause 7.9.1.5
+    aAnFAnchorKeyRegister                               [92] AAnFAnchorKeyRegister,
+    aAnFKAKMAApplicationKeyGet                          [93] AAnFKAKMAApplicationKeyGet,
+    aAnFStartOfInterceptWithEstablishedAKMAKeyMaterial  [94] AAnFStartOfInterceptWithEstablishedAKMAKeyMaterial,
+    aAnFAKMAContextRemovalRecord                        [95] AAnFAKMAContextRemovalRecord,
+    aFAKMAApplicationKeyRefresh                         [96] AFAKMAApplicationKeyRefresh,
+    aFStartOfInterceptWithEstablishedAKMAApplicationKey [97] AFStartOfInterceptWithEstablishedAKMAApplicationKey,
+    aFAuxiliarySecurityParameterEstablishment           [98] AFAuxiliarySecurityParameterEstablishment,
+    aFApplicationKeyRemoval                             [99] AFApplicationKeyRemoval,
+
+    -- Tag 100 is reserved because there is no equivalent n9HRPDUSessionInfo in IRIEvent.
+    -- Tag 101 is reserved because there is no equivalent S8HRBearerInfo in IRIEvent.
+
+    -- Separated Location Reporting, see clause 7.3.4.1
+    separatedLocationReporting                          [102] SeparatedLocationReporting,
+
+    -- STIR SHAKEN and RCD/eCNAM events, see clause 7.11.3
+    sTIRSHAKENSignatureGeneration                       [103] STIRSHAKENSignatureGeneration,
+    sTIRSHAKENSignatureValidation                       [104] STIRSHAKENSignatureValidation,
+
+    -- IMS events, see clause 7.12.7
+    iMSMessage                                          [105] IMSMessage,
+    startOfInterceptionForActiveIMSSession              [106] StartOfInterceptionForActiveIMSSession,
+    iMSCCUnavailable                                    [107] IMSCCUnavailable,
+
+    -- UDM events, see clause 7.2.2.4, continued from tag 55
+    uDMLocationInformationResult                        [108] UDMLocationInformationResult,
+    uDMUEInformationResponse                            [109] UDMUEInformationResponse,
+    uDMUEAuthenticationResponse                         [110] UDMUEAuthenticationResponse,
+
+    -- AMF events, see 6.2.2.3, continued from tag 5
+    positioningInfoTransfer                             [111] AMFPositioningInfoTransfer,
+
+    -- MME events, see clause 6.3.2.3, continued from tag 91
+    mMEPositioningInfoTransfer                          [112] MMEPositioningInfoTransfer,
+
+    -- AMF events, see 6.2.2.3, continued from tag 111
+    aMFRANHandoverCommand                               [113] AMFRANHandoverCommand,
+    aMFRANHandoverRequest                               [114] AMFRANHandoverRequest,
+
+    -- EES events, see clause 7.14.2.11
+    eESEECRegistration                                  [115] EESEECRegistration,
+    eESEASDiscovery                                     [116] EESEASDiscovery,
+    eESEASDiscoverySubscription                         [117] EESEASDiscoverySubscription,
+    eESEASDiscoveryNotification                         [118] EESEASDiscoveryNotification,
+    eESAppContextRelocation                             [119] EESAppContextRelocation,
+    eESACRSubscription                                  [120] EESACRSubscription,
+    eESACRNotification                                  [121] EESACRNotification,
+    eESEECContextRelocation                             [122] EESEECContextRelocation,
+    eESStartOfInterceptionWithRegisteredEEC             [123] EESStartOfInterceptionWithRegisteredEEC,
+
+    -- UDM events, see clause 7.2.2.4, continued from tag 110
+    uDMStartOfInterceptionWithRegisteredTarget          [124] UDMStartOfInterceptionWithRegisteredTarget,
+
+    -- 5GMS AF events, see clause 7.15.3
+    fiveGMSAFServiceAccessInformation                   [125] FiveGMSAFServiceAccessInformation,
+    fiveGMSAFConsumptionReporting                       [126] FiveGMSAFConsumptionReporting,
+    fiveGMSAFDynamicPolicyInvocation                    [127] FiveGMSAFDynamicPolicyInvocation,
+    fiveGMSAFMetricsReporting                           [128] FiveGMSAFMetricsReporting,
+    fiveGMSAFNetworkAssistance                          [129] FiveGMSAFNetworkAssistance,
+    fiveGMSAFUnsuccessfulProcedure                      [130] FiveGMSAFUnsuccessfulProcedure,
+    fiveGMSAFStartOfInterceptionWithAlreadyConfiguredUE [131] FiveGMSAFStartOfInterceptionWithAlreadyConfiguredUE,
+
+    --AMF events, see 6.2.2.3, continued from tag 114
+    aMFUEConfigurationUpdate                            [132] AMFUEConfigurationUpdate,
+
+    -- HSS events, see clause 7.2.3.4
+    hSSServingSystemMessage                             [133] HSSServingSystemMessage,
+    hSSStartOfInterceptionWithRegisteredTarget          [134] HSSStartOfInterceptionWithRegisteredTarget,
+
+    -- NEF events, see clause 7.7.6.2
+    nEFAFSessionWithQoSProvision                        [135] NEFAFSessionWithQoSProvision,
+    nEFAFSessionWithQoSNotification                     [136] NEFAFSessionWithQoSNotification,
+
+    -- SCEF events, see clause 7.8.6.2
+    sCEFASSessionWithQoSProvision                       [137] SCEFASSessionWithQoSProvision,
+    sCEFASSessionWithQoSNotification                    [138] SCEFASSessionWithQoSNotification,
+
+    -- AMF events, see 6.2.2.3, continued from tag 132
+    aMFRANTraceReport                                   [139] AMFRANTraceReport,
+
+    -- RCS events, see clause 7.13.3
+    rCSRegistration                                     [140] RCSRegistration,
+    rCSMessage                                          [141] RCSMessage,
+    rCSCapabilityDiscovery                              [142] RCSCapabilityDiscovery,
+    rCSSessionEstablishment                             [143] RCSSessionEstablishment,
+    rCSSessionModification                              [144] RCSSessionModification,
+    rCSSessionRelease                                   [145] RCSSessionRelease,
+
+    -- AMF events, see clause 6.2.2.3, continued from tag 139
+    aMFUEPolicyTransfer                                 [146] AMFUEPolicyTransfer,
+    aMFUEServiceAccept                                  [147] AMFUEServiceAccept
 }
 
 IRITargetIdentifier ::= SEQUENCE
@@ -326,7 +509,15 @@ CCPDU ::= CHOICE
     uPFCCPDU            [1] UPFCCPDU,
     extendedUPFCCPDU    [2] ExtendedUPFCCPDU,
     mMSCCPDU            [3] MMSCCPDU,
-    nIDDCCPDU           [4] NIDDCCPDU
+
+    -- In Rel-16 (threeGPP(4) ts33128(19) r16(16) version9(9)),
+    -- tag 4 is pTCCCPDU and tag 5 is not used.
+    -- Rel-17 or newer decoders should decode tag 4 contents as PTCCCPDU if
+    -- r16 is used in cCPayloadOID.
+    nIDDCCPDU           [4] NIDDCCPDU,
+    pTCCCPDU            [5] PTCCCPDU,
+
+    iMSCCPDU            [6] IMSCCPDU
 }
 
 -- ===========================
@@ -343,6 +534,62 @@ LINotificationMessage ::= CHOICE
 {
     lINotification      [1] LINotification
 }
+
+-- =================
+-- HR LI definitions
+-- =================
+
+N9HRPDUSessionInfo ::= SEQUENCE
+{
+    sUPI                            [1] SUPI,
+    pEI                             [2] PEI OPTIONAL,
+    pDUSessionID                    [3] PDUSessionID,
+    location                        [4] Location OPTIONAL,
+    sNSSAI                          [5] SNSSAI OPTIONAL,
+    dNN                             [6] DNN OPTIONAL,
+    messageCause                    [7] N9HRMessageCause
+}
+
+S8HRBearerInfo ::= SEQUENCE
+{
+    iMSI                            [1] IMSI,
+    iMEI                            [2] IMEI OPTIONAL,
+    bearerID                        [3] EPSBearerID,
+    linkedBearerID                  [4] EPSBearerID OPTIONAL,
+    location                        [5] Location OPTIONAL,
+    aPN                             [6] APN OPTIONAL,
+    sGWIPAddress                    [7] IPAddress OPTIONAL,
+    messageCause                    [8] S8HRMessageCause
+}
+
+-- ================
+-- HR LI parameters
+
+-- ================
+
+N9HRMessageCause ::= ENUMERATED
+{
+    pDUSessionEstablished(1),
+    pDUSessionModified(2),
+    pDUSessionReleased(3),
+    updatedLocationAvailable(4),
+    sMFChanged(5),
+    other(6),
+    hRLIEnabled(7)
+}
+
+S8HRMessageCause ::= ENUMERATED
+{
+    bearerActivated(1),
+    bearerModified(2),
+    bearerDeleted(3),
+    pDNDisconnected(4),
+    updatedLocationAvailable(5),
+    sGWChanged(6),
+    other(7),
+    hRLIEnabled(8)
+}
+
 -- ==================
 -- 5G NEF definitions
 -- ==================
@@ -490,6 +737,26 @@ NEFExpectedUEBehaviourUpdate ::= SEQUENCE
     validityTime                          [12] Timestamp OPTIONAL
 }
 
+-- See clause 7.7.6.1.2 for details of this structure
+NEFAFSessionWithQoSProvision ::= SEQUENCE
+{
+    gPSI                                 [1] GPSI,
+    aFID                                 [2] AFID,
+    aFSessionWithQoSOpType               [3] AForASSessionWithQoSOpType,
+    aFSessionWithQoSSubscription         [4] SBIType OPTIONAL,
+    aFSessionWithQoSSubscriptionPatch    [5] SBIType OPTIONAL,
+    aFSessionWithQoSResponseCode         [6] AForASSessionWithQoSResponseCode
+}
+
+-- See clause 7.7.6.1.3 for details of this structure
+NEFAFSessionWithQoSNotification ::= SEQUENCE
+{
+    gPSI                                 [1] GPSI,
+    aFID                                 [2] AFID,
+    userPlaneNotificationData            [3] SBIType,
+    aForASSessionWithQoSResponseCode     [4] AForASSessionWithQoSResponseCode
+}
+
 -- ==========================
 -- Common SCEF/NEF parameters
 -- ==========================
@@ -598,6 +865,33 @@ ScheduledCommunicationType ::= ENUMERATED
     bidirectional(3)
 }
 
+AForASSessionWithQoSResponseCode ::= ENUMERATED
+{
+    oK200(1),
+    created201(2),
+    noContent204(3),
+    temporaryRedirect307(4),
+    permanentRedirect308(5),
+    badRequest400(6),
+    unauthorized401(7),
+    forbidden403(8),
+    notFound404(9),
+    notAcceptable406(10),
+    lengthRequired411(11),
+    unsupportedMediaType415(12),
+    tooManyRequests429(13),
+    internalServerError500(14),
+    serviceUnavailable503(15)
+}
+
+AForASSessionWithQoSOpType ::= ENUMERATED
+{
+    pOST(1),
+    pUT(2),
+    pATCH(3),
+    dELETE(4)
+}
+
 -- =================
 -- 5G NEF parameters
 -- =================
@@ -624,6 +918,7 @@ NEFReleaseCause ::= ENUMERATED
 AFID ::= UTF8String
 
 NEFID ::= UTF8String
+
 
 -- ==================
 -- SCEF definitions
@@ -779,6 +1074,28 @@ SCEFCommunicationPatternUpdate ::= SEQUENCE
     validityTime                          [14] Timestamp OPTIONAL
 }
 
+-- See clause 7.8.6.1.2 for details of this structure
+SCEFASSessionWithQoSProvision ::= SEQUENCE
+{
+    mSISDN                               [1] MSISDN OPTIONAL,
+    externalIdentifier                   [2] NAI OPTIONAL,
+    sCSASID                              [3] SCSASID,
+    aSSessionWithQoSOpType               [4] AForASSessionWithQoSOpType,
+    aSSessionWithQoSSubscription         [5] SBIType OPTIONAL,
+    aSSessionWithQoSSubscriptionPatch    [6] SBIType OPTIONAL,
+    aSSessionWithQoSResponseCode         [7] AForASSessionWithQoSResponseCode
+}
+
+-- See clause 7.8.6.1.3 for details of this structure
+SCEFASSessionWithQoSNotification ::= SEQUENCE
+{
+    mSISDN                               [1] MSISDN OPTIONAL,
+    externalIdentifier                   [2] NAI OPTIONAL,
+    sCSASID                              [3] SCSASID,
+    userPlaneNotificationData            [4] SBIType,
+    aSSessionWithQoSResponseCode         [5] AForASSessionWithQoSResponseCode
+}
+
 -- =================
 -- SCEF parameters
 -- =================
@@ -816,6 +1133,192 @@ EPSBearerID ::= INTEGER (0..255)
 
 APN ::= UTF8String
 
+-- =======================
+-- AKMA AAnF definitions
+-- =======================
+
+AAnFAnchorKeyRegister ::= SEQUENCE
+{
+    aKID                  [1] NAI,
+    sUPI                  [2] SUPI,
+    kAKMA                 [3] KAKMA OPTIONAL
+}
+
+AAnFKAKMAApplicationKeyGet ::= SEQUENCE
+{
+    type                  [1] KeyGetType,
+    aKID                  [2] NAI,
+    keyInfo               [3] AFKeyInfo
+}
+
+AAnFStartOfInterceptWithEstablishedAKMAKeyMaterial ::= SEQUENCE
+{
+    aKID                  [1] NAI,
+    kAKMA                 [2] KAKMA OPTIONAL,
+    aFKeyList             [3] SEQUENCE OF AFKeyInfo OPTIONAL
+}
+
+AAnFAKMAContextRemovalRecord ::= SEQUENCE
+{
+    aKID                  [1] NAI,
+    nFID                  [2] NFID
+}
+
+-- ======================
+-- AKMA common parameters
+-- ======================
+
+FQDN ::= UTF8String
+
+NFID ::= UTF8String
+
+UAProtocolID ::= OCTET STRING (SIZE(5))
+
+AKMAAFID ::= SEQUENCE
+{
+   aFFQDN                [1] FQDN,
+   uaProtocolID          [2] UAProtocolID
+}
+
+UAStarParams ::= CHOICE
+{
+   tls12                 [1] TLS12UAStarParams,
+   generic               [2] GenericUAStarParams
+}
+
+GenericUAStarParams ::= SEQUENCE
+{
+    genericClientParams [1] OCTET STRING,
+    genericServerParams [2] OCTET STRING
+}
+
+-- ===========================================
+-- Specific UaStarParams for TLS 1.2 (RFC5246)
+-- ===========================================
+
+TLSCipherType ::= ENUMERATED
+{
+    stream(1),
+    block(2),
+    aead(3)
+}
+
+TLSCompressionAlgorithm ::= ENUMERATED
+{
+   null(1),
+   deflate(2)
+}
+
+TLSPRFAlgorithm ::= ENUMERATED
+{
+   rfc5246(1)
+}
+
+TLSCipherSuite ::= SEQUENCE (SIZE(2)) OF INTEGER (0..255)
+
+TLS12UAStarParams ::= SEQUENCE
+{
+   preMasterSecret       [1] OCTET STRING (SIZE(48)) OPTIONAL,
+   masterSecret          [2] OCTET STRING (SIZE(48)),
+   pRFAlgorithm          [3] TLSPRFAlgorithm,
+   cipherSuite           [4] TLSCipherSuite,
+   cipherType            [5] TLSCipherType,
+   encKeyLength          [6] INTEGER (0..255),
+   blockLength           [7] INTEGER (0..255),
+   fixedIVLength         [8] INTEGER (0..255),
+   recordIVLength        [9] INTEGER (0..255),
+   macLength             [10] INTEGER (0..255),
+   macKeyLength          [11] INTEGER (0..255),
+   compressionAlgorithm  [12] TLSCompressionAlgorithm,
+   clientRandom          [13] OCTET STRING (SIZE(32)),
+   serverRandom          [14] OCTET STRING (SIZE(32)),
+   clientSequenceNumber  [15] INTEGER,
+   serverSequenceNumber  [16] INTEGER,
+   sessionID             [17] OCTET STRING (SIZE(0..32)),
+   tLSServerExtensions   [18] OCTET STRING (SIZE(0..65535)),
+   tLSClientExtensions   [19] OCTET STRING (SIZE(0..65535)) OPTIONAL
+}
+
+KAF ::= OCTET STRING
+
+KAKMA ::= OCTET STRING
+
+-- ====================
+-- AKMA AAnF parameters
+-- ====================
+
+KeyGetType ::= ENUMERATED
+{
+    internal(1),
+    external(2)
+}
+
+AFKeyInfo ::= SEQUENCE
+{
+    aFID                 [1] AKMAAFID,
+    kAF                  [2] KAF,
+    kAFExpTime           [3] KAFExpiryTime
+}
+
+-- =======================
+-- AKMA AF definitions
+-- =======================
+
+AFAKMAApplicationKeyRefresh ::= SEQUENCE
+{
+    aFID                  [1] AFID,
+    aKID                  [2] NAI,
+    kAF                   [3] KAF,
+    uaStarParams          [4] UAStarParams OPTIONAL
+}
+
+AFStartOfInterceptWithEstablishedAKMAApplicationKey ::= SEQUENCE
+{
+    aFID                  [1] FQDN,
+    aKID                  [2] NAI,
+    kAFParamList          [3] SEQUENCE OF AFSecurityParams
+}
+
+AFAuxiliarySecurityParameterEstablishment ::= SEQUENCE
+{
+    aFSecurityParams      [1] AFSecurityParams
+}
+
+AFSecurityParams ::= SEQUENCE
+{
+    aFID                  [1] AFID,
+    aKID                  [2] NAI,
+    kAF                   [3] KAF,
+    uaStarParams          [4] UAStarParams
+}
+
+AFApplicationKeyRemoval ::= SEQUENCE
+{
+    aFID                  [1] AFID,
+    aKID                  [2] NAI,
+    removalCause          [3] AFKeyRemovalCause
+}
+
+-- ===================
+-- AKMA AF parameters
+-- ===================
+
+KAFParams ::= SEQUENCE
+{
+    aKID                 [1] NAI,
+    kAF                  [2] KAF,
+    kAFExpTime           [3] KAFExpiryTime,
+    uaStarParams         [4] UAStarParams
+}
+
+KAFExpiryTime ::= GeneralizedTime
+
+AFKeyRemovalCause ::= ENUMERATED
+{
+    unknown(1),
+    keyExpiry(2),
+    applicationSpecific(3)
+}
 
 -- ==================
 -- 5G AMF definitions
@@ -824,20 +1327,32 @@ APN ::= UTF8String
 -- See clause 6.2.2.2.2 for details of this structure
 AMFRegistration ::= SEQUENCE
 {
-    registrationType            [1] AMFRegistrationType,
-    registrationResult          [2] AMFRegistrationResult,
-    slice                       [3] Slice OPTIONAL,
-    sUPI                        [4] SUPI,
-    sUCI                        [5] SUCI OPTIONAL,
-    pEI                         [6] PEI OPTIONAL,
-    gPSI                        [7] GPSI OPTIONAL,
-    gUTI                        [8] FiveGGUTI,
-    location                    [9] Location OPTIONAL,
-    non3GPPAccessEndpoint       [10] UEEndpointAddress OPTIONAL,
-    fiveGSTAIList               [11] TAIList OPTIONAL,
-    sMSOverNasIndicator         [12] SMSOverNASIndicator OPTIONAL,
-    oldGUTI                     [13] EPS5GGUTI OPTIONAL,
-    eMM5GRegStatus              [14] EMM5GMMStatus OPTIONAL
+    registrationType                [1] AMFRegistrationType,
+    registrationResult              [2] AMFRegistrationResult,
+    slice                           [3] Slice OPTIONAL,
+    sUPI                            [4] SUPI,
+    sUCI                            [5] SUCI OPTIONAL,
+    pEI                             [6] PEI OPTIONAL,
+    gPSI                            [7] GPSI OPTIONAL,
+    gUTI                            [8] FiveGGUTI,
+    location                        [9] Location OPTIONAL,
+    non3GPPAccessEndpoint           [10] UEEndpointAddress OPTIONAL,
+    fiveGSTAIList                   [11] TAIList OPTIONAL,
+    sMSOverNasIndicator             [12] SMSOverNASIndicator OPTIONAL,
+    oldGUTI                         [13] EPS5GGUTI OPTIONAL,
+    eMM5GRegStatus                  [14] EMM5GMMStatus OPTIONAL,
+    nonIMEISVPEI                    [15] NonIMEISVPEI OPTIONAL,
+    mACRestIndicator                [16] MACRestrictionIndicator OPTIONAL,
+    pagingRestrictionIndicator      [17] PagingRestrictionIndicator OPTIONAL,
+    rATType                         [18] RATType OPTIONAL,
+    rRCEstablishmentCause           [19] RRCEstablishmentCause OPTIONAL,
+    nGInformation                   [20] NGInformation OPTIONAL,
+    nASTransportInitialInformation  [21] NASTransportInitialInformation OPTIONAL,
+    sORTransparentContainer         [22] SORTransparentContainer OPTIONAL,
+    equivalentPLMNList              [23] PLMNList OPTIONAL,
+    fiveGMMCapability               [24] FiveGMMCapability OPTIONAL,
+    initialRANUEContextSetup        [25] InitialRANUEContextSetup OPTIONAL,
+    mUSIMUERequestType              [26] MUSIMUERequestType OPTIONAL
 }
 
 -- See clause 6.2.2.2.3 for details of this structure
@@ -886,7 +1401,9 @@ AMFStartOfInterceptionWithRegisteredUE ::= SEQUENCE
     fiveGSTAIList               [12] TAIList OPTIONAL,
     sMSOverNASIndicator         [13] SMSOverNASIndicator OPTIONAL,
     oldGUTI                     [14] EPS5GGUTI OPTIONAL,
-    eMM5GRegStatus              [15] EMM5GMMStatus OPTIONAL
+    eMM5GRegStatus              [15] EMM5GMMStatus OPTIONAL,
+    sORTransparentContainer     [16] SORTransparentContainer OPTIONAL,
+    uEPolicy                    [17] UEPolicy OPTIONAL
 }
 
 -- See clause 6.2.2.2.6 for details of this structure
@@ -901,6 +1418,99 @@ AMFUnsuccessfulProcedure ::= SEQUENCE
     gPSI                        [7] GPSI OPTIONAL,
     gUTI                        [8] FiveGGUTI OPTIONAL,
     location                    [9] Location OPTIONAL
+}
+
+-- See clause 6.2.2.2.8 on for details of this structure
+AMFPositioningInfoTransfer ::= SEQUENCE
+{
+    sUPI                        [1] SUPI,
+    sUCI                        [2] SUCI OPTIONAL,
+    pEI                         [3] PEI OPTIONAL,
+    gPSI                        [4] GPSI OPTIONAL,
+    gUTI                        [5] FiveGGUTI OPTIONAL,
+    nRPPaMessage                [6] OCTET STRING OPTIONAL,
+    lPPMessage                  [7] OCTET STRING OPTIONAL,
+    lcsCorrelationId            [8] UTF8String (SIZE(1..255))
+}
+
+-- See clause 6.2.2.2.9.2 for details of this structure
+AMFRANHandoverCommand ::= SEQUENCE
+{
+    userIdentifiers              [1] UserIdentifiers,
+    aMFUENGAPID                  [2] AMFUENGAPID,
+    rANUENGAPID                  [3] RANUENGAPID,
+    handoverType                 [4] HandoverType,
+    targetToSourceContainer      [5] RANTargetToSourceContainer
+}
+
+-- See clause 6.2.2.2.9.3 for details of this structure
+AMFRANHandoverRequest ::= SEQUENCE
+{
+    userIdentifiers                     [1] UserIdentifiers,
+    aMFUENGAPID                         [2] AMFUENGAPID,
+    rANUENGAPID                         [3] RANUENGAPID,
+    handoverType                        [4] HandoverType,
+    handoverCause                       [5] HandoverCause,
+    pDUSessionResourceInformation       [6] PDUSessionResourceInformation,
+    mobilityRestrictionList             [7] MobilityRestrictionList OPTIONAL,
+    locationReportingRequestType        [8] LocationReportingRequestType OPTIONAL,
+    targetToSourceContainer             [9] RANTargetToSourceContainer,
+    nPNAccessInformation                [10] NPNAccessInformation OPTIONAL,
+    sourceToTargetContainer             [11] RANSourceToTargetContainer
+}
+
+--See clause 6.2.2.2.10 on for details of this structure
+AMFUEConfigurationUpdate ::= SEQUENCE
+{
+    userIdentifiers     [1] UserIdentifiers,
+    gUTI                [2] GUTI,
+    oldGUTI             [3] EPS5GGUTI OPTIONAL,
+    fiveGSTAIList       [4] TAIList OPTIONAL,
+    slice               [5] Slice OPTIONAL,
+    serviceAreaList     [6] ServiceAreaList OPTIONAL,
+    registrationResult  [7] AMFRegistrationResult OPTIONAL,
+    sMSOverNASIndicator [8] SMSOverNASIndicator OPTIONAL
+}
+
+-- See clause 6.2.2.2.10.2 for details of this structure
+AMFRANTraceReport ::= SEQUENCE
+{
+    userIdentifiers             [1] UserIdentifiers,
+    aMFUENGAPID                 [2] AMFUENGAPID,
+    rANUENGAPID                 [3] RANUENGAPID,
+    traceRecordType             [4] TraceRecordType,
+    traceDirection              [5] TraceDirection,
+    traceActivationInfo         [6] TraceActivationInfo OPTIONAL,
+    nGRANCGI                    [7] NCGI,
+    globalRANNodeID             [8] GlobalRANNodeID,
+    traceCollectionEntityInfo   [9] TraceCollectionEntityInfo OPTIONAL,
+    aMFTraceData                [10] XMLType,
+    location                    [11] Location OPTIONAL
+}
+
+-- See clause 6.2.2.2.12 for details of this Structure
+AMFUEPolicyTransfer ::= SEQUENCE
+{
+    sUPI                            [1] SUPI,
+    sUCI                            [2] SUCI OPTIONAL,
+    pEI                             [3] PEI OPTIONAL,
+    gPSI                            [4] GPSI OPTIONAL,
+    gUTI                            [5] FiveGGUTI OPTIONAL,
+    uEPolicy                        [6] UEPolicy
+}
+
+-- See clause 6.2.2.2.12 for details of this structure
+AMFUEServiceAccept ::= SEQUENCE
+{
+    userIdentifiers                [1] UserIdentifiers,
+    serviceMessageIdentity         [2] ServiceMessageIdentity,
+    serviceType                    [3] OCTET STRING (SIZE(1)) OPTIONAL,
+    fiveGTMSI                      [4] FiveGTMSI OPTIONAL,
+    uplinkDataStatus               [5] OCTET STRING (SIZE(2..32)) OPTIONAL,
+    pDUSessionStatus               [6] OCTET STRING (SIZE(2..32)) OPTIONAL,
+    uERequestType                  [7] FiveGSMRequestType OPTIONAL,
+    pagingRestriction              [8] PagingRestrictionIndicator OPTIONAL,
+    forbiddenTAIList               [9] TAIList OPTIONAL
 }
 
 -- =================
@@ -949,10 +1559,268 @@ AMFRegistrationType ::= ENUMERATED
     initial(1),
     mobility(2),
     periodic(3),
-    emergency(4)
+    emergency(4),
+    sNPNOnboarding(5),
+    disasterMobility(6),
+    disasterInitial(7)
 }
 
 AMFSetID ::= INTEGER (0..1023)
+
+AMFUENGAPID ::= INTEGER (0..1099511627775)
+
+AreaScopeOfMDT ::= CHOICE
+{
+    cellBased         [1] SEQUENCE (SIZE(1..MAX)) OF CellID,
+    tABased           [2] SEQUENCE (SIZE(1..MAX)) OF TAC,
+    pLMNWide          [3] PLMNID,
+    tAIBased          [4] SEQUENCE (SIZE(1..MAX)) OF TAI
+}
+
+MDTActivation ::= ENUMERATED
+{
+    immediateMDTOnly(1),
+    loggedMDTOnly(2),
+    immediateMDTandTrace(3)
+}
+
+MDTConfiguration ::= ENUMERATED
+{
+    mDTConfigurationNR(1),
+    mDTConfigurationEUTRA(2)
+}
+
+MDTConfigurationEUTRA ::= SEQUENCE
+{
+    mDTActivation                [1] MDTActivation,
+    areaScopeofMDT               [2] AreaScopeOfMDT,
+    mDTMode                      [3] MDTMode,
+    signallingBasedMDTPLMNList   [4] PLMNList
+}
+
+MDTConfigurationNR ::= SEQUENCE
+{
+    mDTActivation                 [1] MDTActivation,
+    areaScopeofMDT                [2] AreaScopeOfMDT,
+    mDTModeNR                     [3] MDTMode,
+    signallingBasedMDTPLMNList    [4] PLMNList
+}
+
+-- TS 38.413 [23], clause 9.3.1.169
+MDTMode ::= CHOICE
+{
+    immediateMDT      [1] OCTET STRING,
+    loggedMDT         [2] OCTET STRING
+}
+
+-- TS 24.501 [13], clause 9.11.3.49
+ServiceAreaList ::= OCTET STRING (SIZE(4..112))
+
+ServiceMessageIdentity ::= CHOICE
+{
+    serviceRequest    [1] OCTET STRING,
+    serviceAccept     [2] OCTET STRING
+}
+
+TraceActivationInfo ::= SEQUENCE
+{
+    nGRANTraceID                     [1] OCTET STRING (SIZE(8)),
+    interfacestoTrace                [2] BIT STRING (SIZE(8)),
+    traceDepth                       [3] TraceDepth,
+    traceCollectionEntityIPAddress   [4] IPAddress,
+    mDTConfiguration                 [5] MDTConfiguration OPTIONAL
+}
+
+TraceCollectionEntityInfo ::= SEQUENCE
+{
+    traceCollectionEntityIPAddress   [1] BIT STRING (SIZE(1..160, ...)),
+    traceCollectionEntityURI         [2] UTF8String
+}
+
+-- TS 32.423 [112], clause 5.3
+TraceDepth ::= ENUMERATED
+{
+    minimum(1),
+    medium(2),
+    maximum(3),
+    minimumWithoutVendorSpecificExtension(4),
+    mediumWithoutVendorSpecificExtension(5),
+    maximumWithoutVendorSpecificExtension(6)
+}
+
+TraceDirection ::= ENUMERATED
+{
+    toAMF(1),
+    fromAMF(2)
+}
+
+TraceRecordType ::= ENUMERATED
+{
+    traceStart(1),
+    cellTrafficTrace(2),
+    traceDataDelivery(3),
+    traceDeactivation(4)
+}
+
+NASTransportInitialInformation ::= SEQUENCE
+{
+    rANUENGAPID             [1] RANUENGAPID,
+    iABNodeIndication       [2] BOOLEAN OPTIONAL,
+    eDTSession              [3] BOOLEAN OPTIONAL,
+    authenticatedIndication [4] BOOLEAN OPTIONAL,
+    nPNAccessInformation    [5] CellCAGList OPTIONAL,
+    rEDCAPIndication        [6] REDCAPIndication OPTIONAL
+}
+
+NGInformation ::= SEQUENCE
+{
+    globalRANNodeID        [1] GlobalRANNodeID,
+    rANNodeName            [2] RANNodeName OPTIONAL,
+    supportedTAList        [3] SupportedTAList OPTIONAL,
+    extendedRANNodeName    [4] RANNodeName OPTIONAL,
+    pLMNSupportList        [5] PLMNSupportList,
+    iABSupported           [6] BOOLEAN OPTIONAL
+}
+
+PLMNSupportList ::= SEQUENCE (SIZE(1..MAX)) OF PLMNSupportItem
+
+PLMNSupportItem ::= SEQUENCE
+{
+    pLMNIdentity        [1] PLMNID,
+    nPNSupport          [2] NID OPTIONAL,
+    onboardingSupport   [3] BOOLEAN OPTIONAL
+}
+
+F1Information ::= SEQUENCE
+{
+    gNBDUID            [1] INTEGER (0..68719476735),
+    gNBDUName          [2] UTF8String OPTIONAL,
+    gNBCUName          [3] UTF8String OPTIONAL,
+    gNBDUServedCells   [4] SEQUENCE (SIZE(1..MAX)) OF RANCGI,
+    extendedGNBDUName  [5] UTF8String OPTIONAL,
+    extendedGNBCUName  [6] UTF8String OPTIONAL
+}
+
+REDCAPIndication ::= ENUMERATED
+{
+    redCAP(1)
+}
+
+RRCEstablishmentCause ::= CHOICE
+{
+    ePCEstablishmentCause    [1] EstablishmentCause,
+    fiveGCEstablishmentCause [2] EstablishmentCause
+}
+
+EstablishmentCause ::= ENUMERATED
+{
+    emergency(1),
+    highPriorityAccess(2),
+    mtAccess(3),
+    moSignalling(4),
+    moData(5),
+    moVoiceCall(6),
+    moVideoCall(7),
+    moSMS(8),
+    mpsPriorityAccess(9),
+    mcsPriorityAccess(10),
+    notAvailable(11),
+    exceptionData(12)
+}
+
+SORTransparentContainer ::= OCTET STRING (SIZE (17..65535))
+
+UEPolicy ::= OCTET STRING (SIZE(16..65540))
+
+InitialRANUEContextSetup ::= SEQUENCE
+{
+    aMFUENGAPID                          [1] AMFUENGAPID,
+    rANUENGAPID                          [2] RANUENGAPID,
+    oldAMF                               [3] GUAMI OPTIONAL,
+    pDUSessionSetupRequest               [4] SEQUENCE (SIZE(1..MAX)) OF PDUSessionSetupRequestItem,
+    allowedNSSAI                         [5] AllowedNSSAI,
+    mobilityRestrictionList              [6] MobilityRestrictionList OPTIONAL,
+    uERadioCapability                    [7] UERadioCapability OPTIONAL,
+    rATFrequencySelectionPriority        [8] RATFrequencySelectionPriority OPTIONAL,
+    uERadioCapabilityForPaging           [9] UERadioCapabilityForPaging OPTIONAL,
+    iABAuthorizedIndicator               [10] IABAuthorizedIndicator OPTIONAL,
+    nRV2XServicesAuthorization           [11] NRV2XServicesAuthorization OPTIONAL,
+    lTEV2XServiceAuthorization           [12] LTEV2XServiceAuthorization OPTIONAL,
+    rGLevelWirelineAccessCharacteristics [13] OCTET STRING OPTIONAL,
+    uERadioCapabilityID                  [14] OCTET STRING OPTIONAL,
+    targetNSSAIInfo                      [15] TargetNSSAIInfo OPTIONAL,
+    fiveGProSeAuthorizationIndication    [16] FiveGProSeAuthorizationIndication OPTIONAL
+}
+
+PDUSessionSetupRequestItem ::= SEQUENCE
+{
+    pDUSessionID [1] PDUSessionID,
+    sNSSAI       [2] SNSSAI
+}
+
+UERadioCapability ::= SEQUENCE
+{
+    uERadioCapibilityNR    [1] OCTET STRING OPTIONAL,
+    uERadioCapabilityEUTRA [2] OCTET STRING OPTIONAL
+}
+
+UERadioCapabilityForPaging ::= SEQUENCE
+{
+    uERadioCapabilityForPagingOfNR    [1] OCTET STRING OPTIONAL,
+    uERadioCapabilityForPagingOfEUTRA [2] OCTET STRING OPTIONAL,
+    uERadioCapabilityForPagingOfNBIoT [3] OCTET STRING OPTIONAL
+}
+
+NRV2XServicesAuthorization ::= SEQUENCE
+{
+    v2XVehicleUEAuthorizationIndicator    [1] V2XUEAuthorizationIndicator OPTIONAL,
+    v2XPedestrianUEAuthorizationIndicator [2] V2XUEAuthorizationIndicator OPTIONAL
+}
+
+LTEV2XServiceAuthorization ::= SEQUENCE
+{
+    v2XVehicleUEAuthorizationIndicator    [1] V2XUEAuthorizationIndicator OPTIONAL,
+    v2XPedestrianUEAuthorizationIndicator [2] V2XUEAuthorizationIndicator OPTIONAL
+}
+
+TargetNSSAIInfo ::= SEQUENCE
+{
+    targetSNSSAIList              [1] NSSAI,
+    rATFrequencySelectionPriority [2] RATFrequencySelectionPriority
+}
+
+FiveGProSeAuthorizationIndication ::= SEQUENCE
+{
+    fiveGProSeDirectDiscovery     [1] FiveGProSeAuthorizationIndicator OPTIONAL,
+    fiveGProSeDirectCommunication [2] FiveGProSeAuthorizationIndicator OPTIONAL,
+    fiveGProSeL2UEToNetworkRelay  [3] FiveGProSeAuthorizationIndicator OPTIONAL,
+    fiveGProSeL3UEToNetworkRelay  [4] FiveGProSeAuthorizationIndicator OPTIONAL,
+    fiveGProSeL2RemoteUE          [5] FiveGProSeAuthorizationIndicator OPTIONAL
+}
+
+IABAuthorizedIndicator ::= ENUMERATED
+{
+    authorized(1),
+    notAuthorized(2)
+}
+
+V2XUEAuthorizationIndicator ::= ENUMERATED
+{
+    authorized(1),
+    notAuthorized(2)
+}
+
+FiveGProSeAuthorizationIndicator ::= ENUMERATED
+{
+    authorized(1),
+    notAuthorized(2)
+}
+
+MUSIMUERequestType ::= OCTET STRING (SIZE(1))
+
+RATFrequencySelectionPriority ::= INTEGER (1..256)
+
+FiveGMMCapability ::= OCTET STRING (SIZE(1..13))
 
 -- ==================
 -- 5G SMF definitions
@@ -961,25 +1829,33 @@ AMFSetID ::= INTEGER (0..1023)
 -- See clause 6.2.3.2.2 for details of this structure
 SMFPDUSessionEstablishment ::= SEQUENCE
 {
-    sUPI                        [1] SUPI OPTIONAL,
-    sUPIUnauthenticated         [2] SUPIUnauthenticatedIndication OPTIONAL,
-    pEI                         [3] PEI OPTIONAL,
-    gPSI                        [4] GPSI OPTIONAL,
-    pDUSessionID                [5] PDUSessionID,
-    gTPTunnelID                 [6] FTEID,
-    pDUSessionType              [7] PDUSessionType,
-    sNSSAI                      [8] SNSSAI OPTIONAL,
-    uEEndpoint                  [9] SEQUENCE OF UEEndpointAddress OPTIONAL,
-    non3GPPAccessEndpoint       [10] UEEndpointAddress OPTIONAL,
-    location                    [11] Location OPTIONAL,
-    dNN                         [12] DNN,
-    aMFID                       [13] AMFID OPTIONAL,
-    hSMFURI                     [14] HSMFURI OPTIONAL,
-    requestType                 [15] FiveGSMRequestType,
-    accessType                  [16] AccessType OPTIONAL,
-    rATType                     [17] RATType OPTIONAL,
-    sMPDUDNRequest              [18] SMPDUDNRequest OPTIONAL,
-    uEEPSPDNConnection          [19] UEEPSPDNConnection OPTIONAL
+    sUPI                          [1] SUPI OPTIONAL,
+    sUPIUnauthenticated           [2] SUPIUnauthenticatedIndication OPTIONAL,
+    pEI                           [3] PEI OPTIONAL,
+    gPSI                          [4] GPSI OPTIONAL,
+    pDUSessionID                  [5] PDUSessionID,
+    gTPTunnelID                   [6] FTEID,
+    pDUSessionType                [7] PDUSessionType,
+    sNSSAI                        [8] SNSSAI OPTIONAL,
+    uEEndpoint                    [9] SEQUENCE OF UEEndpointAddress OPTIONAL,
+    non3GPPAccessEndpoint         [10] UEEndpointAddress OPTIONAL,
+    location                      [11] Location OPTIONAL,
+    dNN                           [12] DNN,
+    aMFID                         [13] AMFID OPTIONAL,
+    hSMFURI                       [14] HSMFURI OPTIONAL,
+    requestType                   [15] FiveGSMRequestType,
+    accessType                    [16] AccessType OPTIONAL,
+    rATType                       [17] RATType OPTIONAL,
+    sMPDUDNRequest                [18] SMPDUDNRequest OPTIONAL,
+    uEEPSPDNConnection            [19] UEEPSPDNConnection OPTIONAL,
+    ePS5GSComboInfo               [20] EPS5GSComboInfo OPTIONAL,
+    selectedDNN                   [21] DNN OPTIONAL,
+    servingNetwork                [22] SMFServingNetwork OPTIONAL,
+    oldPDUSessionID               [23] PDUSessionID OPTIONAL,
+    handoverState                 [24] HandoverState OPTIONAL,
+    gTPTunnelInfo                 [25] GTPTunnelInfo OPTIONAL,
+    pCCRules                      [26] PCCRuleSet OPTIONAL,
+    ePSPDNConnectionEstablishment [27] EPSPDNConnectionEstablishment OPTIONAL
 }
 
 -- See clause 6.2.3.2.3 for details of this structure
@@ -995,7 +1871,16 @@ SMFPDUSessionModification ::= SEQUENCE
     requestType                 [8] FiveGSMRequestType,
     accessType                  [9] AccessType OPTIONAL,
     rATType                     [10] RATType OPTIONAL,
-    pDUSessionID                [11] PDUSessionID OPTIONAL
+    pDUSessionID                [11] PDUSessionID OPTIONAL,
+    ePS5GSComboInfo             [12] EPS5GSComboInfo OPTIONAL,
+    uEEndpoint                  [13] UEEndpointAddress OPTIONAL,
+    servingNetwork              [14] SMFServingNetwork OPTIONAL,
+    handoverState               [15] HandoverState OPTIONAL,
+    gTPTunnelInfo               [16] GTPTunnelInfo OPTIONAL,
+    pCCRules                    [17] PCCRuleSet OPTIONAL,
+    ePSPDNConnectionModification[18] EPSPDNConnectionModification OPTIONAL,
+    uPPathChange                [19] UPPathChange OPTIONAL,
+    pFDDataForApp               [20] PFDDataForApp OPTIONAL
 }
 
 -- See clause 6.2.3.2.4 for details of this structure
@@ -1010,31 +1895,43 @@ SMFPDUSessionRelease ::= SEQUENCE
     uplinkVolume                [7] INTEGER OPTIONAL,
     downlinkVolume              [8] INTEGER OPTIONAL,
     location                    [9] Location OPTIONAL,
-    cause                       [10] SMFErrorCodes OPTIONAL
+    cause                       [10] SMFErrorCodes OPTIONAL,
+    ePS5GSComboInfo             [11] EPS5GSComboInfo OPTIONAL,
+    nGAPCause                   [12] NGAPCauseInt OPTIONAL,
+    fiveGMMCause                [13] FiveGMMCause OPTIONAL,
+    pCCRuleIDs                  [14] PCCRuleIDSet OPTIONAL,
+    ePSPDNConnectionRelease     [15] EPSPDNConnectionRelease OPTIONAL
 }
 
 -- See clause 6.2.3.2.5 for details of this structure
 SMFStartOfInterceptionWithEstablishedPDUSession ::= SEQUENCE
 {
-    sUPI                        [1] SUPI OPTIONAL,
-    sUPIUnauthenticated         [2] SUPIUnauthenticatedIndication OPTIONAL,
-    pEI                         [3] PEI OPTIONAL,
-    gPSI                        [4] GPSI OPTIONAL,
-    pDUSessionID                [5] PDUSessionID,
-    gTPTunnelID                 [6] FTEID,
-    pDUSessionType              [7] PDUSessionType,
-    sNSSAI                      [8] SNSSAI OPTIONAL,
-    uEEndpoint                  [9] SEQUENCE OF UEEndpointAddress,
-    non3GPPAccessEndpoint       [10] UEEndpointAddress OPTIONAL,
-    location                    [11] Location OPTIONAL,
-    dNN                         [12] DNN,
-    aMFID                       [13] AMFID OPTIONAL,
-    hSMFURI                     [14] HSMFURI OPTIONAL,
-    requestType                 [15] FiveGSMRequestType,
-    accessType                  [16] AccessType OPTIONAL,
-    rATType                     [17] RATType OPTIONAL,
-    sMPDUDNRequest              [18] SMPDUDNRequest OPTIONAL,
-    timeOfSessionEstablishment  [19] Timestamp OPTIONAL
+    sUPI                                               [1] SUPI OPTIONAL,
+    sUPIUnauthenticated                                [2] SUPIUnauthenticatedIndication OPTIONAL,
+    pEI                                                [3] PEI OPTIONAL,
+    gPSI                                               [4] GPSI OPTIONAL,
+    pDUSessionID                                       [5] PDUSessionID,
+    gTPTunnelID                                        [6] FTEID,
+    pDUSessionType                                     [7] PDUSessionType,
+    sNSSAI                                             [8] SNSSAI OPTIONAL,
+    uEEndpoint                                         [9] SEQUENCE OF UEEndpointAddress,
+    non3GPPAccessEndpoint                              [10] UEEndpointAddress OPTIONAL,
+    location                                           [11] Location OPTIONAL,
+    dNN                                                [12] DNN,
+    aMFID                                              [13] AMFID OPTIONAL,
+    hSMFURI                                            [14] HSMFURI OPTIONAL,
+    requestType                                        [15] FiveGSMRequestType,
+    accessType                                         [16] AccessType OPTIONAL,
+    rATType                                            [17] RATType OPTIONAL,
+    sMPDUDNRequest                                     [18] SMPDUDNRequest OPTIONAL,
+    timeOfSessionEstablishment                         [19] Timestamp OPTIONAL,
+    ePS5GSComboInfo                                    [20] EPS5GSComboInfo OPTIONAL,
+    uEEPSPDNConnection                                 [21] UEEPSPDNConnection OPTIONAL,
+    servingNetwork                                     [22] SMFServingNetwork OPTIONAL,
+    gTPTunnelInfo                                      [23] GTPTunnelInfo OPTIONAL,
+    pCCRules                                           [24] PCCRuleSet OPTIONAL,
+    ePSStartOfInterceptionWithEstablishedPDNConnection [25] EPSStartOfInterceptionWithEstablishedPDNConnection OPTIONAL,
+    pFDDataForApps                                     [26] PFDDataForApps OPTIONAL
 }
 
 -- See clause 6.2.3.2.6 for details of this structure
@@ -1064,66 +1961,83 @@ SMFUnsuccessfulProcedure ::= SEQUENCE
 -- See clause 6.2.3.2.8 for details of this structure
 SMFPDUtoMAPDUSessionModification ::= SEQUENCE
 {
-    sUPI                        [1] SUPI OPTIONAL,
-    sUPIUnauthenticated         [2] SUPIUnauthenticatedIndication OPTIONAL,
-    pEI                         [3] PEI OPTIONAL,
-    gPSI                        [4] GPSI OPTIONAL,
-    sNSSAI                      [5] SNSSAI OPTIONAL,
-    non3GPPAccessEndpoint       [6] UEEndpointAddress OPTIONAL,
-    location                    [7] Location OPTIONAL,
-    requestType                 [8] FiveGSMRequestType,
-    accessType                  [9] AccessType OPTIONAL,
-    rATType                     [10] RATType OPTIONAL,
-    pDUSessionID                [11] PDUSessionID,
-    requestIndication           [12] RequestIndication,
-    aTSSSContainer              [13] ATSSSContainer
+    sUPI                         [1] SUPI OPTIONAL,
+    sUPIUnauthenticated          [2] SUPIUnauthenticatedIndication OPTIONAL,
+    pEI                          [3] PEI OPTIONAL,
+    gPSI                         [4] GPSI OPTIONAL,
+    sNSSAI                       [5] SNSSAI OPTIONAL,
+    non3GPPAccessEndpoint        [6] UEEndpointAddress OPTIONAL,
+    location                     [7] Location OPTIONAL,
+    requestType                  [8] FiveGSMRequestType,
+    accessType                   [9] AccessType OPTIONAL,
+    rATType                      [10] RATType OPTIONAL,
+    pDUSessionID                 [11] PDUSessionID,
+    requestIndication            [12] RequestIndication,
+    aTSSSContainer               [13] ATSSSContainer,
+    uEEndpoint                   [14] UEEndpointAddress OPTIONAL,
+    servingNetwork               [15] SMFServingNetwork OPTIONAL,
+    handoverState                [16] HandoverState OPTIONAL,
+    gTPTunnelInfo                [17] GTPTunnelInfo OPTIONAL,
+    ePSPDNConnectionModification [18] EPSPDNConnectionModification OPTIONAL
 }
 
 -- See clause 6.2.3.2.7.1 for details of this structure
 SMFMAPDUSessionEstablishment ::= SEQUENCE
 {
-    sUPI                        [1] SUPI OPTIONAL,
-    sUPIUnauthenticated         [2] SUPIUnauthenticatedIndication OPTIONAL,
-    pEI                         [3] PEI OPTIONAL,
-    gPSI                        [4] GPSI OPTIONAL,
-    pDUSessionID                [5] PDUSessionID,
-    pDUSessionType              [6] PDUSessionType,
-    accessInfo                  [7] SEQUENCE OF AccessInfo,
-    sNSSAI                      [8] SNSSAI OPTIONAL,
-    uEEndpoint                  [9] SEQUENCE OF UEEndpointAddress OPTIONAL,
-    location                    [10] Location OPTIONAL,
-    dNN                         [11] DNN,
-    aMFID                       [12] AMFID OPTIONAL,
-    hSMFURI                     [13] HSMFURI OPTIONAL,
-    requestType                 [14] FiveGSMRequestType,
-    sMPDUDNRequest              [15] SMPDUDNRequest OPTIONAL,
-    servingNetwork              [16] SMFServingNetwork,
-    oldPDUSessionID             [17] PDUSessionID OPTIONAL,
-    mAUpgradeIndication         [18] SMFMAUpgradeIndication OPTIONAL,
-    ePSPDNCnxInfo               [19] SMFEPSPDNCnxInfo OPTIONAL,
-    mAAcceptedIndication        [20] SMFMAAcceptedIndication,
-    aTSSSContainer              [21] ATSSSContainer OPTIONAL
+    sUPI                          [1] SUPI OPTIONAL,
+    sUPIUnauthenticated           [2] SUPIUnauthenticatedIndication OPTIONAL,
+    pEI                           [3] PEI OPTIONAL,
+    gPSI                          [4] GPSI OPTIONAL,
+    pDUSessionID                  [5] PDUSessionID,
+    pDUSessionType                [6] PDUSessionType,
+    accessInfo                    [7] SEQUENCE OF AccessInfo,
+    sNSSAI                        [8] SNSSAI OPTIONAL,
+    uEEndpoint                    [9] SEQUENCE OF UEEndpointAddress OPTIONAL,
+    location                      [10] Location OPTIONAL,
+    dNN                           [11] DNN,
+    aMFID                         [12] AMFID OPTIONAL,
+    hSMFURI                       [13] HSMFURI OPTIONAL,
+    requestType                   [14] FiveGSMRequestType,
+    sMPDUDNRequest                [15] SMPDUDNRequest OPTIONAL,
+    servingNetwork                [16] SMFServingNetwork,
+    oldPDUSessionID               [17] PDUSessionID OPTIONAL,
+    mAUpgradeIndication           [18] SMFMAUpgradeIndication OPTIONAL,
+    ePSPDNCnxInfo                 [19] SMFEPSPDNCnxInfo OPTIONAL,
+    mAAcceptedIndication          [20] SMFMAAcceptedIndication,
+    aTSSSContainer                [21] ATSSSContainer OPTIONAL,
+    uEEPSPDNConnection            [22] UEEPSPDNConnection OPTIONAL,
+    ePS5GSComboInfo               [23] EPS5GSComboInfo OPTIONAL,
+    selectedDNN                   [24] DNN OPTIONAL,
+    handoverState                 [25] HandoverState OPTIONAL,
+    pCCRules                      [26] PCCRuleSet OPTIONAL,
+    ePSPDNConnectionEstablishment [27] EPSPDNConnectionEstablishment OPTIONAL
 }
 
 -- See clause 6.2.3.2.7.2 for details of this structure
 SMFMAPDUSessionModification ::= SEQUENCE
 {
-    sUPI                        [1] SUPI OPTIONAL,
-    sUPIUnauthenticated         [2] SUPIUnauthenticatedIndication OPTIONAL,
-    pEI                         [3] PEI OPTIONAL,
-    gPSI                        [4] GPSI OPTIONAL,
-    pDUSessionID                [5] PDUSessionID,
-    accessInfo                  [6] SEQUENCE OF AccessInfo OPTIONAL,
-    sNSSAI                      [7] SNSSAI OPTIONAL,
-    location                    [8] Location OPTIONAL,
-    requestType                 [9] FiveGSMRequestType OPTIONAL,
-    servingNetwork              [10] SMFServingNetwork,
-    oldPDUSessionID             [11] PDUSessionID OPTIONAL,
-    mAUpgradeIndication         [12] SMFMAUpgradeIndication OPTIONAL,
-    ePSPDNCnxInfo               [13] SMFEPSPDNCnxInfo OPTIONAL,
-    mAAcceptedIndication        [14] SMFMAAcceptedIndication,
-    aTSSSContainer              [15] ATSSSContainer OPTIONAL
-
+    sUPI                         [1] SUPI OPTIONAL,
+    sUPIUnauthenticated          [2] SUPIUnauthenticatedIndication OPTIONAL,
+    pEI                          [3] PEI OPTIONAL,
+    gPSI                         [4] GPSI OPTIONAL,
+    pDUSessionID                 [5] PDUSessionID,
+    accessInfo                   [6] SEQUENCE OF AccessInfo OPTIONAL,
+    sNSSAI                       [7] SNSSAI OPTIONAL,
+    location                     [8] Location OPTIONAL,
+    requestType                  [9] FiveGSMRequestType OPTIONAL,
+    servingNetwork               [10] SMFServingNetwork,
+    oldPDUSessionID              [11] PDUSessionID OPTIONAL,
+    mAUpgradeIndication          [12] SMFMAUpgradeIndication OPTIONAL,
+    ePSPDNCnxInfo                [13] SMFEPSPDNCnxInfo OPTIONAL,
+    mAAcceptedIndication         [14] SMFMAAcceptedIndication,
+    aTSSSContainer               [15] ATSSSContainer OPTIONAL,
+    uEEPSPDNConnection           [16] UEEPSPDNConnection OPTIONAL,
+    ePS5GSComboInfo              [17] EPS5GSComboInfo OPTIONAL,
+    handoverState                [18] HandoverState OPTIONAL,
+    pCCRules                     [19] PCCRuleSet OPTIONAL,
+    uPPathChange                 [20] UPPathChange OPTIONAL,
+    pFDDataForApp                [21] PFDDataForApp OPTIONAL,
+    ePSPDNConnectionModification [22] EPSPDNConnectionModification OPTIONAL
 }
 
 -- See clause 6.2.3.2.7.3 for details of this structure
@@ -1138,33 +2052,42 @@ SMFMAPDUSessionRelease ::= SEQUENCE
     uplinkVolume                [7] INTEGER OPTIONAL,
     downlinkVolume              [8] INTEGER OPTIONAL,
     location                    [9] Location OPTIONAL,
-    cause                       [10] SMFErrorCodes OPTIONAL
+    cause                       [10] SMFErrorCodes OPTIONAL,
+    nGAPCause                   [11] NGAPCauseInt OPTIONAL,
+    fiveGMMCause                [12] FiveGMMCause OPTIONAL,
+    pCCRuleIDs                  [13] PCCRuleIDSet OPTIONAL,
+    ePSPDNConnectionRelease     [14] EPSPDNConnectionRelease OPTIONAL
 }
 
 -- See clause 6.2.3.2.7.4 for details of this structure
 SMFStartOfInterceptionWithEstablishedMAPDUSession ::= SEQUENCE
 {
-    sUPI                        [1] SUPI OPTIONAL,
-    sUPIUnauthenticated         [2] SUPIUnauthenticatedIndication OPTIONAL,
-    pEI                         [3] PEI OPTIONAL,
-    gPSI                        [4] GPSI OPTIONAL,
-    pDUSessionID                [5] PDUSessionID,
-    pDUSessionType              [6] PDUSessionType,
-    accessInfo                  [7] SEQUENCE OF AccessInfo,
-    sNSSAI                      [8] SNSSAI OPTIONAL,
-    uEEndpoint                  [9] SEQUENCE OF UEEndpointAddress OPTIONAL,
-    location                    [10] Location OPTIONAL,
-    dNN                         [11] DNN,
-    aMFID                       [12] AMFID OPTIONAL,
-    hSMFURI                     [13] HSMFURI OPTIONAL,
-    requestType                 [14] FiveGSMRequestType OPTIONAL,
-    sMPDUDNRequest              [15] SMPDUDNRequest OPTIONAL,
-    servingNetwork              [16] SMFServingNetwork,
-    oldPDUSessionID             [17] PDUSessionID OPTIONAL,
-    mAUpgradeIndication         [18] SMFMAUpgradeIndication OPTIONAL,
-    ePSPDNCnxInfo               [19] SMFEPSPDNCnxInfo OPTIONAL,
-    mAAcceptedIndication        [20] SMFMAAcceptedIndication,
-    aTSSSContainer              [21] ATSSSContainer OPTIONAL
+    sUPI                                               [1] SUPI OPTIONAL,
+    sUPIUnauthenticated                                [2] SUPIUnauthenticatedIndication OPTIONAL,
+    pEI                                                [3] PEI OPTIONAL,
+    gPSI                                               [4] GPSI OPTIONAL,
+    pDUSessionID                                       [5] PDUSessionID,
+    pDUSessionType                                     [6] PDUSessionType,
+    accessInfo                                         [7] SEQUENCE OF AccessInfo,
+    sNSSAI                                             [8] SNSSAI OPTIONAL,
+    uEEndpoint                                         [9] SEQUENCE OF UEEndpointAddress OPTIONAL,
+    location                                           [10] Location OPTIONAL,
+    dNN                                                [11] DNN,
+    aMFID                                              [12] AMFID OPTIONAL,
+    hSMFURI                                            [13] HSMFURI OPTIONAL,
+    requestType                                        [14] FiveGSMRequestType OPTIONAL,
+    sMPDUDNRequest                                     [15] SMPDUDNRequest OPTIONAL,
+    servingNetwork                                     [16] SMFServingNetwork,
+    oldPDUSessionID                                    [17] PDUSessionID OPTIONAL,
+    mAUpgradeIndication                                [18] SMFMAUpgradeIndication OPTIONAL,
+    ePSPDNCnxInfo                                      [19] SMFEPSPDNCnxInfo OPTIONAL,
+    mAAcceptedIndication                               [20] SMFMAAcceptedIndication,
+    aTSSSContainer                                     [21] ATSSSContainer OPTIONAL,
+    ePS5GSComboInfo                                    [22] EPS5GSComboInfo OPTIONAL,
+    uEEPSPDNConnection                                 [23] UEEPSPDNConnection OPTIONAL,
+    pCCRules                                           [24] PCCRuleSet OPTIONAL,
+    pFDDataForApps                                     [25] PFDDataForApps OPTIONAL,
+    ePSStartOfInterceptionWithEstablishedPDNConnection [26] EPSStartOfInterceptionWithEstablishedPDNConnection OPTIONAL
 }
 
 -- See clause 6.2.3.2.7.5 for details of this structure
@@ -1216,17 +2139,55 @@ AccessInfo ::= SEQUENCE
     gTPTunnelID           [3] FTEID,
     non3GPPAccessEndpoint [4] UEEndpointAddress OPTIONAL,
     establishmentStatus   [5] EstablishmentStatus,
-    aNTypeToReactivate    [6] AccessType OPTIONAL
+    aNTypeToReactivate    [6] AccessType OPTIONAL,
+    gTPTunnelInfo         [7] GTPTunnelInfo OPTIONAL
 }
 
 -- see Clause 6.1.2 of TS 24.193[44] for the details of the ATSSS container contents.
 ATSSSContainer ::= OCTET STRING
+
+DLRANTunnelInformation ::= SEQUENCE
+{
+    dLQOSFlowTunnelInformation                    [1] QOSFlowTunnelInformation OPTIONAL,
+    additionalDLQOSFlowTunnelInformation          [2] QOSFlowTunnelInformationList OPTIONAL,
+    redundantDLQOSFlowTunnelInformation           [3] QOSFlowTunnelInformationList OPTIONAL,
+    additionalredundantDLQOSFlowTunnelInformation [4] QOSFlowTunnelInformationList OPTIONAL
+}
 
 EstablishmentStatus ::= ENUMERATED
 {
     established(0),
     released(1)
 }
+
+FiveGSGTPTunnels ::= SEQUENCE
+{
+    uLNGUUPTunnelInformation           [1] FTEID OPTIONAL,
+    additionalULNGUUPTunnelInformation [2] FTEIDList OPTIONAL,
+    dLRANTunnelInformation             [3] DLRANTunnelInformation OPTIONAL
+}
+
+FiveQI ::= INTEGER (0..255)
+
+HandoverState ::= ENUMERATED
+{
+    none(1),
+    preparing(2),
+    prepared(3),
+    completed(4),
+    cancelled(5)
+}
+
+NGAPCauseInt ::= SEQUENCE
+{
+    group [1] NGAPCauseGroupInt,
+    value [2] NGAPCauseValueInt
+}
+
+-- Derived as described in TS 29.571 [17] clause 5.4.4.12
+NGAPCauseGroupInt ::= INTEGER
+
+NGAPCauseValueInt ::= INTEGER
 
 SMFMAUpgradeIndication ::= BOOLEAN
 
@@ -1253,6 +2214,543 @@ RequestIndication ::= ENUMERATED
     eBIASSIGNMENTREQ(6),
     rELDUETO5GANREQUEST(7)
 }
+
+QOSFlowTunnelInformation ::= SEQUENCE
+{
+    uPTunnelInformation   [1] FTEID,
+    associatedQOSFlowList [2] QOSFlowLists
+}
+
+QOSFlowTunnelInformationList ::= SEQUENCE OF QOSFlowTunnelInformation
+
+QOSFlowDescription ::= OCTET STRING
+
+QOSFlowLists ::= SEQUENCE OF QOSFlowList
+
+QOSFlowList ::= SEQUENCE
+{
+    qFI                      [1] QFI,
+    qOSRules                 [2] QOSRules OPTIONAL,
+    eBI                      [3] EPSBearerID OPTIONAL,
+    qOSFlowDescription       [4] QOSFlowDescription OPTIONAL,
+    qOSFlowProfile           [5] QOSFlowProfile OPTIONAL,
+    associatedANType         [6] AccessType OPTIONAL,
+    defaultQOSRuleIndication [7] BOOLEAN OPTIONAL
+}
+
+QOSFlowProfile ::= SEQUENCE
+{
+    fiveQI [1] FiveQI
+}
+
+QOSRules ::= OCTET STRING
+
+-- See clauses 5.6.2.6-1 and 5.6.2.9-1 of TS 29.512 [89], clause table 5.6.2.5-1 of TS 29.508 [90] for the details of this structure
+PCCRule ::= SEQUENCE
+{
+    pCCRuleID                     [1] PCCRuleID OPTIONAL,
+    appId                         [2] UTF8String OPTIONAL,
+    flowInfos                     [3] FlowInformationSet OPTIONAL,
+    appReloc                      [4] BOOLEAN OPTIONAL,
+    simConnInd                    [5] BOOLEAN OPTIONAL,
+    simConnTerm                   [6] INTEGER OPTIONAL,
+    maxAllowedUpLat               [7] INTEGER OPTIONAL,
+    trafficRoutes                 [8] RouteToLocationSet,
+    trafficSteeringPolIdDl        [9] UTF8String OPTIONAL,
+    trafficSteeringPolIdUl        [10] UTF8String OPTIONAL,
+    sourceDNAI                    [11] DNAI OPTIONAL,
+    targetDNAI                    [12] DNAI OPTIONAL,
+    dNAIChangeType                [13] DNAIChangeType OPTIONAL,
+    sourceUEIPAddr                [14] IPAddress OPTIONAL,
+    targetUEIPAddr                [15] IPAddress OPTIONAL,
+    sourceTrafficRouting          [16] RouteToLocation OPTIONAL,
+    targetTrafficRouting          [17] RouteToLocation OPTIONAL,
+    eASIPReplaceInfos             [18] EASIPReplaceInfos OPTIONAL
+}
+
+-- See clause table 5.6.2.5-1 of TS 29.508 [90] for the details of this structure.
+UPPathChange ::= SEQUENCE
+{
+    sourceDNAI                    [1] DNAI OPTIONAL,
+    targetDNAI                    [2] DNAI OPTIONAL,
+    dNAIChangeType                [3] DNAIChangeType OPTIONAL,
+    sourceUEIPAddr                [4] IPAddress OPTIONAL,
+    targetUEIPAddr                [5] IPAddress OPTIONAL,
+    sourceTrafficRouting          [6] RouteToLocation OPTIONAL,
+    targetTrafficRouting          [7] RouteToLocation OPTIONAL,
+    mACAddress                    [8] MACAddress OPTIONAL
+}
+
+-- See table 5.6.2.14-1 of TS 29.512 [89]
+PCCRuleID ::= UTF8String
+
+PCCRuleSet ::= SET OF PCCRule
+
+PCCRuleIDSet ::= SET OF PCCRuleID
+
+FlowInformationSet ::= SET OF FlowInformation
+
+RouteToLocationSet ::= SET OF RouteToLocation
+
+-- See table 5.6.2.14 of TS 29.512 [89]
+FlowInformation ::= SEQUENCE
+{
+    flowDescription    [1] FlowDescription OPTIONAL,
+    ethFlowDescription [2] EthFlowDescription OPTIONAL,
+    tosTrafficClass    [3] OCTET STRING (SIZE(2)) OPTIONAL,
+    spi                [4] OCTET STRING (SIZE(4)) OPTIONAL,
+    flowLabel          [5] OCTET STRING (SIZE(3)) OPTIONAL,
+    flowDirection      [6] FlowDirection OPTIONAL
+}
+
+-- See table 5.6.2.14 of TS 29.512 [89]
+FlowDescription ::= SEQUENCE
+{
+    sourceIPAddress       [1] IPAddressOrRangeOrAny,
+    destinationIPAddress  [2] IPAddressOrRangeOrAny,
+    sourcePortNumber      [3] PortNumber OPTIONAL,
+    destinationPortNumber [4] PortNumber OPTIONAL,
+    protocol              [5] NextLayerProtocolOrAny
+}
+
+IPAddressOrRangeOrAny ::= CHOICE
+{
+   iPAddress      [1] IPAddress,
+   ipAddressRange [2] IPMask,
+   anyIPAddress   [3] AnyIPAddress
+}
+
+IPMask ::= SEQUENCE
+{
+    fromIPAddress [1] IPAddress,
+    toIPAddress   [2] IPAddress
+}
+
+AnyIPAddress ::= ENUMERATED
+{
+    any(1)
+}
+
+NextLayerProtocolOrAny ::= CHOICE
+{
+   nextLayerProtocol    [1] NextLayerProtocol,
+   anyNextLayerProtocol [2] AnyNextLayerProtocol
+}
+
+AnyNextLayerProtocol ::= ENUMERATED
+{
+    ip(1)
+}
+
+-- See table 5.6.2.17-1 of TS 29.514 [91]
+EthFlowDescription ::= SEQUENCE
+{
+    destMacAddress    [1] MACAddress OPTIONAL,
+    ethType           [2] OCTET STRING (SIZE(2)),
+    fDesc             [3] FlowDescription OPTIONAL,
+    fDir              [4] FDir OPTIONAL,
+    sourceMacAddress  [5] MACAddress OPTIONAL,
+    vlanTags          [6] SET OF VLANTag,
+    srcMacAddrEnd     [7] MACAddress OPTIONAL,
+    destMacAddrEnd    [8] MACAddress OPTIONAL
+}
+
+-- See table 5.6.2.17-1 of TS 29.514 [91]
+FDir ::= ENUMERATED
+{
+    downlink(1)
+}
+
+-- See table 5.6.2.17-1 of TS 29.514 [91]
+VLANTag ::= SEQUENCE
+{
+    priority [1] BIT STRING (SIZE(3)),
+    cFI      [2] BIT STRING (SIZE(1)),
+    vLANID   [3] BIT STRING (SIZE(12))
+}
+
+-- See table 5.6.2.14 of TS 29.512 [89]
+FlowDirection ::= ENUMERATED
+{
+    downlinkOnly(1),
+    uplinkOnly(2),
+    dowlinkAndUplink(3)
+}
+
+-- See table 5.4.2.1 of TS 29.571 [17]
+DNAIChangeType ::= ENUMERATED
+{
+    early(1),
+    earlyAndLate(2),
+    late(3)
+}
+
+-- See table 5.6.2.15 of TS 29.571 [17]
+RouteToLocation ::= SEQUENCE
+{
+    dNAI            [1] DNAI,
+    routeInfo       [2] RouteInfo
+}
+
+-- See table 5.4.2.1 of TS 29.571 [17]
+DNAI ::= UTF8String
+
+-- See table 5.4.4.16 of TS 29.571 [17]
+RouteInfo ::= SEQUENCE
+{
+    iPAddressTunnelEndpoint       [1] IPAddress,
+    uDPPortNumberTunnelEndpoint   [2] PortNumber
+}
+
+-- See clause 4.1.4.2 of TS 29.512 [89]
+EASIPReplaceInfos ::= SEQUENCE
+{
+    sourceEASAddress [1] EASServerAddress,
+    targetEASAddress [2] EASServerAddress
+}
+
+-- See clause 4.1.4.2 of TS 29.512 [89]
+EASServerAddress ::= SEQUENCE
+{
+    iPAddress        [1]  IPAddress,
+    port             [2]  PortNumber
+}
+
+-- ================================
+-- PGW-C + SMF PDNConnection Events
+-- ================================
+
+EPSPDNConnectionEstablishment ::= SEQUENCE
+{
+    ePSSubscriberIDs                   [1] EPSSubscriberIDs,
+    iMSIUnauthenticated                [2] IMSIUnauthenticatedIndication OPTIONAL,
+    defaultBearerID                    [3] EPSBearerID,
+    gTPTunnelInfo                      [4] GTPTunnelInfo OPTIONAL,
+    pDNConnectionType                  [5] PDNConnectionType,
+    uEEndpoints                        [6] SEQUENCE OF UEEndpointAddress OPTIONAL,
+    non3GPPAccessEndpoint              [7] UEEndpointAddress OPTIONAL,
+    location                           [8] Location OPTIONAL,
+    additionalLocation                 [9] Location OPTIONAL,
+    aPN                                [10] APN,
+    requestType                        [11] EPSPDNConnectionRequestType OPTIONAL,
+    accessType                         [12] AccessType OPTIONAL,
+    rATType                            [13] RATType OPTIONAL,
+    protocolConfigurationOptions       [14] PDNProtocolConfigurationOptions OPTIONAL,
+    servingNetwork                     [15] SMFServingNetwork OPTIONAL,
+    sMPDUDNRequest                     [16] SMPDUDNRequest OPTIONAL,
+    bearerContextsCreated              [17] SEQUENCE OF EPSBearerContextCreated,
+    bearerContextsMarkedForRemoval     [18] SEQUENCE OF EPSBearerContextForRemoval OPTIONAL,
+    indicationFlags                    [19] PDNConnectionIndicationFlags OPTIONAL,
+    handoverIndication                 [20] PDNHandoverIndication OPTIONAL,
+    nBIFOMSupport                      [21] PDNNBIFOMSupport OPTIONAL,
+    fiveGSInterworkingInfo             [22] FiveGSInterworkingInfo OPTIONAL,
+    cSRMFI                             [23] CSRMFI OPTIONAL,
+    restorationOfPDNConnectionsSupport [24] RestorationOfPDNConnectionsSupport OPTIONAL,
+    pGWChangeIndication                [25] PGWChangeIndication OPTIONAL,
+    pGWRNSI                            [26] PGWRNSI OPTIONAL
+}
+
+EPSPDNConnectionModification ::= SEQUENCE
+{
+    ePSSubscriberIDs                   [1] EPSSubscriberIDs,
+    iMSIUnauthenticated                [2] IMSIUnauthenticatedIndication OPTIONAL,
+    defaultBearerID                    [3] EPSBearerID,
+    gTPTunnelInfo                      [4] GTPTunnelInfo OPTIONAL,
+    pDNConnectionType                  [5] PDNConnectionType,
+    uEEndpoints                        [6] SEQUENCE OF UEEndpointAddress OPTIONAL,
+    non3GPPAccessEndpoint              [7] UEEndpointAddress OPTIONAL,
+    location                           [8] Location OPTIONAL,
+    additionalLocation                 [9] Location OPTIONAL,
+    aPN                                [10] APN,
+    requestType                        [11] EPSPDNConnectionRequestType OPTIONAL,
+    accessType                         [12] AccessType OPTIONAL,
+    rATType                            [13] RATType OPTIONAL,
+    protocolConfigurationOptions       [14] PDNProtocolConfigurationOptions OPTIONAL,
+    servingNetwork                     [15] SMFServingNetwork OPTIONAL,
+    sMPDUDNRequest                     [16] SMPDUDNRequest OPTIONAL,
+    bearerContextsCreated              [17] SEQUENCE OF EPSBearerContextCreated OPTIONAL,
+    bearerContextsModified             [18] SEQUENCE OF EPSBearerContextModified,
+    bearerContextsMarkedForRemoval     [19] SEQUENCE OF EPSBearerContextForRemoval OPTIONAL,
+    bearersDeleted                     [20] SEQUENCE OF EPSBearersDeleted OPTIONAL,
+    indicationFlags                    [21] PDNConnectionIndicationFlags OPTIONAL,
+    handoverIndication                 [22] PDNHandoverIndication OPTIONAL,
+    nBIFOMSupport                      [23] PDNNBIFOMSupport OPTIONAL,
+    fiveGSInterworkingInfo             [24] FiveGSInterworkingInfo OPTIONAL,
+    cSRMFI                             [25] CSRMFI OPTIONAL,
+    restorationOfPDNConnectionsSupport [26] RestorationOfPDNConnectionsSupport OPTIONAL,
+    pGWChangeIndication                [27] PGWChangeIndication OPTIONAL,
+    pGWRNSI                            [28] PGWRNSI OPTIONAL
+}
+
+EPSPDNConnectionRelease ::= SEQUENCE
+{
+    ePSSubscriberIDs    [1] EPSSubscriberIDs,
+    iMSIUnauthenticated [2] IMSIUnauthenticatedIndication OPTIONAL,
+    defaultBearerID     [3] EPSBearerID,
+    location            [4] Location OPTIONAL,
+    gTPTunnelInfo       [5] GTPTunnelInfo OPTIONAL,
+    rANNASCause         [6] EPSRANNASCause OPTIONAL,
+    pDNConnectionType   [7] PDNConnectionType,
+    indicationFlags     [8] PDNConnectionIndicationFlags OPTIONAL,
+    scopeIndication     [9] EPSPDNConnectionReleaseScopeIndication OPTIONAL,
+    bearersDeleted      [10] SEQUENCE OF EPSBearersDeleted OPTIONAL
+}
+
+EPSStartOfInterceptionWithEstablishedPDNConnection ::= SEQUENCE
+{
+    ePSSubscriberIDs                   [1] EPSSubscriberIDs,
+    iMSIUnauthenticated                [2] IMSIUnauthenticatedIndication OPTIONAL,
+    defaultBearerID                    [3] EPSBearerID,
+    gTPTunnelInfo                      [4] GTPTunnelInfo OPTIONAL,
+    pDNConnectionType                  [5] PDNConnectionType,
+    uEEndpoints                        [6] SEQUENCE OF UEEndpointAddress OPTIONAL,
+    non3GPPAccessEndpoint              [7] UEEndpointAddress OPTIONAL,
+    location                           [8] Location OPTIONAL,
+    additionalLocation                 [9] Location OPTIONAL,
+    aPN                                [10] APN,
+    requestType                        [11] EPSPDNConnectionRequestType OPTIONAL,
+    accessType                         [12] AccessType OPTIONAL,
+    rATType                            [13] RATType OPTIONAL,
+    protocolConfigurationOptions       [14] PDNProtocolConfigurationOptions OPTIONAL,
+    servingNetwork                     [15] SMFServingNetwork OPTIONAL,
+    sMPDUDNRequest                     [16] SMPDUDNRequest OPTIONAL,
+    bearerContexts                     [17] SEQUENCE OF EPSBearerContext
+}
+
+PFDDataForApps ::= SET OF PFDDataForApp
+
+PFDDataForApp ::= SEQUENCE
+{
+    aPPId [1] UTF8String,
+    pFDs  [2] PFDs
+}
+
+PFDs ::= SET OF PFD
+
+-- See clause 5.6.2.5 of TS 29.551 [96]
+PFD ::= SEQUENCE
+{
+    pFDId                [1] UTF8String,
+    pFDFlowDescriptions  [2] PFDFlowDescriptions,
+    urls                 [3] PFDURLs,
+    domainNames          [4] DomainNames,
+    dnProtocol           [5] DnProtocol
+}
+
+PFDURLs ::= SET OF UTF8String
+
+PFDFlowDescriptions ::= SET OF PFDFlowDescription
+
+DomainNames ::= SET OF UTF8String
+
+PFDFlowDescription ::= SEQUENCE
+{
+    nextLayerProtocol [1] NextLayerProtocol,
+    serverIPAddress   [2] IPAddress,
+    serverPortNumber  [3] PortNumber
+}
+
+-- See clause 5.14.2.2.4 of TS 29.122 [63]
+DnProtocol ::= ENUMERATED
+{
+    dnsQname(1),
+    tlsSni(2),
+    tlsSan(3),
+    tlsScn(4)
+}
+
+-- ======================
+-- PGW-C + SMF Parameters
+-- ======================
+
+CSRMFI ::= BOOLEAN
+
+EPS5GSComboInfo ::= SEQUENCE
+{
+    ePSInterworkingIndication [1] EPSInterworkingIndication,
+    ePSSubscriberIDs          [2] EPSSubscriberIDs,
+    ePSPDNCnxInfo             [3] EPSPDNCnxInfo OPTIONAL,
+    ePSBearerInfo             [4] EPSBearerInfo OPTIONAL
+}
+
+EPSInterworkingIndication ::= ENUMERATED
+{
+    none(1),
+    withN26(2),
+    withoutN26(3),
+    iwkNon3GPP(4)
+}
+
+EPSSubscriberIDs ::= SEQUENCE
+{
+    iMSI   [1] IMSI OPTIONAL,
+    mSISDN [2] MSISDN OPTIONAL,
+    iMEI   [3] IMEI OPTIONAL
+}
+
+EPSPDNCnxInfo ::= SEQUENCE
+{
+    pGWS8ControlPlaneFTEID [1] FTEID,
+    linkedBearerID         [2] EPSBearerID OPTIONAL
+}
+
+EPSBearerInfo ::= SEQUENCE OF EPSBearers
+
+EPSBearers ::= SEQUENCE
+{
+    ePSBearerID         [1] EPSBearerID,
+    pGWS8UserPlaneFTEID [2] FTEID,
+    qCI                 [3] QCI
+}
+
+EPSBearerContext ::= SEQUENCE
+{
+    ePSBearerID     [1] EPSBearerID,
+    uPGTPTunnelInfo [2] GTPTunnelInfo,
+    bearerQOS       [3] EPSBearerQOS
+}
+
+EPSBearerContextCreated ::= SEQUENCE
+{
+    ePSBearerID                  [1] EPSBearerID,
+    cause                        [2] EPSBearerCreationCauseValue,
+    gTPTunnelInfo                [3] GTPTunnelInfo OPTIONAL,
+    bearerQOS                    [4] EPSBearerQOS OPTIONAL,
+    protocolConfigurationOptions [5] PDNProtocolConfigurationOptions OPTIONAL
+}
+
+EPSBearerContextModified ::= SEQUENCE
+{
+    ePSBearerID                  [1] EPSBearerID,
+    cause                        [2] EPSBearerModificationCauseValue,
+    gTPTunnelInfo                [3] GTPTunnelInfo OPTIONAL,
+    bearerQOS                    [4] EPSBearerQOS OPTIONAL,
+    protocolConfigurationOptions [5] PDNProtocolConfigurationOptions OPTIONAL,
+    linkedBearerIDs              [6] SEQUENCE OF EPSBearerID OPTIONAL
+}
+
+EPSBearersDeleted ::= SEQUENCE
+{
+    linkedEPSBearerID            [1] EPSBearerID OPTIONAL,
+    ePSBearerIDs                 [2] SEQUENCE OF EPSBearerID OPTIONAL,
+    protocolConfigurationOptions [3] PDNProtocolConfigurationOptions OPTIONAL,
+    cause                        [4] EPSBearerDeletionCauseValue OPTIONAL,
+    deleteBearerResponse         [5] EPSDeleteBearerResponse
+}
+
+EPSDeleteBearerResponse ::= SEQUENCE
+{
+    cause                        [1] EPSBearerDeletionCauseValue,
+    linkedEPSBearerID            [2] EPSBearerID OPTIONAL,
+    bearerContexts               [3] SEQUENCE OF EPSDeleteBearerContext OPTIONAL,
+    protocolConfigurationOptions [4] PDNProtocolConfigurationOptions OPTIONAL
+}
+
+EPSDeleteBearerContext ::= SEQUENCE
+{
+    cause                        [1] EPSBearerDeletionCauseValue,
+    ePSBearerID                  [2] EPSBearerID,
+    protocolConfigurationOptions [3] PDNProtocolConfigurationOptions OPTIONAL,
+    rANNASCause                  [4] EPSRANNASCause OPTIONAL
+}
+
+EPSBearerContextForRemoval ::= SEQUENCE
+{
+    ePSBearerID [1] EPSBearerID,
+    cause       [2] EPSBearerRemovalCauseValue
+}
+
+EPSBearerCreationCauseValue ::= INTEGER (0..255)
+
+EPSBearerDeletionCauseValue ::= INTEGER (0..255)
+
+EPSBearerModificationCauseValue ::= INTEGER (0..255)
+
+EPSBearerRemovalCauseValue ::= INTEGER (0..255)
+
+EPSBearerQOS ::= SEQUENCE
+{
+    qCI                       [1] QCI OPTIONAL,
+    maximumUplinkBitRate      [2] BitrateBinKBPS OPTIONAL,
+    maximumDownlinkBitRate    [3] BitrateBinKBPS OPTIONAL,
+    guaranteedUplinkBitRate   [4] BitrateBinKBPS OPTIONAL,
+    guaranteedDownlinkBitRate [5] BitrateBinKBPS OPTIONAL,
+    priorityLevel             [6] EPSQOSPriority OPTIONAL
+}
+
+EPSRANNASCause ::= OCTET STRING
+
+EPSQOSPriority ::= INTEGER (1..15)
+
+BitrateBinKBPS ::= OCTET STRING
+
+EPSGTPTunnels ::= SEQUENCE
+{
+    controlPlaneSenderFTEID  [1] FTEID OPTIONAL,
+    controlPlanePGWS5S8FTEID [2] FTEID OPTIONAL,
+    s1UeNodeBFTEID           [3] FTEID OPTIONAL,
+    s5S8SGWFTEID             [4] FTEID OPTIONAL,
+    s5S8PGWFTEID             [5] FTEID OPTIONAL,
+    s2bUePDGFTEID            [6] FTEID OPTIONAL,
+    s2aUePDGFTEID            [7] FTEID OPTIONAL
+}
+
+EPSPDNConnectionRequestType ::= ENUMERATED
+{
+    initialRequest(1),
+    handover(2),
+    rLOS(3),
+    emergency(4),
+    handoverOfEmergencyBearerServices(5),
+    reserved(6)
+}
+
+EPSPDNConnectionReleaseScopeIndication ::= BOOLEAN
+
+FiveGSInterworkingInfo ::= SEQUENCE
+{
+    fiveGSInterworkingIndicator  [1] FiveGSInterworkingIndicator,
+    fiveGSInterworkingWithoutN26 [2] FiveGSInterworkingWithoutN26,
+    fiveGCNotRestrictedSupport   [3] FiveGCNotRestrictedSupport
+}
+
+FiveGSInterworkingIndicator ::= BOOLEAN
+
+FiveGSInterworkingWithoutN26 ::= BOOLEAN
+
+FiveGCNotRestrictedSupport ::= BOOLEAN
+
+PDNConnectionIndicationFlags ::= OCTET STRING
+
+PDNHandoverIndication ::= BOOLEAN
+
+PDNNBIFOMSupport ::= BOOLEAN
+
+PDNProtocolConfigurationOptions ::= SEQUENCE
+{
+    requestPCO   [1] PDNPCO OPTIONAL,
+    requestAPCO  [2] PDNPCO OPTIONAL,
+    requestEPCO  [3] PDNPCO OPTIONAL,
+    responsePCO  [4] PDNPCO OPTIONAL,
+    responseAPCO [5] PDNPCO OPTIONAL,
+    responseEPCO [6] PDNPCO OPTIONAL
+}
+
+PDNPCO ::= OCTET STRING
+
+PGWChangeIndication ::= BOOLEAN
+
+PGWRNSI ::= BOOLEAN
+
+QCI ::= INTEGER (0..255)
+
+GTPTunnelInfo ::= SEQUENCE
+{
+    fiveGSGTPTunnels [1] FiveGSGTPTunnels OPTIONAL,
+    ePSGTPTunnels    [2] EPSGTPTunnels OPTIONAL
+}
+
+RestorationOfPDNConnectionsSupport ::= BOOLEAN
 
 -- ==================
 -- 5G UPF definitions
@@ -1293,7 +2791,8 @@ UDMServingSystemMessage ::= SEQUENCE
     gUMMEI                      [5] GUMMEI OPTIONAL,
     pLMNID                      [6] PLMNID OPTIONAL,
     servingSystemMethod         [7] UDMServingSystemMethod,
-    serviceID                   [8] ServiceID OPTIONAL
+    serviceID                   [8] ServiceID OPTIONAL,
+    roamingIndicator            [9] RoamingIndicator OPTIONAL
 }
 
 UDMSubscriberRecordChangeMessage ::= SEQUENCE
@@ -1316,8 +2815,62 @@ UDMCancelLocationMessage ::= SEQUENCE
     gPSI                        [3] GPSI OPTIONAL,
     gUAMI                       [4] GUAMI OPTIONAL,
     pLMNID                      [5] PLMNID OPTIONAL,
-    cancelLocationMethod        [6] UDMCancelLocationMethod
+    cancelLocationMethod        [6] UDMCancelLocationMethod,
+    aMFDeregistrationInfo       [7] UDMAMFDeregistrationInfo OPTIONAL,
+    deregistrationData          [8] UDMDeregistrationData OPTIONAL
 }
+
+UDMLocationInformationResult ::= SEQUENCE
+{
+    sUPI                     [1] SUPI,
+    pEI                      [2] PEI OPTIONAL,
+    gPSI                     [3] GPSI OPTIONAL,
+    locationInfoRequest      [4] UDMLocationInfoRequest,
+    vPLMNID                  [5] PLMNID OPTIONAL,
+    currentLocationIndicator [6] BOOLEAN OPTIONAL,
+    aMFInstanceID            [7] NFID OPTIONAL,
+    sMSFInstanceID           [8] NFID OPTIONAL,
+    location                 [9] Location OPTIONAL,
+    rATType                  [10] RATType OPTIONAL,
+    problemDetails           [11] UDMProblemDetails OPTIONAL
+}
+
+UDMUEInformationResponse ::= SEQUENCE
+{
+    sUPI                        [1] SUPI,
+    tADSInfo                    [2] UEContextInfo OPTIONAL,
+    fiveGSUserStateInfo         [3] FiveGSUserStateInfo OPTIONAL,
+    fiveGSRVCCInfo              [4] FiveGSRVCCInfo OPTIONAL,
+    problemDetails              [5] UDMProblemDetails OPTIONAL
+}
+
+UDMUEAuthenticationResponse ::= SEQUENCE
+{
+    sUPI                        [1] SUPI,
+    authenticationInfoRequest   [2] UDMAuthenticationInfoRequest,
+    aKMAIndicator               [3] BOOLEAN OPTIONAL,
+    problemDetails              [4] UDMProblemDetails OPTIONAL,
+    authAAA                     [5] BOOLEAN OPTIONAL,
+    pvsInfo                     [6] ServerAddressingInfoList OPTIONAL
+}
+
+UDMStartOfInterceptionWithRegisteredTarget ::= SEQUENCE
+{
+    sUPI                        [1] SUPI,
+    gPSI                        [2] GPSI OPTIONAL,
+    uDMSubscriptionDataSets     [3] SBIType
+}
+
+ServerAddressingInfoList ::= SEQUENCE (SIZE(1..MAX)) OF ServerAddressingInfo
+
+ServerAddressingInfo ::= SEQUENCE
+{
+    iPv4Address [1] IPv4Address OPTIONAL,
+    iPv6Address [2] IPv6Address OPTIONAL,
+    fQDNList    [3] FQDNList OPTIONAL
+}
+
+FQDNList ::= SEQUENCE (SIZE(1..MAX)) OF FQDN
 
 -- =================
 -- 5G UDM parameters
@@ -1356,6 +2909,100 @@ ServiceID ::= SEQUENCE
 
 CAGID ::= UTF8String
 
+UDMAuthenticationInfoRequest ::= SEQUENCE
+{
+    infoRequestType    [1] UDMInfoRequestType,
+    rGAuthCtx          [2] SEQUENCE SIZE(1..MAX) OF SubscriberIdentifier,
+    authType           [3] PrimaryAuthenticationType,
+    servingNetworkName [4] PLMNID,
+    aUSFInstanceID     [5] NFID OPTIONAL,
+    cellCAGInfo        [6] CAGID OPTIONAL,
+    n5GCIndicator      [7] BOOLEAN OPTIONAL
+}
+
+UDMLocationInfoRequest ::= SEQUENCE
+{
+    requested5GSLocation     [1] BOOLEAN OPTIONAL,
+    requestedCurrentLocation [2] BOOLEAN OPTIONAL,
+    requestedRATType         [3] BOOLEAN OPTIONAL,
+    requestedTimeZone        [4] BOOLEAN OPTIONAL,
+    requestedServingNode     [5] BOOLEAN OPTIONAL
+}
+
+UDMProblemDetails ::= SEQUENCE
+{
+    cause        [1] UDMProblemDetailsCause OPTIONAL
+}
+
+UDMProblemDetailsCause ::= CHOICE
+{
+    uDMDefinedCause       [1] UDMDefinedCause,
+    otherCause            [2] UDMProblemDetailsOtherCause
+}
+
+UDMDefinedCause ::= ENUMERATED
+{
+    userNotFound(1),
+    dataNotFound(2),
+    contextNotFound(3),
+    subscriptionNotFound(4),
+    other(5)
+}
+
+UDMInfoRequestType ::= ENUMERATED
+{
+    hSS(1),
+    aUSF(2),
+    other(3)
+}
+
+UDMProblemDetailsOtherCause ::= SEQUENCE
+{
+    problemDetailsType   [1] UTF8String OPTIONAL,
+    title                [2] UTF8String OPTIONAL,
+    status               [3] INTEGER OPTIONAL,
+    detail               [4] UTF8String OPTIONAL,
+    instance             [5] UTF8String OPTIONAL,
+    cause                [6] UTF8String OPTIONAL,
+    uDMInvalidParameters [7] UDMInvalidParameters,
+    uDMSupportedFeatures [8] UTF8String
+}
+
+UDMInvalidParameters ::= SEQUENCE
+{
+    parameter    [1] UTF8String OPTIONAL,
+    reason       [2] UTF8String OPTIONAL
+}
+
+RoamingIndicator ::= BOOLEAN
+
+UDMAMFDeregistrationInfo ::= SEQUENCE
+{
+    gUAMI                   [1] GUAMI,
+    purgeFlag               [2] BOOLEAN
+}
+
+UDMDeregistrationData ::= SEQUENCE
+{
+    deregReason             [1] UDMDeregReason OPTIONAL,
+    accessType              [2] AccessType OPTIONAL,
+    pDUSessionID            [3] PDUSessionID OPTIONAL
+}
+
+UDMDeregReason ::= ENUMERATED
+{
+    uEInitialRegistration(1),
+    uERegistrationAreaChange(2),
+    subscriptionWithdrawn(3),
+    fiveGSToEPSMobility(4),
+    fiveGSToEPSMobilityUeInitialRegistration(5),
+    reregistrationRequired(6),
+    sMFContextTransferred(7),
+    duplicatePDUSession(8),
+    fiveGSRVCCToUTRANMobility(9),
+    pDUSessionReactivationRequired(10),
+    disasterConditionTerminated(11)
+}
 -- ===================
 -- 5G SMSF definitions
 -- ===================
@@ -2262,6 +3909,11 @@ PTCAccessPolicy  ::= SEQUENCE
     pTCAccessPolicyFailure        [7] PTCAccessPolicyFailure OPTIONAL
 }
 
+-- =========
+-- PTC CCPDU
+-- =========
+
+PTCCCPDU ::= OCTET STRING
 
 -- =================
 -- 5G PTC parameters
@@ -2456,6 +4108,835 @@ PTCAccessPolicyFailure  ::= ENUMERATED
     requestUnsuccessful(1),
     requestUnknown(2)
 }
+-- ===============
+-- IMS definitions
+-- ===============
+
+-- See clause 7.12.4.2.1 for details of this structure
+IMSMessage ::= SEQUENCE
+{
+    payload                    [1] IMSPayload,
+    sessionDirection           [2] SessionDirection,
+    voIPRoamingIndication      [3] VoIPRoamingIndication OPTIONAL,
+    -- Tag [4] is not used.
+    -- Tag [5] is not used.
+    location                   [6] Location OPTIONAL,
+    accessNetworkInformation   [7] SEQUENCE OF SIPAccessNetworkInformation OPTIONAL,
+    cellularNetworkInformation [8] SEQUENCE OF SIPCellularNetworkInformation OPTIONAL
+}
+-- See clause 7.12.4.2.2 for details of this structure
+StartOfInterceptionForActiveIMSSession ::= SEQUENCE
+{
+    originatingId              [1] SEQUENCE OF IMPU,
+    terminatingId              [2] IMPU,
+    sDPState                   [3] SEQUENCE OF OCTET STRING OPTIONAL,
+    diversionIdentity          [4] IMPU OPTIONAL,
+    voIPRoamingIndication      [5] VoIPRoamingIndication OPTIONAL,
+    -- Tag [6] is not used.
+    location                   [7] Location OPTIONAL,
+    accessNetworkInformation   [8] SEQUENCE OF SIPAccessNetworkInformation OPTIONAL,
+    cellularNetworkInformation [9] SEQUENCE OF SIPCellularNetworkInformation OPTIONAL
+}
+
+-- See clause 7.12.4.2.3 for the details.
+IMSCCUnavailable ::= SEQUENCE
+{
+    cCUnavailableReason   [1] UTF8String,
+    sDPState              [2] OCTET STRING OPTIONAL
+}
+
+-- =========
+-- IMS CCPDU
+-- =========
+
+IMSCCPDU ::= SEQUENCE
+{
+    payload [1] IMSCCPDUPayload,
+    sDPInfo [2] OCTET STRING OPTIONAL
+}
+
+IMSCCPDUPayload ::= OCTET STRING
+
+-- ==============
+-- IMS parameters
+-- ==============
+
+IMSPayload ::= CHOICE
+{
+    encapsulatedSIPMessage            [1] SIPMessage,
+    modifiedSIPMessage                [2] ModifiedSIPMessage
+}
+
+ModifiedSIPMessage ::= SEQUENCE
+{
+    modifiedSIPContent [1] SIPMessage,
+    modifications      [2] PayloadModifications
+}
+
+SIPMessage ::= SEQUENCE
+{
+    iPSourceAddress       [1] IPAddress,
+    iPDestinationAddress  [2] IPAddress,
+    sIPContent            [3] OCTET STRING
+}
+
+VoIPRoamingIndication ::= ENUMERATED
+{
+    roamingLBO(1),
+    roamingS8HR(2),
+    roamingN9HR(3)
+}
+
+SessionDirection ::= ENUMERATED
+{
+    fromTarget(1),
+    toTarget(2),
+    combined(3),
+    indeterminate(4)
+}
+
+HeaderOnlyIndication ::= BOOLEAN
+
+-- =================================
+-- STIR/SHAKEN/RCD/eCNAM definitions
+-- =================================
+
+-- See clause 7.11.2.1.2 for details of this structure
+STIRSHAKENSignatureGeneration ::= SEQUENCE
+{
+    pASSporTs                 [1] SEQUENCE OF PASSporT,
+    encapsulatedSIPMessage    [2] SIPMessage OPTIONAL
+}
+
+-- See clause 7.11.2.1.3 for details of this structure
+STIRSHAKENSignatureValidation ::= SEQUENCE
+{
+    pASSporTs                 [1] SEQUENCE OF PASSporT OPTIONAL,
+    rCDTerminalDisplayInfo    [2] RCDDisplayInfo OPTIONAL,
+    eCNAMTerminalDisplayInfo  [3] ECNAMDisplayInfo OPTIONAL,
+    sHAKENValidationResult    [4] SHAKENValidationResult,
+    sHAKENFailureStatusCode   [5] SHAKENFailureStatusCode OPTIONAL,
+    encapsulatedSIPMessage    [6] SIPMessage OPTIONAL
+}
+
+-- ================================
+-- STIR/SHAKEN/RCD/eCNAM parameters
+-- ================================
+
+PASSporT ::= SEQUENCE
+{
+    pASSporTHeader    [1] PASSporTHeader,
+    pASSporTPayload   [2] PASSporTPayload,
+    pASSporTSignature [3] OCTET STRING
+}
+
+PASSporTHeader ::= SEQUENCE
+{
+    type          [1] JWSTokenType,
+    algorithm     [2] UTF8String,
+    ppt           [3] UTF8String OPTIONAL,
+    x5u           [4] UTF8String
+}
+
+JWSTokenType ::= ENUMERATED
+{
+    passport(1)
+}
+
+PASSporTPayload ::= SEQUENCE
+{
+    issuedAtTime    [1] GeneralizedTime,
+    originator      [2] STIRSHAKENOriginator,
+    destination     [3] STIRSHAKENDestinations,
+    attestation     [4] Attestation,
+    origId          [5] UTF8String,
+    diversion       [6] STIRSHAKENDestination
+}
+
+STIRSHAKENOriginator ::= CHOICE
+{
+    telephoneNumber [1] STIRSHAKENTN,
+    sTIRSHAKENURI   [2] UTF8String
+}
+
+STIRSHAKENDestinations ::= SEQUENCE OF STIRSHAKENDestination
+
+STIRSHAKENDestination ::= CHOICE
+{
+    telephoneNumber [1] STIRSHAKENTN,
+    sTIRSHAKENURI   [2] UTF8String
+}
+
+
+STIRSHAKENTN ::= CHOICE
+{
+    mSISDN [1] MSISDN
+}
+
+Attestation ::= ENUMERATED
+{
+    attestationA(1),
+    attestationB(2),
+    attestationC(3)
+}
+
+SHAKENValidationResult ::= ENUMERATED
+{
+    tNValidationPassed(1),
+    tNValidationFailed(2),
+    noTNValidation(3)
+}
+
+SHAKENFailureStatusCode ::= INTEGER
+
+ECNAMDisplayInfo ::= SEQUENCE
+{
+    name           [1] UTF8String,
+    additionalInfo [2] OCTET STRING OPTIONAL
+}
+
+RCDDisplayInfo ::= SEQUENCE
+{
+    name [1] UTF8String,
+    jcd  [2] OCTET STRING OPTIONAL,
+    jcl  [3] OCTET STRING OPTIONAL
+}
+
+-- =================
+-- RCS Definitions
+-- =================
+
+-- See clause 7.13.3.2 for details of this structure
+RCSRegistration ::= SEQUENCE
+{
+    rCSTargetIdentities              [1] SEQUENCE SIZE (1..MAX) OF RCSIdentity,
+    rCSRegistrationType              [2] RCSRegistrationType,
+    rCSRegistrationUpdateRequest     [3] IMSPayload,
+    rCSRegistrationUpdateResponse    [4] IMSPayload,
+    location                         [5] Location OPTIONAL
+}
+
+-- See clause 7.13.3.3 for details of this structure
+RCSMessage ::= SEQUENCE
+{
+    rCSTargetIdentities     [1] SEQUENCE SIZE (1..MAX) OF RCSIdentity,
+    groupChatSessionID      [2] RCSGroupChatSessionID OPTIONAL,
+    originatingIdentity     [3] SEQUENCE SIZE (1..MAX) OF RCSIdentity,
+    destinationIdentities   [4] RCSDestinations,
+    direction               [5] Direction,
+    messageType             [6] RCSMessageType,
+    conversationID          [7] RCSConversationID,
+    contributionID          [8] RCSContributionID,
+    inReplyToContributionID [9] RCSContributionID OPTIONAL,
+    messageID               [10] IMDNMessageID OPTIONAL,
+    location                [11] Location OPTIONAL,
+    messagePayload          [12] RCSPayload
+}
+
+-- See clause 7.13.3.4.2.1 for details of this structure
+RCSSessionEstablishment ::= SEQUENCE
+{
+    rCSTargetIdentities     [1] SEQUENCE SIZE (1..MAX) OF RCSIdentity,
+    conversationID          [2] RCSConversationID,
+    contributionID          [3] RCSContributionID,
+    inReplyToContributionID [4] RCSContributionID OPTIONAL,
+    sessionReplaces         [5] RCSContributionID OPTIONAL,
+    rCSSessionType          [6] RCSSessionType,
+    sessionDirection        [7] Direction,
+    rCSSessionMessage       [8] RCSSIPSessionMessage,
+    location                [9] Location OPTIONAL
+}
+
+-- See clause 7.13.3.4.3.1 for details of this structure
+RCSSessionModification ::= SEQUENCE
+{
+    rCSTargetIdentities     [1] SEQUENCE SIZE (1..MAX) OF RCSIdentity,
+    conversationID          [2] RCSConversationID,
+    contributionID          [3] RCSContributionID,
+    inReplyToContributionID [4] RCSContributionID OPTIONAL,
+    sessionReplaces         [5] RCSContributionID OPTIONAL,
+    rCSSessionType          [6] RCSSessionType,
+    sessionDirection        [7] Direction,
+    sessionEndpoints        [8] RCSSessionEndpoints,
+    rCSSIPSessionMessage    [9] RCSSIPSessionMessage,
+    location                [10] Location OPTIONAL
+}
+
+-- See clause 7.13.3.4.4.1 for details of this structure
+RCSSessionRelease ::= SEQUENCE
+{
+    rCSTargetIdentities     [1] SEQUENCE SIZE (1..MAX) OF RCSIdentity,
+    conversationID          [2] RCSConversationID,
+    contributionID          [3] RCSContributionID,
+    rCSSessionType          [4] RCSSessionType,
+    sessionDirection        [5] Direction,
+    rCSSIPSessionMessage    [6] RCSSIPSessionMessage,
+    location                [7] Location OPTIONAL
+}
+
+-- See clause 7.13.3.5 for details of this structure
+RCSCapabilityDiscovery ::= SEQUENCE
+{
+    rCSTargetIdentities           [1] SEQUENCE SIZE (1..MAX) OF RCSIdentity,
+    rCSTargetContactIdentities    [2] SEQUENCE SIZE (1..MAX) OF RCSIdentity OPTIONAL,
+    sIPMessage                    [3] IMSPayload,
+    direction                     [4] Direction,
+    location                      [5] Location OPTIONAL
+}
+
+
+-- ==============
+-- RCS Parameters
+-- ==============
+
+IMDNMessageID ::= UTF8String
+
+RCSConversationID ::= UUID
+
+RCSContributionID ::= UUID
+
+RCSDestinations ::= SEQUENCE SIZE (1..MAX) OF RCSDestination
+
+RCSDestination ::= SEQUENCE SIZE (1..MAX) OF RCSIdentity
+
+RCSGroupChatSessionID ::= SIPURI
+
+RCSIdentity ::= CHOICE
+{
+    fiveGSIdentities [1] FiveGSSubscriberIDs,
+    ePSIdentities    [2] EPSSubscriberIDs,
+    iMSIdentities    [3] IMSSubscriberIDs
+}
+
+RCSMessageType ::= ENUMERATED
+{
+    messageWithUserContent(1),
+    fileTransferMessage(2),
+    geoLocationPUSHMessage(3),
+    iMDNNotification(4)
+}
+
+RCSRegistrationType ::= ENUMERATED
+{
+    registration(1),
+    reRegistration(2),
+    uEDeregistration(3),
+    networkDeregistration(4)
+}
+
+RCSServerURI ::= UTF8String
+
+RCSSessionEndpoints ::= ENUMERATED
+{
+    remoteOnly(1),
+    locatlOnly(2),
+    localAndRemote(3)
+}
+
+RCSSessionLeg ::= ENUMERATED
+{
+    remoteLeg(1),
+    localLeg(2)
+}
+
+RCSSessionType ::= ENUMERATED
+{
+    largeMessageStandalone(1),
+    oneTo1Chat(2)
+}
+
+RCSSIPSessionMessage ::= SEQUENCE
+{
+    sessionLeg       [1] RCSSessionLeg,
+    sIPMessage       [2] IMSPayload,
+    rCSSessionResult [3] RCSSessionResult
+}
+
+RCSSessionResult ::= ENUMERATED
+{
+    newLegRequested(1),
+    newLegEstablished(2),
+    legModificationRequested(3),
+    legModificationComplete(4),
+    legRemovalRequest(5),
+    legRemovalComplete(6)
+}
+
+-- =================
+-- EES definitions
+-- =================
+
+-- See clause 7.14.2.2 for details of this structure
+EESEECRegistration ::= SEQUENCE
+{
+    registrationType         [1] RegistrationType,
+    eECID                    [2] UTF8String,
+    gPSI                     [3] GPSI OPTIONAL,
+    aCProfiles               [4] ACProfiles OPTIONAL,
+    eECServiceContSupport    [5] ACRScenarios OPTIONAL,
+    expirationTime           [6] Timestamp OPTIONAL,
+    eECContextID             [7] UTF8String OPTIONAL,
+    srcEESID                 [8] UTF8String OPTIONAL,
+    unfulfilledACProfiles    [9] UnfulfilledACProfiles OPTIONAL,
+    failureResponse          [10] FailureResponse OPTIONAL
+}
+
+-- See clause 7.14.2.3 for details of this structure
+EESEASDiscovery ::= SEQUENCE
+{
+    eECID                    [1] UTF8String,
+    gPSI                     [2] GPSI OPTIONAL,
+    eASDiscoveryFilter       [3] EASDiscoveryFilter OPTIONAL,
+    eECServiceContSupport    [4] ACRScenarios OPTIONAL,
+    uELocation               [5] Location OPTIONAL,
+    eASTargetDNAIs           [6] DNAIs OPTIONAL,
+    discoveredEAS            [7] DiscoveredEAS OPTIONAL,
+    failureResponse          [8] FailureResponse OPTIONAL
+}
+
+-- See clause 7.14.2.4 for details of this structure
+EESEASDiscoverySubscription ::= SEQUENCE
+{
+    eECID                    [1] UTF8String,
+    gPSI                     [2] GPSI OPTIONAL,
+    subscriptionType         [3] SubscriptionType,
+    eASEventType             [4] EASEventType,
+    eASDiscoveryFilter       [5] EASDiscoveryFilter OPTIONAL,
+    eASDynamicInfoFilter     [6] EASDynamicInfoFilter OPTIONAL,
+    eECServiceContSupport    [7] ACRScenarios OPTIONAL,
+    expirationTime           [8] Timestamp OPTIONAL,
+    subscriptionId           [9] UTF8String OPTIONAL,
+    failureResponse          [10] FailureResponse OPTIONAL
+}
+
+-- See clause 7.14.2.5 for details of this structure
+EESEASDiscoveryNotification ::= SEQUENCE
+{
+    subscriptionID     [1] UTF8String,
+    eventType          [2] EASEventType,
+    discoveredEAS      [3] DiscoveredEAS,
+    failureResponse    [4] FailureResponse OPTIONAL
+}
+
+-- See clause 7.14.2.6 for details of this structure
+EESAppContextRelocation ::= SEQUENCE
+{
+    eECID              [1] UTF8String,
+    gPSI               [2] GPSI OPTIONAL,
+    eESACRDetOrInit    [3] EESACRDetOrInit
+}
+
+EESACRDetOrInit ::= CHOICE
+{
+    aCRDetermineReq    [1] ACRDetermineReq,
+    aCRInitiateReq     [2] ACRInitiateReq
+}
+
+ACRDetermineReq ::= SEQUENCE
+{
+    eASID           [1] EASID OPTIONAL,
+    aCID            [2] ACID OPTIONAL,
+    sEASEndpoint    [3] EASEndpoint
+}
+
+ACRInitiateReq ::= SEQUENCE
+{
+    eASID                   [1] EASID OPTIONAL,
+    aCID                    [2] ACID OPTIONAL,
+    tEASEndpoint            [3] EASEndpoint,
+    sEASEndpoint            [4] EASEndpoint OPTIONAL,
+    previousTEASEndpoint    [5] EASEndpoint OPTIONAL,
+    routeReq                [6] RouteToLocation OPTIONAL
+}
+
+-- See clause 7.14.2.7 for details of this structure
+EESACRSubscription ::= SEQUENCE
+{
+    eECID               [1] UTF8String,
+    gPSI                [2] GPSI OPTIONAL,
+    subscriptionType    [3] SubscriptionType,
+    expirationTime      [4] Timestamp OPTIONAL,
+    eASIDs              [5] EASIDs,
+    aCIDs               [6] ACIDs OPTIONAL,
+    eventIDs            [7] ACREventIDs OPTIONAL,
+    subscriptionId      [8] UTF8String OPTIONAL,
+    failureResponse     [9] FailureResponse OPTIONAL
+}
+
+-- See clause 7.14.2.8 for details of this structure
+EESACRNotification ::= SEQUENCE
+{
+    subscriptionID    [1] UTF8String,
+    eASID             [2] EASID,
+    eventID           [3] ACREventIDs,
+    targetInfo        [4] TargetInfo OPTIONAL,
+    aCRRes            [5] BOOLEAN OPTIONAL,
+    failReason        [6] UTF8String OPTIONAL
+}
+
+-- See clause 7.14.2.9 for details of this structure
+EESEECContextRelocation ::= SEQUENCE
+{
+    eECID           [1] UTF8String,
+    eECContextID    [2] UTF8String,
+    gPSI            [3] GPSI OPTIONAL,
+    uELoc           [4] Location OPTIONAL,
+    aCProfiles      [5] ACProfiles OPTIONAL
+}
+
+-- See clause 7.14.2.10 for details of this structure
+EESStartOfInterceptionWithRegisteredEEC ::= SEQUENCE
+{
+    eECID                    [1] UTF8String,
+    gPSI                     [2] GPSI OPTIONAL,
+    aCProfiles               [3] ACProfiles OPTIONAL,
+    eECServiceContSupport    [4] ACRScenarios OPTIONAL,
+    expirationTime           [5] Timestamp OPTIONAL,
+    eECContextID             [6] UTF8String OPTIONAL,
+    srcEESID                 [7] UTF8String OPTIONAL,
+    unfulfilledACProfiles    [8] UnfulfilledACProfiles OPTIONAL,
+    timeOfRegistration       [9] Timestamp OPTIONAL
+}
+
+-- ==============
+-- EES parameters
+-- ==============
+
+RegistrationType ::= ENUMERATED
+{
+    registration (1),
+    registrationUpdate(2),
+    deregistration(3)
+}
+
+ACProfiles ::= SET OF ACProfile
+
+ACProfile ::= SEQUENCE
+{
+    aCID                  [1] ACID,
+    aCType                [2] UTF8String OPTIONAL,
+    aCSchedule            [3] Daytime OPTIONAL,
+    expACGeoServArea      [4] Location OPTIONAL,
+    eASsInfo              [5] EASsInfo OPTIONAL,
+    aCServiceContSupport  [6] ACRScenarios OPTIONAL
+}
+
+ACID ::= UTF8String
+
+ACRScenarios ::= SET OF ACRScenario
+
+ACRScenario ::= ENUMERATED
+{
+    eECInitiated(1),
+    eECExecutedViaSourceEES(2),
+    eECExecutedViaTargetEES(3),
+    sourceEASDecided(4),
+    sourceEESExecuted(5),
+    eELManagedACR(6)
+}
+
+UnfulfilledACProfiles ::= SET OF UnfulfilledACProfile
+
+UnfulfilledACProfile ::= SEQUENCE
+{
+    aCID      [1] ACID,
+    reason    [2] UnfulfilledACProfileReason
+}
+
+UnfulfilledACProfileReason ::= ENUMERATED
+{
+    eASNotAvailable(1),
+    requirementsUnfulfilled(2)
+}
+
+EASID ::= UTF8String
+
+EASsInfo ::= SET OF EASInfo
+
+EASInfo ::= SEQUENCE
+{
+    eASID                 [1] EASID,
+    expectedSvcKPIs       [2] ServiceKPIs OPTIONAL,
+    minimumReqSvcKPIs     [3] ServiceKPIs OPTIONAL
+}
+
+ServiceKPIs ::= SEQUENCE
+{
+    connectionBandwidth      [1] INTEGER OPTIONAL,
+    requestRate              [2] INTEGER OPTIONAL,
+    responseTime             [3] INTEGER OPTIONAL,
+    requestedAvailability    [4] INTEGER OPTIONAL,
+    requestedCompute         [5] OCTET STRING OPTIONAL,
+    requestedGraphCompute    [6] OCTET STRING OPTIONAL,
+    requestedMemory          [7] OCTET STRING OPTIONAL,
+    requestedStorage         [8] OCTET STRING OPTIONAL
+}
+
+FailureResponse ::= ENUMERATED
+{
+    error400(1),
+    error401(2),
+    error403(3),
+    error404(4),
+    error406(5),
+    error411(6),
+    error413(7),
+    error415(8),
+    error429(9),
+    error500(10),
+    error503(11)
+}
+
+EASDiscoveryFilter ::= CHOICE
+{
+    aCsCharacteristics     [1] ACProfiles,
+    eASCharacteristics     [2] EASsCharacteristics
+}
+
+EASsCharacteristics ::= SET OF EASCharacteristics
+
+EASCharacteristics ::= SEQUENCE
+{
+    eASID                  [1] EASID OPTIONAL,
+    aSPID                  [2] UTF8String OPTIONAL,
+    eASType                [3] UTF8String OPTIONAL,
+    eASSchedule            [4] Daytime OPTIONAL,
+    eASProfile             [5] EASProfile OPTIONAL,
+    eASServiceArea         [6] Location OPTIONAL,
+    eASServicePermLevel    [7] UTF8String OPTIONAL,
+    eASServiceFeatures     [8] EASServiceFeatures OPTIONAL
+}
+
+DNAIs ::= SET OF DNAI
+
+DiscoveredEAS ::= SEQUENCE
+{
+    eASProfile    [1] EASProfile,
+    lifetime      [2] INTEGER OPTIONAL
+}
+
+EASProfile ::= SEQUENCE
+{
+    eASID                  [1] EASID,
+    eASEndpoint            [2] EASEndpoint,
+    aCIDs                  [3] ACIDs OPTIONAL,
+    aSPID                  [4] UTF8String OPTIONAL,
+    eASType                [5] UTF8String OPTIONAL,
+    eASDescription         [6] UTF8String OPTIONAL,
+    eASSchedule            [7] Daytime OPTIONAL,
+    eASServiceArea         [8] Location OPTIONAL,
+    eASServiceKPIs         [9] ServiceKPIs OPTIONAL,
+    eASServicePermLevel    [10] UTF8String OPTIONAL,
+    eASServiceFeatures     [11] EASServiceFeatures OPTIONAL,
+    eASServiceContSupport  [12] ACRScenarios OPTIONAL,
+    appLocs                [13] RouteToLocations OPTIONAL,
+    eASStatus              [14] EASStatus OPTIONAL
+}
+
+EASStatus ::= ENUMERATED
+{
+    enabled(1),
+    disabled(2)
+}
+
+EASEndpoint ::= SEQUENCE
+{
+    fQDN             [1] FQDN OPTIONAL,
+    iPv4Addresses    [2] IPv4Addresses OPTIONAL,
+    iPv6Addresses    [3] IPv6Addresses OPTIONAL,
+    uRI              [4] UTF8String OPTIONAL
+}
+
+RouteToLocations ::= SET OF RouteToLocation
+EASServiceFeatures ::= SET OF EASServiceFeature
+EASServiceFeature ::= UTF8String
+ACIDs ::= SET OF ACID
+IPv4Addresses ::= SET OF IPv4Address
+IPv6Addresses ::= SET OF IPv6Address
+
+SubscriptionType ::= ENUMERATED
+{
+    subscription(1),
+    subscriptionUpdate(2),
+    unsubscription(3)
+}
+
+EASEventType ::= ENUMERATED
+{
+    eASAvailabilityChange(1),
+    eASDynamicInfoChange(2)
+}
+
+EASDynamicInfoFilter ::= SEQUENCE
+{
+    eASId          [1] EASID,
+    eASStatus      [2] BOOLEAN,
+    eASAcIDs       [3] BOOLEAN,
+    eASDesc        [4] BOOLEAN,
+    eASPt          [5] BOOLEAN,
+    eASFeature     [6] BOOLEAN,
+    eASSchedule    [7] BOOLEAN,
+    eASSvcArea     [8] BOOLEAN,
+    eASSvcKpi      [9] BOOLEAN,
+    eASSvcCont     [10] BOOLEAN
+}
+
+EASIDs ::= SET OF EASID
+
+ACREventIDs ::= ENUMERATED
+{
+    targetInformation(1),
+    aCRComplete(2)
+}
+
+TargetInfo ::= SEQUENCE
+{
+    discoveredEAS    [1] DiscoveredEAS,
+    targetEESInfo    [2] EDNConfigurationInfo OPTIONAL
+}
+
+EDNConfigurationInfo ::= SEQUENCE
+{
+    eDNConnectionInfo    [1] EDNConnectionInfo,
+    eESsInfo             [2] EESsInfo,
+    lifetime             [3] INTEGER OPTIONAL
+}
+
+EDNConnectionInfo ::= SEQUENCE
+{
+    dNN            [1] DNN OPTIONAL,
+    sNSSAI         [2] SNSSAI OPTIONAL,
+    serviceArea    [3] Location OPTIONAL
+}
+
+EESsInfo ::= SET OF EESInfo
+
+EESInfo ::= SEQUENCE
+{
+    eESID          [1] EESID,
+    eESEndpoint    [2] EESEndpoint,
+    eASIDs         [3] EASIDs OPTIONAL,
+    serviceArea    [4] Location OPTIONAL,
+    dNAIS          [5] DNAIs OPTIONAL
+}
+
+EESID ::= UTF8String
+
+EESEndpoint ::= SEQUENCE
+{
+    fQDN             [1] FQDN OPTIONAL,
+    iPv4Addresses    [2] IPv4Addresses OPTIONAL,
+    iPv6Addresses    [3] IPv6Addresses OPTIONAL,
+    uRI              [4] UTF8String OPTIONAL
+}
+
+-- =================
+-- 5GMS AF definitions
+-- =================
+
+-- See clause 7.15.2.2 for details of this structure
+FiveGMSAFServiceAccessInformation ::= SEQUENCE
+{
+    gPSI                                [1] GPSI,
+    serviceAccessInformationResource    [2] SBIType
+}
+
+-- See clause 7.15.2.3 for details of this structure
+FiveGMSAFConsumptionReporting ::= SEQUENCE
+{
+    gPSI                 [1] GPSI,
+    consumptionReport    [2] SBIType
+}
+
+-- See clause 7.15.2.4 for details of this structure
+FiveGMSAFDynamicPolicyInvocation ::= SEQUENCE
+{
+    gPSI                        [1] GPSI,
+    dynamicPolicyResource       [2] SBIType,
+    dPIoperationType            [3] DPIOperationType
+}
+
+-- See clause 7.15.2.5 for details of this structure
+FiveGMSAFMetricsReporting ::= SEQUENCE
+{
+    gPSI             [1] GPSI,
+    metricsReport    [2] XMLType
+}
+
+-- See clause 7.15.2.6 for details of this structure
+FiveGMSAFNetworkAssistance ::= SEQUENCE
+{
+    gPSI                                [1] GPSI,
+    networkAssistanceSessionResource    [2] SBIType,
+    nAOperationType                     [3] NAOperationType
+}
+
+-- See clause 7.15.2.7 for details of this structure
+FiveGMSAFUnsuccessfulProcedure ::= SEQUENCE
+{
+    gPSI                              [1] GPSI,
+    fiveGMSAFUnsuccessfulOperation    [2] FiveGMSAFUnsuccessfulOperation,
+    fiveGMSAFErrorCode                [3] FiveGMSAFErrorCode
+}
+
+-- See clause 7.15.2.8 for details of this structure
+FiveGMSAFStartOfInterceptionWithAlreadyConfiguredUE ::= SEQUENCE
+{
+     gPSI                                [1] GPSI,
+     serviceAccessInformationResource    [2] SBIType
+}
+
+-- ==============
+-- 5GMS AF parameters
+-- ==============
+
+DPIOperationType ::= ENUMERATED
+{
+    createDynamicPolicy(1),
+    retrieveDynamicPolicy(2),
+    updateDynamicPolicy(3),
+    patchDynamicPolicy(4),
+    destroyDynamicPolicy(5)
+}
+
+NAOperationType ::= ENUMERATED
+{
+    createNetworkAssistanceSession(1),
+    retrieveNetworkAssistanceSession(2),
+    updateNetworkAssistanceSession(3),
+    patchNetworkAssistanceSession(4),
+    destroyNetworkAssistanceSession(5),
+    requestBitRateRecommendation(6),
+    requestDeliveryBoost(7)
+}
+
+FiveGMSAFUnsuccessfulOperation::= ENUMERATED
+{
+    retrieveServiceAccessInformation(1),
+    submitConsumptionReport(2),
+    submitMetricsReport(3),
+    createDynamicPolicy(4),
+    retrieveDynamicPolicy(5),
+    updateDynamicPolicy(6),
+    patchDynamicPolicy(7),
+    destroyDynamicPolicy(8),
+    createNetworkAssistanceSession(9),
+    retrieveNetworkAssistanceSession(10),
+    updateNetworkAssistanceSession(11),
+    patchNetworkAssistanceSession(12),
+    destroyNetworkAssistanceSession(13),
+    requestBitRateRecommendation(14),
+    requestDeliveryBoost(15)
+}
+
+FiveGMSAFErrorCode ::=ENUMERATED
+{
+    badRequest400(1),
+    unauthorized401(2),
+    notFound404(3),
+    unsupportedMediaType415(4)
+}
+
 
 -- ===================
 -- 5G LALS definitions
@@ -2503,7 +4984,8 @@ PDSummaryReport ::= SEQUENCE
     firstPacketTimestamp        [10] Timestamp,
     lastPacketTimestamp         [11] Timestamp,
     packetCount                 [12] INTEGER,
-    byteCount                   [13] INTEGER
+    byteCount                   [13] INTEGER,
+    useSessionTrigger           [14] BOOLEAN
 }
 
 -- ====================
@@ -2523,7 +5005,7 @@ PDSRSummaryTrigger ::= ENUMERATED
 -- Identifier Association definitions
 -- ==================================
 
-AMFIdentifierAssocation ::= SEQUENCE
+AMFIdentifierAssociation ::= SEQUENCE
 {
     sUPI             [1] SUPI,
     sUCI             [2] SUCI OPTIONAL,
@@ -2534,7 +5016,7 @@ AMFIdentifierAssocation ::= SEQUENCE
     fiveGSTAIList    [7] TAIList OPTIONAL
 }
 
-MMEIdentifierAssocation ::= SEQUENCE
+MMEIdentifierAssociation ::= SEQUENCE
 {
     iMSI        [1] IMSI,
     iMEI        [2] IMEI OPTIONAL,
@@ -2623,6 +5105,18 @@ MMEUnsuccessfulProcedure ::= SEQUENCE
     location            [7] Location OPTIONAL
 }
 
+-- See clause 6.3.2.2.8 for details of this structure
+MMEPositioningInfoTransfer ::= SEQUENCE
+{
+    iMSI                [1] IMSI,
+    iMEI                [2] IMEI OPTIONAL,
+    mSISDN              [3] MSISDN OPTIONAL,
+    gUTI                [4] GUTI OPTIONAL,
+    lPPaMessage         [5] OCTET STRING OPTIONAL,
+    lPPMessage          [6] OCTET STRING OPTIONAL,
+    mMELCSCorrelationId [7] OCTET STRING (SIZE(4))
+}
+
 -- ==================
 -- EPS MME parameters
 -- ==================
@@ -2703,7 +5197,9 @@ LINotification ::= SEQUENCE
     appliedTargetID                     [2] TargetIdentifier OPTIONAL,
     appliedDeliveryInformation          [3] SEQUENCE OF LIAppliedDeliveryInformation OPTIONAL,
     appliedStartTime                    [4] Timestamp OPTIONAL,
-    appliedEndTime                      [5] Timestamp OPTIONAL
+    appliedEndTime                      [5] Timestamp OPTIONAL,
+    appliedTargetIsLocal                [6] BOOLEAN OPTIONAL,
+    appliedTargetIsNonLocal             [7] BOOLEAN OPTIONAL
 }
 
 -- ==========================
@@ -2761,6 +5257,54 @@ FiveGMMStatus ::= ENUMERATED
     uENot5GMMRegistered(2)
 }
 
+-- ========================================
+-- Separated Location Reporting definitions
+-- ========================================
+
+SeparatedLocationReporting ::= SEQUENCE
+{
+    sUPI                        [1] SUPI,
+    sUCI                        [2] SUCI OPTIONAL,
+    pEI                         [3] PEI OPTIONAL,
+    gPSI                        [4] GPSI OPTIONAL,
+    gUTI                        [5] FiveGGUTI OPTIONAL,
+    location                    [6] Location,
+    non3GPPAccessEndpoint       [7] UEEndpointAddress OPTIONAL,
+    rATType                     [8] RATType OPTIONAL,
+    ePSIdentities               [9] EPSSubscriberIDs OPTIONAL
+}
+
+-- =======================
+-- HSS definitions
+-- =======================
+
+HSSServingSystemMessage ::= SEQUENCE
+{
+    iMSI                     [1] IMSI,
+    oldPLMNID                [2] PLMNID,
+    newPLMNID                [3] PLMNID,
+    roamingIndicator         [4] RoamingIndicator,
+    responseCodes            [5] UTF8String
+}
+
+HSSStartOfInterceptionWithRegisteredTarget ::= SEQUENCE
+{
+    hSSIdentities              [1] HSSIdentities,
+    subscriptionDataSets       [2] SubscriptionDataSets,
+    pSUserState                [3] SBIType
+}
+
+HSSIdentities ::= SEQUENCE
+{
+    ePSSubscriberIDs          [1] EPSSubscriberIDs OPTIONAL,
+    iMSSubscriberIDs          [2] IMSSubscriberIDs OPTIONAL
+}
+
+SubscriptionDataSets ::= CHOICE
+{
+    iMSSubscriptionData [1] SBIType
+}
+
 -- =================
 -- Common Parameters
 -- =================
@@ -2770,6 +5314,127 @@ AccessType ::= ENUMERATED
     threeGPPAccess(1),
     nonThreeGPPAccess(2),
     threeGPPandNonThreeGPPAccess(3)
+}
+
+AllowedNSSAI ::= SEQUENCE OF NSSAI
+
+AllowedTACs ::= SEQUENCE (SIZE(1..MAX)) OF TAC
+
+AreaOfInterest ::= SEQUENCE
+{
+    areaOfInterestTAIList     [1] AreaOfInterestTAIList OPTIONAL,
+    areaOfInterestCellList    [2] AreaOfInterestCellList OPTIONAL,
+    areaOfInterestRANNodeList [3] AreaOfInterestRANNodeList OPTIONAL
+}
+
+AreaOfInterestCellList ::= SEQUENCE (SIZE(1..MAX)) OF NCGI
+
+AreaOfInterestItem ::= SEQUENCE
+{
+    areaOfInterest  [1] AreaOfInterest
+}
+
+AreaOfInterestRANNodeList ::= SEQUENCE (SIZE(1..MAX)) OF GlobalRANNodeID
+
+AreaOfInterestTAIList ::= SEQUENCE (SIZE(1..MAX)) OF TAI
+
+BroadcastPLMNItem ::= SEQUENCE
+{
+    pLMNIdentity          [1] PLMNID,
+    tAISliceSupportList   [2] TAISliceSupportList,
+    nPNSupport            [3] NID
+}
+
+CellCAGList ::= SEQUENCE (SIZE(1..MAX)) OF CAGID
+
+CauseMisc ::= ENUMERATED
+{
+    controlProcessingOverload(1),
+    notEnoughUserPlaneProcessingResources(2),
+    hardwareFailure(3),
+    oMIntervention(4),
+    unknownPLMNOrSNPN(5),
+    unspecified(6)
+}
+
+CauseNas ::= ENUMERATED
+{
+    normalRelease(1),
+    authenticationFailure(2),
+    deregister(3),
+    unspecified(4)
+}
+
+CauseProtocol ::= ENUMERATED
+{
+    transferSyntaxError(1),
+    abstractSyntaxError-reject(2),
+    abstractSyntaxErrorIgnoreAndNotify(3),
+    messageNotCompatibleWithReceiverState(4),
+    semanticError(5),
+    abstractSyntaxErrorFalselyConstructedMessage(6),
+    unspecified(7)
+}
+
+CauseRadioNetwork ::= ENUMERATED
+{
+    unspecified(1),
+    txnrelocoverallExpiry(2),
+    successfulHandover(3),
+    releaseDueToNGRANGeneratedReason(4),
+    releaseDueTo5gcGeneratedReason(5),
+    handoverCancelled(6),
+    partialHandover(7),
+    hoFailureInTarget5GCNGRANNodeOrTargetSystem(8),
+    hoTargetNotAllowed(9),
+    tNGRelocOverallExpiry(10),
+    tNGRelocPrepExpiry(11),
+    cellNotAvailable(12),
+    unknownTargetID(13),
+    noRadioResourcesAvailableInTargetCell(14),
+    unknownLocalUENGAPID(15),
+    inconsistentRemoteUENGAPID(16),
+    handoverDesirableForRadioReason(17),
+    timeCriticalHandover(18),
+    resourceOptimisationHandover(19),
+    reduceLoadInServingCell(20),
+    userInactivity(21),
+    radioConnectionWithUELost(22),
+    radioResourcesNotAvailable(23),
+    invalidQoSCombination(24),
+    failureInRadioInterfaceProcedure(25),
+    interactionWithOtherProcedure(26),
+    unknownPDUSessionID(27),
+    multiplePDUSessionIDInstances(29),
+    multipleQoSFlowIDInstances(30),
+    encryptionAndOrIntegrityProtectionAlgorithmsNotSupported(31),
+    nGIntraSystemHandoverTriggered(32),
+    nGInterSystemHandoverTriggered(33),
+    xNHandoverTriggered(34),
+    notSupported5QIValue(35),
+    uEContextTransfer(36),
+    iMSVoiceeEPSFallbackOrRATFallbackTriggered(37),
+    uPIntegrityProtectioNotPossible(38),
+    uPConfidentialityProtectionNotPossible(39),
+    sliceNotSupported(40),
+    uEInRRCInactiveStateNotReachable(41),
+    redirection(42),
+    resourcesNotAvailableForTheSlice(43),
+    uEMaxIntegrityProtectedDataRateReason(44),
+    releaseDueToCNDetectedMobility(45),
+    n26InterfaceNotAvailable(46),
+    releaseDueToPreemption(47),
+    multipleLocationReportingReferenceIDInstances(48),
+    rSNNotAvailableForTheUP(49),
+    nPMAccessDenied(50),
+    cAGOnlyAccessDenied(51),
+    insufficientUECapabilities(52)
+}
+
+CauseTransport ::= ENUMERATED
+{
+    transportResourceUnavailable(1),
+    unspecified(2)
 }
 
 Direction ::= ENUMERATED
@@ -2784,6 +5449,10 @@ E164Number ::= NumericString (SIZE(1..15))
 
 EmailAddress ::= UTF8String
 
+EquivalentPLMNs ::= SEQUENCE (SIZE(1..MAX)) OF PLMNID
+
+EUI64 ::= OCTET STRING (SIZE(8))
+
 FiveGGUTI ::= SEQUENCE
 {
     mCC         [1] MCC,
@@ -2795,6 +5464,19 @@ FiveGGUTI ::= SEQUENCE
 }
 
 FiveGMMCause ::= INTEGER (0..255)
+
+FiveGSSubscriberID ::= CHOICE
+{
+    sUPI [1] SUPI,
+    sUCI [2] SUCI,
+    pEI  [3] PEI,
+    gPSI [4] GPSI
+}
+
+FiveGSSubscriberIDs ::= SEQUENCE
+{
+   fiveGSSubscriberID [1] SEQUENCE SIZE(1..MAX) OF FiveGSSubscriberID
+}
 
 FiveGSMRequestType ::= ENUMERATED
 {
@@ -2811,12 +5493,45 @@ FiveGSMCause ::= INTEGER (0..255)
 
 FiveGTMSI ::= INTEGER (0..4294967295)
 
+FiveGSRVCCInfo ::= SEQUENCE
+{
+    uE5GSRVCCCapability   [1] BOOLEAN,
+    sessionTransferNumber [2] UTF8String OPTIONAL,
+    correlationMSISDN     [3] MSISDN OPTIONAL
+}
+
+FiveGSUserStateInfo ::= SEQUENCE
+{
+    fiveGSUserState [1] FiveGSUserState,
+    accessType      [2] AccessType
+}
+
+FiveGSUserState ::= ENUMERATED
+{
+    deregistered(1),
+    registeredNotReachableForPaging(2),
+    registeredReachableForPaging(3),
+    connectedNotReachableForPaging(4),
+    connectedReachableForPaging(5),
+    notProvidedFromAMF(6)
+}
+
+ForbiddenAreaInformation ::= SEQUENCE
+{
+    pLMNIdentity  [1] PLMNID,
+    forbiddenTACs [2] ForbiddenTACs
+}
+
+ForbiddenTACs ::= SEQUENCE (SIZE(1..MAX)) OF TAC
+
 FTEID ::= SEQUENCE
 {
     tEID        [1] INTEGER (0.. 4294967295),
     iPv4Address [2] IPv4Address OPTIONAL,
     iPv6Address [3] IPv6Address OPTIONAL
 }
+
+FTEIDList ::= SEQUENCE OF FTEID
 
 GPSI ::= CHOICE
 {
@@ -2846,6 +5561,23 @@ GUTI ::= SEQUENCE
     mTMSI        [5] TMSI
 }
 
+HandoverCause ::= CHOICE
+{
+    radioNetwork    [1] CauseRadioNetwork,
+    transport       [2] CauseTransport,
+    nas             [3] CauseNas,
+    protocol        [4] CauseProtocol,
+    misc            [5] CauseMisc
+}
+
+HandoverType ::= ENUMERATED
+{
+    intra5GS(1),
+    fiveGStoEPS(2),
+    ePSto5GS(3),
+    fiveGStoUTRA(4)
+}
+
 HomeNetworkPublicKeyID ::= OCTET STRING
 
 HSMFURI ::= UTF8String
@@ -2863,6 +5595,14 @@ IMPU ::= CHOICE
 }
 
 IMSI ::= NumericString (SIZE(6..15))
+
+IMSIUnauthenticatedIndication ::= BOOLEAN
+
+IMSSubscriberIDs ::= CHOICE
+{
+    iMPI        [1] IMPI,
+    iMPU        [2] IMPU
+}
 
 Initiator ::= ENUMERATED
 {
@@ -2883,7 +5623,38 @@ IPv6Address ::= OCTET STRING (SIZE(16))
 
 IPv6FlowLabel ::= INTEGER(0..1048575)
 
+LocationAreaOfInterestList  ::= SEQUENCE (SIZE(1..MAX)) OF AreaOfInterestItem
+
+LocationEventType ::= ENUMERATED
+{
+    direct(1),
+    changeOfServeCell(2),
+    uEPrescenceInAreaOfInterest(3),
+    stopChangeOfServeCell(4),
+    stopUEPresenceInAreaOfInterest(5),
+    cancelLocationReportingForTheUE(6)
+}
+
+LocationReportArea ::= ENUMERATED
+{
+    cell(1)
+}
+
+LocationReportingRequestType ::= SEQUENCE
+{
+    eventType           [1] LocationEventType,
+    reportArea          [2] LocationReportArea,
+    areaOfInterestList  [3] LocationAreaOfInterestList
+}
+
 MACAddress ::= OCTET STRING (SIZE(6))
+
+MACRestrictionIndicator ::= ENUMERATED
+{
+    noResrictions(1),
+    mACAddressNotUseableAsEquipmentIdentifier(2),
+    unknown(3)
+}
 
 MCC ::= NumericString (SIZE(3))
 
@@ -2899,6 +5670,15 @@ MMEC ::= NumericString
 
 MMEGI ::= NumericString
 
+MobilityRestrictionList ::= SEQUENCE
+{
+    servingPLMN               [1] PLMNID,
+    equivalentPLMNs           [2] EquivalentPLMNs OPTIONAL,
+    rATRestrictions           [3] RATRestrictions OPTIONAL,
+    forbiddenAreaInformation  [4] ForbiddenAreaInformation OPTIONAL,
+    serviceAreaInformation    [5] ServiceAreaInformation OPTIONAL
+}
+
 MSISDN ::= NumericString (SIZE(1..15))
 
 NAI ::= UTF8String
@@ -2911,7 +5691,20 @@ NonLocalID ::= ENUMERATED
     nonLocal(2)
 }
 
+NonIMEISVPEI ::= CHOICE
+{
+    mACAddress [1] MACAddress,
+    eUI64      [2] EUI64
+}
+
+NPNAccessInformation ::= CHOICE
+{
+    pNINPNAccessInformation [1] CellCAGList
+}
+
 NSSAI ::= SEQUENCE OF SNSSAI
+
+PagingRestrictionIndicator ::= OCTET STRING (SIZE(1..33))
 
 PLMNID ::= SEQUENCE
 {
@@ -2919,7 +5712,23 @@ PLMNID ::= SEQUENCE
     mNC [2] MNC
 }
 
+PLMNList ::= SEQUENCE (SIZE(1..MAX)) OF PLMNID
+
+PDNConnectionType ::= ENUMERATED
+{
+    iPv4(1),
+    iPv6(2),
+    iPv4v6(3),
+    nonIP(4),
+    ethernet(5)
+}
+
 PDUSessionID ::= INTEGER (0..255)
+
+PDUSessionResourceInformation ::= SEQUENCE
+{
+    pDUSessionID              [1] PDUSessionID
+}
 
 PDUSessionType ::= ENUMERATED
 {
@@ -2933,12 +5742,62 @@ PDUSessionType ::= ENUMERATED
 PEI ::= CHOICE
 {
     iMEI        [1] IMEI,
-    iMEISV      [2] IMEISV
+    iMEISV      [2] IMEISV,
+    mACAddress  [3] MACAddress,
+    eUI64       [4] EUI64
 }
 
-PortNumber ::= INTEGER(0..65535)
+PortNumber ::= INTEGER (0..65535)
+
+PrimaryAuthenticationType ::= ENUMERATED
+{
+    eAPAKAPrime(1),
+    fiveGAKA(2),
+    eAPTLS(3),
+    none(4),
+    ePSAKA(5),
+    eAPAKA(6),
+    iMSAKA(7),
+    gBAAKA(8),
+    uMTSAKA(9)
+}
 
 ProtectionSchemeID ::= INTEGER (0..15)
+
+RANNodeName ::= CHOICE
+{
+    rANNodeNameVisible  [1] OCTET STRING,
+    rANNodeNameUTF8     [2] UTF8String
+}
+
+RANUENGAPID ::= INTEGER (0..4294967295)
+
+-- See clause 9.3.1.20 of TS 38.413 [23] for details
+RANSourceToTargetContainer ::= OCTET STRING
+
+-- See clause 9.3.1.21 of TS 38.413 [23] for details
+RANTargetToSourceContainer ::= OCTET STRING
+
+RATInformation ::= ENUMERATED
+{
+    unlicensed(1),
+    nBIoT(2),
+    nRLEO(3),
+    nRMEO(4),
+    nRGEO(5),
+    nROTHERSAT(6)
+}
+
+RATRestrictions ::= SEQUENCE (SIZE(1..MAX)) OF RATRestrictionItem
+
+RATRestrictionInformation ::= BIT STRING (SIZE(8, ...))
+
+RATRestrictionItem ::= SEQUENCE
+{
+    pLMNIdentity               [1] PLMNID,
+    rATRestrictionInformation  [2] RATRestrictionInformation
+
+}
 
 RATType ::= ENUMERATED
 {
@@ -2956,7 +5815,12 @@ RATType ::= ENUMERATED
     trustedN3GA(12),
     trustedWLAN(13),
     uTRA(14),
-    gERA(15)
+    gERA(15),
+    nRLEO(16),
+    nRMEO(17),
+    nRGEO(18),
+    nROTHERSAT(19),
+    nRREDCAP(20)
 }
 
 RejectedNSSAI ::= SEQUENCE OF RejectedSNSSAI
@@ -2979,6 +5843,15 @@ RoutingIndicator ::= INTEGER (0..9999)
 
 SchemeOutput ::= OCTET STRING
 
+ServiceAreaInformation ::= SEQUENCE (SIZE(1..MAX)) OF ServiceAreaInfo
+
+ServiceAreaInfo ::= SEQUENCE
+{
+    pLMNIdentity    [1] PLMNID,
+    allowedTACs     [2] AllowedTACs OPTIONAL,
+    notAllowedTACs  [3] ForbiddenTACs OPTIONAL
+}
+
 SIPURI ::= UTF8String
 
 Slice ::= SEQUENCE
@@ -2999,8 +5872,16 @@ SMSOverNASIndicator ::= ENUMERATED
 
 SNSSAI ::= SEQUENCE
 {
-    sliceServiceType    [1] INTEGER (0..255),
-    sliceDifferentiator [2] OCTET STRING (SIZE(3)) OPTIONAL
+    sliceServiceType               [1] INTEGER (0..255),
+    sliceDifferentiator            [2] OCTET STRING (SIZE(3)) OPTIONAL,
+    mappedHPLMNSliceServiceType    [3] INTEGER (0..255) OPTIONAL,
+    mappedHPLMNSliceDifferentiator [4] OCTET STRING (SIZE(3)) OPTIONAL
+}
+
+SubscriberIdentifier ::= CHOICE
+{
+    sUCI   [1] SUCI,
+    sUPI   [2] SUPI
 }
 
 SUCI ::= SEQUENCE
@@ -3010,7 +5891,10 @@ SUCI ::= SEQUENCE
     routingIndicator            [3] RoutingIndicator,
     protectionSchemeID          [4] ProtectionSchemeID,
     homeNetworkPublicKeyID      [5] HomeNetworkPublicKeyID,
-    schemeOutput                [6] SchemeOutput
+    schemeOutput                [6] SchemeOutput,
+    routingIndicatorLength      [7] INTEGER (1..4) OPTIONAL
+       -- shall be included if different from the number of meaningful digits given
+       -- in routingIndicator
 }
 
 SUPI ::= CHOICE
@@ -3021,24 +5905,42 @@ SUPI ::= CHOICE
 
 SUPIUnauthenticatedIndication ::= BOOLEAN
 
+SupportedTAList ::= SEQUENCE (SIZE(1..MAX)) OF TAItem
+
 SwitchOffIndicator ::= ENUMERATED
 {
     normalDetach(1),
     switchOff(2)
 }
 
+TAItem ::= SEQUENCE
+{
+    tAC                  [1] TAC,
+    broadcastPLMNList    [2] SEQUENCE (SIZE(1..MAX)) OF BroadcastPLMNItem,
+    rATinformation       [3] RATInformation OPTIONAL
+}
+
+TAISliceSupportList ::= SEQUENCE (SIZE(1..MAX)) OF SNSSAI
+
 TargetIdentifier ::= CHOICE
 {
-    sUPI                [1] SUPI,
-    iMSI                [2] IMSI,
-    pEI                 [3] PEI,
-    iMEI                [4] IMEI,
-    gPSI                [5] GPSI,
-    mSISDN              [6] MSISDN,
-    nAI                 [7] NAI,
-    iPv4Address         [8] IPv4Address,
-    iPv6Address         [9] IPv6Address,
-    ethernetAddress     [10] MACAddress
+    sUPI                   [1] SUPI,
+    iMSI                   [2] IMSI,
+    pEI                    [3] PEI,
+    iMEI                   [4] IMEI,
+    gPSI                   [5] GPSI,
+    mSISDN                 [6] MSISDN,
+    nAI                    [7] NAI,
+    iPv4Address            [8] IPv4Address,
+    iPv6Address            [9] IPv6Address,
+    ethernetAddress        [10] MACAddress,
+    iMPU                   [11] IMPU,
+    iMPI                   [12] IMPI,
+    e164Number             [13] E164Number,
+    emailAddress           [14] EmailAddress,
+    mCPTTID                [15] UTF8String,
+    instanceIdentifierURN  [16] UTF8String,
+    pTCChatGroupID         [17] PTCChatGroupID
 }
 
 TargetIdentifierProvenance ::= ENUMERATED
@@ -3053,12 +5955,29 @@ TELURI ::= UTF8String
 
 Timestamp ::= GeneralizedTime
 
+UEContextInfo ::= SEQUENCE
+{
+    supportVoPS         [1] BOOLEAN OPTIONAL,
+    supportVoPSNon3GPP  [2] BOOLEAN OPTIONAL,
+    lastActiveTime      [3] Timestamp OPTIONAL,
+    accessType          [4] AccessType OPTIONAL,
+    rATType             [5] RATType OPTIONAL
+}
+
 UEEndpointAddress ::= CHOICE
 {
     iPv4Address         [1] IPv4Address,
     iPv6Address         [2] IPv6Address,
     ethernetAddress     [3] MACAddress
 }
+
+UserIdentifiers ::= SEQUENCE
+{
+    fiveGSSubscriberIDs [1] FiveGSSubscriberIDs OPTIONAL,
+    ePSSubscriberIDs    [2] EPSSubscriberIDs OPTIONAL
+}
+
+UUID ::= OCTET STRING (SIZE (16))
 
 -- ===================
 -- Location parameters
@@ -3069,7 +5988,9 @@ Location ::= SEQUENCE
     locationInfo                [1] LocationInfo OPTIONAL,
     positioningInfo             [2] PositioningInfo OPTIONAL,
     locationPresenceReport      [3] LocationPresenceReport OPTIONAL,
-    ePSLocationInfo             [4] EPSLocationInfo OPTIONAL
+    fourGPositioningInfo        [4] FourGPositioningInfo OPTIONAL,
+    fourGLocationInfo           [5] FourGLocationInfo OPTIONAL,
+    iMSLocation                 [6] IMSLocation OPTIONAL
 }
 
 CellSiteInformation ::= SEQUENCE
@@ -3095,7 +6016,9 @@ UserLocation ::= SEQUENCE
 {
     eUTRALocation               [1] EUTRALocation OPTIONAL,
     nRLocation                  [2] NRLocation OPTIONAL,
-    n3GALocation                [3] N3GALocation OPTIONAL
+    n3GALocation                [3] N3GALocation OPTIONAL,
+    uTRALocation                [4] UTRALocation OPTIONAL,
+    gERALocation                [5] GERALocation OPTIONAL
 }
 
 -- TS 29.571 [17], clause 5.4.4.8
@@ -3103,13 +6026,15 @@ EUTRALocation ::= SEQUENCE
 {
     tAI                         [1] TAI,
     eCGI                        [2] ECGI,
-    ageOfLocationInfo           [3] INTEGER OPTIONAL,
+    ageOfLocationInfo           [3] AgeOfLocation OPTIONAL,
     uELocationTimestamp         [4] Timestamp OPTIONAL,
     geographicalInformation     [5] UTF8String OPTIONAL,
     geodeticInformation         [6] UTF8String OPTIONAL,
     globalNGENbID               [7] GlobalRANNodeID OPTIONAL,
     cellSiteInformation         [8] CellSiteInformation OPTIONAL,
-    globalENbID                 [9] GlobalRANNodeID OPTIONAL
+    globalENbID                 [9] GlobalRANNodeID OPTIONAL,
+    ignoreTAI                   [10] BOOLEAN OPTIONAL,
+    ignoreECGI                  [11] BOOLEAN OPTIONAL
 }
 
 -- TS 29.571 [17], clause 5.4.4.9
@@ -3117,12 +6042,13 @@ NRLocation ::= SEQUENCE
 {
     tAI                         [1] TAI,
     nCGI                        [2] NCGI,
-    ageOfLocationInfo           [3] INTEGER OPTIONAL,
+    ageOfLocationInfo           [3] AgeOfLocation OPTIONAL,
     uELocationTimestamp         [4] Timestamp OPTIONAL,
     geographicalInformation     [5] UTF8String OPTIONAL,
     geodeticInformation         [6] UTF8String OPTIONAL,
     globalGNbID                 [7] GlobalRANNodeID OPTIONAL,
-    cellSiteInformation         [8] CellSiteInformation OPTIONAL
+    cellSiteInformation         [8] CellSiteInformation OPTIONAL,
+    ignoreNCGI                  [9] BOOLEAN OPTIONAL
 }
 
 -- TS 29.571 [17], clause 5.4.4.10
@@ -3137,7 +6063,48 @@ N3GALocation ::= SEQUENCE
     hFCNodeID                   [7] HFCNodeID OPTIONAL,
     gLI                         [8] GLI OPTIONAL,
     w5GBANLineType              [9] W5GBANLineType OPTIONAL,
-    gCI                         [10] GCI OPTIONAL
+    gCI                         [10] GCI OPTIONAL,
+    ageOfLocationInfo           [11] AgeOfLocation OPTIONAL,
+    uELocationTimestamp         [12] Timestamp OPTIONAL,
+    protocol                    [13] TransportProtocol OPTIONAL
+}
+
+-- TS 29.571 [17], clause 5.4.4.52
+UTRALocation ::= SEQUENCE
+{
+    cGI                         [1] CGI OPTIONAL,
+    sAI                         [2] SAI OPTIONAL,
+    lAI                         [3] LAI OPTIONAL,
+    rAI                         [4] RAI OPTIONAL,
+    ageOfLocationInfo           [5] INTEGER OPTIONAL,
+    uELocationTimestamp         [6] Timestamp OPTIONAL,
+    geographicalInformation     [7] UTF8String OPTIONAL,
+    geodeticInformation         [8] UTF8String OPTIONAL,
+    cellSiteInformation         [9] CellSiteInformation OPTIONAL
+}
+
+-- TS 29.571 [17], clause 5.4.4.53
+GERALocation ::= SEQUENCE
+{
+    locationNumber              [1] E164Number OPTIONAL,
+    cGI                         [2] CGI OPTIONAL,
+    rAI                         [3] RAI OPTIONAL,
+    sAI                         [4] SAI OPTIONAL,
+    lAI                         [5] LAI OPTIONAL,
+    vLRNumber                   [6] UTF8String OPTIONAL,
+    mSCNumber                   [7] UTF8String OPTIONAL,
+    ageOfLocationInfo           [8] INTEGER OPTIONAL,
+    uELocationTimestamp         [9] Timestamp OPTIONAL,
+    geographicalInformation     [10] UTF8String OPTIONAL,
+    geodeticInformation         [11] UTF8String OPTIONAL,
+    cellSiteInformation         [12] CellSiteInformation OPTIONAL
+}
+
+IMSLocation ::= SEQUENCE
+{
+    pANIHeaderInfo        [1] SEQUENCE OF PANIHeaderInfo OPTIONAL,
+    geolocationHeaderInfo [2] SEQUENCE OF SIPGeolocationHeaderInfo OPTIONAL,
+    cNIHeaderInfo         [3] SEQUENCE OF SIPCNIHeaderInfo OPTIONAL
 }
 
 -- TS 38.413 [23], clause 9.3.2.4
@@ -3201,12 +6168,21 @@ SAI ::= SEQUENCE
 
 SAC ::= OCTET STRING (SIZE(2))
 
+RAI ::= SEQUENCE
+{
+    pLMNID [1] PLMNID,
+    lAC    [2] LAC,
+    rAC    [3] RAC
+}
+
+RAC ::= OCTET STRING (SIZE(2))
+
 -- TS 29.571 [17], clause 5.4.4.5
 ECGI ::= SEQUENCE
 {
     pLMNID                      [1] PLMNID,
     eUTRACellID                 [2] EUTRACellID,
-   nID                         [3] NID OPTIONAL
+    nID                         [3] NID OPTIONAL
 }
 
 TAIList ::= SEQUENCE OF TAI
@@ -3222,15 +6198,26 @@ NCGI ::= SEQUENCE
 RANCGI ::= CHOICE
 {
     eCGI                        [1] ECGI,
-    nCGI                        [2] NCGI
+    nCGI                        [2] NCGI,
+    cGI                         [3] CGI
 }
 
 CellInformation ::= SEQUENCE
 {
     rANCGI                      [1] RANCGI,
     cellSiteinformation         [2] CellSiteInformation OPTIONAL,
-    timeOfLocation              [3] Timestamp OPTIONAL
+    timeOfLocation              [3] Timestamp OPTIONAL,
+    cellRadioRelatedInformation [4] CellRadioRelatedInformation OPTIONAL,
+    band                        [5] RFBand OPTIONAL
 }
+
+CellRadioRelatedInformation ::= CHOICE
+{
+    nGInformation [1] NGInformation,
+    f1Information [2] F1Information
+}
+
+RFBand ::= UTF8String
 
 -- TS 38.413 [23], clause 9.3.1.57
 N3IWFIDNGAP ::= BIT STRING (SIZE(16))
@@ -3275,6 +6262,13 @@ GLI ::= OCTET STRING (SIZE(0..150))
 
 -- TS 29.571 [17], clause 5.4.4.10 and table 5.4.2-1
 GCI ::= UTF8String
+
+-- TS 29.571 [17], clause 5.4.4.10 and table 5.4.3.38
+TransportProtocol ::= ENUMERATED
+{
+    uDP(1),
+    tCP(2)
+}
 
 -- TS 29.571 [17], clause 5.4.4.10 and clause 5.4.3.33
 W5GBANLineType ::= ENUMERATED
@@ -3335,7 +6329,7 @@ LocationData ::= SEQUENCE
 {
     locationEstimate            [1] GeographicArea,
     accuracyFulfilmentIndicator [2] AccuracyFulfilmentIndicator OPTIONAL,
-    ageOfLocationEstimate       [3] AgeOfLocationEstimate OPTIONAL,
+    ageOfLocationEstimate       [3] AgeOfLocation OPTIONAL,
     velocityEstimate            [4] VelocityEstimate OPTIONAL,
     civicAddress                [5] CivicAddress OPTIONAL,
     positioningDataList         [6] SET OF PositioningMethodAndUsage OPTIONAL,
@@ -3346,15 +6340,116 @@ LocationData ::= SEQUENCE
     barometricPressure          [11] BarometricPressure OPTIONAL
 }
 
--- TS 29.172 [53], table 6.2.2-2
-EPSLocationInfo ::= SEQUENCE
+-- TS 29.172 [53], clause 7.4.29
+GERANPositioningInfo ::= SEQUENCE
 {
-    locationData  [1] LocationData,
-    cGI           [2] CGI OPTIONAL,
-    sAI           [3] SAI OPTIONAL,
-    eSMLCCellInfo [4] ESMLCCellInfo OPTIONAL
+    gERANPositioningData      [1] GERANPositioningData OPTIONAL,
+    gERANGANSSPositioningData [2] GERANGANSSPositioningData OPTIONAL
 }
 
+-- TS 29.172 [53], clause 7.4.30
+GERANPositioningData ::= OCTET STRING
+
+-- TS 29.172 [53], clause 7.4.31
+GERANGANSSPositioningData ::= OCTET STRING
+
+-- TS 29.172 [53], clause 7.4.32
+UTRANPositioningInfo ::= SEQUENCE
+{
+    uTRANPositioningData           [1] UTRANPositioningData OPTIONAL,
+    uTRANGANSSPositioningData      [2] UTRANGANSSPositioningData OPTIONAL,
+    uTRANAdditionalPositioningData [3] UTRANAdditionalPositioningData
+}
+
+-- TS 29.172 [53], clause 7.4.33
+UTRANPositioningData ::= OCTET STRING
+
+-- TS 29.172 [53], clause 7.4.34
+UTRANGANSSPositioningData ::= OCTET STRING
+
+-- TS 29.172 [53], clause 7.4.63
+UTRANAdditionalPositioningData ::= OCTET STRING
+
+-- TS 29.172 [53], table 6.2.2-2
+FourGPositioningInfo ::= SEQUENCE
+{
+    locationData              [1] LocationData,
+    cGI                       [2] CGI OPTIONAL,
+    sAI                       [3] SAI OPTIONAL,
+    eSMLCCellInfo             [4] ESMLCCellInfo OPTIONAL,
+    gERANPositioningInfo      [5] GERANPositioningInfo OPTIONAL,
+    uTRANPositioningInfo      [6] UTRANPositioningInfo OPTIONAL,
+    rawMLPResponse            [7] RawMLPResponse OPTIONAL
+}
+
+FourGLocationInfo ::= CHOICE
+{
+    ePSLocationInformation     [1] EPSLocationInformation,
+    ePSUserLocationInformation [2] EPSUserLocationInformation
+}
+
+-- TS 29.272 [106], clause 7.3.111
+EPSLocationInformation ::= SEQUENCE
+{
+    mMELocationInformation  [1] MMELocationInformation OPTIONAL,
+    sGSNLocationInformation [2] SGSNLocationInformation OPTIONAL
+}
+
+-- TS 29.274 [87], clause 8.21
+EPSUserLocationInformation ::= OCTET STRING
+
+-- TS 29.272 [106], clause 7.3.115
+MMELocationInformation ::= SEQUENCE
+{
+    eCGI                     [1] ECGI OPTIONAL,
+    tAI                      [2] TAI OPTIONAL,
+    geographicalInformation  [3] GeographicalInformationOctet OPTIONAL,
+    geodeticInformation      [4] GeodeticInformationOctet OPTIONAL,
+    currentLocationRetrieved [5] BOOLEAN OPTIONAL,
+    ageOfLocationInformation [6] INTEGER OPTIONAL,
+    userCSGInformation       [7] UserCSGInformation OPTIONAL,
+    eNbID                    [8] ENbID OPTIONAL,
+    additionalCellIDs        [9] SEQUENCE OF CellInformation OPTIONAL
+}
+
+-- TS 32.299 [111], clause 7.3.240A
+UserCSGInformation ::= SEQUENCE
+{
+    cSGID                   [1] CSGID,
+    cSGAccessMode           [2] CSGAccessMode,
+    cSGMembershipIndication [3] CSGMembershipIndication
+}
+
+-- TS 29.272 [106], clause 7.3.79
+CSGID ::= INTEGER
+
+-- TS 32.299 [111], clause 7.2.46A
+CSGAccessMode ::= ENUMERATED
+{
+    closedMode(1),
+    hybridMode(2)
+}
+
+-- TS 32.299 [111], clause 7.2.46B
+CSGMembershipIndication ::= ENUMERATED
+{
+    notCSGMember(1),
+    cSGMember(2)
+}
+
+-- TS 29.272 [106], clause 7.3.116
+SGSNLocationInformation ::= SEQUENCE
+{
+    cGI                      [1] CGI OPTIONAL,
+    lAI                      [2] LAI OPTIONAL,
+    sAI                      [3] SAI OPTIONAL,
+    rAI                      [4] RAI OPTIONAL,
+    geographicalInformation  [5] GeographicalInformationOctet OPTIONAL,
+    geodeticInformation      [6] GeodeticInformationOctet OPTIONAL,
+    currentLocationRetrieved [7] BOOLEAN OPTIONAL,
+    ageOfLocationInformation [8] INTEGER OPTIONAL,
+    userCSGInformation       [9] UserCSGInformation OPTIONAL
+}
 -- TS 29.172 [53], clause 7.4.57
 ESMLCCellInfo ::= SEQUENCE
 {
@@ -3469,6 +6564,12 @@ GeographicArea ::= CHOICE
     ellipsoidArc                [7] EllipsoidArc
 }
 
+-- TS 29.002 [47], clause 17.7.1, type GeographicalInformation
+GeographicalInformationOctet ::= OCTET STRING (SIZE (8))
+
+-- TS 29.002 [47], clause 17.7.1, type GeodeticInformation
+GeodeticInformationOctet ::= OCTET STRING (SIZE (10))
+
 -- TS 29.572 [24], clause 6.1.6.3.12
 AccuracyFulfilmentIndicator ::= ENUMERATED
 {
@@ -3552,7 +6653,10 @@ Point ::= SEQUENCE
 PointUncertaintyCircle ::= SEQUENCE
 {
     geographicalCoordinates             [1] GeographicalCoordinates,
-    uncertainty                         [2] Uncertainty
+-- The uncertainty parameter has been deprecated and shall be set to 0.
+-- The uncertaintySBI parameter shall be used instead.
+    uncertainty                         [2] Uncertainty,
+    uncertaintySBI                      [3] UncertaintySBI OPTIONAL
 }
 
 -- TS 29.572 [24], clause 6.1.6.2.8
@@ -3582,8 +6686,11 @@ PointAltitudeUncertainty ::= SEQUENCE
     point                               [1] GeographicalCoordinates,
     altitude                            [2] Altitude,
     uncertaintyEllipse                  [3] UncertaintyEllipse,
+-- The uncertaintyAltitude parameter has been deprecated and shall be set to 0.
+-- The uncertaintyAltitudeSBI parameter shall be used instead.
     uncertaintyAltitude                 [4] Uncertainty,
-    confidence                          [5] Confidence
+    confidence                          [5] Confidence,
+    uncertaintyAltitudeSBI              [6] UncertaintySBI OPTIONAL
 }
 
 -- TS 29.572 [24], clause 6.1.6.2.12
@@ -3591,10 +6698,13 @@ EllipsoidArc ::= SEQUENCE
 {
     point                               [1] GeographicalCoordinates,
     innerRadius                         [2] InnerRadius,
+-- The uncertaintyRadius parameter has been deprecated and shall be set to 0.
+-- The uncertaintyRadiusSBI parameter shall be used instead.
     uncertaintyRadius                   [3] Uncertainty,
     offsetAngle                         [4] Angle,
     includedAngle                       [5] Angle,
-    confidence                          [6] Confidence
+    confidence                          [6] Confidence,
+    uncertaintyRadiusSBI                [7] UncertaintySBI OPTIONAL
 }
 
 -- TS 29.572 [24], clause 6.1.6.2.4
@@ -3608,9 +6718,15 @@ GeographicalCoordinates ::= SEQUENCE
 -- TS 29.572 [24], clause 6.1.6.2.22
 UncertaintyEllipse ::= SEQUENCE
 {
+-- The semiMajor parameter has been deprecated and shall be set to 0.
+-- The semiMajorSBI parameter shall be used instead.
     semiMajor                           [1] Uncertainty,
+-- The semiMinor parameter has been deprecated and shall be set to 0.
+-- The semiMinorSBI parameter shall be used instead.
     semiMinor                           [2] Uncertainty,
-    orientationMajor                    [3] Orientation
+    orientationMajor                    [3] Orientation,
+    semiMajorSBI                        [4] UncertaintySBI OPTIONAL,
+    semiMinorSBI                        [5] UncertaintySBI OPTIONAL
 }
 
 -- TS 29.572 [24], clause 6.1.6.2.18
@@ -3651,15 +6767,17 @@ HorizontalWithVerticalVelocityAndUncertainty ::= SEQUENCE
 -- The following types are described in TS 29.572 [24], table 6.1.6.3.2-1
 Altitude ::= UTF8String
 Angle ::= INTEGER (0..360)
-Uncertainty ::= INTEGER (0..127)
+UncertaintySBI ::= UTF8String
 Orientation ::= INTEGER (0..180)
 Confidence ::= INTEGER (0..100)
-InnerRadius ::= INTEGER (0..65535)
-AgeOfLocationEstimate ::= INTEGER (0..32767)
+InnerRadius ::= INTEGER (0..327675)
+AgeOfLocation ::= INTEGER (0..32767)
 HorizontalSpeed ::= UTF8String
 VerticalSpeed ::= UTF8String
 SpeedUncertainty ::= UTF8String
-BarometricPressure ::= INTEGER (30000..155000)
+BarometricPressure ::= INTEGER (30000..115000)
+
+Uncertainty ::= INTEGER (0..127)
 
 -- TS 29.572 [24], clause 6.1.6.3.13
 VerticalDirection ::= ENUMERATED
@@ -3727,5 +6845,214 @@ OGCURN ::= UTF8String
 
 -- TS 29.572 [24], clause 6.1.6.2.15
 MethodCode ::= INTEGER (16..31)
+
+PANIHeaderInfo ::= SEQUENCE
+{
+    accessNetworkInformation [1] SIPAccessNetworkInformation,
+    accessInfo               [2] SEQUENCE OF SIPAccessInfo OPTIONAL,
+    pANILocation             [3] SEQUENCE OF SIPLocationInfo OPTIONAL
+}
+
+SIPGeolocationHeaderInfo ::= SEQUENCE
+{
+    locationValue [1] UTF8String,
+    cidInfo       [2] UTF8String OPTIONAL
+}
+
+SIPAccessInfo ::= UTF8String
+
+SIPCellularAccessInfo ::= SEQUENCE
+{
+    accessInfo  [1] SIPAccessInfo,
+    cellInfoAge [2] SIPCNICellInfoAge
+}
+
+SIPCNICellInfoAge ::= INTEGER(0..999999999)
+
+SIPLocationInfo ::= SEQUENCE
+{
+    locationInfo    [1] LocationInfo OPTIONAL,
+    cellInformation [2] CellInformation OPTIONAL
+}
+
+SIPAccessNetworkInformation ::= SEQUENCE
+{
+    accessNetworkInfo [1] UTF8String,
+    servingPLMN       [2] PLMNID OPTIONAL
+}
+
+SIPCNIHeaderInfo ::= SEQUENCE
+{
+    cellularNetworkInformation [1] SIPCellularNetworkInformation,
+    cellularAccessInfo         [2] SEQUENCE OF SIPCellularAccessInfo OPTIONAL,
+    cNILocation                [3] SEQUENCE OF SIPLocationInfo OPTIONAL
+}
+
+SIPCellularNetworkInformation ::= SEQUENCE
+{
+    cellularNetworkInfo  [1] UTF8String,
+    servingPLMN          [2] PLMNID OPTIONAL
+}
+
+-- ==================================================
+-- Structures to allow reuse of encapsulated payloads
+-- ==================================================
+
+RCSPayload ::= CHOICE
+{
+    fullPayload     [1] EncapsulatedRCSPayload,
+    modifiedPayload [2] ModifiedRCSPayload
+}
+
+EncapsulatedRCSPayload ::= CHOICE
+{
+    mIME [1] MIMEEntity,
+    mSRP [2] MSRPMessage,
+    sIP  [3] SIPMessage
+}
+
+ModifiedRCSPayload ::= SEQUENCE
+{
+    modifiedRCSPayload [1] EncapsulatedRCSPayload,
+    modifications      [2] PayloadModifications
+}
+
+PayloadModifications ::= SEQUENCE
+{
+    modificationList [1] SEQUENCE OF PayloadModification
+}
+
+PayloadModification ::= CHOICE
+{
+    predefinedModification [1] PredefinedPayloadModification,
+    describedModification  [2] PayloadModificationDescription
+}
+
+PredefinedPayloadModification ::= ENUMERATED
+{
+    pANILocationRemoval(1),
+    cNILocationRemoval(2),
+    sIPGeolocationInfoRemoval(3),
+    presenceInformationLocationRemoval(4),
+    tS33128SMSTPDURedaction(5),
+    tS33128TruncatedSMSTPDU(6),
+    iMSTextContentRemoval(7),
+    iMSSubjectContentRemoval(8)
+}
+
+PayloadModificationDescription ::= SEQUENCE
+{
+    modificationLocation [1] ModificationLocation,
+    modificationType     [2] ModificationType
+}
+
+ModificationLocation ::= CHOICE
+{
+    jSONPointer        [1] UTF8String,
+    xPath              [2] UTF8String,
+    sIPHeader          [3] UTF8String,
+    sIPBody            [4] NULL,
+    mIMEHeader         [5] UTF8String,
+    mIMEBody           [6] MIMEBody,
+    uTF8Location       [7] IndexRange,
+    octetLocation      [8] IndexRange,
+    aBNFRule           [9] ABNFRuleLocation
+}
+
+ABNFRuleLocation ::= UTF8String
+
+ModificationType ::= CHOICE
+{
+    removed                  [1] PayloadInformationRemoved,
+    replacedWithCharacters   [2] PayloadInformationReplacedWithCharacters,
+    replacedWithOctets       [3] OCTET STRING,
+    replacedWithBits         [4] BIT STRING
+}
+
+PayloadInformationRemoved ::= CHOICE
+{
+    charactersRemoved [1] INTEGER,
+    octetsRemoved     [2] INTEGER,
+    bitsRemoved       [3] INTEGER
+}
+
+PayloadInformationReplacedWithCharacters ::= SEQUENCE
+{
+    characters [1] UTF8String
+}
+
+IndexRange ::= SEQUENCE
+{
+    start [1] INTEGER,
+    end   [2] INTEGER
+}
+
+-- ===============================================
+-- Externally Defined Structures - MSRP Parameters
+-- ===============================================
+
+EncapsulatedMSRP ::= UTF8String
+
+MSRPMessage ::= SEQUENCE
+{
+    encapsulatedMSRP [1] EncapsulatedMSRP
+}
+
+-- ==================================================
+-- Externally Defined Structures - SBIType Parameters
+-- ==================================================
+
+-- Details for the encoding and use of this parameter may be found in the clause
+-- that defines the xIRI that carries it. This parameter provides a generic
+-- mechanism to convey service based interface structures defined in Stage 3 working groups.
+
+SBIType ::= SEQUENCE
+{
+    sBIReference         [1] SBIReference,
+    sBIValue             [2] SBIValue
+}
+
+SBIReference ::= UTF8String
+
+SBIValue ::= UTF8String
+
+-- ==================================================
+-- Externally Defined Structures - XMLType Parameters
+-- ==================================================
+
+XMLType ::= SEQUENCE
+{
+    xMLNamespace [1] XMLNamespace,
+    xMLValue     [2] XMLValue
+}
+
+XMLNamespace ::= UTF8String
+
+XMLValue ::= UTF8String
+
+-- ======================================================
+-- Externally Defined Structures - MIME Entity Parameters
+-- ======================================================
+
+EncapsulatedMIMEEntity ::= UTF8String
+
+MIMEContentType ::= UTF8String
+
+MIMEEntity ::= SEQUENCE
+{
+    contentType            [1] MIMEContentType,
+    encapsulatedMIMEEntity [2] EncapsulatedMIMEEntity
+}
+
+MIMEPartIdentifier ::= CHOICE
+{
+    index     [1] INTEGER
+}
+
+MIMEBody ::= CHOICE
+{
+    fullBody [1] NULL,
+    bodyPart [2] MIMEPartIdentifier
+}
 
 END
