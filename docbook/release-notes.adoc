@@ -34,18 +34,17 @@ wsbuglink:18734[].
 
 // The following vulnerabilities have been fixed:
 
-* wssalink:2023-29[]
-NetScreen file parser crash.
-wsbuglink:19404[].
+// * wssalink:2024-01[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
 // cveidlink:2023-xxx[].
-// Fixed in master: 3be1c99180
-// Fixed in release-4.2: 95c12710ef
-// Fixed in release-4.0: 160d1e454a
-// Fixed in release-3.6: 197e96f053
+// Fixed in master: xxx
+// Fixed in release-4.2: xxx
+// Fixed in release-4.0: xxx
+// Fixed in release-3.6: xxx
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-120
+// CWE-125
 
-// * NetScreen File Parsing Heap-based Buffer Overflow. wsbuglink:19404[].
 
 The following bugs have been fixed:
 
@@ -54,19 +53,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
-* First ZigBee APS packet is not decrypted wsbuglink:16507[].
-
-* Problem with decoding OpenFlow actions in OFPT_FLOW_MOD message wsbuglink:17072[].
-
-* The "frames" method in sharkd does not consider time references and displays incorrect delta time wsbuglink:17923[].
-
-* Wireshark interprets If_fcslen option in the Interface Description Block as byte instead of bit. wsbuglink:19174[].
-
-* Flathub's Wireshark page shows wrong version number wsbuglink:19382[].
-
-* OSPFv3 RI decode error wsbuglink:19444[].
-
-* GSM SIM READ / UPDATE BINARY command has wrong offset wsbuglink:19472[].
 
 === New and Updated Features
 
@@ -87,22 +73,15 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.19.. | ag packet- | sort -u)
 [commaize]
 --
-DHCP
-GSM SIM
-ISO 15765
-OpenFlow v1
-OSPF
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-pcapng
-NetScreen
---
+// [commaize]
+// --
+// --
 
 === New File Format Decoding Support
 
@@ -114,8 +93,6 @@ There is no new or updated file format support in this release.
 
 
 // === New and Updated Capture Interfaces support
-
-//_Non-empty section placeholder._
 
 // === Major API Changes
 
