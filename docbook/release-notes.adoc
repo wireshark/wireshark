@@ -63,7 +63,7 @@ The following bugs have been fixed:
 
 * First ZigBee APS packet is not decrypted. wsbuglink:16507[].
 * Problem with decoding OpenFlow actions in OFPT_FLOW_MOD message. wsbuglink:17072[].
-* "frames" method in sharkd does not consider time references and displays incorrect delta time. wsbuglink:17923[].
+* The "frames" method in sharkd does not consider time references and displays incorrect delta time. wsbuglink:17923[].
 * Wireshark and TShark throw packet-wireguard-WARNING when running on systems with FIPS enabled. wsbuglink:18441[].
 * Wireshark interprets If_fcslen option in the Interface Description Block as byte instead of bit. wsbuglink:19174[].
 * Flathub's Wireshark page shows wrong version number. wsbuglink:19382[].
