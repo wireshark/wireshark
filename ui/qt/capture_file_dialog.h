@@ -43,14 +43,27 @@ class CaptureFileDialog : public WiresharkFileDialog
     //
     // You can subclass QFileDialog (which we've done here) and add widgets as
     // described at
-    // https://web.archive.org/web/20100528190736/http://developer.qt.nokia.com/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
+    //
+    //   https://web.archive.org/web/20100528190736/http://developer.qt.nokia.com/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
+    //
     // However, Qt's idea of what a file dialog looks like isn't what Microsoft
     // and Apple think a file dialog looks like.
     //
-    // On Windows Vista and later we should probably use IFileOpenDialog. On earlier
-    // versions of Windows (including XP) we should use GetOpenFileName, which is
-    // what we do in ui/win32/file_dlg_win32.c. macOS we should use NSOpenPanel. On
-    // other platforms we should fall back to QFileDialog.
+    // On Windows, we should probably use the Common Item Dialog:
+    //
+    //   https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
+    //
+    // We currently use GetOpenFileNam in ui/win32/file_dlg_win32.c.
+    //
+    // On macOS we should use NSOpenPanel and NSSavePanel:
+    //
+    //   https://developer.apple.com/documentation/appkit/nsopenpanel?language=objc
+    //   https://developer.apple.com/documentation/appkit/nssavepanel?language=objc
+    //
+    // On other platforms we should fall back to QFileDialog (or maybe
+    // KDE's or GTK+/GNOME's file dialog, as appropriate for the desktop
+    // environment being used, if QFileDialog doesn't do so with various
+    // platform plugins).
     //
     // Yes, that's four implementations of the same window.
     //
