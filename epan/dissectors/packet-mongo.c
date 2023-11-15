@@ -26,7 +26,6 @@
 #include <wsutil/crc32.h> // CRC32C_PRELOAD
 #include <epan/crc32-tvb.h> // crc32c_tvb_offset_calculate
 #include "packet-tcp.h"
-#include "packet-tls.h"
 #ifdef HAVE_SNAPPY
 #include <snappy-c.h>
 #endif
@@ -35,6 +34,7 @@ void proto_register_mongo(void);
 void proto_reg_handoff_mongo(void);
 
 static dissector_handle_t mongo_handle;
+static dissector_handle_t mongo_heur_handle;
 
 /* Forward declaration */
 static int
@@ -46,6 +46,9 @@ dissect_opcode_types(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree
 /* the code can reasonably attempt to decompress buffer up to 20MB */
 #define MAX_UNCOMPRESSED_SIZE (20 * 1024 * 1024)
 
+/* All opcodes other than OP_COMPRESSED and OP_MSG were removed
+ * in MongoDB 5.1 (December 2021)
+ */
 #define OP_REPLY           1
 #define OP_MESSAGE      1000
 #define OP_UPDATE       2001
@@ -951,6 +954,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_item *ti;
     proto_tree *mongo_tree;
     guint offset = 0, opcode, effective_opcode = 0;
+    uint32_t response_to;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MONGO");
 
@@ -964,7 +968,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_tree_add_item(mongo_tree, hf_mongo_request_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(mongo_tree, hf_mongo_response_to, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(mongo_tree, hf_mongo_response_to, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_to);
     offset += 4;
 
     proto_tree_add_item(mongo_tree, hf_mongo_op_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -973,7 +977,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
     offset = dissect_opcode_types(tvb, pinfo, offset, mongo_tree, opcode, &effective_opcode);
 
-    if(opcode == 1)
+    if (opcode == 1 || response_to != 0)
     {
       col_set_str(pinfo->cinfo, COL_INFO, "Response :");
     }
@@ -1014,6 +1018,35 @@ dissect_mongo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, 1, 4, get_mongo_pdu_len, dissect_mongo_pdu, data);
   return tvb_captured_length(tvb);
+}
+
+static gboolean
+test_mongo(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+  uint32_t opcode;
+
+  if (tvb_captured_length_remaining(tvb, offset) < 16) {
+    return FALSE;
+  }
+
+  opcode = tvb_get_letohl(tvb, offset + 12);
+  /* As 5.1 and later uses only 2 opcodes, we might be able to use that
+   * (plus some other information) to do heuristics on other ports.
+   */
+  return (try_val_to_str(opcode, opcode_vals) != NULL);
+}
+
+static int
+dissect_mongo_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  if (!test_mongo(pinfo, tvb, 0, data)) {
+    return 0;
+    /* The TLS heuristic dissector should catch this if over TLS. */
+  }
+  conversation_t *conversation = find_or_create_conversation(pinfo);
+  conversation_set_dissector(conversation, mongo_handle);
+
+  return dissect_mongo(tvb, pinfo, tree, data);
 }
 
 void
@@ -1517,7 +1550,8 @@ proto_register_mongo(void)
   proto_mongo = proto_register_protocol("Mongo Wire Protocol", "MONGO", "mongo");
 
   /* Allow dissector to find be found by name. */
-  mongo_handle = register_dissector("mongo", dissect_mongo, proto_mongo);
+  mongo_handle = register_dissector_with_description("mongo", "Mongo Wire Protocol", dissect_mongo, proto_mongo);
+  mongo_heur_handle = register_dissector_with_description("mongo_tcp", "Mongo Wire Protocol over TCP", dissect_mongo_tcp_heur, proto_mongo);
 
   proto_register_field_array(proto_mongo, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -1529,8 +1563,13 @@ proto_register_mongo(void)
 void
 proto_reg_handoff_mongo(void)
 {
-  dissector_add_uint_with_preference("tcp.port", TCP_PORT_MONGO, mongo_handle);
-  ssl_dissector_add(TCP_PORT_MONGO, mongo_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_MONGO, mongo_heur_handle);
+  /* ssl_dissector_add registers TLS as the dissector for TCP on the given
+   * port, but Mongo uses the same port by default with or without TLS,
+   * so we need to test for the non-TLS version as well.
+   * If the TLS heuristic dissector detects TLS on this port, assume Mongo.
+   */
+  dissector_add_uint_with_preference("tls.port", TCP_PORT_MONGO, mongo_handle);
 }
 /*
  * Editor modelines
