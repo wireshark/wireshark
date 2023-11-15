@@ -76,6 +76,7 @@ WelcomePage::WelcomePage(QWidget *parent) :
             this, SLOT(showRecentContextMenu(QPoint)));
 
     connect(mainApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
+    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateRecentCaptures()));
     connect(mainApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
     connect(mainApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
     connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()),

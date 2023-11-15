@@ -772,7 +772,7 @@ void WiresharkMainWindow::captureFileReadStarted(const QString &action) {
 void WiresharkMainWindow::captureFileReadFinished() {
     if (!capture_file_.capFile()->is_tempfile && capture_file_.capFile()->filename) {
         /* Add this filename to the list of recent files in the "Recent Files" submenu */
-        add_menu_recent_capture_file(capture_file_.capFile()->filename);
+        add_menu_recent_capture_file(capture_file_.capFile()->filename, false);
 
         /* Remember folder for next Open dialog and save it in recent */
         mainApp->setLastOpenDirFromFilename(capture_file_.capFile()->filename);
@@ -1087,6 +1087,13 @@ void WiresharkMainWindow::updateRecentCaptures() {
         dock_menu_->insertAction(NULL, rda);
         connect(rda, SIGNAL(triggered()), ra, SLOT(trigger()));
 #endif
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        if (recentMenu->actions().count() == static_cast<int>(prefs.gui_recent_files_count_max)) {
+#else
+        if (recentMenu->actions().count() == static_cast<qsizetype>(prefs.gui_recent_files_count_max)) {
+#endif
+            break;
+        }
     }
 
     if (recentMenu->actions().count() > 0) {

@@ -395,6 +395,7 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateTitlebar()));
 
     connect(mainApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
+    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateRecentCaptures()));
     updateRecentCaptures();
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
@@ -1500,7 +1501,7 @@ bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_com
             cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
             updateForUnsavedChanges(); // we update the title bar to remove the *
             /* Add this filename to the list of recent files in the "Recent Files" submenu */
-            add_menu_recent_capture_file(qUtf8Printable(file_name));
+            add_menu_recent_capture_file(qUtf8Printable(file_name), false);
             return true;
 
         case CF_WRITE_ERROR:
@@ -1642,7 +1643,7 @@ void LograyMainWindow::exportSelectedPackets() {
             if (discard_comments)
                 packet_list_->redrawVisiblePackets();
             /* Add this filename to the list of recent files in the "Recent Files" submenu */
-            add_menu_recent_capture_file(qUtf8Printable(file_name));
+            add_menu_recent_capture_file(qUtf8Printable(file_name), false);
             goto cleanup;
 
         case CF_WRITE_ERROR:

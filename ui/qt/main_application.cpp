@@ -162,7 +162,7 @@ topic_action(topic_action_e action)
  * https://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
  */
 extern "C" void
-add_menu_recent_capture_file(const gchar *cf_name) {
+add_menu_recent_capture_file(const gchar *cf_name, bool force) {
     QString normalized_cf_name = QString::fromUtf8(cf_name);
     QDir cf_path;
 
@@ -197,7 +197,7 @@ add_menu_recent_capture_file(const gchar *cf_name) {
              */
             ri->filename.compare(normalized_cf_name) == 0 ||
 #endif
-            cnt >= prefs.gui_recent_files_count_max) {
+            (!force && cnt >= prefs.gui_recent_files_count_max)) {
             rii.remove();
             delete(ri);
             cnt--;
@@ -213,12 +213,15 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
     /* we have to iterate backwards through the children's list,
      * so we get the latest item last in the file.
      */
-    QListIterator<recent_item_status *> rii(recent_captures_);
-    rii.toBack();
-    while (rii.hasPrevious()) {
-        QString cf_name;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    int i = qMin(recent_captures_.size(), (int)(prefs.gui_recent_files_count_max)) - 1;
+#else
+    qsizetype i = qMin(recent_captures_.size(), (qsizetype)prefs.gui_recent_files_count_max) - 1;
+#endif
+    for (; i >= 0; i--) {
+        recent_item_status *ri = recent_captures_.at(i);
         /* get capture filename from the menu item label */
-        cf_name = rii.previous()->filename;
+        QString cf_name = ri->filename;
         if (!cf_name.isNull()) {
             fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", qUtf8Printable(cf_name));
         }

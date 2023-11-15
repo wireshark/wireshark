@@ -1358,7 +1358,7 @@ read_set_recent_pair_dynamic(gchar *key, const gchar *value,
         return PREFS_SET_SYNTAX_ERR;
     }
     if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
-        add_menu_recent_capture_file(value);
+        add_menu_recent_capture_file(value, true);
     } else if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
         dfilter_combo_add_recent(value);
     } else if (strcmp(key, RECENT_KEY_CAPTURE_FILTER) == 0) {
