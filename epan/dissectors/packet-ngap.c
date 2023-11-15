@@ -807,8 +807,12 @@ static int hf_ngap_MBS_SessionID_PDU;             /* MBS_SessionID */
 static int hf_ngap_MBSSessionFailedtoSetupList_PDU;  /* MBSSessionFailedtoSetupList */
 static int hf_ngap_MBS_ActiveSessionInformation_SourcetoTargetList_PDU;  /* MBS_ActiveSessionInformation_SourcetoTargetList */
 static int hf_ngap_MBS_ActiveSessionInformation_TargettoSourceList_PDU;  /* MBS_ActiveSessionInformation_TargettoSourceList */
+static int hf_ngap_MBSSessionSetupOrModFailureTransfer_PDU;  /* MBSSessionSetupOrModFailureTransfer */
 static int hf_ngap_MBSSessionSetupResponseList_PDU;  /* MBSSessionSetupResponseList */
+static int hf_ngap_MBSSessionSetupOrModRequestTransfer_PDU;  /* MBSSessionSetupOrModRequestTransfer */
 static int hf_ngap_MBS_SessionFSAIDList_PDU;      /* MBS_SessionFSAIDList */
+static int hf_ngap_MBSSessionReleaseResponseTransfer_PDU;  /* MBSSessionReleaseResponseTransfer */
+static int hf_ngap_MBSSessionSetupOrModResponseTransfer_PDU;  /* MBSSessionSetupOrModResponseTransfer */
 static int hf_ngap_MBS_SupportIndicator_PDU;      /* MBS_SupportIndicator */
 static int hf_ngap_MBS_SessionTNLInfo5GC_PDU;     /* MBS_SessionTNLInfo5GC */
 static int hf_ngap_MBSSessionSetupRequestList_PDU;  /* MBSSessionSetupRequestList */
@@ -1001,6 +1005,9 @@ static int hf_ngap_UEAggregateMaximumBitRate_PDU;  /* UEAggregateMaximumBitRate 
 static int hf_ngap_UE_associatedLogicalNG_connectionList_PDU;  /* UE_associatedLogicalNG_connectionList */
 static int hf_ngap_UECapabilityInfoRequest_PDU;   /* UECapabilityInfoRequest */
 static int hf_ngap_UEContextRequest_PDU;          /* UEContextRequest */
+static int hf_ngap_UEContextResumeRequestTransfer_PDU;  /* UEContextResumeRequestTransfer */
+static int hf_ngap_UEContextResumeResponseTransfer_PDU;  /* UEContextResumeResponseTransfer */
+static int hf_ngap_UEContextSuspendRequestTransfer_PDU;  /* UEContextSuspendRequestTransfer */
 static int hf_ngap_UE_DifferentiationInfo_PDU;    /* UE_DifferentiationInfo */
 static int hf_ngap_UEHistoryInformationFromTheUE_PDU;  /* UEHistoryInformationFromTheUE */
 static int hf_ngap_UE_NGAP_IDs_PDU;               /* UE_NGAP_IDs */
@@ -1168,13 +1175,6 @@ static int hf_ngap_MulticastSessionUpdateResponse_PDU;  /* MulticastSessionUpdat
 static int hf_ngap_MulticastSessionUpdateFailure_PDU;  /* MulticastSessionUpdateFailure */
 static int hf_ngap_MulticastGroupPaging_PDU;      /* MulticastGroupPaging */
 static int hf_ngap_NGAP_PDU_PDU;                  /* NGAP_PDU */
-static int hf_ngap_UEContextResumeRequestTransfer_PDU;  /* UEContextResumeRequestTransfer */
-static int hf_ngap_UEContextResumeResponseTransfer_PDU;  /* UEContextResumeResponseTransfer */
-static int hf_ngap_UEContextSuspendRequestTransfer_PDU;  /* UEContextSuspendRequestTransfer */
-static int hf_ngap_MBSSessionSetupOrModRequestTransfer_PDU;  /* MBSSessionSetupOrModRequestTransfer */
-static int hf_ngap_MBSSessionSetupOrModResponseTransfer_PDU;  /* MBSSessionSetupOrModResponseTransfer */
-static int hf_ngap_MBSSessionSetupOrModFailureTransfer_PDU;  /* MBSSessionSetupOrModFailureTransfer */
-static int hf_ngap_MBSSessionReleaseResponseTransfer_PDU;  /* MBSSessionReleaseResponseTransfer */
 static int hf_ngap_MBS_DistributionSetupRequestTransfer_PDU;  /* MBS_DistributionSetupRequestTransfer */
 static int hf_ngap_MBS_DistributionSetupResponseTransfer_PDU;  /* MBS_DistributionSetupResponseTransfer */
 static int hf_ngap_MBS_DistributionSetupUnsuccessfulTransfer_PDU;  /* MBS_DistributionSetupUnsuccessfulTransfer */
@@ -3338,6 +3338,13 @@ static int dissect_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer
 static int dissect_SecondaryRATDataUsageReportTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_PDUSessionResourceModifyIndicationUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_ngap_AlternativeQoSParaSetNotifyIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_UEContextResumeRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_UEContextResumeResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_UEContextSuspendRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_MBSSessionSetupOrModRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_MBSSessionSetupOrModResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_MBSSessionSetupOrModFailureTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_MBSSessionReleaseResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 const value_string ngap_serialNumber_gs_vals[] = {
   { 0, "Display mode immediate, cell wide"},
@@ -3515,13 +3522,6 @@ const true_false_string ngap_not_updated_updated = {
 };
 
 /*--- PDUs declarations ---*/
-static int dissect_UEContextResumeRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_UEContextResumeResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_UEContextSuspendRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_MBSSessionSetupOrModRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_MBSSessionSetupOrModResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_MBSSessionSetupOrModFailureTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_MBSSessionReleaseResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_MBS_DistributionSetupRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_MBS_DistributionSetupResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_MBS_DistributionSetupUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -23898,6 +23898,14 @@ static int dissect_MBS_ActiveSessionInformation_TargettoSourceList_PDU(tvbuff_t 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_MBSSessionSetupOrModFailureTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ngap_MBSSessionSetupOrModFailureTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModFailureTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_MBSSessionSetupResponseList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -23906,11 +23914,35 @@ static int dissect_MBSSessionSetupResponseList_PDU(tvbuff_t *tvb _U_, packet_inf
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_MBSSessionSetupOrModRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ngap_MBSSessionSetupOrModRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModRequestTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_MBS_SessionFSAIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_ngap_MBS_SessionFSAIDList(tvb, offset, &asn1_ctx, tree, hf_ngap_MBS_SessionFSAIDList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MBSSessionReleaseResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ngap_MBSSessionReleaseResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionReleaseResponseTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MBSSessionSetupOrModResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ngap_MBSSessionSetupOrModResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModResponseTransfer_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -25450,6 +25482,30 @@ static int dissect_UEContextRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UEContextResumeRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ngap_UEContextResumeRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextResumeRequestTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEContextResumeResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ngap_UEContextResumeResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextResumeResponseTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEContextSuspendRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ngap_UEContextSuspendRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextSuspendRequestTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_UE_DifferentiationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -26786,62 +26842,6 @@ static int dissect_NGAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_UEContextResumeRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_ngap_UEContextResumeRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextResumeRequestTransfer_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_UEContextResumeResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_ngap_UEContextResumeResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextResumeResponseTransfer_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_UEContextSuspendRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_ngap_UEContextSuspendRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_UEContextSuspendRequestTransfer_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_MBSSessionSetupOrModRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_ngap_MBSSessionSetupOrModRequestTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModRequestTransfer_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_MBSSessionSetupOrModResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_ngap_MBSSessionSetupOrModResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModResponseTransfer_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_MBSSessionSetupOrModFailureTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_ngap_MBSSessionSetupOrModFailureTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionSetupOrModFailureTransfer_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_MBSSessionReleaseResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_ngap_MBSSessionReleaseResponseTransfer(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSSessionReleaseResponseTransfer_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_MBS_DistributionSetupRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -27136,6 +27136,9 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       goto found;
     }
   }
+  if (find_n2_info_content(json_data, tokens, "n2MbsSmInfo",
+                           content_info->content_id, &subdissector))
+    goto found;
   cur_tok = json_get_array(json_data, tokens, "pduSessionList");
   if (cur_tok) {
     int i, count;
@@ -27713,12 +27716,19 @@ proto_reg_handoff_ngap(void)
   dissector_add_string("ngap.n2_ie_type", "HANDOVER_RES_ALLOC_FAIL", create_dissector_handle(dissect_HandoverResourceAllocationUnsuccessfulTransfer_PDU, proto_ngap));
   dissector_add_string("ngap.n2_ie_type", "SECONDARY_RAT_USAGE", create_dissector_handle(dissect_SecondaryRATDataUsageReportTransfer_PDU, proto_ngap));
   dissector_add_string("ngap.n2_ie_type", "PDU_RES_MOD_IND_FAIL", create_dissector_handle(dissect_PDUSessionResourceModifyIndicationUnsuccessfulTransfer_PDU, proto_ngap));
+  dissector_add_string("ngap.n2_ie_type", "UE_CONTEXT_RESUME_REQ", create_dissector_handle(dissect_UEContextResumeRequestTransfer_PDU, proto_ngap));
+  dissector_add_string("ngap.n2_ie_type", "UE_CONTEXT_RESUME_RSP", create_dissector_handle(dissect_UEContextResumeResponseTransfer_PDU, proto_ngap));
+  dissector_add_string("ngap.n2_ie_type", "UE_CONTEXT_SUSPEND_REQ", create_dissector_handle(dissect_UEContextSuspendRequestTransfer_PDU, proto_ngap));
   dissector_add_string("ngap.n2_ie_type", "SRC_TO_TAR_CONTAINER", create_dissector_handle(dissect_SourceToTarget_TransparentContainer_PDU, proto_ngap));
   dissector_add_string("ngap.n2_ie_type", "TAR_TO_SRC_CONTAINER", create_dissector_handle(dissect_TargetToSource_TransparentContainer_PDU, proto_ngap));
   dissector_add_string("ngap.n2_ie_type", "RAN_STATUS_TRANS_CONTAINER", create_dissector_handle(dissect_RANStatusTransfer_TransparentContainer_PDU, proto_ngap));
   dissector_add_string("ngap.n2_ie_type", "SON_CONFIG_TRANSFER", create_dissector_handle(dissect_ngap_SONConfigurationTransfer_PDU, proto_ngap));
   dissector_add_string("ngap.n2_ie_type", "NRPPA_PDU", create_dissector_handle(dissect_NRPPa_PDU_PDU, proto_ngap));
   dissector_add_string("ngap.n2_ie_type", "UE_RADIO_CAPABILITY", create_dissector_handle(dissect_UERadioCapability_PDU, proto_ngap));
+  dissector_add_string("ngap.n2_ie_type", "MBS_SES_REQ", create_dissector_handle(dissect_MBSSessionSetupOrModRequestTransfer_PDU, proto_ngap));
+  dissector_add_string("ngap.n2_ie_type", "MBS_SES_RSP", create_dissector_handle(dissect_MBSSessionSetupOrModResponseTransfer_PDU, proto_ngap));
+  dissector_add_string("ngap.n2_ie_type", "MBS_SES_FAIL", create_dissector_handle(dissect_MBSSessionSetupOrModFailureTransfer_PDU, proto_ngap));
+  dissector_add_string("ngap.n2_ie_type", "MBS_SES_REL_RSP", create_dissector_handle(dissect_MBSSessionReleaseResponseTransfer_PDU, proto_ngap));
 
 
   dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
@@ -28439,13 +28449,29 @@ void proto_register_ngap(void) {
       { "MBS-ActiveSessionInformation-TargettoSourceList", "ngap.MBS_ActiveSessionInformation_TargettoSourceList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_ngap_MBSSessionSetupOrModFailureTransfer_PDU,
+      { "MBSSessionSetupOrModFailureTransfer", "ngap.MBSSessionSetupOrModFailureTransfer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ngap_MBSSessionSetupResponseList_PDU,
       { "MBSSessionSetupResponseList", "ngap.MBSSessionSetupResponseList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_ngap_MBSSessionSetupOrModRequestTransfer_PDU,
+      { "MBSSessionSetupOrModRequestTransfer", "ngap.MBSSessionSetupOrModRequestTransfer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ngap_MBS_SessionFSAIDList_PDU,
       { "MBS-SessionFSAIDList", "ngap.MBS_SessionFSAIDList",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_MBSSessionReleaseResponseTransfer_PDU,
+      { "MBSSessionReleaseResponseTransfer", "ngap.MBSSessionReleaseResponseTransfer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_MBSSessionSetupOrModResponseTransfer_PDU,
+      { "MBSSessionSetupOrModResponseTransfer", "ngap.MBSSessionSetupOrModResponseTransfer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ngap_MBS_SupportIndicator_PDU,
       { "MBS-SupportIndicator", "ngap.MBS_SupportIndicator",
@@ -29215,6 +29241,18 @@ void proto_register_ngap(void) {
       { "UEContextRequest", "ngap.UEContextRequest",
         FT_UINT32, BASE_DEC, VALS(ngap_UEContextRequest_vals), 0,
         NULL, HFILL }},
+    { &hf_ngap_UEContextResumeRequestTransfer_PDU,
+      { "UEContextResumeRequestTransfer", "ngap.UEContextResumeRequestTransfer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_UEContextResumeResponseTransfer_PDU,
+      { "UEContextResumeResponseTransfer", "ngap.UEContextResumeResponseTransfer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_UEContextSuspendRequestTransfer_PDU,
+      { "UEContextSuspendRequestTransfer", "ngap.UEContextSuspendRequestTransfer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ngap_UE_DifferentiationInfo_PDU,
       { "UE-DifferentiationInfo", "ngap.UE_DifferentiationInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -29882,34 +29920,6 @@ void proto_register_ngap(void) {
     { &hf_ngap_NGAP_PDU_PDU,
       { "NGAP-PDU", "ngap.NGAP_PDU",
         FT_UINT32, BASE_DEC, VALS(ngap_NGAP_PDU_vals), 0,
-        NULL, HFILL }},
-    { &hf_ngap_UEContextResumeRequestTransfer_PDU,
-      { "UEContextResumeRequestTransfer", "ngap.UEContextResumeRequestTransfer_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ngap_UEContextResumeResponseTransfer_PDU,
-      { "UEContextResumeResponseTransfer", "ngap.UEContextResumeResponseTransfer_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ngap_UEContextSuspendRequestTransfer_PDU,
-      { "UEContextSuspendRequestTransfer", "ngap.UEContextSuspendRequestTransfer_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ngap_MBSSessionSetupOrModRequestTransfer_PDU,
-      { "MBSSessionSetupOrModRequestTransfer", "ngap.MBSSessionSetupOrModRequestTransfer_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ngap_MBSSessionSetupOrModResponseTransfer_PDU,
-      { "MBSSessionSetupOrModResponseTransfer", "ngap.MBSSessionSetupOrModResponseTransfer_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ngap_MBSSessionSetupOrModFailureTransfer_PDU,
-      { "MBSSessionSetupOrModFailureTransfer", "ngap.MBSSessionSetupOrModFailureTransfer_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ngap_MBSSessionReleaseResponseTransfer_PDU,
-      { "MBSSessionReleaseResponseTransfer", "ngap.MBSSessionReleaseResponseTransfer_element",
-        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ngap_MBS_DistributionSetupRequestTransfer_PDU,
       { "MBS-DistributionSetupRequestTransfer", "ngap.MBS_DistributionSetupRequestTransfer_element",

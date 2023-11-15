@@ -2329,12 +2329,19 @@ HandoverRequestAcknowledgeTransfer             S ngap.n2_ie_type "HANDOVER_REQ_A
 HandoverResourceAllocationUnsuccessfulTransfer S ngap.n2_ie_type "HANDOVER_RES_ALLOC_FAIL"
 SecondaryRATDataUsageReportTransfer            S ngap.n2_ie_type "SECONDARY_RAT_USAGE"
 PDUSessionResourceModifyIndicationUnsuccessfulTransfer S ngap.n2_ie_type "PDU_RES_MOD_IND_FAIL"
+UEContextResumeRequestTransfer                 S ngap.n2_ie_type "UE_CONTEXT_RESUME_REQ"
+UEContextResumeResponseTransfer                S ngap.n2_ie_type "UE_CONTEXT_RESUME_RSP"
+UEContextSuspendRequestTransfer                S ngap.n2_ie_type "UE_CONTEXT_SUSPEND_REQ"
 SourceToTarget-TransparentContainer            S ngap.n2_ie_type "SRC_TO_TAR_CONTAINER"
 TargetToSource-TransparentContainer            S ngap.n2_ie_type "TAR_TO_SRC_CONTAINER"
 RANStatusTransfer-TransparentContainer         S ngap.n2_ie_type "RAN_STATUS_TRANS_CONTAINER"
 SONConfigurationTransfer                       S ngap.n2_ie_type "SON_CONFIG_TRANSFER"
 NRPPa-PDU                                      S ngap.n2_ie_type "NRPPA_PDU"
 UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPABILITY"
+MBSSessionSetupOrModRequestTransfer            S ngap.n2_ie_type "MBS_SES_REQ"
+MBSSessionSetupOrModResponseTransfer           S ngap.n2_ie_type "MBS_SES_RSP"
+MBSSessionSetupOrModFailureTransfer            S ngap.n2_ie_type "MBS_SES_FAIL"
+MBSSessionReleaseResponseTransfer              S ngap.n2_ie_type "MBS_SES_REL_RSP"
 
 #.FN_HDR AMFConfigurationUpdate
   set_message_label(actx, MTYPE_AMF_CONFIGURATION_UPDATE);
