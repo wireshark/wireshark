@@ -1175,7 +1175,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                  * to match what we pass in. */
                 item = proto_tree_add_checksum(udp_tree, tvb, offset + 6, hf_udp_checksum, hf_udp_checksum_status, &ei_udp_checksum_bad,
                                                                                     pinfo, g_htons(partial_cksum), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
-                proto_item_append_text(item, " (matches partial checksum, not 0x%4x, likely caused by \"UDP checksum offload\")", shouldbe_cksum);
+                proto_item_append_text(item, " (matches partial checksum, not 0x%04x, likely caused by \"UDP checksum offload\")", shouldbe_cksum);
                 expert_add_info(pinfo, item, &ei_udp_checksum_partial);
                 computed_cksum = 0;
                 /* XXX: Find some way hint to QUIC (or other dissectors) that
