@@ -8936,32 +8936,27 @@ proto_register_nas_eps(void)
 
     for (i=0; i < NUM_NAS_EPS_COMMON_ELEM; i++, last_offset++)
     {
-        ett_nas_eps_common_elem[i] = -1;
         ett[last_offset] = &ett_nas_eps_common_elem[i];
     }
 
     /* EMM */
     for (i=0; i < NUM_NAS_MSG_EMM; i++, last_offset++)
     {
-        ett_nas_msg_emm[i] = -1;
         ett[last_offset] = &ett_nas_msg_emm[i];
     }
 
     for (i=0; i < NUM_NAS_EMM_ELEM; i++, last_offset++)
     {
-        ett_nas_eps_emm_elem[i] = -1;
         ett[last_offset] = &ett_nas_eps_emm_elem[i];
     }
     /* EPS */
     for (i=0; i < NUM_NAS_MSG_ESM; i++, last_offset++)
     {
-        ett_nas_msg_esm[i] = -1;
         ett[last_offset] = &ett_nas_msg_esm[i];
     }
 
     for (i=0; i < NUM_NAS_ESM_ELEM; i++, last_offset++)
     {
-        ett_nas_eps_esm_elem[i] = -1;
         ett[last_offset] = &ett_nas_eps_esm_elem[i];
     }
 

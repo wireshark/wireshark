@@ -8446,37 +8446,31 @@ proto_register_gsm_a_dtap(void)
 
     for (i=0; i < NUM_GSM_DTAP_MSG_MM; i++, last_offset++)
     {
-        ett_gsm_dtap_msg_mm[i] = -1;
         ett[last_offset] = &ett_gsm_dtap_msg_mm[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_CC; i++, last_offset++)
     {
-        ett_gsm_dtap_msg_cc[i] = -1;
         ett[last_offset] = &ett_gsm_dtap_msg_cc[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_SMS; i++, last_offset++)
     {
-        ett_gsm_dtap_msg_sms[i] = -1;
         ett[last_offset] = &ett_gsm_dtap_msg_sms[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_SS; i++, last_offset++)
     {
-        ett_gsm_dtap_msg_ss[i] = -1;
         ett[last_offset] = &ett_gsm_dtap_msg_ss[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_TP; i++, last_offset++)
     {
-        ett_gsm_dtap_msg_tp[i] = -1;
         ett[last_offset] = &ett_gsm_dtap_msg_tp[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_ELEM; i++, last_offset++)
     {
-        ett_gsm_dtap_elem[i] = -1;
         ett[last_offset] = &ett_gsm_dtap_elem[i];
     }
 

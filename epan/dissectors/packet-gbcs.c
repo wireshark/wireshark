@@ -845,7 +845,6 @@ void proto_register_gbcs_gbz(void)
     gint j = 0;
     ett[j++] = &ett_gbcs_gbz;
     for (gint i = 0; i < GBCS_GBZ_MAX_COMPONENTS; i++, j++) {
-        ett_gbcs_gbz_components[i] = -1;
         ett[j] = &ett_gbcs_gbz_components[i];
     }
 

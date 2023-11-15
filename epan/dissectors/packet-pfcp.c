@@ -17046,7 +17046,6 @@ proto_register_pfcp(void)
     // Each IE gets its own subtree
     int* ie_ett[NUM_PFCP_IES - 1];
     for (unsigned i = 0; i < NUM_PFCP_IES - 1; i++) {
-        ett_pfcp_elem[i] = -1;
         ie_ett[i] = &ett_pfcp_elem[i];
     }
 

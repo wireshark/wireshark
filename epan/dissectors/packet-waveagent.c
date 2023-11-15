@@ -160,8 +160,8 @@ static gint ett_waveagent = -1;
 static gint ett_statechange = -1;
 static gint ett_phytypes = -1;
 static gint ett_fsflags = -1;
-static gint ett_scindex[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };  /* NUM_STATE_CHANGES */
-static gint ett_bss[8]     = { -1, -1, -1, -1, -1, -1, -1, -1 };  /* NUM_BSS           */
+static gint ett_scindex[8];  /* NUM_STATE_CHANGES */
+static gint ett_bss[8];  /* NUM_BSS           */
 static gint ett_relaymessage = -1;
 
 

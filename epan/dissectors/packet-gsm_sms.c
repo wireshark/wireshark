@@ -158,7 +158,7 @@ static gint hf_gsm_sms_vp_validity_period_format = -1;
 static gint hf_gsm_sms_vp_validity_period = -1;
 static gint hf_gsm_sms_dis_field_definition = -1;
 static gint hf_gsm_sms_dis_field_st_error = -1;
-static gint hf_gsm_sms_dis_field_st_reason[4] = { -1, -1, -1, -1 };
+static gint hf_gsm_sms_dis_field_st_reason[4];
 static gint hf_gsm_sms_tp_user_data_length = -1;
 static gint hf_gsm_sms_tp_command_type = -1;
 static gint hf_gsm_sms_tp_message_number = -1;
@@ -3602,14 +3602,12 @@ proto_register_gsm_sms(void)
 #if 0
     for (i=0; i < NUM_MSGS; i++, last_offset++)
     {
-        ett_msgs[i] = -1;
         ett[last_offset] = &ett_msgs[i];
     }
 #endif
 
     for (i=0; i < NUM_UDH_IEIS; i++, last_offset++)
     {
-        ett_udh_ieis[i] = -1;
         ett[last_offset] = &ett_udh_ieis[i];
     }
 

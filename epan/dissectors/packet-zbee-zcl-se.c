@@ -10557,13 +10557,11 @@ proto_register_zbee_zcl_pp(void)
 
     /* Initialize Publish Top Up Log subtrees */
     for (guint i = 0; i < ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT; i++, j++) {
-        ett_zbee_zcl_pp_publish_top_up_entry[i] = -1;
         ett[j] = &ett_zbee_zcl_pp_publish_top_up_entry[i];
     }
 
     /* Initialize Publish Debt Log subtrees */
     for (guint i = 0; i < ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT; i++, j++ ) {
-        ett_zbee_zcl_pp_publish_debt_log_entry[i] = -1;
         ett[j] = &ett_zbee_zcl_pp_publish_debt_log_entry[i];
     }
 

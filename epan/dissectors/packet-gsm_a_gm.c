@@ -10000,19 +10000,16 @@ proto_register_gsm_a_gm(void)
 
 	for (i=0; i<NUM_GSM_DTAP_MSG_GMM; i++, last_offset++)
 	{
-		ett_gsm_dtap_msg_gmm[i] = -1;
 		ett[last_offset] = &ett_gsm_dtap_msg_gmm[i];
 	}
 
 	for (i=0; i<NUM_GSM_DTAP_MSG_SM; i++, last_offset++)
 	{
-		ett_gsm_dtap_msg_sm[i] = -1;
 		ett[last_offset] = &ett_gsm_dtap_msg_sm[i];
 	}
 
 	for (i=0; i<NUM_GSM_GM_ELEM; i++, last_offset++)
 	{
-		ett_gsm_gm_elem[i] = -1;
 		ett[last_offset] = &ett_gsm_gm_elem[i];
 	}
 

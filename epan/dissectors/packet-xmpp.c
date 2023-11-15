@@ -1454,7 +1454,6 @@ proto_register_xmpp(void) {
     gint i;
     for(i=0;i<ETT_UNKNOWN_LEN;i++)
     {
-        ett_unknown[i] = -1;
         ett_unknown_ptr[i] = &ett_unknown[i];
     }
 

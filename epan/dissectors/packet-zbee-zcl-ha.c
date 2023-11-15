@@ -902,7 +902,6 @@ proto_register_zbee_zcl_appl_evtalt(void)
 
     /* initialize attribute subtree types */
     for ( i = 0, j = ZBEE_ZCL_APPL_EVTALT_NUM_GENERIC_ETT; i < ZBEE_ZCL_APPL_EVTALT_NUM_STRUCT_ETT; i++, j++) {
-        ett_zbee_zcl_appl_evtalt_alerts_struct[i] = -1;
         ett[j] = &ett_zbee_zcl_appl_evtalt_alerts_struct[i];
     }
 
@@ -1256,7 +1255,6 @@ proto_register_zbee_zcl_appl_stats(void)
 
     /* initialize attribute subtree types */
     for ( i = 0, j = ZBEE_ZCL_APPL_STATS_NUM_GENERIC_ETT; i < ZBEE_ZCL_APPL_STATS_NUM_LOGS_ETT; i++, j++ ) {
-        ett_zbee_zcl_appl_stats_logs[i] = -1;
         ett[j] = &ett_zbee_zcl_appl_stats_logs[i];
     }
 

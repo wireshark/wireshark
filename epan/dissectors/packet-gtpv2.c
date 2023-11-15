@@ -12573,7 +12573,6 @@ void proto_register_gtpv2(void)
 
     for (i=0; i < NUM_GTPV2_IES; i++, last_offset++)
     {
-        ett_gtpv2_ies[i] = -1;
         ett_gtpv2_array[last_offset] = &ett_gtpv2_ies[i];
     }
 

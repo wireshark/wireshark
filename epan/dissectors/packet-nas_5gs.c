@@ -13838,44 +13838,37 @@ proto_register_nas_5gs(void)
 
     for (i = 0; i < NUM_NAS_5GS_COMMON_ELEM; i++, last_offset++)
     {
-        ett_nas_5gs_common_elem[i] = -1;
         ett[last_offset] = &ett_nas_5gs_common_elem[i];
     }
 
     /* MM */
     for (i = 0; i < NUM_NAS_5GS_MM_MSG; i++, last_offset++)
     {
-        ett_nas_5gs_mm_msg[i] = -1;
         ett[last_offset] = &ett_nas_5gs_mm_msg[i];
     }
 
     for (i = 0; i < NUM_NAS_5GS_MM_ELEM; i++, last_offset++)
     {
-        ett_nas_5gs_mm_elem[i] = -1;
         ett[last_offset] = &ett_nas_5gs_mm_elem[i];
     }
 
     for (i = 0; i < NUM_NAS_5GS_SM_MSG; i++, last_offset++)
     {
-        ett_nas_5gs_sm_msg[i] = -1;
         ett[last_offset] = &ett_nas_5gs_sm_msg[i];
     }
 
     for (i = 0; i < NUM_NAS_5GS_SM_ELEM; i++, last_offset++)
     {
-        ett_nas_5gs_sm_elem[i] = -1;
         ett[last_offset] = &ett_nas_5gs_sm_elem[i];
     }
 
     for (i = 0; i < NUM_NAS_5GS_UPDP_MSG; i++, last_offset++)
     {
-        ett_nas_5gs_updp_msg[i] = -1;
         ett[last_offset] = &ett_nas_5gs_updp_msg[i];
     }
 
     for (i = 0; i < NUM_NAS_5GS_UPDP_ELEM; i++, last_offset++)
     {
-        ett_nas_5gs_updp_elem[i] = -1;
         ett[last_offset] = &ett_nas_5gs_updp_elem[i];
     }
 

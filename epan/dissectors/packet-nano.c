@@ -77,7 +77,7 @@ static gint ett_nano = -1;
 static gint ett_nano_header = -1;
 static gint ett_nano_extensions = -1;
 static gint ett_nano_peers = -1;
-static gint ett_nano_peer_details[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+static gint ett_nano_peer_details[8];
 static gint ett_nano_block = -1;
 static gint ett_nano_vote = -1;
 static gint ett_nano_bulk_pull = -1;

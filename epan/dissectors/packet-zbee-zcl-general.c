@@ -9637,12 +9637,10 @@ void proto_register_zbee_zcl_part(void)
 
     /* initialize attribute subtree types */
     for ( i = 0, j = ZBEE_ZCL_PART_NUM_GENERIC_ETT; i < ZBEE_ZCL_PART_NUM_NACK_ID_ETT; i++, j++) {
-        ett_zbee_zcl_part_nack_id_list[i] = -1;
         ett[j] = &ett_zbee_zcl_part_nack_id_list[i];
     }
 
     for ( i = 0; i < ZBEE_ZCL_PART_NUM_ATTRS_ID_ETT; i++, j++) {
-        ett_zbee_zcl_part_attrs_id_list[i] = -1;
         ett[j] = &ett_zbee_zcl_part_attrs_id_list[i];
     }
 

@@ -1695,7 +1695,7 @@ static gint ett_r3debugmsg = -1;
 static gint ett_r3defineexceptionstartdate = -1;
 static gint ett_r3defineexceptionenddate = -1;
 static gint ett_r3defineexceptiongroupbits = -1;
-static gint ett_r3definecalendarmonth [13] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static gint ett_r3definecalendarmonth [13];
 static gint ett_r3definetimezonestarttime = -1;
 static gint ett_r3definetimezoneendtime = -1;
 static gint ett_r3definetimezonedaymap = -1;

@@ -7588,13 +7588,11 @@ proto_register_bssgp(void)
 
     for (i=0; i < NUM_BSSGP_ELEM; i++, last_offset++)
     {
-        ett_bssgp_elem[i] = -1;
         ett[last_offset] = &ett_bssgp_elem[i];
     }
 
     for (i=0; i < NUM_BSSGP_MSG; i++, last_offset++)
     {
-        ett_bssgp_msg[i] = -1;
         ett[last_offset] = &ett_bssgp_msg[i];
     }
 

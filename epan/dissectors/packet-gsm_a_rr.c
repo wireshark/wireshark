@@ -15024,25 +15024,21 @@ proto_register_gsm_a_rr(void)
 
     for (i=0; i < NUM_GSM_DTAP_MSG_RR; i++, last_offset++)
     {
-        ett_gsm_dtap_msg_rr[i] = -1;
         ett[last_offset] = &ett_gsm_dtap_msg_rr[i];
     }
 
     for (i=0; i < NUM_GSM_RR_ELEM; i++, last_offset++)
     {
-        ett_gsm_rr_elem[i] = -1;
         ett[last_offset] = &ett_gsm_rr_elem[i];
     }
 
     for (i=0; i < NUM_GSM_RR_REST_OCTETS_ELEM; i++, last_offset++)
     {
-        ett_gsm_rr_rest_octets_elem[i] = -1;
         ett[last_offset] = &ett_gsm_rr_rest_octets_elem[i];
     }
 
     for (i=0; i < NUM_GSM_SACCH_MSG_RR; i++, last_offset++)
     {
-        ett_gsm_sacch_msg_rr[i] = -1;
         ett[last_offset] = &ett_gsm_sacch_msg_rr[i];
     }
 

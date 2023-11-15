@@ -1947,7 +1947,7 @@ static const true_false_string tfs_gen_uni_direction = { "U: 1 - Upstream label/
 
 static const unit_name_string units_word_not_including_header = { " word, not including header", " words, not including header" };
 
-static int hf_rsvp_filter[RSVPF_MAX] = { -1 };
+static int hf_rsvp_filter[RSVPF_MAX];
 
 /* RSVP Conversation related Hash functions */
 
@@ -10323,7 +10323,6 @@ proto_register_rsvp(void)
 
     /* Build the tree array */
     for (i=0; i<TT_MAX; i++) {
-        ett_treelist[i] = -1;
         ett_tree[i] = &(ett_treelist[i]);
     }
     proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)", "RSVP", "rsvp");

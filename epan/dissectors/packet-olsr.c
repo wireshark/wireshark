@@ -960,7 +960,6 @@ void proto_register_olsr(void) {
   memcpy(ett, ett_base, sizeof(ett_base));
   j = array_length(ett_base);
   for (i=0; i<G_MAXUINT8+1; i++) {
-    ett_olsr_message[i] = -1;
     ett[j++] = &ett_olsr_message[i];
   }
 

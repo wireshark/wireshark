@@ -201,7 +201,7 @@ static int hf_rr_reject_cause = -1;
 static int hf_rr_reject_cause_b = -1;
 static int hf_rr_gps_timestamp = -1;
 static int hf_rr_gps_power_control_params = -1;
-static int hf_rr_tmsi_avail_msk_tmsi[4] = { -1, -1, -1, -1 };
+static int hf_rr_tmsi_avail_msk_tmsi[4];
 static int hf_rr_gps_almanac_pn = -1;
 static int hf_rr_gps_almanac_wn = -1;
 static int hf_rr_gps_almanac_word = -1;
@@ -248,7 +248,7 @@ static int hf_rr_timing_adv_idx_spare = -1;
 static int hf_rr_tlli = -1;
 static int hf_rr_pkt_pwr_ctrl_prm_par = -1;
 static int hf_rr_pkt_pwr_ctrl_prm_spare = -1;
-static int hf_rr_persistence_lvl[4] = { -1, -1, -1, -1 };
+static int hf_rr_persistence_lvl[4];
 static int hf_rr_protocol_discriminator = -1;
 static int hf_rr_message_elements = -1;
 

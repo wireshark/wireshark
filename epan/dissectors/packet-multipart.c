@@ -116,19 +116,7 @@ static const multipart_header_t multipart_headers[] = {
 static gint hf_multipart_type = -1;
 static gint hf_multipart_part = -1;
 static gint hf_multipart_sec_token_len = -1;
-
-static gint hf_header_array[] = {
-    -1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
-    -1, /* "Content-Description" */
-    -1, /* "Content-Disposition" */
-    -1, /* "Content-Encoding" */
-    -1, /* "Content-Id" */
-    -1, /* "Content-Language" */
-    -1, /* "Content-Length" */
-    -1, /* "Content-Transfer-Encoding" */
-    -1, /* "Content-Type" */
-    -1, /* "OriginalContent" */
-};
+static gint hf_header_array[array_length(multipart_headers)];
 
 /* Define media_type/Content type table */
 static dissector_table_t media_type_dissector_table;

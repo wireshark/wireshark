@@ -58,15 +58,8 @@ static int proto_sndcp_xid   = -1;
 * When the P bit is not set, try to decode the algo based on what whas stored.
 * Entity ranges from 0 to 31 (6.5.1.1.3)
 */
-static guint8 dcomp_entity_algo_id[32]={-1, -1, -1, -1, -1, -1, -1, -1,
-                                        -1, -1, -1, -1, -1, -1, -1, -1,
-                                        -1, -1, -1, -1, -1, -1, -1, -1,
-                                        -1, -1, -1, -1, -1, -1, -1, -1};
-static guint8 pcomp_entity_algo_id[32]={-1, -1, -1, -1, -1, -1, -1, -1,
-                                        -1, -1, -1, -1, -1, -1, -1, -1,
-                                        -1, -1, -1, -1, -1, -1, -1, -1,
-                                        -1, -1, -1, -1, -1, -1, -1, -1};
-
+static guint8 dcomp_entity_algo_id[32];
+static guint8 pcomp_entity_algo_id[32];
 
 
 /* L3 XID parsing */
@@ -80,7 +73,7 @@ static int hf_sndcp_xid_comp_spare_byte2 = -1;
 static int hf_sndcp_xid_comp_algo_id = -1;
 static int hf_sndcp_xid_comp_len = -1;
 /* There is currently a maximum of 15 DCOMP/PCOMP: 6.5.1.1.5 */
-static int hf_sndcp_xid_comp[15] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_sndcp_xid_comp[15];
 static int hf_sndcp_xid_comp_spare = -1;
 
 static int hf_element_applicable_nsapi_15 = -1;

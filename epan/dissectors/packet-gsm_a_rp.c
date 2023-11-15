@@ -576,13 +576,11 @@ proto_register_gsm_a_rp(void)
 
 	for (i=0; i < NUM_GSM_RP_MSG; i++, last_offset++)
 	{
-		ett_gsm_rp_msg[i] = -1;
 		ett[last_offset] = &ett_gsm_rp_msg[i];
 	}
 
 	for (i=0; i < NUM_GSM_RP_ELEM; i++, last_offset++)
 	{
-		ett_gsm_rp_elem[i] = -1;
 		ett[last_offset] = &ett_gsm_rp_elem[i];
 	}
 

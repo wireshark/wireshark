@@ -12724,7 +12724,6 @@ proto_register_gtp(void)
 
     for (i=0; i < NUM_GTP_IES; i++, last_offset++)
     {
-        ett_gtp_ies[i] = -1;
         ett_gtp_array[last_offset] = &ett_gtp_ies[i];
     }
 

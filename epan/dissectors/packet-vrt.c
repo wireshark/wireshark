@@ -86,7 +86,7 @@ static int hf_vrt_cid = -1; /* 64-bit class ID (opt.) */
 static int hf_vrt_cid_oui = -1; /* 24-bit class ID OUI */
 static int hf_vrt_cid_icc = -1; /* 16-bit class ID ICC */
 static int hf_vrt_cid_pcc = -1; /* 16-bit class ID PCC */
-static int hf_vrt_cif[8] = { -1, -1, -1, -1, -1, -1, -1, -1}; /* 32-bit CIF0-CIF7 (opt.) */
+static int hf_vrt_cif[8]; /* 32-bit CIF0-CIF7 (opt.) */
 static int hf_vrt_cif0_change_flag = -1; /* 1-bit context field change indicator */
 static int hf_vrt_cif0_ref_pt_id = -1; /* 1-bit reference point identifier */
 static int hf_vrt_cif0_bandwidth = -1; /* 1-bit bandwidth */

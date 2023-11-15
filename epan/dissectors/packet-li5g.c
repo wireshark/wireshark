@@ -225,9 +225,6 @@ dissect_li5g_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void
 proto_register_li5g(void)
 {
-    memset(ett_attrContents, -1, sizeof(ett_attrContents));
-    memset(hf_li5g_attrContents, -1, sizeof(hf_li5g_attrContents));
-
     static hf_register_info hf[] = {
         { &hf_li5g_version, { "Version", "li5g.ver", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_pduType, { "PDU Type", "li5g.type", FT_UINT16, BASE_DEC, VALS(pdu_type_vals), 0x0, NULL, HFILL }},

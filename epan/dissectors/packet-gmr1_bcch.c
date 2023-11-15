@@ -44,8 +44,7 @@ static int hf_seg1a_syncinfo_sb_symbol_offset = -1;
 static int hf_seg1a_syncinfo_sa_freq_offset = -1;
 
 static int hf_seg1a_rachctrl_max_retrans = -1;
-static int hf_seg1a_rachctrl_acc[16] = { -1, -1, -1, -1, -1, -1, -1, -1,
-					 -1, -1, -1, -1, -1, -1, -1, -1 };
+static int hf_seg1a_rachctrl_acc[16];
 static int hf_seg1a_rachctrl_cell_bar_access = -1;
 
 static int hf_seg1a_miscinfo_sb_reselection_hysteresis = -1;

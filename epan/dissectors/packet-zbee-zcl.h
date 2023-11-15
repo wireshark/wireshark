@@ -130,7 +130,7 @@ typedef struct{
 #define ZBEE_ZCL_NUM_ATTR_ETT                   64
 #define ZBEE_ZCL_NUM_IND_FIELD                  16
 #define ZBEE_ZCL_NUM_ARRAY_ELEM_ETT             16
-#define ZBEE_ZCL_NUM_TOTAL_ETT                  (ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT + ZBEE_ZCL_NUM_ARRAY_ELEM_ETT)
+#define ZBEE_ZCL_NUM_TOTAL_ETT                  (ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT + ZBEE_ZCL_NUM_IND_FIELD + ZBEE_ZCL_NUM_ARRAY_ELEM_ETT)
 #define ZBEE_ZCL_DIR_REPORTED                   0
 #define ZBEE_ZCL_DIR_RECEIVED                   1
 /* seconds elapsed from year 1970 to 2000 */

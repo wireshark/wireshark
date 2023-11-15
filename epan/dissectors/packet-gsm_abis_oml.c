@@ -742,8 +742,8 @@ static int hf_attr_ipa_rlc_cfg2_t_dl_tbf_ext = -1;
 static int hf_attr_ipa_rlc_cfg2_t_ul_tbf_ext = -1;
 static int hf_attr_ipa_rlc_cfg2_init_cs = -1;
 static int hf_attr_ipa_rlc_cfg2_init_mcs = -1;
-static int hf_attr_ipa_cs[4] = { -1, -1, -1, -1 };
-static int hf_attr_ipa_mcs[9] = { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+static int hf_attr_ipa_cs[4];
+static int hf_attr_ipa_mcs[9];
 
 /* initialize the subtree pointers */
 static int ett_oml = -1;

@@ -416,7 +416,7 @@ static int hf_eapwps_tlv_selected_registrar_config_methods_keypad = -1;
 static int hf_eapwps_tlv_primary_device_type = -1;
 static int hf_eapwps_tlv_primary_device_type_category = -1;
 #define WPS_DEVICE_TYPE_CATEGORY_MAX 11
-static int hf_eapwps_tlv_primary_device_type_subcategory[WPS_DEVICE_TYPE_CATEGORY_MAX] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+static int hf_eapwps_tlv_primary_device_type_subcategory[WPS_DEVICE_TYPE_CATEGORY_MAX];
 static int hf_eapwps_tlv_secondary_device_type_list = -1;
 static int hf_eapwps_tlv_portable_device = -1;
 static int hf_eapwps_tlv_ap_setup_locked = -1;

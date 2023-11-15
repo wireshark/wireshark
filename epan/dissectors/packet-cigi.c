@@ -1858,12 +1858,12 @@ static int hf_cigi3_3_symbol_circle_definition_drawing_style = -1;
 static int hf_cigi3_3_symbol_circle_definition_stipple_pattern = -1;
 static int hf_cigi3_3_symbol_circle_definition_line_width = -1;
 static int hf_cigi3_3_symbol_circle_definition_stipple_pattern_length = -1;
-static int hf_cigi3_3_symbol_circle_definition_center_u[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
-static int hf_cigi3_3_symbol_circle_definition_center_v[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
-static int hf_cigi3_3_symbol_circle_definition_radius[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
-static int hf_cigi3_3_symbol_circle_definition_inner_radius[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
-static int hf_cigi3_3_symbol_circle_definition_start_angle[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
-static int hf_cigi3_3_symbol_circle_definition_end_angle[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static int hf_cigi3_3_symbol_circle_definition_center_u[9];
+static int hf_cigi3_3_symbol_circle_definition_center_v[9];
+static int hf_cigi3_3_symbol_circle_definition_radius[9];
+static int hf_cigi3_3_symbol_circle_definition_inner_radius[9];
+static int hf_cigi3_3_symbol_circle_definition_start_angle[9];
+static int hf_cigi3_3_symbol_circle_definition_end_angle[9];
 
 static const true_false_string cigi3_3_symbol_circle_definition_drawing_style_tfs = {
     "Fill",
@@ -1878,8 +1878,8 @@ static int hf_cigi3_3_symbol_line_definition_primitive_type = -1;
 static int hf_cigi3_3_symbol_line_definition_stipple_pattern = -1;
 static int hf_cigi3_3_symbol_line_definition_line_width = -1;
 static int hf_cigi3_3_symbol_line_definition_stipple_pattern_length = -1;
-static int hf_cigi3_3_symbol_line_definition_vertex_u[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-static int hf_cigi3_3_symbol_line_definition_vertex_v[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static int hf_cigi3_3_symbol_line_definition_vertex_u[29];
+static int hf_cigi3_3_symbol_line_definition_vertex_v[29];
 
 #if 0
 static const value_string cigi3_3_symbol_line_definition_primitive_type_vals[] = {

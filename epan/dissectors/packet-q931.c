@@ -3922,7 +3922,6 @@ proto_register_q931(void)
 
     for (i=0; i < NUM_IE; i++, last_offset++)
     {
-        ett_q931_ie[i] = -1;
         ett[last_offset] = &ett_q931_ie[i];
     }
 

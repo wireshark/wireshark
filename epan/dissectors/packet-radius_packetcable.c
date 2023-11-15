@@ -105,11 +105,7 @@ static int hf_packetcable_em_header_event_time = -1;
 static int hf_packetcable_em_header_time_zone_dst = -1;
 
 /* This is slightly ugly.  */
-static int hf_packetcable_qos_desc_fields[] =
-{
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-};
-
+static int hf_packetcable_qos_desc_fields[16];
 
 static gint ett_radius_vendor_packetcable_bcid = -1;
 static gint ett_radius_vendor_packetcable_status = -1;

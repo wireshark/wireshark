@@ -12808,12 +12808,6 @@ proto_register_ansi_a(void)
         0
     };
 
-    memset((void *) ett_dtap_msg, -1, sizeof(ett_dtap_msg));
-    memset((void *) ett_bsmap_msg, -1, sizeof(ett_bsmap_msg));
-    memset((void *) ett_ansi_elem_1, -1, sizeof(ett_ansi_elem_1));
-    memset((void *) ett_ansi_fwd_ms_info_rec, -1, sizeof(gint) * NUM_FWD_MS_INFO_REC);
-    memset((void *) ett_ansi_rev_ms_info_rec, -1, sizeof(gint) * NUM_REV_MS_INFO_REC);
-
     ett[0] = &ett_bsmap;
     ett[1] = &ett_dtap;
     ett[2] = &ett_elems;

@@ -2823,17 +2823,14 @@ void proto_register_zbee_zcl(void)
 
     /* initialize attribute subtree types */
     for ( i = 0; i < ZBEE_ZCL_NUM_ATTR_ETT; i++, j++) {
-        ett_zbee_zcl_attr[i] = -1;
         ett[j] = &ett_zbee_zcl_attr[i];
     }
 
-
-    for(i=0; i<ZBEE_ZCL_NUM_IND_FIELD; i++){
-        ett_zbee_zcl_sel[i] = -1;
+    for( i = 0; i < ZBEE_ZCL_NUM_IND_FIELD; i++, j++) {
+        ett[j] = &ett_zbee_zcl_sel[i];
     }
 
     for ( i = 0; i < ZBEE_ZCL_NUM_ARRAY_ELEM_ETT; i++, j++ ) {
-        ett_zbee_zcl_array_elements[i] = -1;
         ett[j] = &ett_zbee_zcl_array_elements[i];
     }
 

@@ -8441,13 +8441,11 @@ proto_register_gsm_a_bssmap(void)
 
     for (i=0; i < NUM_GSM_BSSMAP_MSG; i++, last_offset++)
     {
-        ett_gsm_bssmap_msg[i] = -1;
         ett[last_offset] = &ett_gsm_bssmap_msg[i];
     }
 
     for (i=0; i < NUM_GSM_BSSMAP_ELEM; i++, last_offset++)
     {
-        ett_gsm_bssmap_elem[i] = -1;
         ett[last_offset] = &ett_gsm_bssmap_elem[i];
     }
 

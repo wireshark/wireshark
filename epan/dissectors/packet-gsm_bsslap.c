@@ -935,13 +935,11 @@ proto_register_gsm_bsslap(void)
 
     for (i=0; i < NUM_GSM_BSSLAP_MSG; i++, last_offset++)
     {
-        ett_gsm_bsslap_msg[i] = -1;
         ett[last_offset] = &ett_gsm_bsslap_msg[i];
     }
 
     for (i=0; i < NUM_GSM_BSSLAP_ELEM; i++, last_offset++)
     {
-        ett_gsm_bsslap_elem[i] = -1;
         ett[last_offset] = &ett_gsm_bsslap_elem[i];
     }
 

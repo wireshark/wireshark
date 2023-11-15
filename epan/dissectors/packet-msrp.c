@@ -89,24 +89,7 @@ static const msrp_header_t msrp_headers[] = {
     { "Authentication-Info"},   /*  15 */
 };
 
-static gint hf_header_array[] = {
-    -1, /* 0"Unknown-header" - Pad so that the real headers start at index 1 */
-    -1, /* 1"From-Path                                                       */
-    -1, /* 2"To-Path                                                         */
-    -1, /* 3"Message-ID"                                                     */
-    -1, /* 4"Success-Report"                                                 */
-    -1, /* 5"Failure-Report"                                                 */
-    -1, /* 6"Byte-Range"                                                     */
-    -1, /* 7"Status"                                                         */
-    -1, /* 8"Content-Type"                                                   */
-    -1, /* 9"Content-ID"                                                     */
-    -1, /* 10"Content-Description"                                           */
-    -1, /* 11"Content-Disposition"                                           */
-    -1, /* 12"Use-Path"                                                      */
-    -1, /* 13"WWW-Authenticate"                                              */
-    -1, /* 14"Authorization"                                                 */
-    -1, /* 15"Authentication-Info"                                           */
-};
+static gint hf_header_array[array_length(msrp_headers)];
 
 #define MSRP_FROM_PATH                          1
 #define MSRP_TO_PATH                            2

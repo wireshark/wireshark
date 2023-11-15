@@ -56,7 +56,7 @@ static capture_dissector_handle_t ax25_cap_handle;
 static int proto_ax25		= -1;
 static int hf_ax25_dst		= -1;
 static int hf_ax25_src		= -1;
-static int hf_ax25_via[ AX25_MAX_DIGIS ]	= { -1,-1,-1,-1,-1,-1,-1,-1 };
+static int hf_ax25_via[ AX25_MAX_DIGIS ];
 
 static int hf_ax25_ctl		= -1;
 

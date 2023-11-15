@@ -138,7 +138,7 @@ static int hf_gmr_revision_id                                              = -1;
 static int hf_zpas_network                                                 = -1;
 static int hf_zpas_srv_domain                                              = -1;
 static int hf_zusim_usim_card                                              = -1;
-static int hf_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_indicator[20];
 
 static expert_field ei_unknown_command                                = EI_INIT;
 static expert_field ei_invalid_usage                                  = EI_INIT;

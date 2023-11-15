@@ -828,15 +828,10 @@ void proto_register_FiveCoRAP(void)
     static gint *ett[5 * MAX_SUB_DEVICES];
     for (i = 0; i < MAX_SUB_DEVICES; i++)
     {
-        ett_fiveco[i] = -1;
         ett[5*i + 0] = &ett_fiveco[i];
-        ett_fiveco_data[i] = -1;
         ett[5*i + 1] = &ett_fiveco_data[i];
-        ett_fiveco_easyip[i] = -1;
         ett[5*i + 2] = &ett_fiveco_easyip[i];
-        ett_fiveco_sub[i] = -1;
         ett[5*i + 3] = &ett_fiveco_sub[i];
-        ett_fiveco_sub_details[i] = -1;
         ett[5*i + 4] = &ett_fiveco_sub_details[i];
     }
 

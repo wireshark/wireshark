@@ -208,7 +208,7 @@ static int hf_packetbb_addr_flags_hassingleprelen = -1;
 static int hf_packetbb_addr_flags_hasmultiprelen = -1;
 static int hf_packetbb_addr_head = -1;
 static int hf_packetbb_addr_tail = -1;
-static int hf_packetbb_addr_value[4] = { -1, -1, -1, -1 };
+static int hf_packetbb_addr_value[4];
 static int hf_packetbb_addr_value_mid = -1;
 static int hf_packetbb_addr_value_prefix = -1;
 static int hf_packetbb_tlvblock = -1;
@@ -1384,9 +1384,6 @@ void proto_register_packetbb(void) {
   memcpy(ett, ett_base, sizeof(ett_base));
   j = array_length(ett_base);
   for (i=0; i<PACKETBB_MSG_TLV_LENGTH; i++) {
-    ett_packetbb_msg[i] = -1;
-    ett_packetbb_tlv[i] = -1;
-
     ett[j++] = &ett_packetbb_msg[i];
     ett[j++] = &ett_packetbb_tlv[i];
   }

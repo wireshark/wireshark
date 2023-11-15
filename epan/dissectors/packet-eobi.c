@@ -50,7 +50,7 @@ static expert_field ei_eobi_invalid_length = EI_INIT;
 static expert_field ei_eobi_missing = EI_INIT;
 static expert_field ei_eobi_overused = EI_INIT;
 
-static int hf_eobi[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+static int hf_eobi[83];
 static int hf_eobi_dscp_exec_summary = -1;
 static int hf_eobi_dscp_improved = -1;
 static int hf_eobi_dscp_widened = -1;
@@ -996,7 +996,7 @@ struct ETI_Field {
                                // or max value if ETI_COUNTER
 };
 
-static gint ett_eobi[] = { -1, -1, -1, -1, -1, -1, -1 };
+static gint ett_eobi[7];
 static gint ett_eobi_dscp = -1;
 /* This method dissects fully reassembled messages */
 static int

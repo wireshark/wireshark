@@ -3284,25 +3284,21 @@ proto_register_ansi_637(void)
 
     for (i=0; i < NUM_TELE_PARAM; i++)
     {
-        ett_ansi_637_tele_param[i] = -1;
         ett[NUM_INDIVIDUAL_PARAMS+i] = &ett_ansi_637_tele_param[i];
     }
 
     for (i=0; i < NUM_TRANS_MSG_TYPE; i++)
     {
-        ett_ansi_637_trans_msg[i] = -1;
         ett[NUM_INDIVIDUAL_PARAMS+NUM_TELE_PARAM+i] = &ett_ansi_637_trans_msg[i];
     }
 
     for (i=0; i < NUM_TRANS_PARAM; i++)
     {
-        ett_ansi_637_trans_param[i] = -1;
         ett[NUM_INDIVIDUAL_PARAMS+NUM_TELE_PARAM+NUM_TRANS_MSG_TYPE+i] = &ett_ansi_637_trans_param[i];
     }
 
     for (i=0; i < NUM_CMAS_PARAM; i++)
     {
-        ett_tia_1149_cmas_param[i] = -1;
         ett[NUM_INDIVIDUAL_PARAMS+NUM_TELE_PARAM+NUM_TRANS_MSG_TYPE+NUM_TRANS_PARAM+i] = &ett_tia_1149_cmas_param[i];
     }
 

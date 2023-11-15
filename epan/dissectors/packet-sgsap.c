@@ -1684,13 +1684,11 @@ void proto_register_sgsap(void) {
 
     for (i=0; i < NUM_SGSAP_ELEM; i++, last_offset++)
     {
-        ett_sgsap_elem[i] = -1;
         ett[last_offset] = &ett_sgsap_elem[i];
     }
 
     for (i=0; i < NUM_SGSAP_MSG; i++, last_offset++)
     {
-        ett_sgsap_msg[i] = -1;
         ett[last_offset] = &ett_sgsap_msg[i];
     }
 

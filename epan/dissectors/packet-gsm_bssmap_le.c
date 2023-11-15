@@ -1287,13 +1287,11 @@ proto_register_gsm_bssmap_le(void)
 
 	for (i=0; i < NUM_GSM_BSSMAP_LE_MSG; i++, last_offset++)
 	{
-		ett_gsm_bssmap_le_msg[i] = -1;
 		ett[last_offset] = &ett_gsm_bssmap_le_msg[i];
 	}
 
 	for (i=0; i < NUM_GSM_BSSMAP_LE_ELEM; i++, last_offset++)
 	{
-		ett_gsm_bssmap_le_elem[i] = -1;
 		ett[last_offset] = &ett_gsm_bssmap_le_elem[i];
 	}
 
