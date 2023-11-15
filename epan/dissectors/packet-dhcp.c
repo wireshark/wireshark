@@ -736,7 +736,8 @@ static expert_field ei_dhcp_option242_avaya_vlantest_invalid = EI_INIT;
 static expert_field ei_dhcp_option93_client_arch_ambiguous = EI_INIT;
 
 static dissector_table_t dhcp_option_table;
-static dissector_table_t dhcp_enterprise_table;
+static dissector_table_t dhcp_enterprise_class_table;
+static dissector_table_t dhcp_enterprise_specific_table;
 static heur_dissector_list_t dhcp_vendor_id_subdissector;
 static heur_dissector_list_t dhcp_vendor_info_subdissector;
 static dissector_handle_t dhcp_handle;
@@ -3153,7 +3154,9 @@ static int
 dissect_dhcpopt_vi_vendor_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	int data_len;
+	guint32 enterprise = 0;
+	guint32 option_data_len = 0;
+	guint32 data_len = 0;
 	int s_end;
 	proto_item *eti;
 	proto_tree *e_tree;
@@ -3165,30 +3168,34 @@ dissect_dhcpopt_vi_vendor_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		return 1;
 	}
 
-	while (tvb_reported_length_remaining(tvb, offset)  >= 5) {
+	while (tvb_reported_length_remaining(tvb, offset) >= 5) {
 
-		eti = proto_tree_add_item(tree, hf_dhcp_option_vi_class_enterprise, tvb, offset, 4, ENC_BIG_ENDIAN);
+		eti = proto_tree_add_item_ret_uint(tree, hf_dhcp_option_vi_class_enterprise, tvb, offset, 4, ENC_BIG_ENDIAN, &enterprise);
 		e_tree = proto_item_add_subtree(eti, ett_dhcp_option);
 		offset += 4;
-		proto_tree_add_item(e_tree, hf_dhcp_option_vi_class_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-		data_len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item_ret_uint(e_tree, hf_dhcp_option_vi_class_data_length, tvb, offset, 1, ENC_BIG_ENDIAN, &option_data_len);
 		offset += 1;
 
-		s_end = offset + data_len;
+		s_end = offset + option_data_len;
 		if ( tvb_reported_length_remaining(tvb, s_end) < 0) {
 			break;
 		}
 
 		while (offset < s_end) {
-			vcdi_tree = proto_tree_add_subtree(e_tree, tvb, offset, data_len, ett_dhcp_option124_vendor_class_data_item, NULL, "Vendor Class Data Item");
+			tvbuff_t *enterprise_tvb = tvb_new_subset_length(tvb, offset, option_data_len);
+			int bytes_dissected = dissector_try_uint(dhcp_enterprise_class_table, enterprise, enterprise_tvb, pinfo, e_tree);
+			if (bytes_dissected == 0) {
+				vcdi_tree = proto_tree_add_subtree(e_tree, tvb, offset, option_data_len, ett_dhcp_option124_vendor_class_data_item, NULL, "Vendor Class Data Item");
 
-			data_len = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(vcdi_tree, hf_dhcp_option_vi_class_data_item_length, tvb, offset, 1, ENC_NA);
-			offset += 1;
-			proto_tree_add_item(vcdi_tree, hf_dhcp_option_vi_class_data_item_data, tvb, offset, data_len, ENC_NA);
+				proto_tree_add_item_ret_uint(vcdi_tree, hf_dhcp_option_vi_class_data_item_length, tvb, offset, 1, ENC_NA, &data_len);
+				offset += 1;
+				proto_tree_add_item(vcdi_tree, hf_dhcp_option_vi_class_data_item_data, tvb, offset, data_len, ENC_NA);
 
-			/* look for next vendor-class-data-item */
-			offset += data_len;
+				/* look for next vendor-class-data-item */
+				offset += data_len;
+			} else {
+				offset += bytes_dissected;
+			}
 		}
 
 		/* loop for the next Enterprise number */
@@ -5146,7 +5153,7 @@ dissect_dhcpopt_vi_vendor_specific_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
 		while (offset < s_end) {
 			tvbuff_t *enterprise_tvb = tvb_new_subset_length(tvb, offset, option_data_len);
-			int bytes_dissected = dissector_try_uint(dhcp_enterprise_table, enterprise, enterprise_tvb, pinfo, e_tree);
+			int bytes_dissected = dissector_try_uint(dhcp_enterprise_specific_table, enterprise, enterprise_tvb, pinfo, e_tree);
 			if (bytes_dissected == 0) {
 				offset = dissect_vendor_generic_suboption(pinfo, vti, e_tree, tvb, offset, s_end);
 			} else{
@@ -10407,7 +10414,8 @@ proto_register_dhcp(void)
 	dhcp_option_table = register_dissector_table("dhcp.option", "BOOTP Options", proto_dhcp, FT_UINT8, BASE_DEC);
 	dhcp_vendor_id_subdissector = register_heur_dissector_list("dhcp.vendor_id", proto_dhcp);
 	dhcp_vendor_info_subdissector = register_heur_dissector_list("dhcp.vendor_info", proto_dhcp);
-	dhcp_enterprise_table = register_dissector_table("dhcp.enterprise", "V-I Vendor Specific Enterprise", proto_dhcp, FT_UINT32, BASE_DEC);
+	dhcp_enterprise_class_table = register_dissector_table("dhcp.enterprise_class", "V-I Vendor Class Enterprise", proto_dhcp, FT_UINT32, BASE_DEC);
+	dhcp_enterprise_specific_table = register_dissector_table("dhcp.enterprise", "V-I Vendor Specific Enterprise", proto_dhcp, FT_UINT32, BASE_DEC);
 
 	/* register init/cleanup routine to handle the custom dhcp options */
 	register_init_routine(&dhcp_init_protocol);
