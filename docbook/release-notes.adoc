@@ -58,7 +58,7 @@ The following bugs have been fixed:
 
 * Problem with decoding OpenFlow actions in OFPT_FLOW_MOD message wsbuglink:17072[].
 
-* "frames" method in sharkd does not consider time references and displays incorrect delta time wsbuglink:17923[].
+* The "frames" method in sharkd does not consider time references and displays incorrect delta time wsbuglink:17923[].
 
 * Wireshark interprets If_fcslen option in the Interface Description Block as byte instead of bit. wsbuglink:19174[].
 

@@ -1,23 +1,407 @@
-commit 3bb8632d0f
+commit 04a33e8426
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Nov 15 10:11:24 2023 +0100
+
+    Qt: Update correct row in Advanced preferences
+
+    When changing a value in Advanced preferences the index given to
+    dataChanged() must be made for correct parent.
+
+    Update all columns because the font may have changed.
+
+    (cherry picked from commit a2e90a655760b5b91dee58987f542d89d674118f)
+
+commit 83a4d00e0b
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Wed Oct 4 13:41:21 2023 -0700
+Date:   Mon Nov 13 16:47:08 2023 -0800
 
-    macOS: Add a workaround for libbcg729.
+    Prep for 3.6.19
 
-    Work around an issue with libbcg729 similar to what we do for libpcre
-    and other libraries. Blind attempt at fixing #19374.
+commit 2a52d716e0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 12 16:37:47 2023 +0000
+
+    [Automatic update for 2023-11-12]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 7a601b7b33
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Nov 10 14:16:35 2023 -0800
+
+    Add a newline at the end of the last line.
+
+    The last line didn't end with a newline.
 
     [skip ci]
 
-    (cherry picked from commit b1ad11874be69cec30521f7b7af09311f93dc128)
+    (cherry picked from commit ca78434471c9188e0a6bafa30349baddfee408b8)
+
+commit 90db7c609a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Nov 9 12:14:23 2023 -0800
+
+    GitHub CI: Use the latest version of macOS
+
+    Use the "macos-latest" image, otherwise we might run into support issues
+    with Homebrew.
+
+    [skip ci]
+
+    (cherry picked from commit adfbd315b65c39e33bfabf0906a1fac348d95869)
+
+commit 09dc15af8b
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Nov 9 15:16:40 2023 +0100
+
+    GSM SIM: fix dissection of READ / UPDATE BINARY commands
+
+    Fixes #19472
+
+    (cherry picked from commit 5eea10e4e46de3b0be1e4c4e6c1ede2a5e5e581e)
+
+commit a82a301929
+Author: Niels Widger <niels@qacafe.com>
+Date:   Wed Nov 8 14:34:14 2023 -0500
+
+    sharkd: Fix displayed delta times in "frames" method
+
+    As noted in #17923, commit c4731738 broke timereferences and displayed
+    delta time (`frame.time_delta_displayed`) in the `frames` method of
+    `sharkd`.  This commit adds back to `sharkd_session_process_frames`
+    the local variables `prev_dis_num`, `current_ref_frame` and
+    `ref_frame` which are used to determine the `frame_ref_num` and
+    `prev_dis_num` arguments to each call to `sharkd_dissect_request` in
+    the main loop of `sharkd_session_process_frames`.
+
+    Below is an example on `master` (`b7cc44eb`, specifically) of a
+    `frames` request for packets 1 and 800 of the capture
+    `./test/captures/logistics_multicast.pcapng` where we ask for columns
+    `frame.time_relative`, `frame.time_delta` and
+    `frame.time_delta_displayed`:
+
+        # ./cmake-build-debug/run/sharkd -
+        Running as user "root" and group "root". This could be dangerous.
+        Hello in child.
+        {"jsonrpc":"2.0","id":1,"method":"load","params":{"file":"./test/captures/logistics_multicast.pcapng"}}
+        load: filename=./test/captures/logistics_multicast.pcapng
+        {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}}
+        {"jsonrpc":"2.0", "id":2, "method":"frames","params":{"filter":"frame.number==1||frame.number==800","column0":"frame.time_relative:1","column1":"frame.time_delta:1","column2":"frame.time_delta_displayed:1"}}
+        {"jsonrpc":"2.0","id":2,"result":[{"c":["0.000000000","0.000000000","0.000000000"],"num":1},{"c":["191.872111000","0.193716000","0.193716000"],"num":800}]}
+
+    Note that the `frame.time_delta_displayed` column value for packet 800
+    is `0.193716000`, which is time difference between it and packet 799,
+    not packet 1.
+
+    Compare this to the same `frames` request using the changes from this
+    commit:
+
+        # ./cmake-build-debug/run/sharkd -
+        Running as user "root" and group "root". This could be dangerous.
+        Hello in child.
+        {"jsonrpc":"2.0","id":1,"method":"load","params":{"file":"./test/captures/logistics_multicast.pcapng"}}
+        load: filename=./test/captures/logistics_multicast.pcapng
+        {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}}
+        {"jsonrpc":"2.0", "id":2, "method":"frames","params":{"filter":"frame.number==1||frame.number==800","column0":"frame.time_relative:1","column1":"frame.time_delta:1","column2":"frame.time_delta_displayed:1"}}
+        {"jsonrpc":"2.0","id":2,"result":[{"c":["0.000000000","0.000000000","0.000000000"],"num":1},{"c":["191.872111000","0.193716000","191.872111000"],"num":800}]}
+
+    Note that the `frame.time_delta_displayed` column value for packet 800
+    is now `191.872111000`, the time difference between it and packet 1.
+    This is the expected value since only packets 1 and 800 are visible
+    due to the request's `filter` parameter.
+
+    A new `test_sharkd_req_frames_delta_times` unit test has been added to
+    verify this fix and prevent it the bug from being accidentally
+    sneaking in again.  If this fix is accepted, this change should
+    probably be cherry-picked to the `release-4.2` branch.
+
+    Fixes #17923.
+
+    (backported from commit 99a7079b)
+
+commit 6fbd8f3f39
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Nov 7 19:36:53 2023 -0500
+
+    Qt: Fix Export Packet Dissections Help button, connections on non-Windows
+
+    We have to call findChild to find the QDialogButtonBox after setting
+    the option to use the Qt dialog instead of the native dialog, not
+    before. Otherwise, we might not find the QDialogButtonBox.
+
+    Fixes adding the Help button to the Export Packet Dissections
+    dialog, and enabling the validity checks that disable the
+    save button when, e.g. an illegal range is entered.
+
+    (cherry picked from commit 5880b2195e9670740fc924f40ef61183da0344aa)
+
+commit 12bad8e99d
+Author: Haiyun Liu <liu0hy@gmail.com>
+Date:   Mon Nov 6 16:45:34 2023 +0800
+
+    ISO15765: Remove the duplicated text in the "Information" column
+
+    Similar text appended by the branch code below.
+
+    (cherry picked from commit 817e7c01cfea6f86a7a2b35822d3e4ac5f38418b)
+
+commit 55edf4402c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 5 16:21:46 2023 +0000
+
+    [Automatic update for 2023-11-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit f0ae86cbb7
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sat Nov 4 10:12:44 2023 +0100
+
+    OpenFlow(v1): Add Actions to FLOW_MOD
+
+    Close: #17072
+
+    (cherry picked from commit 4b6438ee3696a80bf8acaf31db72c804bcad205c)
+
+commit 8cd14fa597
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Nov 1 17:06:32 2023 -0700
+
+    pcapng: convert FCS lengths between bytes and bits.
+
+    The FCS length in a pcapng IDB is in bits, but the length in an EPB is
+    in bytes; convert the latter to bits.
+
+    The FCS length in the Ethernet pseudo-header is in bytes; convert the
+    length-in-bits to a length-in-bytes before using it to set the FCS
+    length in the pseudo-header.
+
+    Fixes #19174.
+
+    (backported from commit a3fd4fd25bd3009aed8053cc612129af209b18ea)
+
+commit a7f846308b
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Tue Oct 31 14:39:37 2023 +0100
+
+    OSPF: Fix offset for dissect_ospf_lsa_opaque_ri
+
+    Fixes: #19444
+
+    (cherry picked from commit 946f1fd1a47d52b8b39d16c291e7f06815187c7a)
+
+commit b929372f43
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 29 16:20:21 2023 +0000
+
+    [Automatic update for 2023-10-29]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit eda3cf3279
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Oct 29 07:06:15 2023 -0400
+
+    ZigBee: Fix decryption of first APS packet
+
+    When processing a ZigBee network layer key security header with
+    the nonce (which hence gives us the extended source address), go
+    ahead and map that long address with the network layer short address
+    immediately, instead of just with the IEEE 802.15.4 layer.
+
+    This will mean that any Application Support Layer Data in the same
+    packet as this first Network Layer security header will also have
+    access to the long address and will be able to be decrypted (if
+    we have the key via some source.)
+
+    If we don't do this, then subsequent packets with the same network
+    layer short address will find the long address by looking it up via
+    the IEEE data table, but that doesn't work for the very first packet
+    because we've already tried that lookup by the time we process the
+    Security Header.
+
+    Fix #16507
+
+    (cherry picked from commit 41be4c8cf7e56265aa8184159d3b75120870b2e0)
+
+commit c19c999209
+Author: João Valverde <j@v6e.pt>
+Date:   Fri May 26 14:16:06 2023 +0100
+
+    CMake: Remove module LocatePythonModule.cmake
+
+    This module is unnecessary and frequently causes hard-to-debug
+    issues during CMake's configure run. Nuke it.
+
+    Additionally, it uses the Python imp module, which was removed
+    in Python 3.12 (importlib has replacement functions since Python 3.4,
+    but we don't need this, since we expect our modules to be inside
+    our source tree.)
+
+    (backported from 601bf39e6b2eaff9e77588ff1b1a8a987dad404d)
+
+commit 993e482efc
+Author: João Valverde <j@v6e.pt>
+Date:   Wed Jan 18 01:26:54 2023 +0000
+
+    CMake: Do no install some misc CMake modules
+
+    These are build files, not part of the installation.
+
+    (backported from commit 728073ade057f5376f6b984115a962e8e812264b)
+
+commit c0e7a4a099
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Tue Oct 24 09:30:49 2023 +0200
+
+    Translation(3.6): Update to Transifex API v3
+
+commit 9ce93f8a7c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 22 16:19:00 2023 +0000
+
+    [Automatic update for 2023-10-22]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a7668d3954
+Author: Bart-Baekelandt <bart.stefan.baekelandt@gmail.com>
+Date:   Wed Oct 18 23:53:40 2023 +0200
+
+    DHCP: Fix offset for SIP Server (option 120)
+
+    (cherry picked from commit 666a4f7f09ba14611d13d99e7d4a8724ed9339ee)
+
+commit a33296718c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Oct 18 19:51:17 2023 -0400
+
+    gnutls: Set FIPS mode to lax if enabled
+
+    As of GnuTLS 3.6.2, it's possible to set FIPS mode to non-enforcing
+    when FIPS is enabled. That's what we want to do, for the same reasons
+    as gcrypt and commit d5492abc89f526f04d9224051bde0b89d53c44a2
+
+    Related to #18441
+
+    (cherry picked from commit 3d4689d8195343e7a4c76f74ef043c06c63d7006)
+
+commit 197e96f053
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Oct 17 22:08:42 2023 -0700
+
+    netscreen: do bounds checking for each byte of packet data.
+
+    Make sure each byte we add to the packet data from the file fits in the
+    buffer, rather than stuffing bytes into the buffer and checking
+    afterwards.
+
+    This prevents a buffer overflow.
+
+    Fixes #19404, which was filed as part of Trend Micro's Zero Day
+    Initiative as ZDI-CAN-22164.
+
+    While we're at it, expand a comment and make error messages give some
+    more detail.
+
+    (backported from commit 3be1c99180a6fc48c34ae4bfc79bfd840b29ae3e)
+
+commit 9ebea7b73a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 15 16:19:16 2023 +0000
+
+    [Automatic update for 2023-10-15]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 962e154ae9
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Fri Oct 13 15:49:16 2023 +0200
+
+    github: fix macos workflow.
+
+    (cherry picked from commit 28bc2c153622a98eb09ebe1f136b43b28eb619cd)
 
     Conflicts:
-            packaging/macosx/osx-app.sh.in
+            .github/workflows/macos.yml
 
-commit ddc30b3e0f
+commit 2cc3daddb3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Oct 11 21:34:10 2023 -0400
+
+    gcrypt: Disable FIPS mode if possible
+
+    libgcrypt 1.10 added a new control command to force disable FIPS
+    mode, regardless of any file or environment variable that would turn
+    it on.
+
+    FIPS mode makes it impossible to _decrypt_ non-NIST approved
+    algorithms, both old insecure ones as well as simply unapproved
+    ones like ChaCha20 and Poly1305. We're decrypting, not promising
+    security.
+
+    Related to #18441 (but doesn't help with distributions like the
+    one in that bug, that have gcrypt older than 1.10.0)
+
+    (cherry picked from commit d5492abc89f526f04d9224051bde0b89d53c44a2)
+
+commit 6974002202
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Wed Oct 4 11:29:34 2023 -0700
+Date:   Sun Oct 8 16:19:01 2023 +0000
 
-    Version: 3.6.17 → 3.6.18
+    [Automatic update for 2023-10-08]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit f115a15994
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Oct 7 16:01:05 2023 -0700
+
+    Manually backport some git-export-release changes
+
+    Create our stash commit using `git stash create`.
+
+commit 0ea41d6dd0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Oct 6 14:30:50 2023 -0700
+
+    Tools: More update-appdata.py updates
+
+    We don't need to fetch the most recent wireshark-* tag (which might not
+    exist).
+
+    (cherry picked from commit 5a2d1f11cad192935d550692775bc29c8e71e878)
+
+commit 7913e6e58e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Oct 6 13:48:51 2023 -0700
+
+    Tools: Fix a comment in update-appdata.py
+
+    [skip ci]
+
+    (cherry picked from commit d0bc4c6505e361b2d943940b57acbc139b9b5791)
+
+commit 3ac8f90c30
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Oct 6 12:27:14 2023 -0700
+
+    GitLab CI: Update our Freedesktop metainformation when we build our tarball
+
+    Fixes #19382
+
+    (cherry picked from commit 8962b0c46b1c56692c96ea2d6f66fba12bce5f38)
+
+    Conflicts:
+            .gitlab-ci.yml
+            org.wireshark.Wireshark.metainfo.xml
+
+commit 27a0e664aa
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Oct 4 17:12:09 2023 -0700
+
+    Version: 3.6.18 → 3.6.19
 
     [skip ci]
