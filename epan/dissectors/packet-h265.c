@@ -53,20 +53,20 @@ static int hf_h265_vps_max_sub_layers_minus1 = -1;
 static int hf_h265_vps_temporal_id_nesting_flag = -1;
 static int hf_h265_vps_reserved_0xffff_16bits = -1;
 static int hf_h265_vps_sub_layer_ordering_info_present_flag = -1;
-static int hf_h265_vps_max_dec_pic_buffering_minus1/*[i]*/ = -1;
-static int hf_h265_vps_max_num_reorder_pics/*[i]*/ = -1;
-static int hf_h265_vps_max_latency_increase_plus1/*[i]*/ = -1;
+static int hf_h265_vps_max_dec_pic_buffering_minus1 = -1;
+static int hf_h265_vps_max_num_reorder_pics = -1;
+static int hf_h265_vps_max_latency_increase_plus1 = -1;
 static int hf_h265_vps_max_layer_id = -1;
 static int hf_h265_vps_num_layer_sets_minus1 = -1;
-static int hf_h265_layer_id_included_flag/*[i][j]*/ = -1;
+static int hf_h265_layer_id_included_flag = -1;
 static int hf_h265_vps_timing_info_present_flag = -1;
 static int hf_h265_vps_num_units_in_tick = -1;
 static int hf_h265_vps_time_scale = -1;
 static int hf_h265_vps_poc_proportional_to_timing_flag = -1;
 static int hf_h265_vps_num_ticks_poc_diff_one_minus1 = -1;
 static int hf_h265_vps_num_hrd_parameters = -1;
-static int hf_h265_hrd_layer_set_idx/*[i]*/ = -1;
-static int hf_h265_cprms_present_flag/*[i]*/ = -1;
+static int hf_h265_hrd_layer_set_idx = -1;
+static int hf_h265_cprms_present_flag = -1;
 static int hf_h265_vps_extension_flag = -1;
 static int hf_h265_vps_extension_data_flag = -1;
 
@@ -74,7 +74,7 @@ static int hf_h265_vps_extension_data_flag = -1;
 static int hf_h265_general_profile_space = -1;
 static int hf_h265_general_tier_flag = -1;
 static int hf_h265_general_profile_idc = -1;
-static int hf_h265_general_profile_compatibility_flags/*[j]*/ = -1;
+static int hf_h265_general_profile_compatibility_flags = -1;
 static int hf_h265_general_progressive_source_flag = -1;
 static int hf_h265_general_interlaced_source_flag = -1;
 static int hf_h265_general_non_packed_constraint_flag = -1;
@@ -97,35 +97,35 @@ static int hf_h265_general_reserved_zero_43bits = -1;
 static int hf_h265_general_inbld_flag = -1;
 static int hf_h265_general_reserved_zero_bit = -1;
 static int hf_h265_general_level_idc = -1;
-static int hf_h265_sub_layer_profile_present_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_level_present_flag/*[i]*/ = -1;
-static int hf_h265_reserved_zero_2bits/*[i]*/ = -1;
-static int hf_h265_sub_layer_profile_space/*[i]*/ = -1;
-static int hf_h265_sub_layer_tier_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_profile_idc/*[i]*/ = -1;
-static int hf_h265_sub_layer_profile_compatibility_flag/*[i][j]*/ = -1;
-static int hf_h265_sub_layer_progressive_source_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_interlaced_source_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_non_packed_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_frame_only_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_max_12bit_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_max_10bit_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_max_8bit_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_max_422chroma_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_max_420chroma_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_max_monochrome_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_intra_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_one_picture_only_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_lower_bit_rate_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_max_14bit_constraint_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_reserved_zero_33bits/*[i]*/ = -1;
-static int hf_h265_sub_layer_reserved_zero_34bits/*[i]*/ = -1;
-static int hf_h265_sub_layer_reserved_zero_7bits/*[i]*/ = -1;
-static int hf_h265_sub_layer_reserved_zero_35bits/*[i]*/ = -1;
-static int hf_h265_sub_layer_reserved_zero_43bits/*[i]*/ = -1;
-static int hf_h265_sub_layer_inbld_flag/*[i]*/ = -1;
-static int hf_h265_sub_layer_reserved_zero_bit/*[i]*/ = -1;
-static int hf_h265_sub_layer_level_idc/*[i]*/ = -1;
+static int hf_h265_sub_layer_profile_present_flag = -1;
+static int hf_h265_sub_layer_level_present_flag = -1;
+static int hf_h265_reserved_zero_2bits = -1;
+static int hf_h265_sub_layer_profile_space = -1;
+static int hf_h265_sub_layer_tier_flag = -1;
+static int hf_h265_sub_layer_profile_idc = -1;
+static int hf_h265_sub_layer_profile_compatibility_flag = -1;
+static int hf_h265_sub_layer_progressive_source_flag = -1;
+static int hf_h265_sub_layer_interlaced_source_flag = -1;
+static int hf_h265_sub_layer_non_packed_constraint_flag = -1;
+static int hf_h265_sub_layer_frame_only_constraint_flag = -1;
+static int hf_h265_sub_layer_max_12bit_constraint_flag = -1;
+static int hf_h265_sub_layer_max_10bit_constraint_flag = -1;
+static int hf_h265_sub_layer_max_8bit_constraint_flag = -1;
+static int hf_h265_sub_layer_max_422chroma_constraint_flag = -1;
+static int hf_h265_sub_layer_max_420chroma_constraint_flag = -1;
+static int hf_h265_sub_layer_max_monochrome_constraint_flag = -1;
+static int hf_h265_sub_layer_intra_constraint_flag = -1;
+static int hf_h265_sub_layer_one_picture_only_constraint_flag = -1;
+static int hf_h265_sub_layer_lower_bit_rate_constraint_flag = -1;
+static int hf_h265_sub_layer_max_14bit_constraint_flag = -1;
+static int hf_h265_sub_layer_reserved_zero_33bits = -1;
+static int hf_h265_sub_layer_reserved_zero_34bits = -1;
+static int hf_h265_sub_layer_reserved_zero_7bits = -1;
+static int hf_h265_sub_layer_reserved_zero_35bits = -1;
+static int hf_h265_sub_layer_reserved_zero_43bits = -1;
+static int hf_h265_sub_layer_inbld_flag = -1;
+static int hf_h265_sub_layer_reserved_zero_bit = -1;
+static int hf_h265_sub_layer_level_idc = -1;
 
 /* hrd_parameters */
 static int hf_h265_nal_hrd_parameters_present_flag = -1;
@@ -141,17 +141,17 @@ static int hf_h265_cpb_size_du_scale = -1;
 static int hf_h265_initial_cpb_removal_delay_length_minus1 = -1;
 static int hf_h265_au_cpb_removal_delay_length_minus1 = -1;
 static int hf_h265_dpb_output_delay_length_minus1 = -1;
-static int hf_h265_fixed_pic_rate_general_flag/*[i]*/ = -1;
-static int hf_h265_fixed_pic_rate_within_cvs_flag/*[i]*/ = -1;
-static int hf_h265_elemental_duration_in_tc_minus1/*[i]*/ = -1;
-static int hf_h265_low_delay_hrd_flag/*[i]*/ = -1;
-static int hf_h265_cpb_cnt_minus1/*[i]*/ = -1;
+static int hf_h265_fixed_pic_rate_general_flag = -1;
+static int hf_h265_fixed_pic_rate_within_cvs_flag = -1;
+static int hf_h265_elemental_duration_in_tc_minus1 = -1;
+static int hf_h265_low_delay_hrd_flag = -1;
+static int hf_h265_cpb_cnt_minus1 = -1;
 /* sub-layer hrd_parameters */
-static int hf_h265_bit_rate_value_minus1/*[i]*/ = -1;
-static int hf_h265_cpb_size_value_minus1/*[i]*/ = -1;
-static int hf_h265_cpb_size_du_value_minus1/*[i]*/ = -1;
-static int hf_h265_bit_rate_du_value_minus1/*[i]*/ = -1;
-static int hf_h265_cbr_flag/*[i]*/ = -1;
+static int hf_h265_bit_rate_value_minus1 = -1;
+static int hf_h265_cpb_size_value_minus1 = -1;
+static int hf_h265_cpb_size_du_value_minus1 = -1;
+static int hf_h265_bit_rate_du_value_minus1 = -1;
+static int hf_h265_cbr_flag = -1;
 
 /*sps*/
 static int hf_h265_sps_video_parameter_set_id = -1;
@@ -171,9 +171,9 @@ static int hf_h265_bit_depth_luma_minus8 = -1;
 static int hf_h265_bit_depth_chroma_minus8 = -1;
 static int hf_h265_log2_max_pic_order_cnt_lsb_minus4 = -1;
 static int hf_h265_sps_sub_layer_ordering_info_present_flag = -1;
-static int hf_h265_sps_max_dec_pic_buffering_minus1/*[i]*/ = -1;
-static int hf_h265_sps_max_num_reorder_pics/*[i]*/ = -1;
-static int hf_h265_sps_max_latency_increase_plus1/*[i]*/ = -1;
+static int hf_h265_sps_max_dec_pic_buffering_minus1 = -1;
+static int hf_h265_sps_max_num_reorder_pics = -1;
+static int hf_h265_sps_max_latency_increase_plus1 = -1;
 static int hf_h265_log2_min_luma_coding_block_size_minus3 = -1;
 static int hf_h265_log2_diff_max_min_luma_coding_block_size = -1;
 static int hf_h265_log2_min_luma_transform_block_size_minus2 = -1;
@@ -193,8 +193,8 @@ static int hf_h265_pcm_loop_filter_disabled_flag = -1;
 static int hf_h265_num_short_term_ref_pic_sets = -1;
 static int hf_h265_long_term_ref_pics_present_flag = -1;
 static int hf_h265_num_long_term_ref_pics_sps = -1;
-static int hf_h265_lt_ref_pic_poc_lsb_sps/*[i]*/ = -1;
-static int hf_h265_used_by_curr_pic_lt_sps_flag/*[i]*/ = -1;
+static int hf_h265_lt_ref_pic_poc_lsb_sps = -1;
+static int hf_h265_used_by_curr_pic_lt_sps_flag = -1;
 static int hf_h265_sps_temporal_mvp_enabled_flag = -1;
 static int hf_h265_strong_intra_smoothing_enabled_flag = -1;
 static int hf_h265_vui_parameters_present_flag = -1;
@@ -206,23 +206,23 @@ static int hf_h265_sps_scc_extension_flag = -1;
 static int hf_h265_sps_extension_4bits = -1;
 static int hf_h265_sps_extension_data_flag = -1;
 /* scaling_list_data */
-static int hf_h265_scaling_list_pred_mode_flag/*[sizeId][matrixId]*/ = -1;
-static int hf_h265_scaling_list_pred_matrix_id_delta/*[sizeId][matrixId]*/ = -1;
-static int hf_h265_scaling_list_dc_coef_minus8/*[sizeId - 2][matrixId]*/ = -1;
+static int hf_h265_scaling_list_pred_mode_flag = -1;
+static int hf_h265_scaling_list_pred_matrix_id_delta = -1;
+static int hf_h265_scaling_list_dc_coef_minus8 = -1;
 static int hf_h265_scaling_list_delta_coef = -1;
 /* st_ref_pic_set */
 static int hf_h265_inter_ref_pic_set_prediction_flag = -1;
 static int hf_h265_delta_idx_minus1 = -1;
 static int hf_h265_delta_rps_sign = -1;
 static int hf_h265_abs_delta_rps_minus1 = -1;
-static int hf_h265_used_by_curr_pic_flag/*[j]*/ = -1;
-static int hf_h265_use_delta_flag/*[j]*/ = -1;
+static int hf_h265_used_by_curr_pic_flag = -1;
+static int hf_h265_use_delta_flag = -1;
 static int hf_h265_num_negative_pics = -1;
 static int hf_h265_num_positive_pics = -1;
-static int hf_h265_delta_poc_s0_minus1/*[i]*/ = -1;
-static int hf_h265_used_by_curr_pic_s0_flag/*[i]*/ = -1;
-static int hf_h265_delta_poc_s1_minus1/*[i]*/ = -1;
-static int hf_h265_used_by_curr_pic_s1_flag/*[i]*/ = -1;
+static int hf_h265_delta_poc_s0_minus1 = -1;
+static int hf_h265_used_by_curr_pic_s0_flag = -1;
+static int hf_h265_delta_poc_s1_minus1 = -1;
+static int hf_h265_used_by_curr_pic_s1_flag = -1;
 /* sps_range_extension */
 static int hf_h265_transform_skip_rotation_enabled_flag = -1;
 static int hf_h265_transform_skip_context_enabled_flag = -1;
@@ -240,7 +240,7 @@ static int hf_h265_palette_max_size = -1;
 static int hf_h265_delta_palette_max_predictor_size = -1;
 static int hf_h265_sps_palette_predictor_initializers_present_flag = -1;
 static int hf_h265_sps_num_palette_predictor_initializers_minus1 = -1;
-static int hf_h265_sps_palette_predictor_initializer/*[comp][i]*/ = -1;
+static int hf_h265_sps_palette_predictor_initializer = -1;
 static int hf_h265_motion_vector_resolution_control_idc = -1;
 static int hf_h265_intra_boundary_filtering_disabled_flag = -1;
 
@@ -270,8 +270,8 @@ static int hf_h265_entropy_coding_sync_enabled_flag = -1;
 static int hf_h265_num_tile_columns_minus1 = -1;
 static int hf_h265_num_tile_rows_minus1 = -1;
 static int hf_h265_uniform_spacing_flag = -1;
-static int hf_h265_column_width_minus1/*[i]*/ = -1;
-static int hf_h265_row_height_minus1/*[i]*/ = -1;
+static int hf_h265_column_width_minus1 = -1;
+static int hf_h265_row_height_minus1 = -1;
 static int hf_h265_loop_filter_across_tiles_enabled_flag = -1;
 static int hf_h265_pps_loop_filter_across_slices_enabled_flag = -1;
 static int hf_h265_deblocking_filter_control_present_flag = -1;
@@ -296,8 +296,8 @@ static int hf_h265_cross_component_prediction_enabled_flag = -1;
 static int hf_h265_chroma_qp_offset_list_enabled_flag = -1;
 static int hf_h265_diff_cu_chroma_qp_offset_depth = -1;
 static int hf_h265_chroma_qp_offset_list_len_minus1 = -1;
-static int hf_h265_cb_qp_offset_list/*[i]*/ = -1;
-static int hf_h265_cr_qp_offset_list/*[i]*/ = -1;
+static int hf_h265_cb_qp_offset_list = -1;
+static int hf_h265_cr_qp_offset_list = -1;
 static int hf_h265_log2_sao_offset_scale_luma = -1;
 static int hf_h265_log2_sao_offset_scale_chroma = -1;
 /*pps_scc_extension*/
@@ -312,7 +312,7 @@ static int hf_h265_pps_num_palette_predictor_initializers = -1;
 static int hf_h265_monochrome_palette_flag = -1;
 static int hf_h265_luma_bit_depth_entry_minus8 = -1;
 static int hf_h265_chroma_bit_depth_entry_minus8 = -1;
-static int hf_h265_pps_palette_predictor_initializer/*[comp][i]*/ = -1;
+static int hf_h265_pps_palette_predictor_initializer = -1;
 
 /* VUI parameters */
 static int hf_h265_aspect_ratio_info_present_flag = -1;
@@ -1255,7 +1255,7 @@ dissect_h265_video_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_in
 		for (unsigned i = 0; i < vps_num_hrd_parameters; i++) {
 			 dissect_h265_exp_golomb_code(tree, hf_h265_hrd_layer_set_idx, tvb, pinfo, &bit_offset, H265_UE_V);
 			 if (i > 0) {
-				 gboolean cprms_present_flag/*[i]*/ = tvb_get_bits8(tvb, bit_offset, 1);
+				 gboolean cprms_present_flag = tvb_get_bits8(tvb, bit_offset, 1);
 				 proto_tree_add_bits_item(tree, hf_h265_cprms_present_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 				 bit_offset = bit_offset + 1;
 
@@ -1263,7 +1263,7 @@ dissect_h265_video_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_in
 				 hrd_parameters_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_h265_hrd_parameters, NULL, "HRD parameters");
 				 bit_offset = offset << 3;
 
-				 bit_offset = dissect_h265_hrd_parameters(hrd_parameters_tree, tvb, pinfo, bit_offset, cprms_present_flag/*[i]*/, vps_max_sub_layers_minus1);
+				 bit_offset = dissect_h265_hrd_parameters(hrd_parameters_tree, tvb, pinfo, bit_offset, cprms_present_flag, vps_max_sub_layers_minus1);
 			 }
 		}
 	}
@@ -1333,9 +1333,9 @@ dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 
 	for (i = (sps_sub_layer_ordering_info_present_flag ? 0 : sps_max_sub_layers_minus1);
 		i <= sps_max_sub_layers_minus1; i++) {
-		dissect_h265_exp_golomb_code(tree, hf_h265_sps_max_dec_pic_buffering_minus1/*[i]*/, tvb, pinfo, &bit_offset, H265_UE_V);
-		dissect_h265_exp_golomb_code(tree, hf_h265_sps_max_num_reorder_pics/*[i]*/, tvb, pinfo, &bit_offset, H265_UE_V);
-		dissect_h265_exp_golomb_code(tree, hf_h265_sps_max_latency_increase_plus1/*[i]*/, tvb, pinfo, &bit_offset, H265_UE_V);
+		dissect_h265_exp_golomb_code(tree, hf_h265_sps_max_dec_pic_buffering_minus1, tvb, pinfo, &bit_offset, H265_UE_V);
+		dissect_h265_exp_golomb_code(tree, hf_h265_sps_max_num_reorder_pics, tvb, pinfo, &bit_offset, H265_UE_V);
+		dissect_h265_exp_golomb_code(tree, hf_h265_sps_max_latency_increase_plus1, tvb, pinfo, &bit_offset, H265_UE_V);
 	}
 	// data between packets TODO: move to "conversations"
 	log2_min_luma_coding_block_size_minus3 =
@@ -1403,10 +1403,10 @@ dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 		num_long_term_ref_pics_sps = dissect_h265_exp_golomb_code(tree, hf_h265_num_long_term_ref_pics_sps, tvb, pinfo, &bit_offset, H265_UE_V);
 		for (i = 0; i < num_long_term_ref_pics_sps; i++) {
 
-			proto_tree_add_bits_item(tree, hf_h265_lt_ref_pic_poc_lsb_sps/*[i]*/, tvb, bit_offset, log2_max_pic_order_cnt_lsb_minus4 + 4, ENC_BIG_ENDIAN);
+			proto_tree_add_bits_item(tree, hf_h265_lt_ref_pic_poc_lsb_sps, tvb, bit_offset, log2_max_pic_order_cnt_lsb_minus4 + 4, ENC_BIG_ENDIAN);
 			bit_offset = bit_offset + log2_max_pic_order_cnt_lsb_minus4 + 4;
 
-			proto_tree_add_bits_item(tree, hf_h265_used_by_curr_pic_lt_sps_flag/*[i]*/, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_bits_item(tree, hf_h265_used_by_curr_pic_lt_sps_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 			bit_offset++;
 		}
 	}
@@ -1556,9 +1556,9 @@ dissect_h265_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 		bit_offset++;
 		if (!uniform_spacing_flag) {
 			for (i = 0; i < num_tile_columns_minus1; i++)
-				dissect_h265_exp_golomb_code(tree, hf_h265_column_width_minus1/*[i]*/, tvb, pinfo, &bit_offset, H265_UE_V);
+				dissect_h265_exp_golomb_code(tree, hf_h265_column_width_minus1, tvb, pinfo, &bit_offset, H265_UE_V);
 			for (i = 0; i < num_tile_rows_minus1; i++)
-				dissect_h265_exp_golomb_code(tree, hf_h265_row_height_minus1/*[i]*/, tvb, pinfo, &bit_offset, H265_UE_V);
+				dissect_h265_exp_golomb_code(tree, hf_h265_row_height_minus1, tvb, pinfo, &bit_offset, H265_UE_V);
 		}
 
 		proto_tree_add_bits_item(tree, hf_h265_loop_filter_across_tiles_enabled_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -1828,7 +1828,7 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 
 		if (vps_max_sub_layers_minus1 > 0)
 			for (int i = vps_max_sub_layers_minus1; i < 8; i++) {
-				proto_tree_add_bits_item(tree, hf_h265_reserved_zero_2bits/*[i]*/, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_bits_item(tree, hf_h265_reserved_zero_2bits, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 				bit_offset = bit_offset + 2;
 			}
 
@@ -2008,15 +2008,15 @@ dissect_h265_scaling_list_data(proto_tree* tree, tvbuff_t* tvb, packet_info* pin
 	for (sizeId = 0; sizeId < 4; sizeId++)
 		for (matrixId = 0; matrixId < 6; matrixId += (sizeId == 3) ? 3 : 1) {
 			scaling_list_pred_mode_flag[sizeId][matrixId] = tvb_get_bits8(tvb, bit_offset, 1);
-			proto_tree_add_bits_item(tree, hf_h265_scaling_list_pred_mode_flag/*[sizeId][matrixId]*/, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_bits_item(tree, hf_h265_scaling_list_pred_mode_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 			bit_offset++;
 			if (!scaling_list_pred_mode_flag[sizeId][matrixId])
-				dissect_h265_exp_golomb_code(tree, hf_h265_scaling_list_pred_matrix_id_delta/*[sizeId][matrixId]*/, tvb, pinfo, &bit_offset, H265_UE_V);
+				dissect_h265_exp_golomb_code(tree, hf_h265_scaling_list_pred_matrix_id_delta, tvb, pinfo, &bit_offset, H265_UE_V);
 			else {
 				nextCoef = 8;
 				coefNum = MIN(64, (1 << (4 + (sizeId << 1))));
 				if (sizeId > 1) {
-					scaling_list_dc_coef_minus8 = dissect_h265_exp_golomb_code(tree, hf_h265_scaling_list_dc_coef_minus8/*[sizeId - 2][matrixId]*/, tvb, pinfo, &bit_offset, H265_SE_V);
+					scaling_list_dc_coef_minus8 = dissect_h265_exp_golomb_code(tree, hf_h265_scaling_list_dc_coef_minus8, tvb, pinfo, &bit_offset, H265_SE_V);
 					nextCoef = scaling_list_dc_coef_minus8 + 8;
 				}
 				for (i = 0; i < coefNum; i++) {
@@ -2268,10 +2268,10 @@ dissect_h265_st_ref_pic_set(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo 
 		RefRpsIdx = stRpsIdx - (delta_idx_minus1 + 1);
 		for (j = 0; j <= NumDeltaPocs[RefRpsIdx]; j++) {
 			used_by_curr_pic_flag = tvb_get_bits8(tvb, bit_offset, 1);
-			proto_tree_add_bits_item(tree, hf_h265_used_by_curr_pic_flag/*[j]*/, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_bits_item(tree, hf_h265_used_by_curr_pic_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 			bit_offset++;
-			if (!used_by_curr_pic_flag/*[j]*/) {
-				proto_tree_add_bits_item(tree, hf_h265_use_delta_flag/*[j]*/, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+			if (!used_by_curr_pic_flag) {
+				proto_tree_add_bits_item(tree, hf_h265_use_delta_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 				bit_offset++;
 			}
 		}
@@ -2282,13 +2282,13 @@ dissect_h265_st_ref_pic_set(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo 
 		num_positive_pics = dissect_h265_exp_golomb_code(tree, hf_h265_num_positive_pics, tvb, pinfo, &bit_offset, H265_UE_V);
 		NumDeltaPocs[stRpsIdx] = num_negative_pics + num_positive_pics;
 		for (i = 0; i < num_negative_pics; i++) {
-			dissect_h265_exp_golomb_code(tree, hf_h265_delta_poc_s0_minus1/*[i]*/, tvb, pinfo, &bit_offset, H265_UE_V);
-			proto_tree_add_bits_item(tree, hf_h265_used_by_curr_pic_s0_flag/*[i]*/, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+			dissect_h265_exp_golomb_code(tree, hf_h265_delta_poc_s0_minus1, tvb, pinfo, &bit_offset, H265_UE_V);
+			proto_tree_add_bits_item(tree, hf_h265_used_by_curr_pic_s0_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 			bit_offset++;
 		}
 		for (i = 0; i < num_positive_pics; i++) {
-			dissect_h265_exp_golomb_code(tree, hf_h265_delta_poc_s1_minus1/*[i]*/, tvb, pinfo, &bit_offset, H265_UE_V);
-			proto_tree_add_bits_item(tree, hf_h265_used_by_curr_pic_s1_flag/*[i]*/, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+			dissect_h265_exp_golomb_code(tree, hf_h265_delta_poc_s1_minus1, tvb, pinfo, &bit_offset, H265_UE_V);
+			proto_tree_add_bits_item(tree, hf_h265_used_by_curr_pic_s1_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 			bit_offset++;
 		}
 	}
@@ -2704,11 +2704,11 @@ dissect_h265_sps_scc_extension(proto_tree* tree, tvbuff_t* tvb, packet_info* pin
 			for (comp = 0; comp < numComps; comp++)
 				for (i = 0; i <= sps_num_palette_predictor_initializers_minus1; i++) {
 					if (comp == 0) {
-						proto_tree_add_bits_item(tree, hf_h265_sps_palette_predictor_initializer/*[comp][i]*/, tvb, bit_offset, (1 << BitDepthY) - 1, ENC_BIG_ENDIAN);
+						proto_tree_add_bits_item(tree, hf_h265_sps_palette_predictor_initializer, tvb, bit_offset, (1 << BitDepthY) - 1, ENC_BIG_ENDIAN);
 						bit_offset = bit_offset + (1 << BitDepthY) - 1;
 					}
 					else {
-						proto_tree_add_bits_item(tree, hf_h265_sps_palette_predictor_initializer/*[comp][i]*/, tvb, bit_offset, (1 << BitDepthC) - 1, ENC_BIG_ENDIAN);
+						proto_tree_add_bits_item(tree, hf_h265_sps_palette_predictor_initializer, tvb, bit_offset, (1 << BitDepthC) - 1, ENC_BIG_ENDIAN);
 						bit_offset = bit_offset + (1 << BitDepthC) - 1;
 					}
 				}
@@ -2754,8 +2754,8 @@ dissect_h265_pps_range_extension(proto_tree* tree, tvbuff_t* tvb, packet_info* p
 		chroma_qp_offset_list_len_minus1 = dissect_h265_exp_golomb_code(tree, hf_h265_chroma_qp_offset_list_len_minus1, tvb, pinfo, &offset, H265_UE_V);
 
 		for (i = 0; i <= chroma_qp_offset_list_len_minus1; i++) {
-			dissect_h265_exp_golomb_code(tree, hf_h265_cb_qp_offset_list/*[i]*/, tvb, pinfo, &offset, H265_SE_V);
-			dissect_h265_exp_golomb_code(tree, hf_h265_cr_qp_offset_list/*[i]*/, tvb, pinfo, &offset, H265_SE_V);
+			dissect_h265_exp_golomb_code(tree, hf_h265_cb_qp_offset_list, tvb, pinfo, &offset, H265_SE_V);
+			dissect_h265_exp_golomb_code(tree, hf_h265_cr_qp_offset_list, tvb, pinfo, &offset, H265_SE_V);
 		}
 	}
 
@@ -2827,11 +2827,11 @@ dissect_h265_pps_scc_extension(proto_tree* tree, tvbuff_t* tvb, packet_info* pin
 					bit_offset = offset << 3;
 
 					if (comp == 0) {
-						proto_tree_add_bits_item(tree, hf_h265_pps_palette_predictor_initializer/*[comp][i]*/, tvb, bit_offset, luma_bit_depth_entry_minus8 + 8, ENC_BIG_ENDIAN);
+						proto_tree_add_bits_item(tree, hf_h265_pps_palette_predictor_initializer, tvb, bit_offset, luma_bit_depth_entry_minus8 + 8, ENC_BIG_ENDIAN);
 						bit_offset = bit_offset + luma_bit_depth_entry_minus8 + 8;
 					}
 					else {
-						proto_tree_add_bits_item(tree, hf_h265_pps_palette_predictor_initializer/*[comp][i]*/, tvb, bit_offset, chroma_bit_depth_entry_minus8 + 8, ENC_BIG_ENDIAN);
+						proto_tree_add_bits_item(tree, hf_h265_pps_palette_predictor_initializer, tvb, bit_offset, chroma_bit_depth_entry_minus8 + 8, ENC_BIG_ENDIAN);
 						bit_offset = bit_offset + chroma_bit_depth_entry_minus8 + 8;
 					}
 
@@ -3353,148 +3353,148 @@ proto_register_h265(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_profile_present_flag/*[i]*/,
+		{ &hf_h265_sub_layer_profile_present_flag,
 		{ "sub_layer_profile_present_flag", "h265.sub_layer_profile_present_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_level_present_flag/*[i]*/,
+		{ &hf_h265_sub_layer_level_present_flag,
 		{ "sub_layer_level_present_flag", "h265.sub_layer_level_present_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_reserved_zero_2bits/*[i]*/,
+		{ &hf_h265_reserved_zero_2bits,
 		{ "reserved_zero_2bits", "h265.reserved_zero_2bits",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_profile_space/*[i]*/,
+		{ &hf_h265_sub_layer_profile_space,
 		{ "sub_layer_profile_space", "h265.sub_layer_profile_space",
 			FT_UINT8, BASE_DEC, NULL, 0x03,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_tier_flag/*[i]*/,
+		{ &hf_h265_sub_layer_tier_flag,
 		{ "sub_layer_tier_flag", "h265.sub_layer_tier_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x04,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_profile_idc/*[i]*/,
+		{ &hf_h265_sub_layer_profile_idc,
 		{ "sub_layer_profile_idc", "h265.sub_layer_profile_idc",
 			FT_UINT8, BASE_DEC, NULL, 0xF8,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_profile_compatibility_flag/*[i][j]*/,
+		{ &hf_h265_sub_layer_profile_compatibility_flag,
 		{ "sub_layer_profile_compatibility_flag", "h265.sub_layer_profile_compatibility_flag",
 			FT_UINT32, BASE_DEC, NULL, 0xFF,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_progressive_source_flag/*[i]*/,
+		{ &hf_h265_sub_layer_progressive_source_flag,
 		{ "sub_layer_progressive_source_flag", "h265.sub_layer_progressive_source_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 
-		{ &hf_h265_sub_layer_interlaced_source_flag/*[i]*/,
+		{ &hf_h265_sub_layer_interlaced_source_flag,
 		{ "sub_layer_interlaced_source_flag", "h265.sub_layer_interlaced_source_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_non_packed_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_non_packed_constraint_flag,
 		{ "sub_layer_non_packed_constraint_flag", "h265.sub_layer_non_packed_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_frame_only_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_frame_only_constraint_flag,
 		{ "sub_layer_frame_only_constraint_flag", "h265.sub_layer_frame_only_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_max_12bit_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_max_12bit_constraint_flag,
 		{ "sub_layer_max_12bit_constraint_flag", "h265.sub_layer_max_12bit_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_max_10bit_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_max_10bit_constraint_flag,
 		{ "sub_layer_max_10bit_constraint_flag", "h265.sub_layer_max_10bit_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_max_8bit_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_max_8bit_constraint_flag,
 		{ "sub_layer_max_8bit_constraint_flag", "h265.sub_layer_max_8bit_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_max_422chroma_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_max_422chroma_constraint_flag,
 		{ "sub_layer_max_422chroma_constraint_flag", "h265.sub_layer_max_422chroma_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_max_420chroma_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_max_420chroma_constraint_flag,
 		{ "sub_layer_max_420chroma_constraint_flag", "h265.sub_layer_max_420chroma_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_max_monochrome_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_max_monochrome_constraint_flag,
 		{ "sub_layer_max_monochrome_constraint_flag", "h265.sub_layer_max_monochrome_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_intra_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_intra_constraint_flag,
 		{ "sub_layer_intra_constraint_flag", "h265.sub_layer_intra_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_one_picture_only_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_one_picture_only_constraint_flag,
 		{ "sub_layer_one_picture_only_constraint_flag", "h265.sub_layer_one_picture_only_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_lower_bit_rate_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_lower_bit_rate_constraint_flag,
 		{ "sub_layer_lower_bit_rate_constraint_flag", "h265.sub_layer_lower_bit_rate_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_max_14bit_constraint_flag/*[i]*/,
+		{ &hf_h265_sub_layer_max_14bit_constraint_flag,
 		{ "sub_layer_max_14bit_constraint_flag", "h265.sub_layer_max_14bit_constraint_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_reserved_zero_33bits/*[i]*/,
+		{ &hf_h265_sub_layer_reserved_zero_33bits,
 		{ "sub_layer_reserved_zero_33bits", "h265.sub_layer_reserved_zero_33bits",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_reserved_zero_34bits/*[i]*/,
+		{ &hf_h265_sub_layer_reserved_zero_34bits,
 		{ "sub_layer_reserved_zero_34bits", "h265.sub_layer_reserved_zero_34bits",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_reserved_zero_7bits/*[i]*/,
+		{ &hf_h265_sub_layer_reserved_zero_7bits,
 		{ "sub_layer_reserved_zero_7bits", "h265.sub_layer_reserved_zero_7bits",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_reserved_zero_35bits/*[i]*/,
+		{ &hf_h265_sub_layer_reserved_zero_35bits,
 		{ "sub_layer_reserved_zero_35bits", "h265.sub_layer_reserved_zero_35bits",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_reserved_zero_43bits/*[i]*/,
+		{ &hf_h265_sub_layer_reserved_zero_43bits,
 		{ "sub_layer_reserved_zero_43bits", "h265.sub_layer_reserved_zero_43bits",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_inbld_flag/*[i]*/,
+		{ &hf_h265_sub_layer_inbld_flag,
 		{ "sub_layer_inbld_flag", "h265.sub_layer_inbld_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_reserved_zero_bit/*[i]*/,
+		{ &hf_h265_sub_layer_reserved_zero_bit,
 		{ "sub_layer_reserved_zero_bit", "h265.sub_layer_reserved_zero_bit",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sub_layer_level_idc/*[i]*/,
+		{ &hf_h265_sub_layer_level_idc,
 		{ "sub_layer_level_idc", "h265.sub_layer_level_idc",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -3504,17 +3504,17 @@ proto_register_h265(void)
 			FT_UINT8, BASE_DEC, NULL, 0x01,
 			NULL, HFILL }
 		},
-		{ &hf_h265_vps_max_dec_pic_buffering_minus1/*[i]*/,
+		{ &hf_h265_vps_max_dec_pic_buffering_minus1,
 		{ "vps_max_dec_pic_buffering_minus1", "h265.vps_max_dec_pic_buffering_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_vps_max_num_reorder_pics/*[i]*/,
+		{ &hf_h265_vps_max_num_reorder_pics,
 		{ "vps_max_num_reorder_pics", "h265.vps_max_num_reorder_pics",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_vps_max_latency_increase_plus1/*[i]*/,
+		{ &hf_h265_vps_max_latency_increase_plus1,
 		{ "vps_max_latency_increase_plus1", "h265.vps_max_latency_increase_plus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -3529,7 +3529,7 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_layer_id_included_flag/*[i][j]*/,
+		{ &hf_h265_layer_id_included_flag,
 		{ "layer_id_included_flag", "h265.layer_id_included_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -3564,12 +3564,12 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_hrd_layer_set_idx/*[i]*/,
+		{ &hf_h265_hrd_layer_set_idx,
 		{ "hrd_layer_set_idx", "h265.hrd_layer_set_idx",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_cprms_present_flag/*[i]*/,
+		{ &hf_h265_cprms_present_flag,
 		{ "cprms_present_flag", "h265.cprms_present_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -3650,53 +3650,53 @@ proto_register_h265(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_fixed_pic_rate_general_flag/*[i]*/,
+		{ &hf_h265_fixed_pic_rate_general_flag,
 		{ "fixed_pic_rate_general_flag", "h265.fixed_pic_rate_general_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_fixed_pic_rate_within_cvs_flag/*[i]*/,
+		{ &hf_h265_fixed_pic_rate_within_cvs_flag,
 		{ "fixed_pic_rate_within_cvs_flag", "h265.fixed_pic_rate_within_cvs_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_elemental_duration_in_tc_minus1/*[i]*/,
+		{ &hf_h265_elemental_duration_in_tc_minus1,
 		{ "elemental_duration_in_tc_minus1", "h265.elemental_duration_in_tc_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_low_delay_hrd_flag/*[i]*/,
+		{ &hf_h265_low_delay_hrd_flag,
 		{ "low_delay_hrd_flag", "h265.low_delay_hrd_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_cpb_cnt_minus1/*[i]*/,
+		{ &hf_h265_cpb_cnt_minus1,
 		{ "cpb_cnt_minus1", "h265.cpb_cnt_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 			/*sub_layer_hrd_parameters*/
-		{ &hf_h265_bit_rate_value_minus1/*[i]*/,
+		{ &hf_h265_bit_rate_value_minus1,
 		{ "bit_rate_value_minus1", "h265.bit_rate_value_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_cpb_size_value_minus1/*[i]*/,
+		{ &hf_h265_cpb_size_value_minus1,
 		{ "cpb_size_value_minus1", "h265.cpb_size_value_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_cpb_size_du_value_minus1/*[i]*/,
+		{ &hf_h265_cpb_size_du_value_minus1,
 		{ "cpb_size_du_value_minus1", "h265.cpb_size_du_value_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_bit_rate_du_value_minus1/*[i]*/,
+		{ &hf_h265_bit_rate_du_value_minus1,
 		{ "bit_rate_du_value_minus1", "h265.bit_rate_du_value_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_cbr_flag/*[i]*/,
+		{ &hf_h265_cbr_flag,
 		{ "cbr_flag", "h265.cbr_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -3787,17 +3787,17 @@ proto_register_h265(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sps_max_dec_pic_buffering_minus1/*[i]*/,
+		{ &hf_h265_sps_max_dec_pic_buffering_minus1,
 		{ "sps_max_dec_pic_buffering_minus1", "h265.sps_max_dec_pic_buffering_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sps_max_num_reorder_pics/*[i]*/,
+		{ &hf_h265_sps_max_num_reorder_pics,
 		{ "sps_max_num_reorder_pics", "h265.sps_max_num_reorder_pics",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sps_max_latency_increase_plus1/*[i]*/,
+		{ &hf_h265_sps_max_latency_increase_plus1,
 		{ "sps_max_latency_increase_plus1", "h265.sps_max_latency_increase_plus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -3897,12 +3897,12 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_lt_ref_pic_poc_lsb_sps/*[i]*/,
+		{ &hf_h265_lt_ref_pic_poc_lsb_sps,
 		{ "lt_ref_pic_poc_lsb_sps", "h265.lt_ref_pic_poc_lsb_sps",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_used_by_curr_pic_lt_sps_flag/*[i]*/,
+		{ &hf_h265_used_by_curr_pic_lt_sps_flag,
 		{ "used_by_curr_pic_lt_sps_flag", "h265.used_by_curr_pic_lt_sps_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -3958,17 +3958,17 @@ proto_register_h265(void)
 			NULL, HFILL }
 		},
 			/* scaling_list_data */
-		{ &hf_h265_scaling_list_pred_mode_flag/*[sizeId][matrixId]*/,
+		{ &hf_h265_scaling_list_pred_mode_flag,
 		{ "scaling_list_pred_mode_flag", "h265.scaling_list_pred_mode_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_scaling_list_pred_matrix_id_delta/*[sizeId][matrixId]*/,
+		{ &hf_h265_scaling_list_pred_matrix_id_delta,
 		{ "scaling_list_pred_matrix_id_delta", "h265.scaling_list_pred_matrix_id_delta",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_scaling_list_dc_coef_minus8/*[sizeId - 2][matrixId]*/,
+		{ &hf_h265_scaling_list_dc_coef_minus8,
 		{ "scaling_list_dc_coef_minus8", "h265.scaling_list_dc_coef_minus8",
 			FT_INT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -3999,12 +3999,12 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_used_by_curr_pic_flag/*[j]*/,
+		{ &hf_h265_used_by_curr_pic_flag,
 		{ "used_by_curr_pic_flag", "h265.used_by_curr_pic_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_use_delta_flag/*[j]*/,
+		{ &hf_h265_use_delta_flag,
 		{ "use_delta_flag", "h265.use_delta_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -4019,22 +4019,22 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_delta_poc_s0_minus1/*[i]*/,
+		{ &hf_h265_delta_poc_s0_minus1,
 		{ "delta_poc_s0_minus1", "h265.delta_poc_s0_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_used_by_curr_pic_s0_flag/*[i]*/,
+		{ &hf_h265_used_by_curr_pic_s0_flag,
 		{ "used_by_curr_pic_s0_flag", "h265.used_by_curr_pic_s0_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_delta_poc_s1_minus1/*[i]*/,
+		{ &hf_h265_delta_poc_s1_minus1,
 		{ "delta_poc_s1_minus1", "h265.delta_poc_s1_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_used_by_curr_pic_s1_flag/*[i]*/,
+		{ &hf_h265_used_by_curr_pic_s1_flag,
 		{ "used_by_curr_pic_s1_flag", "h265.used_by_curr_pic_s1_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -4309,7 +4309,7 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_sps_palette_predictor_initializer/*[comp][i]*/,
+		{ &hf_h265_sps_palette_predictor_initializer,
 		{ "sps_palette_predictor_initializer", "h265.sps_palette_predictor_initializer",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -4450,12 +4450,12 @@ proto_register_h265(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_column_width_minus1/*[i]*/,
+		{ &hf_h265_column_width_minus1,
 		{ "column_width_minus1", "h265.column_width_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_row_height_minus1/*[i]*/,
+		{ &hf_h265_row_height_minus1,
 		{ "row_height_minus1", "h265.row_height_minus1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -4576,12 +4576,12 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_cb_qp_offset_list/*[i]*/,
+		{ &hf_h265_cb_qp_offset_list,
 		{ "cb_qp_offset_list", "h265.cb_qp_offset_list",
 			FT_INT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_cr_qp_offset_list/*[i]*/,
+		{ &hf_h265_cr_qp_offset_list,
 		{ "cr_qp_offset_list", "h265.cr_qp_offset_list",
 			FT_INT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
@@ -4651,7 +4651,7 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_h265_pps_palette_predictor_initializer/*[comp][i]*/,
+		{ &hf_h265_pps_palette_predictor_initializer,
 		{ "pps_palette_predictor_initializer", "h265.pps_palette_predictor_initializer",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
