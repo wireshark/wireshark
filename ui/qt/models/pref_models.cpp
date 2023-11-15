@@ -530,8 +530,9 @@ bool AdvancedPrefsModel::setData(const QModelIndex &dataindex, const QVariant &v
     roles << role;
 
     // The status field may change as well as the value, so mark them for update
-    emit dataChanged(index(dataindex.row(), AdvancedPrefsModel::colStatus),
-                     index(dataindex.row(), AdvancedPrefsModel::colValue), roles);
+    emit dataChanged(index(dataindex.row(), 0, dataindex.parent()),
+                     index(dataindex.row(), columnCount() - 1, dataindex.parent()),
+                     roles);
 
     return true;
 }
