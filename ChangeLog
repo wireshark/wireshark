@@ -1,3 +1,142 @@
+1e9749ccf0 Debian: Fix our symbols
+2fee274384 TCP, UDP: fix formatting for zero-padded partial checksums
+242c6fb41a TCP, UDP: Calculate partial (pseudo header) checksums for offload
+fb52f06bed tshark: -U must be one of the export PDU taps
+ceac99a91e Qt: Update correct row in Advanced preferences
+8742a2712f DHCPv6: Add option 79 handling (Client Link-Layer Address)
+45dc567f08 http: clean up some issues with the Load Distribution statistics.
+2bfe8cff23 Qt: Add an option to show changed preferences
+3ed983cb93 Resources: Update AppStream metadata to the latest format
+816cd14a9f Qt: define QProcess::splitCommand for older Qt 5 versions
+84c9055892 Packaging: Fix our WiX DLLs
+a2d4d05871 Windows: Update libsmi
+cc539bc001 Windows: Make sure we ship our minizip DLL
+a4b7682d5b [Automatic update for 2023-11-12]
+924960b4f3 Qt: DisplayFilter left align buttons
+eb441198d1 Qt: More missing ApplicationPaletteChange event workarounds
+b71c821d98 Qt: add command line options support in the TLS Keylog Launcher
+c92b5587e0 Qt: Change button style in FilterExpressionFrame
+4e13097921 Work around macOS running applications in /.
+5f36444459 SNMP: Add prettification for DateAndTime in the other branch
+0968082639 HTTP3: Guarantee unique offsets for the header data
+f12a99263b Docs: Update the release notes
+5b0c03f334 isdn-sup: Properly register dissectors
+26e6d1b5c5 HTTP3: Fix field highlights
+587a8f167d Remove unneeded includes of "ui/last_open_dir.h".
+b5eb163af4 Qt: Update styleSheet in AccordionFrame
+237473ce03 Fixup release notes
+d5e66f0a05 Add a newline at the end of the last line.
+54fb95d3cb Windows: Upgrade Minizip to 1.3
+3e5b27ed2e Windows: Upgrade c-ares to 1.19.1
+af416a055f Qt: Update ComboBox in updateStyleSheet()
+b55e471d05 Qt: Update styleSheet on ApplicationPaletteChange event
+62bf965e3e doc: Add hard line break between secrets types in editcap man page
+c589a85759 Qt: Remove PINOs from Enabled Protocols dialog
+2eaebcb677 GitHub CI: Use the latest version of macOS
+e340fa59dd GSM SIM: fix dissection of READ / UPDATE BINARY commands
+9c0def1cf4 Qt: Use QLineEdit border only on macOS
+e31f88c79e ISO15765: Fix error in dissection of STmin
+0197eaf618 Qt: Add QLineEdit border in AccordionFrame
+6f979e62d8 Qt: Change InterfaceToolbarLineEdit border color
+908773ae2b Qt: SyntaxLineEdit state-icon top position
+1edcc748b7 Qt: Add InterfaceToolbarLineEdit border
+2ed7f8a1ae Qt: Fix Export Packet Dissections Help button, connections on non-Windows
+de9358d6c5 sharkd: Fix displayed delta times in "frames" method
+a4b9a4b4f2 Docs: Update the release notes
+8e19d2f7e8 ISO15765: Remove the duplicated text in the "Information" column
+6ca4d57b47 Thrift: Update field_id in all sub-dissector functions.
+884a619297 mikey: Skip unknown payload types
+358f88b07f dfilter: Fix scanner for protocol names starting with digit
+68184d8cec [Automatic update for 2023-11-05]
+3633c1eb40 macos-setup: work around problem with the Xcode 15 linker.
+5808684dd9 OpenFlow(v1): Add Actions to FLOW_MOD
+01136f7227 WLAN: Fix header field registrations using 0 rather than NULL
+b7bc5338e7 rsvp: Add missing hf for exclude route
+5e4ff468c6 HTTP3: fix web-transport
+70a409c7ff HTTP: Fix chunking detection for certain request methods
+2b1a94a305 OPA MAD: fix unaligned access introduced in 036f2e12
+ef04094b7d zigbee-direct: rename time variable for avoid checkAPI warnings
+166ed20405 Qt: Fix show bytes as image typo
+d162b633fb PNIO: clean up the title and description of the GSD folder path preference.
+b39ff4b577 dfilter: Fix crash with nested function calls
+46d9817027 Qt: Improve FollowStreamText scroll performance
+8aff97d56d capinfos: Fix count of IP address and decryption secrets
+b6ba097d76 Don't use frames without timestamp for delta time calculations
+9aa3a7bd8e pcapng: convert FCS lengths between bytes and bits.
+8cf2fa9afa FindPCAP: mystery solved!
+ec8dfd2996 macos-setup: don't build GLib tests, to work around a bug.
+50238a1e22 GitLab CI: More rules updates
+ab06a9e05d macos-setup: update to zstd 1.5.5. [skip ci]
+217a6cc362 GitLab CI: Print more CI variables and update job rules
+3cfdb99e7e addr_resolv: Remove confusing "only use profile hosts" preference
+bfb6405ac0 ENIP/CIP-I/O: Use CIP-I/O as protocol name for CIP-I/O
+2d91732386 LAPD: Set address AT_STRINGZ
+8b00618c31 Fix Dead initialization found by Clang Analyzer
+c50c9ee699 NSIS: Make a bunch of sections hidden / mandatory
+f93ea6fabc ISOBUS: Remove incomplete warning and cleanup
+6b96e07f4f Qt: fix handling display filter dialog TFS NULL value
+0020ac9fa8 WSUG: Mention the at operator and field references
+db3548fbf6 ISOBUS: change to value_string_ext for faster lookup
+cb89e41440 JSON: Shorten the name of JSON in INFO column
+e6e78e4e4f Use C99 instead of GLib types in doc+docbook
+81324e4119 GTP, GTPv2: use wmem_maps instead of GHashTables
+470996eb6c Qt: Unmark field when not found in a Byte View
+8cb1f045f6 INAP: Fix dissection of local code in ExtensionField
+630d6b5267 ORAN FH CUS: Fix up ext 6 handling
+8cf204ee2a Lua context commands: only populate for single frame selection
+87c092c4ab QUIC: Add a null check
+04c7bf04bc cmake: Sort source files alphabetical
+58c6aaebf7 OSPF: Fix offset for dissect_ospf_lsa_opaque_ri
+639a3a9401 tcp: TCP Segment Len is not found in the packet bytes
+96b040b73c QUIC: Support testing if the QUIC bit can be greased (RFC 9287)
+2b6b70f365 Qt: Rename the Browser SSL Keylog dialog to SSL Keylog Launcher
+9250468c9b AUTOSAR IPDUM: Adding macros to header file
+4e7fbd4d68 ISOBUS: Adding support for Signal PDU dissection
+6154e5ba70 SOMEIP: Add macros to header and clean up
+ba19b5888f cmake: work around a mysterious macOS dyld problem.
+0449644e0e QUIC: add support of multipath draft06
+cac7100e23 Exported PDU: Add new tag EXP_PDU_TAG_USER_DATA_PDU
+f09252740f NSIS: Save our installation directory in the registry
+d5917df435 QUIC: Update to ACK Frequency draft07
+5835cea5f4 make-taps: compatible with Python 3.12
+64feddfa8b BLF: Fix CAN usage of payload_length and payload_length_valid
+92c9a1836e BLF: CAN_MESSAGE: Remove payload length check since the size is fixed
+cab2e8bfe5 BLF: Fix CAN parsing
+9a2896e761 BLF: Fix relative timestamp
+4513addc8d epan: Use available space for FT_BYTES labels
+6eab717999 BLF: Fix BLF_OBJTYPE_ETHERNET_STATUS
+db35a984ed BLF: Fix memory leak
+799d8e1f0b BLF: Fix BLF_APPTEXT_METADATA and BLF_APPTEXT_COMMENT
+312ec385d6 epan: When exporting packets as C Arrays, use C++ comments
+a1acf7d37f make-authors-csv: compatible with Python 3.12
+f597102b27 BLF: Fix compiler warning
+a6750235aa [Automatic update for 2023-10-29]
+d0d533a7b9 Qt: Make Edit Name Resolution combobox size adjust to contents
+186bfff739 Diameter: Add missing AVPs and update AVP names
+27068e804e ZigBee: Fix decryption of first APS packet
+3ad7128ac2 release-notes(doc): Add notes about support of Korean language
+37fc2e013f Translation(qt): Add Korean translation
+68505b4e51 GitLab CI: Add Windows package release info
+9a890669e1 Tools: Fix the version file version
+0623718747 GitLab CI+tools: Switch to a raw version file
+d089d75a57 GitLab CI+tools: Add version environment files
+ad5a8a25ca prefs: TCP override pref check field flags
+43e7676b73 HTTP3: dissect control stream, various display improvements
+4c11e28636 HTTP3: fix nghttp3_qpack_stream_context_new memleak on error path
+e9d7e145a1 Qt: Fix leak in prefs
+79f97bb077 rdp: fix segfaults when decoding egfx packets
+cd2899bbf8 rdp: parse redirected authentication flag in nego request
+70121daaf2 Qt: remove use of qAsConst which is deprecated in Qt 6.6
+0e65902dc4 Qt: Fix our "Go To" menu connections
+5c9374eb0d TLS: add SNI to Info column, display common extensions up in the tree
+af859af2b5 TLS: Change wmem_packet_scope() to pinfo->pool
+219892657f Added ERF FlowID Hash Type inner bit
+05a44de273 Qt: Check if focusWidget() is nullptr when setting previous focus
+400f827318 macos-setup: Update GLib to 2.76.6
+c6f20250a7 ISOBUS: Improving the dissector
+d0271fe138 GitLab CI: Use PowerShell's Get-FileHash
+4c834fb60d Release notes: Prep for 4.2.0
+3f0f98a4d6 Build: 4.2.0rc3
 3246be814e Qt: Follow Stream stream and substream spinboxes keyboard handling
 f8c72c6d53 IEEE 1722: Fix unitialized can_info
 ad27114c12 RTPS: string dissection, unicode improvements
