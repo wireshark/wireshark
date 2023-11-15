@@ -8394,7 +8394,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                      * to match what we pass in. */
                     item = proto_tree_add_checksum(tcp_tree, tvb, offset+16, hf_tcp_checksum, hf_tcp_checksum_status, &ei_tcp_checksum_bad, pinfo, g_htons(partial_cksum),
                                                    ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
-                    proto_item_append_text(item, " (matches partial checksum, not 0x%4x, likely caused by \"TCP checksum offload\")", shouldbe_cksum);
+                    proto_item_append_text(item, " (matches partial checksum, not 0x%04x, likely caused by \"TCP checksum offload\")", shouldbe_cksum);
                     expert_add_info(pinfo, item, &ei_tcp_checksum_partial);
                     computed_cksum = 0;
                     /* XXX Add a new status, e.g. PROTO_CHECKSUM_E_PARTIAL? */
