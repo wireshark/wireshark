@@ -12,62 +12,29 @@ include::../docbook/attributes.adoc[]
 Wireshark is the world’s most popular network protocol analyzer.
 It is used for troubleshooting, analysis, development and education.
 
-== What’s New
-
-This is the first major Wireshark release under the Wireshark Foundation, a nonprofit which hosts Wireshark and promotes protocol analysis educaton.
-The foundation depends on your contributions in order to do its work.
+Wireshark is hosted by the Wireshark Foundation, a nonprofit which promotes protocol analysis educaton.
+Wireshark and the foundation depend on your contributions in order to do their work.
 If you or your employer would like to contribute or become a sponsor, please visit https://wiresharkfoundation.org[wiresharkfoundation.org].
 
-// Add a summary of **major** changes here.
-// Add other changes to "New and Updated Features" below.
+== What’s New
 
-Wireshark supports dark mode on Windows.
-
-A Windows installer for Arm64 has been added.
-
-Packet list sorting has been improved.
-
-Wireshark and TShark are now better about generating valid UTF-8 output.
-
-A new display filter feature for filtering raw bytes has been added.
-
-Display filter autocomplete is smarter about not suggesting invalid syntax.
-
-menu:Tools[MAC Address Blocks] can lookup a MAC address in the IEEE OUI registry.
-
-The _enterprises_, _manuf_, and _services_ configuration files have been compiled in for improved start-up times.
-These files are no longer available in the master branch in our source code repository.
-You can download the https://www.wireshark.org/download/automated/data/manuf[manuf file] from our automated build directory.
-
-The installation target no longer installs development headers by default.
-
-The Wireshark installation is relocatable on Linux (and other ELF platforms
-with support for relative RPATHs).
-
-Wireshark can be compiled on Windows using https://www.msys2.org/[MSYS2].
-Check the Developer's guide for instructions.
-
-Wireshark can be cross-compiled for Windows using Linux.
-Check the Developer's guide for instructions.
-
-menu:Tools[Browser (SSL Keylog)] can launch your web browser with the
-SSLKEYLOGFILE environment variable set to the appropriate value.
-
-Windows installer file names now have the format Wireshark-<version>-<architecture>.exe.
-
-Wireshark now supports the Korean language.
-
-Many other improvements have been made.
-See the “New and Updated Features” section below for more details.
 
 === Bug Fixes
 
+The following vulnerabilities have been fixed:
+
+// * wssalink:2024-01[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2023-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.2: xxx
+// Fixed in release-4.0: xxx
+// Fixed in release-3.6: xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-125
+
 The following bugs have been fixed:
-
-* wsbuglink:18413[No Audio in RTP player with Wireshark 4.0.0] - RTP player do not play audio frequently on Windows builds with Qt6.
-
-* wsbuglink:18510[Paused playback cannot continue to play] - Playback marker does not move after resume with Qt6.
-
 
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
@@ -76,318 +43,40 @@ The following bugs have been fixed:
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated) since version 4.2.0rc3:
+There are no new or updated features in this release.
 
-* Nothing of note.
-
-The following features are new (or have been significantly updated) since version 4.2.0rc2:
-
-* The Windows installers now ship with Npcap 1.78.
-  They previously shipped with Npcap 1.77.
-
-The following features are new (or have been significantly updated) since version 4.2.0rc1:
-
-* The Windows installers now ship with Npcap 1.77.
-  They previously shipped with Npcap 1.71.
-
-The following features are new (or have been significantly updated) since version 4.1.0:
-
-* Improved dark mode support.
-
-* The Windows installers now ship with Qt 6.5.3.
-  They previously shipped with Qt 6.2.3.
-
-The following features are new (or have been significantly updated) since version 4.0.0:
-
-* The API has been updated to ensure that the dissection engine produces valid UTF-8 strings.
-
-* Wireshark now builds with Qt6 by default. To use Qt5 instead pass USE_qt6=OFF to CMake.
-
-* The "ciscodump" extcap supports Cisco IOS XE 17.x.
-
-* The default interval between GUI updates when capturing has been decreased
-  from 500ms to 100ms, and is now configurable.
-
-* The *-n* option also now disables IP address geolocation information lookup
-  in configured MaxMind databases (and geolocation lookup can be enabled with
-  *-Ng*.) This is most relevant for TShark, where geolocation lookups are
-  synchronous.
-
-* The display filter drop-down list is now sorted by "most recently used" instead
-  of "most recently created".
-
-* Display filter syntax-related changes:
-
-  ** It is now possible to filter on raw packet data for any field by using the syntax ``@some.field == <bytes...>``.
-     This can be useful to filter on malformed UTF-8 strings, among other use cases where it is necessary to
-     look at the field's raw data.
-
-  ** Negation (unary minus) now works with any display filter arithmetic expression.
-
-  ** Using the slice operator with strings produces a string. Previously it
-     would produce a byte array. This is useful to index/slice UTF-8 multibyte strings.
-     String byte slices can still be obtained using the "@" (raw operator) prefix.
-
-  ** Arithmetic expressions are allowed as set elements.
-
-  ** Absolute date and time values can be written as Unix time.
-
-  ** The limitation where a minus sign needed to be preceded by a space character
-     has been removed.
-
-  ** Added XOR logical operator.
-
-  ** Fixed the implementation of `all ... in` membership operator
-     (https://gitlab.com/wireshark/wireshark/-/issues/19188[#19188]).
-
-  ** When parsing absolute time values the display filter engine has learned
-     to understand timezones as specified in
-     https://man.netbsd.org/strptime.3[strptime(3)], including some common
-     North American designations. Arbitrary timezone names are not supported
-     however. Previously only ISO8601 offsets and the "UTC" designation was understood.
-
-  ** Writing value strings without double quotes is deprecated and will generate
-     a warning. Value strings are integer or boolean values that can be represented
-     using a user-friendly textual format, such as "Set"/"Unset" instead of numerical
-     values like 1 and 0. It is now a requirement that value strings need to be
-     written enclosed in double-quotes.
-
-  ** The deprecated ~≃ operator symbol has been removed. It was replaced by !== in version 4.0.
-
-* Running the test suite requires the https://pypi.org/project/pytest/[pytest]
-  Python module. The emulation layer that allowed running tests without pytest
-  installed has been removed.
-
-* When saving files or exporting packets after changing their time with the
-  "Time Shift" dialog, the shifted time is written to the new file.
-
-* TLS secrets used in decrypting packets can be embedded (or discarded) from
-  the capture file via the GUI, similar to the options --inject-secrets and
-  --discard-all-secrets in editcap.
-
-* The text of any configured column (displayed or hidden) can be filtered
-  anywhere that filters are used - in display filters, filters in taps, coloring
-  rules, Wireshark read filters, and the -Y, -R, and -e options to TShark,
-  the "Apply as Filter" GUI option, etc.
-
-  ** The filter field names are prefixed by "\_ws.col", followed by a lowercase
-     version of the COL_ name found in epan/column-utils.h, e.g. "_ws.col.info"
-     or "_ws.col.protocol"
-
-  ** Using the column names as a filter is slower than other filter types
-     because the columns must be constructed, so when the same filtering
-     can be achieved via other fields, prefer that.
-
-* The external name resolution text files "manuf", "enterprises" and "services"
-  have been removed and replaced with static binary data. You can dump the
-  respective internal data using `tshark -G manuf|enterprises|services`.
-
-* The "manuf" file is now also read from the personal configuration folder,
-  and is profile-based.
-
-* The Lua console dialogs under the menu:Tools[] menu were refactored and redesigned.
-  It now consists of a single dialog window for input and output.
-
-* Wireshark now shows byte units in the statistics in the user-selected language
-  (uses the system default language by default).
-
-* Packet list sorting has been improved:
-
-  ** When sorting packet list with a filter applied, only the visible packets are
-     sorted, which greatly increases sorting speed.
-
-  ** The cache size for column text is limited to a default of 10000 rows,
-     which limits the maximum memory usage. The maximum value can be changed in
-     Preferences->Appearance->Layout
-
-  ** Due to the above, columns that require packet dissection can only be sorted
-     if the number of visible rows is less than the cache size. If there are
-     more rows visible, a warning will appear. Columns that do not require packet
-     dissection (those that calculated directly from the capture file frame
-     headers, such as packet number, time, and frame length) can be sorted with
-     any number of visible rows.
-
-  ** Sorting can be interrupted.
-
-* When changing the dissector via the "Decode As" table for values that
-  have default dissectors registered, selecting "(none)" will select
-  no dissection (while still allowing heuristic dissectors to attempt to
-  dissect.) The previous behavior was to reset the dissector to the default.
-  To facilitate resetting the dissector, the default dissector is now sorted
-  at the top of the list of possible dissector options.
-
-* The personal extcap plugin folder location on Unix has been changed to
-  follow existing conventions for architecture-dependent files.
-  The extcap personal folder is now ``$HOME/.local/lib/wireshark/extcap``.
-  Previously it was ``$XDG_CONFIG_HOME/wireshark/extcap``.
-
-* The "init.lua" file is now loaded from any of the Lua plugin directories.
-  Previously it was loaded from the personal configuration directory. (For
-  backward-compatibility this is still allowed; note that deprecated features
-  may be removed in a future release).
-
-* Installation of development headers must be done explicitly using the CMake
-  command `cmake --install <builddir> --component Development`.
-
-* The Windows build has a new SpeexDSP external dependency (https://www.speex.org).
-  The speex code that was previously bundled has been removed.
-
-* New `--print-timers` option added to TShark.
-
-=== Removed Features and Support
-
-* With the addition of the universal and consistent filtering support for
-  column text, the previous support in the -e option to TShark for displaying
-  column text via the column title has been removed in general. Those field names
-  cannot be used elsewhere (as they may not be legal filter names) and create
-  confusion if more than one column has the same title or if a column is renamed.
-  Prefer the column format instead, e.g. "_ws.col.info" for "_ws.col.Info".
-  However, for backwards compatibility with existing tools and scripts, the
-  titles of the default columns can continue to be used with `tshark -e`
-  (but not elsewhere.)
-
-* The bundled script "dtd_gen.lua" that was disabled by default has been removed
-  from the installation. link:https://wiki.wireshark.org/Contrib[It can be found in the Wireshark Wiki under "Contrib"].
-
-* The Wi-Fi NAN dissector filter name has been changed from 'nan' to 'wifi_nan'.
+// === Removed Features and Support
 
 // === Removed Dissectors
 
-=== New File Format Decoding Support
+// === New File Format Decoding Support
 
-[commaize]
---
-RTPDump
---
 
 === New Protocol Support
 
-// Add one protocol per line between the -- delimiters in the format
-// “Full protocol name (Abbreviation)”
-// git log --oneline --diff-filter=A --stat v4.1.0rc0.. epan/dissectors plugins
-[commaize]
---
-Aruba UBT
-ASAM Capture Module Protocol (CMP)
-ATSC Link-Layer Protocol (ALP)
-DECT DLC protocol layer (DECT-DLC)
-DECT NWK protocol layer (DECT-NWK)
-DECT proprietary Mitel OMM/RFP Protocol (also named AaMiDe)
-Digital Object Identifier Resolution Protocol (DO-IRP)
-Discard Protocol
-IEEE 802.1CB (R-TAG)
-Iperf3
-FiRa UWB Controller Interface (UCI)
-FiveCo's Register Access Protocol (5CoRAP)
-Fortinet FortiGate Cluster Protocol (FGCP)
-GPS L1 C/A LNAV navigation messages
-GSM Radio Link Protocol (RLP)
-H.224
-High Speed Fahrzeugzugang (HSFZ)
-Hypertext Transfer Protocol version 3 (HTTP/3)
-ID3v2
-JSON 3GPP
-Low Level Signalling (ATSC3 LLS)
-Management Component Transport Protocol - Control Protocol (MCTP CP)
-Management Component Transport Protocol (MCTP)
-Matter home automation protocol
-Microsoft Delivery Optimization
-Multi-Drop Bus (MDB)
-Non-volatile Memory Express - Management Interface (NVMe-MI) over MCTP
-RDP audio output virtual channel Protocol (rdpsnd)
-RDP clipboard redirection channel Protocol (cliprdr)
-RDP Program virtual channel Protocol (RAIL)
-SAP Enqueue Server (SAPEnqueue)
-SAP GUI (SAPDiag)
-SAP HANA SQL Command Network Protocol (SAPHDB)
-SAP Internet Graphic Server (SAP IGS)
-SAP Message Server (SAPMS)
-SAP Network Interface (SAPNI)
-SAP Router (SAPROUTER)
-SAP Secure Network Connection (SNC)
-SBAS L1 Navigation Messages (SBAS L1)
-SINEC AP1 Protocol (SINEC AP)
-SMPTE ST2110-20 (Uncompressed Active Video)
-Train Real-Time Data Protocol (TRDP)
-UBX protocol of u-blox GNSS receivers (UBX)
-UDP Tracker Protocol for BitTorrent (BT-Tracker)
-UWB UCI Protocol
-Video Protocol 9 (VP9)
-Windows Delivery Optimization (MS-DO)
-VMware HeartBeat
-Z21 LAN Protocol (Z21)
-Zabbix
-Zigbee TLV
-ZigBee Direct (ZBD)
---
+There are no new protocols in this release.
 
 === Updated Protocol Support
 
-* JSON: The dissector now has a preference to enable/disable "unescaping"
-  of string values. By default it is off. Previously it was always on.
+// Add one protocol per line between the -- delimiters.
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.11.. | ag packet- | sort -u)
+[commaize]
+--
+--
 
-* JSON: The dissector now supports "Display JSON in raw form".
+=== New and Updated Capture File Support
 
-* IPv6: The dissector has a new preference to show some semantic details
-  about addresses (default off).
-
-* IPv6: The dissector now supports dissecting the
-  https://www.ipv6plus.net/Phase3/apn6/[
-  Application-aware IPv6 Networking (APN6) option]
-  in the Hop-by-Hop Options Header (HBH) and Destination Options Header (DOH),
-  including all three types of APN ID,
-  which are 32-bit, 64-bit and 128-bit in length.
-
-* XML: The dissector now supports display character according to the "encoding"
-  attribute of the XML declaration, and has a new preference to set default
-  character encoding for some XML document without "encoding" attribute.
-
-* SIP: The dissector now has a new preference to set default charset for
-  displaying the body of SIP messages in raw text view.
-
-* HTTP: The dissector now supports dissecting chunked data in streaming reassembly
-  mode. Subdissectors of HTTP can register itself in "streaming_content_type"
-  subdissector table for enabling streaming reassembly mode while transferring in
-  chunked encoding. This feature ensures the server stream messages of GRPC-Web
-  over HTTP/1.1 can be dissected even if the last chunk is absent.
-
-* The media type dissector table now properly treats media types and subtypes
-  as case-insensitive automatically, per RFC 6838. Media types no longer need
-  to be lower cased before registering or looking up in the table.
-
-* CFM: The dissector has been overhauled and updated to the level of IEEE std
-  802.1Q-2022 and ITU-T Rec. G.8013/Y.1371 (08/2015). This includes dissection
-  of additional PDU types and TLVs as well as deeper dissection of existing PDUs
-  and TLVs.
-
-Too many other protocol updates have been made to list them all here.
-
-//=== New and Updated Capture File Support
-
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-//[commaize]
-//--
-//--
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
-=== New and Updated Codec support
+// === New and Updated Codec support
 
-Adaptive Multi-Rate (AMR), if compiled with https://sourceforge.net/projects/opencore-amr/[opencore-amr].
-
-//_Non-empty section placeholder._
-
-=== Major API Changes
-
-* Lua function "package.prepend_path" has been removed. If you need it please
-  consider adding your own package.path customization code or installing your
-  dependencies in Wireshark's default paths.
-
-* The reassemble_streaming_data_and_call_subdissector() API has been added to provide a simpler way to
-  reassemble the streaming data of a high level protocol that is not on top of TCP.
-
-* Some of the API now uses C99 types instead of GLib types. wsbuglink:19116[]
+// === Major API Changes
 
 == Getting Wireshark
 
