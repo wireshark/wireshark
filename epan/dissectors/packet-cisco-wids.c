@@ -52,7 +52,7 @@ static int hf_cwids_unknown3 = -1;
 
 static gint ett_cwids = -1;
 
-static expert_field ie_ieee80211_subpacket = EI_INIT;
+static expert_field ei_ieee80211_subpacket = EI_INIT;
 
 static dissector_handle_t cwids_handle;
 
@@ -110,7 +110,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		} CATCH_BOUNDS_ERRORS {
 			show_exception(wlan_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 
-			expert_add_info(pinfo, ti, &ie_ieee80211_subpacket);
+			expert_add_info(pinfo, ti, &ei_ieee80211_subpacket);
 		} ENDTRY;
 
 		offset += capturelen;
@@ -163,7 +163,7 @@ proto_register_cwids(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ie_ieee80211_subpacket, { "cwids.ieee80211_malformed", PI_MALFORMED, PI_ERROR, "Malformed or short IEEE80211 subpacket", EXPFILL }},
+		{ &ei_ieee80211_subpacket, { "cwids.ieee80211_malformed", PI_MALFORMED, PI_ERROR, "Malformed or short IEEE80211 subpacket", EXPFILL }},
 	};
 
 	expert_module_t* expert_cwids;

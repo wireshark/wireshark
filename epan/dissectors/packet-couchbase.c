@@ -624,25 +624,25 @@ static int hf_range_scan_item_limit = -1;
 static int hf_range_scan_time_limit = -1;
 static int hf_range_scan_byte_limit = -1;
 
-static expert_field ef_warn_shall_not_have_value = EI_INIT;
-static expert_field ef_warn_shall_not_have_extras = EI_INIT;
-static expert_field ef_warn_shall_not_have_key = EI_INIT;
-static expert_field ef_compression_error = EI_INIT;
-static expert_field ef_warn_unknown_flex_unsupported = EI_INIT;
-static expert_field ef_warn_unknown_flex_id = EI_INIT;
-static expert_field ef_warn_unknown_flex_len = EI_INIT;
+static expert_field ei_warn_shall_not_have_value = EI_INIT;
+static expert_field ei_warn_shall_not_have_extras = EI_INIT;
+static expert_field ei_warn_shall_not_have_key = EI_INIT;
+static expert_field ei_compression_error = EI_INIT;
+static expert_field ei_warn_unknown_flex_unsupported = EI_INIT;
+static expert_field ei_warn_unknown_flex_id = EI_INIT;
+static expert_field ei_warn_unknown_flex_len = EI_INIT;
 
 static expert_field ei_value_missing = EI_INIT;
-static expert_field ef_warn_must_have_extras = EI_INIT;
-static expert_field ef_warn_must_have_key = EI_INIT;
-static expert_field ef_warn_illegal_extras_length = EI_INIT;
-static expert_field ef_warn_illegal_value_length = EI_INIT;
-static expert_field ef_warn_unknown_magic_byte = EI_INIT;
-static expert_field ef_warn_unknown_opcode = EI_INIT;
-static expert_field ef_warn_unknown_extras = EI_INIT;
-static expert_field ef_note_status_code = EI_INIT;
-static expert_field ef_separator_not_found = EI_INIT;
-static expert_field ef_illegal_value = EI_INIT;
+static expert_field ei_warn_must_have_extras = EI_INIT;
+static expert_field ei_warn_must_have_key = EI_INIT;
+static expert_field ei_warn_illegal_extras_length = EI_INIT;
+static expert_field ei_warn_illegal_value_length = EI_INIT;
+static expert_field ei_warn_unknown_magic_byte = EI_INIT;
+static expert_field ei_warn_unknown_opcode = EI_INIT;
+static expert_field ei_warn_unknown_extras = EI_INIT;
+static expert_field ei_note_status_code = EI_INIT;
+static expert_field ei_separator_not_found = EI_INIT;
+static expert_field ei_illegal_value = EI_INIT;
 
 static gint ett_couchbase = -1;
 static gint ett_extras = -1;
@@ -1241,7 +1241,7 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
 
     mark = tvb_find_guint8(tvb, offset, pair_len, 0x00);
     if (mark == -1) {
-      expert_add_info_format(pinfo, ti, &ef_separator_not_found, "Null byte not found");
+      expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Null byte not found");
       return;
     }
 
@@ -1252,7 +1252,7 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
 
     mark = tvb_find_guint8(tvb, offset, pair_len, 0x00);
     if (mark == -1) {
-      expert_add_info_format(pinfo, ti, &ef_separator_not_found, "Null byte not found");
+      expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Null byte not found");
       return;
     }
 
@@ -1292,7 +1292,7 @@ static void dissect_server_request_extras(tvbuff_t *tvb _U_, packet_info *pinfo 
   if (extlen == 0) {
     switch (opcode) {
       case SERVER_OPCODE_CLUSTERMAP_CHANGE_NOTIFICATION:
-        proto_tree_add_expert_format(tree, pinfo, &ef_warn_must_have_extras, tvb, offset, 0,
+        proto_tree_add_expert_format(tree, pinfo, &ei_warn_must_have_extras, tvb, offset, 0,
                                      "ClustermapChangeNotification request must have extras");
         return;
 
@@ -1315,7 +1315,7 @@ static void dissect_server_request_extras(tvbuff_t *tvb _U_, packet_info *pinfo 
     // Expected 16 bytes of extras!
     if (extlen < 16) {
       proto_tree_add_expert_format(extras_tree, pinfo,
-                                   &ef_warn_illegal_extras_length, tvb,
+                                   &ei_warn_illegal_extras_length, tvb,
                                    offset, extlen,
                                    "ClustermapChangeNotification should have 16 bytes of extras");
       return;
@@ -1327,7 +1327,7 @@ static void dissect_server_request_extras(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     if (extlen > 16) {
       proto_tree_add_expert_format(extras_tree, pinfo,
-                                   &ef_warn_illegal_extras_length, tvb,
+                                   &ei_warn_illegal_extras_length, tvb,
                                    offset + 16, extlen - 16,
                                    "Unexpected amount of extras");
     }
@@ -1351,7 +1351,7 @@ dissect_server_response_extras(tvbuff_t *tvb, packet_info *pinfo,
                                                 extlen, ENC_NA);
   proto_tree *extras_tree = proto_item_add_subtree(extras_item, ett_extras);
   proto_tree_add_expert_format(extras_tree, pinfo,
-                               &ef_warn_illegal_extras_length, tvb,
+                               &ei_warn_illegal_extras_length, tvb,
                                offset, extlen,
                                "Unexpected amount of extras");
 }
@@ -2079,21 +2079,21 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
   }
   if (illegal) {
-    proto_tree_add_expert_format(extras_tree, pinfo, &ef_warn_shall_not_have_extras, tvb, offset, 0,
+    proto_tree_add_expert_format(extras_tree, pinfo, &ei_warn_shall_not_have_extras, tvb, offset, 0,
                            "%s %s should not have extras",
                            val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
                            request ? "Request" : "Response");
     offset += extlen;
   } else if (missing) {
 
-    proto_tree_add_expert_format(tree, pinfo, &ef_warn_must_have_extras, tvb, offset, 0,
+    proto_tree_add_expert_format(tree, pinfo, &ei_warn_must_have_extras, tvb, offset, 0,
                            "%s %s must have Extras",
                            val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode Ox%x"),
                            request ? "Request" : "Response");
 }
 
   if ((offset - save_offset) != extlen) {
-    expert_add_info_format(pinfo, extras_item, &ef_warn_illegal_extras_length,
+    expert_add_info_format(pinfo, extras_item, &ei_warn_illegal_extras_length,
                            "Illegal Extras length, should be %d", offset - save_offset);
   }
 }
@@ -2136,14 +2136,14 @@ static void dissect_server_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     switch (opcode) {
       case SERVER_OPCODE_GET_AUTHORIZATION:
         if (request) {
-          proto_tree_add_expert_format(tree, pinfo, &ef_warn_must_have_key,
+          proto_tree_add_expert_format(tree, pinfo, &ei_warn_must_have_key,
                                        tvb, offset, 0,
                                        "GetAuthorization request must have key");
         }
         return;
       case SERVER_OPCODE_CLUSTERMAP_CHANGE_NOTIFICATION:
         if (request) {
-          proto_tree_add_expert_format(tree, pinfo, &ef_warn_must_have_key,
+          proto_tree_add_expert_format(tree, pinfo, &ei_warn_must_have_key,
                                        tvb, offset, 0,
                                        "ClustermapChangeNotification request must have key");
         }
@@ -2161,14 +2161,14 @@ static void dissect_server_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   switch (opcode) {
     case SERVER_OPCODE_CLUSTERMAP_CHANGE_NOTIFICATION:
       if (!request) {
-        expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_key,
+        expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_key,
                                "ClustermapChangeNotification response shall not have key");
       }
       break;
 
     case SERVER_OPCODE_AUTHENTICATE:
     case SERVER_OPCODE_ACTIVE_EXTERNAL_USERS:
-        expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_key,
+        expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_key,
                                "%s %s shall not have Key",
                                val_to_str_ext(opcode,
                                               &server_opcode_vals_ext,
@@ -2178,7 +2178,7 @@ static void dissect_server_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     case SERVER_OPCODE_GET_AUTHORIZATION:
       if (!request) {
-          expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_key,
+          expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_key,
                                  "GetAuthorization response shall not have key");
       }
       break;
@@ -2324,11 +2324,11 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (illegal) {
-    expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_key, "%s %s shall not have Key",
+    expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_key, "%s %s shall not have Key",
                            val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
                            request ? "Request" : "Response");
   } else if (missing) {
-    proto_tree_add_expert_format(tree, pinfo, &ef_warn_must_have_key, tvb, offset, 0,
+    proto_tree_add_expert_format(tree, pinfo, &ei_warn_must_have_key, tvb, offset, 0,
                            "%s %s must have Key",
                            val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode Ox%x"),
                            request ? "Request" : "Response");
@@ -2529,7 +2529,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       if (request) {
         ti = proto_tree_add_item(tree, hf_observe_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
         if (value_len != 8) {
-          expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 8");
+          expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be 8");
         }
       } else {
         /*
@@ -2581,7 +2581,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else if (!request && (opcode == CLIENT_OPCODE_DCP_STREAM_REQUEST || opcode == CLIENT_OPCODE_DCP_FAILOVER_LOG_REQUEST)) {
       if (value_len % 16 != 0) {
-        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad failover log length");
+        expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Response with bad failover log length");
       } else {
         proto_tree *failover_log_tree;
         gint cur = offset, end = offset + value_len;
@@ -2598,7 +2598,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else if (!request && opcode == CLIENT_OPCODE_GET_ALL_VB_SEQNOS) {
       if (value_len % 10 != 0) {
-        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad body length");
+        expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Response with bad body length");
       } else {
         proto_tree *vbucket_states_tree;
         gint cur = offset, end = offset + value_len;
@@ -2616,7 +2616,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (!request && (opcode == CLIENT_OPCODE_INCREMENT || opcode == CLIENT_OPCODE_DECREMENT)) {
       ti = proto_tree_add_item(tree, hf_uint64_response, tvb, offset, 8, ENC_BIG_ENDIAN);
       if (value_len != 8) {
-        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 8");
+        expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be 8");
       }
     } else if (has_json_value(request, opcode)) {
       tvbuff_t *json_tvb;
@@ -2658,12 +2658,12 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       sep = tvb_find_guint8(tvb, offset, value_len, 0x00);
       if (sep == -1) {
         ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
-        expert_add_info_format(pinfo, ti, &ef_separator_not_found, "Null byte not found");
+        expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Null byte not found");
       } else {
         proto_tree_add_item(tree, hf_bucket_type, tvb, offset, sep - offset, ENC_ASCII | ENC_NA);
         config_len = value_len - (sep - offset) - 1; //Don't include NULL byte in length
         if(config_len <= 0) {
-          expert_add_info_format(pinfo, ti, &ef_separator_not_found, "Separator not found in expected location");
+          expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Separator not found in expected location");
         } else {
           offset = sep + 1;// Ignore NULL byte
 
@@ -2676,7 +2676,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           // Get the key
           equals_pos = tvb_find_guint8(tvb, offset, config_len, 0x3d);
           if (equals_pos == -1) {
-            expert_add_info_format(pinfo, ti, &ef_illegal_value, "Each key needs a value");
+            expert_add_info_format(pinfo, ti, &ei_illegal_value, "Each key needs a value");
             break; // Break out the while loop
           }
           ti = proto_tree_add_item(config_tree, hf_config_key, tvb, offset, equals_pos - offset, ENC_ASCII | ENC_NA);
@@ -2684,14 +2684,14 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           config_len -= (equals_pos - offset + 1);
           offset = equals_pos + 1;
           if (config_len <= 0) {
-            expert_add_info_format(pinfo, ti, &ef_illegal_value, "Corresponding value missing");
+            expert_add_info_format(pinfo, ti, &ei_illegal_value, "Corresponding value missing");
             break;//Break out of while loop
           }
 
           // Get the value
           sep_pos = tvb_find_guint8(tvb, offset, config_len, 0x3b);
           if (sep_pos == -1) {
-            expert_add_info_format(pinfo, ti, &ef_separator_not_found, "Each key-value pair must be terminated by semi-colon");
+            expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Each key-value pair must be terminated by semi-colon");
             break; // Break out the while loop
           }
           proto_tree_add_item(key_tree, hf_config_value, tvb, offset, sep_pos - offset, ENC_ASCII | ENC_NA);
@@ -2709,14 +2709,14 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       dissect_dcp_xattrs(tvb, tree, value_len, offset, pinfo);
     } else if (request && opcode == CLIENT_OPCODE_GET_ERROR_MAP) {
       if (value_len != 2) {
-        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 2");
+        expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be 2");
         ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
       } else {
         ti = proto_tree_add_item(tree, hf_get_errmap_version, tvb, offset, value_len, ENC_BIG_ENDIAN);
       }
     } else if (request && opcode == CLIENT_OPCODE_DCP_SNAPSHOT_MARKER) {
         if (value_len < 20) {
-            expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be at least 20");
+            expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be at least 20");
             ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
         }
 
@@ -2729,7 +2729,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (value_len > 20) {
             if (value_len < 36) {
-                expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be at least 36");
+                expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be at least 36");
                 ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
             }
 
@@ -2740,7 +2740,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (value_len > 36) {
                 if (value_len != 44) {
-                    expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 44");
+                    expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be 44");
                     ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
                 }
 
@@ -2772,10 +2772,10 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               call_dissector(json_handle, compressed_tvb, pinfo, tree);
             }
           } else {
-            expert_add_info_format(pinfo, ti, &ef_compression_error, "Error uncompressing snappy data");
+            expert_add_info_format(pinfo, ti, &ei_compression_error, "Error uncompressing snappy data");
           }
         } else {
-            expert_add_info_format(pinfo, ti, &ef_compression_error, "Error uncompressing snappy data");
+            expert_add_info_format(pinfo, ti, &ei_compression_error, "Error uncompressing snappy data");
         }
       }
 #endif
@@ -2846,7 +2846,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (illegal) {
-    expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_value, "%s %s shall not have Value",
+    expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_value, "%s %s shall not have Value",
                            val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
                            request ? "Request" : "Response");
   } else if (missing) {
@@ -2864,7 +2864,7 @@ static void flex_frame_duration_dissect(tvbuff_t* tvb,
   if (length != 2) {
     proto_tree_add_expert_format(frame_tree,
                                  NULL,
-                                 &ef_warn_unknown_flex_len,
+                                 &ei_warn_unknown_flex_len,
                                  tvb,
                                  offset,
                                  length,
@@ -2888,7 +2888,7 @@ static void flex_frame_ru_usage_dissect(tvbuff_t* tvb,
   if (length != 2) {
     proto_tree_add_expert_format(frame_tree,
                                  NULL,
-                                 &ef_warn_unknown_flex_len,
+                                 &ei_warn_unknown_flex_len,
                                  tvb,
                                  offset,
                                  length,
@@ -2907,7 +2907,7 @@ static void flex_frame_wu_usage_dissect(tvbuff_t* tvb,
   if (length != 2) {
     proto_tree_add_expert_format(frame_tree,
                                  NULL,
-                                 &ef_warn_unknown_flex_len,
+                                 &ei_warn_unknown_flex_len,
                                  tvb,
                                  offset,
                                  length,
@@ -2926,7 +2926,7 @@ static void flex_frame_reorder_dissect(tvbuff_t* tvb,
   if (length != 0) {
     proto_tree_add_expert_format(frame_tree,
                                  NULL,
-                                 &ef_warn_unknown_flex_len,
+                                 &ei_warn_unknown_flex_len,
                                  tvb,
                                  offset,
                                  length,
@@ -2941,7 +2941,7 @@ static void flex_frame_durability_dissect(tvbuff_t* tvb,
   if (!(length == 1 || length == 3)) {
     proto_tree_add_expert_format(frame_tree,
                                  NULL,
-                                 &ef_warn_unknown_flex_len,
+                                 &ei_warn_unknown_flex_len,
                                  tvb,
                                  offset,
                                  length,
@@ -2958,7 +2958,7 @@ static void flex_frame_dcp_stream_id_dissect(tvbuff_t* tvb,
   if (length != 2) {
     proto_tree_add_expert_format(frame_tree,
                                  NULL,
-                                 &ef_warn_unknown_flex_len,
+                                 &ei_warn_unknown_flex_len,
                                  tvb,
                                  offset,
                                  length,
@@ -2989,7 +2989,7 @@ static void flex_frame_preserve_ttl(tvbuff_t* tvb,
   if (length != 0) {
     proto_tree_add_expert_format(frame_tree,
                                  NULL,
-                                 &ef_warn_unknown_flex_len,
+                                 &ei_warn_unknown_flex_len,
                                  tvb,
                                  offset,
                                  length,
@@ -3067,7 +3067,7 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
     if (tag_byte == 0xFF) {
       proto_tree_add_expert_format(tree,
                                    pinfo,
-                                   &ef_warn_unknown_flex_unsupported,
+                                   &ei_warn_unknown_flex_unsupported,
                                    tvb,
                                    offset,
                                    1,
@@ -3131,7 +3131,7 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
     if (!found)  {
       proto_tree_add_expert_format(frame_tree,
                                    pinfo,
-                                   &ef_warn_unknown_flex_id,
+                                   &ei_warn_unknown_flex_id,
                                    tvb,
                                    offset,
                                    len,
@@ -3165,7 +3165,7 @@ static void d_s_o_clustermap_change_notification_req(tvbuff_t *tvb,
                                                      gint size) {
   if (size == 0) {
     // this is an error!
-    expert_add_info_format(pinfo, tree, &ef_warn_illegal_value_length,
+    expert_add_info_format(pinfo, tree, &ei_warn_illegal_value_length,
                            "Clustermap not present");
     return;
   }
@@ -3183,7 +3183,7 @@ static void d_s_o_authenticate_req(tvbuff_t *tvb,
                                    gint size) {
   if (size == 0) {
     // this is an error!
-    expert_add_info_format(pinfo, tree, &ef_warn_illegal_value_length,
+    expert_add_info_format(pinfo, tree, &ei_warn_illegal_value_length,
                            "Authentication payload not present");
     return;
   }
@@ -3201,7 +3201,7 @@ static void d_s_o_active_external_users_req(tvbuff_t *tvb,
                                             gint size) {
   if (size == 0) {
     // this is an error!
-    expert_add_info_format(pinfo, tree, &ef_warn_illegal_value_length,
+    expert_add_info_format(pinfo, tree, &ei_warn_illegal_value_length,
                            "ActiveExternalUsers payload not present");
     return;
   }
@@ -3221,7 +3221,7 @@ static void d_s_o_get_authorization_req(tvbuff_t *tvb,
     // this is an error!
     proto_item *ti = proto_tree_add_item(tree, hf_value, tvb, offset, size,
                                          ENC_ASCII | ENC_NA);
-    expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_value,
+    expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_value,
                            "GetAuthorization shall not have a value");
   }
 }
@@ -3243,7 +3243,7 @@ static void d_s_o_server_ignored_response(tvbuff_t *tvb,
   proto_item *ti = proto_tree_add_item(tree, hf_value, tvb, offset, size,
                                        ENC_ASCII | ENC_NA);
   if (get_status(tvb) == STATUS_SUCCESS) {
-    expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_value,
+    expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_value,
                            "Success should not carry value");
   } else {
     tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
@@ -3331,7 +3331,7 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   guint8 magic = get_magic(tvb);
   proto_item *ti = proto_tree_add_item(couchbase_tree, hf_magic, tvb, 0, 1, ENC_BIG_ENDIAN);
   if (try_val_to_str(magic, magic_vals) == NULL) {
-    expert_add_info_format(pinfo, ti, &ef_warn_unknown_magic_byte, "Unknown magic byte: 0x%x", magic);
+    expert_add_info_format(pinfo, ti, &ei_warn_unknown_magic_byte, "Unknown magic byte: 0x%x", magic);
   }
 
   guint8 opcode = get_opcode(tvb);
@@ -3346,7 +3346,7 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   }
 
   if (opcode_name == NULL) {
-    expert_add_info_format(pinfo, ti, &ef_warn_unknown_opcode, "Unknown opcode: 0x%x", opcode);
+    expert_add_info_format(pinfo, ti, &ei_warn_unknown_opcode, "Unknown opcode: 0x%x", opcode);
     opcode_name = "Unknown opcode";
   }
   proto_item_append_text(couchbase_item, ", %s %s, Opcode: 0x%x",
@@ -3388,7 +3388,7 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint16 status = get_status(tvb);
     ti = proto_tree_add_item(couchbase_tree, hf_status, tvb, 6, 2, ENC_BIG_ENDIAN);
     if (status != 0) {
-      expert_add_info_format(pinfo, ti, &ef_warn_unknown_opcode, "%s: %s",
+      expert_add_info_format(pinfo, ti, &ei_warn_unknown_opcode, "%s: %s",
                              val_to_str_ext(opcode, &client_opcode_vals_ext, "Unknown opcode (0x%x)"),
                              val_to_str_ext(status, &status_vals_ext, "Status: 0x%x"));
     }
@@ -3436,7 +3436,7 @@ static void dissect_frame_flex_info_section(tvbuff_t *tvb,
       proto_tree_add_item(tree, hf_flex_extras, tvb, offset, size, ENC_UTF_8|ENC_STR_HEX);
       proto_tree_add_expert_format(tree,
                                    pinfo,
-                                   &ef_warn_unknown_flex_unsupported,
+                                   &ei_warn_unknown_flex_unsupported,
                                    tvb,
                                    offset,
                                    size,
@@ -3456,7 +3456,7 @@ static void dissect_frame_flex_info_section(tvbuff_t *tvb,
       proto_tree_add_item(tree, hf_flex_extras, tvb, offset, size, ENC_UTF_8|ENC_STR_HEX);
       proto_tree_add_expert_format(tree,
                                    pinfo,
-                                   &ef_warn_unknown_flex_unsupported,
+                                   &ei_warn_unknown_flex_unsupported,
                                    tvb,
                                    offset,
                                    size,
@@ -3493,7 +3493,7 @@ static void dissect_frame_extras(tvbuff_t *tvb,
       proto_tree_add_item(tree, hf_extras, tvb, offset, size, ENC_UTF_8|ENC_STR_HEX);
       proto_tree_add_expert_format(tree,
                                    pinfo,
-                                   &ef_warn_unknown_extras,
+                                   &ei_warn_unknown_extras,
                                    tvb,
                                    offset,
                                    size,
@@ -3975,23 +3975,23 @@ proto_register_couchbase(void)
 
   static ei_register_info ei[] = {
     { &ei_value_missing, { "couchbase.value_missing", PI_PROTOCOL, PI_WARN, "Value is mandatory for this command", EXPFILL }},
-    { &ef_warn_shall_not_have_value, { "couchbase.warn.shall_not_have_value", PI_UNDECODED, PI_WARN, "Packet shall not have value", EXPFILL }},
-    { &ef_warn_shall_not_have_extras, { "couchbase.warn.shall_not_have_extras", PI_UNDECODED, PI_WARN, "Packet shall not have extras", EXPFILL }},
-    { &ef_warn_shall_not_have_key, { "couchbase.warn.shall_not_have_key", PI_UNDECODED, PI_WARN, "Packet shall not have key", EXPFILL }},
-    { &ef_warn_must_have_extras, { "couchbase.warn.must_have_extras", PI_UNDECODED, PI_WARN, "Packet must have extras", EXPFILL }},
-    { &ef_warn_must_have_key, { "couchbase.warn.must_have_key", PI_UNDECODED, PI_WARN, "%s %s must have Key", EXPFILL }},
-    { &ef_warn_illegal_extras_length, { "couchbase.warn.illegal_extras_length", PI_UNDECODED, PI_WARN, "Illegal Extras length", EXPFILL }},
-    { &ef_warn_illegal_value_length, { "couchbase.warn.illegal_value_length", PI_UNDECODED, PI_WARN, "Illegal Value length", EXPFILL }},
-    { &ef_warn_unknown_magic_byte, { "couchbase.warn.unknown_magic_byte", PI_UNDECODED, PI_WARN, "Unknown magic byte", EXPFILL }},
-    { &ef_warn_unknown_opcode, { "couchbase.warn.unknown_opcode", PI_UNDECODED, PI_WARN, "Unknown opcode", EXPFILL }},
-    { &ef_warn_unknown_extras, { "couchbase.warn.unknown_extras", PI_UNDECODED, PI_WARN, "Unknown extras", EXPFILL }},
-    { &ef_note_status_code, { "couchbase.note.status_code", PI_RESPONSE_CODE, PI_NOTE, "Status", EXPFILL }},
-    { &ef_separator_not_found, { "couchbase.warn.separator_not_found", PI_UNDECODED, PI_WARN, "Separator not found", EXPFILL }},
-    { &ef_illegal_value, { "couchbase.warn.illegal_value", PI_UNDECODED, PI_WARN, "Illegal value for command", EXPFILL }},
-    { &ef_compression_error, { "couchbase.error.compression", PI_UNDECODED, PI_WARN, "Compression error", EXPFILL }},
-    { &ef_warn_unknown_flex_unsupported, { "couchbase.warn.unsupported_flexible_frame", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }},
-    { &ef_warn_unknown_flex_id, { "couchbase.warn.unknown_flexible_frame_id", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }},
-    { &ef_warn_unknown_flex_len, { "couchbase.warn.unknown_flexible_frame_len", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }}
+    { &ei_warn_shall_not_have_value, { "couchbase.warn.shall_not_have_value", PI_UNDECODED, PI_WARN, "Packet shall not have value", EXPFILL }},
+    { &ei_warn_shall_not_have_extras, { "couchbase.warn.shall_not_have_extras", PI_UNDECODED, PI_WARN, "Packet shall not have extras", EXPFILL }},
+    { &ei_warn_shall_not_have_key, { "couchbase.warn.shall_not_have_key", PI_UNDECODED, PI_WARN, "Packet shall not have key", EXPFILL }},
+    { &ei_warn_must_have_extras, { "couchbase.warn.must_have_extras", PI_UNDECODED, PI_WARN, "Packet must have extras", EXPFILL }},
+    { &ei_warn_must_have_key, { "couchbase.warn.must_have_key", PI_UNDECODED, PI_WARN, "%s %s must have Key", EXPFILL }},
+    { &ei_warn_illegal_extras_length, { "couchbase.warn.illegal_extras_length", PI_UNDECODED, PI_WARN, "Illegal Extras length", EXPFILL }},
+    { &ei_warn_illegal_value_length, { "couchbase.warn.illegal_value_length", PI_UNDECODED, PI_WARN, "Illegal Value length", EXPFILL }},
+    { &ei_warn_unknown_magic_byte, { "couchbase.warn.unknown_magic_byte", PI_UNDECODED, PI_WARN, "Unknown magic byte", EXPFILL }},
+    { &ei_warn_unknown_opcode, { "couchbase.warn.unknown_opcode", PI_UNDECODED, PI_WARN, "Unknown opcode", EXPFILL }},
+    { &ei_warn_unknown_extras, { "couchbase.warn.unknown_extras", PI_UNDECODED, PI_WARN, "Unknown extras", EXPFILL }},
+    { &ei_note_status_code, { "couchbase.note.status_code", PI_RESPONSE_CODE, PI_NOTE, "Status", EXPFILL }},
+    { &ei_separator_not_found, { "couchbase.warn.separator_not_found", PI_UNDECODED, PI_WARN, "Separator not found", EXPFILL }},
+    { &ei_illegal_value, { "couchbase.warn.illegal_value", PI_UNDECODED, PI_WARN, "Illegal value for command", EXPFILL }},
+    { &ei_compression_error, { "couchbase.error.compression", PI_UNDECODED, PI_WARN, "Compression error", EXPFILL }},
+    { &ei_warn_unknown_flex_unsupported, { "couchbase.warn.unsupported_flexible_frame", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }},
+    { &ei_warn_unknown_flex_id, { "couchbase.warn.unknown_flexible_frame_id", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }},
+    { &ei_warn_unknown_flex_len, { "couchbase.warn.unknown_flexible_frame_len", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }}
   };
 
   static gint *ett[] = {

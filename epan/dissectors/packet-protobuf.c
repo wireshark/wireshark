@@ -133,11 +133,11 @@ static expert_field ei_protobuf_failed_parse_tag = EI_INIT;
 static expert_field ei_protobuf_failed_parse_length_delimited_field = EI_INIT;
 static expert_field ei_protobuf_failed_parse_field = EI_INIT;
 static expert_field ei_protobuf_wire_type_invalid = EI_INIT;
-static expert_field et_protobuf_message_type_not_found = EI_INIT;
-static expert_field et_protobuf_wire_type_not_support_packed_repeated = EI_INIT;
-static expert_field et_protobuf_failed_parse_packed_repeated_field = EI_INIT;
-static expert_field et_protobuf_missing_required_field = EI_INIT;
-static expert_field et_protobuf_default_value_error = EI_INIT;
+static expert_field ei_protobuf_message_type_not_found = EI_INIT;
+static expert_field ei_protobuf_wire_type_not_support_packed_repeated = EI_INIT;
+static expert_field ei_protobuf_failed_parse_packed_repeated_field = EI_INIT;
+static expert_field ei_protobuf_missing_required_field = EI_INIT;
+static expert_field ei_protobuf_default_value_error = EI_INIT;
 
 /* trees */
 static int ett_protobuf = -1;
@@ -470,7 +470,7 @@ dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, p
         }
 
         if (length % value_size != 0) {
-            expert_add_info(pinfo, ti_field, &et_protobuf_failed_parse_packed_repeated_field);
+            expert_add_info(pinfo, ti_field, &ei_protobuf_failed_parse_packed_repeated_field);
             return 0;
         }
 
@@ -486,7 +486,7 @@ dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, p
         break;
 
     default:
-        expert_add_info(pinfo, ti_field, &et_protobuf_wire_type_not_support_packed_repeated);
+        expert_add_info(pinfo, ti_field, &ei_protobuf_wire_type_not_support_packed_repeated);
         return 0; /* prevent dead loop */
     }
 
@@ -751,7 +751,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (field_desc) {
             sub_message_desc = pbw_FieldDescriptor_message_type(field_desc);
             if (sub_message_desc == NULL) {
-                expert_add_info(pinfo, ti_field, &et_protobuf_message_type_not_found);
+                expert_add_info(pinfo, ti_field, &ei_protobuf_message_type_not_found);
             }
         }
         if (sub_message_desc) {
@@ -1152,7 +1152,7 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
 
         /* this field is not found in message payload */
         if (is_required) {
-            expert_add_info_format(pinfo, ti_message, &et_protobuf_missing_required_field, "missing required field '%s'", field_name);
+            expert_add_info_format(pinfo, ti_message, &ei_protobuf_missing_required_field, "missing required field '%s'", field_name);
             continue;
         }
 
@@ -1339,7 +1339,7 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
                 }
                 break;
             } else {
-                expert_add_info_format(pinfo, ti_message, &et_protobuf_default_value_error, "enum value of field '%s' not found in *.proto!", field_name);
+                expert_add_info_format(pinfo, ti_message, &ei_protobuf_default_value_error, "enum value of field '%s' not found in *.proto!", field_name);
             }
             break;
 
@@ -2145,23 +2145,23 @@ proto_register_protobuf(void)
           { "protobuf.field.failed_parse_field", PI_MALFORMED, PI_ERROR,
             "Failed to parse value field", EXPFILL }
         },
-        { &et_protobuf_message_type_not_found,
+        { &ei_protobuf_message_type_not_found,
           { "protobuf.field.message_type_not_found", PI_PROTOCOL, PI_WARN,
             "Failed to find message type of a field", EXPFILL }
         },
-        { &et_protobuf_wire_type_not_support_packed_repeated,
+        { &ei_protobuf_wire_type_not_support_packed_repeated,
           { "protobuf.field.wire_type_not_support_packed_repeated", PI_MALFORMED, PI_ERROR,
             "The wire type does not support protobuf packed repeated field", EXPFILL }
         },
-        { &et_protobuf_failed_parse_packed_repeated_field,
+        { &ei_protobuf_failed_parse_packed_repeated_field,
           { "protobuf.field.failed_parse_packed_repeated_field", PI_MALFORMED, PI_ERROR,
             "Failed to parse packed repeated field", EXPFILL }
         },
-        { &et_protobuf_missing_required_field,
+        { &ei_protobuf_missing_required_field,
           { "protobuf.message.missing_required_field", PI_PROTOCOL, PI_WARN,
             "The required field is not found in message payload", EXPFILL }
         },
-        { &et_protobuf_default_value_error,
+        { &ei_protobuf_default_value_error,
           { "protobuf.message.default_value_error", PI_PROTOCOL, PI_WARN,
             "Parsing default value of a field error", EXPFILL }
         },

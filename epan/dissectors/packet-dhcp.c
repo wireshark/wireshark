@@ -712,9 +712,9 @@ static expert_field ei_dhcp_bad_bitfield = EI_INIT;
 static expert_field ei_dhcp_missing_subopt_length = EI_INIT;
 static expert_field ei_dhcp_missing_subopt_value = EI_INIT;
 static expert_field ei_dhcp_mal_duid = EI_INIT;
-static expert_field hf_dhcp_opt_overload_file_end_missing = EI_INIT;
-static expert_field hf_dhcp_opt_overload_sname_end_missing = EI_INIT;
-static expert_field hf_dhcp_subopt_unknown_type = EI_INIT;
+static expert_field ei_dhcp_opt_overload_file_end_missing = EI_INIT;
+static expert_field ei_dhcp_opt_overload_sname_end_missing = EI_INIT;
+static expert_field ei_dhcp_subopt_unknown_type = EI_INIT;
 static expert_field ei_dhcp_option_civic_location_bad_cattype = EI_INIT;
 static expert_field ei_dhcp_option_dhcp_name_service_invalid = EI_INIT;
 static expert_field ei_dhcp_option_sip_server_address_encoding = EI_INIT;
@@ -2233,7 +2233,7 @@ dissect_dhcpopt_option_overload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			}
 			if (!at_end)
 			{
-				expert_add_info(pinfo, oti, &hf_dhcp_opt_overload_sname_end_missing);
+				expert_add_info(pinfo, oti, &ei_dhcp_opt_overload_sname_end_missing);
 			}
 		}
 		if (byte & OPT_OVERLOAD_FILE) {
@@ -2255,7 +2255,7 @@ dissect_dhcpopt_option_overload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			}
 			if (!at_end)
 			{
-				expert_add_info(pinfo, oti, &hf_dhcp_opt_overload_file_end_missing);
+				expert_add_info(pinfo, oti, &ei_dhcp_opt_overload_file_end_missing);
 			}
 		}
 		/* The final end option is not in overload */
@@ -3404,7 +3404,7 @@ dissect_dhcpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		const gchar *field = fields[i];
 		if (!strchr(field, '=')) {
 			if (wmem_strbuf_get_len(avaya_param_buf) == 0) {
-				expert_add_info_format(pinfo, avaya_ti, &hf_dhcp_subopt_unknown_type, "ERROR, Unknown parameter %s", field);
+				expert_add_info_format(pinfo, avaya_ti, &ei_dhcp_subopt_unknown_type, "ERROR, Unknown parameter %s", field);
 				offset += (int)strlen(field);
 				break;
 			}
@@ -4027,7 +4027,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 		if (dhcp_handle_basic_types(pinfo, o43pxeclient_v_tree, vti, tvb, o43pxeclient_opt[subopt].ftype,
 							suboptoff, subopt_len, o43pxeclient_opt[subopt].phf, &default_hfs) == 0)
 		{
-			expert_add_info_format(pinfo, vti, &hf_dhcp_subopt_unknown_type, "ERROR, please report: Unknown subopt type handler %d", subopt);
+			expert_add_info_format(pinfo, vti, &ei_dhcp_subopt_unknown_type, "ERROR, please report: Unknown subopt type handler %d", subopt);
 		}
 	}
 
@@ -4137,7 +4137,7 @@ dissect_vendor_avaya_param(proto_tree *tree, packet_info *pinfo, proto_item *vti
 			expert_add_info(pinfo, pi, &ei_dhcp_option242_avaya_vlantest_invalid);
 	}
 	else {
-		expert_add_info_format(pinfo, vti, &hf_dhcp_subopt_unknown_type, "ERROR, Unknown Avaya IP Telephone parameter %s", field);
+		expert_add_info_format(pinfo, vti, &ei_dhcp_subopt_unknown_type, "ERROR, Unknown Avaya IP Telephone parameter %s", field);
 	}
 }
 
@@ -4591,7 +4591,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	else {
 		if (dhcp_handle_basic_types(pinfo, o43cl_v_tree, vti, tvb, o43cablelabs_opt[subopt].ftype,
 							suboptoff, subopt_len, o43cablelabs_opt[subopt].phf, &default_hfs) == 0) {
-			expert_add_info_format(pinfo, vti, &hf_dhcp_subopt_unknown_type, "ERROR, please report: Unknown subopt type handler %d", subopt);
+			expert_add_info_format(pinfo, vti, &ei_dhcp_subopt_unknown_type, "ERROR, please report: Unknown subopt type handler %d", subopt);
 		}
 	}
 
@@ -5298,7 +5298,7 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 		proto_tree_add_item(o43alcatel_v_tree, hf_dhcp_option43_alcatel_sip_url, tvb, suboptoff, subopt_len, ENC_ASCII);
 		break;
 	default:
-		expert_add_info_format(pinfo, vti, &hf_dhcp_subopt_unknown_type, "ERROR, please report: Unknown subopt type handler %d", subopt);
+		expert_add_info_format(pinfo, vti, &ei_dhcp_subopt_unknown_type, "ERROR, please report: Unknown subopt type handler %d", subopt);
 		return optend;
 	}
 
@@ -10355,9 +10355,9 @@ proto_register_dhcp(void)
 		{ &ei_dhcp_missing_subopt_length, { "dhcp.missing_subopt_length", PI_PROTOCOL, PI_ERROR, "no room left in option for suboption length", EXPFILL }},
 		{ &ei_dhcp_missing_subopt_value, { "dhcp.missing_subopt_value", PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value", EXPFILL }},
 		{ &ei_dhcp_mal_duid, { "dhcp.malformed.duid", PI_PROTOCOL, PI_ERROR, "DUID: malformed option", EXPFILL }},
-		{ &hf_dhcp_opt_overload_file_end_missing, { "dhcp.option.option_overload.file_end_missing", PI_PROTOCOL, PI_ERROR, "file overload end option missing", EXPFILL }},
-		{ &hf_dhcp_opt_overload_sname_end_missing, { "dhcp.option.option_overload.sname_end_missing", PI_PROTOCOL, PI_ERROR, "sname overload end option missing", EXPFILL }},
-		{ &hf_dhcp_subopt_unknown_type, { "dhcp.subopt.unknown_type", PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler", EXPFILL }},
+		{ &ei_dhcp_opt_overload_file_end_missing, { "dhcp.option.option_overload.file_end_missing", PI_PROTOCOL, PI_ERROR, "file overload end option missing", EXPFILL }},
+		{ &ei_dhcp_opt_overload_sname_end_missing, { "dhcp.option.option_overload.sname_end_missing", PI_PROTOCOL, PI_ERROR, "sname overload end option missing", EXPFILL }},
+		{ &ei_dhcp_subopt_unknown_type, { "dhcp.subopt.unknown_type", PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler", EXPFILL }},
 		{ &ei_dhcp_option_civic_location_bad_cattype, { "dhcp.option.civic_location.bad_cattype", PI_PROTOCOL, PI_ERROR, "Error with CAType", EXPFILL }},
 		{ &ei_dhcp_option_dhcp_name_service_invalid, { "dhcp.option.dhcp_name_service.invalid", PI_PROTOCOL, PI_ERROR, "Invalid Name Service", EXPFILL }},
 		{ &ei_dhcp_option_sip_server_address_encoding, { "dhcp.option.sip_server_address.encoding", PI_PROTOCOL, PI_ERROR, "RFC 3361 defines only 0 and 1 for Encoding byte", EXPFILL }},

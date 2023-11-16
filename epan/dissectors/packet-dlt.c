@@ -380,17 +380,17 @@ static const value_string dlt_service_options[] = {
  ****** Expert Info ******
  *************************/
 
-static expert_field ef_dlt_unsupported_datatype = EI_INIT;
-static expert_field ef_dlt_unsupported_length_datatype = EI_INIT;
-static expert_field ef_dlt_unsupported_string_coding = EI_INIT;
-static expert_field ef_dlt_unsupported_non_verbose_msg_type = EI_INIT;
-static expert_field ef_dlt_buffer_too_short = EI_INIT;
-static expert_field ef_dlt_parsing_error = EI_INIT;
+static expert_field ei_dlt_unsupported_datatype = EI_INIT;
+static expert_field ei_dlt_unsupported_length_datatype = EI_INIT;
+static expert_field ei_dlt_unsupported_string_coding = EI_INIT;
+static expert_field ei_dlt_unsupported_non_verbose_msg_type = EI_INIT;
+static expert_field ei_dlt_buffer_too_short = EI_INIT;
+static expert_field ei_dlt_parsing_error = EI_INIT;
 
 static void
 expert_dlt_unsupported_parameter(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
     if (tvb!=NULL) {
-        proto_tree_add_expert(tree, pinfo, &ef_dlt_unsupported_datatype, tvb, offset, length);
+        proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_datatype, tvb, offset, length);
     }
     col_append_str(pinfo->cinfo, COL_INFO, " [DLT: Unsupported Data Type!]");
 }
@@ -398,7 +398,7 @@ expert_dlt_unsupported_parameter(proto_tree *tree, packet_info *pinfo, tvbuff_t 
 static void
 expert_dlt_unsupported_length_datatype(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
     if (tvb != NULL) {
-        proto_tree_add_expert(tree, pinfo, &ef_dlt_unsupported_length_datatype, tvb, offset, length);
+        proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_length_datatype, tvb, offset, length);
     }
     col_append_str(pinfo->cinfo, COL_INFO, " [DLT: Unsupported Length of Datatype!]");
 }
@@ -406,7 +406,7 @@ expert_dlt_unsupported_length_datatype(proto_tree *tree, packet_info *pinfo, tvb
 static void
 expert_dlt_unsupported_string_coding(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
     if (tvb != NULL) {
-        proto_tree_add_expert(tree, pinfo, &ef_dlt_unsupported_string_coding, tvb, offset, length);
+        proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_string_coding, tvb, offset, length);
     }
     col_append_str(pinfo->cinfo, COL_INFO, " [DLT: Unsupported String Coding!]");
 }
@@ -414,7 +414,7 @@ expert_dlt_unsupported_string_coding(proto_tree *tree, packet_info *pinfo, tvbuf
 static void
 expert_dlt_unsupported_non_verbose_msg_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
     if (tvb != NULL) {
-        proto_tree_add_expert(tree, pinfo, &ef_dlt_unsupported_non_verbose_msg_type, tvb, offset, length);
+        proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_non_verbose_msg_type, tvb, offset, length);
     }
     col_append_str(pinfo->cinfo, COL_INFO, " [DLT: Unsupported Non-Verbose Message Type!]");
 }
@@ -422,7 +422,7 @@ expert_dlt_unsupported_non_verbose_msg_type(proto_tree *tree, packet_info *pinfo
 static void
 expert_dlt_buffer_too_short(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
     if (tvb != NULL) {
-        proto_tree_add_expert(tree, pinfo, &ef_dlt_buffer_too_short, tvb, offset, length);
+        proto_tree_add_expert(tree, pinfo, &ei_dlt_buffer_too_short, tvb, offset, length);
     }
     col_append_str(pinfo->cinfo, COL_INFO, " [DLT: Buffer too short!]");
 }
@@ -430,7 +430,7 @@ expert_dlt_buffer_too_short(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 static void
 expert_dlt_parsing_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
     if (tvb != NULL) {
-        proto_tree_add_expert(tree, pinfo, &ef_dlt_parsing_error, tvb, offset, length);
+        proto_tree_add_expert(tree, pinfo, &ei_dlt_parsing_error, tvb, offset, length);
     }
     col_append_str(pinfo->cinfo, COL_INFO, " [DLT: Parsing Error!]");
 }
@@ -1403,22 +1403,22 @@ void proto_register_dlt(void) {
     };
 
     static ei_register_info ei[] = {
-        { &ef_dlt_unsupported_datatype, {
+        { &ei_dlt_unsupported_datatype, {
             "dlt.unsupported_datatype", PI_MALFORMED, PI_ERROR,
             "DLT: Unsupported Data Type!", EXPFILL } },
-        { &ef_dlt_unsupported_length_datatype, {
+        { &ei_dlt_unsupported_length_datatype, {
             "dlt.unsupported_length_datatype", PI_MALFORMED, PI_ERROR,
             "DLT: Unsupported Length of Datatype!", EXPFILL } },
-        { &ef_dlt_unsupported_string_coding, {
+        { &ei_dlt_unsupported_string_coding, {
             "dlt.unsupported_string_coding", PI_MALFORMED, PI_ERROR,
             "DLT: Unsupported String Coding!", EXPFILL } },
-        { &ef_dlt_unsupported_non_verbose_msg_type, {
+        { &ei_dlt_unsupported_non_verbose_msg_type, {
             "dlt.unsupported_non_verbose_message_type", PI_MALFORMED, PI_ERROR,
             "DLT: Unsupported Non-Verbose Message Type!", EXPFILL } },
-        { &ef_dlt_buffer_too_short, {
+        { &ei_dlt_buffer_too_short, {
             "dlt.buffer_too_short", PI_MALFORMED, PI_ERROR,
             "DLT: Buffer too short!", EXPFILL } },
-        { &ef_dlt_parsing_error, {
+        { &ei_dlt_parsing_error, {
             "dlt.parsing_error", PI_MALFORMED, PI_ERROR,
             "DLT: Parsing Error!", EXPFILL } },
     };

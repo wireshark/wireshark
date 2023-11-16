@@ -742,8 +742,8 @@ UAT_CSTRING_CB_DEF(asam_cmp_interfaces, name, interface_config_t)
 UAT_HEX_CB_DEF(asam_cmp_interfaces, bus_id, interface_config_t)
 
 /*** expert info items ***/
-static expert_field ef_asam_cmp_length_mismatch = EI_INIT;
-static expert_field ef_asam_cmp_unsupported_crc_not_zero = EI_INIT;
+static expert_field ei_asam_cmp_length_mismatch = EI_INIT;
+static expert_field ei_asam_cmp_unsupported_crc_not_zero = EI_INIT;
 
 /* generic UAT */
 static void
@@ -1197,7 +1197,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         guint64 tmp64;
         proto_tree_add_bitmask_with_flags_ret_uint64(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_can_crc, ett_asam_cmp_can_crc, asam_cmp_can_crc_field, ENC_BIG_ENDIAN, BMT_NO_FALSE, &tmp64);
         if ((tmp64 & CMP_CAN_CRC_CRC_SUPP) == 0 && (tmp64 & CMP_CAN_CRC_CRC) != 0) {
-            proto_tree_add_expert(asam_cmp_data_msg_payload_tree, pinfo, &ef_asam_cmp_unsupported_crc_not_zero, tvb, offset, 4);
+            proto_tree_add_expert(asam_cmp_data_msg_payload_tree, pinfo, &ei_asam_cmp_unsupported_crc_not_zero, tvb, offset, 4);
         }
         offset += 4;
 
@@ -1578,7 +1578,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
     }
 
     if ((CMP_MSG_HEADER_LEN + msg_payload_length) < (offset - offset_orig)) {
-        proto_tree_add_expert(tree, pinfo, &ef_asam_cmp_length_mismatch, tvb, offset_orig + CMP_MSG_HEADER_LEN, msg_payload_length);
+        proto_tree_add_expert(tree, pinfo, &ei_asam_cmp_length_mismatch, tvb, offset_orig + CMP_MSG_HEADER_LEN, msg_payload_length);
         proto_item_set_end(ti_msg_payload, tvb, offset);
     }
 
@@ -1696,7 +1696,7 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
     }
 
     if ((CMP_MSG_HEADER_LEN + asam_cmp_ctrl_msg_payload_length) < (offset - offset_orig)) {
-        proto_tree_add_expert(tree, pinfo, &ef_asam_cmp_length_mismatch, tvb, offset_orig + CMP_MSG_HEADER_LEN, asam_cmp_ctrl_msg_payload_length);
+        proto_tree_add_expert(tree, pinfo, &ei_asam_cmp_length_mismatch, tvb, offset_orig + CMP_MSG_HEADER_LEN, asam_cmp_ctrl_msg_payload_length);
         proto_item_set_end(ti_msg_payload, tvb, offset);
     }
 
@@ -2092,7 +2092,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
     }
 
     if ((CMP_MSG_HEADER_LEN + asam_cmp_status_msg_payload_length) < (offset - offset_orig)) {
-        proto_tree_add_expert(tree, pinfo, &ef_asam_cmp_length_mismatch, tvb, offset_orig + CMP_MSG_HEADER_LEN, asam_cmp_status_msg_payload_length);
+        proto_tree_add_expert(tree, pinfo, &ei_asam_cmp_length_mismatch, tvb, offset_orig + CMP_MSG_HEADER_LEN, asam_cmp_status_msg_payload_length);
         proto_item_set_end(ti_msg_payload, tvb, offset);
     }
 
@@ -2575,8 +2575,8 @@ proto_register_asam_cmp(void) {
     };
 
     static ei_register_info ei[] = {
-        { &ef_asam_cmp_length_mismatch, {"asam-cmp.expert.length_mismatch", PI_MALFORMED, PI_WARN, "Malformed message, length mismatch!", EXPFILL } },
-        { &ef_asam_cmp_unsupported_crc_not_zero, {"asam-cmp.export.deactivated_crc_not_zero", PI_MALFORMED, PI_WARN, "Unsupported CRC is not zero!", EXPFILL } },
+        { &ei_asam_cmp_length_mismatch, {"asam-cmp.expert.length_mismatch", PI_MALFORMED, PI_WARN, "Malformed message, length mismatch!", EXPFILL } },
+        { &ei_asam_cmp_unsupported_crc_not_zero, {"asam-cmp.export.deactivated_crc_not_zero", PI_MALFORMED, PI_WARN, "Unsupported CRC is not zero!", EXPFILL } },
     };
 
     /* UATs for user_data fields */

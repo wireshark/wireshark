@@ -317,8 +317,8 @@ static gint ett_tecmp_ctrl_message_10baset1s_events_errors = -1;
 static dissector_handle_t asam_cmp_handle;
 
 /*** expert info items ***/
-static expert_field ef_tecmp_payload_length_mismatch = EI_INIT;
-static expert_field ef_tecmp_payload_header_crc_overflow = EI_INIT;
+static expert_field ei_tecmp_payload_length_mismatch = EI_INIT;
+static expert_field ei_tecmp_payload_header_crc_overflow = EI_INIT;
 
 /* TECMP Type Names */
 
@@ -1774,7 +1774,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 lin_set_source_and_destination_columns(pinfo, &lin_info);
 
                 if (length2 > 0 && tvb_captured_length_remaining(sub_tvb, offset2) < (gint)(length2 + 1)) {
-                    expert_add_info(pinfo, ti, &ef_tecmp_payload_length_mismatch);
+                    expert_add_info(pinfo, ti, &ei_tecmp_payload_length_mismatch);
                     length2 = MAX(0, MIN((gint)length2, tvb_captured_length_remaining(sub_tvb, offset2) - 1));
                 }
 
@@ -1808,7 +1808,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 offset2 += 5;
 
                 if (tvb_captured_length_remaining(sub_tvb, offset2) < (gint)length2) {
-                    expert_add_info(pinfo, ti, &ef_tecmp_payload_length_mismatch);
+                    expert_add_info(pinfo, ti, &ei_tecmp_payload_length_mismatch);
                     length2 = MAX(0, MIN((gint)length2, tvb_captured_length_remaining(sub_tvb, offset2)));
                 }
 
@@ -1869,7 +1869,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 flexray_set_source_and_destination_columns(pinfo, &fr_info);
 
                 if (tvb_captured_length_remaining(sub_tvb, offset2) < (gint)length2) {
-                    expert_add_info(pinfo, ti, &ef_tecmp_payload_length_mismatch);
+                    expert_add_info(pinfo, ti, &ei_tecmp_payload_length_mismatch);
                     length2 = MAX(0, MIN((gint)length2, tvb_captured_length_remaining(sub_tvb, offset2)));
                 }
 
@@ -1887,7 +1887,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     guint32 header_crc = 0;
                     ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_header_crc, sub_tvb, offset2, 2, ENC_BIG_ENDIAN, &header_crc);
                     if (header_crc > DATA_FR_HEADER_CRC_MAX) {
-                        expert_add_info(pinfo, ti, &ef_tecmp_payload_header_crc_overflow);
+                        expert_add_info(pinfo, ti, &ei_tecmp_payload_header_crc_overflow);
                     }
                     offset2 += 2;
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_frame_crc, sub_tvb, offset2, 3, ENC_BIG_ENDIAN);
@@ -2712,9 +2712,9 @@ proto_register_tecmp_payload(void) {
     };
 
     static ei_register_info ei[] = {
-         { &ef_tecmp_payload_length_mismatch, { "tecmp.payload.payload_length_mismatch",
+         { &ei_tecmp_payload_length_mismatch, { "tecmp.payload.payload_length_mismatch",
            PI_PROTOCOL, PI_WARN, "Payload Length and the length of Payload present in packet do not match!", EXPFILL }},
-         { &ef_tecmp_payload_header_crc_overflow, { "tecmp.payload.header_crc_overflow",
+         { &ei_tecmp_payload_header_crc_overflow, { "tecmp.payload.header_crc_overflow",
            PI_PROTOCOL, PI_WARN, "Header CRC may only be up to 0x07ff!", EXPFILL }},
     };
 

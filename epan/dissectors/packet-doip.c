@@ -436,7 +436,7 @@ static gint proto_doip    = -1;
 
 
 /* expert info items */
-static expert_field ef_doip_illegal_length_field = EI_INIT;
+static expert_field ei_doip_illegal_length_field = EI_INIT;
 
 
 /*
@@ -641,7 +641,7 @@ add_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *doip_tree)
     proto_tree_add_item_ret_uint(subtree, hf_doip_length, tvb, DOIP_LENGTH_OFFSET, DOIP_LENGTH_LEN, ENC_BIG_ENDIAN, &len);
 
     if (tvb_captured_length(tvb) < len) {
-        proto_tree_add_expert(doip_tree, pinfo, &ef_doip_illegal_length_field, tvb, DOIP_LENGTH_OFFSET, DOIP_LENGTH_LEN);
+        proto_tree_add_expert(doip_tree, pinfo, &ei_doip_illegal_length_field, tvb, DOIP_LENGTH_OFFSET, DOIP_LENGTH_LEN);
         col_append_str(pinfo->cinfo, COL_INFO, " [DoIP Length Field: Illegal Value]");
     }
 }
@@ -1317,7 +1317,7 @@ proto_register_doip(void)
         &doip_hide_address_names);
 
     static ei_register_info ei[] = {
-     { &ef_doip_illegal_length_field, { "doip.illegal_length_field",
+     { &ei_doip_illegal_length_field, { "doip.illegal_length_field",
        PI_MALFORMED, PI_ERROR, "DoIP illegal length field", EXPFILL } },
     };
 

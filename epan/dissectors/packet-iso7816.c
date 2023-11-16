@@ -88,7 +88,7 @@ static int hf_iso7816_offset_first_byte = -1;
 static int hf_iso7816_rfu = -1;
 static int hf_iso7816_application_data = -1;
 
-static expert_field ie_iso7816_atr_tck_not1 = EI_INIT;
+static expert_field ei_iso7816_atr_tck_not1 = EI_INIT;
 
 #define ADDR_INTF "Interface"
 #define ADDR_CARD "Card"
@@ -421,7 +421,7 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         offset++;
     }
     else if (tck_len>1) {
-        proto_tree_add_expert(proto_tr, pinfo, &ie_iso7816_atr_tck_not1,
+        proto_tree_add_expert(proto_tr, pinfo, &ei_iso7816_atr_tck_not1,
                 tvb, offset, tck_len);
     }
 
@@ -977,7 +977,7 @@ proto_register_iso7816(void)
     };
 
     static ei_register_info ei[] = {
-        { &ie_iso7816_atr_tck_not1, { "iso7816.atr.tck.not1", PI_PROTOCOL, PI_WARN, "TCK byte must either be absent or exactly one byte", EXPFILL }}
+        { &ei_iso7816_atr_tck_not1, { "iso7816.atr.tck.not1", PI_PROTOCOL, PI_WARN, "TCK byte must either be absent or exactly one byte", EXPFILL }}
     };
 
     expert_module_t* expert_iso7816;

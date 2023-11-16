@@ -232,16 +232,16 @@ static const true_false_string sd_eiec_flag = {
 };
 
 /*** expert info items ***/
-static expert_field ef_someipsd_message_truncated = EI_INIT;
-static expert_field ef_someipsd_entry_array_malformed = EI_INIT;
-static expert_field ef_someipsd_entry_array_empty = EI_INIT;
-static expert_field ef_someipsd_entry_unknown = EI_INIT;
-static expert_field ef_someipsd_option_array_truncated = EI_INIT;
-static expert_field ef_someipsd_option_array_bytes_left = EI_INIT;
-static expert_field ef_someipsd_option_unknown = EI_INIT;
-static expert_field ef_someipsd_option_wrong_length = EI_INIT;
-static expert_field ef_someipsd_L4_protocol_unsupported = EI_INIT;
-static expert_field ef_someipsd_config_string_malformed = EI_INIT;
+static expert_field ei_someipsd_message_truncated = EI_INIT;
+static expert_field ei_someipsd_entry_array_malformed = EI_INIT;
+static expert_field ei_someipsd_entry_array_empty = EI_INIT;
+static expert_field ei_someipsd_entry_unknown = EI_INIT;
+static expert_field ei_someipsd_option_array_truncated = EI_INIT;
+static expert_field ei_someipsd_option_array_bytes_left = EI_INIT;
+static expert_field ei_someipsd_option_unknown = EI_INIT;
+static expert_field ei_someipsd_option_wrong_length = EI_INIT;
+static expert_field ei_someipsd_L4_protocol_unsupported = EI_INIT;
+static expert_field ei_someipsd_config_string_malformed = EI_INIT;
 
 /*** prototypes ***/
 void proto_register_someip_sd(void);
@@ -307,7 +307,7 @@ dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo, pr
         }
 
         if (element_length > config_string_length - pos) {
-            expert_add_info(pinfo, ti, &ef_someipsd_config_string_malformed);
+            expert_add_info(pinfo, ti, &ei_someipsd_config_string_malformed);
             break;
         }
 
@@ -353,7 +353,7 @@ dissect_someip_sd_pdu_option_ipv4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, &ti_top, "%d: %s Option", optionnum, description);
 
     if (length != SD_OPTION_IPV4_LENGTH) {
-        expert_add_info(pinfo, ti_top, &ef_someipsd_option_wrong_length);
+        expert_add_info(pinfo, ti_top, &ei_someipsd_option_wrong_length);
         return;
     }
 
@@ -379,7 +379,7 @@ dissect_someip_sd_pdu_option_ipv4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item_append_text(ti, " (%s)", l4protoname);
 
     if (type != SD_OPTION_IPV4_ENDPOINT && l4proto == SD_OPTION_L4PROTO_TCP) {
-        expert_add_info(pinfo, ti_top, &ef_someipsd_L4_protocol_unsupported);
+        expert_add_info(pinfo, ti_top, &ei_someipsd_L4_protocol_unsupported);
     }
     offset += 1;
 
@@ -407,7 +407,7 @@ dissect_someip_sd_pdu_option_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, &ti_top, "%d: %s Option", optionnum, description);
 
     if (length != SD_OPTION_IPV6_LENGTH) {
-        expert_add_info(pinfo, ti_top, &ef_someipsd_option_wrong_length);
+        expert_add_info(pinfo, ti_top, &ei_someipsd_option_wrong_length);
         return;
     }
 
@@ -432,7 +432,7 @@ dissect_someip_sd_pdu_option_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item_append_text(ti, " (%s)", l4protoname);
 
     if (type != SD_OPTION_IPV6_ENDPOINT && l4proto == SD_OPTION_L4PROTO_TCP) {
-        expert_add_info(pinfo, ti_top, &ef_someipsd_L4_protocol_unsupported);
+        expert_add_info(pinfo, ti_top, &ei_someipsd_L4_protocol_unsupported);
     }
     offset += 1;
 
@@ -451,7 +451,7 @@ dissect_someip_sd_pdu_option_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, &ti, "%d: %s Option", optionnum,
         val_to_str_const(tvb_get_guint8(tvb, offset + 2), sd_option_type, "Unknown"));
 
-    expert_add_info(pinfo, ti, &ef_someipsd_option_unknown);
+    expert_add_info(pinfo, ti, &ei_someipsd_option_unknown);
 
     proto_tree_add_item_ret_uint(tree, hf_someip_sd_option_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
     offset += 2;
@@ -479,7 +479,7 @@ dissect_someip_sd_pdu_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint32             offset = offset_orig;
 
     if (!tvb_bytes_exist(tvb, offset, SD_OPTION_MINLENGTH) || !tvb_bytes_exist(tvb, offset, length)) {
-        expert_add_info(pinfo, ti, &ef_someipsd_option_array_truncated);
+        expert_add_info(pinfo, ti, &ei_someipsd_option_array_truncated);
         return offset;
     }
 
@@ -491,7 +491,7 @@ dissect_someip_sd_pdu_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         option_type = tvb_get_guint8(tvb, offset + 2);
 
         if (!tvb_bytes_exist(tvb, offset, (gint)real_length) || offset - offset_orig + real_length > length) {
-            expert_add_info(pinfo, ti, &ef_someipsd_option_array_truncated);
+            expert_add_info(pinfo, ti, &ei_someipsd_option_array_truncated);
             return offset;
         }
 
@@ -568,7 +568,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         category = SD_ENTRY_EVENTGROUP;
     } else {
         ti_top = proto_tree_add_none_format(tree, hf_someip_sd_entry, tvb, offset, SD_ENTRY_LENGTH, "Unknown Entry (Type: %d)", type);
-        expert_add_info(pinfo, ti_top, &ef_someipsd_entry_unknown);
+        expert_add_info(pinfo, ti_top, &ei_someipsd_entry_unknown);
         return;
     }
 
@@ -760,7 +760,7 @@ dissect_someip_sd_pdu_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     if (length != 0) {
-        expert_add_info(pinfo, ti, &ef_someipsd_entry_array_malformed);
+        expert_add_info(pinfo, ti, &ei_someipsd_entry_array_malformed);
     }
 
     return length;
@@ -798,7 +798,7 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     tree = proto_item_add_subtree(ti, ett_someip_sd);
 
     if (!tvb_bytes_exist(tvb, offset, SOMEIP_SD_MIN_LENGTH)) {
-        expert_add_info(pinfo, ti, &ef_someipsd_message_truncated);
+        expert_add_info(pinfo, ti, &ei_someipsd_message_truncated);
         return tvb_reported_length(tvb);
     }
 
@@ -815,14 +815,14 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     offset += 4;
 
     if (!tvb_bytes_exist(tvb, offset, length_entriesarray)) {
-        expert_add_info(pinfo, ti   , &ef_someipsd_message_truncated);
+        expert_add_info(pinfo, ti   , &ei_someipsd_message_truncated);
         return tvb_reported_length(tvb);
     }
 
     if (!tvb_bytes_exist(tvb, offset, length_entriesarray)) {
         /* truncated SD message - need to shorten buffer */
         length_entriesarray = tvb_captured_length_remaining(tvb, offset);
-        expert_add_info(pinfo, ti, &ef_someipsd_message_truncated);
+        expert_add_info(pinfo, ti, &ei_someipsd_message_truncated);
         stop_parsing_after_entries = TRUE;
     }
 
@@ -849,7 +849,7 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                     /* check, if enough bytes are left for optionsarray */
                     if (!tvb_bytes_exist(tvb, offset, length_optionsarray)) {
                         length_optionsarray = tvb_captured_length_remaining(tvb, offset);
-                        expert_add_info(pinfo, ti, &ef_someipsd_message_truncated);
+                        expert_add_info(pinfo, ti, &ei_someipsd_message_truncated);
                         proto_item_append_text(ti, " (truncated!)");
                     }
 
@@ -861,7 +861,7 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                     dissect_someip_sd_pdu_options(tvb, pinfo, someip_sd_options_tree, ti, offset, length_optionsarray, option_ports, &option_count);
                     offset += length_optionsarray;
                 } else {
-                    expert_add_info(pinfo, ti, &ef_someipsd_message_truncated);
+                    expert_add_info(pinfo, ti, &ei_someipsd_message_truncated);
                 }
             }
         }
@@ -870,7 +870,7 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     if (length_entriesarray >= SD_ENTRY_LENGTH) {
         offset += dissect_someip_sd_pdu_entries(tvb, pinfo, someip_sd_entries_tree, ti_sd_entries, offset_entriesarray, length_entriesarray, option_ports, option_count);
     } else {
-        expert_add_info(pinfo, ti_sd_entries, &ef_someipsd_entry_array_empty);
+        expert_add_info(pinfo, ti_sd_entries, &ei_someipsd_entry_array_empty);
     }
     return offset;
 }
@@ -1185,16 +1185,16 @@ proto_register_someip_sd(void) {
     };
 
     static ei_register_info ei_sd[] = {
-        { &ef_someipsd_message_truncated,{ "someipsd.message_truncated", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Truncated message!", EXPFILL } },
-        { &ef_someipsd_entry_array_malformed,{ "someipsd.entry_array_malformed", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Entry Array length not multiple of 16 bytes!", EXPFILL } },
-        { &ef_someipsd_entry_array_empty,{ "someipsd.entry_array_empty", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Empty Entry Array!", EXPFILL } },
-        { &ef_someipsd_entry_unknown,{ "someipsd.entry_unknown", PI_MALFORMED, PI_WARN, "SOME/IP-SD Unknown Entry!", EXPFILL } },
-        { &ef_someipsd_option_array_truncated,{ "someipsd.option_array_truncated", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Option Array truncated!", EXPFILL } },
-        { &ef_someipsd_option_array_bytes_left,{ "someipsd.option_array_bytes_left", PI_MALFORMED, PI_WARN, "SOME/IP-SD Option Array bytes left after parsing options!", EXPFILL } },
-        { &ef_someipsd_option_unknown,{ "someipsd.option_unknown", PI_MALFORMED, PI_WARN, "SOME/IP-SD Unknown Option!", EXPFILL } },
-        { &ef_someipsd_option_wrong_length,{ "someipsd.option_wrong_length", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Option length is incorrect!", EXPFILL } },
-        { &ef_someipsd_L4_protocol_unsupported,{ "someipsd.L4_protocol_unsupported", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Unsupported Layer 4 Protocol!", EXPFILL } },
-        { &ef_someipsd_config_string_malformed,{ "someipsd.config_string_malformed", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Configuration String malformed!", EXPFILL } },
+        { &ei_someipsd_message_truncated,{ "someipsd.message_truncated", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Truncated message!", EXPFILL } },
+        { &ei_someipsd_entry_array_malformed,{ "someipsd.entry_array_malformed", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Entry Array length not multiple of 16 bytes!", EXPFILL } },
+        { &ei_someipsd_entry_array_empty,{ "someipsd.entry_array_empty", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Empty Entry Array!", EXPFILL } },
+        { &ei_someipsd_entry_unknown,{ "someipsd.entry_unknown", PI_MALFORMED, PI_WARN, "SOME/IP-SD Unknown Entry!", EXPFILL } },
+        { &ei_someipsd_option_array_truncated,{ "someipsd.option_array_truncated", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Option Array truncated!", EXPFILL } },
+        { &ei_someipsd_option_array_bytes_left,{ "someipsd.option_array_bytes_left", PI_MALFORMED, PI_WARN, "SOME/IP-SD Option Array bytes left after parsing options!", EXPFILL } },
+        { &ei_someipsd_option_unknown,{ "someipsd.option_unknown", PI_MALFORMED, PI_WARN, "SOME/IP-SD Unknown Option!", EXPFILL } },
+        { &ei_someipsd_option_wrong_length,{ "someipsd.option_wrong_length", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Option length is incorrect!", EXPFILL } },
+        { &ei_someipsd_L4_protocol_unsupported,{ "someipsd.L4_protocol_unsupported", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Unsupported Layer 4 Protocol!", EXPFILL } },
+        { &ei_someipsd_config_string_malformed,{ "someipsd.config_string_malformed", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Configuration String malformed!", EXPFILL } },
     };
 
     /* Register Protocol, Fields, ETTs, Expert Info, Taps, Dissector */
