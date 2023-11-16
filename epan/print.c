@@ -1832,6 +1832,7 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
             if (g_ascii_iscntrl(*p)) {
                 offset += snprintf(&temp_buffer[offset], ESCAPED_BUFFER_SIZE-offset, "\\x%x", (guint8)*p);
             } else {
+                /* Just copy character */
                 temp_buffer[offset++] = *p;
             }
         }
@@ -1892,11 +1893,11 @@ pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi)
 
     if (pd) {
         /* Used fixed buffer where can, otherwise temp malloc */
-        static gchar str_static[129];
+        static gchar str_static[513];
         gchar *str = str_static;
         gchar* str_heap = NULL;
-        if (fi->length > 64) {
-            str_heap = (gchar*)g_malloc0(fi->length*2+1);
+        if (fi->length > 256) {
+            str_heap = (gchar*)g_malloc(fi->length*2 + 1);  /* no need to zero */
             str = str_heap;
         }
 
@@ -1909,8 +1910,7 @@ pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi)
         }
         str[2 * fi->length] = '\0';
         fputs(str, pdata->fh);
-        g_free(str_heap);
-
+        g_free(str_heap);            /* harmless/fast if NULL */
     }
 }
 
@@ -1932,8 +1932,7 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
 
     if (pd) {
         gint i;
-        guint len = fi->length * 2 + 1;
-        gchar* str = (gchar*)g_malloc0(len);
+        gchar* str = (gchar*)g_malloc(fi->length*2 + 1);    /* no need to zero */
         static const char hex[] = "0123456789abcdef";
         /* Print a simple hex dump */
         for (i = 0; i < fi->length; i++) {
