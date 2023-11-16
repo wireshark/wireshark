@@ -271,18 +271,28 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     }
 
     rsvd_conv_data->task = NULL;
+    rsvd_conv_data->task = (rsvd_task_data_t *)wmem_map_lookup(rsvd_conv_data->tasks, (const void *)&request_id);
     if (!pinfo->fd->visited) {
-        guint64 *key_copy = wmem_new(wmem_file_scope(), guint64);
+        if (rsvd_conv_data->task == NULL) {
+            guint64 *key_copy = wmem_new(wmem_file_scope(), guint64);
 
-        *key_copy = request_id;
-        rsvd_conv_data->task = wmem_new(wmem_file_scope(), rsvd_task_data_t);
-        rsvd_conv_data->task->request_frame=pinfo->num;
-        rsvd_conv_data->task->response_frame=0;
-        rsvd_conv_data->task->itlq = NULL;
-        wmem_map_insert(rsvd_conv_data->tasks, (const void *)key_copy,
-                        rsvd_conv_data->task);
-    } else {
-        rsvd_conv_data->task = (rsvd_task_data_t *)wmem_map_lookup(rsvd_conv_data->tasks, (const void *)&request_id);
+            *key_copy = request_id;
+            rsvd_conv_data->task = wmem_new0(wmem_file_scope(), rsvd_task_data_t);
+            rsvd_conv_data->task->itlq = wmem_new0(wmem_file_scope(),
+                                                  itlq_nexus_t);
+            rsvd_conv_data->task->itlq->lun = 0xffff;
+            rsvd_conv_data->task->itlq->scsi_opcode = 0xffff;
+            rsvd_conv_data->task->itlq->fc_time = pinfo->abs_ts;
+            wmem_map_insert(rsvd_conv_data->tasks, (const void *)key_copy,
+                            rsvd_conv_data->task);
+        }
+        if (request) {
+            rsvd_conv_data->task->request_frame = pinfo->num;
+            rsvd_conv_data->task->itlq->first_exchange_frame = pinfo->num;
+        } else {
+            rsvd_conv_data->task->response_frame = pinfo->num;
+            rsvd_conv_data->task->itlq->last_exchange_frame = pinfo->num;
+        }
     }
 
     sub_tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len, ett_svhdx_tunnel_scsi_request, &sub_item, "SVHDX_TUNNEL_SCSI_%s", (request ? "REQUEST" : "RESPONSE"));
@@ -358,22 +368,6 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         /*
          * Now the SCSI Request
          */
-        if (rsvd_conv_data->task && !rsvd_conv_data->task->itlq) {
-            rsvd_conv_data->task->itlq = wmem_new(wmem_file_scope(),
-                                                  itlq_nexus_t);
-            rsvd_conv_data->task->itlq->first_exchange_frame = pinfo->num;
-            rsvd_conv_data->task->itlq->last_exchange_frame = 0;
-            rsvd_conv_data->task->itlq->lun = 0xffff;
-            rsvd_conv_data->task->itlq->scsi_opcode = 0xffff;
-            rsvd_conv_data->task->itlq->task_flags = 0;
-            rsvd_conv_data->task->itlq->data_length = 0;
-            rsvd_conv_data->task->itlq->bidir_data_length = 0;
-            rsvd_conv_data->task->itlq->flags = 0;
-            rsvd_conv_data->task->itlq->alloc_len = 0;
-            rsvd_conv_data->task->itlq->fc_time = pinfo->abs_ts;
-            rsvd_conv_data->task->itlq->extra_data = NULL;
-        }
-
         if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {
             dissect_scsi_cdb(scsi_cdb, pinfo, top_tree, SCSI_DEV_SMC, rsvd_conv_data->task->itlq, get_itl_nexus(pinfo));
             if (data_in == 0) { /* Only OUT operations have meaningful SCSI payload in request packet */
