@@ -48,6 +48,8 @@ typedef struct commandline_param_info
 
 } commandline_param_info_t;
 
+extern void commandline_override_prefs(int argc, char *argv[], gboolean opt_reset);
+
 extern void commandline_other_options(int argc, char *argv[], gboolean opt_reset);
 
 extern void commandline_options_drop(const char *module_name, const char *pref_name);

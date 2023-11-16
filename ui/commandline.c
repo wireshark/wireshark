@@ -398,6 +398,86 @@ void commandline_early_options(int argc, char *argv[])
 #endif
 }
 
+void commandline_override_prefs(int argc, char *argv[], gboolean opt_reset)
+{
+    int opt;
+
+    /*
+     * To reset the options parser, set ws_optreset to 1 and set ws_optind to 1.
+     *
+     * Ignore errors and keep ws_opterr as 0; error messages will be printed
+     * later by command_other_options()
+     */
+    if (opt_reset) {
+        ws_optreset = 1;
+        ws_optind = 1;
+        ws_opterr = 0;
+    }
+
+    /* Initialize with default values */
+    global_commandline_info.user_opts = NULL;
+
+    while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
+        switch (opt) {
+            case 'o':        /* Override preference from command line */
+            {
+                char *errmsg = NULL;
+
+                switch (prefs_set_pref(ws_optarg, &errmsg)) {
+                    case PREFS_SET_OK:
+                        global_commandline_info.user_opts =
+                                g_slist_prepend(global_commandline_info.user_opts,
+                                        g_strdup(ws_optarg));
+                        break;
+                    case PREFS_SET_SYNTAX_ERR:
+                        cmdarg_err("Invalid -o flag \"%s\"%s%s", ws_optarg,
+                                errmsg ? ": " : "", errmsg ? errmsg : "");
+                        g_free(errmsg);
+                        exit_application(1);
+                        break;
+                    case PREFS_SET_NO_SUCH_PREF:
+                    /* not a preference, might be a recent setting */
+                        switch (recent_set_arg(ws_optarg)) {
+                            case PREFS_SET_OK:
+                                break;
+                            case PREFS_SET_SYNTAX_ERR:
+                                /* shouldn't happen, checked already above */
+                                cmdarg_err("Invalid -o flag \"%s\"", ws_optarg);
+                                exit_application(1);
+                                break;
+                            case PREFS_SET_NO_SUCH_PREF:
+                            case PREFS_SET_OBSOLETE:
+                                cmdarg_err("-o flag \"%s\" specifies unknown preference/recent value",
+                                           ws_optarg);
+                                exit_application(1);
+                                break;
+                            default:
+                                ws_assert_not_reached();
+                        }
+                        break;
+                    case PREFS_SET_OBSOLETE:
+                        cmdarg_err("-o flag \"%s\" specifies obsolete preference",
+                                   ws_optarg);
+                        exit_application(1);
+                        break;
+                    default:
+                        ws_assert_not_reached();
+                }
+                break;
+            }
+            default:
+            case '?':        /* Ignore errors - the "real" scan will catch them. */
+                break;
+            }
+    }
+
+    /* Since we prepended each option when processing `-o`, reverse the list
+     * in case the order of options becomes meaningful.
+     */
+    global_commandline_info.user_opts = g_slist_reverse(global_commandline_info.user_opts);
+
+}
+
 void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 {
     int opt;
@@ -448,7 +528,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
     global_commandline_info.capture_comments = NULL;
 #endif
     global_commandline_info.full_screen = FALSE;
-    global_commandline_info.user_opts = NULL;
 
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
@@ -535,51 +614,8 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 #endif
                 break;
             case 'o':        /* Override preference from command line */
-            {
-                char *errmsg = NULL;
-
-                switch (prefs_set_pref(ws_optarg, &errmsg)) {
-                    case PREFS_SET_OK:
-                        global_commandline_info.user_opts =
-                                g_slist_prepend(global_commandline_info.user_opts,
-                                        g_strdup(ws_optarg));
-                        break;
-                    case PREFS_SET_SYNTAX_ERR:
-                        cmdarg_err("Invalid -o flag \"%s\"%s%s", ws_optarg,
-                                errmsg ? ": " : "", errmsg ? errmsg : "");
-                        g_free(errmsg);
-                        exit_application(1);
-                        break;
-                    case PREFS_SET_NO_SUCH_PREF:
-                    /* not a preference, might be a recent setting */
-                        switch (recent_set_arg(ws_optarg)) {
-                            case PREFS_SET_OK:
-                                break;
-                            case PREFS_SET_SYNTAX_ERR:
-                                /* shouldn't happen, checked already above */
-                                cmdarg_err("Invalid -o flag \"%s\"", ws_optarg);
-                                exit_application(1);
-                                break;
-                            case PREFS_SET_NO_SUCH_PREF:
-                            case PREFS_SET_OBSOLETE:
-                                cmdarg_err("-o flag \"%s\" specifies unknown preference/recent value",
-                                           ws_optarg);
-                                exit_application(1);
-                                break;
-                            default:
-                                ws_assert_not_reached();
-                        }
-                        break;
-                    case PREFS_SET_OBSOLETE:
-                        cmdarg_err("-o flag \"%s\" specifies obsolete preference",
-                                   ws_optarg);
-                        exit_application(1);
-                        break;
-                    default:
-                        ws_assert_not_reached();
-                }
+                /* Pref overrides were already processed just ignore them this time*/
                 break;
-            }
             case 'P':
                 /* Path settings were already processed just ignore them this time*/
                 break;
@@ -651,11 +687,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 break;
             }
     }
-
-    /* Since we prepended each option when processing `-o`, reverse the list
-     * in case the order of options becomes meaningful.
-     */
-    global_commandline_info.user_opts = g_slist_reverse(global_commandline_info.user_opts);
 
     if (!arg_error) {
         argc -= ws_optind;
