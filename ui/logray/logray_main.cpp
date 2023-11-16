@@ -806,9 +806,24 @@ int main(int argc, char *qt_argv[])
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling module preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
 
+    /* Read the preferences, but don't apply them yet. */
     global_commandline_info.prefs_p = ls_app.readConfigurationFiles(false);
 
-    /* Now get our args */
+    /* Now let's see if any of preferences were overridden at the command
+     * line, and store them. We have to do this before applying the
+     * preferences to the capture options.
+     */
+    commandline_override_prefs(argc, argv, TRUE);
+
+    /* Some of the preferences affect the capture options. Apply those
+     * before getting the other command line arguments, which can also
+     * affect the capture options. The command line arguments should be
+     * applied last to take precedence (at least until the user saves
+     * preferences, or switches profiles.)
+     */
+    prefs_to_capture_opts();
+
+    /* Now get our remaining args */
     commandline_other_options(argc, argv, TRUE);
 
     /* Convert some command-line parameters to QStrings */
@@ -910,7 +925,6 @@ int main(int argc, char *qt_argv[])
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling prefs_apply_all, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
     prefs_apply_all();
-    prefs_to_capture_opts();
     lwApp->emitAppSignal(LograyApplication::PreferencesChanged);
 
 #ifdef HAVE_LIBPCAP
