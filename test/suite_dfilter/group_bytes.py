@@ -16,3 +16,10 @@ class TestDfilterBytes:
     def test_ipv6_2(self, checkDFilterCount):
         dfilter = "arp.dst.hw == 00:00"
         checkDFilterCount(dfilter, 0)
+
+class TestDfilterBytesSyntax:
+
+    def test_oid_1(self, checkDFilterSucceed):
+        # OID value on the RHS is similar to a field name with all digits.
+        dfilter = "snmp.name == 1.3.6.1.2.1.1.3.0"
+        checkDFilterSucceed(dfilter)

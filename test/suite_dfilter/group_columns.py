@@ -15,13 +15,13 @@ class TestDfilterColumns:
     def test_exists_2(self, checkDFilterFail):
         # Column not in the default configuration
         dfilter = "_ws.col.expert"
-        error = f'"{dfilter}" is not a valid protocol or protocol field'
+        error = f'"{dfilter}" is neither a field nor a protocol name'
         checkDFilterFail(dfilter, error)
 
     def test_exists_3(self, checkDFilterFail):
         # Column not registered as field (it behaves unusally if filtered)
         dfilter = "_ws.col.delta_time_dis"
-        error = f'"{dfilter}" is not a valid protocol or protocol field'
+        error = f'"{dfilter}" is neither a field nor a protocol name'
         checkDFilterFail(dfilter, error)
 
     def test_func_1(self, checkDFilterCount):

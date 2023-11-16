@@ -158,9 +158,11 @@ named_field(X) ::= IDENTIFIER(U).
     const char *name = stnode_token(U);
     header_field_info *hfinfo = dfilter_resolve_unparsed(dfs, name);
     if (hfinfo == NULL) {
-        FAIL(dfs, U, "\"%s\" is not a valid protocol or protocol field.", name);
+        stnode_replace(X, STTYPE_LITERAL, g_strdup(name));
     }
-    stnode_replace(X, STTYPE_FIELD, hfinfo);
+    else {
+        stnode_replace(X, STTYPE_FIELD, hfinfo);
+    }
 }
 
 layered_field(X) ::= named_field(F).
@@ -171,7 +173,12 @@ layered_field(X) ::= named_field(F).
 layered_field(X) ::= named_field(F) HASH LBRACKET range_node_list(L) RBRACKET(R).
 {
     X = F;
-    sttype_field_set_range(X, L);
+    if (stnode_type_id(X) != STTYPE_FIELD) {
+        FAIL(dfs, X, "\"%s\" is not a valid protocol or protocol field.", stnode_token(X));
+    }
+    else {
+        sttype_field_set_range(X, L);
+    }
     g_slist_free(L);
     stnode_merge_location(X, F, R);
     stnode_free(R);
@@ -180,13 +187,18 @@ layered_field(X) ::= named_field(F) HASH LBRACKET range_node_list(L) RBRACKET(R)
 layered_field(X) ::= named_field(F) HASH INTEGER(N).
 {
     X = F;
-    char *err_msg = NULL;
-    drange_node *range = drange_node_from_str(stnode_token(N), &err_msg);
-    if (err_msg != NULL) {
-        FAIL(dfs, N, "%s", err_msg);
-        g_free(err_msg);
+    if (stnode_type_id(X) != STTYPE_FIELD) {
+        FAIL(dfs, X, "\"%s\" is not a valid protocol or protocol field.", stnode_token(X));
     }
-    sttype_field_set_range1(X, range);
+    else {
+        char *err_msg = NULL;
+        drange_node *range = drange_node_from_str(stnode_token(N), &err_msg);
+        if (err_msg != NULL) {
+            FAIL(dfs, N, "%s", err_msg);
+            g_free(err_msg);
+        }
+        sttype_field_set_range1(X, range);
+    }
     stnode_merge_location(X, F, N);
     stnode_free(N);
 }
@@ -199,7 +211,12 @@ rawable_field(X) ::= layered_field(F).
 rawable_field(X) ::= ATSIGN(A) layered_field(F).
 {
     X = F;
-    sttype_field_set_raw(X, true);
+    if (stnode_type_id(X) != STTYPE_FIELD) {
+        FAIL(dfs, X, "\"%s\" is not a valid protocol or protocol field.", stnode_token(X));
+    }
+    else {
+        sttype_field_set_raw(X, true);
+    }
     stnode_merge_location(X, A, F);
     stnode_free(A);
 }
@@ -207,9 +224,15 @@ rawable_field(X) ::= ATSIGN(A) layered_field(F).
 reference(X) ::= DOLLAR(D) LBRACE rawable_field(F) RBRACE(R).
 {
     /* convert field to reference */
-    X = stnode_new(STTYPE_REFERENCE, sttype_field_hfinfo(F), NULL, stnode_location(F));
-    sttype_field_set_drange(X, sttype_field_drange_steal(F));
-    sttype_field_set_raw(X, sttype_field_raw(F));
+    if (stnode_type_id(F) != STTYPE_FIELD) {
+        X = stnode_new(STTYPE_REFERENCE, NULL, NULL, stnode_location(F));
+        FAIL(dfs, F, "\"%s\" is not a valid protocol or protocol field.", stnode_token(F));
+    }
+    else {
+        X = stnode_new(STTYPE_REFERENCE, sttype_field_hfinfo(F), NULL, stnode_location(F));
+        sttype_field_set_drange(X, sttype_field_drange_steal(F));
+        sttype_field_set_raw(X, sttype_field_raw(F));
+    }
     stnode_merge_location(X, D, R);
     stnode_free(F);
     stnode_free(D);

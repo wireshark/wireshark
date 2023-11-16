@@ -475,7 +475,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_STRING:
 		case STTYPE_LITERAL:
 		case STTYPE_CHARCONST:
-			FAIL(dfw, st_arg1, "%s is neither a field nor a protocol name.",
+			FAIL(dfw, st_arg1, "\"%s\" is neither a field nor a protocol name.",
 					stnode_todisplay(st_arg1));
 			break;
 

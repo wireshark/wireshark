@@ -41,6 +41,8 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
 
+* Fixed parsing display filter expressions containing literal OID values, e.g. `snmp.name == 1.3.6.1.2.1.1.3.0`.
+
 === New and Updated Features
 
 There are no new or updated features in this release.
