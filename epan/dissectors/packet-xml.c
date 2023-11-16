@@ -1514,7 +1514,7 @@ xml_init_protocol(void)
 {
     // The longest encoding at https://www.iana.org/assignments/character-sets/character-sets.xml
     // is 45 characters (Extended_UNIX_Code_Packed_Format_for_Japanese).
-    encoding_pattern = g_regex_new("^<[?]xml\\s+version\\s*=\\s*[\"']\\s*.+\\s*[\"']\\s+encoding\\s*=\\s*[\"']\\s*(.{,50})\\s*[\"']", G_REGEX_CASELESS, 0, 0);
+    encoding_pattern = g_regex_new("^\\s*<[?]xml\\s+version\\s*=\\s*[\"']\\s*(?U:.+)\\s*[\"']\\s+encoding\\s*=\\s*[\"']\\s*((?U).{1,50})\\s*[\"']", G_REGEX_CASELESS, 0, 0);
 }
 
 static void
