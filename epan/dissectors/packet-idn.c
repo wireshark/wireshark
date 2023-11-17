@@ -135,106 +135,106 @@ static gint ett_subdata = -1;
 static gint ett_dmx_subtree = -1;
 
 /* IDN-Header */
-static int idn_command = -1;
-static int idn_flags = -1;
-static int idn_sequence = -1;
-static int idn_total_size = -1;
+static int hf_idn_command = -1;
+static int hf_idn_flags = -1;
+static int hf_idn_sequence = -1;
+static int hf_idn_total_size = -1;
 
 /* Scanreply Header */
-static int idn_struct_size = -1;
-static int idn_protocol_version = -1;
-static int idn_protocol_version_major = -1;
-static int idn_protocol_version_minor = -1;
-static int idn_status = -1;
-static int idn_malfn = -1;
-static int idn_offline = -1;
-static int idn_xcld = -1;
-static int idn_ocpd = -1;
-static int idn_rt = -1;
-static int idn_reserved8 = -1;
-static int idn_unit_id = -1;
-static int idn_name = -1;
+static int hf_idn_struct_size = -1;
+static int hf_idn_protocol_version = -1;
+static int hf_idn_protocol_version_major = -1;
+static int hf_idn_protocol_version_minor = -1;
+static int hf_idn_status = -1;
+static int hf_idn_malfn = -1;
+static int hf_idn_offline = -1;
+static int hf_idn_xcld = -1;
+static int hf_idn_ocpd = -1;
+static int hf_idn_rt = -1;
+static int hf_idn_reserved8 = -1;
+static int hf_idn_unit_id = -1;
+static int hf_idn_name = -1;
 
 /* Service Map Response */
-static int idn_entry_size = -1;
-static int idn_relay_count = -1;
-static int idn_service_count = -1;
-static int idn_relay_number = -1;
+static int hf_idn_entry_size = -1;
+static int hf_idn_relay_count = -1;
+static int hf_idn_service_count = -1;
+static int hf_idn_relay_number = -1;
 
 /* Channel Message Header */
-static int idn_cnl = -1;
-static int idn_most_significant_bit_cnl = -1;
-static int idn_cclf = -1;
-static int idn_channel_id = -1;
-static int idn_chunk_type = -1;
-static int idn_timestamp = -1;
+static int hf_idn_cnl = -1;
+static int hf_idn_most_significant_bit_cnl = -1;
+static int hf_idn_cclf = -1;
+static int hf_idn_channel_id = -1;
+static int hf_idn_chunk_type = -1;
+static int hf_idn_timestamp = -1;
 
 /* Configuration Header */
-static int idn_scwc = -1;
-static int idn_cfl = -1;
-static int idn_sdm = -1;
-static int idn_close = -1;
-static int idn_routing = -1;
-static int idn_service_id = -1;
-static int idn_service_mode = -1;
+static int hf_idn_scwc = -1;
+static int hf_idn_cfl = -1;
+static int hf_idn_sdm = -1;
+static int hf_idn_close = -1;
+static int hf_idn_routing = -1;
+static int hf_idn_service_id = -1;
+static int hf_idn_service_mode = -1;
 
 /* Chunk Header */
-static int idn_chunk_header_flags = -1;
-static int idn_two_bits_reserved_1 = -1;
-static int idn_two_bits_reserved_2 = -1;
-static int idn_three_bits_reserved = -1;
-static int idn_four_bits_reserved = -1;
-static int idn_scm = -1;
-static int idn_once = -1;
-static int idn_duration = -1;
-static int idn_chunk_data_sequence = -1;
-static int idn_offset = -1;
-static int idn_dlim = -1;
-static int idn_reserved = -1;
+static int hf_idn_chunk_header_flags = -1;
+static int hf_idn_two_bits_reserved_1 = -1;
+static int hf_idn_two_bits_reserved_2 = -1;
+static int hf_idn_three_bits_reserved = -1;
+static int hf_idn_four_bits_reserved = -1;
+static int hf_idn_scm = -1;
+static int hf_idn_once = -1;
+static int hf_idn_duration = -1;
+static int hf_idn_chunk_data_sequence = -1;
+static int hf_idn_offset = -1;
+static int hf_idn_dlim = -1;
+static int hf_idn_reserved = -1;
 
 /* Tags */
-static int idn_gts = -1;
-static int idn_gts_void = -1;
-static int idn_boundary = -1;
-static int idn_gts_word = -1;
-static int idn_gts_break = -1;
-static int idn_gts_space_modifier = -1;
-static int idn_gts_hint = -1;
-static int idn_gts_category = -1;
-static int idn_gts_subcategory = -1;
-static int idn_gts_identifier = -1;
-static int idn_gts_parameter = -1;
-static int idn_gts_glin = -1;
-static int idn_gts_clin = -1;
-static int idn_gts_cbal = -1;
-static int idn_gts_ctim = -1;
-static int idn_gts_nop = -1;
-static int idn_gts_precision = -1;
-static int idn_gts_cscl = -1;
-static int idn_gts_iscl = -1;
-static int idn_gts_sht = -1;
-static int idn_gts_u4 = -1;
-static int idn_gts_x = -1;
-static int idn_gts_y = -1;
-static int idn_gts_z = -1;
-static int idn_gts_color = -1;
-static int idn_gts_wavelength_prefix = -1;
-static int idn_gts_intensity = -1;
-static int idn_gts_beam_brush = -1;
-static int idn_gts_sample = -1;
-static int idn_dmx_octet = -1;
-static int idn_dmx_identifier = -1;
-static int idn_dmx_parameter = -1;
-static int idn_dmx_void = -1;
-static int idn_octet = -1;
-static int idn_dmx_base = -1;
-static int idn_dmx_count = -1;
-static int idn_dmx_dls = -1;
-static int idn_dmx_unknown = -1;
+static int hf_idn_gts = -1;
+static int hf_idn_gts_void = -1;
+static int hf_idn_boundary = -1;
+static int hf_idn_gts_word = -1;
+static int hf_idn_gts_break = -1;
+static int hf_idn_gts_space_modifier = -1;
+static int hf_idn_gts_hint = -1;
+static int hf_idn_gts_category = -1;
+static int hf_idn_gts_subcategory = -1;
+static int hf_idn_gts_identifier = -1;
+static int hf_idn_gts_parameter = -1;
+static int hf_idn_gts_glin = -1;
+static int hf_idn_gts_clin = -1;
+static int hf_idn_gts_cbal = -1;
+static int hf_idn_gts_ctim = -1;
+static int hf_idn_gts_nop = -1;
+static int hf_idn_gts_precision = -1;
+static int hf_idn_gts_cscl = -1;
+static int hf_idn_gts_iscl = -1;
+static int hf_idn_gts_sht = -1;
+static int hf_idn_gts_u4 = -1;
+static int hf_idn_gts_x = -1;
+static int hf_idn_gts_y = -1;
+static int hf_idn_gts_z = -1;
+static int hf_idn_gts_color = -1;
+static int hf_idn_gts_wavelength_prefix = -1;
+static int hf_idn_gts_intensity = -1;
+static int hf_idn_gts_beam_brush = -1;
+static int hf_idn_gts_sample = -1;
+static int hf_idn_dmx_octet = -1;
+static int hf_idn_dmx_identifier = -1;
+static int hf_idn_dmx_parameter = -1;
+static int hf_idn_dmx_void = -1;
+static int hf_idn_octet = -1;
+static int hf_idn_dmx_base = -1;
+static int hf_idn_dmx_count = -1;
+static int hf_idn_dmx_dls = -1;
+static int hf_idn_dmx_unknown = -1;
 
 /* Acknowledgement */
-static int idn_result_code = -1;
-static int idn_event_flags = -1;
+static int hf_idn_result_code = -1;
+static int hf_idn_event_flags = -1;
 
 static const value_string command_code[] = {
 	{ IDNCMD_VOID, "VOID" },
@@ -397,11 +397,11 @@ static void determine_color(guint16 catsub, configuration_info *config) {
 
 static int dissect_idn_message_acknowledgement(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
 	proto_tree *idn_message_acknowledgement_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 4, ett_idn_header_tree, NULL, "Message Acknowledgement");
-	proto_tree_add_item(idn_message_acknowledgement_tree, idn_struct_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_message_acknowledgement_tree, hf_idn_struct_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_message_acknowledgement_tree, idn_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_message_acknowledgement_tree, hf_idn_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_message_acknowledgement_tree, idn_event_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_message_acknowledgement_tree, hf_idn_event_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	return offset;
 }
@@ -445,7 +445,7 @@ static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, int offset, proto_tree *
 		for(j=1; j<16; j++){
 			l += snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_guint8(tvb, offset+j));
 		}
-		proto_tree_add_int_format(idn_dmx_subtree, idn_gts_sample, tvb, offset, 16, 16, "%3d: %s", base+i, values);
+		proto_tree_add_int_format(idn_dmx_subtree, hf_idn_gts_sample, tvb, offset, 16, 16, "%3d: %s", base+i, values);
 		offset += 16;
 	}
 	rest = data_size - i;
@@ -454,7 +454,7 @@ static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, int offset, proto_tree *
 		for(j=0; j<rest; j++){
 			l += snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_guint8(tvb, offset+j));
 		}
-		proto_tree_add_int_format(idn_dmx_subtree, idn_gts_sample, tvb, offset, rest, rest, "%3d: %s", base+i, values);
+		proto_tree_add_int_format(idn_dmx_subtree, hf_idn_gts_sample, tvb, offset, rest, rest, "%3d: %s", base+i, values);
 		offset += rest;
 	}
 	return offset;
@@ -494,7 +494,7 @@ static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_
 		for(j=0; j<16 && (l < MAX_BUFFER-100); j++){
 			l += snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_gint8(tvb, offset+j));
 		}
-		proto_tree_add_int_format(idn_samples_tree, idn_gts_sample, tvb, offset, 16, 16, "%s", values);
+		proto_tree_add_int_format(idn_samples_tree, hf_idn_gts_sample, tvb, offset, 16, 16, "%s", values);
 		offset += 16;
 	}
 	rest = data_size - i;
@@ -503,7 +503,7 @@ static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_
 		for(j=0; j<rest && (l < MAX_BUFFER-100); j++){
 			l += snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_gint8(tvb, offset+j));
 		}
-		proto_tree_add_int_format(idn_samples_tree, idn_gts_sample, tvb, offset, rest, rest, "%s", values);
+		proto_tree_add_int_format(idn_samples_tree, hf_idn_gts_sample, tvb, offset, rest, rest, "%s", values);
 		offset += rest;
 	}
 	return offset;
@@ -567,7 +567,7 @@ static int dissect_idn_laser_data(tvbuff_t *tvb, int offset, proto_tree *idn_tre
 			idn_samples_subtree = proto_tree_add_subtree_format(idn_samples_tree, tvb, offset, config->sample_size*10, ett_subdata, NULL, "Samples %3d - %3d", i, i+9);
 		}
 		set_laser_sample_values_string(tvb, offset, config, values);
-		proto_tree_add_int_format(idn_samples_subtree, idn_gts_sample, tvb, offset, config->sample_size, config->sample_size,  "Sample %3d: %s", i, values);
+		proto_tree_add_int_format(idn_samples_subtree, hf_idn_gts_sample, tvb, offset, config->sample_size, config->sample_size,  "Sample %3d: %s", i, values);
 		offset += config->sample_size;
 	}
 	return offset;
@@ -575,87 +575,87 @@ static int dissect_idn_laser_data(tvbuff_t *tvb, int offset, proto_tree *idn_tre
 
 static int dissect_idn_dimmer_levels_chunk_header(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
 	static int * const dimmer_levels_chunk_flags[] = {
-		&idn_two_bits_reserved_1,
-		&idn_scm,
-		&idn_four_bits_reserved,
+		&hf_idn_two_bits_reserved_1,
+		&hf_idn_scm,
+		&hf_idn_four_bits_reserved,
 		NULL
 	};
 	proto_tree *chunk_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 4, ett_chunk_header_tree, NULL, "Dimmer Levels Chunk Header");
-	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, idn_chunk_header_flags, ett_chunk_header_flags, dimmer_levels_chunk_flags, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, hf_idn_chunk_header_flags, ett_chunk_header_flags, dimmer_levels_chunk_flags, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	return offset;
 }
 
 static int dissect_idn_octet_string_chunk_header(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
 	static int * const octet_string_chunk_flags[] = {
-		&idn_two_bits_reserved_1,
-		&idn_scm,
-		&idn_four_bits_reserved,
+		&hf_idn_two_bits_reserved_1,
+		&hf_idn_scm,
+		&hf_idn_four_bits_reserved,
 		NULL
 	};
 	proto_tree *chunk_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 4, ett_chunk_header_tree, NULL, "Octet String Chunk Header");
-	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, idn_chunk_header_flags, ett_chunk_header_flags, octet_string_chunk_flags, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, hf_idn_chunk_header_flags, ett_chunk_header_flags, octet_string_chunk_flags, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	return offset;
 }
 
 static int dissect_idn_octet_segment_chunk_header(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
 	static int * const octet_segment_chunk_flags[] = {
-		&idn_two_bits_reserved_1,
-		&idn_scm,
-		&idn_three_bits_reserved,
-		&idn_dlim,
+		&hf_idn_two_bits_reserved_1,
+		&hf_idn_scm,
+		&hf_idn_three_bits_reserved,
+		&hf_idn_dlim,
 		NULL
 	};
 	proto_tree *chunk_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 4, ett_chunk_header_tree, NULL, "Octet Segment Chunk Header");
-	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, idn_chunk_header_flags, ett_chunk_header_flags, octet_segment_chunk_flags, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, hf_idn_chunk_header_flags, ett_chunk_header_flags, octet_segment_chunk_flags, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_chunk_data_sequence, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_chunk_data_sequence, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	return offset;
 }
 
 static int dissect_idn_frame_chunk_header(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
 	static int * const frame_sample_chunk_flags[] = {
-		&idn_two_bits_reserved_1,
-		&idn_scm,
-		&idn_three_bits_reserved,
-		&idn_once,
+		&hf_idn_two_bits_reserved_1,
+		&hf_idn_scm,
+		&hf_idn_three_bits_reserved,
+		&hf_idn_once,
 		NULL
 	};
 	proto_tree *chunk_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 4, ett_chunk_header_tree, NULL, "Frame Sample Chunk Header");
-	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, idn_chunk_header_flags, ett_chunk_header_flags, frame_sample_chunk_flags, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, hf_idn_chunk_header_flags, ett_chunk_header_flags, frame_sample_chunk_flags, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_duration, tvb, offset, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_duration, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 	return offset;
 }
 
 static int dissect_idn_wave_chunk_header(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
 	static int * const wave_sample_chunk_flags[] = {
-		&idn_two_bits_reserved_1,
-		&idn_scm,
-		&idn_four_bits_reserved,
+		&hf_idn_two_bits_reserved_1,
+		&hf_idn_scm,
+		&hf_idn_four_bits_reserved,
 		NULL
 	};
 	proto_tree *chunk_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 4, ett_chunk_header_tree, NULL, "Wave Sample Chunk Header");
-	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, idn_chunk_header_flags, ett_chunk_header_flags, wave_sample_chunk_flags, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(chunk_header_tree, tvb, offset, hf_idn_chunk_header_flags, ett_chunk_header_flags, wave_sample_chunk_flags, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(chunk_header_tree, idn_duration, tvb, offset, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(chunk_header_tree, hf_idn_duration, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 	return offset;
 }
@@ -688,8 +688,8 @@ static int dissect_idn_chunk_header(tvbuff_t *tvb, int offset, proto_tree *idn_t
 
 static int dissect_idn_dmx_gts(tvbuff_t *tvb, int offset, proto_tree *gts_tree, const int hf_hdr, int *dictionary_size) {
 	static int * const gts[] = {
-		&idn_dmx_identifier,
-		&idn_dmx_parameter,
+		&hf_idn_dmx_identifier,
+		&hf_idn_dmx_parameter,
 		NULL
 	};
 	proto_tree_add_bitmask(gts_tree, tvb, offset, hf_hdr, ett_dic, gts, ENC_BIG_ENDIAN);
@@ -702,15 +702,15 @@ static int dissect_idn_dmx_gts(tvbuff_t *tvb, int offset, proto_tree *gts_tree, 
 
 static int dissect_idn_dimmer_level_subset(tvbuff_t *tvb, int offset, proto_tree *gts_tree, configuration_info *config, int i, int *dictionary_size) {
 	guint8 dls = tvb_get_guint8(tvb, offset);
-	offset = dissect_idn_dmx_gts(tvb, offset, gts_tree, idn_dmx_dls, dictionary_size);
+	offset = dissect_idn_dmx_gts(tvb, offset, gts_tree, hf_idn_dmx_dls, dictionary_size);
 
 	if(dls & 2) {
-		proto_tree_add_item(gts_tree, idn_dmx_base, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(gts_tree, hf_idn_dmx_base, tvb, offset, 2, ENC_BIG_ENDIAN);
 		config->base[i-1] = tvb_get_guint16(tvb, offset, 2);
 		offset += 2;
 		(*dictionary_size) += 2;
 		if(dls & 1) {
-			proto_tree_add_item(gts_tree, idn_dmx_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gts_tree, hf_idn_dmx_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 			config->count[i-1] = tvb_get_guint8(tvb, offset);
 			offset++;
 			(*dictionary_size)++;
@@ -734,15 +734,15 @@ static int dissect_idn_dmx_dictionary(tvbuff_t *tvb, int offset, proto_tree *idn
 
 		if(idepar <= IDNO_VOID_AREA) {
 			if(idepar == 0) {
-				proto_tree_add_item(gts_tree, idn_dmx_void, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(gts_tree, hf_idn_dmx_void, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 				dictionary_size += 1;
 				if(!words_found)
 					i -= 1;
 			}else {
-				offset = dissect_idn_dmx_gts(tvb, offset, gts_tree, idn_dmx_unknown, NULL);
+				offset = dissect_idn_dmx_gts(tvb, offset, gts_tree, hf_idn_dmx_unknown, NULL);
 				for(j=1; j<=idepar; j++) {
-					proto_tree_add_item(gts_tree, idn_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(gts_tree, hf_idn_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 					dictionary_size += 1;
 					if(words_found)
@@ -754,7 +754,7 @@ static int dissect_idn_dmx_dictionary(tvbuff_t *tvb, int offset, proto_tree *idn
 		}else if(idepar >= IDNTAG_DIMMER_START && idepar <= IDNTAG_DIMMER_END) {
 			offset = dissect_idn_dimmer_level_subset(tvb, offset, gts_tree, config, i, &dictionary_size);
 		}else {
-			offset = dissect_idn_dmx_gts(tvb, offset, gts_tree, idn_dmx_unknown, &dictionary_size);
+			offset = dissect_idn_dmx_gts(tvb, offset, gts_tree, hf_idn_dmx_unknown, &dictionary_size);
 		}
 
 		if(i == config->word_count && !words_found) {
@@ -773,10 +773,10 @@ static int dissect_idn_dmx_dictionary(tvbuff_t *tvb, int offset, proto_tree *idn
 
 static int dissect_idn_laser_gts(tvbuff_t *tvb, int offset, proto_tree *gts_tree, const int hf_hdr, int *dictionary_size, configuration_info *config, gboolean is_sample) {
 	static int * const gts[] = {
-		&idn_gts_category,
-		&idn_gts_subcategory,
-		&idn_gts_identifier,
-		&idn_gts_parameter,
+		&hf_idn_gts_category,
+		&hf_idn_gts_subcategory,
+		&hf_idn_gts_identifier,
+		&hf_idn_gts_parameter,
 		NULL
 	};
 
@@ -795,10 +795,10 @@ static int dissect_idn_x_area(tvbuff_t *tvb, int offset, proto_tree *gts_tree, g
 	const int l = (const int)strlen(column_str);
 
 	if(catsub == IDNTAG_OPTIONAL_U4) {
-		offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_u4, dictionary_size, config, 1);
+		offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_u4, dictionary_size, config, 1);
 		snprintf(column_str+l, MAX_BUFFER-l, " U4");
 	}else {
-		offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_x, dictionary_size, config, 1);
+		offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_x, dictionary_size, config, 1);
 		snprintf(column_str+l, MAX_BUFFER-l, " X");
 	}
 
@@ -818,47 +818,47 @@ static int dissect_idn_laser_dictionary(tvbuff_t *tvb, int offset, proto_tree *i
 		const int l = (const int)strlen(column_str);
 
 		if(catsub <= IDNO_VOID_AREA) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_void, &dictionary_size, config, 0);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_void, &dictionary_size, config, 0);
 			if(catsub > 0) {
 				for(j=0; j<catsub; j++) {
-					offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_void, &dictionary_size, config, 0);
+					offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_void, &dictionary_size, config, 0);
 				}
 			}
 		}else if(catsub == IDNTAG_PRECISION) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_precision, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_precision, &dictionary_size, config, 1);
 			(config->dic_precision)[i] = 1;
 		}else if(catsub >= IDNTAG_BREAK_START && catsub <= IDNTAG_BREAK_END) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_break, &dictionary_size, config, 0);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_break, &dictionary_size, config, 0);
 		}else if(catsub >= IDNTAG_SPACE_MOD_START && catsub <= IDNTAG_SPACE_MOD_END) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_space_modifier, &dictionary_size, config, 0);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_space_modifier, &dictionary_size, config, 0);
 		}else if(catsub == IDNTAG_NOP) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_nop, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_nop, &dictionary_size, config, 1);
 			snprintf(column_str+l, MAX_BUFFER-l, " NOP");
 		}else if(catsub >= IDNTAG_HINT0 && catsub <= IDNTAG_HINT1) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_hint, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_hint, &dictionary_size, config, 1);
 			snprintf(column_str+l, MAX_BUFFER-l, " H");
 		}else if(catsub >= IDNTAG_COORD_X && catsub <= IDNTAG_COORD_X_END) {
 			offset = dissect_idn_x_area(tvb, offset, gts_tree, catsub, &dictionary_size, config);
 		}else if(catsub >= IDNTAG_COORD_Y && catsub <= IDNTAG_COORD_Y_END) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_y, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_y, &dictionary_size, config, 1);
 			snprintf(column_str+l, MAX_BUFFER-l, " Y");
 		}else if(catsub >= IDNTAG_COORD_Z && catsub <= IDNTAG_COORD_Z_END) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_z, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_z, &dictionary_size, config, 1);
 			snprintf(column_str+l, MAX_BUFFER-l, " Z");
 		}else if(catsub >= IDNTAG_COLOR_START && catsub <= IDNTAG_COLOR_END) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_color, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_color, &dictionary_size, config, 1);
 			determine_color(catsub, config);
 		}else if(catsub == IDNTAG_WAVELENGTH_PREFIX) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_wavelength_prefix, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_wavelength_prefix, &dictionary_size, config, 1);
 			snprintf(column_str+l, MAX_BUFFER-l, " WP");
 		}else if(catsub == IDNTAG_INTENSITY) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_intensity, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_intensity, &dictionary_size, config, 1);
 			snprintf(column_str+l, MAX_BUFFER-l, " I");
 		}else if(catsub == IDNTAG_BEAM_BRUSH) {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_beam_brush, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts_beam_brush, &dictionary_size, config, 1);
 			snprintf(column_str+l, MAX_BUFFER-l, " BB");
 		}else {
-			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts, &dictionary_size, config, 1);
+			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, hf_idn_gts, &dictionary_size, config, 1);
 			snprintf(column_str+l, MAX_BUFFER-l, " U/R");
 		}
 	}
@@ -874,25 +874,25 @@ static int dissect_idn_channel_configuration_header(tvbuff_t *tvb, packet_info *
 	guint8 word_count;
 	guint8 sdm;
 	static int * const channel_and_service_configuration_flags[] = {
-		&idn_two_bits_reserved_1,
-		&idn_sdm,
-		&idn_two_bits_reserved_2,
-		&idn_close,
-		&idn_routing,
+		&hf_idn_two_bits_reserved_1,
+		&hf_idn_sdm,
+		&hf_idn_two_bits_reserved_2,
+		&hf_idn_close,
+		&hf_idn_routing,
 		NULL
 	};
 
 	col_append_str(pinfo->cinfo, COL_INFO, " (Configuration Header)");
 	proto_tree *configuration_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 4, ett_configuration_header, NULL, "Channel Configuration Header");
-	proto_tree_add_item(configuration_header_tree, idn_scwc, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(configuration_header_tree, hf_idn_scwc, tvb, offset, 1, ENC_BIG_ENDIAN);
 	word_count = tvb_get_guint8(tvb, offset);
 	offset += 1;
-	proto_tree_add_bitmask(configuration_header_tree, tvb, offset, idn_cfl, ett_cfl, channel_and_service_configuration_flags, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(configuration_header_tree, tvb, offset, hf_idn_cfl, ett_cfl, channel_and_service_configuration_flags, ENC_BIG_ENDIAN);
 	sdm = get_service_match(tvb_get_guint8(tvb, offset));
 	offset += 1;
-	proto_tree_add_item(configuration_header_tree, idn_service_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(configuration_header_tree, hf_idn_service_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(configuration_header_tree, idn_service_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(configuration_header_tree, hf_idn_service_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 
@@ -969,27 +969,27 @@ static int dissect_idn_channel_configuration(tvbuff_t *tvb, packet_info *pinfo, 
 static int dissect_idn_message_header(tvbuff_t *tvb, int offset, proto_tree *idn_tree, message_info *minfo) {
 	guint8 cnl;
 	static int * const cnl_data[] = {
-			&idn_most_significant_bit_cnl,
-			&idn_cclf,
-			&idn_channel_id,
+			&hf_idn_most_significant_bit_cnl,
+			&hf_idn_cclf,
+			&hf_idn_channel_id,
 			NULL
 	};
 
 	proto_tree *idn_channel_message_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 8, ett_idn_channel_message_header_tree, NULL, "Channel Message Header");
-	proto_tree_add_item(idn_channel_message_header_tree, idn_total_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_channel_message_header_tree, hf_idn_total_size, tvb, offset, 2, ENC_BIG_ENDIAN);
 	minfo->total_size = tvb_get_guint16(tvb, offset, 2);
 	offset += 2;
-	proto_tree_add_bitmask(idn_channel_message_header_tree, tvb, offset, idn_cnl, ett_idn_cnl, cnl_data, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(idn_channel_message_header_tree, tvb, offset, hf_idn_cnl, ett_idn_cnl, cnl_data, ENC_BIG_ENDIAN);
 
 	cnl = tvb_get_guint8(tvb, offset);
 	minfo->has_config_header = cnl & 0x40;
 	minfo->channel_id = cnl & 0x3f;
 
 	offset += 1;
-	proto_tree_add_item(idn_channel_message_header_tree, idn_chunk_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_channel_message_header_tree, hf_idn_chunk_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	minfo->chunk_type = tvb_get_guint8(tvb, offset);
 	offset += 1;
-	proto_tree_add_item(idn_channel_message_header_tree, idn_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_channel_message_header_tree, hf_idn_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -1055,30 +1055,30 @@ static int dissect_idn_servicemap_entry(tvbuff_t *tvb, int offset, proto_tree *i
 		idn_servicemap_entry_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 24, ett_idn_header_tree, NULL, tree_title);
 	}
 
-	proto_tree_add_item(idn_servicemap_entry_tree, idn_service_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_servicemap_entry_tree, hf_idn_service_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_servicemap_entry_tree, idn_service_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_servicemap_entry_tree, hf_idn_service_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_servicemap_entry_tree, idn_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_servicemap_entry_tree, hf_idn_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_servicemap_entry_tree, idn_relay_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_servicemap_entry_tree, hf_idn_relay_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_servicemap_entry_tree, idn_name, tvb, offset, 20, ENC_ASCII);
+	proto_tree_add_item(idn_servicemap_entry_tree, hf_idn_name, tvb, offset, 20, ENC_ASCII);
 	offset += 20;
 	return offset;
 }
 
 static int dissect_idn_servicemap_response_header(tvbuff_t *tvb, int offset, proto_tree *idn_tree, guint8 *relay_count, guint8 *service_count) {
 	proto_tree *idn_servicemap_response_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 4, ett_idn_header_tree, NULL, "Service Map Response Header");
-	proto_tree_add_item(idn_servicemap_response_header_tree, idn_struct_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_servicemap_response_header_tree, hf_idn_struct_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_servicemap_response_header_tree, idn_entry_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_servicemap_response_header_tree, hf_idn_entry_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	*relay_count = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(idn_servicemap_response_header_tree, idn_relay_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_servicemap_response_header_tree, hf_idn_relay_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	*service_count = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(idn_servicemap_response_header_tree, idn_service_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_servicemap_response_header_tree, hf_idn_service_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	return offset;
 }
@@ -1098,47 +1098,47 @@ static int dissect_idn_servicemap_response(tvbuff_t *tvb, int offset, proto_tree
 
 static int dissect_idn_scan_response(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
 	static int * const protocol_version[] = {
-			&idn_protocol_version_major,
-			&idn_protocol_version_minor,
+			&hf_idn_protocol_version_major,
+			&hf_idn_protocol_version_minor,
 			NULL
 	};
 	static int * const status[] = {
-			&idn_malfn,
-			&idn_offline,
-			&idn_xcld,
-			&idn_ocpd,
-			&idn_three_bits_reserved,
-			&idn_rt,
+			&hf_idn_malfn,
+			&hf_idn_offline,
+			&hf_idn_xcld,
+			&hf_idn_ocpd,
+			&hf_idn_three_bits_reserved,
+			&hf_idn_rt,
 			NULL
 	};
 
 	proto_tree *idn_scanreply_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 40, ett_idn_header_tree, NULL, "Scan Response");
-	proto_tree_add_item(idn_scanreply_header_tree, idn_struct_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_scanreply_header_tree, hf_idn_struct_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_bitmask(idn_scanreply_header_tree, tvb, offset, idn_protocol_version, ett_protocol_version, protocol_version, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(idn_scanreply_header_tree, tvb, offset, hf_idn_protocol_version, ett_protocol_version, protocol_version, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_bitmask(idn_scanreply_header_tree, tvb, offset, idn_status, ett_status, status, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(idn_scanreply_header_tree, tvb, offset, hf_idn_status, ett_status, status, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_scanreply_header_tree, idn_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_scanreply_header_tree, hf_idn_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_scanreply_header_tree, idn_unit_id, tvb, offset, 16, ENC_NA);
+	proto_tree_add_item(idn_scanreply_header_tree, hf_idn_unit_id, tvb, offset, 16, ENC_NA);
 	offset += 16;
-	proto_tree_add_item(idn_scanreply_header_tree, idn_name, tvb, offset, 20, ENC_ASCII);
+	proto_tree_add_item(idn_scanreply_header_tree, hf_idn_name, tvb, offset, 20, ENC_ASCII);
 	offset += 20;
 	return offset;
 }
 
 static int dissect_idn_header(tvbuff_t *tvb, int offset, proto_tree *idn_tree, guint8 packet_type) {
 	proto_tree *idn_header_tree = proto_tree_add_subtree(idn_tree, tvb, offset, -1, ett_idn_header_tree, NULL, "IDN Header");
-	proto_tree_add_item(idn_header_tree, idn_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_header_tree, hf_idn_command, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	if(packet_type == IDNCMD_VOID || packet_type == IDNCMD_PING_RESPONSE) {
 		proto_item_set_len(idn_header_tree, offset);
 		return offset;
 	}
-	proto_tree_add_item(idn_header_tree, idn_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_header_tree, hf_idn_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_header_tree, idn_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(idn_header_tree, hf_idn_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	proto_item_set_len(idn_header_tree, offset);
 	return offset;
@@ -1181,517 +1181,517 @@ static int dissect_idn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 void proto_register_idn(void) {
 	static hf_register_info hf[] = {
-		{ &idn_command,
+		{ &hf_idn_command,
 			{ "Command code", "idn.command",
 			FT_UINT8, BASE_HEX,
 			VALS(command_code), 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_flags,
+		{ &hf_idn_flags,
 			{ "Flags", "idn.flags",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_sequence,
+		{ &hf_idn_sequence,
 			{ "Sequence counter", "idn.sequence",
 			FT_UINT16, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_total_size,
+		{ &hf_idn_total_size,
 			{ "Total Size", "idn.total_size",
 			FT_UINT16, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_struct_size,
+		{ &hf_idn_struct_size,
 			{ "Struct Size", "idn.struct_size",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_protocol_version,
+		{ &hf_idn_protocol_version,
 			{ "Protocol Version", "idn.protocol_version",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_protocol_version_major,
+		{ &hf_idn_protocol_version_major,
 			{ "Major", "idn.protocol_version_major",
 			FT_UINT8, BASE_DEC,
 			NULL, 0xF0,
 			NULL, HFILL }
 		},
-		{ &idn_protocol_version_minor,
-			{ "Minor", "idn.idn_protocol_version_minor",
+		{ &hf_idn_protocol_version_minor,
+			{ "Minor", "idn.protocol_version_minor",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0F,
 			NULL, HFILL }
 		},
-		{ &idn_status,
+		{ &hf_idn_status,
 			{ "Status", "idn.status",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_malfn,
+		{ &hf_idn_malfn,
 			{ "Malfunction", "idn.status_malfn",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x80,
 			NULL, HFILL }
 		},
-		{ &idn_offline,
+		{ &hf_idn_offline,
 			{ "Offline", "idn.offline",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x40,
 			NULL, HFILL }
 		},
-		{ &idn_xcld,
+		{ &hf_idn_xcld,
 			{ "Excluded", "idn.xcld",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x20,
 			NULL, HFILL }
 		},
-		{ &idn_ocpd,
+		{ &hf_idn_ocpd,
 			{ "Occupied", "idn.ocpd",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x10,
 			NULL, HFILL }
 		},
-		{ &idn_rt,
+		{ &hf_idn_rt,
 			{ "Realtime", "idn.rt",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &idn_reserved8,
+		{ &hf_idn_reserved8,
 			{ "Reserved", "idn.reserved8",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_unit_id,
+		{ &hf_idn_unit_id,
 			{ "Unit ID", "idn.unit_id",
 			FT_BYTES, SEP_SPACE,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_name,
+		{ &hf_idn_name,
 			{ "Name", "idn.name",
 			FT_STRING, ENC_ASCII,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_entry_size,
+		{ &hf_idn_entry_size,
 			{ "Entry Size", "idn.entry_size",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_relay_count,
+		{ &hf_idn_relay_count,
 			{ "Relay Count", "idn.relay_count",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_service_count,
+		{ &hf_idn_service_count,
 			{ "Service Count", "idn.service_count",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_cnl,
+		{ &hf_idn_cnl,
 			{ "Channel configuration and routing information (CNL)", "idn.cnl",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_most_significant_bit_cnl,
+		{ &hf_idn_most_significant_bit_cnl,
 			{ "Most significant bit (always 1)", "idn.most_significant_bit_cnl",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x80,
 			NULL, HFILL }
 		},
-		{ &idn_cclf,
+		{ &hf_idn_cclf,
 			{ "Channel Configuration and Last Fragment bit (CCLF)", "idn.cclf",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x40,
 			NULL, HFILL }
 		},
-		{ &idn_channel_id,
+		{ &hf_idn_channel_id,
 			{ "Channel ID (opened Channels)", "idn.channel_id",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x3F,
 			NULL, HFILL }
 		},
-		{ &idn_chunk_type,
+		{ &hf_idn_chunk_type,
 			{ "Chunk Type", "idn.chunk_type",
 			FT_UINT8, BASE_HEX,
 			VALS(chunk_type), 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_timestamp,
+		{ &hf_idn_timestamp,
 			{ "Timestamp", "idn.timestamp",
 			FT_UINT32, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_scwc,
+		{ &hf_idn_scwc,
 			{ "Service Configuration Word Count (SCWC)", "idn.scwc",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_cfl,
+		{ &hf_idn_cfl,
 			{ "Channel and service configuration Flags (CFL)", "idn.cfl",
 			FT_UINT8, BASE_HEX,
 			VALS(cfl_string), 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_sdm,
+		{ &hf_idn_sdm,
 			{ "Service Data Match (SDM)", "idn.sdm",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x30,
 			NULL, HFILL }
 		},
-		{ &idn_close,
+		{ &hf_idn_close,
 			{ "Close", "idn.close",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &idn_routing,
+		{ &hf_idn_routing,
 			{ "Routing", "idn.routing",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &idn_service_id,
+		{ &hf_idn_service_id,
 			{ "Service ID", "idn.service_id",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_relay_number,
+		{ &hf_idn_relay_number,
 			{ "Relay Number", "idn.relay_number",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_service_mode,
+		{ &hf_idn_service_mode,
 			{ "Service Mode", "idn.service_mode",
 			FT_UINT8, BASE_HEX,
 			VALS(service_mode_string), 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_chunk_header_flags,
+		{ &hf_idn_chunk_header_flags,
 			{ "Chunk Header Flags", "idn.chunk_header_flags",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_two_bits_reserved_1,
+		{ &hf_idn_two_bits_reserved_1,
 			{ "Reserved", "idn.zero_zero",
 			FT_UINT8, BASE_DEC,
 			NULL, 0xC0,
 			NULL, HFILL }
 		},
-		{ &idn_two_bits_reserved_2,
+		{ &hf_idn_two_bits_reserved_2,
 			{ "Reserved", "idn.zero_zero",
 			FT_UINT8, BASE_DEC,
 			NULL, 0xC,
 			NULL, HFILL }
 		},
-		{ &idn_scm,
+		{ &hf_idn_scm,
 			{ "Service configuration match (SCM)", "idn.scm",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x30,
 			NULL, HFILL }
 		},
-		{ &idn_three_bits_reserved,
+		{ &hf_idn_three_bits_reserved,
 			{ "Reserved", "idn.three_bit_reserved",
 			FT_UINT8, BASE_DEC,
 			NULL, 0xE,
 			NULL, HFILL }
 		},
-		{ &idn_four_bits_reserved,
+		{ &hf_idn_four_bits_reserved,
 			{ "Reserved", "idn.three_bit_reserved",
 			FT_UINT8, BASE_DEC,
 			NULL, 0xF,
 			NULL, HFILL }
 		},
-		{ &idn_once,
+		{ &hf_idn_once,
 			{ "Once", "idn.once",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &idn_dlim,
+		{ &hf_idn_dlim,
 			{ "Delimiter (DLIM)", "idn.dlim",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &idn_duration,
+		{ &hf_idn_duration,
 			{ "Duration", "idn.frame_sample_duration",
 			FT_UINT24, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_chunk_data_sequence,
+		{ &hf_idn_chunk_data_sequence,
 			{ "Sequence", "idn.octet_segment_sequence",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_offset,
+		{ &hf_idn_offset,
 			{ "Offset", "idn.octet_segment_sequence",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_reserved,
+		{ &hf_idn_reserved,
 			{ "Reserved", "idn.reserved",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts,
+		{ &hf_idn_gts,
 			{ "Unknown", "idn.unknown",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_void,
+		{ &hf_idn_gts_void,
 			{ "Void", "idn.gts_void",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_boundary,
+		{ &hf_idn_boundary,
 			{ "Void (32-bit boundary)", "idn.gts_boundary",
 			FT_UINT32, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_word,
+		{ &hf_idn_gts_word,
 			{ "16-bit word", "idn.gts_word",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_break,
+		{ &hf_idn_gts_break,
 			{ "Break", "idn.gts_break",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_space_modifier,
+		{ &hf_idn_gts_space_modifier,
 			{ "Space Modifier", "idn.gts_space_modifier",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_hint,
+		{ &hf_idn_gts_hint,
 			{ "Hint", "idn.gts_hint",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_category,
+		{ &hf_idn_gts_category,
 			{ "Category", "idn.gts_category",
 			FT_UINT16, BASE_DEC,
 			NULL, 0xF000,
 			NULL, HFILL }
 		},
-		{ &idn_gts_subcategory,
+		{ &hf_idn_gts_subcategory,
 			{ "Subcategory", "idn.gts_subcategory",
 			FT_UINT16, BASE_DEC,
 			NULL, 0xF00,
 			NULL, HFILL }
 		},
-		{ &idn_gts_identifier,
+		{ &hf_idn_gts_identifier,
 			{ "Identifier", "idn.gts_identifier",
 			FT_UINT16, BASE_DEC,
 			NULL, 0xF0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_parameter,
+		{ &hf_idn_gts_parameter,
 			{ "Parameter", "idn.gts_parameter",
 			FT_UINT16, BASE_DEC,
 			NULL, 0xF,
 			NULL, HFILL }
 		},
-		{ &idn_gts_glin,
+		{ &hf_idn_gts_glin,
 			{ "Graphic Space Linearity (GLIN)", "idn.gts_glin",
 			FT_UINT16, BASE_DEC,
 			VALS(gts_glin), 0xC0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_clin,
+		{ &hf_idn_gts_clin,
 			{ "Color Space Linearity (CLIN)", "idn.gts_clin",
 			FT_UINT16, BASE_DEC,
 			VALS(gts_clin), 0x30,
 			NULL, HFILL }
 		},
-		{ &idn_gts_cbal,
+		{ &hf_idn_gts_cbal,
 			{ "Color Balance (CBAL)", "idn.gts_cbal",
 			FT_UINT16, BASE_DEC,
 			VALS(gts_cbal), 0xC,
 			NULL, HFILL }
 		},
-		{ &idn_gts_ctim,
+		{ &hf_idn_gts_ctim,
 			{ "Color Timing (CTIM)", "idn.gts_ctim",
 			FT_UINT16, BASE_DEC,
 			VALS(gts_ctim), 0x3,
 			NULL, HFILL }
 		},
-		{ &idn_gts_nop,
+		{ &hf_idn_gts_nop,
 			{ "No Operation (NOP)", "idn.gts_nop",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_precision,
+		{ &hf_idn_gts_precision,
 			{ "Precision", "idn.gts_precision",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_cscl,
+		{ &hf_idn_gts_cscl,
 			{ "Color scale (CSCL)", "idn.gts_cscl",
 			FT_UINT16, BASE_DEC,
 			NULL, 0xC0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_iscl,
+		{ &hf_idn_gts_iscl,
 			{ "Intensity scale (ISCL)", "idn.gts_iscl",
 			FT_UINT16, BASE_DEC,
 			NULL, 0x30,
 			NULL, HFILL }
 		},
-		{ &idn_gts_sht,
+		{ &hf_idn_gts_sht,
 			{ "Shutter (SHT)", "idn.gts_sht",
 			FT_UINT16, BASE_DEC,
 			NULL, 0xF,
 			NULL, HFILL }
 		},
-		{ &idn_gts_u4,
+		{ &hf_idn_gts_u4,
 			{ "Optional(U4), used as X-prime", "idn.gts_u4",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_x,
+		{ &hf_idn_gts_x,
 			{ "X", "idn.gts_x",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_y,
+		{ &hf_idn_gts_y,
 			{ "Y", "idn.gts_y",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_z,
+		{ &hf_idn_gts_z,
 			{ "Z", "idn.gts_z",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_color,
+		{ &hf_idn_gts_color,
 			{ "Color", "idn.gts_color",
 			FT_UINT16, BASE_DEC,
 			VALS(idn_color), 0x3FF,
 			NULL, HFILL }
 		},
-		{ &idn_gts_wavelength_prefix,
+		{ &hf_idn_gts_wavelength_prefix,
 			{ "Wavelength Prefix", "idn.gts_wavelength_prefix",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_intensity,
+		{ &hf_idn_gts_intensity,
 			{ "Intensity/blanking", "idn.gts_intensity",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_beam_brush,
+		{ &hf_idn_gts_beam_brush,
 			{ "Beam-Brush", "idn.gts_beam_brush",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_gts_sample,
+		{ &hf_idn_gts_sample,
 			{ "Sample", "idn.gts_sample",
 			FT_INT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_dmx_octet,
+		{ &hf_idn_dmx_octet,
 			{ "Octet", "idn.gts_octet",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_dmx_identifier,
+		{ &hf_idn_dmx_identifier,
 			{ "Identifier", "idn.gts_dmx_identifier",
 			FT_UINT8, BASE_DEC,
 			NULL, 0xF0,
 			NULL, HFILL }
 		},
-		{ &idn_dmx_parameter,
+		{ &hf_idn_dmx_parameter,
 			{ "Parameter", "idn.gts_dmx_parameter",
 			FT_UINT8, BASE_DEC,
 			NULL, 0xF,
 			NULL, HFILL }
 		},
-		{ &idn_dmx_void,
+		{ &hf_idn_dmx_void,
 			{ "Void", "idn.gts_dmx_void",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_octet,
+		{ &hf_idn_octet,
 			{ "Octet", "idn.gts_dmx_octet",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_dmx_dls,
+		{ &hf_idn_dmx_dls,
 			{ "Dimmer Level Subset", "idn.dmx_dls",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_dmx_base,
+		{ &hf_idn_dmx_base,
 			{ "Base", "idn.dmx_base",
 			FT_UINT16, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_dmx_count,
+		{ &hf_idn_dmx_count,
 			{ "Count", "idn.dmx_count",
 			FT_UINT8, BASE_DEC,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_dmx_unknown,
+		{ &hf_idn_dmx_unknown,
 			{ "Unknown", "idn.dmx_unknown",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_result_code,
+		{ &hf_idn_result_code,
 			{ "Result Code", "idn.result_code",
 			FT_UINT8, BASE_DEC,
 			VALS(result_code), 0x0,
 			NULL, HFILL }
 		},
-		{ &idn_event_flags,
+		{ &hf_idn_event_flags,
 			{ "Event Flags", "idn.event_flags",
 			FT_UINT16, BASE_HEX,
 			NULL, 0x0,
