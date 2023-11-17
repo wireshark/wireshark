@@ -997,7 +997,7 @@ static int hf_rtps_param_instance_id_v1         = -1;
 static int hf_rtps_param_app_kind               = -1;
 static int hf_rtps_param_entity                 = -1;
 static int hf_rtps_param_entity_key             = -1;
-static int hf_rtps_param_hf_entity_kind         = -1;
+static int hf_rtps_param_entity_kind         = -1;
 static int hf_rtps_data_frag_number             = -1;
 static int hf_rtps_data_frag_num_fragments      = -1;
 static int hf_rtps_data_frag_size               = -1;
@@ -1324,7 +1324,7 @@ static int hf_rtps_param_plugin_endpoint_security_attributes_mask               
 static int hf_rtps_flag_participant_security_attribute_flag_is_rtps_protected             = -1;
 static int hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected        = -1;
 static int hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected       = -1;
-static int fh_rtps_flag_participant_security_attribute_flag_key_revisions_enabled         = -1;
+static int hf_rtps_flag_participant_security_attribute_flag_key_revisions_enabled         = -1;
 static int hf_rtps_flag_participant_security_attribute_flag_is_valid                      = -1;
 static int hf_rtps_param_participant_security_attributes_mask                             = -1;
 static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_encrypted              = -1;
@@ -2511,7 +2511,7 @@ static int* const PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS[] = {
 };
 static int* const PARTICIPANT_SECURITY_INFO_FLAGS[] = {
   &hf_rtps_flag_participant_security_attribute_flag_is_valid,                     /* Bit 31 */
-  &fh_rtps_flag_participant_security_attribute_flag_key_revisions_enabled,        /* Bit 3 */
+  &hf_rtps_flag_participant_security_attribute_flag_key_revisions_enabled,        /* Bit 3 */
   &hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected,      /* Bit 2 */
   &hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected,       /* Bit 1 */
   &hf_rtps_flag_participant_security_attribute_flag_is_rtps_protected,            /* Bit 0 */
@@ -6892,7 +6892,7 @@ static gint rtps_util_add_rti_topic_query_service_request(proto_tree * tree, pac
   rtps_util_add_generic_guid_v2(topic_query_tree, tvb, offset,
           hf_rtps_topic_query_original_related_reader_guid,
           hf_rtps_param_host_id, hf_rtps_param_app_id, hf_rtps_param_instance_id,
-          hf_rtps_param_entity, hf_rtps_param_entity_key, hf_rtps_param_hf_entity_kind,
+          hf_rtps_param_entity, hf_rtps_param_entity_key, hf_rtps_param_entity_kind,
           NULL);
 
   offset = check_offset_addition(offset, param_length, tree, NULL, tvb);
@@ -6950,7 +6950,7 @@ static gint rtps_util_add_instance_state_request_data(proto_tree* tree, tvbuff_t
   offset += 8;
   rtps_util_add_generic_guid_v2(instance_state_request_tree, tvb, offset, hf_rtps_pgm_dst_endpoint_guid,
     hf_rtps_param_host_id, hf_rtps_param_app_id, hf_rtps_param_instance_id,
-    hf_rtps_param_entity, hf_rtps_param_entity_key, hf_rtps_param_hf_entity_kind,
+    hf_rtps_param_entity, hf_rtps_param_entity_key, hf_rtps_param_entity_kind,
     NULL);
   offset += GUID_SIZE;
   proto_tree_add_item(instance_state_request_tree, hf_rtps_writer_group_oid, tvb, offset, 4, encoding);
@@ -7172,7 +7172,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
         rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
                       hf_rtps_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
                       hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-                      hf_rtps_param_hf_entity_kind, NULL);
+                      hf_rtps_param_entity_kind, NULL);
       }
       break;
 
@@ -7188,7 +7188,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
       rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
                   hf_rtps_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
                   hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-                  hf_rtps_param_hf_entity_kind, NULL);
+                  hf_rtps_param_entity_kind, NULL);
       break;
     }
     /* 0...2...........7...............15.............23...............31
@@ -7229,7 +7229,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
         rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
                       hf_rtps_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
                       hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-                      hf_rtps_param_hf_entity_kind, NULL);
+                      hf_rtps_param_entity_kind, NULL);
       } else {
         ENSURE_LENGTH(4);
         {
@@ -7258,7 +7258,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
         rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
           hf_rtps_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
           hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-          hf_rtps_param_hf_entity_kind, NULL);
+          hf_rtps_param_entity_kind, NULL);
       } else {
         proto_tree_add_item(rtps_parameter_tree, hf_rtps_direct_communication, tvb, offset, 1, ENC_NA );
       }
@@ -8635,13 +8635,13 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
         rtps_util_add_generic_guid_v1(rtps_parameter_tree, tvb, offset,
                     hf_rtps_participant_guid_v1, hf_rtps_param_host_id, hf_rtps_param_app_id,
                     hf_rtps_param_instance_id_v1, hf_rtps_param_app_kind,
-                    hf_rtps_param_entity, hf_rtps_param_entity_key, hf_rtps_param_hf_entity_kind);
+                    hf_rtps_param_entity, hf_rtps_param_entity_key, hf_rtps_param_entity_kind);
       } else {
         ENSURE_LENGTH(16);
         rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
                     hf_rtps_participant_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
                     hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-                    hf_rtps_param_hf_entity_kind, NULL);
+                    hf_rtps_param_entity_kind, NULL);
       }
       break;
 
@@ -8656,7 +8656,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
       ENSURE_LENGTH(4);
       rtps_util_add_generic_entity_id(rtps_parameter_tree, tvb, offset,  "Participant entity ID",
                                       hf_rtps_param_entity, hf_rtps_param_entity_key,
-                                      hf_rtps_param_hf_entity_kind, ett_rtps_entity);
+                                      hf_rtps_param_entity_kind, ett_rtps_entity);
 
       break;
 
@@ -8677,13 +8677,13 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
         rtps_util_add_generic_guid_v1(rtps_parameter_tree, tvb, offset,
                     hf_rtps_group_guid_v1, hf_rtps_param_host_id, hf_rtps_param_app_id,
                     hf_rtps_param_instance_id_v1, hf_rtps_param_app_kind,
-                    hf_rtps_param_entity, hf_rtps_param_entity_key, hf_rtps_param_hf_entity_kind);
+                    hf_rtps_param_entity, hf_rtps_param_entity_key, hf_rtps_param_entity_kind);
       } else {
         ENSURE_LENGTH(16);
         rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
                     hf_rtps_group_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
                     hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-                    hf_rtps_param_hf_entity_kind, NULL);
+                    hf_rtps_param_entity_kind, NULL);
       }
       break;
 
@@ -8698,7 +8698,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
       ENSURE_LENGTH(4);
       rtps_util_add_generic_entity_id(rtps_parameter_tree, tvb, offset, "Group entity ID",
                                       hf_rtps_param_entity, hf_rtps_param_entity_key,
-                                      hf_rtps_param_hf_entity_kind, ett_rtps_entity);
+                                      hf_rtps_param_entity_kind, ett_rtps_entity);
       break;
 
     /* ==================================================================
@@ -9024,7 +9024,7 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
       rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
                     hf_rtps_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
                     hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-                    hf_rtps_param_hf_entity_kind, NULL);
+                    hf_rtps_param_entity_kind, NULL);
       break;
 
 
@@ -12022,7 +12022,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       rtps_util_add_generic_guid_v2(guid_tree, tvb, offset,
               hf_rtps_message_identity_source_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
               hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-              hf_rtps_param_hf_entity_kind, guid_tree);
+              hf_rtps_param_entity_kind, guid_tree);
       offset += 16;
 
       proto_tree_add_item(message_identity_tree, hf_rtps_sm_seq_number, tvb, offset, 8, encoding);
@@ -12042,7 +12042,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       rtps_util_add_generic_guid_v2(guid_tree, tvb, offset,
               hf_rtps_message_identity_source_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
               hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-              hf_rtps_param_hf_entity_kind, guid_tree);
+              hf_rtps_param_entity_kind, guid_tree);
       offset += 16;
 
       proto_tree_add_item(message_identity_tree, hf_rtps_sm_seq_number, tvb,
@@ -12058,21 +12058,21 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       rtps_util_add_generic_guid_v2(guid_tree, tvb, offset,
               hf_rtps_pgm_dst_participant_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
               hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-              hf_rtps_param_hf_entity_kind, NULL);
+              hf_rtps_param_entity_kind, NULL);
       offset += 16;
 
       guid_tree = proto_item_add_subtree(rtps_pgm_tree, ett_rtps_pgm_data);
       rtps_util_add_generic_guid_v2(guid_tree, tvb, offset,
               hf_rtps_pgm_dst_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
               hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-              hf_rtps_param_hf_entity_kind, NULL);
+              hf_rtps_param_entity_kind, NULL);
       offset += 16;
 
       guid_tree = proto_item_add_subtree(rtps_pgm_tree, ett_rtps_pgm_data);
       rtps_util_add_generic_guid_v2(guid_tree, tvb, offset,
               hf_rtps_pgm_src_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
               hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-              hf_rtps_param_hf_entity_kind, NULL);
+              hf_rtps_param_entity_kind, NULL);
       offset += 16;
 
       offset = rtps_util_add_string(rtps_pgm_tree, tvb, offset, hf_rtps_pgm_message_class_id, encoding);
@@ -12103,7 +12103,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       rtps_util_add_generic_guid_v2(guid_tree, tvb, offset,
                       hf_rtps_source_participant_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
                       hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-                      hf_rtps_param_hf_entity_kind, NULL);
+                      hf_rtps_param_entity_kind, NULL);
       offset += 16;
       rtps_util_add_locator_t(locator_ping_tree, pinfo, tvb, offset, encoding,
               "Destination Locator");
@@ -12143,7 +12143,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       rtps_util_add_generic_guid_v2(guid_tree, tvb, offset,
                       hf_rtps_srm_instance_id, hf_rtps_param_host_id, hf_rtps_param_app_id,
                       hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
-                      hf_rtps_param_hf_entity_kind, NULL);
+                      hf_rtps_param_entity_kind, NULL);
       offset += 16;
       rtps_util_add_rti_service_request(service_request_tree, pinfo, tvb, offset,
                 encoding, service_id);
@@ -15441,7 +15441,7 @@ void proto_register_rtps(void) {
         NULL, HFILL }
     },
 
-    { &hf_rtps_param_hf_entity_kind,
+    { &hf_rtps_param_entity_kind,
       { "entityKind", "rtps.param.guid.entityKind",
         FT_UINT8, BASE_HEX, VALS(entity_kind_vals), 0,
         NULL, HFILL }
@@ -16578,7 +16578,7 @@ void proto_register_rtps(void) {
         "Liveliness Protected", "rtps.flag.security.info.participant_liveliness_protected",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }
     },
-    { &fh_rtps_flag_participant_security_attribute_flag_key_revisions_enabled,{
+    { &hf_rtps_flag_participant_security_attribute_flag_key_revisions_enabled,{
         "Key Revisions Enabled", "rtps.flag.security.info.key_revisions_enabled",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
     },

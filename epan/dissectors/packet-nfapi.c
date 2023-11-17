@@ -912,22 +912,22 @@ static int hf_nfapi_number_of_rf_bands = -1;
 static int hf_nfapi_nmm_uplink_rssi_supported = -1;
 static int hf_nfapi_phy_rf_config_info_phy_id = -1;
 static int hf_nfapi_transmission_mode7_supported = -1;
-static int hi_nfapi_transmission_mode8_supported = -1;
-static int hi_nfapi_two_antennas_ports_for_pucch = -1;
-static int hi_nfapi_transmission_mode_9_supported = -1;
-static int hi_nfapi_simultaneous_pucch_pusch = -1;
-static int hi_nfapi_four_layer_tx_with_tm3_and_tm4 = -1;
+static int hf_nfapi_transmission_mode8_supported = -1;
+static int hf_nfapi_two_antennas_ports_for_pucch = -1;
+static int hf_nfapi_transmission_mode_9_supported = -1;
+static int hf_nfapi_simultaneous_pucch_pusch = -1;
+static int hf_nfapi_four_layer_tx_with_tm3_and_tm4 = -1;
 static int hf_nfapi_epdcch_supported = -1;
-static int hi_nfapi_multi_ack_csi_reporting = -1;
-static int hi_nfapi_pucch_tx_diversity_with_channel_selection = -1;
-static int hi_nfapi_ul_comp_supported = -1;
-static int hi_nfapi_transmission_mode_5_supported = -1;
+static int hf_nfapi_multi_ack_csi_reporting = -1;
+static int hf_nfapi_pucch_tx_diversity_with_channel_selection = -1;
+static int hf_nfapi_ul_comp_supported = -1;
+static int hf_nfapi_transmission_mode_5_supported = -1;
 static int hf_nfapi_csi_subframe_set = -1;
-static int hi_nfapi_enhanced_4tx_codebook = -1;
-static int hi_nfapi_drs_supported = -1;
-static int hi_nfapi_ul_64qam_supported = -1;
-static int hi_nfapi_transmission_mode_10_supported = -1;
-static int hi_nfapi_alternative_tbs_indices = -1;
+static int hf_nfapi_enhanced_4tx_codebook = -1;
+static int hf_nfapi_drs_supported = -1;
+static int hf_nfapi_ul_64qam_supported = -1;
+static int hf_nfapi_transmission_mode_10_supported = -1;
+static int hf_nfapi_alternative_tbs_indices = -1;
 static int hf_nfapi_pucch_format_4_supported = -1;
 static int hf_nfapi_pucch_format_5_supported = -1;
 static int hf_nfapi_more_than_5_ca_supported = -1;
@@ -1724,35 +1724,35 @@ static void dissect_pnf_phy_rel10_instance_value(ptvcursor_t * ptvc, packet_info
 	}
 
 	// Two antennas ports for PUCCH
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_transmission_mode8_supported, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_transmission_mode8_supported, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid transmission mode 8 supported value [0..1]");
 	}
 
 	// Transmission mode 8 supported
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_two_antennas_ports_for_pucch, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_two_antennas_ports_for_pucch, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid two antennas ports for pucch value [0..1]");
 	}
 
 	// Transmission mode 9 supported
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_transmission_mode_9_supported, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_transmission_mode_9_supported, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid transmission mode 9 supported value [0..1]");
 	}
 
 	// Simultaneous PUCCH PUSCH
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_simultaneous_pucch_pusch, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_simultaneous_pucch_pusch, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid simultaneous pucch pusch supported value [0..1]");
 	}
 
 	// Four layer Tx with TM3 and TM4
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_four_layer_tx_with_tm3_and_tm4, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_four_layer_tx_with_tm3_and_tm4, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid four layer tx with tm3 and tm4 value [0..1]");
@@ -1782,28 +1782,28 @@ static void dissect_pnf_phy_rel11_instance_value(ptvcursor_t * ptvc, packet_info
 	}
 
 	// Multi ACK CSI reporting
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_multi_ack_csi_reporting, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_multi_ack_csi_reporting, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid multi ack csi reporting value [0..1]");
 	}
 
 	// PUCCH Tx diversity with channel selection
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_pucch_tx_diversity_with_channel_selection, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_pucch_tx_diversity_with_channel_selection, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid pucch tx diversity with channel selection value [0..1]");
 	}
 
 	// UL CoMP supported
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_ul_comp_supported, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_ul_comp_supported, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ul comp supported value [0..1]");
 	}
 
 	// Transmission mode 5 supported
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_transmission_mode_5_supported, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_transmission_mode_5_supported, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid transmission mode 5 supported value [0..1]");
@@ -1833,35 +1833,35 @@ static void dissect_pnf_phy_rel12_instance_value(ptvcursor_t * ptvc, packet_info
 	}
 
 	// Enhanced 4TX codebook
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_enhanced_4tx_codebook, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_enhanced_4tx_codebook, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid enhanced 4TX codebook value [0..1]");
 	}
 
 	// DRS supported
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_drs_supported, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_drs_supported, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid drs supported value [0..1]");
 	}
 
 	// UL 64QAM supported
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_ul_64qam_supported, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_ul_64qam_supported, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ul 64 QAM supported value [0..1]");
 	}
 
 	// Transmission mode 10 supported
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_transmission_mode_10_supported, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_transmission_mode_10_supported, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid transmission mode 10 supported value [0..1]");
 	}
 
 	// Alternative TBS indices
-	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_alternative_tbs_indices, 2, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_alternative_tbs_indices, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid alternative tbs indices supported value [0..1]");
@@ -9581,27 +9581,27 @@ void proto_register_nfapi(void)
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports TM7 for PDSCH", HFILL }
 		},
-		{ &hi_nfapi_transmission_mode8_supported,
+		{ &hf_nfapi_transmission_mode8_supported,
 			{ "Transmission Mode 8 Supported", "nfapi.pnf.phy_rel10.tx_mode8_supported",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports TM8 for PDSCH", HFILL }
 		},
-		{ &hi_nfapi_two_antennas_ports_for_pucch,
+		{ &hf_nfapi_two_antennas_ports_for_pucch,
 			{ "Two antennas ports for PUCCH", "nfapi.pnf.phy_rel10.two_antennas_ports_for_pucch",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports PUCCH transmit diversity introduced in Release 10. Equivalent to two-AntennaPortsForPUCCH-r10 in TS36.306", HFILL }
 		},
-		{ &hi_nfapi_transmission_mode_9_supported,
+		{ &hf_nfapi_transmission_mode_9_supported,
 			{ "Transmission Mode 9 Supported", "nfapi.pnf.phy_rel10.tx_mode9_supported",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports TM9 for PDSCH with 8 antennas and 8 CSI. Equivalent to tm9-With-8Tx-FDD-r10 in TS36.306", HFILL }
 		},
-		{ &hi_nfapi_simultaneous_pucch_pusch,
+		{ &hf_nfapi_simultaneous_pucch_pusch,
 			{ "Simultaneous PUCCH PUSCH", "nfapi.pnf.simultaneous_pucch_pusch",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports UE sending simultaneous PUCCH and PUSCH introduced in Release 10. Equivalent to simultaneousPUCCH-PUSCH-r10 in TS36.306", HFILL }
 		},
-		{ &hi_nfapi_four_layer_tx_with_tm3_and_tm4,
+		{ &hf_nfapi_four_layer_tx_with_tm3_and_tm4,
 			{ "Four layer Tx with TM3 and TM4", "nfapi.pnf.phy_rel10.layer_tx_with_tm3_and_tm4",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports four layer transmission for TM3 and TM4. Equivalent to fourLayerTM3-TM4-r10 in TS36.306", HFILL }
@@ -9611,22 +9611,22 @@ void proto_register_nfapi(void)
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports Enhanced PDCCH", HFILL }
 		},
-		{ &hi_nfapi_multi_ack_csi_reporting,
+		{ &hf_nfapi_multi_ack_csi_reporting,
 			{ "Multi ACK CSI reporting", "nfapi.pnf.phy_rel11.multi_ack_csi_reporting",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports the multi ACK and CSI reporting required with CA and mixed FDD/TDD carriers. Equivalent to multiACK-CSI-Reporting-r11 in TS36.306", HFILL }
 		},
-		{ &hi_nfapi_pucch_tx_diversity_with_channel_selection,
+		{ &hf_nfapi_pucch_tx_diversity_with_channel_selection,
 			{ "PUCCH Tx diversity with channel selection", "nfapi.pnf.phy_rel11.tx_div_with_channel_selection",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports transmit diversity for PUCCH format 1b with channel selection. Equivalent to txDiv-PUCCH1b-ChSelect in TS36.306", HFILL }
 		},
-		{ &hi_nfapi_ul_comp_supported,
+		{ &hf_nfapi_ul_comp_supported,
 			{ "UL CoMP supported", "nfapi.pnf.phy_rel11.ul_comp_supported",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports UL CoMP", HFILL }
 		},
-		{ &hi_nfapi_transmission_mode_5_supported,
+		{ &hf_nfapi_transmission_mode_5_supported,
 			{ "Transmission mode 5 supported", "nfapi.pnf.phy_rel11.tx_mode5_supported",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports TM5 for PDSCH", HFILL }
@@ -9636,27 +9636,27 @@ void proto_register_nfapi(void)
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Equivalent to csi-SubframeSet-r12 in TS36.306", HFILL }
 		},
-		{ &hi_nfapi_enhanced_4tx_codebook,
+		{ &hf_nfapi_enhanced_4tx_codebook,
 			{ "Enhanced 4TX codebook", "nfapi.pnf.phy_rel12.enhanced_t4x_codebook",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports the enhanced 4TX codebook. Equivalent to enhanced-4TxCodebook-r12 in TS36.306", HFILL }
 		},
-		{ &hi_nfapi_drs_supported,
+		{ &hf_nfapi_drs_supported,
 			{ "DRS supported", "nfapi.pnf.phy_rel12.drs_supported",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports the Discovery Reference Signal", HFILL }
 		},
-		{ &hi_nfapi_ul_64qam_supported,
+		{ &hf_nfapi_ul_64qam_supported,
 			{ "UL 64QAM supported", "nfapi.pnf.phy_rel12.ul_64qam_supported",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY support 64 QAM in the uplink", HFILL }
 		},
-		{ &hi_nfapi_transmission_mode_10_supported,
+		{ &hf_nfapi_transmission_mode_10_supported,
 			{ "Transmission mode 10 supported", "nfapi.pnf.phy_rel12.tx_mode10_supported",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports TM10 for PDSCH (DL CoMP)", HFILL }
 		},
-		{ &hi_nfapi_alternative_tbs_indices,
+		{ &hf_nfapi_alternative_tbs_indices,
 			{ "Alternative TBS indices", "nfapi.pnf.phy_rel12.alternative_tbs_indices",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports the alternate TBS indices (256 QAM).  Equivalent to alternativeTBS-Indices-r12 in TS36.306", HFILL }

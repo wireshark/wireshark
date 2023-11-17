@@ -466,11 +466,11 @@ static int hf_diameter_3gpp_motion_event_bit5 = -1;
 static int hf_diameter_3gpp_ldr_activated_bit6 = -1;
 static int hf_diameter_3gpp_maximum_interval_exporation_bit7 = -1;
 
-static gint diameter_3gpp_path_ett = -1;
-static gint diameter_3gpp_feature_list_ett = -1;
-static gint diameter_3gpp_uar_flags_ett = -1;
-static gint diameter_3gpp_tmgi_ett  = -1;
-static gint diameter_3gpp_cms_ett = -1;
+static gint ett_diameter_3gpp_path = -1;
+static gint ett_diameter_3gpp_feature_list = -1;
+static gint ett_diameter_3gpp_uar_flags = -1;
+static gint ett_diameter_3gpp_tmgi  = -1;
+static gint ett_diameter_3gpp_cms = -1;
 
 static int hf_diameter_3gpp_secondary_rat_type = -1;
 
@@ -503,46 +503,46 @@ static int hf_diameter_3gpp_supported_monitoring_events_b6 = -1;
 static int hf_diameter_3gpp_supported_monitoring_events_b7 = -1;
 static int hf_diameter_3gpp_supported_monitoring_events_b8 = -1;
 
-static gint diameter_3gpp_qos_subscribed_ett = -1;
-static gint diameter_3gpp_ulr_flags_ett = -1;
-static gint diameter_3gpp_ula_flags_ett = -1;
-static gint diameter_3gpp_dsr_flags_ett = -1;
-static gint diameter_3gpp_dsa_flags_ett = -1;
-static gint diameter_3gpp_ida_flags_ett = -1;
-static gint diameter_3gpp_pua_flags_ett = -1;
-static gint diameter_3gpp_nor_flags_ett = -1;
-static gint diameter_3gpp_idr_flags_ett = -1;
-static gint diameter_3gpp_ppr_flags_ett = -1;
-static gint diameter_3gpp_aaa_fail_flags_ett = -1;
-static gint diameter_3gpp_der_flags_ett = -1;
-static gint diameter_3gpp_dea_flags_ett = -1;
-static gint diameter_3gpp_rar_flags_ett = -1;
-static gint diameter_3gpp_der_s6b_flags_ett = -1;
-static gint diameter_3gpp_mbms_bearer_event_ett = -1;
-static gint diameter_3gpp_mbms_bearer_result_ett = -1;
-static gint diameter_3gpp_tmgi_allocation_result_ett = -1;
-static gint diameter_3gpp_tmgi_deallocation_result_ett = -1;
-static gint diameter_3gpp_sar_flags_ett = -1;
-static gint diameter_3gpp_req_nodes_ett = -1;
-static gint diameter_3gpp_emergency_services_flags_ett = -1;
-static gint diameter_3gpp_pur_flags_ett = -1;
-static gint diameter_3gpp_clr_flags_ett = -1;
-static gint diameter_3gpp_uvr_flags_ett = -1;
-static gint diameter_3gpp_uva_flags_ett = -1;
-static gint diameter_3gpp_subscription_data_flags_ett = -1;
-static gint diameter_3gpp_wlan_offloadability_eutran_ett = -1;
-static gint diameter_3gpp_wlan_offloadability_utran_ett = -1;
-static gint diameter_3gpp_air_flags_ett = -1;
-static gint diameter_3gpp_preferred_data_mode_ett = -1;
-static gint diameter_3gpp_v2x_permission_ett = -1;
-static gint diameter_3gpp_core_network_restrictions_ett = -1;
-static gint diameter_3gpp_supported_gad_shapes_ett = -1;
-static gint diameter_3gpp_plr_flags_ett = -1;
-static gint diameter_3gpp_pla_flags_ett = -1;
-static gint diameter_3gpp_deferred_location_type_ett = -1;
-static gint diameter_3gpp_rir_flags_ett = -1;
-static gint diameter_3gpp_supported_monitoring_events_ett = -1;
-static gint diameter_3gpp_af_requested_data_flags_ett = -1;
+static gint ett_diameter_3gpp_qos_subscribed = -1;
+static gint ett_diameter_3gpp_ulr_flags = -1;
+static gint ett_diameter_3gpp_ula_flags = -1;
+static gint ett_diameter_3gpp_dsr_flags = -1;
+static gint ett_diameter_3gpp_dsa_flags = -1;
+static gint ett_diameter_3gpp_ida_flags = -1;
+static gint ett_diameter_3gpp_pua_flags = -1;
+static gint ett_diameter_3gpp_nor_flags = -1;
+static gint ett_diameter_3gpp_idr_flags = -1;
+static gint ett_diameter_3gpp_ppr_flags = -1;
+static gint ett_diameter_3gpp_aaa_fail_flags = -1;
+static gint ett_diameter_3gpp_der_flags = -1;
+static gint ett_diameter_3gpp_dea_flags = -1;
+static gint ett_diameter_3gpp_rar_flags = -1;
+static gint ett_diameter_3gpp_der_s6b_flags = -1;
+static gint ett_diameter_3gpp_mbms_bearer_event = -1;
+static gint ett_diameter_3gpp_mbms_bearer_result = -1;
+static gint ett_diameter_3gpp_tmgi_allocation_result = -1;
+static gint ett_diameter_3gpp_tmgi_deallocation_result = -1;
+static gint ett_diameter_3gpp_sar_flags = -1;
+static gint ett_diameter_3gpp_req_nodes = -1;
+static gint ett_diameter_3gpp_emergency_services_flags = -1;
+static gint ett_diameter_3gpp_pur_flags = -1;
+static gint ett_diameter_3gpp_clr_flags = -1;
+static gint ett_diameter_3gpp_uvr_flags = -1;
+static gint ett_diameter_3gpp_uva_flags = -1;
+static gint ett_diameter_3gpp_subscription_data_flags = -1;
+static gint ett_diameter_3gpp_wlan_offloadability_eutran = -1;
+static gint ett_diameter_3gpp_wlan_offloadability_utran = -1;
+static gint ett_diameter_3gpp_air_flags = -1;
+static gint ett_diameter_3gpp_preferred_data_mode = -1;
+static gint ett_diameter_3gpp_v2x_permission = -1;
+static gint ett_diameter_3gpp_core_network_restrictions = -1;
+static gint ett_diameter_3gpp_supported_gad_shapes = -1;
+static gint ett_diameter_3gpp_plr_flags = -1;
+static gint ett_diameter_3gpp_pla_flags = -1;
+static gint ett_diameter_3gpp_deferred_location_type = -1;
+static gint ett_diameter_3gpp_rir_flags = -1;
+static gint ett_diameter_3gpp_supported_monitoring_events = -1;
+static gint ett_diameter_3gpp_af_requested_data_flags = -1;
 
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit1 = -1;
@@ -825,7 +825,7 @@ dissect_diameter_3gpp_af_requested_data(tvbuff_t* tvb, packet_info* pinfo _U_, p
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
     proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_af_requested_data_flags,
-                                      diameter_3gpp_af_requested_data_flags_ett,
+                                      ett_diameter_3gpp_af_requested_data_flags,
                                       diameter_3gpp_af_requested_data_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 
     return 4;
@@ -887,7 +887,7 @@ dissect_diameter_3gpp_uar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_uar_flags_flags, diameter_3gpp_uar_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_uar_flags_flags, ett_diameter_3gpp_uar_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -941,7 +941,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     switch (application_id) {
     case DIAM_APPID_3GPP_CX:
         proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_cx_feature_list_flags,
-            diameter_3gpp_feature_list_ett, diameter_3gpp_cx_feature_list_1_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+            ett_diameter_3gpp_feature_list, diameter_3gpp_cx_feature_list_1_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         break;
     case DIAM_APPID_3GPP_RX:
     {
@@ -975,7 +975,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 NULL
             };
 
-            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, diameter_3gpp_feature_list_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, ett_diameter_3gpp_feature_list, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         }
         else if (feature_list_id == 2) {
             static int * const flags[] = {
@@ -999,7 +999,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 NULL
             };
 
-            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, diameter_3gpp_feature_list_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, ett_diameter_3gpp_feature_list, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         }
     }
         break;
@@ -1014,7 +1014,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             NULL
         };
 
-        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, diameter_3gpp_feature_list_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, ett_diameter_3gpp_feature_list, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         }
         break;
     case DIAM_APPID_3GPP_S6A_S6D:
@@ -1056,7 +1056,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 NULL
             };
 
-            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, diameter_3gpp_feature_list_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, ett_diameter_3gpp_feature_list, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         }
         else if (feature_list_id == 2) {
             /* 3GPP TS 29.272 Table 7.3.10/2: Features of Feature-List-ID 2 used in S6a/S6d */
@@ -1096,7 +1096,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 NULL
             };
 
-            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, diameter_3gpp_feature_list_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_flags, ett_diameter_3gpp_feature_list, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         }
         break;
     case DIAM_APPID_3GPP_GX: /* 3GPP TS 29.212 V15.1.0 (2017-12) */
@@ -1139,7 +1139,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             };
 
             proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_gx_flags,
-                diameter_3gpp_feature_list_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+                ett_diameter_3gpp_feature_list, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         }
         else if (feature_list_id == 2) {
             /* 3GPP TS 29.212 Table 5.4.1.2: Features of Feature-List-ID 2 used in Gx */
@@ -1156,12 +1156,12 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             };
 
             proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_diameter_3gpp_feature_list_gx_flags,
-                diameter_3gpp_feature_list_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+                ett_diameter_3gpp_feature_list, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         }
         break;
     case DIAM_APPID_3GPP_SD: /* 3GPP TS 29.212 V14.0.0 (2016-09) */
         proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_feature_list_sd_flags,
-            diameter_3gpp_feature_list_ett, diameter_3gpp_sd_feature_list_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+            ett_diameter_3gpp_feature_list, diameter_3gpp_sd_feature_list_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         break;
     case DIAM_APPID_3GPP_S6T:
     {
@@ -1181,7 +1181,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         };
 
         proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_feature_list_s6t_flags,
-            diameter_3gpp_feature_list_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+            ett_diameter_3gpp_feature_list, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     }
         break;
 
@@ -1209,7 +1209,7 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     int offset = 0, comma_offset;
     int end_offset = tvb_reported_length(tvb) - 1;
 
-    sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, diameter_3gpp_path_ett, NULL, "Paths");
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_diameter_3gpp_path, NULL, "Paths");
 
     while (offset < end_offset) {
         comma_offset = tvb_find_guint8(tvb, offset, -1, ',');
@@ -1276,7 +1276,7 @@ dissect_diameter_3gpp_sar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
     proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_sar_flags,
-        diameter_3gpp_sar_flags_ett, diameter_3gpp_sar_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+        ett_diameter_3gpp_sar_flags, diameter_3gpp_sar_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 
     return 4;
 }
@@ -1331,7 +1331,7 @@ dissect_diameter_3gpp_req_nodes(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tre
 
     /* Change to BMT_NO_FALSE if the list gets to long(?)*/
     proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_req_nodes,
-        diameter_3gpp_req_nodes_ett, diameter_3gpp_req_nodes_fields, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+        ett_diameter_3gpp_req_nodes, diameter_3gpp_req_nodes_fields, ENC_BIG_ENDIAN, BMT_NO_FALSE);
 
     return 4;
 }
@@ -1346,7 +1346,7 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     int offset = 0;
 
     item = proto_tree_add_item(tree, hf_diameter_3gpp_tmgi, tvb, offset, 6, ENC_NA);
-    sub_tree = proto_item_add_subtree(item,diameter_3gpp_tmgi_ett);
+    sub_tree = proto_item_add_subtree(item,ett_diameter_3gpp_tmgi);
 
     /* MBMS Service ID consisting of three octets. MBMS Service ID consists of a 6-digit
      * fixed-length hexadecimal number between 000000 and FFFFFF.
@@ -1504,7 +1504,7 @@ dissect_diameter_3gpp_credit_management_status(tvbuff_t *tvb, packet_info *pinfo
     };
 
 
-    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, 0, 4, diameter_3gpp_cms_ett, NULL, "Credit-Management-Status bit mask");
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, 0, 4, ett_diameter_3gpp_cms, NULL, "Credit-Management-Status bit mask");
     proto_tree_add_bitmask_list(subtree, tvb, 0, 4, flags, ENC_BIG_ENDIAN);
     return 4;
 }
@@ -1601,7 +1601,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     guint32 tmp32;
 
     item = proto_tree_add_item(tree, hf_diameter_3gpp_qos_subscribed, tvb, offset, length, ENC_NA);
-    subtree = proto_item_add_subtree(item, diameter_3gpp_qos_subscribed_ett);
+    subtree = proto_item_add_subtree(item, ett_diameter_3gpp_qos_subscribed);
 
     /* QoS-Subscribed:: SIZE(3)
     * 1-3   Octets are coded according to TS 3GPP TS 24.008 Quality of Service Octets 3-5
@@ -1885,7 +1885,7 @@ dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_ulr_flags, diameter_3gpp_ulr_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_ulr_flags, ett_diameter_3gpp_ulr_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -1905,7 +1905,7 @@ dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_ula_flags, diameter_3gpp_ula_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_ula_flags, ett_diameter_3gpp_ula_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -1973,7 +1973,7 @@ dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_dsr_flags, diameter_3gpp_dsr_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_dsr_flags, ett_diameter_3gpp_dsr_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -1992,7 +1992,7 @@ dissect_diameter_3gpp_dsa_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_dsa_flags, diameter_3gpp_dsa_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_dsa_flags, ett_diameter_3gpp_dsa_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2023,7 +2023,7 @@ dissect_diameter_3gpp_acc_res_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_acc_res_dat_flags, diameter_3gpp_dsa_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_acc_res_dat_flags, ett_diameter_3gpp_dsa_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2038,7 +2038,7 @@ dissect_diameter_3gpp_ida_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         NULL
     };
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_ida_flags, diameter_3gpp_ida_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_ida_flags, ett_diameter_3gpp_ida_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2058,7 +2058,7 @@ dissect_diameter_3gpp_pua_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_pua_flags, diameter_3gpp_pua_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_pua_flags, ett_diameter_3gpp_pua_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2087,7 +2087,7 @@ dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_nor_flags, diameter_3gpp_nor_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_nor_flags, ett_diameter_3gpp_nor_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2126,7 +2126,7 @@ dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_idr_flags, diameter_3gpp_idr_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_idr_flags, ett_diameter_3gpp_idr_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2148,7 +2148,7 @@ dissect_diameter_3gpp_ppr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_ppr_flags, diameter_3gpp_ppr_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_ppr_flags, ett_diameter_3gpp_ppr_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2168,7 +2168,7 @@ dissect_diameter_3gpp_aaa_fail_flags(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_aaa_fail_flags, diameter_3gpp_aaa_fail_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_aaa_fail_flags, ett_diameter_3gpp_aaa_fail_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 
 }
@@ -2189,7 +2189,7 @@ dissect_diameter_3gpp_der_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_der_flags, diameter_3gpp_der_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_der_flags, ett_diameter_3gpp_der_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2209,7 +2209,7 @@ dissect_diameter_3gpp_dea_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_dea_flags, diameter_3gpp_dea_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_dea_flags, ett_diameter_3gpp_dea_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2229,7 +2229,7 @@ dissect_diameter_3gpp_rar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_rar_flags, diameter_3gpp_rar_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_rar_flags, ett_diameter_3gpp_rar_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2249,7 +2249,7 @@ dissect_diameter_3gpp_der_s6b_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_der_s6b_flags, diameter_3gpp_der_s6b_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_der_s6b_flags, ett_diameter_3gpp_der_s6b_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2268,7 +2268,7 @@ dissect_diameter_3gpp_emergency_services(tvbuff_t *tvb, packet_info *pinfo _U_, 
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_emergency_services_flags, diameter_3gpp_emergency_services_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_emergency_services_flags, ett_diameter_3gpp_emergency_services_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 
 }
@@ -2293,7 +2293,7 @@ dissect_diameter_3gpp_pur_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_pur_flags, diameter_3gpp_pur_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_pur_flags, ett_diameter_3gpp_pur_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2316,7 +2316,7 @@ dissect_diameter_3gpp_clr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_clr_flags, diameter_3gpp_clr_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_clr_flags, ett_diameter_3gpp_clr_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2338,7 +2338,7 @@ dissect_diameter_3gpp_uvr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_uvr_flags, diameter_3gpp_uvr_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_uvr_flags, ett_diameter_3gpp_uvr_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2360,7 +2360,7 @@ dissect_diameter_3gpp_uva_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_uva_flags, diameter_3gpp_uva_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_uva_flags, ett_diameter_3gpp_uva_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2385,7 +2385,7 @@ dissect_diameter_3gpp_subscription_data_flags(tvbuff_t *tvb, packet_info *pinfo 
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_subscription_data_flags, diameter_3gpp_subscription_data_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_subscription_data_flags, ett_diameter_3gpp_subscription_data_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2407,7 +2407,7 @@ dissect_diameter_3gpp_wlan_offloadability_eutran(tvbuff_t *tvb, packet_info *pin
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_wlan_offloadability_eutran, diameter_3gpp_wlan_offloadability_eutran_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_wlan_offloadability_eutran, ett_diameter_3gpp_wlan_offloadability_eutran, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2429,7 +2429,7 @@ dissect_diameter_3gpp_wlan_offloadability_utran(tvbuff_t *tvb, packet_info *pinf
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_wlan_offloadability_utran, diameter_3gpp_wlan_offloadability_utran_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_wlan_offloadability_utran, ett_diameter_3gpp_wlan_offloadability_utran, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2471,7 +2471,7 @@ dissect_diameter_3gpp_air_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_air_flags, diameter_3gpp_air_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_air_flags, ett_diameter_3gpp_air_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2494,7 +2494,7 @@ dissect_diameter_3gpp_preferred_data_mode(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_preferred_data_mode, diameter_3gpp_preferred_data_mode_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_preferred_data_mode, ett_diameter_3gpp_preferred_data_mode, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2517,7 +2517,7 @@ dissect_diameter_3gpp_v2x_permission(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_v2x_permission, diameter_3gpp_v2x_permission_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_v2x_permission, ett_diameter_3gpp_v2x_permission, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2541,7 +2541,7 @@ dissect_diameter_3gpp_core_network_restrictions(tvbuff_t *tvb, packet_info *pinf
         /* Hide the item created in packet-diameter.c and only show the one created here */
         proto_item_set_hidden(diam_sub_dis_inf->item);
     }
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_core_network_restrictions, diameter_3gpp_core_network_restrictions_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_core_network_restrictions, ett_diameter_3gpp_core_network_restrictions, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2569,7 +2569,7 @@ dissect_diameter_3gpp_supported_gad_shapes(tvbuff_t* tvb, packet_info* pinfo _U_
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_supported_gad_shapes, diameter_3gpp_supported_gad_shapes_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_supported_gad_shapes, ett_diameter_3gpp_supported_gad_shapes, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 
     return 4;
 }
@@ -2614,7 +2614,7 @@ dissect_diameter_3gpp_deferred_location_type(tvbuff_t *tvb, packet_info *pinfo _
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_deferred_location_type, diameter_3gpp_deferred_location_type_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_deferred_location_type, ett_diameter_3gpp_deferred_location_type, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 
     return 4;
 }
@@ -2636,7 +2636,7 @@ dissect_diameter_3gpp_plr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_plr_flags, diameter_3gpp_plr_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_plr_flags, ett_diameter_3gpp_plr_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2658,7 +2658,7 @@ dissect_diameter_3gpp_pla_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_pla_flags, diameter_3gpp_pla_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_pla_flags, ett_diameter_3gpp_pla_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2780,7 +2780,7 @@ dissect_diameter_3gpp_supported_monitoring_events(tvbuff_t* tvb, packet_info* pi
 
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_supported_monitoring_events, diameter_3gpp_supported_monitoring_events_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_supported_monitoring_events, ett_diameter_3gpp_supported_monitoring_events, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 8;
 }
 
@@ -2802,7 +2802,7 @@ dissect_diameter_3gpp_rir_flags(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tre
 
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_rir_flags, diameter_3gpp_rir_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_rir_flags, ett_diameter_3gpp_rir_flags, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2880,7 +2880,7 @@ dissect_diameter_3gpp_mbms_bearer_event(tvbuff_t *tvb, packet_info *pinfo _U_, p
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_mbms_bearer_event, diameter_3gpp_mbms_bearer_event_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_mbms_bearer_event, ett_diameter_3gpp_mbms_bearer_event, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2910,7 +2910,7 @@ dissect_diameter_3gpp_mbms_bearer_result(tvbuff_t *tvb, packet_info *pinfo _U_, 
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_mbms_bearer_result, diameter_3gpp_mbms_bearer_result_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_mbms_bearer_result, ett_diameter_3gpp_mbms_bearer_result, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2933,7 +2933,7 @@ dissect_diameter_3gpp_tmgi_allocation_result(tvbuff_t *tvb, packet_info *pinfo _
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_tmgi_allocation_result, diameter_3gpp_tmgi_allocation_result_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_tmgi_allocation_result, ett_diameter_3gpp_tmgi_allocation_result, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2954,7 +2954,7 @@ dissect_diameter_3gpp_tmgi_deallocation_result(tvbuff_t *tvb, packet_info *pinfo
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_tmgi_deallocation_result, diameter_3gpp_tmgi_deallocation_result_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_tmgi_deallocation_result, ett_diameter_3gpp_tmgi_deallocation_result, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -5908,51 +5908,51 @@ proto_register_diameter_3gpp(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &diameter_3gpp_path_ett,
-        &diameter_3gpp_uar_flags_ett,
-        &diameter_3gpp_feature_list_ett,
-        &diameter_3gpp_tmgi_ett,
-        &diameter_3gpp_cms_ett,
-        &diameter_3gpp_qos_subscribed_ett,
-        &diameter_3gpp_ulr_flags_ett,
-        &diameter_3gpp_ula_flags_ett,
-        &diameter_3gpp_dsr_flags_ett,
-        &diameter_3gpp_dsa_flags_ett,
-        &diameter_3gpp_ida_flags_ett,
-        &diameter_3gpp_pua_flags_ett,
-        &diameter_3gpp_nor_flags_ett,
-        &diameter_3gpp_idr_flags_ett,
-        &diameter_3gpp_ppr_flags_ett,
-        &diameter_3gpp_aaa_fail_flags_ett,
-        &diameter_3gpp_der_flags_ett,
-        &diameter_3gpp_dea_flags_ett,
-        &diameter_3gpp_rar_flags_ett,
-        &diameter_3gpp_der_s6b_flags_ett,
-        &diameter_3gpp_mbms_bearer_event_ett,
-        &diameter_3gpp_mbms_bearer_result_ett,
-        &diameter_3gpp_tmgi_allocation_result_ett,
-        &diameter_3gpp_tmgi_deallocation_result_ett,
-        &diameter_3gpp_sar_flags_ett,
-        &diameter_3gpp_req_nodes_ett,
-        &diameter_3gpp_emergency_services_flags_ett,
-        &diameter_3gpp_pur_flags_ett,
-        &diameter_3gpp_clr_flags_ett,
-        &diameter_3gpp_uvr_flags_ett,
-        &diameter_3gpp_uva_flags_ett,
-        &diameter_3gpp_subscription_data_flags_ett,
-        &diameter_3gpp_wlan_offloadability_eutran_ett,
-        &diameter_3gpp_wlan_offloadability_utran_ett,
-        &diameter_3gpp_air_flags_ett,
-        &diameter_3gpp_preferred_data_mode_ett,
-        &diameter_3gpp_v2x_permission_ett,
-        &diameter_3gpp_core_network_restrictions_ett,
-        &diameter_3gpp_supported_gad_shapes_ett,
-        &diameter_3gpp_plr_flags_ett,
-        &diameter_3gpp_pla_flags_ett,
-        &diameter_3gpp_deferred_location_type_ett,
-        &diameter_3gpp_rir_flags_ett,
-        &diameter_3gpp_supported_monitoring_events_ett,
-        &diameter_3gpp_af_requested_data_flags_ett
+        &ett_diameter_3gpp_path,
+        &ett_diameter_3gpp_uar_flags,
+        &ett_diameter_3gpp_feature_list,
+        &ett_diameter_3gpp_tmgi,
+        &ett_diameter_3gpp_cms,
+        &ett_diameter_3gpp_qos_subscribed,
+        &ett_diameter_3gpp_ulr_flags,
+        &ett_diameter_3gpp_ula_flags,
+        &ett_diameter_3gpp_dsr_flags,
+        &ett_diameter_3gpp_dsa_flags,
+        &ett_diameter_3gpp_ida_flags,
+        &ett_diameter_3gpp_pua_flags,
+        &ett_diameter_3gpp_nor_flags,
+        &ett_diameter_3gpp_idr_flags,
+        &ett_diameter_3gpp_ppr_flags,
+        &ett_diameter_3gpp_aaa_fail_flags,
+        &ett_diameter_3gpp_der_flags,
+        &ett_diameter_3gpp_dea_flags,
+        &ett_diameter_3gpp_rar_flags,
+        &ett_diameter_3gpp_der_s6b_flags,
+        &ett_diameter_3gpp_mbms_bearer_event,
+        &ett_diameter_3gpp_mbms_bearer_result,
+        &ett_diameter_3gpp_tmgi_allocation_result,
+        &ett_diameter_3gpp_tmgi_deallocation_result,
+        &ett_diameter_3gpp_sar_flags,
+        &ett_diameter_3gpp_req_nodes,
+        &ett_diameter_3gpp_emergency_services_flags,
+        &ett_diameter_3gpp_pur_flags,
+        &ett_diameter_3gpp_clr_flags,
+        &ett_diameter_3gpp_uvr_flags,
+        &ett_diameter_3gpp_uva_flags,
+        &ett_diameter_3gpp_subscription_data_flags,
+        &ett_diameter_3gpp_wlan_offloadability_eutran,
+        &ett_diameter_3gpp_wlan_offloadability_utran,
+        &ett_diameter_3gpp_air_flags,
+        &ett_diameter_3gpp_preferred_data_mode,
+        &ett_diameter_3gpp_v2x_permission,
+        &ett_diameter_3gpp_core_network_restrictions,
+        &ett_diameter_3gpp_supported_gad_shapes,
+        &ett_diameter_3gpp_plr_flags,
+        &ett_diameter_3gpp_pla_flags,
+        &ett_diameter_3gpp_deferred_location_type,
+        &ett_diameter_3gpp_rir_flags,
+        &ett_diameter_3gpp_supported_monitoring_events,
+        &ett_diameter_3gpp_af_requested_data_flags
     };
 
     expert_module_t *expert_diameter_3gpp;

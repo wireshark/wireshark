@@ -38,11 +38,11 @@ static int hf_tdmop_Flags_no_data        = -1;
 static int hf_tdmop_Flags_lost_request   = -1;
 static int hf_tdmop_Flags_remote_no_data = -1;
 static int hf_tdmop_Flags_compressed     = -1;
-static int hd_tdmop_SrcDst        = -1;
-static int hd_tdmop_SeqNum        = -1;
-static int hd_tdmop_LastRecv      = -1;
-static int hd_tdmop_Delay         = -1;
-static int hd_tdmop_Reserved      = -1;
+static int hf_tdmop_SrcDst        = -1;
+static int hf_tdmop_SeqNum        = -1;
+static int hf_tdmop_LastRecv      = -1;
+static int hf_tdmop_Delay         = -1;
+static int hf_tdmop_Reserved      = -1;
 static int hf_tdmop_payload       = -1;
 static int hf_tdmop_Compression_mask    = -1;
 
@@ -116,15 +116,15 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_tree_add_item(tdmop_tree, hf_tdmop_Flags_compressed, tvb, offset, 1, ENC_NA);
     offset += 1;
     /*sequence and delay info*/
-    proto_tree_add_item(tdmop_tree, hd_tdmop_SrcDst, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tdmop_tree, hf_tdmop_SrcDst, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
-    proto_tree_add_item(tdmop_tree, hd_tdmop_SeqNum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tdmop_tree, hf_tdmop_SeqNum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tdmop_tree, hd_tdmop_LastRecv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tdmop_tree, hf_tdmop_LastRecv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tdmop_tree, hd_tdmop_Delay, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tdmop_tree, hf_tdmop_Delay, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tdmop_tree, hd_tdmop_Reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tdmop_tree, hf_tdmop_Reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     if ((flags & TDMOP_FLAG_NO_DATA)==0)
     {
@@ -249,35 +249,35 @@ void proto_register_tdmop(void)
                 NULL, HFILL}
         },
         {
-            &hd_tdmop_SrcDst,
+            &hf_tdmop_SrcDst,
             {    "TDMoP Short SrcDst", "tdmop.srcdst",
                 FT_UINT8, BASE_HEX,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {
-            &hd_tdmop_SeqNum,
+            &hf_tdmop_SeqNum,
             {    "TDMoP Sequence number", "tdmop.seqnum",
                 FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {
-            &hd_tdmop_LastRecv,
+            &hf_tdmop_LastRecv,
             {    "TDMoP Last Received number", "tdmop.recvnumber",
                 FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {
-            &hd_tdmop_Delay,
+            &hf_tdmop_Delay,
             {    "TDMoP Delay", "tdmop.delay",
                 FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {
-            &hd_tdmop_Reserved,
+            &hf_tdmop_Reserved,
             {    "TDMoP Reserved", "tdmop.reserved",
                 FT_UINT16, BASE_DEC,
                 NULL, 0x0,

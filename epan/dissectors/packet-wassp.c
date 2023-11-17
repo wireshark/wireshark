@@ -4102,7 +4102,7 @@ static int hf_lbs_ap_bssid = -1;                   // 6 bytes
 static int hf_lbs_rsvd2 = -1;                      // 1
 static int hf_lbs_rxchan = -1;                     // 1
 static int hf_lsb_tstamp = -1;                     // 4 bytes
-static int hf_hf_lsb_rsvd3 = -1;                   // 2 bytes
+static int hf_lsb_rsvd3 = -1;                      // 2 bytes
 static int hf_lsb_rssi = -1;                       // 1
 static int hf_lsb_rsvd = -1;                       // 1
 static int hf_lsb_noise_floor = -1;                // 1
@@ -4701,7 +4701,7 @@ static int decode_lbs_tag_header(proto_tree *tree, tvbuff_t *tvb, int offset)
 	suboffset += 1;
 	proto_tree_add_item(lbs_header_tree, hf_lsb_tstamp, tvb, suboffset, 4, ENC_BIG_ENDIAN);
 	suboffset += 4;
-	proto_tree_add_item(lbs_header_tree, hf_hf_lsb_rsvd3, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(lbs_header_tree, hf_lsb_rsvd3, tvb, suboffset, 2, ENC_BIG_ENDIAN);
 	suboffset += 2;
 	proto_tree_add_item(lbs_header_tree, hf_lsb_rssi, tvb, suboffset, 1, ENC_BIG_ENDIAN);
 	suboffset += 1;
@@ -6117,7 +6117,7 @@ void proto_register_wassp(void)
 			}
 		},
 		{
-			&hf_hf_lsb_rsvd3,
+			&hf_lsb_rsvd3,
 			{
 				"LBS Rsvd", "wassp.lbs.rsvd3", FT_UINT16, BASE_HEX, NULL,
 				0x0, "LBS TAG  rsvd3", HFILL

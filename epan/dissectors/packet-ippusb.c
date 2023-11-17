@@ -62,17 +62,17 @@ static gint ett_ippusb_fragments = -1;
 /* For reassembly */
 static gint32 ippusb_last_pdu = -1;
 
-static gint hf_ippusb_fragments = -1;
-static gint hf_ippusb_fragment = -1;
-static gint hf_ippusb_fragment_overlap = -1;
-static gint hf_ippusb_fragment_overlap_conflict = -1;
-static gint hf_ippusb_fragment_multiple_tails = -1;
-static gint hf_ippusb_fragment_too_long_fragment = -1;
-static gint hf_ippusb_fragment_error = -1;
-static gint hf_ippusb_fragment_count = -1;
-static gint hf_ippusb_reassembled_in = -1;
-static gint hf_ippusb_reassembled_length = -1;
-static gint hf_ippusb_reassembled_data = -1;
+static int hf_ippusb_fragments = -1;
+static int hf_ippusb_fragment = -1;
+static int hf_ippusb_fragment_overlap = -1;
+static int hf_ippusb_fragment_overlap_conflict = -1;
+static int hf_ippusb_fragment_multiple_tails = -1;
+static int hf_ippusb_fragment_too_long_fragment = -1;
+static int hf_ippusb_fragment_error = -1;
+static int hf_ippusb_fragment_count = -1;
+static int hf_ippusb_reassembled_in = -1;
+static int hf_ippusb_reassembled_length = -1;
+static int hf_ippusb_reassembled_data = -1;
 
 /* Reassemble by default */
 static gboolean global_ippusb_reassemble = TRUE;

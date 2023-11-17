@@ -57,48 +57,48 @@ static int hf_xmcp_attributes = -1;
 static int hf_xmcp_attr = -1;
 static int hf_xmcp_msg_is_keepalive = -1;
 
-static int xmcp_attr_type = -1;
-static int xmcp_attr_length = -1;
-static int xmcp_attr_value = -1; /* generic value for unrecognized attrs */
-static int xmcp_attr_padding = -1; /* generic value for TLV padding bytes */
-static int xmcp_attr_reserved = -1;
-static int xmcp_attr_username = -1;
-static int xmcp_attr_message_integrity = -1;
-static int xmcp_attr_error_reserved = -1;
-static int xmcp_attr_error_class = -1;
-static int xmcp_attr_error_number = -1;
-static int xmcp_attr_error_code = -1;
-static int xmcp_attr_error_reason = -1;
-static int xmcp_attr_realm = -1;
-static int xmcp_attr_nonce = -1;
-static int xmcp_attr_client_name = -1;
-static int xmcp_attr_client_handle = -1;
-static int xmcp_attr_version_major = -1;
-static int xmcp_attr_version_minor = -1;
-static int xmcp_attr_page_size = -1;
-static int xmcp_attr_client_label = -1;
-static int xmcp_attr_keepalive = -1;
-static int xmcp_attr_serv_service = -1;
-static int xmcp_attr_serv_subservice = -1;
-static int xmcp_attr_serv_instance = -1;
-static int xmcp_attr_servtrans_family = -1;
-static int xmcp_attr_servtrans_port = -1;
-static int xmcp_attr_servtrans_ipv4 = -1;
-static int xmcp_attr_servtrans_ipv6 = -1;
-static int xmcp_attr_service_protocol = -1;
-static int xmcp_attr_flag = -1;
-static int xmcp_attr_flag_type = -1;
-static int xmcp_attr_flag_value = -1;
-static int xmcp_attr_flag_removal_reason_network_withdraw = -1;
-static int xmcp_attr_flag_removal_reason_reserved = -1;
-static int xmcp_attr_flag_trust = -1;
-static int xmcp_attr_flag_visibility_unauthenticated = -1;
-static int xmcp_attr_flag_visibility_reserved = -1;
-static int xmcp_attr_service_version = -1;
-static int xmcp_attr_service_data = -1;
-static int xmcp_attr_subscription_id = -1;
-static int xmcp_attr_service_removed_reason = -1;
-static int xmcp_attr_domain = -1;
+static int hf_xmcp_attr_type = -1;
+static int hf_xmcp_attr_length = -1;
+static int hf_xmcp_attr_value = -1; /* generic value for unrecognized attrs */
+static int hf_xmcp_attr_padding = -1; /* generic value for TLV padding bytes */
+static int hf_xmcp_attr_reserved = -1;
+static int hf_xmcp_attr_username = -1;
+static int hf_xmcp_attr_message_integrity = -1;
+static int hf_xmcp_attr_error_reserved = -1;
+static int hf_xmcp_attr_error_class = -1;
+static int hf_xmcp_attr_error_number = -1;
+static int hf_xmcp_attr_error_code = -1;
+static int hf_xmcp_attr_error_reason = -1;
+static int hf_xmcp_attr_realm = -1;
+static int hf_xmcp_attr_nonce = -1;
+static int hf_xmcp_attr_client_name = -1;
+static int hf_xmcp_attr_client_handle = -1;
+static int hf_xmcp_attr_version_major = -1;
+static int hf_xmcp_attr_version_minor = -1;
+static int hf_xmcp_attr_page_size = -1;
+static int hf_xmcp_attr_client_label = -1;
+static int hf_xmcp_attr_keepalive = -1;
+static int hf_xmcp_attr_serv_service = -1;
+static int hf_xmcp_attr_serv_subservice = -1;
+static int hf_xmcp_attr_serv_instance = -1;
+static int hf_xmcp_attr_servtrans_family = -1;
+static int hf_xmcp_attr_servtrans_port = -1;
+static int hf_xmcp_attr_servtrans_ipv4 = -1;
+static int hf_xmcp_attr_servtrans_ipv6 = -1;
+static int hf_xmcp_attr_service_protocol = -1;
+static int hf_xmcp_attr_flag = -1;
+static int hf_xmcp_attr_flag_type = -1;
+static int hf_xmcp_attr_flag_value = -1;
+static int hf_xmcp_attr_flag_removal_reason_network_withdraw = -1;
+static int hf_xmcp_attr_flag_removal_reason_reserved = -1;
+static int hf_xmcp_attr_flag_trust = -1;
+static int hf_xmcp_attr_flag_visibility_unauthenticated = -1;
+static int hf_xmcp_attr_flag_visibility_reserved = -1;
+static int hf_xmcp_attr_service_version = -1;
+static int hf_xmcp_attr_service_data = -1;
+static int hf_xmcp_attr_subscription_id = -1;
+static int hf_xmcp_attr_service_removed_reason = -1;
+static int hf_xmcp_attr_domain = -1;
 
 static gint ett_xmcp = -1;
 static gint ett_xmcp_type = -1;
@@ -417,7 +417,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
 
   switch (attr_type) {
   case XMCP_USERNAME:
-    proto_tree_add_item(attr_tree, xmcp_attr_username, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_username, tvb, offset,
                         attr_length, ENC_ASCII);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
@@ -431,7 +431,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     }
     break;
   case XMCP_MESSAGE_INTEGRITY:
-    proto_tree_add_item(attr_tree, xmcp_attr_message_integrity, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_message_integrity, tvb, offset,
                         attr_length, ENC_NA);
     /* Message-integrity should be the last attribute in the message */
     if ((guint)(offset + get_xmcp_attr_padded_len(attr_length)) < tvb_reported_length(tvb)) {
@@ -441,14 +441,14 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_ERROR_CODE:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_error_reserved, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_error_reserved, tvb, offset,
                         3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(attr_tree, xmcp_attr_error_class, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_error_class, tvb, offset,
                         3, ENC_BIG_ENDIAN);
     {
       guint8 error_class, error_number;
       guint16 error_code;
-      it = proto_tree_add_item(attr_tree, xmcp_attr_error_number, tvb,
+      it = proto_tree_add_item(attr_tree, hf_xmcp_attr_error_number, tvb,
                                (offset+3), 1, ENC_BIG_ENDIAN);
 
       error_class = tvb_get_guint8(tvb, offset+2) & 0x07;
@@ -459,7 +459,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       } else {
         /* Error code = error class + (error num % 100) */
         error_code = (error_class * 100) + error_number;
-        it = proto_tree_add_uint(attr_tree, xmcp_attr_error_code, tvb,
+        it = proto_tree_add_uint(attr_tree, hf_xmcp_attr_error_code, tvb,
                                         (offset+2), 2, error_code);
         proto_item_set_generated(it);
         proto_item_append_text(attr_tree, ": %d", error_code);
@@ -487,14 +487,14 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     }
     if (attr_length < 5)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_error_reason, tvb, (offset+4),
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_error_reason, tvb, (offset+4),
                         (attr_length - 4), ENC_ASCII);
     proto_item_append_text(attr_tree, " (%s)",
                            tvb_get_string_enc(pinfo->pool, tvb, (offset+4),
                                                     (attr_length-4), ENC_ASCII));
     break;
   case XMCP_REALM:
-    it = proto_tree_add_item(attr_tree, xmcp_attr_realm, tvb, offset,
+    it = proto_tree_add_item(attr_tree, hf_xmcp_attr_realm, tvb, offset,
                         attr_length, ENC_ASCII);
     {
       guint8 *realm;
@@ -507,13 +507,13 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     }
     break;
   case XMCP_NONCE:
-    proto_tree_add_item(attr_tree, xmcp_attr_nonce, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_nonce, tvb, offset,
                         attr_length, ENC_ASCII);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
     break;
   case XMCP_CLIENT_NAME:
-    proto_tree_add_item(attr_tree, xmcp_attr_client_name, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_client_name, tvb, offset,
                         attr_length, ENC_ASCII);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
@@ -523,7 +523,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_CLIENT_HANDLE:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_client_handle, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_client_handle, tvb, offset,
                         4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     col_append_fstr(pinfo->cinfo, COL_INFO, ", handle %u",
@@ -540,11 +540,11 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_PROTOCOL_VERSION:
     if (attr_length < 2)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_version_major, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_version_major, tvb, offset,
                         2, ENC_BIG_ENDIAN);
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_version_minor, tvb, (offset+2),
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_version_minor, tvb, (offset+2),
                         2, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u.%u", tvb_get_ntohs(tvb, offset),
                            tvb_get_ntohs(tvb, (offset+2)));
@@ -552,11 +552,11 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_PAGE_SIZE:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_page_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_page_size, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     break;
   case XMCP_CLIENT_LABEL:
-    proto_tree_add_item(attr_tree, xmcp_attr_client_label, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_client_label, tvb, offset,
                         attr_length, ENC_ASCII);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
@@ -566,21 +566,21 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_KEEPALIVE:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_keepalive, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_keepalive, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     break;
   case XMCP_SERVICE_IDENTITY:
     if (attr_length < 2)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_serv_service, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_serv_service, tvb, offset,
                         2, ENC_BIG_ENDIAN);
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_serv_subservice, tvb, (offset+2),
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_serv_subservice, tvb, (offset+2),
                         2, ENC_BIG_ENDIAN);
     if (attr_length < 20)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_serv_instance, tvb, (offset+4),
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_serv_instance, tvb, (offset+4),
                         16, ENC_BIG_ENDIAN);
     {
       e_guid_t guid;
@@ -602,16 +602,16 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
      */
     if (attr_length < 1)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_reserved, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_reserved, tvb, offset, 1, ENC_NA);
     if (attr_length < 2)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_servtrans_family, tvb,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_servtrans_family, tvb,
                         (offset+1), 1, ENC_BIG_ENDIAN);
     if (attr_length < 4)
       break;
     xmcp_service_port = tvb_get_ntohs(tvb, (offset+2));
     xmcp_it_service_port = proto_tree_add_item(attr_tree,
-                                               xmcp_attr_servtrans_port,
+                                               hf_xmcp_attr_servtrans_port,
                                                tvb, (offset+2), 2, ENC_BIG_ENDIAN);
     /* If we now know both port and protocol number, fill in the port name */
     if (xmcp_service_protocol != -1) {
@@ -622,7 +622,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       if (attr_length != 8) {
         expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv4 address");
       } else {
-        proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv4, tvb,
+        proto_tree_add_item(attr_tree, hf_xmcp_attr_servtrans_ipv4, tvb,
                             (offset+4), 4, ENC_BIG_ENDIAN);
         proto_item_append_text(attr_tree, ": %s:%u", tvb_ip_to_str(pinfo->pool, tvb, offset+4),
                                tvb_get_ntohs(tvb, (offset+2)));
@@ -632,7 +632,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       if (attr_length != 20) {
         expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv6 address");
       } else {
-        proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv6, tvb,
+        proto_tree_add_item(attr_tree, hf_xmcp_attr_servtrans_ipv6, tvb,
                             (offset+4), 16, ENC_NA);
         proto_item_append_text(attr_tree, ": [%s]:%u", tvb_ip6_to_str(pinfo->pool, tvb, (offset+4)),
                                tvb_get_ntohs(tvb, (offset+2)));
@@ -647,8 +647,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     /* Three bytes of padding followed by a 1-byte protocol number */
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_reserved, tvb, offset, 3, ENC_NA);
-    proto_tree_add_item(attr_tree, xmcp_attr_service_protocol, tvb,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_reserved, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_service_protocol, tvb,
                         (offset+3), 1, ENC_BIG_ENDIAN);
     xmcp_service_protocol = tvb_get_guint8(tvb, (offset+3));
     proto_item_append_text(attr_tree, ": %u (%s)", xmcp_service_protocol,
@@ -671,22 +671,22 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       while ((current_offset-offset)+3 < attr_length) {
         flag_type = tvb_get_ntohs(tvb, (current_offset));
         flag_value = tvb_get_ntohs(tvb, (current_offset+2));
-        ti = proto_tree_add_none_format(attr_tree, xmcp_attr_flag, tvb,
+        ti = proto_tree_add_none_format(attr_tree, hf_xmcp_attr_flag, tvb,
                                         current_offset, 4,
                                         "Flag: %s:",
                                         val_to_str_const(flag_type, flag_types,
                                                          "Unknown"));
         flag_tree = proto_item_add_subtree(ti, ett_xmcp_attr_flag);
-        proto_tree_add_item(flag_tree, xmcp_attr_flag_type, tvb,
+        proto_tree_add_item(flag_tree, hf_xmcp_attr_flag_type, tvb,
                             current_offset, 2, ENC_BIG_ENDIAN);
 
         current_offset += 2;
         switch (flag_type) {
         case XMCP_FLAG_REMOVAL_REASON:
-          proto_tree_add_item(flag_tree, xmcp_attr_flag_removal_reason_reserved,
+          proto_tree_add_item(flag_tree, hf_xmcp_attr_flag_removal_reason_reserved,
                               tvb, current_offset, 2, ENC_BIG_ENDIAN);
           proto_tree_add_item(flag_tree,
-                              xmcp_attr_flag_removal_reason_network_withdraw,
+                              hf_xmcp_attr_flag_removal_reason_network_withdraw,
                               tvb, current_offset, 2, ENC_BIG_ENDIAN);
           if (flag_value & XMCP_REMOVAL_REASON_NETWORK_WITHDRAW) {
             proto_item_append_text(flag_tree, " (network withdraw)");
@@ -696,17 +696,17 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
           }
           break;
         case XMCP_FLAG_TRUST:
-          proto_tree_add_item(flag_tree, xmcp_attr_flag_trust, tvb,
+          proto_tree_add_item(flag_tree, hf_xmcp_attr_flag_trust, tvb,
                               current_offset, 2, ENC_BIG_ENDIAN);
           proto_item_append_text(flag_tree, " %s",
                                  val_to_str_const(flag_value, flag_trust_values,
                                                   "Unknown"));
           break;
         case XMCP_FLAG_SERVICE_VISIBILITY:
-          proto_tree_add_item(flag_tree, xmcp_attr_flag_visibility_reserved,
+          proto_tree_add_item(flag_tree, hf_xmcp_attr_flag_visibility_reserved,
                               tvb, current_offset, 2, ENC_BIG_ENDIAN);
           proto_tree_add_item(flag_tree,
-                              xmcp_attr_flag_visibility_unauthenticated,
+                              hf_xmcp_attr_flag_visibility_unauthenticated,
                               tvb, current_offset, 2, ENC_BIG_ENDIAN);
           if (flag_value & XMCP_SERVICE_VISIBILITY_UNAUTHENTICATED) {
             proto_item_append_text(flag_tree,
@@ -717,7 +717,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
           }
           break;
         default:
-          proto_tree_add_item(flag_tree, xmcp_attr_flag_value, tvb,
+          proto_tree_add_item(flag_tree, hf_xmcp_attr_flag_value, tvb,
                               current_offset, 2, ENC_BIG_ENDIAN);
           proto_item_append_text(flag_tree, " 0x%04x", flag_value);
           break;
@@ -729,12 +729,12 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_SERVICE_VERSION:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_service_version, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_service_version, tvb, offset,
                         4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     break;
   case XMCP_SERVICE_DATA:
-    proto_tree_add_item(attr_tree, xmcp_attr_service_data, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_service_data, tvb, offset,
                         attr_length, ENC_NA);
     if (attr_length > 0) {
       tvbuff_t *next_tvb;
@@ -764,7 +764,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_SUBSCRIPTION_ID:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_subscription_id, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_subscription_id, tvb, offset,
                         4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     col_append_fstr(pinfo->cinfo, COL_INFO, ", subscription %u",
@@ -773,7 +773,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_SERVICE_REMOVED_REASON:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_service_removed_reason, tvb,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_service_removed_reason, tvb,
                         offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %s",
                            val_to_str_const(tvb_get_ntohl(tvb, offset),
@@ -783,17 +783,17 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_DOMAIN:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_domain, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_domain, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     break;
   default:
-    proto_tree_add_item(attr_tree, xmcp_attr_value, tvb, offset,
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_value, tvb, offset,
                         attr_length, ENC_NA);
     expert_add_info(pinfo, attr_tree, &ei_xmcp_attr_type_unknown);
     break;
   }
   if (attr_length % 4 != 0) {
-    proto_tree_add_item(attr_tree, xmcp_attr_padding, tvb, (offset+attr_length),
+    proto_tree_add_item(attr_tree, hf_xmcp_attr_padding, tvb, (offset+attr_length),
                         (4 - (attr_length % 4)), ENC_NA);
   }
   if (attr_length < get_xmcp_attr_min_len(attr_type)) {
@@ -984,10 +984,10 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       /* Add subtree for this TLV */
       attr_tree = proto_item_add_subtree(ti, ett_xmcp_attr);
 
-      proto_tree_add_item(attr_tree, xmcp_attr_type, tvb,
+      proto_tree_add_item(attr_tree, hf_xmcp_attr_type, tvb,
                           offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      ti = proto_tree_add_item(attr_tree, xmcp_attr_length, tvb,
+      ti = proto_tree_add_item(attr_tree, hf_xmcp_attr_length, tvb,
                                offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
@@ -1120,177 +1120,177 @@ proto_register_xmcp(void)
       { "Attribute",            "xmcp.attr",
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_type,
+    { &hf_xmcp_attr_type,
       { "Attribute Type",       "xmcp.attr.type",
         FT_UINT16, BASE_HEX, VALS(attributes), 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_length,
+    { &hf_xmcp_attr_length,
       { "Attribute Length",     "xmcp.attr.length",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_value,
+    { &hf_xmcp_attr_value,
       { "Attribute Value",      "xmcp.attr.value",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
-    { &xmcp_attr_padding,
+    { &hf_xmcp_attr_padding,
       { "Padding",              "xmcp.attr.padding",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_reserved,
+    { &hf_xmcp_attr_reserved,
       { "Reserved",             "xmcp.attr.reserved",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_username,
+    { &hf_xmcp_attr_username,
       { "Username",             "xmcp.attr.username",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_message_integrity,
+    { &hf_xmcp_attr_message_integrity,
       { "Message-Integrity",    "xmcp.attr.hmac",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_error_reserved,
+    { &hf_xmcp_attr_error_reserved,
       { "Reserved",             "xmcp.attr.error.reserved",
         FT_UINT24, BASE_HEX, NULL, 0xFFFFF8, NULL, HFILL }
     },
-    { &xmcp_attr_error_class,
+    { &hf_xmcp_attr_error_class,
       { "Error Class",          "xmcp.attr.error.class",
         FT_UINT24, BASE_DEC, NULL, 0x000007, NULL, HFILL}
     },
-    { &xmcp_attr_error_number,
+    { &hf_xmcp_attr_error_number,
       { "Error Number",         "xmcp.attr.error.number",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    { &xmcp_attr_error_code,
+    { &hf_xmcp_attr_error_code,
       { "Error Code",           "xmcp.attr.error",
         FT_UINT16, BASE_DEC, VALS(error_codes), 0x0, NULL, HFILL}
     },
-    { &xmcp_attr_error_reason,
+    { &hf_xmcp_attr_error_reason,
       { "Error Reason Phrase",  "xmcp.attr.error.reason",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
-    { &xmcp_attr_realm,
+    { &hf_xmcp_attr_realm,
       { "Realm",                "xmcp.attr.realm",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_nonce,
+    { &hf_xmcp_attr_nonce,
       { "Nonce",                "xmcp.attr.nonce",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_client_name,
+    { &hf_xmcp_attr_client_name,
       { "Client-Name",          "xmcp.attr.client-name",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_client_handle,
+    { &hf_xmcp_attr_client_handle,
       { "Client-Handle",        "xmcp.attr.client-handle",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_version_major,
+    { &hf_xmcp_attr_version_major,
       { "Protocol Major Version", "xmcp.attr.version.major",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_version_minor,
+    { &hf_xmcp_attr_version_minor,
       { "Protocol Minor Version", "xmcp.attr.version.minor",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_page_size,
+    { &hf_xmcp_attr_page_size,
       { "Page-Size",            "xmcp.attr.page-size",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_client_label,
+    { &hf_xmcp_attr_client_label,
       { "Client-Label",         "xmcp.attr.client-label",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_keepalive,
+    { &hf_xmcp_attr_keepalive,
       { "Keepalive",            "xmcp.attr.keepalive",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_serv_service,
+    { &hf_xmcp_attr_serv_service,
       { "Service ID",           "xmcp.attr.service.service",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_serv_subservice,
+    { &hf_xmcp_attr_serv_subservice,
       { "Subservice ID",        "xmcp.attr.service.subservice",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_serv_instance,
+    { &hf_xmcp_attr_serv_instance,
       { "Instance ID",          "xmcp.attr.service.instance",
         FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_servtrans_family,
+    { &hf_xmcp_attr_servtrans_family,
       { "Family",               "xmcp.attr.service.transport.family",
         FT_UINT8, BASE_HEX, VALS(address_families), 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_servtrans_port,
+    { &hf_xmcp_attr_servtrans_port,
       { "Port",                 "xmcp.attr.service.transport.port",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_servtrans_ipv4,
+    { &hf_xmcp_attr_servtrans_ipv4,
       { "IPv4 Address",         "xmcp.attr.service.transport.ipv4",
         FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_servtrans_ipv6,
+    { &hf_xmcp_attr_servtrans_ipv6,
       { "IPv6 Address",         "xmcp.attr.service.transport.ipv6",
         FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_service_protocol,
+    { &hf_xmcp_attr_service_protocol,
       { "Protocol",             "xmcp.attr.service.transport.protocol",
         FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext,
         0x0, NULL, HFILL }
     },
-    { &xmcp_attr_flag,
+    { &hf_xmcp_attr_flag,
       { "Flag",                 "xmcp.attr.flag",
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_flag_type,
+    { &hf_xmcp_attr_flag_type,
       { "Flag Type",            "xmcp.attr.flag.type",
         FT_UINT16, BASE_HEX, VALS(flag_types), 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_flag_value,
+    { &hf_xmcp_attr_flag_value,
       { "Flag Value",           "xmcp.attr.flag.value",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_flag_removal_reason_network_withdraw,
+    { &hf_xmcp_attr_flag_removal_reason_network_withdraw,
       { "Network Withdraw",
         "xmcp.attr.flag.removal-reason.network-withdraw",
         FT_BOOLEAN, 16, NULL,
         XMCP_REMOVAL_REASON_NETWORK_WITHDRAW, NULL, HFILL }
     },
-    { &xmcp_attr_flag_removal_reason_reserved,
+    { &hf_xmcp_attr_flag_removal_reason_reserved,
       { "Reserved",             "xmcp.attr.flag.removal-reason.reserved",
         FT_UINT16, BASE_HEX, NULL, XMCP_REMOVAL_REASON_RESERVED, NULL, HFILL }
     },
-    { &xmcp_attr_flag_trust,
+    { &hf_xmcp_attr_flag_trust,
       { "Trust",                "xmcp.attr.flag.trust",
         FT_UINT16, BASE_HEX, VALS(flag_trust_values), 0x0, NULL,    HFILL }
     },
-    { &xmcp_attr_flag_visibility_unauthenticated,
+    { &hf_xmcp_attr_flag_visibility_unauthenticated,
       { "Visible to Unauthenticated Clients",
         "xmcp.attr.flag.service-visibility.unauthenticated",
         FT_BOOLEAN, 16, TFS(&tfs_yes_no),
         XMCP_SERVICE_VISIBILITY_UNAUTHENTICATED, NULL, HFILL }
     },
-    { &xmcp_attr_flag_visibility_reserved,
+    { &hf_xmcp_attr_flag_visibility_reserved,
       { "Reserved",             "xmcp.attr.flag.service-visibility.reserved",
         FT_UINT16, BASE_HEX, NULL,
         XMCP_SERVICE_VISIBILITY_RESERVED, NULL, HFILL }
     },
-    { &xmcp_attr_service_version,
+    { &hf_xmcp_attr_service_version,
       { "Service Version",      "xmcp.attr.service.version",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_service_data,
+    { &hf_xmcp_attr_service_data,
       { "Service Data",         "xmcp.attr.service.data",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_subscription_id,
+    { &hf_xmcp_attr_subscription_id,
       { "Subscription ID",      "xmcp.attr.subscription-id",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_service_removed_reason,
+    { &hf_xmcp_attr_service_removed_reason,
       { "Service Removed Reason", "xmcp.attr.service-removed-reason",
         FT_UINT32, BASE_DEC, VALS(service_removed_reasons), 0x0, NULL, HFILL }
     },
-    { &xmcp_attr_domain,
+    { &hf_xmcp_attr_domain,
       { "Domain",               "xmcp.attr.domain",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     }

@@ -81,15 +81,15 @@ static void get_new_colinfo_w_submessages(
 
 /* Subtree pointers */
 static gint rtpsproc_tree = -1;
-static gint rtpsproc_ett = -1;
-static gint rtpsproc_ett_security = -1;
-static gint rtpsproc_ett_advanced_frame0 = -1;
-static gint rtpsproc_ett_advanced_frame1 = -1;
+static gint ett_rtpsproc = -1;
+static gint ett_rtpsproc_security = -1;
+static gint ett_rtpsproc_advanced_frame0 = -1;
+static gint ett_rtpsproc_advanced_frame1 = -1;
 
 /* Initialize the protocol and registered fields */
 static header_field_info *rtpsproc_hf = NULL;
-static gint rtpsproc_hf_param_id = -1;
-static gint rtpsproc_hf_param_length = -1;
+static int hf_rtpsproc_param_id = -1;
+static int hf_rtpsproc_param_length = -1;
 
 /* Used for caching a handle to the RTPS dissector */
 static dissector_handle_t rtps_handle = NULL;
@@ -166,7 +166,7 @@ static gint dissect_rtps_processed(
             offset,
             -1,
             ENC_BIG_ENDIAN);
-    rtpsproc_tree_general = proto_item_add_subtree(rtpsproc_ti, rtpsproc_ett);
+    rtpsproc_tree_general = proto_item_add_subtree(rtpsproc_ti, ett_rtpsproc);
 
     /* ***************************  ADVANCED 0  *******************************/
     param_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -179,7 +179,7 @@ static gint dissect_rtps_processed(
                 tvb,
                 offset,
                 0,
-                rtpsproc_ett_security,
+                ett_rtpsproc_security,
                 NULL,
                 "%s",
                 title_security);
@@ -189,14 +189,14 @@ static gint dissect_rtps_processed(
                 tvb,
                 offset,
                 0,
-                rtpsproc_ett_advanced_frame0,
+                ett_rtpsproc_advanced_frame0,
                 NULL,
                 "%s",
                 "RTPS level");
 
         proto_tree_add_uint(
                 rtpsproc_tree_frame0,
-                rtpsproc_hf_param_id,
+                hf_rtpsproc_param_id,
                 tvb,
                 offset,
                 2, /* length */
@@ -205,7 +205,7 @@ static gint dissect_rtps_processed(
 
         proto_tree_add_uint(
                 rtpsproc_tree_frame0,
-                rtpsproc_hf_param_length,
+                hf_rtpsproc_param_length,
                 tvb,
                 offset,
                 2, /* length */
@@ -244,7 +244,7 @@ static gint dissect_rtps_processed(
                     tvb,
                     offset,
                     0,
-                    rtpsproc_ett_security,
+                    ett_rtpsproc_security,
                     NULL,
                     "%s",
                     title_security);
@@ -255,14 +255,14 @@ static gint dissect_rtps_processed(
                 tvb,
                 offset,
                 0,
-                rtpsproc_ett_advanced_frame1,
+                ett_rtpsproc_advanced_frame1,
                 NULL,
                 "%s",
                 title);
 
         proto_tree_add_uint(
                 rtpsproc_tree_frame1,
-                rtpsproc_hf_param_id,
+                hf_rtpsproc_param_id,
                 tvb,
                 offset,
                 2, /* length */
@@ -271,7 +271,7 @@ static gint dissect_rtps_processed(
 
         proto_tree_add_uint(
                 rtpsproc_tree_frame1,
-                rtpsproc_hf_param_length,
+                hf_rtpsproc_param_length,
                 tvb,
                 offset,
                 2, /* length */
@@ -398,14 +398,14 @@ proto_register_rtps_processed(void)
 {
     static hf_register_info hf[] = {
         {
-            &rtpsproc_hf_param_id,
+            &hf_rtpsproc_param_id,
             {
                 "Parameter Identifier", "rtpsproc.param.id",
                 FT_UINT16, BASE_DEC, NULL, 0, 0, HFILL
             },
         },
         {
-            &rtpsproc_hf_param_length,
+            &hf_rtpsproc_param_length,
             {
                 "Parameter Length", "rtpsproc.param.length",
                 FT_UINT16, BASE_DEC, NULL, 0, 0, HFILL
@@ -413,10 +413,10 @@ proto_register_rtps_processed(void)
         },
     };
     static gint *ett[] = {
-        &rtpsproc_ett,
-        &rtpsproc_ett_security,
-        &rtpsproc_ett_advanced_frame0,
-        &rtpsproc_ett_advanced_frame1
+        &ett_rtpsproc,
+        &ett_rtpsproc_security,
+        &ett_rtpsproc_advanced_frame0,
+        &ett_rtpsproc_advanced_frame1
     };
 
   /* Register the protocol name and description */

@@ -968,19 +968,19 @@ static int hf_sapdiag_item_control_properties_id = -1;
 static int hf_sapdiag_item_control_properties_value = -1;
 
 /* UI Event Source */
-static int ht_sapdiag_item_ui_event_event_type = -1;
-static int ht_sapdiag_item_ui_event_control_type = -1;
-static int ht_sapdiag_item_ui_event_valid = -1;
-static int ht_sapdiag_item_ui_event_valid_MENU_POS = -1;
-static int ht_sapdiag_item_ui_event_valid_CONTROL_POS = -1;
-static int ht_sapdiag_item_ui_event_valid_NAVIGATION_DATA = -1;
-static int ht_sapdiag_item_ui_event_valid_FUNCTIONKEY_DATA = -1;
-static int ht_sapdiag_item_ui_event_control_row = -1;
-static int ht_sapdiag_item_ui_event_control_col = -1;
-static int ht_sapdiag_item_ui_event_data = -1;
-static int ht_sapdiag_item_ui_event_navigation_data = -1;
-static int ht_sapdiag_item_ui_event_container_nrs = -1;
-static int ht_sapdiag_item_ui_event_container = -1;
+static int hf_sapdiag_item_ui_event_event_type = -1;
+static int hf_sapdiag_item_ui_event_control_type = -1;
+static int hf_sapdiag_item_ui_event_valid = -1;
+static int hf_sapdiag_item_ui_event_valid_MENU_POS = -1;
+static int hf_sapdiag_item_ui_event_valid_CONTROL_POS = -1;
+static int hf_sapdiag_item_ui_event_valid_NAVIGATION_DATA = -1;
+static int hf_sapdiag_item_ui_event_valid_FUNCTIONKEY_DATA = -1;
+static int hf_sapdiag_item_ui_event_control_row = -1;
+static int hf_sapdiag_item_ui_event_control_col = -1;
+static int hf_sapdiag_item_ui_event_data = -1;
+static int hf_sapdiag_item_ui_event_navigation_data = -1;
+static int hf_sapdiag_item_ui_event_container_nrs = -1;
+static int hf_sapdiag_item_ui_event_container = -1;
 
 /* Menu Entries */
 static int hf_sapdiag_item_menu_entry = -1;
@@ -1944,57 +1944,57 @@ dissect_sapdiag_uievent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	guint16 container_nrs = 0, i = 0;
 
 	event_valid = tvb_get_guint8(tvb, offset);
-	event_valid_item = proto_tree_add_item(tree, ht_sapdiag_item_ui_event_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
+	event_valid_item = proto_tree_add_item(tree, hf_sapdiag_item_ui_event_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
 	event_valid_tree = proto_item_add_subtree(event_valid_item, ett_sapdiag);
 
-	proto_tree_add_item(event_valid_tree, ht_sapdiag_item_ui_event_valid_MENU_POS, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(event_valid_tree, ht_sapdiag_item_ui_event_valid_CONTROL_POS, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(event_valid_tree, ht_sapdiag_item_ui_event_valid_NAVIGATION_DATA, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(event_valid_tree, ht_sapdiag_item_ui_event_valid_FUNCTIONKEY_DATA, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;length-=1;
+	proto_tree_add_item(event_valid_tree, hf_sapdiag_item_ui_event_valid_MENU_POS, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(event_valid_tree, hf_sapdiag_item_ui_event_valid_CONTROL_POS, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(event_valid_tree, hf_sapdiag_item_ui_event_valid_NAVIGATION_DATA, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(event_valid_tree, hf_sapdiag_item_ui_event_valid_FUNCTIONKEY_DATA, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;length-=1;
 
-	proto_tree_add_item(tree, ht_sapdiag_item_ui_event_event_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sapdiag_item_ui_event_event_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_item_append_text(tree, ", Event Type=%s", val_to_str_const(tvb_get_ntohs(tvb, offset), sapdiag_item_ui_event_event_type_vals, "Unknown")); offset+=2;length-=2;
 
-	proto_tree_add_item(tree, ht_sapdiag_item_ui_event_control_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sapdiag_item_ui_event_control_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_item_append_text(tree, ", Control Type=%s", val_to_str_const(tvb_get_ntohs(tvb, offset), sapdiag_item_ui_event_control_type_vals, "Unknown")); offset+=2;length-=2;
 
 	/* The semantic of the event data changes depending of the event valid flag and are ignored if the
 	SAPDIAG_UI_EVENT_VALID_FLAG_NAVIGATION_DATA flag or the SAPDIAG_UI_EVENT_VALID_FLAG_FUNCTIONKEY_DATA
 	flags are not set. We dissect them always. */
 	if (event_valid & SAPDIAG_UI_EVENT_VALID_FLAG_NAVIGATION_DATA){
-		proto_tree_add_item(tree, ht_sapdiag_item_ui_event_navigation_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_sapdiag_item_ui_event_navigation_data, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
 		length-=1;
 	} else { /* SAPDIAG_UI_EVENT_VALID_FLAG_FUNCTIONKEY_DATA */
-		proto_tree_add_item(tree, ht_sapdiag_item_ui_event_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_sapdiag_item_ui_event_data, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
 		length-=1;
-		proto_tree_add_item(tree, ht_sapdiag_item_ui_event_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_sapdiag_item_ui_event_data, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
 		length-=1;
-		proto_tree_add_item(tree, ht_sapdiag_item_ui_event_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_sapdiag_item_ui_event_data, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
 		length-=1;
-		proto_tree_add_item(tree, ht_sapdiag_item_ui_event_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_sapdiag_item_ui_event_data, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
 		length-=1;
 	}
 
 	/* These items are ignored if the flag SAPDIAG_UI_EVENT_VALID_FLAG_CONTROL_POS is not set. We dissect them always. */
-	proto_tree_add_item(tree, ht_sapdiag_item_ui_event_control_row, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sapdiag_item_ui_event_control_row, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 	length-=2;
-	proto_tree_add_item(tree, ht_sapdiag_item_ui_event_control_col, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sapdiag_item_ui_event_control_col, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 	length-=2;
 
 	i = container_nrs = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, ht_sapdiag_item_ui_event_container_nrs, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sapdiag_item_ui_event_container_nrs, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 	length-=2;
 
 	while (i>0 && length>0){
-		proto_tree_add_item(tree, ht_sapdiag_item_ui_event_container, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_sapdiag_item_ui_event_container, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
 		length-=1;
 		i--;
@@ -3586,33 +3586,33 @@ proto_register_sapdiag(void)
 			{ "Control Properties Value", "sapdiag.item.value.controlproperties.value", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		/* UI Event Source fields */
-		{ &ht_sapdiag_item_ui_event_event_type,
+		{ &hf_sapdiag_item_ui_event_event_type,
 			{ "UI Event Source Type", "sapdiag.item.value.uievent.type", FT_UINT16, BASE_DEC, VALS(sapdiag_item_ui_event_event_type_vals), 0x0, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_control_type,
+		{ &hf_sapdiag_item_ui_event_control_type,
 			{ "UI Event Control Type", "sapdiag.item.value.uievent.control", FT_UINT16, BASE_DEC, VALS(sapdiag_item_ui_event_control_type_vals), 0x0, NULL, HFILL }},
 
-		{ &ht_sapdiag_item_ui_event_valid,
+		{ &hf_sapdiag_item_ui_event_valid,
 			{ "UI Event Valid", "sapdiag.item.value.uievent.valid", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_valid_MENU_POS,
+		{ &hf_sapdiag_item_ui_event_valid_MENU_POS,
 			{ "UI Event Valid Menu Pos", "sapdiag.item.value.uievent.valid.MENU_POS", FT_BOOLEAN, 8, NULL, SAPDIAG_UI_EVENT_VALID_FLAG_MENU_POS, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_valid_CONTROL_POS,
+		{ &hf_sapdiag_item_ui_event_valid_CONTROL_POS,
 			{ "UI Event Valid Control Pos", "sapdiag.item.value.uievent.valid.CONTROL_POS", FT_BOOLEAN, 8, NULL, SAPDIAG_UI_EVENT_VALID_FLAG_CONTROL_POS, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_valid_NAVIGATION_DATA,
+		{ &hf_sapdiag_item_ui_event_valid_NAVIGATION_DATA,
 			{ "UI Event Valid Navigation Data", "sapdiag.item.value.uievent.valid.NAVIGATION_DATA", FT_BOOLEAN, 8, NULL, SAPDIAG_UI_EVENT_VALID_FLAG_NAVIGATION_DATA, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_valid_FUNCTIONKEY_DATA,
+		{ &hf_sapdiag_item_ui_event_valid_FUNCTIONKEY_DATA,
 			{ "UI Event Valid Function Key Data", "sapdiag.item.value.uievent.valid.FUNCTIONKEY_DATA", FT_BOOLEAN, 8, NULL, SAPDIAG_UI_EVENT_VALID_FLAG_FUNCTIONKEY_DATA, NULL, HFILL }},
 
-		{ &ht_sapdiag_item_ui_event_control_row,
+		{ &hf_sapdiag_item_ui_event_control_row,
 			{ "UI Event Source Control Row", "sapdiag.item.value.uievent.controlrow", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_control_col,
+		{ &hf_sapdiag_item_ui_event_control_col,
 			{ "UI Event Source Control Column", "sapdiag.item.value.uievent.controlcol", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_navigation_data,
+		{ &hf_sapdiag_item_ui_event_navigation_data,
 			{ "UI Event Source Navigation Data", "sapdiag.item.value.uievent.navigationdata", FT_UINT32, BASE_DEC, VALS(sapdiag_item_ui_event_navigation_data_vals), 0x0, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_data,
+		{ &hf_sapdiag_item_ui_event_data,
 			{ "UI Event Source Data", "sapdiag.item.value.uievent.data", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_container_nrs,
+		{ &hf_sapdiag_item_ui_event_container_nrs,
 			{ "UI Event Source Container IDs Numbers", "sapdiag.item.value.uievent.containernrs", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &ht_sapdiag_item_ui_event_container,
+		{ &hf_sapdiag_item_ui_event_container,
 			{ "UI Event Source Container ID", "sapdiag.item.value.uievent.container", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		/* Menu Entries */

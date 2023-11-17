@@ -1058,7 +1058,7 @@ static int hf_mip6_opt_3gpp_apn_rest = -1;
 static int hf_mip6_opt_3gpp_max_apn_rest = -1;
 static int hf_mip6_opt_3gpp_imsi = -1;
 static int hf_mip6_opt_3gpp_pdn_conn_id = -1;
-static int hf_hf_mip6_opt_3gpp_lapi = -1;
+static int hf_mip6_opt_3gpp_lapi = -1;
 
 static int hf_mip6_bra_interval = -1;
 
@@ -2036,7 +2036,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         break;
     /* 19, Signalling Priority Indication */
     case 19:
-         proto_tree_add_item(tree, hf_hf_mip6_opt_3gpp_lapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(tree, hf_mip6_opt_3gpp_lapi, tvb, offset, 1, ENC_BIG_ENDIAN);
          break;
     /* 20, Additional Protocol Configuration Options
      *     12.1.1.19 Additional Protocol Configuration Options
@@ -4331,7 +4331,7 @@ proto_register_mip6(void)
         FT_UINT8, BASE_DEC, NULL, 0x0f,
         NULL, HFILL }
     },
-    { &hf_hf_mip6_opt_3gpp_lapi,
+    { &hf_mip6_opt_3gpp_lapi,
         {"LAPI (Low Access Priority Indication)", "mip6.3gpp.lapi",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL}

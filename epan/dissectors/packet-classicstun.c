@@ -36,28 +36,28 @@ static int hf_classicstun_response_to                 = -1;
 static int hf_classicstun_time                        = -1;
 
 
-static int classicstun_att_type                       = -1; /* CLASSIC-STUN attribute fields */
-static int classicstun_att_length                     = -1;
-static int classicstun_att_value                      = -1;
-static int classicstun_att_family                     = -1;
-static int classicstun_att_ipv4                       = -1;
-static int classicstun_att_ipv6                       = -1;
-static int classicstun_att_port                       = -1;
-static int classicstun_att_change_ip                  = -1;
-static int classicstun_att_change_port                = -1;
-static int classicstun_att_unknown                    = -1;
-static int classicstun_att_error_class                = -1;
-static int classicstun_att_error_number               = -1;
-static int classicstun_att_error_reason               = -1;
-static int classicstun_att_server_string              = -1;
-static int classicstun_att_xor_ipv4                   = -1;
-static int classicstun_att_xor_ipv6                   = -1;
-static int classicstun_att_xor_port                   = -1;
-static int classicstun_att_lifetime                   = -1;
-static int classicstun_att_magic_cookie               = -1;
-static int classicstun_att_bandwidth                  = -1;
-static int classicstun_att_data                       = -1;
-static int classicstun_att_connection_request_binding = -1;
+static int hf_classicstun_att_type                       = -1; /* CLASSIC-STUN attribute fields */
+static int hf_classicstun_att_length                     = -1;
+static int hf_classicstun_att_value                      = -1;
+static int hf_classicstun_att_family                     = -1;
+static int hf_classicstun_att_ipv4                       = -1;
+static int hf_classicstun_att_ipv6                       = -1;
+static int hf_classicstun_att_port                       = -1;
+static int hf_classicstun_att_change_ip                  = -1;
+static int hf_classicstun_att_change_port                = -1;
+static int hf_classicstun_att_unknown                    = -1;
+static int hf_classicstun_att_error_class                = -1;
+static int hf_classicstun_att_error_number               = -1;
+static int hf_classicstun_att_error_reason               = -1;
+static int hf_classicstun_att_server_string              = -1;
+static int hf_classicstun_att_xor_ipv4                   = -1;
+static int hf_classicstun_att_xor_ipv6                   = -1;
+static int hf_classicstun_att_xor_port                   = -1;
+static int hf_classicstun_att_lifetime                   = -1;
+static int hf_classicstun_att_magic_cookie               = -1;
+static int hf_classicstun_att_bandwidth                  = -1;
+static int hf_classicstun_att_data                       = -1;
+static int hf_classicstun_att_connection_request_binding = -1;
 
 /* Structure containing transaction specific information */
 typedef struct _classicstun_transaction_t {
@@ -367,18 +367,18 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                          "Attribute: %s",
                          val_to_str(att_type, attributes, "Unknown (0x%04x)"));
 
-            proto_tree_add_uint(att_tree, classicstun_att_type, tvb,
+            proto_tree_add_uint(att_tree, hf_classicstun_att_type, tvb,
                         offset, 2, att_type);
             offset += 2;
             if (ATTR_HDR_LEN+att_length > msg_length) {
                 proto_tree_add_uint_format_value(att_tree,
-                               classicstun_att_length, tvb, offset, 2,
+                               hf_classicstun_att_length, tvb, offset, 2,
                                att_length,
                                "%u (bogus, goes past the end of the message)",
                                att_length);
                 break;
             }
-            proto_tree_add_uint(att_tree, classicstun_att_length, tvb,
+            proto_tree_add_uint(att_tree, hf_classicstun_att_length, tvb,
                         offset, 2, att_length);
             offset += 2;
             switch( att_type ){
@@ -392,21 +392,21 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 case REMOTE_ADDRESS:
                     if (att_length < 2)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                     if (att_length < 4)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                     switch( tvb_get_guint8(tvb, offset+1) ){
                         case 1:
                             if (att_length < 8)
                                 break;
-                            proto_tree_add_item(att_tree, classicstun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(att_tree, hf_classicstun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                             break;
 
                         case 2:
                             if (att_length < 20)
                                 break;
-                            proto_tree_add_item(att_tree, classicstun_att_ipv6, tvb, offset+4, 16, ENC_NA);
+                            proto_tree_add_item(att_tree, hf_classicstun_att_ipv6, tvb, offset+4, 16, ENC_NA);
                             break;
                     }
                     break;
@@ -414,8 +414,8 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 case CHANGE_REQUEST:
                     if (att_length < 4)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(att_tree, classicstun_att_change_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_change_port, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case USERNAME:
@@ -425,41 +425,41 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 case REALM:
                     if (att_length < 1)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_value, tvb, offset, att_length, ENC_NA);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_value, tvb, offset, att_length, ENC_NA);
                     break;
 
                 case ERROR_CODE:
                     if (att_length < 3)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_error_class, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_error_class, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                     if (att_length < 4)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
                     if (att_length < 5)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_error_reason, tvb, offset+4, (att_length-4), ENC_UTF_8);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_error_reason, tvb, offset+4, (att_length-4), ENC_UTF_8);
                     break;
 
                 case LIFETIME:
                     if (att_length < 4)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case MAGIC_COOKIE:
                     if (att_length < 4)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_magic_cookie, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_magic_cookie, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case BANDWIDTH:
                     if (att_length < 4)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case DATA:
-                    proto_tree_add_item(att_tree, classicstun_att_data, tvb, offset, att_length, ENC_NA);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_data, tvb, offset, att_length, ENC_NA);
 
                     tvbuff_t *next_tvb;
                     heur_dtbl_entry_t *hdtbl_entry;
@@ -473,48 +473,48 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
                 case UNKNOWN_ATTRIBUTES:
                     for (i = 0; i < att_length; i += 4) {
-                        proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i+2, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(att_tree, hf_classicstun_att_unknown, tvb, offset+i, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(att_tree, hf_classicstun_att_unknown, tvb, offset+i+2, 2, ENC_BIG_ENDIAN);
                     }
                     break;
 
                 case SERVER:
-                    proto_tree_add_item(att_tree, classicstun_att_server_string, tvb, offset, att_length, ENC_UTF_8);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_server_string, tvb, offset, att_length, ENC_UTF_8);
                     break;
 
                 case XOR_MAPPED_ADDRESS:
                     if (att_length < 2)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                     if (att_length < 4)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_xor_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_xor_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
                     /* Show the port 'in the clear'
                        XOR (host order) transid with (host order) xor-port.
                        Add host-order port into tree. */
                     clear_port = tvb_get_ntohs(tvb, offset+2) ^ (transaction_id_first_word >> 16);
-                    ti = proto_tree_add_uint(att_tree, classicstun_att_port, tvb, offset+2, 2, clear_port);
+                    ti = proto_tree_add_uint(att_tree, hf_classicstun_att_port, tvb, offset+2, 2, clear_port);
                     proto_item_set_generated(ti);
 
                     switch( tvb_get_guint8(tvb, offset+1) ){
                         case 1:
                             if (att_length < 8)
                                 break;
-                            proto_tree_add_item(att_tree, classicstun_att_xor_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(att_tree, hf_classicstun_att_xor_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
                             /* Show the address 'in the clear'.
                                XOR (host order) transid with (host order) xor-address.
                                Add in network order tree. */
                             clear_ip = tvb_get_ipv4(tvb, offset+4) ^ g_htonl(transaction_id_first_word);
-                            ti = proto_tree_add_ipv4(att_tree, classicstun_att_ipv4, tvb, offset+4, 4, clear_ip);
+                            ti = proto_tree_add_ipv4(att_tree, hf_classicstun_att_ipv4, tvb, offset+4, 4, clear_ip);
                             proto_item_set_generated(ti);
                             break;
 
                         case 2:
                             if (att_length < 20)
                                 break;
-                            proto_tree_add_item(att_tree, classicstun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
+                            proto_tree_add_item(att_tree, hf_classicstun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
                             break;
                     }
                     break;
@@ -522,11 +522,11 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 case REQUESTED_ADDRESS_TYPE:
                     if (att_length < 2)
                         break;
-                    proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                     break;
 
                 case CONNECTION_REQUEST_BINDING:
-                    proto_tree_add_item(att_tree, classicstun_att_connection_request_binding, tvb, offset, att_length, ENC_UTF_8);
+                    proto_tree_add_item(att_tree, hf_classicstun_att_connection_request_binding, tvb, offset, att_length, ENC_UTF_8);
                     break;
 
                 default:
@@ -586,91 +586,91 @@ proto_register_classicstun(void)
             "The time between the Request and the Response", HFILL }},
 
         /* ////////////////////////////////////// */
-        { &classicstun_att_type,
+        { &hf_classicstun_att_type,
             { "Attribute Type", "classicstun.att.type", FT_UINT16,
             BASE_HEX,   VALS(attributes),   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_length,
+        { &hf_classicstun_att_length,
             { "Attribute Length",   "classicstun.att.length",   FT_UINT16,
             BASE_DEC,   NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_value,
+        { &hf_classicstun_att_value,
             { "Value",  "classicstun.att.value",    FT_BYTES,
             BASE_NONE,  NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_family,
+        { &hf_classicstun_att_family,
             { "Protocol Family",    "classicstun.att.family",   FT_UINT16,
             BASE_HEX,   VALS(attributes_family),    0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_ipv4,
+        { &hf_classicstun_att_ipv4,
             { "IP",     "classicstun.att.ipv4", FT_IPv4,
             BASE_NONE,  NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_ipv6,
+        { &hf_classicstun_att_ipv6,
             { "IP",     "classicstun.att.ipv6", FT_IPv6,
             BASE_NONE,  NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_port,
+        { &hf_classicstun_att_port,
             { "Port",   "classicstun.att.port", FT_UINT16,
             BASE_DEC,   NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_change_ip,
+        { &hf_classicstun_att_change_ip,
             { "Change IP","classicstun.att.change.ip",  FT_BOOLEAN,
             16,     TFS(&tfs_set_notset),   0x0004, NULL,   HFILL}
         },
-        { &classicstun_att_change_port,
+        { &hf_classicstun_att_change_port,
             { "Change Port","classicstun.att.change.port",  FT_BOOLEAN,
             16,     TFS(&tfs_set_notset),   0x0002, NULL,   HFILL}
         },
-        { &classicstun_att_unknown,
+        { &hf_classicstun_att_unknown,
             { "Unknown Attribute","classicstun.att.unknown",    FT_UINT16,
             BASE_HEX,   NULL,   0x0,    NULL,   HFILL}
         },
-        { &classicstun_att_error_class,
+        { &hf_classicstun_att_error_class,
             { "Error Class","classicstun.att.error.class",  FT_UINT8,
             BASE_DEC,   NULL,   0x07,   NULL,   HFILL}
         },
-        { &classicstun_att_error_number,
+        { &hf_classicstun_att_error_number,
             { "Error Code","classicstun.att.error", FT_UINT8,
             BASE_DEC,   NULL,   0x0,    NULL,   HFILL}
         },
-        { &classicstun_att_error_reason,
+        { &hf_classicstun_att_error_reason,
             { "Error Reason Phase","classicstun.att.error.reason",  FT_STRING,
             BASE_NONE,  NULL,   0x0,    NULL,   HFILL}
         },
-        { &classicstun_att_xor_ipv4,
+        { &hf_classicstun_att_xor_ipv4,
             { "IP (XOR-d)",     "classicstun.att.ipv4-xord",    FT_IPv4,
             BASE_NONE,  NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_xor_ipv6,
+        { &hf_classicstun_att_xor_ipv6,
             { "IP (XOR-d)",     "classicstun.att.ipv6-xord",    FT_IPv6,
             BASE_NONE,  NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_xor_port,
+        { &hf_classicstun_att_xor_port,
             { "Port (XOR-d)",   "classicstun.att.port-xord",    FT_UINT16,
             BASE_DEC,   NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_server_string,
+        { &hf_classicstun_att_server_string,
             { "Server version","classicstun.att.server",    FT_STRING,
             BASE_NONE,  NULL,   0x0,    NULL,   HFILL}
         },
-        { &classicstun_att_lifetime,
+        { &hf_classicstun_att_lifetime,
             { "Lifetime",   "classicstun.att.lifetime", FT_UINT32,
             BASE_DEC,   NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_magic_cookie,
+        { &hf_classicstun_att_magic_cookie,
             { "Magic Cookie",   "classicstun.att.magic.cookie", FT_UINT32,
             BASE_HEX,   NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_bandwidth,
+        { &hf_classicstun_att_bandwidth,
             { "Bandwidth",  "classicstun.att.bandwidth",    FT_UINT32,
             BASE_DEC,   NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_data,
+        { &hf_classicstun_att_data,
             { "Data",   "classicstun.att.data", FT_BYTES,
             BASE_NONE,  NULL,   0x0,    NULL,   HFILL }
         },
-        { &classicstun_att_connection_request_binding,
+        { &hf_classicstun_att_connection_request_binding,
             { "Connection Request Binding", "classicstun.att.connection_request_binding", FT_STRING,
             BASE_NONE,  NULL, 0x0,  NULL,   HFILL }
         },

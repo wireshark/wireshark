@@ -382,9 +382,9 @@ static gint hf_pcep_obj_proc_time_max_proc_time = -1;
 static gint hf_pcep_obj_proc_time_ave_proc_time = -1;
 static gint hf_pcep_obj_proc_time_var_proc_time = -1;
 static gint hf_pcep_obj_overload_duration = -1;
-static gint pcep_subobj_flags_lpa= -1;
-static gint pcep_subobj_flags_lpu= -1;
-static gint pcep_subobj_label_flags_gl= -1;
+static gint hf_pcep_subobj_flags_lpa= -1;
+static gint hf_pcep_subobj_flags_lpu= -1;
+static gint hf_pcep_subobj_label_flags_gl= -1;
 static gint hf_pcep_no_path_tlvs_pce = -1;
 static gint hf_pcep_no_path_tlvs_unk_dest = -1;
 static gint hf_pcep_no_path_tlvs_unk_src = -1;
@@ -2081,8 +2081,8 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
             proto_tree_add_item(pcep_subobj_ipv4, hf_pcep_subobj_ipv4_prefix_length, tvb, offset+6, 1, ENC_NA);
             ti = proto_tree_add_item(pcep_subobj_ipv4, hf_pcep_subobj_ipv4_flags,    tvb, offset+7, 1, ENC_NA);
             pcep_subobj_ipv4_flags = proto_item_add_subtree(ti, ett_pcep_obj);
-            proto_tree_add_item(pcep_subobj_ipv4_flags, pcep_subobj_flags_lpa,       tvb, offset+7, 1, ENC_NA);
-            proto_tree_add_item(pcep_subobj_ipv4_flags, pcep_subobj_flags_lpu,       tvb, offset+7, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_ipv4_flags, hf_pcep_subobj_flags_lpa,       tvb, offset+7, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_ipv4_flags, hf_pcep_subobj_flags_lpu,       tvb, offset+7, 1, ENC_NA);
             break;
 
         case PCEP_IRO_OBJ:
@@ -2151,8 +2151,8 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
             proto_tree_add_item(pcep_subobj_ipv6, hf_pcep_subobj_ipv6_prefix_length, tvb, offset+18, 1, ENC_NA);
             ti = proto_tree_add_item(pcep_subobj_ipv6, hf_pcep_subobj_ipv6_flags,    tvb, offset+19, 1, ENC_NA);
             pcep_subobj_ipv6_flags = proto_item_add_subtree(ti, ett_pcep_obj);
-            proto_tree_add_item(pcep_subobj_ipv6_flags, pcep_subobj_flags_lpa,       tvb, offset+19, 1, ENC_NA);
-            proto_tree_add_item(pcep_subobj_ipv6_flags, pcep_subobj_flags_lpu,       tvb, offset+19, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_ipv6_flags, hf_pcep_subobj_flags_lpa,       tvb, offset+19, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_ipv6_flags, hf_pcep_subobj_flags_lpu,       tvb, offset+19, 1, ENC_NA);
             break;
 
         case PCEP_IRO_OBJ:
@@ -2218,7 +2218,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, 
 
             ti = proto_tree_add_item(pcep_subobj_label_control, hf_pcep_subobj_label_control_flags, tvb, offset+2, 1, ENC_NA);
             pcep_subobj_label_flags = proto_item_add_subtree(ti, ett_pcep_obj);
-            proto_tree_add_item(pcep_subobj_label_flags, pcep_subobj_label_flags_gl,                tvb, offset+2, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_label_flags, hf_pcep_subobj_label_flags_gl,                tvb, offset+2, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_label_control, hf_pcep_subobj_label_control_c_type,     tvb, offset+3, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_label_control, hf_pcep_subobj_label_control_label,      tvb, offset+4, length-4, ENC_NA);
             break;
@@ -2475,8 +2475,8 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
         case PCEP_SRRO_OBJ:
             {
             static int * const flags[] = {
-                &pcep_subobj_flags_lpa,
-                &pcep_subobj_flags_lpu,
+                &hf_pcep_subobj_flags_lpa,
+                &hf_pcep_subobj_flags_lpu,
                 NULL
             };
 
@@ -4926,18 +4926,18 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
 #endif
-        { &pcep_subobj_flags_lpa,
+        { &hf_pcep_subobj_flags_lpa,
           { "Local Protection Available", "pcep.subobj.flags.lpa",
             FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_SUB_LPA,
             NULL, HFILL }
         },
-        { &pcep_subobj_flags_lpu,
+        { &hf_pcep_subobj_flags_lpu,
           { "Local protection in Use", "pcep.subobj.flags.lpu",
             FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_SUB_LPU,
             NULL, HFILL }
         },
 
-        { &pcep_subobj_label_flags_gl,
+        { &hf_pcep_subobj_label_flags_gl,
           { "Global Label", "pcep.subobj.label.flags.gl",
             FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_SUB_LABEL_GL,
             NULL, HFILL }
