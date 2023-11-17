@@ -48,103 +48,103 @@ static int ett_rdpudp2_ackvec_vecs = -1;
 static int ett_rdpudp2_ackvec_vec = -1;
 
 
-static int pf_rdpudp_snSourceAck = -1;
-static int pf_rdpudp_ReceiveWindowSize = -1;
-static int pf_rdpudp_flags = -1;
-static int pf_rdpudp_flag_syn = -1;
-static int pf_rdpudp_flag_fin = -1;
-static int pf_rdpudp_flag_ack = -1;
-static int pf_rdpudp_flag_data = -1;
-static int pf_rdpudp_flag_fec = -1;
-static int pf_rdpudp_flag_cn = -1;
-static int pf_rdpudp_flag_cwr = -1;
-static int pf_rdpudp_flag_aoa = -1;
-static int pf_rdpudp_flag_synlossy = -1;
-static int pf_rdpudp_flag_ackdelayed = -1;
-static int pf_rdpudp_flag_correlationId = -1;
-static int pf_rdpudp_flag_synex = -1;
-static int pf_rdpudp_snInitialSequenceNumber = -1;
-static int pf_rdpudp_upstreamMtu = -1;
-static int pf_rdpudp_downstreamMtu = -1;
-static int pf_rdpudp_correlationId = -1;
-static int pf_rdpudp_synex_flags = -1;
-static int pf_rdpudp_synex_flag_version = -1;
-static int pf_rdpudp_synex_version = -1;
-static int pf_rdpudp_synex_cookiehash = -1;
-static int pf_rdpudp_ack_vectorsize = -1;
-static int pf_rdpudp_ack_item = -1;
-static int pf_rdpudp_ack_item_state = -1;
-static int pf_rdpudp_ack_item_rle = -1;
-static int pf_rdpudp_fec_coded = -1;
-static int pf_rdpudp_fec_sourcestart = -1;
-static int pf_rdpudp_fec_range = -1;
-static int pf_rdpudp_fec_fecindex = -1;
-static int pf_rdpudp_resetseqenum = -1;
-static int pf_rdpudp_source_sncoded = -1;
-static int pf_rdpudp_source_snSourceStart = -1;
-static int pf_rdpudp_data = -1;
+static int hf_rdpudp_snSourceAck = -1;
+static int hf_rdpudp_ReceiveWindowSize = -1;
+static int hf_rdpudp_flags = -1;
+static int hf_rdpudp_flag_syn = -1;
+static int hf_rdpudp_flag_fin = -1;
+static int hf_rdpudp_flag_ack = -1;
+static int hf_rdpudp_flag_data = -1;
+static int hf_rdpudp_flag_fec = -1;
+static int hf_rdpudp_flag_cn = -1;
+static int hf_rdpudp_flag_cwr = -1;
+static int hf_rdpudp_flag_aoa = -1;
+static int hf_rdpudp_flag_synlossy = -1;
+static int hf_rdpudp_flag_ackdelayed = -1;
+static int hf_rdpudp_flag_correlationId = -1;
+static int hf_rdpudp_flag_synex = -1;
+static int hf_rdpudp_snInitialSequenceNumber = -1;
+static int hf_rdpudp_upstreamMtu = -1;
+static int hf_rdpudp_downstreamMtu = -1;
+static int hf_rdpudp_correlationId = -1;
+static int hf_rdpudp_synex_flags = -1;
+static int hf_rdpudp_synex_flag_version = -1;
+static int hf_rdpudp_synex_version = -1;
+static int hf_rdpudp_synex_cookiehash = -1;
+static int hf_rdpudp_ack_vectorsize = -1;
+static int hf_rdpudp_ack_item = -1;
+static int hf_rdpudp_ack_item_state = -1;
+static int hf_rdpudp_ack_item_rle = -1;
+static int hf_rdpudp_fec_coded = -1;
+static int hf_rdpudp_fec_sourcestart = -1;
+static int hf_rdpudp_fec_range = -1;
+static int hf_rdpudp_fec_fecindex = -1;
+static int hf_rdpudp_resetseqenum = -1;
+static int hf_rdpudp_source_sncoded = -1;
+static int hf_rdpudp_source_snSourceStart = -1;
+static int hf_rdpudp_data = -1;
 
 static int * const rdpudp_flags[] = {
-		&pf_rdpudp_flag_syn,
-		&pf_rdpudp_flag_fin,
-		&pf_rdpudp_flag_ack,
-		&pf_rdpudp_flag_data,
-		&pf_rdpudp_flag_fec,
-		&pf_rdpudp_flag_cn,
-		&pf_rdpudp_flag_cwr,
-		&pf_rdpudp_flag_aoa,
-		&pf_rdpudp_flag_synlossy,
-		&pf_rdpudp_flag_ackdelayed,
-		&pf_rdpudp_flag_correlationId,
-		&pf_rdpudp_flag_synex,
+		&hf_rdpudp_flag_syn,
+		&hf_rdpudp_flag_fin,
+		&hf_rdpudp_flag_ack,
+		&hf_rdpudp_flag_data,
+		&hf_rdpudp_flag_fec,
+		&hf_rdpudp_flag_cn,
+		&hf_rdpudp_flag_cwr,
+		&hf_rdpudp_flag_aoa,
+		&hf_rdpudp_flag_synlossy,
+		&hf_rdpudp_flag_ackdelayed,
+		&hf_rdpudp_flag_correlationId,
+		&hf_rdpudp_flag_synex,
 		NULL
 };
 
-static int pf_rdpudp2_PacketPrefixByte = -1;
-static int pf_rdpudp2_packetType = -1;
-static int pf_rdpudp2_shortPacketLength = -1;
-static int pf_rdpudp2_flags = -1;
-static int pf_rdpudp2_flag_ack = -1;
-static int pf_rdpudp2_flag_data = -1;
-static int pf_rdpudp2_flag_ackvec = -1;
-static int pf_rdpudp2_flag_aoa = -1;
-static int pf_rdpudp2_flag_overhead = -1;
-static int pf_rdpudp2_flag_delayackinfo = -1;
-static int pf_rdpudp2_logWindow = -1;
-static int pf_rdpudp2_AckSeq = -1;
-static int pf_rdpudp2_AckTs = -1;
-static int pf_rdpudp2_AckSendTimeGap = -1;
-static int pf_rdpudp2_ndelayedAcks = -1;
-static int pf_rdpudp2_delayedTimeScale = -1;
-static int pf_rdpudp2_delayedAcks = -1;
-static int pf_rdpudp2_delayedAck = -1;
-static int pf_rdpudp2_OverHeadSize = -1;
-static int pf_rdpudp2_DelayAckMax = -1;
-static int pf_rdpudp2_DelayAckTimeout = -1;
-static int pf_rdpudp2_AckOfAcksSeqNum = -1;
-static int pf_rdpudp2_DataSeqNumber = -1;
-static int pf_rdpudp2_DataFullSeqNumber = -1;
-static int pf_rdpudp2_DataChannelSeqNumber = -1;
-static int pf_rdpudp2_DataChannelFullSeqNumber = -1;
-static int pf_rdpudp2_Data = -1;
-static int pf_rdpudp2_AckvecBaseSeq = -1;
-static int pf_rdpudp2_AckvecCodecAckVecSize = -1;
-static int pf_rdpudp2_AckvecHaveTs = -1;
-static int pf_rdpudp2_AckvecTimeStamp = -1;
-static int pf_rdpudp2_SendAckTimeGapInMs = -1;
-static int pf_rdpudp2_AckvecCodedAck = -1;
-static int pf_rdpudp2_AckvecCodedAckMode = -1;
-static int pf_rdpudp2_AckvecCodedAckRleState = -1;
-static int pf_rdpudp2_AckvecCodedAckRleLen = -1;
+static int hf_rdpudp2_PacketPrefixByte = -1;
+static int hf_rdpudp2_packetType = -1;
+static int hf_rdpudp2_shortPacketLength = -1;
+static int hf_rdpudp2_flags = -1;
+static int hf_rdpudp2_flag_ack = -1;
+static int hf_rdpudp2_flag_data = -1;
+static int hf_rdpudp2_flag_ackvec = -1;
+static int hf_rdpudp2_flag_aoa = -1;
+static int hf_rdpudp2_flag_overhead = -1;
+static int hf_rdpudp2_flag_delayackinfo = -1;
+static int hf_rdpudp2_logWindow = -1;
+static int hf_rdpudp2_AckSeq = -1;
+static int hf_rdpudp2_AckTs = -1;
+static int hf_rdpudp2_AckSendTimeGap = -1;
+static int hf_rdpudp2_ndelayedAcks = -1;
+static int hf_rdpudp2_delayedTimeScale = -1;
+static int hf_rdpudp2_delayedAcks = -1;
+static int hf_rdpudp2_delayedAck = -1;
+static int hf_rdpudp2_OverHeadSize = -1;
+static int hf_rdpudp2_DelayAckMax = -1;
+static int hf_rdpudp2_DelayAckTimeout = -1;
+static int hf_rdpudp2_AckOfAcksSeqNum = -1;
+static int hf_rdpudp2_DataSeqNumber = -1;
+static int hf_rdpudp2_DataFullSeqNumber = -1;
+static int hf_rdpudp2_DataChannelSeqNumber = -1;
+static int hf_rdpudp2_DataChannelFullSeqNumber = -1;
+static int hf_rdpudp2_Data = -1;
+static int hf_rdpudp2_AckvecBaseSeq = -1;
+static int hf_rdpudp2_AckvecCodecAckVecSize = -1;
+static int hf_rdpudp2_AckvecHaveTs = -1;
+static int hf_rdpudp2_AckvecTimeStamp = -1;
+static int hf_rdpudp2_SendAckTimeGapInMs = -1;
+static int hf_rdpudp2_AckvecCodedAck = -1;
+static int hf_rdpudp2_AckvecCodedAckMode = -1;
+static int hf_rdpudp2_AckvecCodedAckRleState = -1;
+static int hf_rdpudp2_AckvecCodedAckRleLen = -1;
 
 static int * const rdpudp2_flags[] = {
-	&pf_rdpudp2_flag_ack,
-	&pf_rdpudp2_flag_data,
-	&pf_rdpudp2_flag_ackvec,
-	&pf_rdpudp2_flag_aoa,
-	&pf_rdpudp2_flag_overhead,
-	&pf_rdpudp2_flag_delayackinfo,
-	&pf_rdpudp2_logWindow,
+	&hf_rdpudp2_flag_ack,
+	&hf_rdpudp2_flag_data,
+	&hf_rdpudp2_flag_ackvec,
+	&hf_rdpudp2_flag_aoa,
+	&hf_rdpudp2_flag_overhead,
+	&hf_rdpudp2_flag_delayackinfo,
+	&hf_rdpudp2_logWindow,
 	NULL
 };
 
@@ -265,13 +265,13 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDPUDP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	proto_tree_add_item(tree, pf_rdpudp_snSourceAck, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_rdpudp_snSourceAck, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_item(tree, pf_rdpudp_ReceiveWindowSize, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_rdpudp_ReceiveWindowSize, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_bitmask(tree, tvb, offset, pf_rdpudp_flags, ett_rdpudp_flags, rdpudp_flags, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_rdpudp_flags, ett_rdpudp_flags, rdpudp_flags, ENC_BIG_ENDIAN);
 	flags = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
 	offset += 2;
 
@@ -286,16 +286,16 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 	}
 
 	if (flags & RDPUDP_SYN) {
-		proto_tree_add_item(tree, pf_rdpudp_snInitialSequenceNumber, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_rdpudp_snInitialSequenceNumber, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(tree, pf_rdpudp_upstreamMtu, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_rdpudp_upstreamMtu, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(tree, pf_rdpudp_downstreamMtu, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_rdpudp_downstreamMtu, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
 	if (flags & RDPUDP_CORRELATIONID) {
-		proto_tree_add_item(tree, pf_rdpudp_correlationId, tvb, offset, 16, ENC_NA);
+		proto_tree_add_item(tree, hf_rdpudp_correlationId, tvb, offset, 16, ENC_NA);
 		offset += 32;
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "CORRELATIONID");
 	}
@@ -319,17 +319,17 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		}
 
 		synex_tree = proto_tree_add_subtree(tree, tvb, offset, synex_sz, ett_rdpudp_synex, NULL, "SynEx");
-		proto_tree_add_item(synex_tree, pf_rdpudp_synex_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(synex_tree, pf_rdpudp_synex_flag_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(synex_tree, hf_rdpudp_synex_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(synex_tree, hf_rdpudp_synex_flag_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		offset += 2;
 
 		if (synex_flags & RDPUDP_VERSION_INFO_VALID) {
-			proto_tree_add_item(synex_tree, pf_rdpudp_synex_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(synex_tree, hf_rdpudp_synex_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 			offset += 2;
 			if (version_val == 0x101) {
-				proto_tree_add_item(synex_tree, pf_rdpudp_synex_cookiehash, tvb, offset, 32, ENC_NA);
+				proto_tree_add_item(synex_tree, hf_rdpudp_synex_cookiehash, tvb, offset, 32, ENC_NA);
 				offset += 32;
 
 				if (flags & RDPUDP_ACK)
@@ -345,8 +345,8 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		ack_tree = proto_tree_add_subtree(tree, tvb, offset, 2 + uAckVectorSize, ett_rdpudp_ack, NULL, "Ack");
 		offset += 2;
 		for ( ; uAckVectorSize; uAckVectorSize--, offset++) {
-			proto_tree_add_item(ack_tree, pf_rdpudp_ack_item, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ack_tree, pf_rdpudp_ack_item_rle, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ack_tree, hf_rdpudp_ack_item, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ack_tree, hf_rdpudp_ack_item_rle, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "ACK");
 	}
@@ -354,20 +354,20 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 	if (flags & RDPUDP_FEC) {
 		proto_tree *fec_tree = proto_tree_add_subtree(tree, tvb, offset, 4 * 3, ett_rdpudp_fec, NULL, "FEC");
 
-		proto_tree_add_item(fec_tree, pf_rdpudp_fec_coded, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_rdpudp_fec_coded, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(fec_tree, pf_rdpudp_fec_sourcestart, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_rdpudp_fec_sourcestart, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(fec_tree, pf_rdpudp_fec_range, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_rdpudp_fec_range, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		proto_tree_add_item(fec_tree, pf_rdpudp_fec_fecindex, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_rdpudp_fec_fecindex, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FEC");
 	}
 
 	if (flags & RDPUDP_AOA) {
-		proto_tree_add_item(tree, pf_rdpudp_resetseqenum, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_rdpudp_resetseqenum, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "AOA");
 	}
@@ -379,10 +379,10 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		proto_tree *data_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rdpudp_data, NULL, "Data");
 		dissector_handle_t target_dissector;
 
-		proto_tree_add_item(data_tree, pf_rdpudp_source_sncoded, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(data_tree, hf_rdpudp_source_sncoded, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(data_tree, pf_rdpudp_source_snSourceStart, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(data_tree, hf_rdpudp_source_snSourceStart, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		target_dissector = conv->is_lossy ? dtls_handle : tls_handle;
@@ -471,13 +471,13 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 	add_new_data_source(pinfo, tvb2, "Unwrapped RDPUDP2 packet");
 
 	packet_type = (tvb_get_guint8(tvb2, 0) >> 1) & 0xf;
-	item = proto_tree_add_item(tree, pf_rdpudp2_PacketPrefixByte, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+	item = proto_tree_add_item(tree, hf_rdpudp2_PacketPrefixByte, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
 	subtree = proto_item_add_subtree(item, ett_rdpudp2_packetType);
-	proto_tree_add_item(subtree, pf_rdpudp2_packetType, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(subtree, pf_rdpudp2_shortPacketLength, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(subtree, hf_rdpudp2_packetType, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(subtree, hf_rdpudp2_shortPacketLength, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
 	offset++;
 
-	proto_tree_add_bitmask(tree, tvb2, offset, pf_rdpudp2_flags, ett_rdpudp2_flags, rdpudp2_flags, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb2, offset, hf_rdpudp2_flags, ett_rdpudp2_flags, rdpudp2_flags, ENC_LITTLE_ENDIAN);
 
 	flags = tvb_get_guint16(tvb2, offset, ENC_LITTLE_ENDIAN);
 	offset += 2;
@@ -485,12 +485,12 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 	if (flags & RDPUDP2_ACK) {
 		guint8 nacks = tvb_get_guint8(tvb, offset + 6) & 0xf;
 		subtree = proto_tree_add_subtree(tree, tvb2, offset, 7 + nacks, ett_rdpudp2_ack, NULL, "Ack");
-		proto_tree_add_item(subtree, pf_rdpudp2_AckSeq, tvb2, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
-		proto_tree_add_item(subtree, pf_rdpudp2_AckTs, tvb2, offset, 3, ENC_LITTLE_ENDIAN); offset += 3;
-		proto_tree_add_item(subtree, pf_rdpudp2_AckSendTimeGap, tvb2, offset, 1, ENC_LITTLE_ENDIAN); offset++;
+		proto_tree_add_item(subtree, hf_rdpudp2_AckSeq, tvb2, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
+		proto_tree_add_item(subtree, hf_rdpudp2_AckTs, tvb2, offset, 3, ENC_LITTLE_ENDIAN); offset += 3;
+		proto_tree_add_item(subtree, hf_rdpudp2_AckSendTimeGap, tvb2, offset, 1, ENC_LITTLE_ENDIAN); offset++;
 
-		proto_tree_add_item(subtree, pf_rdpudp2_ndelayedAcks, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(subtree, pf_rdpudp2_delayedTimeScale, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpudp2_ndelayedAcks, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpudp2_delayedTimeScale, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
 		offset += nacks;
@@ -499,7 +499,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 
 	if (flags & RDPUDP2_OVERHEAD) {
 		subtree = proto_tree_add_subtree(tree, tvb2, offset, 1, ett_rdpudp2_overhead, NULL, "Overhead");
-		proto_tree_add_item(subtree, pf_rdpudp2_OverHeadSize, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpudp2_OverHeadSize, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "OVERHEAD");
 	}
@@ -507,9 +507,9 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 
 	if (flags & RDPUDP2_DELAYACK) {
 		subtree = proto_tree_add_subtree(tree, tvb2, offset, 3, ett_rdpudp2_delayack, NULL, "DelayAck");
-		proto_tree_add_item(subtree, pf_rdpudp2_DelayAckMax, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpudp2_DelayAckMax, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
-		proto_tree_add_item(subtree, pf_rdpudp2_DelayAckTimeout, tvb2, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpudp2_DelayAckTimeout, tvb2, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "DELAYACK");
@@ -517,7 +517,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 
 	if (flags & RDPUDP2_AOA) {
 		subtree = proto_tree_add_subtree(tree, tvb2, offset, 1, ett_rdpudp2_aoa, NULL, "Ack of Acks");
-		proto_tree_add_item(subtree, pf_rdpudp2_AckOfAcksSeqNum, tvb2, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpudp2_AckOfAcksSeqNum, tvb2, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "AOA");
 	}
@@ -530,7 +530,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 
 		gboolean isDummy = !!(packet_type == 0x8);
 		data_tree = proto_tree_add_subtree(tree, tvb2, offset, 1, ett_rdpudp2_data, NULL, isDummy ? "Dummy data" : "Data");
-		proto_tree_add_item_ret_uint(data_tree, pf_rdpudp2_DataSeqNumber, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &rawSeq);
+		proto_tree_add_item_ret_uint(data_tree, hf_rdpudp2_DataSeqNumber, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &rawSeq);
 
 		if (!PINFO_FD_VISITED(pinfo)) {
 			seqPtr = wmem_alloc(wmem_file_scope(), sizeof(*seqPtr));
@@ -541,7 +541,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 			seqPtr = (guint64 *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rdpudp, RDPUDP_FULL_DATA_SEQ_KEY);
 		}
 		proto_item_set_generated(
-				proto_tree_add_uint(data_tree, pf_rdpudp2_DataFullSeqNumber, tvb2, offset, 2, (guint32)*seqPtr)
+				proto_tree_add_uint(data_tree, hf_rdpudp2_DataFullSeqNumber, tvb2, offset, 2, (guint32)*seqPtr)
 		);
 
 		offset += 2;
@@ -563,18 +563,18 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 			ackvecSz += 3;
 
 		subtree = proto_tree_add_subtree(tree, tvb2, offset, ackvecSz, ett_rdpudp2_ackvec, NULL, "AckVec");
-		proto_tree_add_item_ret_uint(subtree, pf_rdpudp2_AckvecBaseSeq, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &base_seq);
+		proto_tree_add_item_ret_uint(subtree, hf_rdpudp2_AckvecBaseSeq, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &base_seq);
 		offset += 2;
 
-		proto_tree_add_item(subtree, pf_rdpudp2_AckvecCodecAckVecSize, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(subtree, pf_rdpudp2_AckvecHaveTs, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpudp2_AckvecCodecAckVecSize, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpudp2_AckvecHaveTs, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
 		if (haveTs) {
-			proto_tree_add_item(subtree, pf_rdpudp2_AckvecTimeStamp, tvb2, offset, 3, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_rdpudp2_AckvecTimeStamp, tvb2, offset, 3, ENC_LITTLE_ENDIAN);
 			offset += 3;
 
-			proto_tree_add_item(subtree, pf_rdpudp2_SendAckTimeGapInMs, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_rdpudp2_SendAckTimeGapInMs, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
 		}
 
@@ -607,10 +607,10 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 				base_seq += 7;
 			}
 
-			proto_tree_add_item(ack_tree, pf_rdpudp2_AckvecCodedAckMode, tvb2, offset + i, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ack_tree, hf_rdpudp2_AckvecCodedAckMode, tvb2, offset + i, 1, ENC_LITTLE_ENDIAN);
 			if (b & 0x80) {
-				proto_tree_add_item(ack_tree, pf_rdpudp2_AckvecCodedAckRleState, tvb2, offset + i, 1, ENC_LITTLE_ENDIAN);
-				proto_tree_add_item(ack_tree, pf_rdpudp2_AckvecCodedAckRleLen, tvb2, offset + i, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ack_tree, hf_rdpudp2_AckvecCodedAckRleState, tvb2, offset + i, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ack_tree, hf_rdpudp2_AckvecCodedAckRleLen, tvb2, offset + i, 1, ENC_LITTLE_ENDIAN);
 			}
 		}
 
@@ -627,7 +627,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		wmem_tree_t *targetTree = is_server_target ? rdpudp->client_chunks : rdpudp->server_chunks;
 		rdpudp_seq_context_t *target_seq_context = is_server_target ? &rdpudp->client_channel_seq : &rdpudp->server_channel_seq;
 
-		proto_tree_add_item_ret_uint(data_tree, pf_rdpudp2_DataChannelSeqNumber, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &rawSeq);
+		proto_tree_add_item_ret_uint(data_tree, hf_rdpudp2_DataChannelSeqNumber, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &rawSeq);
 		if (!PINFO_FD_VISITED(pinfo)) {
 			seqPtr = wmem_alloc(wmem_file_scope(), sizeof(*seqPtr));
 			*seqPtr = computeAndUpdateSeqContext(target_seq_context, rawSeq);
@@ -637,7 +637,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 			seqPtr = (guint64 *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rdpudp, RDPUDP_FULL_CHANNEL_SEQ_KEY);
 		}
 		proto_item_set_generated(
-				proto_tree_add_uint(data_tree, pf_rdpudp2_DataChannelFullSeqNumber, tvb2, offset, 2, (guint32)*seqPtr)
+				proto_tree_add_uint(data_tree, hf_rdpudp2_DataChannelFullSeqNumber, tvb2, offset, 2, (guint32)*seqPtr)
 		);
 		offset += 2;
 
@@ -703,220 +703,220 @@ void
 proto_register_rdpudp(void) {
 	/* List of fields */
 	static hf_register_info hf[] = {
-	  { &pf_rdpudp_snSourceAck,
+	  { &hf_rdpudp_snSourceAck,
 		{"snSourceAck", "rdpudp.snsourceack", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL},
 	  },
-	  { &pf_rdpudp_ReceiveWindowSize,
+	  { &hf_rdpudp_ReceiveWindowSize,
 		{"ReceiveWindowSize", "rdpudp.receivewindowsize", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flags,
+	  { &hf_rdpudp_flags,
 		{"Flags", "rdpudp.flags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_syn,
+	  { &hf_rdpudp_flag_syn,
 		{"Syn", "rdpudp.flags.syn", FT_BOOLEAN, 16, NULL, RDPUDP_SYN, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_fin,
+	  { &hf_rdpudp_flag_fin,
 		{"Fin", "rdpudp.flags.fin", FT_BOOLEAN, 16, NULL, RDPUDP_FIN, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_ack,
+	  { &hf_rdpudp_flag_ack,
 		{"Ack", "rdpudp.flags.ack", FT_BOOLEAN, 16, NULL, RDPUDP_ACK, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_data,
+	  { &hf_rdpudp_flag_data,
 		{"Data", "rdpudp.flags.data", FT_BOOLEAN, 16, NULL, RDPUDP_DATA, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_fec,
+	  { &hf_rdpudp_flag_fec,
 		{"FECData", "rdpudp.flags.fec", FT_BOOLEAN, 16, NULL, RDPUDP_FEC, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_cn,
+	  { &hf_rdpudp_flag_cn,
 		{"CN", "rdpudp.flags.cn", FT_BOOLEAN, 16, NULL, RDPUDP_CN, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_cwr,
+	  { &hf_rdpudp_flag_cwr,
 		{"CWR", "rdpudp.flags.cwr", FT_BOOLEAN, 16, NULL, RDPUDP_CWR, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_aoa,
+	  { &hf_rdpudp_flag_aoa,
 		{"Ack of Acks", "rdpudp.flags.aoa", FT_BOOLEAN, 16, NULL, RDPUDP_AOA, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_synlossy,
+	  { &hf_rdpudp_flag_synlossy,
 		{"Syn lossy", "rdpudp.flags.synlossy", FT_BOOLEAN, 16, NULL, RDPUDP_SYNLOSSY, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_ackdelayed,
+	  { &hf_rdpudp_flag_ackdelayed,
 		{"Ack delayed", "rdpudp.flags.ackdelayed", FT_BOOLEAN, 16, NULL, RDPUDP_ACKDELAYED, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_correlationId,
+	  { &hf_rdpudp_flag_correlationId,
 		{"Correlation id", "rdpudp.flags.correlationid", FT_BOOLEAN, 16, NULL, RDPUDP_CORRELATIONID, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_flag_synex,
+	  { &hf_rdpudp_flag_synex,
 		{"SynEx","rdpudp.flags.synex",FT_BOOLEAN,16,NULL,RDPUDP_SYNEX,NULL,HFILL}
 	  },
-	  { &pf_rdpudp_snInitialSequenceNumber,
+	  { &hf_rdpudp_snInitialSequenceNumber,
 		{"Initial SequenceNumber","rdpudp.initialsequencenumber", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_upstreamMtu,
+	  { &hf_rdpudp_upstreamMtu,
 		{"Upstream MTU", "rdpudp.upstreammtu", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_downstreamMtu,
+	  { &hf_rdpudp_downstreamMtu,
 		{"DownStream MTU", "rdpudp.downstreammtu", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_correlationId,
+	  { &hf_rdpudp_correlationId,
 		{"Correlation Id", "rdpudp.correlationid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_synex_flags,
+	  { &hf_rdpudp_synex_flags,
 		{"Flags", "rdpudp.synex.flags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_synex_flag_version,
+	  { &hf_rdpudp_synex_flag_version,
 		{"Version info", "rdpudp.synex.flags.versioninfo", FT_BOOLEAN, 8, NULL, 0x0001, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_synex_version,
+	  { &hf_rdpudp_synex_version,
 		{"Version", "rdpudp.synex.version", FT_UINT16, BASE_HEX, VALS(rdpudp_version_vals), 0, NULL, HFILL}
 	  },
-	  {&pf_rdpudp_synex_cookiehash,
+	  {&hf_rdpudp_synex_cookiehash,
 		{"Cookie Hash", "rdpudp.synex.cookiehash", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_ack_vectorsize,
+	  { &hf_rdpudp_ack_vectorsize,
 		{"uAckVectorSize", "rdpudp.ack.vectorsize", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_ack_item,
+	  { &hf_rdpudp_ack_item,
 		{"Ack item", "rdpudp.ack.item", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_ack_item_state,
+	  { &hf_rdpudp_ack_item_state,
 		{"VECTOR_ELEMENT_STATE", "rdpudp.ack.item.state", FT_UINT8, BASE_HEX, VALS(rdpudp_ack_states_vals), 0xc0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_ack_item_rle,
+	  { &hf_rdpudp_ack_item_rle,
 		{"Run length", "rdpudp.ack.item.rle", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_fec_coded,
+	  { &hf_rdpudp_fec_coded,
 		{"snCoded", "rdpudp.fec.coded", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_fec_sourcestart,
+	  { &hf_rdpudp_fec_sourcestart,
 		{"snSourceStart", "rdpudp.fec.sourcestart", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_fec_range,
+	  { &hf_rdpudp_fec_range,
 		{"Range", "rdpudp.fec.range", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_fec_fecindex,
+	  { &hf_rdpudp_fec_fecindex,
 		{"Fec index", "rdpudp.fec.fecindex", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_resetseqenum,
+	  { &hf_rdpudp_resetseqenum,
 		{"snResetSeqNum", "rdpudp.resetSeqNum", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_source_sncoded,
+	  { &hf_rdpudp_source_sncoded,
 		{"snCoded", "rdpudp.data.sncoded", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_source_snSourceStart,
+	  { &hf_rdpudp_source_snSourceStart,
 		{"snSourceStart", "rdpudp.data.sourceStart", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp_data,
+	  { &hf_rdpudp_data,
 		{"Data", "rdpudp.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
 	  },
 
 
-	  { &pf_rdpudp2_PacketPrefixByte,
-		{"PacketPrefixByte", "rdpudp2.prefixbyte", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_PacketPrefixByte,
+		{"PacketPrefixByte", "rdpudp.prefixbyte", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_packetType,
-		{"PacketType", "rdpudp2.packetType", FT_UINT8, BASE_HEX, VALS(rdpudp2_packetType_vals), 0x1e, NULL, HFILL}
+	  { &hf_rdpudp2_packetType,
+		{"PacketType", "rdpudp.packetType", FT_UINT8, BASE_HEX, VALS(rdpudp2_packetType_vals), 0x1e, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_shortPacketLength,
-		{"Short packet length", "rdpudp2.shortpacketlen", FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL}
+	  { &hf_rdpudp2_shortPacketLength,
+		{"Short packet length", "rdpudp.shortpacketlen", FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_flags,
-		 {"Flags", "rdpudp2.flags", FT_UINT16, BASE_HEX, NULL, 0xfff, NULL, HFILL}
+	  { &hf_rdpudp2_flags,
+		 {"Flags", "rdpudp.flags", FT_UINT16, BASE_HEX, NULL, 0xfff, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_flag_ack,
-		{"Ack", "rdpudp2.flags.ack", FT_UINT16, BASE_HEX, NULL, RDPUDP2_ACK, NULL, HFILL}
+	  { &hf_rdpudp2_flag_ack,
+		{"Ack", "rdpudp.flags.ack", FT_UINT16, BASE_HEX, NULL, RDPUDP2_ACK, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_flag_data,
-		{"Data", "rdpudp2.flags.data", FT_UINT16, BASE_HEX, NULL, RDPUDP2_DATA, NULL, HFILL}
+	  { &hf_rdpudp2_flag_data,
+		{"Data", "rdpudp.flags.data", FT_UINT16, BASE_HEX, NULL, RDPUDP2_DATA, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_flag_ackvec,
-		{"AckVec", "rdpudp2.flags.ackvec", FT_UINT16, BASE_HEX, NULL, RDPUDP2_ACKVEC, NULL, HFILL}
+	  { &hf_rdpudp2_flag_ackvec,
+		{"AckVec", "rdpudp.flags.ackvec", FT_UINT16, BASE_HEX, NULL, RDPUDP2_ACKVEC, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_flag_aoa,
-		{"AckOfAcks", "rdpudp2.flags.ackofacks", FT_UINT16, BASE_HEX, NULL, RDPUDP2_AOA, NULL, HFILL}
+	  { &hf_rdpudp2_flag_aoa,
+		{"AckOfAcks", "rdpudp.flags.ackofacks", FT_UINT16, BASE_HEX, NULL, RDPUDP2_AOA, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_flag_overhead,
-		{"OverheadSize", "rdpudp2.flags.overheadsize", FT_UINT16, BASE_HEX, NULL, RDPUDP2_OVERHEAD, NULL, HFILL}
+	  { &hf_rdpudp2_flag_overhead,
+		{"OverheadSize", "rdpudp.flags.overheadsize", FT_UINT16, BASE_HEX, NULL, RDPUDP2_OVERHEAD, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_flag_delayackinfo,
-		{"DelayedAckInfo", "rdpudp2.flags.delayackinfo", FT_UINT16, BASE_HEX, NULL, RDPUDP2_DELAYACK, NULL, HFILL}
+	  { &hf_rdpudp2_flag_delayackinfo,
+		{"DelayedAckInfo", "rdpudp.flags.delayackinfo", FT_UINT16, BASE_HEX, NULL, RDPUDP2_DELAYACK, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_logWindow,
-		{"LogWindow", "rdpudp2.logWindow", FT_UINT16, BASE_DEC, NULL, 0xf000, NULL, HFILL}
+	  { &hf_rdpudp2_logWindow,
+		{"LogWindow", "rdpudp.logWindow", FT_UINT16, BASE_DEC, NULL, 0xf000, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckSeq,
-		{"Base Seq", "rdpudp2.ack.seqnum", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_AckSeq,
+		{"Base Seq", "rdpudp.ack.seqnum", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckTs,
-		{"receivedTS", "rdpudp2.ack.ts", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_AckTs,
+		{"receivedTS", "rdpudp.ack.ts", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckSendTimeGap,
-		{"sendTimeGap", "rdpudp2.ack.sendTimeGap", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_AckSendTimeGap,
+		{"sendTimeGap", "rdpudp.ack.sendTimeGap", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_ndelayedAcks,
-		{"NumDelayedAcks", "rdpudp2.ack.numDelayedAcks", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL}
+	  { &hf_rdpudp2_ndelayedAcks,
+		{"NumDelayedAcks", "rdpudp.ack.numDelayedAcks", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_delayedTimeScale,
-		{"delayedTimeScale", "rdpudp2.ack.delayedTimeScale", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL}
+	  { &hf_rdpudp2_delayedTimeScale,
+		{"delayedTimeScale", "rdpudp.ack.delayedTimeScale", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_delayedAcks,
-		{"Delayed acks", "rdpudp2.ack.delayedAcks", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_delayedAcks,
+		{"Delayed acks", "rdpudp.ack.delayedAcks", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_delayedAck,
-		{"Delayed ack", "rdpudp2.ack.delayedAck", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_delayedAck,
+		{"Delayed ack", "rdpudp.ack.delayedAck", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_OverHeadSize,
-		{"Overhead size", "rdpudp2.overheadsize", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_OverHeadSize,
+		{"Overhead size", "rdpudp.overheadsize", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_DelayAckMax,
-		{"MaxDelayedAcks", "rdpudp2.delayackinfo.max", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_DelayAckMax,
+		{"MaxDelayedAcks", "rdpudp.delayackinfo.max", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_DelayAckTimeout,
-		{"DelayedAckTimeoutInMs", "rdpudp2.delayackinfo.timeout", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_DelayAckTimeout,
+		{"DelayedAckTimeoutInMs", "rdpudp.delayackinfo.timeout", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckOfAcksSeqNum,
-		{"Sequence number", "rdpudp2.ackofacksseqnum", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_AckOfAcksSeqNum,
+		{"Sequence number", "rdpudp.ackofacksseqnum", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_DataSeqNumber,
-		{"Sequence number", "rdpudp2.data.seqnum", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_DataSeqNumber,
+		{"Sequence number", "rdpudp.data.seqnum", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_DataFullSeqNumber,
-		{"Full sequence number", "rdpudp2.data.fullseqnum", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_DataFullSeqNumber,
+		{"Full sequence number", "rdpudp.data.fullseqnum", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_DataChannelSeqNumber,
-		{"Channel sequence number", "rdpudp2.data.channelseqnumber", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_DataChannelSeqNumber,
+		{"Channel sequence number", "rdpudp.data.channelseqnumber", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_DataChannelFullSeqNumber,
-		{"Channel full sequence number", "rdpudp2.data.channelfullseqnumber", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_DataChannelFullSeqNumber,
+		{"Channel full sequence number", "rdpudp.data.channelfullseqnumber", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_Data,
-		{"Data", "rdpudp2.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_Data,
+		{"Data", "rdpudp.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckvecBaseSeq,
-		{"Base sequence number", "rdpudp2.ackvec.baseseqnum", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_AckvecBaseSeq,
+		{"Base sequence number", "rdpudp.ackvec.baseseqnum", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckvecCodecAckVecSize,
-		{"Coded ackvec size","rdpudp2.ackvec.codedackvecsize", FT_UINT16, BASE_DEC, NULL, 0x7f, NULL, HFILL}
+	  { &hf_rdpudp2_AckvecCodecAckVecSize,
+		{"Coded ackvec size","rdpudp.ackvec.codedackvecsize", FT_UINT16, BASE_DEC, NULL, 0x7f, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckvecHaveTs,
-		{"Have timestamp", "rdpudp2.ackvec.havets", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+	  { &hf_rdpudp2_AckvecHaveTs,
+		{"Have timestamp", "rdpudp.ackvec.havets", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckvecTimeStamp,
-		{"Timestamp", "rdpudp2.ackvec.timestamp", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_AckvecTimeStamp,
+		{"Timestamp", "rdpudp.ackvec.timestamp", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_SendAckTimeGapInMs,
-		{"SendAckTimeGap", "rdpudp2.ackvec.sendacktimegap", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL}
+	  { &hf_rdpudp2_SendAckTimeGapInMs,
+		{"SendAckTimeGap", "rdpudp.ackvec.sendacktimegap", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckvecCodedAck,
-		{"Coded Ack", "rdpudp2.ackvec.codedAck", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}
+	  { &hf_rdpudp2_AckvecCodedAck,
+		{"Coded Ack", "rdpudp.ackvec.codedAck", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckvecCodedAckMode,
-		{"Mode", "rdpudp2.ackvec.codecAckMode", FT_UINT8, BASE_HEX, VALS(rdpudp2_ackvec_mode_vals), 0x80, NULL, HFILL}
+	  { &hf_rdpudp2_AckvecCodedAckMode,
+		{"Mode", "rdpudp.ackvec.codecAckMode", FT_UINT8, BASE_HEX, VALS(rdpudp2_ackvec_mode_vals), 0x80, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckvecCodedAckRleState,
-		{"State", "rdpudp2.ackvec.codecAckRleState", FT_UINT8, BASE_DEC, VALS(rdpudp2_ackvec_rlestates_vals), 0x40, NULL, HFILL}
+	  { &hf_rdpudp2_AckvecCodedAckRleState,
+		{"State", "rdpudp.ackvec.codecAckRleState", FT_UINT8, BASE_DEC, VALS(rdpudp2_ackvec_rlestates_vals), 0x40, NULL, HFILL}
 	  },
-	  { &pf_rdpudp2_AckvecCodedAckRleLen,
-		{"Length", "rdpudp2.ackvec.codecAckRleLen", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL}
+	  { &hf_rdpudp2_AckvecCodedAckRleLen,
+		{"Length", "rdpudp.ackvec.codecAckRleLen", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL}
 	  }
 	};
 
