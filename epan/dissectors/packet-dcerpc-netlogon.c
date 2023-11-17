@@ -92,20 +92,21 @@ static wmem_map_t *netlogon_auths=NULL;
 #if 0
 static wmem_map_t *schannel_auths;
 #endif
-static gint hf_netlogon_TrustedDomainName_string = -1;
-static gint hf_netlogon_UserName_string = -1;
-static gint DomainInfo_sid = -1;
-static gint DnsDomainInfo_sid = -1;
-static gint DnsDomainInfo_domain_guid = -1;
-static gint DnsDomainInfo_dns_domain = -1;
-static gint DnsDomainInfo_dns_forest = -1;
-static gint DnsDomainInfo_name = -1;
+static int proto_dcerpc_netlogon = -1;
+
+static int hf_netlogon_TrustedDomainName_string = -1;
+static int hf_netlogon_UserName_string = -1;
+static int hf_domain_info_sid = -1;
+static int hf_dns_domain_info_sid = -1;
+static int hf_dns_domain_info_domain_guid = -1;
+static int hf_dns_domain_info_dns_domain = -1;
+static int hf_dns_domain_info_dns_forest = -1;
+static int hf_dns_domain_info_name = -1;
 static int hf_client_challenge = -1;
 static int hf_server_rid = -1;
 static int hf_server_challenge = -1;
 static int hf_client_credential = -1;
 static int hf_server_credential = -1;
-static int proto_dcerpc_netlogon = -1;
 static int hf_netlogon_logon_dnslogondomainname = -1;
 static int hf_netlogon_logon_upn = -1;
 static int hf_netlogon_group_attrs_mandatory = -1;
@@ -5840,21 +5841,21 @@ dissect_ndr_ulongs_as_counted_string(tvbuff_t *tvb, int offset,
 static int
 DomainInfo_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-    offset = lsarpc_dissect_struct_dom_sid2(tvb, offset, pinfo, tree, di, drep, DomainInfo_sid, 0);
+    offset = lsarpc_dissect_struct_dom_sid2(tvb, offset, pinfo, tree, di, drep, hf_domain_info_sid, 0);
 
     return offset;
 }
 static int
 dissect_element_lsa_DnsDomainInfo_sid(tvbuff_t *tvb , int offset , packet_info *pinfo , proto_tree *tree , dcerpc_info *di, guint8 *drep )
 {
-    offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, DomainInfo_sid_, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",DnsDomainInfo_sid);
+    offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, DomainInfo_sid_, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)", hf_dns_domain_info_sid);
 
     return offset;
 }
 static int
 dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep )
 {
-    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, DnsDomainInfo_domain_guid, NULL);
+    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_dns_domain_info_domain_guid, NULL);
 
     return offset;
 }
@@ -5863,11 +5864,11 @@ dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb, int offset, packet_
 static int dissect_part_DnsDomainInfo(tvbuff_t *tvb , int offset, packet_info *pinfo, proto_tree *tree , dcerpc_info *di, guint8 *drep,  int hf_index _U_, guint32 param _U_)
 {
 
-    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb, offset, pinfo, tree, di, drep, DnsDomainInfo_name, 0);
+    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb, offset, pinfo, tree, di, drep, hf_dns_domain_info_name, 0);
 
-    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset, pinfo, tree, di, drep, DnsDomainInfo_dns_domain, 0);
+    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset, pinfo, tree, di, drep, hf_dns_domain_info_dns_domain, 0);
 
-    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset, pinfo, tree, di, drep, DnsDomainInfo_dns_forest, 0);
+    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset, pinfo, tree, di, drep, hf_dns_domain_info_dns_forest, 0);
 
     offset = dissect_element_lsa_DnsDomainInfo_domain_guid(tvb, offset, pinfo, tree, di, drep);
 
@@ -9609,18 +9610,18 @@ proto_register_dcerpc_netlogon(void)
             NULL, 0x0, NULL, HFILL }},
 #endif
 
-        { &DnsDomainInfo_sid,
-          { "Sid", "lsarpc.lsa_DnsDomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &DomainInfo_sid,
-          { "Sid", "lsarpc.lsa_DomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &DnsDomainInfo_domain_guid,
-          { "Domain Guid", "lsarpc.lsa_DnsDomainInfo.domain_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &DnsDomainInfo_dns_forest,
-          { "Dns Forest", "lsarpc.lsa_DnsDomainInfo.dns_forest", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &DnsDomainInfo_dns_domain,
-          { "Dns Domain", "lsarpc.lsa_DnsDomainInfo.dns_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &DnsDomainInfo_name,
-          { "Name", "lsarpc.lsa_DnsDomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_dns_domain_info_sid,
+          { "Sid", "netlogon.lsa_DnsDomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_domain_info_sid,
+          { "Sid", "netlogon.lsa_DomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_dns_domain_info_domain_guid,
+          { "Domain Guid", "netlogon.lsa_DnsDomainInfo.domain_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_dns_domain_info_dns_forest,
+          { "Dns Forest", "netlogon.lsa_DnsDomainInfo.dns_forest", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_dns_domain_info_dns_domain,
+          { "Dns Domain", "netlogon.lsa_DnsDomainInfo.dns_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_dns_domain_info_name,
+          { "Name", "netlogon.lsa_DnsDomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_netlogon_s4u2proxytarget,
           { "S4U2proxyTarget", "netlogon.s4u2proxytarget", FT_STRING, BASE_NONE,
             NULL, 0, "Target for constrained delegation using s4u2proxy", HFILL }},
