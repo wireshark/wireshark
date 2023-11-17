@@ -395,6 +395,61 @@ found:
     return WTAP_OPEN_MINE;
 }
 
+static int mp2t_dump_can_write_encap(int encap)
+{
+    /* Per-packet encapsulations aren't supported. */
+    if (encap == WTAP_ENCAP_PER_PACKET) {
+        return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+    }
+
+    /* This is the only encapsulation type we write. */
+    if (encap != WTAP_ENCAP_MPEG_2_TS) {
+        return WTAP_ERR_UNWRITABLE_ENCAP;
+    }
+
+    return 0;
+}
+
+/* Write a record for a packet to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean mp2t_dump(wtap_dumper *wdh, const wtap_rec *rec,
+    const uint8_t *pd, int *err, char **err_info _U_)
+{
+    /* We can only write packet records. */
+    if (rec->rec_type != REC_TYPE_PACKET) {
+        *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+        return FALSE;
+    }
+
+    /*
+     * Make sure this packet doesn't have a link-layer type that
+     * differs from the one for the file.
+     */
+    if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
+        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+        return FALSE;
+    }
+
+    /* A MPEG-2 Transport Stream is just the packet bytes, with no header.
+     * The sync byte is supposed to identify where packets start.
+     */
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err)) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   failure */
+static gboolean mp2t_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_)
+{
+    /* There is no header, so we just always return true. */
+    wdh->subtype_write = mp2t_dump;
+
+    return TRUE;
+}
+
 static const struct supported_block_type mp2t_blocks_supported[] = {
     /*
      * We support packet blocks, with no comments or other options.
@@ -405,7 +460,7 @@ static const struct supported_block_type mp2t_blocks_supported[] = {
 static const struct file_type_subtype_info mp2t_info = {
     "MPEG2 transport stream", "mp2t", "mp2t", "ts;mpg",
     FALSE, BLOCKS_SUPPORTED(mp2t_blocks_supported),
-    NULL, NULL, NULL
+    mp2t_dump_can_write_encap, mp2t_dump_open, NULL
 };
 
 void register_mp2t(void)
