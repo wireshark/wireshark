@@ -1328,20 +1328,20 @@ const value_string service_action_vals[] = {
    action is set to.
 */
 static void
-dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
-                           proto_tree *tree, guint offset, gboolean isreq,
+dissect_sbc_serviceactionin16 (tvbuff_t *tvb_a, packet_info *pinfo _U_,
+                           proto_tree *tree, guint offset_a, gboolean isreq,
                            gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8      service_action;
-    guint32     block_len;
+    guint32     block_len, alloc_len;
     guint64     len, tot_len;
     const char *un;
 
     proto_item      *it = NULL;
 
     if (isreq && iscdb) {
-        service_action = tvb_get_guint8 (tvb, offset) & 0x1F;
+        service_action = tvb_get_guint8(tvb_a, offset_a) & 0x1F;
         if(cdata && cdata->itlq){
             cdata->itlq->flags=service_action;
         }
@@ -1350,117 +1350,115 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
             case SERVICE_READ_CAPACITY16:
                 col_append_str(pinfo->cinfo, COL_INFO, " READCAPACITY16");
 
-                if (!tree)
-                        return;
+                proto_tree_add_item(tree, hf_scsi_sbc_service_action, tvb_a, offset_a, 1, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item (tree, hf_scsi_sbc_service_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset_a += 9;
 
-                offset += 9;
+                proto_tree_add_item_ret_uint(tree, hf_scsi_sbc_alloclen32, tvb_a, offset_a, 4, ENC_BIG_ENDIAN, &alloc_len);
+                if (cdata && cdata->itlq) {
+                    cdata->itlq->alloc_len = alloc_len;
+                }
+                offset_a += 5;
 
-                proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 5;
-
-                proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+                proto_tree_add_bitmask(tree, tvb_a, offset_a, hf_scsi_control,
                         ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
-                offset++;
+                offset_a++;
 
                 break;
             case SERVICE_READ_LONG16:
                 col_append_str(pinfo->cinfo, COL_INFO, " READ_LONG16");
 
-                if (!tree)
-                        return;
+                proto_tree_add_item(tree, hf_scsi_sbc_service_action, tvb_a, offset_a, 1, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item (tree, hf_scsi_sbc_service_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset_a++;
 
-                offset++;
+                proto_tree_add_item(tree, hf_scsi_sbc_lba64_address, tvb_a, offset_a, 8, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item (tree, hf_scsi_sbc_lba64_address, tvb, offset, 8, ENC_BIG_ENDIAN);
-
-                offset+=8;
+                offset_a+=8;
 
                 /* two reserved bytes */
-                offset+=2;
+                offset_a+=2;
 
-                proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset+=2;
+                proto_tree_add_item_ret_uint(tree, hf_scsi_sbc_alloclen16, tvb_a, offset_a, 2, ENC_BIG_ENDIAN, &alloc_len);
+                if (cdata && cdata->itlq) {
+                    cdata->itlq->alloc_len = alloc_len;
+                }
+                offset_a+=2;
 
                 /* CORRCT bit */
-                offset++;
+                offset_a++;
 
-                proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+                proto_tree_add_bitmask(tree, tvb_a, offset_a, hf_scsi_control,
                         ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
-                offset++;
+                offset_a++;
 
                 break;
             case SERVICE_GET_LBA_STATUS:
                 col_append_str(pinfo->cinfo, COL_INFO, " GET_LBA_STATUS");
 
-                if (!tree)
-                        return;
+                proto_tree_add_item(tree, hf_scsi_sbc_service_action, tvb_a, offset_a, 1, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item (tree, hf_scsi_sbc_service_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset_a++;
 
-                offset++;
+                proto_tree_add_item(tree, hf_scsi_sbc_get_lba_status_lba, tvb_a, offset_a, 8, ENC_BIG_ENDIAN);
+                offset_a += 8;
 
-                proto_tree_add_item (tree, hf_scsi_sbc_get_lba_status_lba, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
-
-                proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
+                proto_tree_add_item_ret_uint(tree, hf_scsi_sbc_alloclen32, tvb_a, offset_a, 4, ENC_BIG_ENDIAN, &alloc_len);
+                if (cdata && cdata->itlq) {
+                    cdata->itlq->alloc_len = alloc_len;
+                }
+                offset_a += 4;
 
                 /* reserved */
-                offset++;
+                offset_a++;
 
-                proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+                proto_tree_add_bitmask(tree, tvb_a, offset_a, hf_scsi_control,
                         ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
-                offset++;
+                offset_a++;
 
                 break;
             case SERVICE_REPORT_REFERRALS:
                 col_append_str(pinfo->cinfo, COL_INFO, " REPORT_REFERRALS");
 
-                if (!tree)
-                        return;
+                proto_tree_add_item(tree, hf_scsi_sbc_service_action, tvb_a, offset_a, 1, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item (tree, hf_scsi_sbc_service_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset_a++;
 
-                offset++;
+                proto_tree_add_item(tree, hf_scsi_sbc_lba64_address, tvb_a, offset_a, 8, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item (tree, hf_scsi_sbc_lba64_address, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset_a += 8;
 
-                offset += 8;
+                proto_tree_add_item_ret_uint(tree, hf_scsi_sbc_alloclen32, tvb_a, offset_a, 4, ENC_BIG_ENDIAN, &alloc_len);
+                if (cdata && cdata->itlq) {
+                    cdata->itlq->alloc_len = alloc_len;
+                }
 
-                proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-                offset +=4;
+                offset_a +=4;
 
                 /* reserved */
-                offset++;
+                offset_a++;
 
-                proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+                proto_tree_add_bitmask(tree, tvb_a, offset_a, hf_scsi_control,
                         ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
-                offset++;
+                offset_a++;
 
                 break;
             default:
                 col_append_str(pinfo->cinfo, COL_INFO, " RESERVED");
 
-                if (!tree)
-                        return;
-
-                proto_tree_add_uint_format_value(tree, hf_scsi_sbc_service_action, tvb, offset, 1, service_action, "Reserved (0x%x)", service_action);
+                proto_tree_add_uint_format_value(tree, hf_scsi_sbc_service_action, tvb_a, offset_a, 1, service_action, "Reserved (0x%x)", service_action);
                 break;
         };
     } else if (!iscdb) {
-        if (!tree)
-                return;
 
         if(cdata && cdata->itlq){
+            TRY_SCSI_CDB_ALLOC_LEN(cdata->itlq->alloc_len);
+
             switch(cdata->itlq->flags){
                 case SERVICE_READ_CAPACITY16:
-                    len = tvb_get_ntoh64 (tvb, offset);
-                    block_len = tvb_get_ntohl (tvb, offset+8);
+
+                    len = tvb_get_ntoh64 (try_tvb, try_offset);
+                    block_len = tvb_get_ntohl (try_tvb, try_offset+8);
                     tot_len=((len/1024)*block_len)/1024; /*MB*/
                     un="MB";
                     if(tot_len>20000){
@@ -1468,55 +1466,58 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                         un="GB";
                     }
 
-                    it = proto_tree_add_item (tree, hf_scsi_sbc_lba64_address, tvb, offset, 8, ENC_BIG_ENDIAN);
+                    it = proto_tree_add_item (tree, hf_scsi_sbc_lba64_address, try_tvb, try_offset, 8, ENC_BIG_ENDIAN);
                     proto_item_append_text (it, " (%" PRIu64 " %s)", tot_len, un);
+                    try_offset += 8;
 
-                    proto_tree_add_item (tree, hf_scsi_sbc_blocksize, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_sbc_blocksize, try_tvb, try_offset, 4, ENC_BIG_ENDIAN);
+                    try_offset += 4;
 
-
-                    proto_tree_add_item (tree, hf_scsi_sbc_prot_en, tvb, offset+12, 1, ENC_BIG_ENDIAN);
-                    if (tvb_get_guint8(tvb, offset+12) & 0x01) {
+                    proto_tree_add_item (tree, hf_scsi_sbc_prot_en, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
+                    if (tvb_get_guint8(try_tvb, try_offset) & 0x01) {
                         /* only decode the protection type if protection is enabled */
-                        proto_tree_add_item (tree, hf_scsi_sbc_ptype, tvb, offset+12, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item (tree, hf_scsi_sbc_ptype, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
                     }
+                    try_offset += 1;
 
-                    proto_tree_add_item (tree, hf_scsi_sbc_p_i_exponent, tvb, offset+13, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item (tree, hf_scsi_sbc_lbppbe, tvb, offset+13, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_sbc_p_i_exponent, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_sbc_lbppbe, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
+                    try_offset += 1;
 
-                    proto_tree_add_item (tree, hf_scsi_sbc_lbpme, tvb, offset+14, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item (tree, hf_scsi_sbc_lbprz, tvb, offset+14, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item (tree, hf_scsi_sbc_lalba, tvb, offset+14, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_sbc_lbpme, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_sbc_lbprz, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_sbc_lalba, try_tvb, try_offset, 2, ENC_BIG_ENDIAN);
 
                     break;
                 case SERVICE_GET_LBA_STATUS:
-                    proto_tree_add_item (tree, hf_scsi_sbc_get_lba_status_data_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    offset += 4;
+                    proto_tree_add_item (tree, hf_scsi_sbc_get_lba_status_data_length, try_tvb, try_offset, 4, ENC_BIG_ENDIAN);
+                    try_offset += 4;
 
                     /* reserved */
-                    offset += 4;
+                    try_offset += 4;
 
-                    while (tvb_captured_length_remaining(tvb, offset) >= 16) {
+                    while (tvb_captured_length_remaining(try_tvb, try_offset) >= 16) {
                         proto_tree *tr;
                         guint64 lba;
                         guint32 num_blocks;
                         guint8  type;
 
-                        tr = proto_tree_add_subtree(tree, tvb, offset, 16, ett_scsi_lba_status_descriptor, &it, "LBA Status Descriptor:  ");
+                        tr = proto_tree_add_subtree(tree, try_tvb, try_offset, 16, ett_scsi_lba_status_descriptor, &it, "LBA Status Descriptor:  ");
 
-                        proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_lba, tvb, offset, 8, ENC_BIG_ENDIAN);
-                        lba = tvb_get_ntoh64(tvb, offset);
-                        offset += 8;
+                        proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_lba, try_tvb, try_offset, 8, ENC_BIG_ENDIAN);
+                        lba = tvb_get_ntoh64(try_tvb, try_offset);
+                        try_offset += 8;
 
-                        proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_num_blocks, tvb, offset, 4, ENC_BIG_ENDIAN);
-                        num_blocks = tvb_get_ntohl(tvb, offset);
-                        offset += 4;
+                        proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_num_blocks, try_tvb, try_offset, 4, ENC_BIG_ENDIAN);
+                        num_blocks = tvb_get_ntohl(try_tvb, try_offset);
+                        try_offset += 4;
 
-                        proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_provisioning_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        type = tvb_get_guint8(tvb, offset) & 0x07;
-                        offset++;
+                        proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_provisioning_status, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
+                        type = tvb_get_guint8(try_tvb, try_offset) & 0x07;
+                        try_offset++;
 
                         /* reserved */
-                        offset += 3;
+                        try_offset += 3;
 
                         proto_item_append_text (it, "%" PRIu64 "-%" PRIu64 "  %s",
                                 lba,
@@ -1526,6 +1527,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                     }
                     break;
             }
+            END_TRY_SCSI_CDB_ALLOC_LEN;
         }
     }
 }

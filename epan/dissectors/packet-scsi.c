@@ -4544,6 +4544,9 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
         return (plen + 2);
     }
 
+    /* XXX: We should pass plen into these, to stop the dissection
+     * without a malformed error.
+     */
     if (!(*dissect_modepage)(tvb, pinfo, tree, offset,
                              pcode, spf, subpcode)) {
         proto_tree_add_expert(tree, pinfo, &ei_scsi_unknown_page, tvb, offset+2, plen);
