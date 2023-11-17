@@ -27,14 +27,15 @@ void proto_register_teimanagement(void);
 
 static dissector_handle_t teimanagement_handle;
 
-static int proto_tei=-1;
+static int proto_tei;
 
-static int lm_entity_id=-1;
-static int lm_reference=-1;
-static int lm_message=-1;
-static int lm_action=-1;
-static int lm_extend =-1;
-static gint lm_subtree=-1;
+static int hf_tei_management_entity_id;
+static int hf_tei_management_reference;
+static int hf_tei_management_message;
+static int hf_tei_management_action;
+static int hf_tei_management_extend;
+
+static gint ett_tei_management_subtree;
 
 #define TEI_ID_REQUEST    0x01
 #define TEI_ID_ASSIGNED   0x02
@@ -67,19 +68,19 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     if (tree) {
         tei_ti = proto_tree_add_item(tree, proto_tei, tvb, 0, 5, ENC_NA);
-        tei_tree = proto_item_add_subtree(tei_ti, lm_subtree);
+        tei_tree = proto_item_add_subtree(tei_ti, ett_tei_management_subtree);
 
-        proto_tree_add_item(tei_tree, lm_entity_id, tvb, 0, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tei_tree, lm_reference,  tvb, 1, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tei_tree, hf_tei_management_entity_id, tvb, 0, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tei_tree, hf_tei_management_reference,  tvb, 1, 2, ENC_BIG_ENDIAN);
     }
 
     message = tvb_get_guint8(tvb, 3);
         col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(message, tei_msg_vals, "Unknown message type (0x%04x)"));
     if (tree) {
-        proto_tree_add_uint(tei_tree, lm_message, tvb, 3, 1, message);
-        proto_tree_add_item(tei_tree, lm_action, tvb, 4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tei_tree, lm_extend, tvb, 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(tei_tree, hf_tei_management_message, tvb, 3, 1, message);
+        proto_tree_add_item(tei_tree, hf_tei_management_action, tvb, 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tei_tree, hf_tei_management_extend, tvb, 4, 1, ENC_BIG_ENDIAN);
     }
     return tvb_captured_length(tvb);
 }
@@ -88,28 +89,28 @@ void
 proto_register_teimanagement(void)
 {
     static gint *subtree[]={
-        &lm_subtree
+        &ett_tei_management_subtree
     };
 
     static hf_register_info hf[] = {
-        { &lm_entity_id,
-          { "Entity", "tei.entity", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { &hf_tei_management_entity_id,
+          { "Entity", "tei_management.entity", FT_UINT8, BASE_HEX, NULL, 0x0,
                 "Layer Management Entity Identifier", HFILL }},
 
-        { &lm_reference,
-          { "Reference", "tei.reference", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { &hf_tei_management_reference,
+          { "Reference", "tei_management.reference", FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Reference Number", HFILL }},
 
-        { &lm_message,
-          { "Msg", "tei.msg", FT_UINT8, BASE_DEC, VALS(tei_msg_vals), 0x0,
+        { &hf_tei_management_message,
+          { "Msg", "tei_management.msg", FT_UINT8, BASE_DEC, VALS(tei_msg_vals), 0x0,
                 "Message Type", HFILL }},
 
-        { &lm_action,
-          { "Action", "tei.action", FT_UINT8, BASE_DEC, NULL, 0xfe,
+        { &hf_tei_management_action,
+          { "Action", "tei_management.action", FT_UINT8, BASE_DEC, NULL, 0xfe,
                 "Action Indicator", HFILL }},
 
-        { &lm_extend,
-          { "Extend", "tei.extend", FT_UINT8, BASE_DEC, NULL, 0x01,
+        { &hf_tei_management_extend,
+          { "Extend", "tei_management.extend", FT_UINT8, BASE_DEC, NULL, 0x01,
                 "Extension Indicator", HFILL }}
     };
 
