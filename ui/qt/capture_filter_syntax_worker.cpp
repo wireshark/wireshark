@@ -110,6 +110,7 @@ void CaptureFilterSyntaxWorker::checkFilter(const QString filter)
         } else {
             DEBUG_SYNTAX_CHECK("unknown", "known good");
         }
+        pcap_freecode(&fcode);
         pcap_close(pd);
 
         pcap_compile_mtx_.unlock();
