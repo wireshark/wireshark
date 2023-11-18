@@ -47,37 +47,37 @@ static int proto_synphasor	 = -1;
 #define G_PMU_ID_LEN 16
 
 /* the ett... variables hold the state (open/close) of the treeview in the GUI */
-static gint ett_synphasor			= -1; /* root element for this protocol */
-  /* used in the common header */
-  static gint ett_frtype			= -1;
-  static gint ett_timequal			= -1;
-  /* used for config frames */
-  static gint ett_conf				= -1;
-    static gint ett_conf_station		= -1;
-      static gint ett_conf_format		= -1;
-      static gint ett_conf_phnam		= -1;
-      static gint ett_conf_annam		= -1;
-      static gint ett_conf_dgnam		= -1;
-      static gint ett_conf_phconv		= -1;
-      static gint ett_conf_phlist		= -1;
-      static gint ett_conf_phflags		= -1;
-      static gint ett_conf_phmod_flags		= -1;
-      static gint ett_conf_ph_user_flags	= -1;
-      static gint ett_conf_anconv		= -1;
-      static gint ett_conf_anlist		= -1;
-      static gint ett_conf_dgmask		= -1;
-      static gint ett_conf_chnam		= -1;
-      static gint ett_conf_wgs84		= -1;
-  /* used for data frames */
-  static gint ett_data				= -1;
-    static gint ett_data_block			= -1;
-      static gint ett_data_stat			= -1;
-      static gint ett_data_phasors		= -1;
-      static gint ett_data_analog		= -1;
-      static gint ett_data_digital		= -1;
-  /* used for command frames */
-  static gint ett_command			= -1;
-  static gint ett_status_word_mask		= -1;
+static gint ett_synphasor		= -1; /* root element for this protocol */
+/* used in the common header */
+static gint ett_frtype			= -1;
+static gint ett_timequal		= -1;
+/* used for config frames */
+static gint ett_conf			= -1;
+static gint ett_conf_station		= -1;
+static gint ett_conf_format		= -1;
+static gint ett_conf_phnam		= -1;
+static gint ett_conf_annam		= -1;
+static gint ett_conf_dgnam		= -1;
+static gint ett_conf_phconv		= -1;
+static gint ett_conf_phlist		= -1;
+static gint ett_conf_phflags		= -1;
+static gint ett_conf_phmod_flags	= -1;
+static gint ett_conf_ph_user_flags	= -1;
+static gint ett_conf_anconv		= -1;
+static gint ett_conf_anlist		= -1;
+static gint ett_conf_dgmask		= -1;
+static gint ett_conf_chnam		= -1;
+static gint ett_conf_wgs84		= -1;
+/* used for data frames */
+static gint ett_data			= -1;
+static gint ett_data_block		= -1;
+static gint ett_data_stat		= -1;
+static gint ett_data_phasors		= -1;
+static gint ett_data_analog		= -1;
+static gint ett_data_digital		= -1;
+/* used for command frames */
+static gint ett_command			= -1;
+static gint ett_status_word_mask	= -1;
 
 /* handles to the header fields hf[] in proto_register_synphasor() */
 static int hf_sync			= -1;
