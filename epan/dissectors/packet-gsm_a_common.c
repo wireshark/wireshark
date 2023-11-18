@@ -4975,7 +4975,6 @@ proto_register_gsm_a_common(void)
     ett[1] = &ett_gsm_a_poly_pnt;
     for (i=0; i < NUM_GSM_COMMON_ELEM; i++, last_offset++)
     {
-        ett_gsm_common_elem[i] = -1;
         ett[last_offset]       = &ett_gsm_common_elem[i];
     }
 

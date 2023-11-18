@@ -469,14 +469,12 @@ proto_register_falcoplugin(void)
 
     size_t ncategories = get_syscall_source_ncategories(bridges[0].ssi);
     hf_syscall_category = (hf_register_info*)wmem_alloc0(wmem_epan_scope(), ncategories * sizeof(hf_register_info));
-    hf_syscall_category_ids = (int*)wmem_alloc(wmem_epan_scope(), ncategories * sizeof(int));
-    syscall_category_etts = (int*)wmem_alloc(wmem_epan_scope(), ncategories * sizeof(int));
+    hf_syscall_category_ids = (int*)wmem_alloc0(wmem_epan_scope(), ncategories * sizeof(int));
+    syscall_category_etts = (int*)wmem_alloc0(wmem_epan_scope(), ncategories * sizeof(int));
     int **syscall_category_ett_ptrs = (int**)g_new(int **, ncategories);
     sinsp_field_info_t csfi;
     for (size_t i = 0; i < ncategories; i++) {
         get_syscall_source_category_info(bridges[0].ssi, i, &csfi);
-        hf_syscall_category_ids[i] = -1;
-        syscall_category_etts[i] = -1;
         syscall_category_ett_ptrs[i] = &syscall_category_etts[i];
 
         hf_register_info finfo = {

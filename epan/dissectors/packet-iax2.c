@@ -3375,11 +3375,7 @@ proto_register_iax2(void)
 
   expert_module_t* expert_iax;
 
-  /* initialize the hf_iax2_ies[] array to -1 */
-  memset(hf_iax2_ies, 0xff, sizeof(hf_iax2_ies));
-
-  proto_iax2 =
-    proto_register_protocol("Inter-Asterisk eXchange v2", "IAX2", "iax2");
+  proto_iax2 = proto_register_protocol("Inter-Asterisk eXchange v2", "IAX2", "iax2");
   proto_register_field_array(proto_iax2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_iax = expert_register_protocol(proto_iax2);

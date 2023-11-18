@@ -41,7 +41,8 @@ static int hf_teredo_orig_port = -1;
 static int hf_teredo_orig_addr = -1;
 
 static gint ett_teredo = -1;
-static gint ett_teredo_auth = -1, ett_teredo_orig = -1;
+static gint ett_teredo_auth = -1;
+static gint ett_teredo_orig = -1;
 
 typedef struct {
 	guint16 th_indtyp;

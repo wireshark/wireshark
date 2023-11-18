@@ -2594,7 +2594,6 @@ proto_register_lmp(void)
     expert_module_t* expert_lmp;
 
     for (i=0; i<NUM_LMP_SUBTREES; i++) {
-        lmp_subtree[i] = -1;
         ett[i] = &lmp_subtree[i];
     }
 

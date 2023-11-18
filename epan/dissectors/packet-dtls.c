@@ -143,7 +143,7 @@ static gint hf_dtls_hs_ext_use_srtp_mki_length                  = -1;
 static gint hf_dtls_hs_ext_use_srtp_mki                         = -1;
 
 /* header fields used in ssl-utils, but defined here. */
-static dtls_hfs_t dtls_hfs = { -1, -1 };
+static dtls_hfs_t dtls_hfs;
 
 /* Initialize the subtree pointers */
 static gint ett_dtls                   = -1;

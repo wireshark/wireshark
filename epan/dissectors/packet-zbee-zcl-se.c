@@ -14539,7 +14539,6 @@ proto_register_zbee_zcl_events(void)
 
     /* Initialize Publish Event Log subtrees */
     for (guint i = 0; i < ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT; i++, j++) {
-        ett_zbee_zcl_events_publish_event_log_entry[i] = -1;
         ett[j] = &ett_zbee_zcl_events_publish_event_log_entry[i];
     }
 

@@ -171,7 +171,7 @@ static int hf_isakmp_notify_data_redirect_org_resp_gw_ident = -1;
 static int hf_isakmp_notify_data_ticket_lifetime = -1;
 static int hf_isakmp_notify_data_ticket_data = -1;
 
-static attribute_common_fields hf_isakmp_notify_data_rohc_attr = { -1, -1, -1, -1, -1 };
+static attribute_common_fields hf_isakmp_notify_data_rohc_attr;
 static int hf_isakmp_notify_data_rohc_attr_max_cid = -1;
 static int hf_isakmp_notify_data_rohc_attr_profile = -1;
 static int hf_isakmp_notify_data_rohc_attr_integ = -1;
@@ -243,9 +243,9 @@ static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b5_mountain_re
 
 static int hf_iskamp_notify_data_3gpp_emergency_call_number = -1;
 
-static attribute_common_fields hf_isakmp_tek_key_attr = { -1, -1, -1, -1, -1 };
+static attribute_common_fields hf_isakmp_tek_key_attr;
 
-static attribute_common_fields hf_isakmp_ipsec_attr = { -1, -1, -1, -1, -1 };
+static attribute_common_fields hf_isakmp_ipsec_attr;
 static int hf_isakmp_ipsec_attr_life_type = -1;
 static int hf_isakmp_ipsec_attr_life_duration_uint32 = -1;
 static int hf_isakmp_ipsec_attr_life_duration_uint64 = -1;
@@ -264,13 +264,13 @@ static int hf_isakmp_ipsec_attr_sig_enco_algorithm = -1;
 static int hf_isakmp_ipsec_attr_addr_preservation = -1;
 static int hf_isakmp_ipsec_attr_sa_direction = -1;
 
-static attribute_common_fields hf_isakmp_resp_lifetime_ipsec_attr = { -1, -1, -1, -1, -1 };
+static attribute_common_fields hf_isakmp_resp_lifetime_ipsec_attr;
 static int hf_isakmp_resp_lifetime_ipsec_attr_life_type = -1;
 static int hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint32 = -1;
 static int hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint64 = -1;
 static int hf_isakmp_resp_lifetime_ipsec_attr_life_duration_bytes = -1;
 
-static attribute_common_fields hf_isakmp_ike_attr = { -1, -1, -1, -1, -1 };
+static attribute_common_fields hf_isakmp_ike_attr;
 static int hf_isakmp_ike_attr_encryption_algorithm = -1;
 static int hf_isakmp_ike_attr_hash_algorithm = -1;
 static int hf_isakmp_ike_attr_authentication_method = -1;
@@ -292,7 +292,7 @@ static int hf_isakmp_ike_attr_group_order = -1;
 static int hf_isakmp_ike_attr_block_size = -1;
 static int hf_isakmp_ike_attr_asymmetric_cryptographic_algorithm_type = -1;
 
-static attribute_common_fields hf_isakmp_resp_lifetime_ike_attr = { -1, -1, -1, -1, -1 };
+static attribute_common_fields hf_isakmp_resp_lifetime_ike_attr;
 static int hf_isakmp_resp_lifetime_ike_attr_life_type = -1;
 static int hf_isakmp_resp_lifetime_ike_attr_life_duration_uint32 = -1;
 static int hf_isakmp_resp_lifetime_ike_attr_life_duration_uint64 = -1;
@@ -306,7 +306,7 @@ static int hf_isakmp_trans_dh = -1;
 static int hf_isakmp_trans_esn = -1;
 static int hf_isakmp_trans_id_v2 = -1;
 
-static attribute_common_fields hf_isakmp_ike2_attr = { -1, -1, -1, -1, -1 };
+static attribute_common_fields hf_isakmp_ike2_attr;
 static int hf_isakmp_ike2_attr_key_length = -1;
 
 static int hf_isakmp_fragments = -1;
@@ -337,7 +337,7 @@ static int hf_isakmp_cfg_type_v1 = -1;
 static int hf_isakmp_cfg_identifier = -1;
 static int hf_isakmp_cfg_type_v2 = -1;
 
-static attribute_common_fields hf_isakmp_cfg_attr = { -1, -1, -1, -1, -1 };
+static attribute_common_fields hf_isakmp_cfg_attr;
 static int hf_isakmp_cfg_attr_type_v1 = -1;
 static int hf_isakmp_cfg_attr_type_v2 = -1;
 

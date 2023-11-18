@@ -26,8 +26,6 @@ void proto_reg_handoff_vrt(void);
 static dissector_handle_t vrt_handle;
 
 #define VITA_49_PORT    4991
-#define DEFAULT_EPHEMERIS_FIELDS { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }
-#define DEFAULT_FORMATTED_GPS_INS_FIELDS { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }
 
 typedef int (*complex_dissector_t)(proto_tree *tree, tvbuff_t *tvb, int offset);
 
@@ -172,10 +170,10 @@ static int hf_vrt_context_signal_data_format_packing_size = -1; /* 6-bit item pa
 static int hf_vrt_context_signal_data_format_item_size = -1; /* 6-bit data item size */
 static int hf_vrt_context_signal_data_format_repeat_count = -1; /* 16-bit repeat count */
 static int hf_vrt_context_signal_data_format_vector_size = -1; /* 16-bit vector size */
-static formatted_gps_ins_fields hf_vrt_context_gps = DEFAULT_FORMATTED_GPS_INS_FIELDS; /* struct for formatted GPS */
-static formatted_gps_ins_fields hf_vrt_context_ins = DEFAULT_FORMATTED_GPS_INS_FIELDS; /* struct for formatted INS */
-static ephemeris_fields hf_vrt_context_ecef_ephemeris = DEFAULT_EPHEMERIS_FIELDS; /* struct for ECEF ephemeris */
-static ephemeris_fields hf_vrt_context_rel_ephemeris = DEFAULT_EPHEMERIS_FIELDS; /* struct for relative ephemeris */
+static formatted_gps_ins_fields hf_vrt_context_gps; /* struct for formatted GPS */
+static formatted_gps_ins_fields hf_vrt_context_ins; /* struct for formatted INS */
+static ephemeris_fields hf_vrt_context_ecef_ephemeris; /* struct for ECEF ephemeris */
+static ephemeris_fields hf_vrt_context_rel_ephemeris; /* struct for relative ephemeris */
 static int hf_vrt_context_ephemeris_ref_id = -1; /* 32-bit ephemeris reference identifier */
 static int hf_vrt_context_gps_ascii_oui; /* 24-bit GPS/INS manufacturer OUI */
 static int hf_vrt_context_gps_ascii_size; /* 32-bit number of words */

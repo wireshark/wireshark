@@ -408,7 +408,6 @@ void proto_register_ircomm(void)
     proto_register_subtree_array(ett, array_length(ett));
     for (i = 0; i < MAX_IAP_ENTRIES * MAX_PARAMETERS; i++)
     {
-        ett_param[i] = -1;
         ett_p[i]     = &ett_param[i];
     }
     proto_register_subtree_array(ett_p, MAX_IAP_ENTRIES * MAX_PARAMETERS);

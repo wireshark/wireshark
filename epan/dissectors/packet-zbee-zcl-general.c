@@ -12037,12 +12037,10 @@ proto_register_zbee_zcl_pwr_prof(void)
 
     /* initialize attribute subtree types */
     for ( i = 0, j = ZBEE_ZCL_PWR_PROF_NUM_GENERIC_ETT; i < ZBEE_ZCL_PWR_PROF_NUM_PWR_PROF_ETT; i++, j++ ) {
-        ett_zbee_zcl_pwr_prof_pwrprofiles[i] = -1;
         ett[j] = &ett_zbee_zcl_pwr_prof_pwrprofiles[i];
     }
 
     for ( i = 0; i < ZBEE_ZCL_PWR_PROF_NUM_EN_PHS_ETT; i++, j++ ) {
-        ett_zbee_zcl_pwr_prof_enphases[i] = -1;
         ett[j] = &ett_zbee_zcl_pwr_prof_enphases[i];
     }
 
@@ -12715,7 +12713,6 @@ proto_register_zbee_zcl_appl_ctrl(void)
 
     /* initialize attribute subtree types */
     for ( i = 0, j = ZBEE_ZCL_APPL_CTRL_NUM_GENERIC_ETT; i < ZBEE_ZCL_APPL_CTRL_NUM_FUNC_ETT; i++, j++) {
-        ett_zbee_zcl_appl_ctrl_func[i] = -1;
         ett[j] = &ett_zbee_zcl_appl_ctrl_func[i];
     }
 

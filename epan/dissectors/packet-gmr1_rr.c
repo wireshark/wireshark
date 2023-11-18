@@ -2495,12 +2495,10 @@ proto_register_gmr1_rr(void)
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
 	for (i=0; i<NUM_GMR1_IE_RR; i++,last_offset++) {
-		ett_gmr1_ie_rr[i] = -1;
 		ett[last_offset] = &ett_gmr1_ie_rr[i];
 	}
 
 	for (i=0; i<NUM_GMR1_MSG_RR; i++,last_offset++) {
-		ett_msg_rr[i] = -1;
 		ett[last_offset] = &ett_msg_rr[i];
 	}
 

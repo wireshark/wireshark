@@ -156,7 +156,7 @@ static gint hf_tls_heartbeat_message_payload_length  = -1;
 static gint hf_tls_heartbeat_message_payload         = -1;
 static gint hf_tls_heartbeat_message_padding         = -1;
 
-static ssl_hfs_t ssl_hfs = { -1, -1 };
+static ssl_hfs_t ssl_hfs;
 
 /* Initialize the subtree pointers */
 static gint ett_tls                   = -1;

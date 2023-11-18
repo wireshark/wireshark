@@ -291,7 +291,6 @@ void proto_register_wimax(void)
 	/* Register the ett TLV array to retrieve unique subtree identifiers */
 	for (i = 0; i < MAX_NUM_TLVS; i++)
 	{
-		ett_tlv[i] = -1;
 		ett_reg[i] = &ett_tlv[i];
 	}
 

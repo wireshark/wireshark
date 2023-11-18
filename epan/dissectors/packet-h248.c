@@ -398,7 +398,7 @@ static gint ett_h248_no_evt;
 
 static int h248_tap = -1;
 
-static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
+static gcp_hf_ett_t h248_arrel;
 
 static gint exported_pdu_tap = -1;
 

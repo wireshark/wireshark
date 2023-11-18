@@ -590,20 +590,20 @@ reassembly_table_cleanup(void);
  *     };
  */
 #define REASSEMBLE_ITEMS_DEFINE(var_prefix, name_prefix) \
-    static gint ett_##var_prefix##_fragment = -1; \
-    static gint ett_##var_prefix##_fragments = -1; \
-    static int hf_##var_prefix##_fragments = -1; \
-    static int hf_##var_prefix##_fragment = -1; \
-    static int hf_##var_prefix##_fragment_overlap = -1; \
-    static int hf_##var_prefix##_fragment_overlap_conflicts = -1; \
-    static int hf_##var_prefix##_fragment_multiple_tails = -1; \
-    static int hf_##var_prefix##_fragment_too_long_fragment = -1; \
-    static int hf_##var_prefix##_fragment_error = -1; \
-    static int hf_##var_prefix##_fragment_count = -1; \
-    static int hf_##var_prefix##_reassembled_in = -1; \
-    static int hf_##var_prefix##_reassembled_length = -1; \
-    static int hf_##var_prefix##_reassembled_data = -1; \
-    static int hf_##var_prefix##_segment = -1; \
+    static gint ett_##var_prefix##_fragment; \
+    static gint ett_##var_prefix##_fragments; \
+    static int hf_##var_prefix##_fragments; \
+    static int hf_##var_prefix##_fragment; \
+    static int hf_##var_prefix##_fragment_overlap; \
+    static int hf_##var_prefix##_fragment_overlap_conflicts; \
+    static int hf_##var_prefix##_fragment_multiple_tails; \
+    static int hf_##var_prefix##_fragment_too_long_fragment; \
+    static int hf_##var_prefix##_fragment_error; \
+    static int hf_##var_prefix##_fragment_count; \
+    static int hf_##var_prefix##_reassembled_in; \
+    static int hf_##var_prefix##_reassembled_length; \
+    static int hf_##var_prefix##_reassembled_data; \
+    static int hf_##var_prefix##_segment; \
     static const fragment_items var_prefix##_fragment_items = { \
         &ett_##var_prefix##_fragment, \
         &ett_##var_prefix##_fragments, \

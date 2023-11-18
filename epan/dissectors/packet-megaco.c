@@ -150,7 +150,7 @@ static int ett_megaco_signalsdescriptor         = -1;
 static int ett_megaco_requestedsignal           = -1;
 static int ett_megaco_h245                      = -1;
 
-static gcp_hf_ett_t megaco_ctx_ids = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
+static gcp_hf_ett_t megaco_ctx_ids;
 
 static expert_field ei_megaco_errored_command = EI_INIT;
 static expert_field ei_megaco_no_command = EI_INIT;
