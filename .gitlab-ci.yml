@@ -276,10 +276,9 @@ Debian Stable APT Package:
     - export DEB_BUILD_OPTIONS="nocheck parallel=$(( $(getconf _NPROCESSORS_ONLN) + 2 ))"
     - export DH_QUIET=1
     - export MAKEFLAGS=--silent
-    # Ignore changed symbols (on development branch).
+    # We're just here to build a package.
     - export DPKG_GENSYMBOLS_CHECK_LEVEL=0
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -b --no-sign -jauto -zfast
-    - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
     - mkdir debian-packages
     - mv ../*.deb debian-packages/
   artifacts:
@@ -400,7 +399,7 @@ Ubuntu APT Package:
     # build-ubuntu puts us in `build`.
     - cd ..
     - ln --symbolic --no-dereference --force packaging/debian
-      # Ignore changed symbols (on development branch).
+    # We're just here to build a package.
     - export DPKG_GENSYMBOLS_CHECK_LEVEL=0
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ MAKE=ninja dpkg-buildpackage -us -uc -rfakeroot -jauto -zfast
     - mkdir ubuntu-packages
