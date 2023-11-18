@@ -22,6 +22,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <wiretap/blf.h>
 
 static int proto_blf = -1;
@@ -131,6 +132,10 @@ static int hf_blf_eth_phy_state_phystate = -1;
 static int hf_blf_eth_phy_state_eventstate = -1;
 static int hf_blf_eth_phy_state_hardwarechannel = -1;
 static int hf_blf_eth_phy_state_res1 = -1;
+
+static expert_field ei_blf_file_header_length_too_short = EI_INIT;
+static expert_field ei_blf_object_header_length_too_short = EI_INIT;
+static expert_field ei_blf_object_length_less_than_header_length = EI_INIT;
 
 static gint ett_blf = -1;
 static gint ett_blf_header = -1;
@@ -493,13 +498,14 @@ static int
 dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset_orig) {
     proto_item    *ti_root = NULL;
     proto_item    *ti = NULL;
+    proto_item    *ti_lobj_hdr;
     proto_tree    *objtree = NULL;
     proto_tree    *subtree = NULL;
     volatile gint  offset = offset_orig;
     tvbuff_t      *sub_tvb;
 
-    guint          hdr_length = tvb_get_guint16(tvb, offset_orig + 4, ENC_LITTLE_ENDIAN);
-    guint          obj_length;
+    guint32        hdr_length;
+    guint32        obj_length;
     guint          obj_type;
     guint32        comp_method;
 
@@ -511,19 +517,26 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
     ti_root = proto_tree_add_item(tree, hf_blf_lobj, tvb, offset, -1, ENC_NA);
     objtree = proto_item_add_subtree(ti_root, ett_blf_obj);
 
-    ti = proto_tree_add_item(objtree, hf_blf_lobj_hdr, tvb, offset, hdr_length, ENC_NA);
-    subtree = proto_item_add_subtree(ti, ett_blf_obj);
+    ti_lobj_hdr = proto_tree_add_item(objtree, hf_blf_lobj_hdr, tvb, offset, -1, ENC_NA);
+    subtree = proto_item_add_subtree(ti_lobj_hdr, ett_blf_obj);
 
     proto_tree_add_item(subtree, hf_blf_lobj_magic, tvb, offset, 4, ENC_NA);
     offset += 4;
-    proto_tree_add_item(subtree, hf_blf_lobj_hdr_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_hdr_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &hdr_length);
+    if (hdr_length < sizeof (struct blf_blockheader)) {
+        expert_add_info(pinfo, ti, &ei_blf_object_header_length_too_short);
+    }
     offset += 2;
     proto_tree_add_item(subtree, hf_blf_lobj_hdr_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_obj_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &obj_length);
+    ti = proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_obj_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &obj_length);
+    if (obj_length < hdr_length) {
+        expert_add_info(pinfo, ti, &ei_blf_object_length_less_than_header_length);
+    }
     offset += 4;
     proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_obj_type, tvb, offset, 4, ENC_LITTLE_ENDIAN, &obj_type);
     offset += 4;
+    proto_item_set_end(ti_lobj_hdr, tvb, offset);
 
     /* check if the whole object is present or if it was truncated */
     if (tvb_captured_length_remaining(tvb, offset_orig) < (gint)obj_length) {
@@ -895,6 +908,7 @@ static int
 dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     volatile gint    offset = 0;
     proto_tree      *blf_tree;
+    guint32          header_length;
     proto_tree      *subtree;
     proto_item      *ti;
     guint            length;
@@ -913,7 +927,10 @@ dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     proto_tree_add_item(subtree, hf_blf_file_header_magic, tvb, offset, 4, ENC_NA);
     offset += 4;
-    proto_tree_add_item(subtree, hf_blf_file_header_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(subtree, hf_blf_file_header_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &header_length);
+    if (header_length < sizeof (struct blf_fileheader)) {
+        expert_add_info(pinfo, ti, &ei_blf_file_header_length_too_short);
+    }
     offset += 4;
     dissect_blf_api_version(subtree, hf_blf_file_header_api, tvb, offset, 4);
     offset += 4;
@@ -1147,6 +1164,8 @@ dissect_blf_ethernetphystate_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 
 void
 proto_register_file_blf(void) {
+    expert_module_t  *expert_blf;
+
     static hf_register_info hf[] = {
         { &hf_blf_file_header,
             { "File Header", "blf.file_header", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }},
@@ -1344,6 +1363,21 @@ proto_register_file_blf(void) {
             { "Reserved", "blf.object.eth_status.res1", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
     };
 
+    static ei_register_info ei[] = {
+        { &ei_blf_file_header_length_too_short,
+            { "blf.file_header_length_too_short", PI_MALFORMED, PI_ERROR,
+                "file header length is too short",
+                EXPFILL }},
+        { &ei_blf_object_header_length_too_short,
+            { "blf.object_header_length_too_short", PI_MALFORMED, PI_ERROR,
+                "object header length is too short",
+                EXPFILL }},
+        { &ei_blf_object_length_less_than_header_length,
+            { "blf.object_length_less_than_header_length", PI_MALFORMED, PI_ERROR,
+                "object length is less than the object header length",
+                EXPFILL }},
+    };
+
     static gint *ett[] = {
         &ett_blf,
         &ett_blf_header,
@@ -1356,6 +1390,8 @@ proto_register_file_blf(void) {
     proto_blf = proto_register_protocol("BLF File Format", "File-BLF", "file-blf");
     proto_blf_ethernetstatus_obj = proto_register_protocol("BLF Ethernet Status", "BLF-Ethernet-Status", "blf-ethernet-status");
     proto_blf_ethernetphystate_obj = proto_register_protocol("BLF Ethernet PHY State", "BLF-Ethernet-PHY-State", "blf-ethernet-phystate");
+    expert_blf = expert_register_protocol(proto_blf);
+    expert_register_field_array(expert_blf, ei, array_length(ei));
 
     proto_register_field_array(proto_blf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
