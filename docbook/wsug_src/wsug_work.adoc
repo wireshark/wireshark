@@ -1437,4 +1437,66 @@ A time referenced packet will be marked with the string $$*REF*$$ in the Time
 column (see packet number 10). All subsequent packets will show the time since
 the last time reference.
 
+[#ChWorkShiftTimePacketSection]
+
+=== Time Shifting Packets
+
+Sometimes you will want to adjust the timestamps in a capture file.
+This may be because a machine performing the capture had an inaccurate
+clock, or because the capture was originally saved with timestamps in
+<<ChAdvTabTimezones,local time>> (perhaps even to a capture file format
+that only writes times in local time, or only writes the time of day
+but not the date). One common use is to synchronize timestamps between
+captures made on different machines with relative clock skew or clock
+drift before <<ChIOMergeSection,merging>> them. Selecting
+menu:Edit[Time Shift...] from the main menu opens the "Time Shift" dialog.
+
+.The “Time Shift” dialog
+image::images/ws-time-shift.png[{medium-screenshot-attrs}]
+
+Shift all packets by...::
+
+Apply a fixed offset, entered as a relative time in hours, minutes,
+and seconds, to the timestamps for all packets. This is useful for
+correcting small known errors or timezones.
+
+Set the time for packet...::
+
+Apply offsets based on one or, if the box is checked, two given packets
+to the timestamps for all packets. Enter the packet number and absolute
+date and time for the packet(s). When one packet is used, a fixed offset
+is applied that can be used to correct for clock skew. When two packets
+are used, the correction for all other packets is computed linearly,
+which can be used to correct for clock drift. This is useful when the
+precise date and time for particular packets are known, e.g. packets
+containing the NTP or PTP protocols.
+
+Undo all shifts::
+
+This removes all unsaved time shifts from packets.
+
+[NOTE]
+.Time shifts are applied to all packets
+====
+Time shifts are applied to all packets in the capture, including
+ignored packets and packets that are not displayed due to the current
+filter.
+Wireshark does not have a method to adjust the timestamps of individual
+or selected packets.
+====
+
+The offset currently applied to time shifted packets is in the
+`frame.offset_shift` field, which can be viewed in the packet details.
+
+.A Time Shifted Packet
+image::images/ws-time-shift-details.png[{medium-screenshot-attrs}]
+
+After time shifts are applied, the file will have unsaved changes,
+which are indicated with an {asterisk} beside its name in the title bar.
+Beginning with Wireshark 4.2.0, <<ChIOSaveSection,saving>> the file
+will write the corrected timestamps to the capture file.
+If you attempt to close the capture file without saving it, a dialog
+will prompt you to save in order to prevent losing your changes
+(unless that warning has been disabled in the <<ChCustGUIPrefPage,preferences>>.)
+
 // End of WSUG Chapter Work
