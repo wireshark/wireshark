@@ -30,16 +30,16 @@ static dissector_handle_t rdpmt_handle;
 
 static int proto_rdpmt = -1;
 
-static int pf_mt_action = -1;
-static int pf_mt_flags = -1;
-static int pf_mt_payload_len = -1;
-static int pf_mt_header_len = -1;
-static int pf_mt_subheader_len = -1;
-static int pf_mt_subheader_type = -1;
-static int pf_mt_createreq_reqId = -1;
-static int pf_mt_createreq_reserved = -1;
-static int pf_mt_createreq_cookie = -1;
-static int pf_mt_createresp_hrResponse = -1;
+static int hf_rdpmt_action = -1;
+static int hf_rdpmt_flags = -1;
+static int hf_rdpmt_payload_len = -1;
+static int hf_rdpmt_header_len = -1;
+static int hf_rdpmt_subheader_len = -1;
+static int hf_rdpmt_subheader_type = -1;
+static int hf_rdpmt_createreq_reqId = -1;
+static int hf_rdpmt_createreq_reserved = -1;
+static int hf_rdpmt_createreq_cookie = -1;
+static int hf_rdpmt_createresp_hrResponse = -1;
 
 static int ett_rdpmt = -1;
 static int ett_rdpudp_subheaders = -1;
@@ -81,16 +81,16 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	tree = proto_item_add_subtree(item, ett_rdpmt);
 
 	action = tvb_get_guint8(tvb, offset) & 0x0f;
-	proto_tree_add_item(tree, pf_mt_action, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, pf_mt_flags, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_rdpmt_action, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_rdpmt_flags, tvb, offset, 1, ENC_NA);
 	offset++;
 
 	payload_len	= tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, pf_mt_payload_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_rdpmt_payload_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	subheader_len = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, pf_mt_header_len, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_rdpmt_header_len, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	if (subheader_len > 4) {
@@ -111,14 +111,14 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 		col_set_str(pinfo->cinfo, COL_INFO, "TunnelCreateRequest");
 
 		subtree = proto_tree_add_subtree(tree, tvb, offset, payload_len, ett_rdpmt_create_req, NULL, "TunnelCreateRequest");
-		proto_tree_add_item(subtree, pf_mt_createreq_reqId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpmt_createreq_reqId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		reqId = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(subtree, pf_mt_createreq_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpmt_createreq_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(subtree, pf_mt_createreq_cookie, tvb, offset, 16, ENC_NA);
+		proto_tree_add_item(subtree, hf_rdpmt_createreq_cookie, tvb, offset, 16, ENC_NA);
 		tvb_memcpy(tvb, cookie, offset, 16);
 		offset += 4;
 
@@ -128,7 +128,7 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	case RDPMT_TUNNEL_CREATE_RESP:
 		col_set_str(pinfo->cinfo, COL_INFO, "TunnelCreateResponse");
 		subtree = proto_tree_add_subtree(tree, tvb, offset, payload_len, ett_rdpmt_create_resp, NULL, "TunnelCreateResponse");
-		proto_tree_add_item(subtree, pf_mt_createresp_hrResponse, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(subtree, hf_rdpmt_createresp_hrResponse, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 
 	case RDPMT_TUNNEL_DATA:
@@ -148,34 +148,34 @@ proto_register_rdpmt(void) {
 	/* List of fields */
 	static hf_register_info hf[] = {
 
-	  { &pf_mt_action,
+	  {&hf_rdpmt_action,
 		{"Action", "rdpmt.action", FT_UINT8, BASE_HEX, VALS(rdpmt_action_vals), 0x0F, NULL, HFILL}
 	  },
-	  {&pf_mt_flags,
+	  {&hf_rdpmt_flags,
 		{"Flags", "rdpmt.flags", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
 	  },
-	  {&pf_mt_payload_len,
+	  {&hf_rdpmt_payload_len,
 		{"Payload length", "rdpmt.payloadlen", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  {&pf_mt_header_len,
+	  {&hf_rdpmt_header_len,
 		{"Header length", "rdpmt.headerlen", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  {&pf_mt_subheader_len,
+	  {&hf_rdpmt_subheader_len,
 		{"Sub header length", "rdpmt.subheaderlen", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
 	  },
-	  {&pf_mt_subheader_type,
+	  {&hf_rdpmt_subheader_type,
 		{"Sub header type", "rdpmt.subheadertype", FT_UINT8, BASE_HEX, VALS(rdpmt_subheader_type_vals), 0, NULL, HFILL}
 	  },
-	  {&pf_mt_createreq_reqId,
+	  {&hf_rdpmt_createreq_reqId,
 		{"RequestID", "rdpmt.createrequest.requestid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  {&pf_mt_createreq_reserved,
+	  {&hf_rdpmt_createreq_reserved,
 		{"Reserved", "rdpmt.createrequest.reserved", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
-	  {&pf_mt_createreq_cookie,
+	  {&hf_rdpmt_createreq_cookie,
 		{"Security cookie", "rdpmt.createrequest.cookie", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
 	  },
-	  {&pf_mt_createresp_hrResponse,
+	  {&hf_rdpmt_createresp_hrResponse,
 		{"hrResponse", "rdpmt.createresponse.hrresponse", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL}
 	  }
 	};
