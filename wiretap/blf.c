@@ -3387,6 +3387,13 @@ blf_open(wtap *wth, int *err, gchar **err_info) {
     }
 
     /* This seems to be an BLF! */
+    /* Check for a valid header length */
+    if (header.header_length < sizeof(blf_blockheader_t)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("blf: file header length too short");
+        return WTAP_OPEN_ERROR;
+    }
+
     /* skip past the header, which may include padding/reserved space */
     if (file_seek(wth->fh, header.header_length, SEEK_SET, err) < 0) {
         return WTAP_OPEN_ERROR;
