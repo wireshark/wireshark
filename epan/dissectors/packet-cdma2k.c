@@ -530,8 +530,8 @@ static gint ett_cdma2k_msghdr = -1;
 static gint ett_cdma2k_subtree = -1;
 static gint ett_cdma2k_subtree1 = -1;
 static gint ett_cdma2k_subtree2 = -1;
-static guint ett_cdma2k_m_s1 = -1;
-static guint ett_cdma2000_scm = -1;
+static gint ett_cdma2k_m_s1 = -1;
+static gint ett_cdma2000_scm = -1;
 
 #define CDMA2KRegIndMsg       0x01
 #define CDMA2KOrderIndMsg     0x02

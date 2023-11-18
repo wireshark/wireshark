@@ -58,7 +58,7 @@ static void dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *sim
 				    int container_data_length, guint16 iftype, gboolean is_subtree);
 
 /* Wireshark ID of the SIMULCRYPT protocol */
-static guint proto_simulcrypt = -1;
+static int proto_simulcrypt = -1;
 
 /* Dissector handle for SIMULCRYPT protocol */
 static dissector_handle_t simulcrypt_handle;
