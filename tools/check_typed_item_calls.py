@@ -36,7 +36,7 @@ def name_has_one_of(name, substring_list):
             return True
     return False
 
-# A call is an individual call to an API we are interested in.
+# An individual call to an API we are interested in.
 # Used by APICheck below.
 class Call:
     def __init__(self, hf_name, macros, line_number=None, length=None, fields=None):
@@ -720,8 +720,11 @@ class RangeString:
 
             if min < self.min_value:
                 self.min_value = min
-            if max > self.max_value:
-                self.max_value = max
+            # For overall max value, still use min of each entry.
+            # It is common for entries to extend to e.g. 0xff, but at least we can check for items
+            # that can never match if we only chec the min.
+            if min > self.max_value:
+                self.max_value = min
 
             # This value should not be entirely hidden by earlier entries
             for prev in self.parsed_vals:
@@ -742,6 +745,8 @@ class RangeString:
             # OK, add this entry
             self.parsed_vals.append(RangeStringEntry(min, max, label))
 
+    def extraChecks(self):
+        pass
         # TODO: some checks over all entries.  e.g.,
         # - can multiple values be coalesced into 1?
         # - if in all cases min==max, suggest value_string instead?
@@ -975,7 +980,7 @@ class Item:
         if rs_max > item_max:
             global warnings_found
             print('Warning:', self.filename, self.hf, 'filter=', self.filter,
-                  self.strings, "has max value", rs_max, '(' + hex(rs_max) + ')', "which doesn't fit into", mask_width, 'bits',
+                  self.strings, "has values", rs_min, rs_max, '(' + hex(rs_max) + ')', "which doesn't fit into", mask_width, 'bits',
                   '( mask is', hex(self.mask_value), ')')
             warnings_found += 1
 
@@ -989,7 +994,7 @@ class Item:
     # Output a warning if non-contigous bits are found in the mask (guint64).
     # Note that this legimately happens in several dissectors where multiple reserved/unassigned
     # bits are conflated into one field.
-    # TODO: there is probably a cool/efficient way to check this (+1 => 1-bit set?)
+    # - there is probably a cool/efficient way to check this (+1 => 1-bit set?)
     def check_contiguous_bits(self, mask):
         if not self.mask_value:
             return
@@ -1403,7 +1408,6 @@ def find_items(filename, macros, value_strings, range_strings,
         # N.B. re extends all the way to HFILL to avoid greedy matching
         # TODO: fix a problem where re can't cope with mask that involve a macro with commas in it...
         matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_\u00f6\u00e4]*?)\s*,\s*HFILL', contents)
-        #matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*(NULL|"[a-zA-Z0-9\W\s_/\u00f6\u00e4]*?")\s*,\s*HFILL', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)

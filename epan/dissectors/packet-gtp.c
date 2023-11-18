@@ -4455,7 +4455,6 @@ check_field_presence_and_decoder(guint8 message, guint8 field, int *position, ie
 static int
 decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args)
 {
-
     guint8 cause;
 
     cause = tvb_get_guint8(tvb, offset + 1);

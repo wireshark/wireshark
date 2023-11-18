@@ -1693,7 +1693,7 @@ void proto_register_tns(void)
 			"Data ID", "tns.data_id", FT_UINT32, BASE_HEX,
 			VALS(tns_data_funcs), 0x0, NULL, HFILL }},
 		{ &hf_tns_data_length, {
-			"Data Length", "tns.data_length", FT_UINT16,
+			"Data Length", "tns.data_length", FT_UINT32,
 			BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_data_oci_id, {

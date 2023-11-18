@@ -613,7 +613,7 @@ proto_register_tpkt(void)
             {
                 "Version",
                 "tpkt.version",
-                FT_UINT8,
+                FT_UINT16,
                 BASE_DEC,
                 NULL,
                 0x0,
