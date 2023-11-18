@@ -47,8 +47,7 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList &intList
     close_bt->setDefault(true);
 
     interface_list_ = ui->interfaceList;
-    pcap_compile_mtx = g_new(GMutex,1);
-    g_mutex_init(pcap_compile_mtx);
+    g_mutex_init(&pcap_compile_mtx_);
 #ifdef HAVE_LIBPCAP
     compileFilter();
 #endif
@@ -64,6 +63,7 @@ CompiledFilterOutput::~CompiledFilterOutput()
         parentWidget()->activateWindow();
     }
     delete ui;
+    g_mutex_clear(&pcap_compile_mtx_);
 }
 
 #ifdef HAVE_LIBPCAP
@@ -81,10 +81,10 @@ void CompiledFilterOutput::compileFilter()
                 pcap_t *pd = pcap_open_dead(device->active_dlt, WTAP_MAX_PACKET_SIZE_STANDARD);
                 if (pd == NULL)
                     break;
-                g_mutex_lock(pcap_compile_mtx);
+                g_mutex_lock(&pcap_compile_mtx_);
                 if (pcap_compile(pd, &fcode, compile_filter_.toUtf8().data(), 1, 0) < 0) {
                     compile_results.insert(interfaces, QString(pcap_geterr(pd)));
-                    g_mutex_unlock(pcap_compile_mtx);
+                    g_mutex_unlock(&pcap_compile_mtx_);
                     ui->interfaceList->addItem(new QListWidgetItem(QIcon(":expert/expert_error.png"),interfaces));
                 } else {
                     GString *bpf_code_dump = g_string_new("");
@@ -94,11 +94,13 @@ void CompiledFilterOutput::compileFilter()
                         g_string_append(bpf_code_dump, bpf_image(insn, ii));
                         g_string_append(bpf_code_dump, "\n");
                     }
-                    g_mutex_unlock(pcap_compile_mtx);
+                    g_mutex_unlock(&pcap_compile_mtx_);
                     compile_results.insert(interfaces, QString(bpf_code_dump->str));
                     g_string_free(bpf_code_dump, TRUE);
                     ui->interfaceList->addItem(new QListWidgetItem(interfaces));
                 }
+                pcap_freecode(&fcode);
+                pcap_close(pd);
                 break;
             }
         }

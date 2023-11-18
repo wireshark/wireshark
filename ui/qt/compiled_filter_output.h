@@ -31,7 +31,7 @@ private:
     QStringList intList_;
     QString &compile_filter_;
     Ui::CompiledFilterOutput *ui;
-    GMutex *pcap_compile_mtx;
+    GMutex pcap_compile_mtx_;
     QHash<QString, QString> compile_results;
     QListWidget *interface_list_;
     QPushButton *copy_bt_;
