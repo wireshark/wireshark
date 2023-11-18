@@ -1832,6 +1832,7 @@ set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 set(CFG_OUT_FILES
 	doxygen.cfg
+	epan/wireshark.pc
 	packaging/macosx/osx-app.sh
 	packaging/macosx/osx-dmg.sh
 	packaging/macosx/wireshark-app.dmgbuild
@@ -1844,7 +1845,6 @@ set(CFG_OUT_FILES
 	resources/libwsutil.rc
 	resources/wireshark.exe.manifest
 	resources/wireshark.rc
-	wireshark.pc
 )
 
 if(BUILD_logray)
@@ -4051,16 +4051,6 @@ if(BUILD_logray AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
 		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
 		RENAME org.wireshark.Logray.svg)
 endif()
-
-install(
-	FILES
-		"${CMAKE_BINARY_DIR}/wireshark.pc"
-	DESTINATION
-		${CMAKE_INSTALL_LIBDIR}/pkgconfig
-	COMPONENT
-		"Development"
-	EXCLUDE_FROM_ALL
-)
 
 install(
 	DIRECTORY

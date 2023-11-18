@@ -397,6 +397,12 @@ install(FILES ${LIBWIRESHARK_PUBLIC_HEADERS}
 	EXCLUDE_FROM_ALL
 )
 
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wireshark.pc"
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
+)
+
 add_executable(exntest EXCLUDE_FROM_ALL exntest.c except.c)
 target_link_libraries(exntest epan)
 set_target_properties(exntest PROPERTIES
