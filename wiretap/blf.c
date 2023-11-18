@@ -1015,13 +1015,10 @@ blf_read_bytes(blf_params_t *params, guint64 real_pos, void *target_buffer, unsi
 
 /* this is only called once on open to figure out the layout of the file */
 static gboolean
-blf_scan_file_for_logcontainers(blf_params_t *params) {
+blf_scan_file_for_logcontainers(blf_params_t *params, int *err, gchar **err_info) {
     blf_blockheader_t        header;
     blf_logcontainerheader_t logcontainer_header;
     blf_log_container_t      tmp;
-
-    int    err;
-    gchar *err_info;
 
     guint64  current_start_pos;
     guint64  current_real_start  = 0;
@@ -1031,15 +1028,16 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
 
         /* Find Object */
         while (1) {
-            if (!wtap_read_bytes_or_eof(params->fh, &header, sizeof header, &err, &err_info)) {
+            if (!wtap_read_bytes_or_eof(params->fh, &header, sizeof header, err, err_info)) {
                 ws_debug("we found end of file");
 
                 /* lets ignore some bytes at the end since some implementations think it is ok to add a few zero bytes */
-                if (err == WTAP_ERR_SHORT_READ) {
-                    err = 0;
+                if (*err == WTAP_ERR_SHORT_READ) {
+                    *err = 0;
                 }
 
-                return TRUE;
+                /* Either succeed on an EOF or fail. */
+                return *err == 0;
             }
 
             fix_endianness_blf_blockheader(&header);
@@ -1053,33 +1051,42 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
             /* we are moving back and try again but 1 byte later */
             /* TODO: better understand how this paddings works... */
             current_start_pos++;
-            if (file_seek(params->fh, current_start_pos, SEEK_SET, &err) < 0) {
+            if (file_seek(params->fh, current_start_pos, SEEK_SET, err) < 0) {
                 return FALSE;
             }
         }
 
+        if (header.header_length < sizeof(blf_blockheader_t)) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = ws_strdup("blf: log container header length too short");
+            return FALSE;
+        }
+
         if (header.header_type != BLF_HEADER_TYPE_DEFAULT) {
-            ws_debug("unknown header type, I know only BLF_HEADER_TYPE_DEFAULT (1)");
+            *err = WTAP_ERR_UNSUPPORTED;
+            *err_info = ws_strdup_printf("blf: unknown header type (%u), I know only BLF_HEADER_TYPE_DEFAULT (1)", header.header_type);
+            return FALSE;
+        }
+
+        if (header.object_length < header.header_length) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = ws_strdup("blf: log container header object length less than log container header length");
             return FALSE;
         }
 
         switch (header.object_type) {
         case BLF_OBJTYPE_LOG_CONTAINER:
-            if (header.header_length < sizeof(blf_blockheader_t)) {
-                ws_debug("log container header length too short");
-                return FALSE;
-            }
-
             /* skip unknown header part if needed */
             if (header.header_length - sizeof(blf_blockheader_t) > 0) {
                 /* seek over unknown header part */
-                if (file_seek(params->fh, current_start_pos + header.header_length, SEEK_SET, &err) < 0) {
+                if (file_seek(params->fh, current_start_pos + header.header_length, SEEK_SET, err) < 0) {
                     ws_debug("cannot seek file for skipping unknown header bytes in log container");
                     return FALSE;
                 }
             }
 
-            if (!wtap_read_bytes_or_eof(params->fh, &logcontainer_header, sizeof(blf_logcontainerheader_t), &err, &err_info)) {
+            /* Read the log container header */
+            if (!wtap_read_bytes_or_eof(params->fh, &logcontainer_header, sizeof(blf_logcontainerheader_t), err, err_info)) {
                 ws_debug("not enough bytes for log container header");
                 return FALSE;
             }
@@ -1099,7 +1106,7 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
             /* set up next start position */
             current_real_start += logcontainer_header.uncompressed_size;
 
-            if (file_seek(params->fh, current_start_pos + MAX(MAX(16, header.object_length), header.header_length), SEEK_SET, &err) < 0) {
+            if (file_seek(params->fh, current_start_pos + MAX(MAX(16, header.object_length), header.header_length), SEEK_SET, err) < 0) {
                 ws_debug("cannot seek file for skipping log container bytes");
                 return FALSE;
             }
@@ -1111,7 +1118,7 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
             ws_debug("we found a non BLF log container on top level. this is unexpected.");
 
             /* TODO: maybe create "fake Log Container" for this */
-            if (file_seek(params->fh, current_start_pos + MAX(MAX(16, header.object_length), header.header_length), SEEK_SET, &err) < 0) {
+            if (file_seek(params->fh, current_start_pos + MAX(MAX(16, header.object_length), header.header_length), SEEK_SET, err) < 0) {
                 return FALSE;
             }
         }
@@ -3317,9 +3324,7 @@ static gboolean blf_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer 
     return TRUE;
 }
 
-static void blf_close(wtap *wth) {
-    blf_t *blf = (blf_t *)wth->priv;
-
+static void blf_free(blf_t *blf) {
     if (blf != NULL && blf->log_containers != NULL) {
         for (guint i = 0; i < blf->log_containers->len; i++) {
             blf_log_container_t *log_container = &g_array_index(blf->log_containers, blf_log_container_t, i);
@@ -3341,10 +3346,12 @@ static void blf_close(wtap *wth) {
             blf->channel_to_name_ht = NULL;
         }
     }
+}
+
+static void blf_close(wtap *wth) {
+    blf_free((blf_t *)wth->priv);
 
     /* TODO: do we need to reverse the wtap_add_idb? how? */
-
-    return;
 }
 
 wtap_open_return_val
@@ -3380,8 +3387,10 @@ blf_open(wtap *wth, int *err, gchar **err_info) {
     }
 
     /* This seems to be an BLF! */
-    /* skip unknown part of header */
-    file_seek(wth->fh, header.header_length, SEEK_SET, err);
+    /* skip past the header, which may include padding/reserved space */
+    if (file_seek(wth->fh, header.header_length, SEEK_SET, err) < 0) {
+        return WTAP_OPEN_ERROR;
+    }
 
     struct tm timestamp;
     timestamp.tm_year = (header.start_date.year > 1970) ? header.start_date.year - 1900 : 70;
@@ -3413,7 +3422,11 @@ blf_open(wtap *wth, int *err, gchar **err_info) {
     params.blf_data->current_real_seek_pos = 0;
 
     /* lets check out the layout of all log containers */
-    blf_scan_file_for_logcontainers(&params);
+    if (!blf_scan_file_for_logcontainers(&params, err, err_info)) {
+        /* That didn't work. */
+        blf_free(blf);
+        return WTAP_OPEN_ERROR;
+    }
 
     wth->priv = (void *)blf;
     wth->file_encap = WTAP_ENCAP_NONE;
