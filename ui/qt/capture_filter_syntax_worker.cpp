@@ -72,7 +72,7 @@ void CaptureFilterSyntaxWorker::checkFilter(const QString filter)
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
         if (device->selected) {
             if (device->if_info.extcap == NULL || strlen(device->if_info.extcap) == 0) {
-                if (device->active_dlt >= DLT_USER0 && device->active_dlt <= DLT_USER15) {
+                if ((device->active_dlt >= DLT_USER0 && device->active_dlt <= DLT_USER15) || device->active_dlt == -1) {
                     // Capture filter for DLT_USER is unknown
                     state = SyntaxLineEdit::Deprecated;
                     err_str = "Unable to check capture filter";
