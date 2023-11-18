@@ -716,7 +716,18 @@ Commit Check:
         "
         glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
       fi
-    - exit $(( PC_EXIT_CODE || VC_EXIT_CODE || LC_EXIT_CODE ))
+    - HC_EXIT_CODE=0
+    - ANALYSIS_MESSAGE=$( python3 tools/check_help_urls.py ) || HC_EXIT_CODE=1
+    - >
+      if [[ $HC_EXIT_CODE != 0 ]] ; then
+        MESSAGE="Help URL check failure:
+        ~~~
+        $ANALYSIS_MESSAGE
+        ~~~
+        "
+        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
+      fi
+    - exit $(( PC_EXIT_CODE || VC_EXIT_CODE || LC_EXIT_CODE || HC_EXIT_CODE ))
 
 Ubuntu GCC Build:
   extends: .build-ubuntu
