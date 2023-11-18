@@ -22,6 +22,28 @@
 
 wtap_open_return_val blf_open(wtap *wth, int *err, gchar **err_info);
 
+/*
+ * A BLF file is of the form:
+ *
+ *    BLF File Header
+ *    Sequence of BLF objects
+ *
+ * A BLF object is of the form:
+ *
+ *    BLF Block Header
+ *    Object header (object type dependent, may be empty)
+ *    Object contents
+ *
+ * The objects in the sequence appear to be LOG_CONTAINER objects,
+ * each of which contains a sequence of objects.
+ *
+ * A LOG_CONTAINER object's contents are of the form:
+ *
+ *    Log container header
+ *    Sequence of BLF objects
+ * 
+ * The contents of the container may be compressed using zlib.
+ */
 
 #define BLF_HEADER_TYPE_DEFAULT                   1
 #define BLF_HEADER_TYPE_2                         2
@@ -45,18 +67,18 @@ typedef struct blf_date {
     guint16 ms;
 } blf_date_t;
 
-/* BLF Header */
+/* BLF File Header */
 typedef struct blf_fileheader {
-    guint8 magic[4];
-    guint32 header_length;
+    guint8 magic[4];               /* magic number - "LOGG" */
+    guint32 header_length;         /* length of the file header */
 
     guint8 applications[4];
     guint8 api[4];
 
-    guint64 len_compressed;
+    guint64 len_compressed;        /* size of the file before uncompressing */
     guint64 len_uncompressed;
 
-    guint32 obj_count;
+    guint32 obj_count;             /* number of objects in the file */
     guint32 obj_read;
 
     blf_date_t start_date;
@@ -65,8 +87,9 @@ typedef struct blf_fileheader {
     guint32 length3;
 } blf_fileheader_t;
 
+/* BLF Block Header */
 typedef struct blf_blockheader {
-    guint8  magic[4];
+    guint8  magic[4];              /* magic number = "LOBJ" */
     guint16 header_length;         /* length of header starting with magic */
     guint16 header_type;           /* header format ? */
     guint32 object_length;         /* complete length including header */
