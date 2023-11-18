@@ -3179,7 +3179,7 @@ static int      hf_pie_ntop_dns_query_id             = -1;
 static int      hf_pie_ntop_dns_query_type           = -1;
 static int      hf_pie_ntop_dns_ret_code             = -1;
 static int      hf_pie_ntop_dns_num_answers          = -1;
-static int      df_pie_ntop_pop_user                 = -1;
+static int      hf_pie_ntop_pop_user                 = -1;
 
 static int      hf_pie_ntop_gtpv1_req_msg_type       = -1;
 static int      hf_pie_ntop_gtpv1_rsp_msg_type       = -1;
@@ -9013,7 +9013,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case (NTOP_BASE + 210):           /* POP_USER */
         case ((VENDOR_NTOP << 16) | 210): /* POP_USER */
-            ti = proto_tree_add_item(pdutree, df_pie_ntop_pop_user,
+            ti = proto_tree_add_item(pdutree, hf_pie_ntop_pop_user,
                                      tvb, offset, length, ENC_ASCII);
             break;
 
@@ -17012,7 +17012,7 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
         /* ntop, 35632 / 210 */
-        {&df_pie_ntop_pop_user,
+        {&hf_pie_ntop_pop_user,
          {"POP3 user login", "cflow.pie.ntop.pop_user",
           FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
