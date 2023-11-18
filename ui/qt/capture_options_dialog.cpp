@@ -58,6 +58,11 @@
 // - Fix InterfaceTreeDelegate method names.
 // - You can edit filters via the main CaptureFilterCombo and via each
 //   individual interface row. We should probably do one or the other.
+// - There might be a point in having the separate combo boxes in the
+//   individual interface row, if their CaptureFilterCombos actually
+//   called recent_get_cfilter_list with the interface name to get the
+//   separate list of recent capture filters for that interface, but
+//   they don't.
 
 const int stat_update_interval_ = 1000; // ms
 
@@ -1431,6 +1436,8 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
 #endif
         case col_filter_:
         {
+            // XXX: Should this take the interface name, so that the history
+            // list is taken from the interface-specific recent cfilter list?
             CaptureFilterCombo *cf = new CaptureFilterCombo(parent, true);
             connect(cf->lineEdit(), SIGNAL(textEdited(QString)), this, SIGNAL(filterChanged(QString)));
             w = (QWidget*) cf;
