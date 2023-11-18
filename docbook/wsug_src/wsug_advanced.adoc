@@ -12,8 +12,10 @@ This chapter will describe some of Wireshark’s advanced features.
 
 // We switched from FollowTCP to FollowStream in June 2018.
 // This is apparently how you assign multiple anchors.
+// https://docs.asciidoctor.org/asciidoc/latest/attributes/id/#add-additional-anchors-to-a-section
 
-=== [[ChAdvFollowTCPSection]]Following Protocol Streams [[ChAdvFollowStreamSection]]
+[#ChAdvFollowStreamSection]
+=== [[ChAdvFollowTCPSection]]Following Protocol Streams
 
 It can be very helpful to see a protocol in the way that the application
 layer sees it. Perhaps you are looking for passwords in a Telnet stream,
