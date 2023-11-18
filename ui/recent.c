@@ -384,6 +384,10 @@ static GList *recent_cfilter_list;
 static GHashTable *per_interface_cfilter_lists_hash;
 
 /* XXX: use a preference for this setting! */
+/* N.B.: If we use a pref, we will read the recent_common file
+ * before the pref, so don't truncate the list when reading
+ * (see the similar #16782 for the recent files.)
+ */
 static guint cfilter_combo_max_recent = 20;
 
 /**
@@ -449,7 +453,7 @@ recent_add_cfilter(const gchar *ifname, const gchar *s)
         /* The filter wasn't already in the list; make a copy to add. */
         newfilter = g_strdup(s);
     }
-    cfilter_list = g_list_append(cfilter_list, newfilter);
+    cfilter_list = g_list_prepend(cfilter_list, newfilter);
 
     if (ifname == NULL)
         recent_cfilter_list = cfilter_list;
@@ -649,6 +653,33 @@ cfilter_recent_write_all(FILE *rf)
     }
 }
 
+/** Reverse the order of all the capture filter lists after
+ *  reading recent_common (we want the latest first).
+ *  Note this is O(N), whereas appendng N items to a GList is O(N^2),
+ *  since it doesn't have a pointer to the end like a GQueue.
+ */
+static void
+cfilter_recent_reverse_all(void)
+{
+    recent_cfilter_list = g_list_reverse(recent_cfilter_list);
+
+    /* Reverse all the per-interface lists. */
+    if (per_interface_cfilter_lists_hash != NULL) {
+        GHashTableIter iter;
+        gpointer key, value;
+        g_hash_table_iter_init(&iter, per_interface_cfilter_lists_hash);
+        GList *li;
+        while (g_hash_table_iter_next(&iter, &key, &value)) {
+            li = (GList *)value;
+            li = g_list_reverse(li);
+            /* per_interface_cfilter_lists_hash was created without a
+             * value_destroy_func, so this is fine.
+             */
+            g_hash_table_iter_replace(&iter, li);
+        }
+    }
+}
+
 /* Write out recent settings of particular types. */
 static void
 write_recent_boolean(FILE *rf, const char *description, const char *name,
@@ -737,7 +768,7 @@ write_recent(void)
     menu_recent_file_write_all(rf);
 
     fputs("\n"
-            "######## Recent capture filters (latest last), cannot be altered through command line ########\n"
+            "######## Recent capture filters (latest first), cannot be altered through command line ########\n"
             "\n", rf);
 
     cfilter_recent_write_all(rf);
@@ -1585,6 +1616,10 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
         /* set dfilter combobox to have an empty line */
         dfilter_combo_add_empty();
 #endif
+        /* We prepend new capture filters, so reverse them after adding
+         * all to keep the latest first.
+         */
+        cfilter_recent_reverse_all();
         fclose(rf);
     } else {
         /* We failed to open it.  If we failed for some reason other than
