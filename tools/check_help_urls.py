@@ -27,6 +27,7 @@ adoc_files = glob("docbook/wsug_src/*.adoc")
 for adoc_file in adoc_files:
     with open(adoc_file) as f:
         for line in f:
+            # Fail on legacy block anchor syntax (double square brackets)
             if tag := search(r"^\[\#(.*)]", line):
                 chapter = tag.group(1)
                 if chapter in found:
