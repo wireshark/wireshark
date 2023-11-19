@@ -71,6 +71,7 @@ enum {
     tab_remote_
 };
 
+#if 0
 #ifdef HAVE_PCAP_REMOTE
 static void populateExistingRemotes(gpointer key, gpointer value, gpointer user_data)
 {
@@ -121,6 +122,7 @@ static void populateExistingRemotes(gpointer key, gpointer value, gpointer user_
     emit dialog->remoteAdded(rlist, &global_remote_opts);
 }
 #endif /* HAVE_PCAP_REMOTE */
+#endif
 
 ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -200,7 +202,15 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     connect(this, SIGNAL(remoteAdded(GList*, remote_options*)), this, SLOT(addRemoteInterfaces(GList*, remote_options*)));
     connect(this, SIGNAL(remoteSettingsChanged(interface_t *)), this, SLOT(setRemoteSettings(interface_t *)));
     connect(ui->remoteList, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(remoteSelectionChanged(QTreeWidgetItem*, int)));
-    recent_remote_host_list_foreach(populateExistingRemotes, this);
+    // XXX: This tries to connect to every remote host in recent_common,
+    // which takes a *long* time if any timeout. Don't do this unless
+    // we at least store whether the last connection attempt succeeded
+    // in recent common. "rpcap interfaces to connect to at startup"
+    // should be stored separately in a preference file, presumably,
+    // from "[all] recent rpcap interfaces we know about", which is
+    // used for filling the combobox in RemoteCaptureDialog with the
+    // hostname, port, and auth type for each.
+    //recent_remote_host_list_foreach(populateExistingRemotes, this);
 #endif
 
     ui->tabWidget->setCurrentIndex(tab_local_);
