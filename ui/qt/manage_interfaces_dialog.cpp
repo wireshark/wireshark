@@ -73,17 +73,16 @@ enum {
 
 #if 0
 #ifdef HAVE_PCAP_REMOTE
-static void populateExistingRemotes(gpointer key, gpointer value, gpointer user_data)
+static void populateExistingRemotes(gpointer value, gpointer user_data)
 {
     ManageInterfacesDialog *dialog = (ManageInterfacesDialog*)user_data;
-    const gchar *host = (const gchar *)key;
     struct remote_host *remote_host = (struct remote_host *)value;
     remote_options global_remote_opts;
     int err;
     gchar *err_str;
 
     global_remote_opts.src_type = CAPTURE_IFREMOTE;
-    global_remote_opts.remote_host_opts.remote_host = g_strdup(host);
+    global_remote_opts.remote_host_opts.remote_host = g_strdup(remote_host->r_host);
     global_remote_opts.remote_host_opts.remote_port = g_strdup(remote_host->remote_port);
     global_remote_opts.remote_host_opts.auth_type = remote_host->auth_type;
     global_remote_opts.remote_host_opts.auth_username = g_strdup(remote_host->auth_username);
@@ -101,6 +100,13 @@ static void populateExistingRemotes(gpointer key, gpointer value, gpointer user_
                                               global_remote_opts.remote_host_opts.auth_username,
                                               global_remote_opts.remote_host_opts.auth_password,
                                               &err, &err_str);
+    // XXX: A host that is in the recent list but is unavailable will cause
+    // the warning pop-up when opening Manage Interfaces, won't be added, and
+    // the process will repeat even if Wireshark is quit and restarted. The
+    // only way to remove hosts (besides editing the recent_common file) is
+    // to click on adding a remote host and clear the list of recent hosts.
+    // Should these errors provide an option to remove the failed host from
+    // the list, or at least a hint that that's how to remove them?
     if (rlist == NULL) {
         switch (err) {
         case 0:

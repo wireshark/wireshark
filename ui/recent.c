@@ -462,7 +462,13 @@ recent_add_cfilter(const gchar *ifname, const gchar *s)
 }
 
 #ifdef HAVE_PCAP_REMOTE
-static GHashTable *remote_host_list=NULL;
+/* XXX: use a preference for this setting! */
+/* N.B.: If we use a pref, we will read the recent_common file
+ * before the pref, so don't truncate the list when reading
+ * (see the similar #16782 for the recent files.)
+ */
+static guint remote_host_max_recent = 20;
+static GList *remote_host_list = NULL;
 
 int recent_get_remote_host_list_size(void)
 {
@@ -470,40 +476,62 @@ int recent_get_remote_host_list_size(void)
         /* No entries exist. */
         return 0;
     }
-    return g_hash_table_size (remote_host_list);
+    return g_list_length(remote_host_list);
 }
 
-void recent_add_remote_host(gchar *host, struct remote_host *rh)
+static void
+free_remote_host(gpointer value)
 {
-    if (remote_host_list == NULL) {
-        remote_host_list = g_hash_table_new (g_str_hash, g_str_equal);
+    struct remote_host* rh = (struct remote_host*)value;
+
+    g_free(rh->r_host);
+    g_free(rh->remote_port);
+    g_free(rh->auth_username);
+    g_free(rh->auth_password);
+
+}
+
+static int
+remote_host_compare(gconstpointer a, gconstpointer b)
+{
+    const struct remote_host* rh_a = (const struct remote_host*)a;
+    const struct remote_host* rh_b = (const struct remote_host*)b;
+
+    /* We assume only one entry per host (the GUI assumes that too.) */
+    return g_strcmp0(rh_a->r_host, rh_b->r_host);
+}
+
+static void
+remote_host_reverse(void)
+{
+    if (remote_host_list) {
+        remote_host_list = g_list_reverse(remote_host_list);
     }
-    g_hash_table_insert (remote_host_list, g_strdup(host), rh);
 }
 
-static gboolean
-free_remote_host (gpointer key _U_, gpointer value, gpointer user _U_)
+void recent_add_remote_host(gchar *host _U_, struct remote_host *rh)
 {
-    struct remote_host *rh = (struct remote_host *) value;
-
-    g_free (rh->r_host);
-    g_free (rh->remote_port);
-    g_free (rh->auth_username);
-    g_free (rh->auth_password);
-
-    return TRUE;
+    GList* li = NULL;
+    if (remote_host_list) {
+        li = g_list_find_custom(remote_host_list, rh, remote_host_compare);
+        if (li != NULL) {
+            free_remote_host(li->data);
+            remote_host_list = g_list_delete_link(remote_host_list, li);
+        }
+    }
+    remote_host_list = g_list_prepend(remote_host_list, rh);
 }
 
 void
-recent_remote_host_list_foreach(GHFunc func, gpointer user_data)
+recent_remote_host_list_foreach(GFunc func, gpointer user_data)
 {
     if (remote_host_list != NULL) {
-        g_hash_table_foreach(remote_host_list, func, user_data);
+        g_list_foreach(remote_host_list, func, user_data);
     }
 }
 
 static void
-recent_print_remote_host (gpointer key _U_, gpointer value, gpointer user)
+recent_print_remote_host(gpointer value, gpointer user)
 {
     FILE *rf = (FILE *)user;
     struct remote_host_info *ri = (struct remote_host_info *)value;
@@ -519,16 +547,21 @@ recent_print_remote_host (gpointer key _U_, gpointer value, gpointer user)
 static void
 capture_remote_combo_recent_write_all(FILE *rf)
 {
-    if (remote_host_list && g_hash_table_size (remote_host_list) > 0) {
-        /* Write all remote interfaces to the recent file */
-        g_hash_table_foreach (remote_host_list, recent_print_remote_host, rf);
+    unsigned max_count = 0;
+    GList   *li = g_list_first(remote_host_list);
+
+    /* write all non empty remote capture hosts to the recent file (until max count) */
+    while (li && (max_count++ <= remote_host_max_recent)) {
+        recent_print_remote_host(li->data, rf);
+        li = li->next;
     }
 }
 
 
 void recent_free_remote_host_list(void)
 {
-    g_hash_table_foreach_remove(remote_host_list, free_remote_host, NULL);
+    g_list_free_full(remote_host_list, free_remote_host);
+    remote_host_list = NULL;
 }
 
 struct remote_host *
@@ -536,11 +569,13 @@ recent_get_remote_host(const gchar *host)
 {
     if (host == NULL)
         return NULL;
-    if (remote_host_list == NULL) {
-        /* No such host exist. */
-        return NULL;
+    for (GList* li = g_list_first(remote_host_list); li != NULL; li = li->next) {
+        struct remote_host *rh = (struct remote_host*)li->data;
+        if (g_strcmp0(host, rh->r_host) == 0) {
+            return rh;
+        }
     }
-    return (struct remote_host *)g_hash_table_lookup(remote_host_list, host);
+    return NULL;
 }
 
 /**
@@ -561,11 +596,12 @@ capture_remote_combo_add_recent(const gchar *s)
     if (valp == NULL)
         return FALSE;
 
-    if (remote_host_list == NULL) {
-        remote_host_list = g_hash_table_new (g_str_hash, g_str_equal);
+    /* First value is the host */
+    if (recent_get_remote_host(valp->data)) {
+        /* Don't add it, it's already in the list (shouldn't happen). */
+        return FALSE; // Should this be TRUE or FALSE?
     }
-
-    rh =(struct remote_host *) g_malloc (sizeof (*rh));
+    rh = (struct remote_host *) g_malloc (sizeof (*rh));
 
     /* First value is the host */
     rh->r_host = (gchar *)g_strdup ((const gchar *)valp->data);
@@ -606,8 +642,7 @@ capture_remote_combo_add_recent(const gchar *s)
 
     prefs_clear_string_list(vals);
 
-    g_hash_table_insert (remote_host_list, g_strdup(rh->r_host), rh);
-
+    remote_host_list = g_list_prepend(remote_host_list, rh);
     return TRUE;
 }
 #endif
@@ -781,7 +816,7 @@ write_recent(void)
 
 #ifdef HAVE_PCAP_REMOTE
     fputs("\n"
-            "######## Recent remote hosts, cannot be altered through command line ########\n"
+            "######## Recent remote hosts (latest first), cannot be altered through command line ########\n"
             "\n", rf);
 
     capture_remote_combo_recent_write_all(rf);
@@ -1620,6 +1655,9 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
          * all to keep the latest first.
          */
         cfilter_recent_reverse_all();
+#ifdef HAVE_PCAP_REMOTE
+        remote_host_reverse();
+#endif
         fclose(rf);
     } else {
         /* We failed to open it.  If we failed for some reason other than

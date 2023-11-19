@@ -294,7 +294,7 @@ extern int recent_get_remote_host_list_size(void);
  * @param func function to be called
  * @param user_data argument to pass as user data to the function
  */
-extern void recent_remote_host_list_foreach(GHFunc func, gpointer user_data);
+extern void recent_remote_host_list_foreach(GFunc func, gpointer user_data);
 
 /**
  * Free all entries of the remote host list.

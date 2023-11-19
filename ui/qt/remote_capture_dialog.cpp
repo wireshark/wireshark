@@ -13,6 +13,7 @@
 #ifdef HAVE_PCAP_REMOTE
 #include <glib.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/variant_pointer.h>
 #include "ui/capture_globals.h"
 #include "remote_capture_dialog.h"
 #include <ui_remote_capture_dialog.h>
@@ -49,7 +50,11 @@ void RemoteCaptureDialog::hostChanged(const QString host)
         recent_free_remote_host_list();
         ui->hostCombo->clear();
     } else {
-        struct remote_host *rh = recent_get_remote_host(host.toUtf8().constData());
+        const struct remote_host *rh = nullptr;
+        int index = ui->hostCombo->findText(host);
+        if (index != -1) {
+            rh = VariantPointer<const struct remote_host>::asPtr(ui->hostCombo->itemData(index));
+        }
         if (rh) {
             ui->portText->setText(QString(rh->remote_port));
             if (rh->auth_type == CAPTURE_AUTH_NULL) {
@@ -62,10 +67,11 @@ void RemoteCaptureDialog::hostChanged(const QString host)
 
 }
 
-static void fillBox(gpointer key, gpointer, gpointer user_data)
+static void fillBox(gpointer value, gpointer user_data)
 {
     QComboBox *cb = (QComboBox *)user_data;
-    cb->addItem(QString((gchar*)key));
+    struct remote_host* rh = (struct remote_host*)value;
+    cb->addItem(QString((gchar*)rh->r_host), VariantPointer<const struct remote_host>::asQVariant(rh));
 }
 
 void RemoteCaptureDialog::fillComboBox()
@@ -88,6 +94,9 @@ void RemoteCaptureDialog::apply_remote()
     remote_options global_remote_opts;
 
     QString host = ui->hostCombo->currentText();
+    if (host.isEmpty()) {
+        return;
+    }
     global_remote_opts.src_type = CAPTURE_IFREMOTE;
     global_remote_opts.remote_host_opts.remote_host = qstring_strdup(host);
     QString port = ui->portText->text();
@@ -126,24 +135,28 @@ void RemoteCaptureDialog::apply_remote()
             QMessageBox::critical(this, tr("Error"), "Unknown error");
         return;
     }
-    if (ui->hostCombo->count() == 0) {
-        ui->hostCombo->addItem("");
-        ui->hostCombo->addItem(host);
-        ui->hostCombo->insertSeparator(2);
-        ui->hostCombo->addItem(QString(tr("Clear list")));
-    } else {
-        ui->hostCombo->insertItem(0, host);
-    }
-    struct remote_host *rh = recent_get_remote_host(host.toUtf8().constData());
-    if (!rh) {
-        rh = (struct remote_host *)g_malloc (sizeof (*rh));
-        rh->r_host = qstring_strdup(host);
-        rh->remote_port = qstring_strdup(port);
-        rh->auth_type = global_remote_opts.remote_host_opts.auth_type;
-        rh->auth_password = g_strdup("");
-        rh->auth_username = g_strdup("");
-        recent_add_remote_host(global_remote_opts.remote_host_opts.remote_host, rh);
-    }
+
+    // Add the remote host even if it already exists, to update the port and
+    // auth type and move it to the front.
+    struct remote_host* rh;
+    rh = (struct remote_host *)g_malloc (sizeof (*rh));
+    rh->r_host = qstring_strdup(host);
+    rh->remote_port = qstring_strdup(port);
+    rh->auth_type = global_remote_opts.remote_host_opts.auth_type;
+    rh->auth_password = g_strdup("");
+    rh->auth_username = g_strdup("");
+    recent_add_remote_host(global_remote_opts.remote_host_opts.remote_host, rh);
+
+    // We don't need to add the new entry to hostCombo since we only call
+    // this when accepting the dialog.
+
+    // Tell the parent ManageInterfacesDialog we added this.
+    // XXX: If the remote hostname already exists in ManageInterfacesDialog,
+    // this doesn't remove it. Most of the time it won't, but there is the
+    // corner case of a host existing with empty (hence default, 2002) port,
+    // and then adding it a second time explicitly starting port 2002.
+    // Someone could bind rpcapd to multiple ports on the same host for
+    // some reason too, I suppose.
     emit remoteAdded(rlist, &global_remote_opts);
 }
 
