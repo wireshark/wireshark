@@ -1362,7 +1362,7 @@
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation>Passa al file successivo quando l&apos;ora (orolgio a muro) è un multiplo pari dell&apos;intervallo specificato.
+        <translation>Passa al file successivo quando l&apos;ora (orologio a muro) è un multiplo pari dell&apos;intervallo specificato.
 Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</translation>
     </message>
     <message>
@@ -3302,7 +3302,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>FollowStreamAction</name>
     <message>
         <source>%1 Stream</source>
-        <translation>%1 flussò</translation>
+        <translation>%1 flusso</translation>
     </message>
 </context>
 <context>
@@ -4589,7 +4589,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Espressione regolare Perl che cattura un singolo pacchetto nel file con gruppi con nomi che identificano i dati da importare. Le ancore ^ e $ verificano anche prima/dopo match before/after newlines &lt;/p&gt;&lt;p&gt;È richiesto un solo fruppo di dati, sono supportati anche ora, dir e numseq.&lt;/p&gt;&lt;p&gt;Argomenti delle espressioni regolari: DUPNAMES, MULTILINE e NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Espressione regolare Perl che cattura un singolo pacchetto nel file con gruppi con nomi che identificano i dati da importare. Le ancore ^ e $ verificano anche prima/dopo le interruzioni di riga &lt;/p&gt;&lt;p&gt;È richiesto un solo gruppo di dati, sono supportati anche ora, dir e numseq.&lt;/p&gt;&lt;p&gt;Argomenti delle espressioni regolari: DUPNAMES, MULTILINE e NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
@@ -5911,7 +5911,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation>Impostazioni elenco pacchetti:</translation>
+        <translation>Impostazioni elenco dei pacchetti:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -6616,7 +6616,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be appended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Titolo della finestra personalizzato da aggiungere al titolo esistente&lt;br/&gt;%F = percorso del file di cattura&lt;br/&gt;%P = nome del profilo&lt;br/&gt;%S = un separatore condizionale (&amp;quot; - &amp;quot;) che è mostrato solo quando è circondato da variabili con valori o testo statico&lt;br/&gt;%V = informaziini di versione&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Titolo della finestra personalizzato da aggiungere al titolo esistente&lt;br/&gt;%F = percorso del file di cattura&lt;br/&gt;%P = nome del profilo&lt;br/&gt;%S = un separatore condizionale (&amp;quot; - &amp;quot;) che è mostrato solo quando è circondato da variabili con valori o testo statico&lt;br/&gt;%V = informazioni di versione&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Prepend window title</source>
@@ -6624,7 +6624,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be prepended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Titolo della finestra personalizzato da anteporre al titolo esistente&lt;br/&gt;%F = percorso del file di cattura&lt;br/&gt;%P = nome del profilo&lt;br/&gt;%S = un separatore condizionale (&amp;quot; - &amp;quot;) che è mostrato solo quando è circondato da variabili con valori o testo statico&lt;br/&gt;%V = informaziini di versione&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Titolo della finestra personalizzato da anteporre al titolo esistente&lt;br/&gt;%F = percorso del file di cattura&lt;br/&gt;%P = nome del profilo&lt;br/&gt;%S = un separatore condizionale (&amp;quot; - &amp;quot;) che è mostrato solo quando è circondato da variabili con valori o testo statico&lt;br/&gt;%V = informazioni di versione&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Language: </source>
@@ -7408,6 +7408,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Cerca:</translation>
     </message>
     <message>
+        <source>Checking this will show only changed preferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show changed values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Preferences</source>
         <translation>Preferenze</translation>
     </message>
@@ -7559,7 +7567,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>New profile</source>
-        <translation>Nuon profilo</translation>
+        <translation>Nuovo profilo</translation>
     </message>
     <message>
         <source>Profile Error</source>
@@ -9524,7 +9532,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Remove selected streams from playlist in RTP Player</source>
-        <translation>Rimuovi i flussi selezionati dalla scaletra nel lettore RTP</translation>
+        <translation>Rimuovi i flussi selezionati dalla scaletta nel lettore RTP</translation>
     </message>
     <message>
         <source>No Audio</source>
@@ -10337,54 +10345,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Salva il frafico come...</translation>
-    </message>
-</context>
-<context>
-    <name>SSLKeylogDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="vanished">Finestra</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation type="vanished">Sfoglia...</translation>
-    </message>
-    <message>
-        <source>Application path</source>
-        <translation type="vanished">Percorso dell&apos;applicazione</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run an application with the SSLKEYLOG environment variable set to the file specified by the key log filename preference.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Esegui un&apos;applicazione con la variabile di ambiente SSLKEYLOG impostata sul file specificato dalla preferenza del nome file del registro delle chiavi.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;È risaputo che Firefox e Chrome funzionino. Se il browser desiderato è attualmente in esecuzione, chiudilo prima di avviarlo di seguito.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;(Pre)-Master-Secret log file path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percorso file di log (Pre)-Master-Secret&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;TLS keys will be logged to this file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small;&quot;&gt;Le chiavi TLS saranno registrate in questo file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Launch</source>
-        <translation type="vanished">Avvia</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="vanished">Salva</translation>
-    </message>
-    <message>
-        <source>TLS Keylog</source>
-        <translation type="vanished">Keylog TLS</translation>
-    </message>
-    <message>
-        <source>Web Browser</source>
-        <translation type="vanished">Browser web</translation>
+        <translation>Salva il grafico come...</translation>
     </message>
 </context>
 <context>
@@ -11774,51 +11735,51 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>TLSKeylogDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Finestra</translation>
+        <translation>Finestra</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished">Sfoglia...</translation>
+        <translation>Sfoglia...</translation>
     </message>
     <message>
         <source>Command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Riga di commando</translation>
     </message>
     <message>
         <source>Run an application with the SSLKEYLOGFILE environment variable set to the file specified by the TLS key log filename preference. This enables TLS decryption in Wireshark. Set the key log file and start the capture before launching the application to ensure that the initial TLS handshakes are captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esegui un&apos;applicazione con la variabile d&apos;ambiente SSLKEYLOGFILE impostata sul file specificato dalla preferenza del nome file di log della chiave TLS. Ciò consente la decifratura TLS in Wireshark. Imposta il file di registro della chiave e avvia la cattura prima di avviare l&apos;applicazione per garantire che le negoziazioni TLS iniziali vengano catturate.</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below. Command line options are supported.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;È risaputo che Firefox e Chrome funzionino. Se il browser desiderato è attualmente in esecuzione, chiudilo prima di avviarlo di seguito. Sono supportate le opzioni della riga di comando.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>TLS (Pre)-Master-Secret log file path (tls.keylog_file)</source>
-        <translation type="unfinished"></translation>
+        <translation>Percorso del file di log TLS (Pre)-Master-Secret (tls.keylog_file)</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;TLS session secrets will be logged to this file. If you change this field, hit the Save button to update the TLS protocol preferences.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;I segreti della sessione TLS saranno registrati in questo file. Se modifichi questo campo, premi il pulsante Salva per aggiornare le preferenze del protocollo TLS.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Launch application with SSLKEYLOGFILE</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvia applicazione con SSLKEYLOGFILE</translation>
     </message>
     <message>
         <source>Launch</source>
-        <translation type="unfinished">Avvia</translation>
+        <translation>Avvia</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Salva</translation>
+        <translation>Salva</translation>
     </message>
     <message>
         <source>TLS Keylog file</source>
-        <translation type="unfinished"></translation>
+        <translation>File Keylog TLS</translation>
     </message>
     <message>
         <source>Program to start with SSLKEYLOGFILE</source>
-        <translation type="unfinished"></translation>
+        <translation>Programma da avviare con SSLKEYLOGFILE</translation>
     </message>
 </context>
 <context>
@@ -13839,6 +13800,10 @@ a:hover {
         <translation>Blocchi di indirizzi MAC</translation>
     </message>
     <message>
+        <source>TLS Keylog Launcher</source>
+        <translation>Esecutore Keylog TLS</translation>
+    </message>
+    <message>
         <source>Release Notes</source>
         <translation>Note di rilascio</translation>
     </message>
@@ -14263,11 +14228,6 @@ a:hover {
     <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Vai al pacchetto referenziato dal campo selezionato.</translation>
-    </message>
-    <message>
-        <source>TLS Keylog Launcher</source>
-        <oldsource>SSL Keylog Launcher</oldsource>
-        <translation type="unfinished">Esecutore Keylog SSL</translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
@@ -14762,7 +14722,7 @@ a:hover {
     </message>
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation>Chiavi di sessione SSL (*.keys *.txt);;Tutti i file (</translation>
+        <translation>Chiavi di sessione TLS (*.keys *.txt);;Tutti i file (</translation>
     </message>
     <message>
         <source>No TLS Secrets</source>

@@ -7356,6 +7356,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Ara:</translation>
     </message>
     <message>
+        <source>Checking this will show only changed preferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show changed values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Preferences</source>
         <translation>Tercihler</translation>
     </message>
@@ -13721,6 +13729,10 @@ a:üzerine gelin{
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>TLS Keylog Launcher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14145,11 +14157,6 @@ a:üzerine gelin{
     <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Seçili alan tarafından başvurulan pakete gidin.</translation>
-    </message>
-    <message>
-        <source>TLS Keylog Launcher</source>
-        <oldsource>SSL Keylog Launcher</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>

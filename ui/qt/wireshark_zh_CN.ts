@@ -7351,6 +7351,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>搜索:</translation>
     </message>
     <message>
+        <source>Checking this will show only changed preferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show changed values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Preferences</source>
         <translation>首选项</translation>
     </message>
@@ -13670,6 +13678,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>TLS Keylog Launcher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14094,11 +14106,6 @@ a:hover {
     <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>转至选定字段引用的分组。</translation>
-    </message>
-    <message>
-        <source>TLS Keylog Launcher</source>
-        <oldsource>SSL Keylog Launcher</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
