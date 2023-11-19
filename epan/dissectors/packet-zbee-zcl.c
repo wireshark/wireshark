@@ -59,6 +59,10 @@ static void dissect_zcl_discover_cmd_attr_extended_resp(tvbuff_t* tvb, packet_in
  * Global Variables *
  ********************
  */
+
+#define ZBEE_ZCL_INVALID_STR_LENGTH         0xff
+#define ZBEE_ZCL_INVALID_LONG_STR_LENGTH    0xffff
+
 /* Header Field Indices. */
 static int proto_zbee_zcl = -1;
 static int hf_zbee_zcl_fcf_frame_type = -1;
@@ -131,10 +135,17 @@ static int hf_zbee_zcl_attr_bag_elements_type = -1;
 static int hf_zbee_zcl_attr_bag_elements_num = -1;
 
 /* Subtree indices. */
+
+#define ZBEE_ZCL_NUM_INDIVIDUAL_ETT  2
+#define ZBEE_ZCL_NUM_ATTR_ETT       64
+#define ZBEE_ZCL_NUM_SEL_ETT        16
+#define ZBEE_ZCL_NUM_ARRAY_ELEM_ETT 16
+#define ZBEE_ZCL_NUM_TOTAL_ETT      (ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT + ZBEE_ZCL_NUM_SEL_ETT + ZBEE_ZCL_NUM_ARRAY_ELEM_ETT)
+
 static gint ett_zbee_zcl = -1;
 static gint ett_zbee_zcl_fcf = -1;
 static gint ett_zbee_zcl_attr[ZBEE_ZCL_NUM_ATTR_ETT];
-static gint ett_zbee_zcl_sel[ZBEE_ZCL_NUM_IND_FIELD];
+static gint ett_zbee_zcl_sel[ZBEE_ZCL_NUM_SEL_ETT];
 static gint ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT];
 
 static expert_field ei_cfg_rpt_rsp_short_non_success = EI_INIT;
@@ -1743,7 +1754,7 @@ static void dissect_zcl_read_attr_struct(tvbuff_t* tvb, packet_info* pinfo _U_, 
     guint8 indicator;
     gboolean client_attr = direction == ZBEE_ZCL_FCF_TO_CLIENT;
     tvb_len = tvb_captured_length(tvb);
-    while (*offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT) {
+    while (*offset < tvb_len && i < ZBEE_ZCL_NUM_SEL_ETT) {
         /* Create subtree for aelector field */
         sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_sel[i], NULL, "Selector");
         i++;
@@ -2827,9 +2838,9 @@ void proto_register_zbee_zcl(void)
         ett[j] = &ett_zbee_zcl_attr[i];
     }
 
-
-    for(i=0; i<ZBEE_ZCL_NUM_IND_FIELD; i++){
+    for( i = 0; i < ZBEE_ZCL_NUM_SEL_ETT; i++, j++) {
         ett_zbee_zcl_sel[i] = -1;
+        ett[j] = &ett_zbee_zcl_sel[i];
     }
 
     for ( i = 0; i < ZBEE_ZCL_NUM_ARRAY_ELEM_ETT; i++, j++ ) {
