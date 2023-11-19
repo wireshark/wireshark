@@ -7469,6 +7469,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Sök:</translation>
     </message>
     <message>
+        <source>Checking this will show only changed preferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show changed values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Preferences</source>
         <translation>Inställningar</translation>
     </message>
@@ -14297,7 +14305,6 @@ a:hover {
     </message>
     <message>
         <source>TLS Keylog Launcher</source>
-        <oldsource>SSL Keylog Launcher</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

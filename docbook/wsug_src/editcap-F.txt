@@ -19,6 +19,7 @@ editcap: The available capture file types for the "-F" flag are:
     logcat-threadtime - Android Logcat Threadtime text format
     logcat-time - Android Logcat Time text format
     modpcap - Modified tcpdump - pcap
+    mp2t - MPEG2 transport stream
     netmon1 - Microsoft NetMon 1.x
     netmon2 - Microsoft NetMon 2.x
     nettl - HP-UX nettl trace
