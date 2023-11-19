@@ -275,7 +275,6 @@ datex-asn	355/tcp/udp	# DATEX-ASN
 cloanto-net-1	356/tcp/udp	# Cloanto Net 1
 bhevent		357/tcp/udp
 shrinkwrap	358/tcp/udp	# Shrinkwrap
-nsrmp		359/tcp/udp	# Network Security Risk Management Protocol
 scoi2odialog	360/tcp/udp
 semantix	361/tcp/udp	# Semantix
 srssend		362/tcp/udp	# SRS Send
