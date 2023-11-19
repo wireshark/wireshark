@@ -6,7 +6,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 '''\
-convert-proto-init.py - Initialize static proto values to 0.
+convert-proto-init.py - Remove explicit init of proto variables.
 '''
 
 # Imports
@@ -22,10 +22,22 @@ def convert_file(file):
     try:
         with open(file, 'r') as f:
             lines = f.read()
-            lines = re.sub(rf'(static\s*(?:g?int|expert_field)\s*(?:proto|hf|ett|ei)_[\w_]+)\s*=\s*(?:-1|EI_INIT)\s*', rf'\1', lines, flags=re.MULTILINE)
-            # Some dissectors are checking if proto or field is registered.
-            lines = re.sub(rf'((?:proto|hf|ett)_[\w_]+)\s*(?:==\s*-1|<\s*0)', rf'\1 <= 0', lines, flags=re.MULTILINE)
-            lines = re.sub(rf'((?:proto|hf|ett)_[\w_]+)\s*(?:!=\s*-1|>\s*-1|>=\s*0)', rf'\1 > 0', lines, flags=re.MULTILINE)
+            # Match the following proto, header field, expert info and subtree variables:
+            #
+            # static int proto_a = -1;
+            # int proto_b=-1;
+            #
+            # static int hf_proto_a_value_1     = -1;
+            #        int hf_proto_a_value_2     = - 1;
+            # int hf_proto_a_value_3=-1;
+            # /* static int hf_proto_a_unused_1   = -1; */
+            #
+            # static gint ett_proto_a_tree_1=-1;
+            # gint ett_proto_a_tree_2 = -1; /* A comment. */
+            #
+            # static expert_field ei_proto_a_expert_1 = EI_INIT;
+            #
+            lines = re.sub(rf'^((?://\s*|/[*]+\s*)?(?:static\s*|       )?(?:g?int|expert_field)\s*(?:proto|hf|ett|ei)_[\w_]+)\s*=\s*(?:-\s*1|EI_INIT)\s*', rf'\1', lines, flags=re.MULTILINE)
     except IsADirectoryError:
         sys.stderr.write(f'{file} is a directory.\n')
         return
