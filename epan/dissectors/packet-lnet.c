@@ -1059,6 +1059,7 @@ proto_register_lnet(void)
     subdissector_table = register_dissector_table("lnet.ptl_index", "lnet portal index",
                                                   proto_lnet,
                                                   FT_UINT32 , BASE_DEC);
+    // @@ dissector_add_uint("lnet.ptl_index", LNET_RESERVED_PORTAL, lnet_ping_handle);
 }
 
 void

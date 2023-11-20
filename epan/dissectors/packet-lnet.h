@@ -13,6 +13,7 @@
 #include <epan/packet.h>
 
 #define portal_index_VALUE_STRING_LIST(XXX) \
+    XXX(LNET_RESERVED_PORTAL, 0) \
     XXX(CONNMGR_REQUEST_PORTAL, 1) \
     XXX(CONNMGR_REPLY_PORTAL, 2) \
     XXX(OSC_REQUEST_PORTAL, 3) \
