@@ -128,6 +128,8 @@ hex4			[[:xdigit:]]{4}
 DotQuadMacAddress 	{hex4}\.{hex4}\.{hex4}
 
 ColonBytes		({hex2}:)|({hex2}(:{hex2})+)
+HyphenBytes		{hex2}(-{hex2})+
+DotBytes		{hex2}(\.{hex2})+
 
 DecOctet		[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]
 IPv4Address		{DecOctet}\.{DecOctet}\.{DecOctet}\.{DecOctet}
@@ -509,14 +511,22 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 
 	/* Bytes. */
 
-{ColonBytes}	{
+:?{ColonBytes}	{
 	/* Bytes. */
 	update_location(yyextra, yytext);
+	if (yytext[0] == ':')
+		return set_lval_literal(yyextra, yytext + 1, yytext);
 	return set_lval_literal(yyextra, yytext, yytext);
 }
 
-:[[:xdigit:]][[:xdigit:]:.-]+	{
+:{HyphenBytes}	{
 	/* Bytes. */
+	update_location(yyextra, yytext);
+	return set_lval_literal(yyextra, yytext + 1, yytext);
+}
+
+:{DotBytes}	{
+	/* DotBytes, can be a field without ':' prefix. */
 	update_location(yyextra, yytext);
 	return set_lval_literal(yyextra, yytext + 1, yytext);
 }
