@@ -230,7 +230,7 @@ def main():
         'OUI36': { 'url': ["https://standards-oui.ieee.org/oui36/", "oui36.csv"], 'min_entries': 1000 },
     }
     oui_d = {
-        MA_L: {},
+        MA_L: { '00:00:00' : ['00:00:00', 'Officially Xerox, but 0:0:0:0:0:0 is more common'] },
         MA_M: {},
         MA_S: {},
     }
