@@ -57,6 +57,7 @@ static int ett_rdp_clientCoreData;
 static int ett_rdp_clientSecurityData;
 static int ett_rdp_clientNetworkData;
 static int ett_rdp_clientClusterData;
+static int ett_rdp_clientClusterFlags;
 static int ett_rdp_clientMonitorData;
 static int ett_rdp_clientMonitorDefData;
 static int ett_rdp_clientMsgChannelData;
@@ -201,6 +202,10 @@ static int hf_rdp_serverSelectedProtocol;
 static int hf_rdp_encryptionMethods;
 static int hf_rdp_extEncryptionMethods;
 static int hf_rdp_cluster_flags;
+static int hf_rdp_cluster_redirectionSupported;
+static int hf_rdp_cluster_sessionIdValid;
+static int hf_rdp_cluster_redirectionVersion;
+static int hf_rdp_cluster_redirectedSmartcard;
 static int hf_rdp_redirectedSessionId;
 static int hf_rdp_msgChannelFlags;
 static int hf_rdp_msgChannelId;
@@ -293,6 +298,10 @@ static int hf_rdp_performanceFlags;
 static int hf_rdp_autoReconnectCookie;
 static int hf_rdp_reserved1;
 static int hf_rdp_reserved2;
+static int hf_rdp_cbDynamicDSTTimeZoneKeyName;
+static int hf_rdp_dynamicDSTTimeZoneKeyName;
+static int hf_rdp_dynamicDaylightTimeDisabled;
+
 static int hf_rdp_bMsgType;
 static int hf_rdp_bVersion;
 static int hf_rdp_wMsgSize;
@@ -349,6 +358,8 @@ static int hf_rdp_totalEntriesCache4;
 static int hf_rdp_bBitMask;
 static int hf_rdp_Pad2;
 static int hf_rdp_Pad3;
+
+static int hf_rdp_statusInfo_status;
 
 /* BitmapCache Persistent List Entry */
 /* static int hf_rdp_Key1; */
@@ -575,6 +586,7 @@ static const value_string neg_type_vals[] = {
   { 0, NULL }
 };
 
+
 #define RESTRICTED_ADMIN_MODE_REQUIRED 0x01
 #define REDIRECTED_AUTH_REQUIRED       0x02
 #define CORRELATION_INFO_PRESENT       0x08
@@ -586,6 +598,16 @@ static const value_string failure_code_vals[] = {
   { 0x00000004, "Inconsistent flags" },
   { 0x00000005, "Server requires Enhanced RDP Security with CredSSP" },
   { 0x00000006, "Server requires Enhanced RDP Security with TLS and certificate-based client authentication" },
+  { 0, NULL }
+};
+
+static const value_string redirectionVersions_vals[] = {
+  { 0x00, "Version 1" },
+  { 0x01, "Version 2" },
+  { 0x02, "Version 3" },
+  { 0x03, "Version 4" },
+  { 0x04, "Version 5" },
+  { 0x05, "Version 6" },
   { 0, NULL }
 };
 
@@ -987,6 +1009,19 @@ static const value_string rdp_fastpath_action_vals[] = {
   { 0, NULL},
 };
 
+
+static const value_string serverstatus_vals[] = {
+	{0x00000401, "TS_STATUS_FINDING_DESTINATION"},
+	{0x00000402, "TS_STATUS_LOADING_DESTINATION"},
+	{0x00000403, "TS_STATUS_BRINGING_SESSION_ONLINE"},
+	{0x00000404, "TS_STATUS_REDIRECTING_TO_DESTINATION"},
+	{0x00000501, "TS_STATUS_VM_LOADING"},
+	{0x00000502, "TS_STATUS_VM_WAKING"},
+	{0x00000503, "TS_STATUS_VM_STARTING"},
+	{0x00000504, "TS_STATUS_VM_STARTING_MONITORING"},
+	{0x00000505, "TS_STATUS_VM_RETRYING_MONITORING"},
+	{ 0, NULL},
+};
 
 enum {
 	TYPE_ID_AUTODETECT_REQUEST = 0x00,
@@ -1657,14 +1692,13 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     FI_TERMINATOR
   };
 
-
   channelType = find_channel_type(pinfo, t124_get_last_channelId());
   switch (channelType) {
   case RDP_CHANNEL_DRDYNVC:
   case RDP_CHANNEL_RAIL:
   case RDP_CHANNEL_CLIPBOARD:
   case RDP_CHANNEL_SOUND:
-	  channelPDU_fields[1].pfield = NULL;
+	  memset(&channelPDU_fields[1], 0, sizeof(channelPDU_fields[1]));
 	  break;
   default:
 	  break;
@@ -1695,8 +1729,12 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	  subtvb = tvb_new_subset_length(tvb, offset, length);
 	  offset += call_dissector(snd_handle, subtvb, pinfo, tree);
 	  break;
-  default:
+  default: {
+	  rdp_channel_def_t* channel = find_channel(pinfo, t124_get_last_channelId());
+	  if (channel)
+		  col_append_fstr(pinfo->cinfo, COL_INFO, " channel=%s", channel->strptr);
 	  break;
+  }
   }
 
   return offset;
@@ -1765,6 +1803,11 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     FI_TERMINATOR
   };
 
+  rdp_field_info_t serverStatusInfo_fields[] = {
+	{&hf_rdp_statusInfo_status,   4, NULL, 0, 0, NULL },
+	FI_TERMINATOR
+  };
+
   const rdp_field_info_t *fields;
 
   offset = dissect_rdp_fields(tvb, offset, pinfo, tree, share_fields, 0);
@@ -1823,6 +1866,7 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
   case PDUTYPE2_ARC_STATUS_PDU:
     break;
   case PDUTYPE2_STATUS_INFO_PDU:
+	  fields = serverStatusInfo_fields;
     break;
   case PDUTYPE2_MONITOR_LAYOUT_PDU:
     break;
@@ -2246,7 +2290,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   int              offset       = 0;
   guint32          flags        = 0;
   guint32          cbDomain, cbUserName, cbPassword, cbAlternateShell, cbWorkingDir,
-                   cbClientAddress, cbClientDir, cbAutoReconnectLen, wBlobLen, pduType = 0;
+                   cbClientAddress, cbClientDir, cbAutoReconnectLen, wBlobLen, cbDynamicDSTTimeZoneKeyName, pduType = 0;
   guint32          bMsgType = 0xffffffff;
   guint32          encryptedLen = 0;
   conversation_t  *conversation;
@@ -2317,6 +2361,9 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     {&hf_rdp_autoReconnectCookie,0, &cbAutoReconnectLen, 0, 0, NULL },
     {&hf_rdp_reserved1,          2, NULL, 0, 0, NULL },
     {&hf_rdp_reserved2,          2, NULL, 0, 0, NULL },
+    {&hf_rdp_cbDynamicDSTTimeZoneKeyName, 2, &cbDynamicDSTTimeZoneKeyName, 0, 0, NULL },
+    {&hf_rdp_dynamicDSTTimeZoneKeyName, 0, &cbDynamicDSTTimeZoneKeyName, 0, RDP_FI_STRING, NULL },
+    {&hf_rdp_dynamicDaylightTimeDisabled, 2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t msg_fields[] = {
@@ -2587,10 +2634,19 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     {&hf_rdp_extEncryptionMethods,   4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
+
+  rdp_field_info_t secFlags_fields[] = {
+    {&hf_rdp_cluster_redirectionSupported,	4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_cluster_sessionIdValid, 		4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_cluster_redirectionVersion,	4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_cluster_redirectedSmartcard,	4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+	FI_TERMINATOR
+  };
+
   rdp_field_info_t cluster_fields[] = {
     {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
     {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    {&hf_rdp_cluster_flags,          4, NULL, 0, 0, NULL },
+	FI_SUBTREE(&hf_rdp_cluster_flags, 4, ett_rdp_clientClusterFlags, secFlags_fields),
     {&hf_rdp_redirectedSessionId,    4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
@@ -3673,6 +3729,22 @@ proto_register_rdp(void) {
       { "clientClusterData", "rdp.client.clusterData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+	{ &hf_rdp_cluster_redirectionSupported,
+	  { "redirectionSupported", "rdp.client.cluster.redirectionSupported",
+		FT_UINT32, BASE_DEC, NULL, 0x1,
+		NULL, HFILL }},
+	{ &hf_rdp_cluster_sessionIdValid,
+	  { "sessionIdValid", "rdp.client.cluster.sessionidvalid",
+		FT_UINT32, BASE_DEC, NULL, 0x2,
+		NULL, HFILL }},
+	{ &hf_rdp_cluster_redirectionVersion,
+	  { "SessionRedirectionVersion", "rdp.client.cluster.redirectionversion",
+		FT_UINT32, BASE_DEC, VALS(redirectionVersions_vals), 0x3C,
+		NULL, HFILL }},
+	{ &hf_rdp_cluster_redirectedSmartcard,
+	  { "redirectedSmartcard", "rdp.client.cluster.redirectedsmartcard",
+		FT_UINT32, BASE_DEC, NULL, 0x40,
+		NULL, HFILL }},
     { &hf_rdp_clientMonitorData,
       { "clientMonitorData", "rdp.client.monitorData",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4280,7 +4352,7 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_clientSessionId,
       { "clientSessionId", "rdp.client.sessionId",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_rdp_performanceFlags,
       { "performanceFlags", "rdp.performanceFlags",
@@ -4298,6 +4370,18 @@ proto_register_rdp(void) {
       { "reserved2", "rdp.reserved2",
         FT_UINT16, BASE_HEX, NULL, 0,
         NULL, HFILL }},
+	{ &hf_rdp_cbDynamicDSTTimeZoneKeyName,
+	  { "cbDynamicDSTTimeZoneKeyName", "rdp.dynamicdsttimezone.length",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_dynamicDSTTimeZoneKeyName,
+	  { "dynamicDSTTimeZoneKeyName", "rdp.dynamicdsttimezone",
+		FT_STRINGZ, BASE_NONE, NULL, 0,  /* null-terminated, count includes terminator */
+		NULL, HFILL }},
+	{ &hf_rdp_dynamicDaylightTimeDisabled,
+	  { "dynamicDaylightTimeDisabled", "rdp.dynamicdaylighttimedisabled",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
     { &hf_rdp_bMsgType,
       { "bMsgType", "rdp.bMsgType",
         FT_UINT8, BASE_HEX, VALS(rdp_bMsgType_vals), 0,
@@ -4720,6 +4804,10 @@ proto_register_rdp(void) {
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
 #endif
+	{ &hf_rdp_statusInfo_status,
+	  { "statusCode", "rdp.serverstatus.code",
+		FT_UINT32, BASE_HEX, VALS(serverstatus_vals), 0,
+		NULL, HFILL }},
     { &hf_rdp_originatorId,
       { "originatorId", "rdp.OriginatorId",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4997,6 +5085,7 @@ proto_register_rdp(void) {
     &ett_rdp_channelIdArray,
     &ett_rdp_channelPDUHeader,
     &ett_rdp_clientClusterData,
+	&ett_rdp_clientClusterFlags,
     &ett_rdp_clientCoreData,
     &ett_rdp_clientInfoPDU,
     &ett_rdp_clientMonitorData,
