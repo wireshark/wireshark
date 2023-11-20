@@ -70,49 +70,6 @@ On the _Choose Components_ page of the installer you can select from the followi
 * *TShark* - A command-line network protocol analyzer. If you haven’t tried it
   you should.
 
-* *Plugins &amp; Extensions* - Extras for the Wireshark and TShark dissection engines
-
-  - *Codec Plugins* - Additional codec support.
-
-  - *Configuration Profiles* - Additional configuration profiles.
-
-  - *Dissector Plugins* - Additional protocol dissectors.
-
-  - *File Type Plugins - capture file support* - Extend wiretap support for capture file types. (e.g. usbdump)
-
-  - *Mate - Meta Analysis and Tracing Engine* - User configurable extension(s)
-    of the display filter engine, see <<ChMate>> for details.
-
-  - *SNMP MIBs* - SNMP MIBs for a more detailed SNMP dissection.
-
-  - *TRANSUM - performance analysis* - Plugin to calculate Response Time Element (RTE) statistics.
-
-  - *Tree Statistics Plugin* - Extended statistics. (see stats_tree in WSDG; Packet Lengths in WSUG)
-
-* *Tools* - Additional command line tools to work with capture files and troubleshoot
-
-  - *Capinfos* - Print information about capture files.
-
-  - *Captype* - Print the type(format) of capture files.
-
-  - *DFTest* - Show display filter byte-code, for debugging dfilter routines.
-
-  - *Editcap* - Copy packets to a new file, optionally trimming packets, omitting them,
-  or saving to a different format.
-
-  - *Mergecap* - Combine multiple saved capture files into a single output file.
-
-  - *MMDBResolve* - MaxMind Database resolution tool - read IPv4 and IPv6 addresses and
-  print their IP geolocation information.
-
-  - *Randpkt* - Create a pcap trace file full of random packets. (randpkt produces very bad packets)
-
-  - *Rawshark* - Dump and analyze raw pcap data.
-
-  - *Reordercap* - Copy packets to a new file, sorted by time.
-
-  - *Text2Pcap* - Generate a capture file from an ASCII hexdump of packets.
-
 * *External Capture (extcap)* - External Capture Interfaces
 
   - *Androiddump* - Provide capture interfaces from Android devices.
@@ -124,10 +81,6 @@ On the _Choose Components_ page of the installer you can select from the followi
   - *Sshdump, Ciscodump, and Wifidump* - Provide remote capture through SSH. (tcpdump, Cisco EPC, wifi)
 
   - *UDPdump* - Provide capture interface to receive UDP packets streamed from network devices.
-
-* *Documentation* - Local installation of the User’s Guide and FAQ. The Help buttons on
-  most dialogs will require an internet connection to show help pages if the
-  User’s Guide is not installed locally.
 
 [#ChBuildInstallWinAdditionalTasks]
 
@@ -271,6 +224,7 @@ documentation.
 === Installing Wireshark under macOS
 
 The official macOS packages can be downloaded from the Wireshark {wireshark-main-url}[main page] or the {wireshark-download-url}[download page].
+They are signed by *Wireshark Foundation*.
 Packages are distributed as disk images (.dmg) containing the application bundle.
 Package names contain the platform and version.
 To install Wireshark simply open the disk image and drag _Wireshark_ to your _/Applications_ folder.
