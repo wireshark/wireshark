@@ -324,6 +324,7 @@ static gint hf_fi_hostname;
 static gint hf_fi_platform;
 static gint hf_fi_platformname;
 static gint hf_fi_product;
+static gint hf_fi_session;
 
 /* Wireshark preference to show RST cause in info column */
 static gboolean rstcause_in_info = TRUE;
@@ -4359,6 +4360,8 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                 "%s: %s", platform, platform_name);
         } else if (strncmp(object, "PROD: ", 6) == 0)
             proto_tree_add_string(tree, hf_fi_product, tvb, offset + 6, objlen - 6, &object[6]);
+        else if (strncmp(object, "SESS: ", 6) == 0)
+            proto_tree_add_string(tree, hf_fi_session, tvb, offset + 6, objlen - 6, &object[6]);
 
         offset += objlen;
     }
@@ -4398,6 +4401,10 @@ proto_register_f5fileinfo(void)
           },
           { &hf_fi_product,
             { "Platform product", "f5fileinfo.product", FT_STRINGZ, BASE_NONE,
+              NULL, 0x0, NULL, HFILL }
+          },
+          { &hf_fi_session,
+            { "Session", "f5fileinfo.session", FT_STRINGZ, BASE_NONE,
               NULL, 0x0, NULL, HFILL }
           },
     };
