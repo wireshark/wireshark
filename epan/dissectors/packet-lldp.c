@@ -780,11 +780,14 @@ static const value_string profinet_subtypes[] = {
 	{ 4,  "MRP Port Status" },
 	{ 5,  "Chassis MAC" },
 	{ 6,  "PTCP Status" },
+	{ 7,  "MauType Extension" },
+	{ 8,  "MRPIC Port Status" },
 	{ 9,  "TSN Domain"},
 	{ 10, "TSN NME Management Address"},
 	{ 11, "TSN NME Name UUID"},
 	{ 12, "TSN NME Parameter UUID"},
-	{ 13, "TSN Time Domain data"},
+	{ 13, "AS Working Clock"},
+	{ 14, "AS Global Time"},
 	{ 0, NULL }
 };
 /* extreme avaya ap subtypes */
